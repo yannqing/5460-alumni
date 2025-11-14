@@ -1,17 +1,83 @@
 <!--pages/activity/list/list.wxml-->
-<view class="container">
+<view class="container activity-page">
+  <view class="activity-hero card">
+    <view class="hero-header">
+      <view>
+        <view class="hero-title">校友活动</view>
+        <view class="hero-subtitle">一起链接更有能量的同伴</view>
+      </view>
+      <button class="hero-btn" size="mini" plain>发布活动</button>
+    </view>
+    <view class="hero-stats">
+      <view class="stat-item">
+        <text class="stat-num">{{stats.total}}</text>
+        <text class="stat-label">全部</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{stats.upcoming}}</text>
+        <text class="stat-label">即将开始</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{stats.nearby}}</text>
+        <text class="stat-label">3km内</text>
+      </view>
+    </view>
+    <view class="search-bar">
+      <text class="icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索活动/主办方/地点"
+        value="{{searchValue}}"
+        bindinput="handleSearchInput"
+      />
+    </view>
+  </view>
+
+  <scroll-view class="filter-tabs" scroll-x>
+    <view
+      class="tab {{filterStatus === option.id ? 'active' : ''}}"
+      wx:for="{{filterOptions}}"
+      wx:key="id"
+      data-id="{{option.id}}"
+      bindtap="handleFilterChange"
+    >
+      {{option.label}}
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{!displayList.length}}" class="empty-block card">
+    <image src="https://cdn.example.com/empty-activity.png" mode="widthFix"></image>
+    <text>暂无匹配的活动，换个条件试试</text>
+  </view>
+
   <view class="activity-list">
-    <view class="card" wx:for="{{activityList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
+    <view
+      class="card activity-card"
+      wx:for="{{displayList}}"
+      wx:key="id"
+      bindtap="viewDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="cover-wrap">
+        <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
+        <view class="status-badge {{item.status}}">
+          {{item.status === 'upcoming' ? '即将开始' : item.status === 'ongoing' ? '进行中' : '已结束'}}
+        </view>
+      </view>
       <view class="activity-info">
         <view class="activity-title">{{item.title}}</view>
         <view class="activity-meta">
           <text>{{item.organizer}}</text>
+          <text class="dot">·</text>
+          <text>{{item.participantCount}}人已报</text>
+        </view>
+        <view class="activity-tags">
+          <view class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</view>
         </view>
         <view class="activity-location">📍 {{item.location}}</view>
         <view class="activity-footer">
           <text>🕐 {{item.startTime}}</text>
-          <text class="theme-color">{{item.participantCount}}人报名</text>
+          <text class="distance">{{item.distance}}km</text>
         </view>
       </view>
     </view>

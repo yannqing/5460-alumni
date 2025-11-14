@@ -89,27 +89,72 @@
   margin: 0 20rpx;
 }
 
-.menu-section {
+.achievement-bar {
+  margin-top: 24rpx;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.achievement-item {
+  flex: 1;
+}
+
+.achievement-label {
+  font-size: 24rpx;
+  opacity: 0.85;
+}
+
+.achievement-value {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.achievement-sep {
+  width: 1rpx;
+  height: 40rpx;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.card {
   background-color: #ffffff;
   margin: 20rpx;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   overflow: hidden;
+  box-shadow: 0 18rpx 50rpx rgba(15, 18, 31, 0.05);
+}
+
+.card-header {
+  padding: 30rpx 30rpx 10rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.menu-group + .menu-group {
+  margin-top: 12rpx;
+}
+
+.menu-section {
+  border-top: 1rpx solid #f7f7f7;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30rpx;
+  padding: 28rpx 32rpx;
   border-bottom: 1rpx solid #f5f5f5;
 }
 
 .menu-item:last-child {
   border-bottom: none;
-}
-
-.menu-item:active {
-  background-color: #f8f8f8;
 }
 
 .menu-left {
@@ -120,6 +165,12 @@
 
 .menu-icon {
   font-size: 40rpx;
+}
+
+.menu-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
 }
 
 .menu-name {

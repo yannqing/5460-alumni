@@ -1,0 +1,90 @@
+<!--pages/profile/edit/edit.wxml-->
+<view class="edit-container">
+  <scroll-view scroll-y class="form-scroll">
+    <view class="avatar-card card">
+      <view class="avatar-wrap" bindtap="chooseAvatar">
+        <image class="avatar" src="{{form.avatarUrl}}" mode="aspectFill" />
+        <view class="avatar-mask">
+          <text>更换头像</text>
+        </view>
+      </view>
+      <view class="avatar-tip">建议使用清晰的本人照片，大小不超过2MB</view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">基本信息</view>
+      <view class="form-item">
+        <view class="label">姓名</view>
+        <input class="input" placeholder="请输入真实姓名" value="{{form.nickName}}" data-field="nickName" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">性别</view>
+        <picker mode="selector" range="{{genderOptions}}" value="{{genderIndex}}" bindchange="handleGenderChange">
+          <view class="picker-value">{{genderOptions[genderIndex] || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <view class="label">手机</view>
+        <input class="input" type="number" maxlength="11" placeholder="用于接收活动通知" value="{{form.mobile}}" data-field="mobile" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">邮箱</view>
+        <input class="input" type="text" placeholder="请输入常用邮箱" value="{{form.email}}" data-field="email" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">校友信息</view>
+      <view class="form-item">
+        <view class="label">母校</view>
+        <input class="input" placeholder="如：南京大学" value="{{form.school}}" data-field="school" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">专业</view>
+        <input class="input" placeholder="如：计算机科学" value="{{form.major}}" data-field="major" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">入学年份</view>
+        <picker mode="selector" range="{{yearOptions}}" value="{{yearIndex}}" bindchange="handleYearChange">
+          <view class="picker-value">{{yearOptions[yearIndex] || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <view class="label">所在城市</view>
+        <input class="input" placeholder="例：深圳" value="{{form.city}}" data-field="city" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">个人标签</view>
+      <view class="tag-input-row">
+        <input class="input" placeholder="输入后回车添加标签" value="{{tagInput}}" bindconfirm="addTag" bindinput="handleTagInput" confirm-type="done" />
+        <view class="tag-tip">最多3个</view>
+      </view>
+      <view class="tag-list">
+        <view class="tag-chip" wx:for="{{form.tags}}" wx:key="*this" data-index="{{index}}" bindtap="removeTag">
+          <text>{{item}}</text>
+          <text class="remove">✕</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">个人简介</view>
+      <textarea
+        class="textarea"
+        maxlength="200"
+        placeholder="介绍一下你的经历、擅长领域或兴趣爱好，便于校友联系你。"
+        value="{{form.bio}}"
+        data-field="bio"
+        bindinput="handleTextarea"
+      ></textarea>
+      <view class="textarea-count">{{form.bio.length}}/200</view>
+    </view>
+  </scroll-view>
+
+  <view class="bottom-action">
+    <button class="btn btn-primary" loading="{{saving}}" bindtap="saveProfile">保存资料</button>
+  </view>
+</view>
+

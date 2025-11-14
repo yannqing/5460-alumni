@@ -1,10 +1,10 @@
 <!--pages/notification/detail/detail.wxml-->
-<view class="container">
+<view class="container notification-detail-page">
   <view wx:if="{{loading}}" class="loading-wrap">
     <view class="loading">加载中...</view>
   </view>
 
-  <view wx:else-if="{{notificationInfo}}" class="card">
+  <view wx:elif="{{notificationInfo}}" class="card">
     <view class="notification-detail-title">{{notificationInfo.title}}</view>
     <view class="notification-detail-meta">
       <text>发布者：{{notificationInfo.publisher}}</text>
@@ -13,6 +13,28 @@
     </view>
     <view class="divider"></view>
     <view class="notification-detail-content">{{notificationInfo.content}}</view>
+
+    <view class="attachments" wx:if="{{notificationInfo.attachments && notificationInfo.attachments.length}}">
+      <view class="attachment-item" wx:for="{{notificationInfo.attachments}}" wx:key="name">
+        <view>
+          <view class="attachment-name">{{item.name}}</view>
+          <view class="attachment-size">{{item.size}}</view>
+        </view>
+        <button size="mini" bindtap="handleAttachment" data-url="{{item.url}}">查看</button>
+      </view>
+    </view>
+
+    <view class="action-row" wx:if="{{notificationInfo.actions && notificationInfo.actions.length}}">
+      <button
+        class="action-btn"
+        wx:for="{{notificationInfo.actions}}"
+        wx:key="type"
+        bindtap="handleAction"
+        data-type="{{item.type}}"
+      >
+        {{item.label}}
+      </button>
+    </view>
   </view>
 </view>
 

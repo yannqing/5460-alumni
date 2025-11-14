@@ -4,6 +4,7 @@
     "pages/discover/discover",
     "pages/search/search",
     "pages/profile/profile",
+    "pages/profile/edit/edit",
     "pages/school/list/list",
     "pages/school/detail/detail",
     "pages/alumni-association/list/list",

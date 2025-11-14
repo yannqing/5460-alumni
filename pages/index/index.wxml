@@ -100,7 +100,7 @@
                 <text class="location-name">{{item.location}}</text>
               </view>
               <view class="news-stats">
-                <view class="event-stat-pill" catchtap="onLikeTap" data-id="{{item.id}}">
+                <view class="event-stat-pill {{item.liked ? 'liked' : ''}}" catchtap="onLikeTap" data-id="{{item.id}}">
                   <view class="stat-icon like"></view>
                   <text class="stat-label">点赞</text>
                   <text class="stat-value">{{item.likes}}</text>
@@ -136,7 +136,7 @@
                   <text class="location-name">{{item.location}}</text>
                 </view>
                 <view class="event-stats">
-                  <view class="event-stat-pill" catchtap="onLikeTap" data-id="{{item.id}}">
+                  <view class="event-stat-pill {{item.liked ? 'liked' : ''}}" catchtap="onLikeTap" data-id="{{item.id}}">
                     <view class="stat-icon like"></view>
                     <text class="stat-label">点赞</text>
                     <text class="stat-value">{{item.likes}}</text>

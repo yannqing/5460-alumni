@@ -1,50 +1,92 @@
 <!--pages/activity/detail/detail.wxml-->
-<view class="container">
-  <image class="cover-image" src="{{activityInfo.cover}}" mode="aspectFill" />
-
-  <view class="card">
-    <view class="activity-title-large">{{activityInfo.title}}</view>
-    <view class="activity-organizer">主办方：{{activityInfo.organizer}}</view>
-
-    <view class="divider"></view>
-
-    <view class="info-row">
-      <text class="info-icon">📍</text>
-      <view class="info-content">
-        <view class="info-label">活动地点</view>
-        <view class="info-value">{{activityInfo.location}}</view>
-        <view class="info-detail">{{activityInfo.address}}</view>
-      </view>
-    </view>
-
-    <view class="info-row">
-      <text class="info-icon">🕐</text>
-      <view class="info-content">
-        <view class="info-label">活动时间</view>
-        <view class="info-value">{{activityInfo.startTime}} - {{activityInfo.endTime}}</view>
-      </view>
-    </view>
-
-    <view class="info-row">
-      <text class="info-icon">👥</text>
-      <view class="info-content">
-        <view class="info-label">报名人数</view>
-        <view class="info-value">{{activityInfo.participantCount}}/{{activityInfo.maxParticipant}}</view>
-      </view>
-    </view>
-
-    <view class="divider"></view>
-
-    <view wx:if="{{!activityInfo.isJoined}}" class="btn btn-primary full-width" bindtap="joinActivity">
-      立即报名
-    </view>
-    <view wx:else class="btn btn-plain full-width">
-      已报名
-    </view>
+<view class="container activity-detail-page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
   </view>
 
-  <view class="card">
-    <view class="text-bold mb-20">活动详情</view>
-    <view class="text-secondary">{{activityInfo.description}}</view>
+  <view wx:else>
+    <image class="cover-image" src="{{activityInfo.cover}}" mode="aspectFill" />
+
+    <view class="card hero-card">
+      <view class="activity-title-large">{{activityInfo.title}}</view>
+      <view class="activity-organizer">主办方：{{activityInfo.organizer}}</view>
+      <view class="stat-row">
+        <view class="stat-block">
+          <text class="stat-number">{{activityInfo.participantCount}}</text>
+          <text class="stat-label">已报名</text>
+        </view>
+        <view class="stat-block">
+          <text class="stat-number">{{activityInfo.maxParticipant}}</text>
+          <text class="stat-label">人数上限</text>
+        </view>
+        <view class="stat-block">
+          <text class="stat-number">4h</text>
+          <text class="stat-label">活动时长</text>
+        </view>
+      </view>
+      <view class="reminder" wx:if="{{activityInfo.reminder}}">
+        {{activityInfo.reminder}}
+      </view>
+      <view class="hero-actions">
+        <button
+          class="btn btn-primary"
+          loading="{{buttonLoading}}"
+          bindtap="joinActivity"
+          disabled="{{activityInfo.isJoined}}"
+        >
+          {{activityInfo.isJoined ? '已报名' : '立即报名'}}
+        </button>
+        <button class="btn btn-plain" bindtap="openMap">导航</button>
+      </view>
+    </view>
+
+    <view class="card info-card">
+      <view class="info-row">
+        <text class="info-icon">📍</text>
+        <view class="info-content">
+          <view class="info-label">活动地点</view>
+          <view class="info-value">{{activityInfo.location}}</view>
+          <view class="info-detail">{{activityInfo.address}}</view>
+        </view>
+      </view>
+
+      <view class="info-row">
+        <text class="info-icon">🕐</text>
+        <view class="info-content">
+          <view class="info-label">活动时间</view>
+          <view class="info-value">{{activityInfo.startTime}} - {{activityInfo.endTime}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">活动流程</view>
+      <view class="timeline">
+        <view class="timeline-item" wx:for="{{activityInfo.agenda}}" wx:key="*this">
+          <view class="timeline-time">{{item.time}}</view>
+          <view class="timeline-title">{{item.title}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">活动详情</view>
+      <view class="text-secondary">{{activityInfo.description}}</view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">联络方式</view>
+      <view class="contact-card">
+        <view class="contact-name">{{activityInfo.contact.name}}</view>
+        <view class="contact-row">
+          <text>电话 {{activityInfo.contact.phone}}</text>
+          <button class="contact-btn" size="mini" bindtap="handleCall">拨打</button>
+        </view>
+        <view class="contact-row">
+          <text>微信 {{activityInfo.contact.wechat}}</text>
+          <button class="contact-btn" size="mini" bindtap="handleCopyWechat">复制</button>
+        </view>
+      </view>
+    </view>
   </view>
 </view>

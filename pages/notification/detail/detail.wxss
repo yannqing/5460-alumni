@@ -1,4 +1,15 @@
 /* pages/notification/detail/detail.wxss */
+.notification-detail-page {
+  padding: 20rpx;
+}
+
+.card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 18rpx 40rpx rgba(0, 0, 0, 0.06);
+}
+
 .loading-wrap {
   min-height: 100vh;
   display: flex;
@@ -27,9 +38,49 @@
 
 .notification-detail-content {
   font-size: 28rpx;
-  color: #666666;
+  color: #4a4a4a;
   line-height: 1.8;
   text-align: justify;
   margin-top: 20rpx;
 }
 
+.attachments {
+  margin-top: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.attachment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f7f8fa;
+  padding: 20rpx;
+  border-radius: 20rpx;
+}
+
+.attachment-name {
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.attachment-size {
+  font-size: 22rpx;
+  color: #8c8c8c;
+  margin-top: 4rpx;
+}
+
+.action-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 30rpx;
+}
+
+.action-btn {
+  flex: 1;
+  border-color: #1890ff;
+  color: #1890ff;
+}

@@ -38,18 +38,45 @@
         <view class="stat-label">优惠券</view>
       </view>
     </view>
-  </view>
 
-  <!-- 功能菜单 -->
-  <view class="menu-section">
-    <view class="menu-item" wx:for="{{menuItems}}" wx:key="id" bindtap="navigateTo" data-url="{{item.url}}">
-      <view class="menu-left">
-        <text class="menu-icon">{{item.icon}}</text>
-        <text class="menu-name">{{item.name}}</text>
+    <view class="achievement-bar">
+      <view class="achievement-item">
+        <view class="achievement-label">积分</view>
+        <view class="achievement-value">{{stats.points}}</view>
       </view>
-      <text class="menu-arrow">›</text>
+      <view class="achievement-sep"></view>
+      <view class="achievement-item">
+        <view class="achievement-label">徽章</view>
+        <view class="achievement-value">{{stats.badges}}</view>
+      </view>
     </view>
   </view>
+
+  <!-- 功能分组 -->
+  <block wx:for="{{menuGroups}}" wx:key="title">
+    <view class="menu-group card">
+      <view class="card-header">
+        <view class="card-title">{{item.title}}</view>
+      </view>
+      <view class="menu-section">
+        <view
+          class="menu-item"
+          wx:for="{{item.items}}"
+          wx:key="id"
+          bindtap="navigateTo"
+          data-url="{{item.url}}"
+        >
+          <view class="menu-left">
+            <text class="menu-icon">{{item.icon}}</text>
+            <view class="menu-texts">
+              <text class="menu-name">{{item.name}}</text>
+            </view>
+          </view>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+  </block>
 
   <!-- 底部留白 -->
   <view class="bottom-space"></view>

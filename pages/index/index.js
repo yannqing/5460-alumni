@@ -96,7 +96,8 @@ Page({
           description: '欢迎各位新老校友加入，欢迎各位新老校友加入，欢迎各位新老校友加入……',
           location: 'Casliser Roll.RD',
           likes: 47,
-          shares: 47
+          shares: 47,
+          liked: false
         },
         {
           id: 2,
@@ -121,7 +122,8 @@ Page({
           locationTag: '定位\n符',
           location: 'Casliser Roll.RD',
           likes: 47,
-          shares: 47
+          shares: 47,
+          liked: false
         },
         {
           id: 3,
@@ -146,7 +148,8 @@ Page({
           locationTag: '定位\n符',
           location: '玄武湖公园',
           likes: 102,
-          shares: 35
+          shares: 35,
+          liked: false
         }
       ],
       nearbyBenefits: [
@@ -416,8 +419,15 @@ Page({
   onLikeTap(e) {
     const { id } = e.currentTarget.dataset
     if (!id) return
+    const target = this.data.circlePosts.find(post => post.id === id)
+    if (!target) return
+    if (target.liked) {
+      wx.showToast({ title: '已经点过赞啦', icon: 'none' })
+      return
+    }
     this.updateCirclePost(id, post => ({
-      likes: (post.likes || 0) + 1
+      likes: (post.likes || 0) + 1,
+      liked: true
     }))
     wx.showToast({ title: '点赞 +1', icon: 'none' })
   },
