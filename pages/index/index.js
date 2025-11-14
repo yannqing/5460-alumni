@@ -85,28 +85,68 @@ Page({
       circlePosts: [
         {
           id: 1,
+          type: 'news',
           username: '王小刚',
           avatar: DEFAULT_AVATAR,
           time: '3小时前',
           groupIcon: '/assets/logo/njdx.jpg',
           groupName: '江南大学无锡校友会',
-          image: '/assets/logo/njdx.jpg',
+          cover: '/assets/images/南京大学背景图.jpg',
           title: '江南大学洛杉矶校友会成立。',
-          description: '欢迎各位新老校友加入，...',
+          description: '欢迎各位新老校友加入，欢迎各位新老校友加入，欢迎各位新老校友加入……',
+          location: 'Casliser Roll.RD',
           likes: 47,
           shares: 47
         },
         {
           id: 2,
+          type: 'event',
           username: '王小刚',
           avatar: DEFAULT_AVATAR,
           time: '3小时前',
           groupIcon: '/assets/logo/njdx.jpg',
           groupName: '江南大学无锡校友会',
-          title: '洛杉矶苏超观影会',
-          description: '2024.11.4 17:50—2024.11.4 21:50',
+          eventTitle: '洛杉矶苏超观影会',
+          timeRange: '2024.11.04 17:50 — 2024.11.04 21:50',
+          participants: [
+            { id: 'p1', avatar: DEFAULT_AVATAR },
+            { id: 'p2', avatar: DEFAULT_AVATAR },
+            { id: 'p3', avatar: DEFAULT_AVATAR },
+            { id: 'p4', avatar: DEFAULT_AVATAR },
+            { id: 'p5', avatar: DEFAULT_AVATAR },
+            { id: 'p6', avatar: DEFAULT_AVATAR }
+          ],
+          participantText: '24位校友已经报名参与',
+          ctaText: '我要报名',
+          locationTag: '定位\n符',
+          location: 'Casliser Roll.RD',
           likes: 47,
           shares: 47
+        },
+        {
+          id: 3,
+          type: 'event',
+          username: '王小刚',
+          avatar: DEFAULT_AVATAR,
+          time: '2小时前',
+          groupIcon: '/assets/logo/njdx.jpg',
+          groupName: '江南大学无锡校友会',
+          eventTitle: '校友徒步嘉年华',
+          timeRange: '2024.12.01 08:00 — 2024.12.01 12:00',
+          participants: [
+            { id: 'p1', avatar: DEFAULT_AVATAR },
+            { id: 'p2', avatar: DEFAULT_AVATAR },
+            { id: 'p3', avatar: DEFAULT_AVATAR },
+            { id: 'p4', avatar: DEFAULT_AVATAR },
+            { id: 'p5', avatar: DEFAULT_AVATAR },
+            { id: 'p6', avatar: DEFAULT_AVATAR }
+          ],
+          participantText: '56位校友已经报名参与',
+          ctaText: '我要报名',
+          locationTag: '定位\n符',
+          location: '玄武湖公园',
+          likes: 102,
+          shares: 35
         }
       ],
       nearbyBenefits: [
@@ -363,6 +403,49 @@ Page({
     wx.navigateTo({
       url: `/pages/benefit/list/list?associationId=${id}`
     })
+  },
+
+  viewCircleDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/circle/detail/detail?id=${id}`
+    })
+  },
+
+  onLikeTap(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    this.updateCirclePost(id, post => ({
+      likes: (post.likes || 0) + 1
+    }))
+    wx.showToast({ title: '点赞 +1', icon: 'none' })
+  },
+
+  onShareTap(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    this.updateCirclePost(id, post => ({
+      shares: (post.shares || 0) + 1
+    }))
+    wx.showToast({ title: '转发次数 +1', icon: 'none' })
+  },
+
+  onEventCtaTap(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.showToast({ title: '报名成功', icon: 'success' })
+  },
+
+  updateCirclePost(id, updater) {
+    const updated = this.data.circlePosts.map(post => {
+      if (post.id === id) {
+        const changes = typeof updater === 'function' ? updater(post) : {}
+        return { ...post, ...changes }
+      }
+      return post
+    })
+    this.setData({ circlePosts: updated })
   },
 
   // 滑动事件处理

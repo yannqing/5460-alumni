@@ -58,6 +58,38 @@
   color: #999999;
 }
 
+.filter-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  z-index: 8;
+}
+
+.filter-options-panel {
+  position: fixed;
+  top: 200rpx;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  z-index: 9;
+  padding: 20rpx 0;
+  box-shadow: 0 10rpx 24rpx rgba(0, 0, 0, 0.08);
+}
+
+.option-item {
+  padding: 22rpx 40rpx;
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.option-item.active {
+  color: #ff6b9d;
+  font-weight: 600;
+}
+
 /* 校友会列表 */
 .association-list {
   padding: 20rpx 30rpx;

@@ -85,27 +85,72 @@
               <text class="group-name">{{item.groupName}}</text>
             </view>
           </view>
-          <view class="post-body">
-            <view class="post-content-wrapper">
-              <image wx:if="{{item.image}}" class="post-image" src="{{item.image}}" mode="aspectFill" />
-              <view class="post-text">
-                <view class="post-title">{{item.title}}</view>
-                <view class="post-desc">{{item.description}}</view>
+        <view class="post-body" bindtap="viewCircleDetail" data-id="{{item.id}}">
+          <block wx:if="{{item.type === 'news'}}">
+            <view class="post-news-card">
+              <view class="news-main">
+                <image class="news-cover" src="{{item.cover}}" mode="aspectFill" />
+                <view class="news-info">
+                  <view class="news-title">{{item.title}}</view>
+                  <view class="news-desc">{{item.description}}</view>
+                </view>
+              </view>
+              <view class="news-location">
+                <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+                <text class="location-name">{{item.location}}</text>
+              </view>
+              <view class="news-stats">
+                <view class="event-stat-pill" catchtap="onLikeTap" data-id="{{item.id}}">
+                  <view class="stat-icon like"></view>
+                  <text class="stat-label">点赞</text>
+                  <text class="stat-value">{{item.likes}}</text>
+                </view>
+                <view class="event-stat-pill" catchtap="onShareTap" data-id="{{item.id}}">
+                  <view class="stat-icon share"></view>
+                  <text class="stat-label">转发</text>
+                  <text class="stat-value">{{item.shares}}</text>
+                </view>
               </view>
             </view>
-          </view>
-          <view class="post-footer">
-            <view class="post-actions">
-              <view class="action-btn">
-                <text class="action-icon">❤</text>
-                <text>{{item.likes}}</text>
+          </block>
+          <block wx:elif="{{item.type === 'event'}}">
+            <view class="post-event-card">
+              <view class="event-top-row">
+                <view class="event-title">{{item.eventTitle}}</view>
+                <view class="event-time">{{item.timeRange}}</view>
               </view>
-              <view class="action-btn">
-                <text class="action-icon">↗</text>
-                <text>{{item.shares}}</text>
+              <view class="event-participants-row">
+                <view class="participant-stack">
+                  <block wx:for="{{item.participants}}" wx:key="id" wx:for-item="participant" wx:for-index="pIndex">
+                    <image class="participant-avatar" src="{{participant.avatar}}" mode="aspectFill" style="margin-left: {{pIndex === 0 ? 0 : -20}}rpx;" />
+                  </block>
+                </view>
+                <text class="participant-text">{{item.participantText}}</text>
+              </view>
+              <view class="event-cta-row">
+                <view class="event-cta-button" catchtap="onEventCtaTap" data-id="{{item.id}}">{{item.ctaText}}</view>
+              </view>
+              <view class="event-bottom-row">
+                <view class="event-location">
+                  <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+                  <text class="location-name">{{item.location}}</text>
+                </view>
+                <view class="event-stats">
+                  <view class="event-stat-pill" catchtap="onLikeTap" data-id="{{item.id}}">
+                    <view class="stat-icon like"></view>
+                    <text class="stat-label">点赞</text>
+                    <text class="stat-value">{{item.likes}}</text>
+                  </view>
+                  <view class="event-stat-pill" catchtap="onShareTap" data-id="{{item.id}}">
+                    <view class="stat-icon share"></view>
+                    <text class="stat-label">转发</text>
+                    <text class="stat-value">{{item.shares}}</text>
+                  </view>
+                </view>
               </view>
             </view>
-          </view>
+          </block>
+        </view>
         </view>
       </view>
     </view>

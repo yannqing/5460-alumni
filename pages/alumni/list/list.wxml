@@ -10,9 +10,18 @@
 
   <!-- 筛选栏 -->
   <view class="filter-bar">
-    <view class="filter-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
-      <text>{{item}}</text>
+    <view class="filter-item" wx:for="{{filters}}" wx:key="label" data-index="{{index}}" bindtap="openFilterOptions">
+      <text>{{item.options[item.selected]}}</text>
       <text class="filter-arrow">▾</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showFilterOptions}}">
+    <view class="filter-mask" bindtap="closeFilterOptions"></view>
+    <view class="filter-options-panel">
+      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
+        {{item}}
+      </view>
     </view>
   </view>
 

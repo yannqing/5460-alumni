@@ -13,8 +13,8 @@
         </view>
       </view>
       <view class="mt-20">
-        <view class="btn btn-primary full-width" bindtap="toggleJoin">
-          {{associationInfo.isJoined ? '退出校友会' : '加入校友会'}}
+        <view class="join-button {{associationInfo.isJoined ? 'joined' : ''}}" bindtap="toggleJoin">
+          {{associationInfo.isJoined ? '已加入校友会' : '加入校友会'}}
         </view>
       </view>
     </view>

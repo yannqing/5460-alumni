@@ -36,10 +36,6 @@
             <text class="school-name">{{item.name}}</text>
             <view wx:if="{{item.isCertified}}" class="certified-badge">✓ 认证</view>
           </view>
-          <view wx:if="{{item.oldNames && item.oldNames.length > 0}}" class="school-old-names">
-            <text class="old-name-label">曾用名：</text>
-            <text>{{item.oldNames.join('、')}}</text>
-          </view>
           <view class="school-location">
             <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
             <text>{{item.location}}</text>
