@@ -40,7 +40,7 @@ Page({
       // 模拟登录用户数据
       const mockUser = {
         nickName: '张三',
-        avatarUrl: 'https://via.placeholder.com/150/ff6b9d/ffffff?text=User',
+        avatarUrl: '/assets/images/头像.png',
         school: '南京大学',
         major: '计算机科学',
         graduateYear: 2015

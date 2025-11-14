@@ -4,7 +4,7 @@
   <view class="search-bar">
     <view class="search-input-wrap">
       <input class="search-input" type="text" placeholder="搜索母校名称、曾用名" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-      <view class="search-icon" bindtap="onSearch">🔍</view>
+      <image class="search-icon" src="/assets/icons/搜索栏搜索.png" mode="aspectFit" bindtap="onSearch" />
     </view>
   </view>
 
@@ -40,7 +40,10 @@
             <text class="old-name-label">曾用名：</text>
             <text>{{item.oldNames.join('、')}}</text>
           </view>
-          <view class="school-location">地点：{{item.location}}</view>
+          <view class="school-location">
+            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <text>{{item.location}}</text>
+          </view>
           <view class="school-tags">
             <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
           </view>

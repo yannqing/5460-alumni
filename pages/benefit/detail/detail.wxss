@@ -1,0 +1,61 @@
+/* pages/benefit/detail/detail.wxss */
+.loading-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.benefit-detail-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 16rpx;
+}
+
+.benefit-detail-merchant {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+}
+
+.benefit-detail-discount {
+  font-size: 28rpx;
+  color: #ff6b9d;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.benefit-detail-distance {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.rule-list {
+  margin-top: 10rpx;
+}
+
+.rule-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.rule-dot {
+  color: #999999;
+  margin-right: 8rpx;
+  flex-shrink: 0;
+}
+
+.rule-text {
+  flex: 1;
+  color: #666666;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.link-text {
+  color: #ff6b9d;
+  text-decoration: underline;
+}
+

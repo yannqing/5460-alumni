@@ -14,7 +14,7 @@ Page({
     const mockData = {
       id: this.data.alumniId,
       name: '张三',
-      avatar: 'https://via.placeholder.com/150/ff6b9d/ffffff?text=ZS',
+      avatar: '/assets/images/头像.png',
       school: '南京大学',
       major: '计算机科学与技术',
       graduateYear: 2015,

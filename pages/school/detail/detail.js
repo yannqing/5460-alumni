@@ -5,12 +5,11 @@ Page({
   data: {
     schoolId: '',
     schoolInfo: null,
-    associations: [],
     loading: true,
 
     // 选项卡
     activeTab: 0,
-    tabs: ['基本信息', '校友会', '校友总会'],
+    tabs: ['基本信息', '校友总会'],
 
     // 校友总会信息
     alumniUnion: null
@@ -20,7 +19,6 @@ Page({
     const { id } = options
     this.setData({ schoolId: id })
     this.loadSchoolDetail()
-    this.loadAssociations()
   },
 
   onShareAppMessage() {
@@ -37,7 +35,7 @@ Page({
       id: this.data.schoolId,
       name: '南京大学',
       icon: '/assets/logo/njdx.jpg',
-      cover: 'https://via.placeholder.com/750x400/ff8fb5/ffffff?text=NJU+Cover',
+      cover: '/assets/images/南京大学背景图.jpg',
       location: '江苏省南京市',
       address: '江苏省南京市栖霞区仙林大道163号',
       alumniCount: 12580,
@@ -74,41 +72,6 @@ Page({
     })
   },
 
-  // 加载校友会列表
-  loadAssociations() {
-    const mockData = [
-      {
-        id: 1,
-        name: '南京大学上海校友会',
-        location: '上海市',
-        memberCount: 1580,
-        isJoined: false,
-        president: '张三',
-        establishedYear: 2010
-      },
-      {
-        id: 2,
-        name: '南京大学北京校友会',
-        location: '北京市',
-        memberCount: 2350,
-        isJoined: true,
-        president: '李四',
-        establishedYear: 2008
-      },
-      {
-        id: 3,
-        name: '南京大学深圳校友会',
-        location: '广东省深圳市',
-        memberCount: 1820,
-        isJoined: false,
-        president: '王五',
-        establishedYear: 2012
-      }
-    ]
-
-    this.setData({ associations: mockData })
-  },
-
   // 切换选项卡
   switchTab(e) {
     const { index } = e.currentTarget.dataset
@@ -124,21 +87,6 @@ Page({
     wx.showToast({
       title: schoolInfo.isFollowed ? '关注成功' : '已取消关注',
       icon: 'success'
-    })
-  },
-
-  // 查看校友会详情
-  viewAssociationDetail(e) {
-    const { id } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/alumni-association/detail/detail?id=${id}`
-    })
-  },
-
-  // 查看所有校友会
-  viewAllAssociations() {
-    wx.navigateTo({
-      url: `/pages/alumni-association/list/list?schoolId=${this.data.schoolId}`
     })
   },
 

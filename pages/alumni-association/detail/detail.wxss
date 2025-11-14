@@ -27,3 +27,49 @@
 .full-width {
   width: 100%;
 }
+
+.tab-content {
+  padding: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.card .list-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: relative;
+  background-color: transparent;
+  margin: 0;
+}
+
+.card .list-item:last-child {
+  border-bottom: none;
+}
+
+.notification-dot-small {
+  width: 16rpx;
+  height: 16rpx;
+  background-color: #ff0000;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-left: 10rpx;
+}
+
+.new-badge-inline {
+  display: inline-block;
+  padding: 2rpx 8rpx;
+  background-color: #ff0000;
+  color: #ffffff;
+  font-size: 20rpx;
+  border-radius: 8rpx;
+  margin-left: 8rpx;
+  vertical-align: middle;
+}
+

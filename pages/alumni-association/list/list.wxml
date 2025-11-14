@@ -3,8 +3,8 @@
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="搜索母校名称、昵称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-      <view class="search-icon" bindtap="onSearch">🔍</view>
+      <input class="search-input" type="text" placeholder="搜索校友会名称、昵称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <image class="search-icon" src="/assets/icons/搜索栏搜索.png" mode="aspectFit" bindtap="onSearch" />
     </view>
   </view>
 
@@ -19,30 +19,33 @@
   <!-- 校友会列表 -->
   <view class="association-list">
     <view class="association-card" wx:for="{{associationList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <!-- 头部：名称和认证标识 -->
+      <!-- 头部：图标、名称和认证标识 -->
       <view class="card-header">
-        <view class="card-title-row">
-          <text class="card-title">{{item.name}}</text>
-          <view wx:if="{{item.isCertified}}" class="cert-badge">✓认证</view>
+        <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
+        <view class="card-info">
+          <view class="card-title-row">
+            <text class="card-title">{{item.name}}</text>
+            <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
+          </view>
+
+          <!-- 学校名称 -->
+          <view class="card-subtitle">
+            <image class="subtitle-icon" src="/assets/icons/学校.png" mode="aspectFit" />
+            <text>{{item.schoolName}}</text>
+          </view>
+
+          <!-- 位置信息 -->
+          <view class="card-location">
+            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <text>{{item.location}}</text>
+          </view>
+
+          <!-- 标签 -->
+          <view class="card-tags">
+            <text class="mini-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+            <text class="next-arrow">›</text>
+          </view>
         </view>
-      </view>
-
-      <!-- 学校名称 -->
-      <view class="card-subtitle">
-        <text class="subtitle-icon">🏫</text>
-        <text>{{item.schoolName}}</text>
-      </view>
-
-      <!-- 位置信息 -->
-      <view class="card-location">
-        <text class="location-icon">📍</text>
-        <text>{{item.location}}</text>
-      </view>
-
-      <!-- 标签 -->
-      <view class="card-tags">
-        <text class="mini-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
-        <text class="next-arrow">›</text>
       </view>
 
       <!-- 底部：统计数据和关注按钮 -->

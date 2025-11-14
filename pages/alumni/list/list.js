@@ -33,7 +33,7 @@ Page({
       {
         id: 1,
         name: '张三',
-        avatar: 'https://via.placeholder.com/100/ff6b9d/ffffff?text=ZS',
+        avatar: '/assets/images/头像.png',
         school: '南京大学',
         location: '江苏省南京市',
         major: '计算机科学',
@@ -49,7 +49,7 @@ Page({
       {
         id: 2,
         name: '李四',
-        avatar: 'https://via.placeholder.com/100/ff8fb5/ffffff?text=LS',
+        avatar: '/assets/images/头像.png',
         school: '浙江大学',
         location: '浙江省杭州市',
         major: '软件工程',
@@ -65,7 +65,7 @@ Page({
       {
         id: 3,
         name: '王五',
-        avatar: 'https://via.placeholder.com/100/ffb6d4/ffffff?text=WW',
+        avatar: '/assets/images/头像.png',
         school: '复旦大学',
         location: '上海市',
         major: '人工智能',
@@ -81,7 +81,7 @@ Page({
       {
         id: 4,
         name: '赵六',
-        avatar: 'https://via.placeholder.com/100/ffc9e0/ffffff?text=ZL',
+        avatar: '/assets/images/头像.png',
         school: '上海交通大学',
         location: '上海市',
         major: '通信工程',

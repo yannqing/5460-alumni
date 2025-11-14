@@ -1,0 +1,19 @@
+<!--pages/notification/list/list.wxml-->
+<view class="container">
+  <view class="notification-list">
+    <view class="notification-item card" wx:for="{{notificationList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <view class="notification-header">
+        <view class="notification-title">{{item.title}}</view>
+        <view wx:if="{{!item.isRead}}" class="notification-dot-small"></view>
+      </view>
+      <view class="notification-content">{{item.content}}</view>
+      <view class="notification-time">{{item.time}}</view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <view wx:if="{{!loading && notificationList.length === 0}}" class="empty-state">
+      <text>暂无通知</text>
+    </view>
+  </view>
+</view>
+

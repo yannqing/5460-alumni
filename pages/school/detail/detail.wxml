@@ -104,51 +104,8 @@
       </view>
     </view>
 
-    <!-- 校友会列表 -->
-    <view wx:if="{{activeTab === 1}}" class="tab-content">
-      <view class="association-section">
-        <view class="section-header-inline">
-          <view class="section-title-small">包含的校友会</view>
-          <view class="section-more-inline" bindtap="viewAllAssociations">
-            <text>查看全部</text>
-            <text class="arrow">›</text>
-          </view>
-        </view>
-
-        <view class="association-list">
-          <view class="association-item-card card" wx:for="{{associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
-            <view class="association-item-header">
-              <view class="association-item-info">
-                <view class="association-item-name">{{item.name}}</view>
-                <view class="association-item-meta">
-                  <text>{{item.location}}</text>
-                  <text class="dot">•</text>
-                  <text>{{item.memberCount}}人</text>
-                </view>
-                <view class="association-item-detail">
-                  <text>会长：{{item.president}}</text>
-                  <text class="dot">•</text>
-                  <text>成立于{{item.establishedYear}}年</text>
-                </view>
-              </view>
-              <view class="association-item-action">
-                <view class="btn btn-small {{item.isJoined ? 'btn-plain' : 'btn-primary'}}">
-                  {{item.isJoined ? '已加入' : '加入'}}
-                </view>
-              </view>
-            </view>
-          </view>
-        </view>
-
-        <view wx:if="{{associations.length === 0}}" class="empty-state">
-          <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
-          <text>暂无校友会</text>
-        </view>
-      </view>
-    </view>
-
     <!-- 校友总会 -->
-    <view wx:if="{{activeTab === 2}}" class="tab-content">
+    <view wx:if="{{activeTab === 1}}" class="tab-content">
       <view class="union-section card" wx:if="{{alumniUnion}}" bindtap="viewAlumniUnion">
         <view class="union-header">
           <image class="union-icon" src="{{alumniUnion.icon}}" mode="aspectFill" />

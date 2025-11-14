@@ -25,13 +25,63 @@
       </view>
     </view>
 
-    <view wx:if="{{activeTab === 0}}" class="card">
-      <view class="text-bold mb-20">基本信息</view>
-      <view class="text-secondary">{{associationInfo.description}}</view>
-      <view class="divider"></view>
-      <view class="text-secondary">会长：{{associationInfo.president}}</view>
-      <view class="text-secondary mt-10">成员：{{associationInfo.memberCount}}人</view>
-      <view class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
+    <view wx:if="{{activeTab === 0}}" class="tab-content">
+      <view class="card">
+        <view class="text-bold mb-20">基本信息</view>
+        <view class="text-secondary">{{associationInfo.description}}</view>
+        <view class="divider"></view>
+        <view class="text-secondary">会长：{{associationInfo.president}}</view>
+        <view class="text-secondary mt-10">成员：{{associationInfo.memberCount}}人</view>
+        <view class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
+      </view>
+
+      <!-- 通知列表 -->
+      <view class="card mt-20">
+        <view class="section-header">
+          <view class="text-bold">通知</view>
+          <view class="text-placeholder" bindtap="viewNotificationDetail" data-id="all">查看更多</view>
+        </view>
+        <view class="list-item" wx:for="{{notifications}}" wx:key="id" bindtap="viewNotificationDetail" data-id="{{item.id}}">
+          <view class="flex-1">
+            <view class="text-primary">{{item.title}}</view>
+            <view class="text-placeholder mt-10">{{item.content}}</view>
+            <view class="text-placeholder mt-10" style="font-size: 22rpx;">{{item.time}}</view>
+          </view>
+          <view wx:if="{{!item.isRead}}" class="notification-dot-small"></view>
+        </view>
+      </view>
+
+      <!-- 活动列表 -->
+      <view class="card mt-20">
+        <view class="section-header">
+          <view class="text-bold">活动</view>
+          <view class="text-placeholder" bindtap="viewActivityDetail" data-id="all">查看更多</view>
+        </view>
+        <view class="list-item" wx:for="{{benefitActivities}}" wx:key="id" bindtap="viewActivityDetail" data-id="{{item.id}}">
+          <view class="flex-1">
+            <view class="text-primary">{{item.title}}</view>
+            <view class="text-placeholder mt-10">📍 {{item.location}}</view>
+            <view class="text-placeholder mt-10" style="font-size: 22rpx;">🕐 {{item.time}} · {{item.participantCount}}人报名</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 附近权益列表 -->
+      <view class="card mt-20">
+        <view class="section-header">
+          <view class="text-bold">附近权益</view>
+          <view class="text-placeholder" bindtap="viewBenefitDetail" data-id="all">查看更多</view>
+        </view>
+        <view class="list-item" wx:for="{{nearbyBenefits}}" wx:key="id" bindtap="viewBenefitDetail" data-id="{{item.id}}">
+          <view class="flex-1">
+            <view class="text-primary">
+              {{item.title}}
+              <view wx:if="{{item.isNew}}" class="new-badge-inline">上新</view>
+            </view>
+            <view class="text-placeholder mt-10">{{item.merchant}} · {{item.discount}} · 距离{{item.distance}}</view>
+          </view>
+        </view>
+      </view>
     </view>
 
     <view wx:if="{{activeTab === 1}}">
@@ -41,6 +91,28 @@
           <view class="text-primary">{{item.name}}</view>
           <view class="text-placeholder mt-10">{{item.role}} · {{item.company}}</view>
         </view>
+      </view>
+    </view>
+
+    <view wx:if="{{activeTab === 2}}">
+      <view class="card" wx:if="{{associationUnion}}">
+        <view class="text-bold mb-20">校友总会</view>
+        <view class="flex mb-20">
+          <image class="avatar-large" src="{{associationUnion.icon}}" mode="aspectFill" />
+          <view class="flex-1 ml-20">
+            <view class="text-primary text-bold">{{associationUnion.name}}</view>
+            <view class="text-secondary mt-10">{{associationUnion.address}}</view>
+          </view>
+        </view>
+        <view class="text-secondary">{{associationUnion.description}}</view>
+        <view class="divider"></view>
+        <view class="text-secondary mt-10">官网：{{associationUnion.website}}</view>
+        <view class="text-secondary mt-10">电话：{{associationUnion.phone}}</view>
+        <view class="text-secondary mt-10">邮箱：{{associationUnion.email}}</view>
+      </view>
+      <view wx:else class="empty-state">
+        <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+        <text>暂无校友总会信息</text>
       </view>
     </view>
   </view>

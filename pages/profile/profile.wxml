@@ -12,7 +12,7 @@
     </view>
 
     <view wx:else class="login-prompt" bindtap="handleLogin">
-      <image class="default-avatar" src="https://via.placeholder.com/150/f0f0f0/999999?text=Login" mode="aspectFill" />
+      <image class="default-avatar" src="/assets/images/头像.png" mode="aspectFill" />
       <view class="login-text">点击登录</view>
     </view>
 

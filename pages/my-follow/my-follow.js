@@ -25,7 +25,7 @@ Page({
       {
         id: 1,
         name: '张三',
-        avatar: 'https://via.placeholder.com/100/ff6b9d/ffffff?text=ZS',
+        avatar: '/assets/images/头像.png',
         school: '南京大学',
         company: '腾讯科技'
       }

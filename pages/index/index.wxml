@@ -1,12 +1,43 @@
 <!--pages/index/index.wxml-->
 <view class="container">
-  <!-- 轮播图 -->
-  <view class="banner-section">
-    <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#ff6b9d" autoplay circular interval="3000">
-      <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onBannerTap" data-index="{{index}}">
-        <image class="banner-image" src="{{item.image}}" mode="aspectFill" />
-      </swiper-item>
-    </swiper>
+  <!-- 校友会卡片 -->
+  <view class="association-cards-section">
+    <scroll-view class="association-cards-scroll" scroll-x enhanced scroll-into-view="{{scrollIntoView}}" bindscroll="onScroll" bindscrollend="onScrollEnd">
+      <view class="association-card-item" wx:for="{{associationCards}}" wx:key="id" id="card-{{item.id}}">
+        <view class="association-card-content" bindtap="onAssociationCardTap" data-id="{{item.id}}">
+          <view class="association-card-header">
+            <image class="association-card-icon" src="{{item.icon}}" mode="aspectFill" />
+            <view class="association-card-title">{{item.name}}</view>
+          </view>
+          <view class="association-card-actions">
+            <view class="action-item" catchtap="onNotificationTap" data-id="{{item.id}}">
+              <view class="action-icon-wrapper">
+                <image class="action-icon-image" src="/assets/icons/通知.png" mode="aspectFit" />
+                <view wx:if="{{item.hasNotification}}" class="notification-dot"></view>
+              </view>
+              <text class="action-label">通知</text>
+            </view>
+            <view class="action-item" catchtap="onActivityTap" data-id="{{item.id}}">
+              <view class="action-icon-wrapper">
+                <image class="action-icon-image" src="/assets/icons/活动1.png" mode="aspectFit" />
+                <view wx:if="{{item.hasNewActivity}}" class="new-badge">上新</view>
+              </view>
+              <text class="action-label">活动</text>
+            </view>
+            <view class="action-item benefit-action-item" catchtap="onBenefitTap" data-id="{{item.id}}">
+              <view class="benefit-card-mini">
+                <view wx:if="{{item.hasNewBenefit}}" class="benefit-new-badge-mini">上新</view>
+                <view class="benefit-buttons-mini">
+                  <view class="benefit-btn-mini">可用场馆</view>
+                  <view class="benefit-btn-mini">可享优惠</view>
+                </view>
+              </view>
+              <text class="action-label">附近权益</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
   <!-- 快速入口 -->
@@ -28,159 +59,102 @@
     </view>
   </view>
 
-  <!-- 推荐母校 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">推荐母校</view>
-      <view class="section-more" bindtap="viewMoreSchools">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
+  <!-- 标签页整体容器 -->
+  <view class="tab-container">
+    <!-- 标签页导航 -->
+    <view class="tab-nav">
+      <view class="tab-item {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">校友圈</view>
+      <view class="tab-item {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">附近权益</view>
+      <view class="tab-item {{activeTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">可能认识的人</view>
     </view>
-    <view class="school-list">
-      <view class="school-item card" wx:for="{{recommendSchools}}" wx:key="id" bindtap="viewSchoolDetail" data-id="{{item.id}}">
-        <view class="school-header">
-          <image class="school-icon" src="{{item.icon}}" mode="aspectFill" />
-          <view class="school-info">
-            <view class="school-name-row">
-              <text class="school-name">{{item.name}}</text>
-              <view wx:if="{{item.isCertified}}" class="certified-badge">✓ 认证</view>
-            </view>
-            <view class="school-location">{{item.location}}</view>
-            <view class="school-tags">
-              <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
-            </view>
-          </view>
-          <view class="school-action" catchtap="toggleFollowSchool" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-            <view class="btn btn-small {{item.isFollowed ? 'btn-plain' : 'btn-primary'}}">
-              {{item.isFollowed ? '已关注' : '关注'}}
-            </view>
-          </view>
-        </view>
-        <view class="school-stats">
-          <text class="stat-item">校友 {{item.alumniCount}}</text>
-          <text class="stat-divider">|</text>
-          <text class="stat-item">校友会 {{item.associationCount}}</text>
-        </view>
-      </view>
-    </view>
-  </view>
 
-  <!-- 热门校友会 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">热门校友会</view>
-      <view class="section-more" bindtap="viewMoreAssociations">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
-    </view>
-    <scroll-view class="association-scroll" scroll-x>
-      <view class="association-item" wx:for="{{hotAssociations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
-        <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
-        <view class="association-name">{{item.name}}</view>
-        <view class="association-school">{{item.schoolName}}</view>
-        <view class="association-info">
-          <text>{{item.location}}</text>
-          <text class="dot">•</text>
-          <text>{{item.memberCount}}人</text>
-        </view>
-      </view>
-    </scroll-view>
-  </view>
-
-  <!-- 推荐校友 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">推荐校友</view>
-      <view class="section-more" bindtap="viewMoreAlumni">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
-    </view>
-    <view class="alumni-list">
-      <view class="alumni-item card" wx:for="{{recommendAlumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
-        <view class="alumni-header">
-          <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="alumni-info flex-1">
-            <view class="alumni-name">{{item.name}}</view>
-            <view class="alumni-education">{{item.school}} · {{item.major}} · {{item.graduateYear}}</view>
-            <view class="alumni-work">{{item.company}} · {{item.position}}</view>
-          </view>
-          <view class="alumni-action" catchtap="toggleFollowAlumni" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-            <view class="btn btn-small {{item.isFollowed ? 'btn-plain' : 'btn-primary'}}">
-              {{item.isFollowed ? '已关注' : '关注'}}
+    <!-- 标签页内容 -->
+    <view class="tab-content-wrapper">
+    <!-- 校友圈 -->
+    <view class="tab-content" wx:if="{{activeTab === 0}}">
+      <view class="post-list">
+        <view class="post-item card" wx:for="{{circlePosts}}" wx:key="id">
+          <view class="post-header">
+            <image class="post-avatar" src="{{item.avatar}}" mode="aspectFill" />
+            <view class="post-user-info">
+              <text class="post-username">{{item.username}}</text>
+              <text class="post-time">{{item.time}}</text>
+            </view>
+            <view class="post-group">
+              <image class="group-icon" src="{{item.groupIcon}}" mode="aspectFill" />
+              <text class="group-name">{{item.groupName}}</text>
             </view>
           </view>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 限时优惠券 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">
-        <text>限时优惠券</text>
-        <text class="hot-badge">🔥</text>
-      </view>
-      <view class="section-more" bindtap="viewMoreCoupons">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
-    </view>
-    <view class="coupon-list">
-      <view class="coupon-item card" wx:for="{{limitedCoupons}}" wx:key="id" bindtap="viewCouponDetail" data-id="{{item.id}}">
-        <view class="coupon-content">
-          <image class="coupon-image" src="{{item.image}}" mode="aspectFill" />
-          <view class="coupon-info flex-1">
-            <view class="coupon-title">{{item.title}}</view>
-            <view class="coupon-merchant">{{item.merchant}}</view>
-            <view class="coupon-price">
-              <text class="price-now">¥{{item.discountPrice}}</text>
-              <text wx:if="{{item.originalPrice > 0}}" class="price-original">¥{{item.originalPrice}}</text>
-            </view>
-            <view class="coupon-stock">
-              <view class="stock-bar">
-                <view class="stock-progress" style="width: {{item.stock/item.totalStock*100}}%"></view>
+          <view class="post-body">
+            <view class="post-content-wrapper">
+              <image wx:if="{{item.image}}" class="post-image" src="{{item.image}}" mode="aspectFill" />
+              <view class="post-text">
+                <view class="post-title">{{item.title}}</view>
+                <view class="post-desc">{{item.description}}</view>
               </view>
-              <text class="stock-text">剩余{{item.stock}}/{{item.totalStock}}</text>
             </view>
           </view>
-          <view class="coupon-action" catchtap="handleCoupon" data-id="{{item.id}}" data-type="{{item.type}}">
-            <view class="btn btn-primary">{{item.type === 'rush' ? '立即抢购' : '立即领取'}}</view>
+          <view class="post-footer">
+            <view class="post-actions">
+              <view class="action-btn">
+                <text class="action-icon">❤</text>
+                <text>{{item.likes}}</text>
+              </view>
+              <view class="action-btn">
+                <text class="action-icon">↗</text>
+                <text>{{item.shares}}</text>
+              </view>
+            </view>
           </view>
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 最新活动 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">最新活动</view>
-      <view class="section-more" bindtap="viewMoreActivities">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
-    </view>
-    <view class="activity-list">
-      <view class="activity-item card" wx:for="{{recentActivities}}" wx:key="id" bindtap="viewActivityDetail" data-id="{{item.id}}">
-        <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
-        <view class="activity-info">
-          <view class="activity-title">{{item.title}}</view>
-          <view class="activity-detail">
-            <text class="activity-organizer">{{item.organizer}}</text>
+    <!-- 附近权益 -->
+    <view class="tab-content" wx:if="{{activeTab === 1}}">
+      <view class="benefit-list">
+        <view class="benefit-store-item card" wx:for="{{nearbyBenefits}}" wx:key="id">
+          <view class="store-header">
+            <image class="store-avatar" src="{{item.storeAvatar}}" mode="aspectFill" />
+            <view class="store-info">
+              <view class="store-name">{{item.storeName}}</view>
+              <view class="store-distance">{{item.distance}}</view>
+            </view>
+            <view class="store-tags">
+              <text class="store-tag">{{item.associations}}</text>
+            </view>
           </view>
-          <view class="activity-meta">
-            <text class="activity-location">📍 {{item.location}}</text>
-          </view>
-          <view class="activity-footer">
-            <text class="activity-time">🕐 {{item.startTime}}</text>
-            <text class="activity-participant">{{item.participantCount}}人报名</text>
+          <view class="store-products">
+            <view class="product-item" wx:for="{{item.products}}" wx:key="id" wx:for-item="product">
+              <image class="product-image" src="{{product.image}}" mode="aspectFill" />
+              <view class="product-name">{{product.name}}</view>
+              <view class="product-price">{{product.price}}</view>
+            </view>
           </view>
         </view>
       </view>
+    </view>
+
+    <!-- 可能认识的人 -->
+    <view class="tab-content" wx:if="{{activeTab === 2}}">
+      <view class="people-list">
+        <view class="people-item card" wx:for="{{recommendedPeople}}" wx:key="id">
+          <image class="people-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="people-info">
+            <view class="people-name-row">
+              <text class="people-name">{{item.name}}</text>
+              <view class="people-follow-btn" bindtap="followPerson" data-id="{{item.id}}">关注</view>
+            </view>
+            <view class="people-tags">
+              <view class="people-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">
+                <image wx:if="{{tag.icon}}" class="tag-icon" src="{{tag.icon}}" mode="aspectFill" />
+                <text>{{tag.name}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
     </view>
   </view>
 

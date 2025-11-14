@@ -21,9 +21,10 @@
 }
 
 .search-icon {
-  font-size: 32rpx;
-  color: #999999;
+  width: 32rpx;
+  height: 32rpx;
   margin-left: 16rpx;
+  flex-shrink: 0;
 }
 
 /* 筛选栏 */
@@ -118,9 +119,18 @@
 }
 
 .school-location {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   font-size: 24rpx;
   color: #666666;
   margin-bottom: 12rpx;
+}
+
+.school-location .location-icon {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
 }
 
 .school-tags {

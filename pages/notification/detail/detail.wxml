@@ -1,0 +1,18 @@
+<!--pages/notification/detail/detail.wxml-->
+<view class="container">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:else-if="{{notificationInfo}}" class="card">
+    <view class="notification-detail-title">{{notificationInfo.title}}</view>
+    <view class="notification-detail-meta">
+      <text>发布者：{{notificationInfo.publisher}}</text>
+      <text class="dot">•</text>
+      <text>{{notificationInfo.time}}</text>
+    </view>
+    <view class="divider"></view>
+    <view class="notification-detail-content">{{notificationInfo.content}}</view>
+  </view>
+</view>
+

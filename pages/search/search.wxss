@@ -20,8 +20,8 @@
 }
 
 .search-btn {
-  color: #ff6b9d;
-  font-size: 28rpx;
+  width: 32rpx;
+  height: 32rpx;
   flex-shrink: 0;
 }
 

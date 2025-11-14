@@ -1,0 +1,35 @@
+/* pages/notification/detail/detail.wxss */
+.loading-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-detail-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.notification-detail-meta {
+  font-size: 24rpx;
+  color: #999999;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.dot {
+  margin: 0 8rpx;
+}
+
+.notification-detail-content {
+  font-size: 28rpx;
+  color: #666666;
+  line-height: 1.8;
+  text-align: justify;
+  margin-top: 20rpx;
+}
+

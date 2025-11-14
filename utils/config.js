@@ -10,7 +10,7 @@ const config = {
   uploadUrl: 'https://api.example.com/api/v1/upload',
 
   // 默认头像
-  defaultAvatar: 'https://via.placeholder.com/150',
+  defaultAvatar: '/assets/images/头像.png',
 
   // 默认封面图
   defaultCover: 'https://via.placeholder.com/750x400',

@@ -19,6 +19,10 @@
     "pages/merchant/detail/detail",
     "pages/activity/list/list",
     "pages/activity/detail/detail",
+    "pages/notification/list/list",
+    "pages/notification/detail/detail",
+    "pages/benefit/list/list",
+    "pages/benefit/detail/detail",
     "pages/my-follow/my-follow",
     "pages/my-association/my-association"
   ],

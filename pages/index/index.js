@@ -1,27 +1,44 @@
 // pages/index/index.js
 const { schoolApi, alumniApi, couponApi, activityApi } = require('../../api/index.js')
 
+const DEFAULT_AVATAR = '/assets/images/头像.png'
+
 Page({
   data: {
-    // 轮播图数据
-    banners: [
+    scrollIntoView: '', // 滑动到指定卡片
+    currentCardIndex: 0, // 当前卡片索引
+    activeTab: 0, // 当前标签页索引
+    // 校友会卡片数据
+    associationCards: [
       {
         id: 1,
-        image: 'https://via.placeholder.com/750x300/ff6b9d/ffffff?text=Banner1',
-        title: '校友总会年度大会',
-        url: ''
+        name: '南京大学上海校友会',
+        schoolName: '南京大学',
+        icon: '/assets/logo/njdx.jpg',
+        location: '上海市',
+        hasNotification: true,
+        hasNewActivity: false,
+        hasNewBenefit: true
       },
       {
         id: 2,
-        image: 'https://via.placeholder.com/750x300/ff8fb5/ffffff?text=Banner2',
-        title: '优惠券限时抢购',
-        url: ''
+        name: '浙江大学杭州校友会',
+        schoolName: '浙江大学',
+        icon: '/assets/logo/njdx.jpg',
+        location: '浙江省杭州市',
+        hasNotification: false,
+        hasNewActivity: true,
+        hasNewBenefit: false
       },
       {
         id: 3,
-        image: 'https://via.placeholder.com/750x300/ffb6d4/ffffff?text=Banner3',
-        title: '校友企业展示',
-        url: ''
+        name: '复旦大学上海校友会',
+        schoolName: '复旦大学',
+        icon: '/assets/logo/njdx.jpg',
+        location: '上海市',
+        hasNotification: true,
+        hasNewActivity: true,
+        hasNewBenefit: true
       }
     ],
 
@@ -37,20 +54,14 @@ Page({
       { id: 8, name: '更多', icon: '/assets/icons/更多.png', url: '' }
     ],
 
-    // 推荐母校
-    recommendSchools: [],
+    // 校友圈帖子
+    circlePosts: [],
 
-    // 热门校友会
-    hotAssociations: [],
+    // 附近权益
+    nearbyBenefits: [],
 
-    // 推荐校友
-    recommendAlumni: [],
-
-    // 限时优惠券
-    limitedCoupons: [],
-
-    // 最新活动
-    recentActivities: [],
+    // 可能认识的人
+    recommendedPeople: [],
 
     loading: false,
     refreshing: false
@@ -71,6 +82,106 @@ Page({
 
     // 模拟数据
     this.setData({
+      circlePosts: [
+        {
+          id: 1,
+          username: '王小刚',
+          avatar: DEFAULT_AVATAR,
+          time: '3小时前',
+          groupIcon: '/assets/logo/njdx.jpg',
+          groupName: '江南大学无锡校友会',
+          image: '/assets/logo/njdx.jpg',
+          title: '江南大学洛杉矶校友会成立。',
+          description: '欢迎各位新老校友加入，...',
+          likes: 47,
+          shares: 47
+        },
+        {
+          id: 2,
+          username: '王小刚',
+          avatar: DEFAULT_AVATAR,
+          time: '3小时前',
+          groupIcon: '/assets/logo/njdx.jpg',
+          groupName: '江南大学无锡校友会',
+          title: '洛杉矶苏超观影会',
+          description: '2024.11.4 17:50—2024.11.4 21:50',
+          likes: 47,
+          shares: 47
+        }
+      ],
+      nearbyBenefits: [
+        {
+          id: 1,
+          storeAvatar: DEFAULT_AVATAR,
+          storeName: '店铺名',
+          distance: '3.13km',
+          associations: '江南大学无锡校友会 等13个校友会',
+          products: [
+            { id: 1, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' },
+            { id: 2, image: '/assets/images/商品图.jpg', name: '商品名称', price: '159-367-' },
+            { id: 3, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' }
+          ]
+        },
+        {
+          id: 2,
+          storeAvatar: DEFAULT_AVATAR,
+          storeName: '店铺名',
+          distance: '3.13km',
+          associations: '江南大学无锡校友会 等13个校友会',
+          products: [
+            { id: 1, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' },
+            { id: 2, image: '/assets/images/商品图.jpg', name: '商品名称', price: '159-367-' },
+            { id: 3, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' }
+          ]
+        }
+      ],
+      recommendedPeople: [
+        {
+          id: 1,
+          name: '刘奋洋',
+          avatar: DEFAULT_AVATAR,
+          tags: [
+            { name: '江南大学无锡校友会' },
+            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+          ]
+        },
+        {
+          id: 2,
+          name: '刘奋洋',
+          avatar: DEFAULT_AVATAR,
+          tags: [
+            { name: '江南大学无锡校友会' },
+            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+          ]
+        },
+        {
+          id: 3,
+          name: '刘奋洋',
+          avatar: DEFAULT_AVATAR,
+          tags: [
+            { name: '江南大学无锡校友会' },
+            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+          ]
+        },
+        {
+          id: 4,
+          name: '刘奋洋',
+          avatar: DEFAULT_AVATAR,
+          tags: [
+            { name: '江南大学无锡校友会' },
+            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+          ]
+        },
+        {
+          id: 5,
+          name: '刘奋洋',
+          avatar: DEFAULT_AVATAR,
+          tags: [
+            { name: '江南大学无锡校友会' },
+            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+          ]
+        }
+      ],
       recommendSchools: [
         {
           id: 1,
@@ -132,7 +243,7 @@ Page({
         {
           id: 1,
           name: '张三',
-          avatar: 'https://via.placeholder.com/150/ff6b9d/ffffff?text=ZS',
+          avatar: DEFAULT_AVATAR,
           school: '南京大学',
           major: '计算机科学与技术',
           graduateYear: 2015,
@@ -143,7 +254,7 @@ Page({
         {
           id: 2,
           name: '李四',
-          avatar: 'https://via.placeholder.com/150/ff8fb5/ffffff?text=LS',
+          avatar: DEFAULT_AVATAR,
           school: '浙江大学',
           major: '软件工程',
           graduateYear: 2016,
@@ -154,7 +265,7 @@ Page({
         {
           id: 3,
           name: '王五',
-          avatar: 'https://via.placeholder.com/150/ffb6d4/ffffff?text=WW',
+          avatar: DEFAULT_AVATAR,
           school: '复旦大学',
           major: '人工智能',
           graduateYear: 2017,
@@ -222,10 +333,96 @@ Page({
     wx.stopPullDownRefresh()
   },
 
-  // 轮播图点击
-  onBannerTap(e) {
-    const { index } = e.currentTarget.dataset
-    console.log('点击轮播图', index)
+  // 校友会卡片点击
+  onAssociationCardTap(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/alumni-association/detail/detail?id=${id}`
+    })
+  },
+
+  // 通知点击
+  onNotificationTap(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/notification/list/list?associationId=${id}`
+    })
+  },
+
+  // 活动点击
+  onActivityTap(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/activity/list/list?associationId=${id}`
+    })
+  },
+
+  // 附近权益点击
+  onBenefitTap(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/benefit/list/list?associationId=${id}`
+    })
+  },
+
+  // 滑动事件处理
+  onScroll(e) {
+    const scrollLeft = e.detail.scrollLeft
+    const cardWidth = 345 // 卡片宽度
+    const cardGap = 20 // 卡片间距
+    const cardTotalWidth = cardWidth + cardGap // 每个卡片占用的总宽度
+    
+    // 计算当前应该显示哪个卡片（四舍五入到最近的卡片）
+    const currentIndex = Math.round(scrollLeft / cardTotalWidth)
+    
+    // 更新当前卡片索引
+    if (currentIndex !== this.data.currentCardIndex) {
+      this.setData({
+        currentCardIndex: currentIndex
+      })
+    }
+  },
+
+  // 滑动结束事件处理 - 确保对齐到完整卡片
+  onScrollEnd(e) {
+    const scrollLeft = e.detail.scrollLeft
+    const cardWidth = 345 // 卡片宽度
+    const cardGap = 20 // 卡片间距
+    const cardTotalWidth = cardWidth + cardGap // 每个卡片占用的总宽度
+    
+    // 计算当前应该显示哪个卡片（四舍五入到最近的卡片）
+    const currentIndex = Math.round(scrollLeft / cardTotalWidth)
+    
+    // 确保索引在有效范围内
+    const maxIndex = this.data.associationCards.length - 1
+    const safeIndex = Math.max(0, Math.min(currentIndex, maxIndex))
+    
+    // 计算目标滚动位置
+    const targetScrollLeft = safeIndex * cardTotalWidth
+    
+    // 如果当前位置与目标位置差距较大（超过5px），则滚动到目标卡片
+    if (Math.abs(scrollLeft - targetScrollLeft) > 5) {
+      const targetCard = this.data.associationCards[safeIndex]
+      if (targetCard) {
+        // 先清空 scrollIntoView，然后再设置，确保每次都能触发滚动
+        this.setData({
+          scrollIntoView: '',
+          currentCardIndex: safeIndex
+        }, () => {
+          // 使用 setTimeout 确保清空后再设置
+          setTimeout(() => {
+            this.setData({
+              scrollIntoView: `card-${targetCard.id}`
+            })
+          }, 50)
+        })
+      }
+    } else {
+      // 即使位置正确，也更新索引
+      this.setData({
+        currentCardIndex: safeIndex
+      })
+    }
   },
 
   // 快速入口点击
@@ -239,6 +436,23 @@ Page({
         icon: 'none'
       })
     }
+  },
+
+  // 切换标签页
+  switchTab(e) {
+    const { index } = e.currentTarget.dataset
+    this.setData({
+      activeTab: parseInt(index)
+    })
+  },
+
+  // 关注用户
+  followPerson(e) {
+    const { id } = e.currentTarget.dataset
+    wx.showToast({
+      title: '关注成功',
+      icon: 'success'
+    })
   },
 
   // 查看更多母校

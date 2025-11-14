@@ -1,0 +1,21 @@
+<!--pages/benefit/list/list.wxml-->
+<view class="container">
+  <view class="benefit-list">
+    <view class="benefit-item" wx:for="{{benefitList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <view class="benefit-card">
+        <view wx:if="{{item.isNew}}" class="benefit-new-badge">上新</view>
+        <view class="benefit-buttons">
+          <view class="benefit-btn">到期提醒</view>
+          <view class="benefit-btn">可享优惠</view>
+        </view>
+        <view class="benefit-label">附近权益</view>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <view wx:if="{{!loading && benefitList.length === 0}}" class="empty-state">
+      <text>暂无权益</text>
+    </view>
+  </view>
+</view>
+

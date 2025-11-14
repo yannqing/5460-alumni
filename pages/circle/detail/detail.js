@@ -15,7 +15,7 @@ Page({
       {
         id: 1,
         author: '张三',
-        avatar: 'https://via.placeholder.com/100/ff6b9d/ffffff?text=ZS',
+        avatar: '/assets/images/头像.png',
         content: '分享一下最近的创业心得...',
         images: [],
         likeCount: 25,

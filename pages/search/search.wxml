@@ -4,7 +4,7 @@
   <view class="search-bar">
     <view class="search-input-wrap">
       <input class="search-input" type="text" placeholder="搜索母校、校友会、校友" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" focus />
-      <view class="search-btn" bindtap="onSearch">搜索</view>
+      <image class="search-btn" src="/assets/icons/搜索栏搜索.png" mode="aspectFit" bindtap="onSearch" />
     </view>
   </view>
 
