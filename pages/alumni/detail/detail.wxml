@@ -1,0 +1,26 @@
+<!--pages/alumni/detail/detail.wxml-->
+<view class="container">
+  <view wx:if="{{alumniInfo}}" class="card">
+    <view class="flex-center flex-column">
+      <image class="avatar-large" src="{{alumniInfo.avatar}}" mode="aspectFill" />
+      <view class="text-primary text-bold mt-20">{{alumniInfo.name}}</view>
+      <view class="text-secondary mt-10">{{alumniInfo.school}} · {{alumniInfo.major}}</view>
+      <view class="text-placeholder mt-10">{{alumniInfo.company}} · {{alumniInfo.position}}</view>
+      <view class="mt-20">
+        <view class="btn btn-primary" bindtap="toggleFollow">
+          {{alumniInfo.isFollowed ? '已关注' : '关注TA'}}
+        </view>
+      </view>
+    </view>
+
+    <view class="divider"></view>
+
+    <view class="text-bold mb-10">个人简介</view>
+    <view class="text-secondary">{{alumniInfo.bio}}</view>
+
+    <view class="divider"></view>
+
+    <view class="text-bold mb-10">所属校友会</view>
+    <view class="tag" wx:for="{{alumniInfo.associations}}" wx:key="*this">{{item}}</view>
+  </view>
+</view>

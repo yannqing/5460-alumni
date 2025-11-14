@@ -1,0 +1,47 @@
+<!--pages/alumni-association/detail/detail.wxml-->
+<view class="container">
+  <view wx:if="{{associationInfo}}">
+    <image class="cover-image" src="{{associationInfo.cover}}" mode="aspectFill" />
+
+    <view class="card">
+      <view class="flex">
+        <image class="avatar-large" src="{{associationInfo.icon}}" mode="aspectFill" />
+        <view class="flex-1 ml-20">
+          <view class="text-primary text-bold">{{associationInfo.name}}</view>
+          <view class="text-secondary mt-10">{{associationInfo.schoolName}}</view>
+          <view class="text-placeholder mt-10">📍 {{associationInfo.location}}</view>
+        </view>
+      </view>
+      <view class="mt-20">
+        <view class="btn btn-primary full-width" bindtap="toggleJoin">
+          {{associationInfo.isJoined ? '退出校友会' : '加入校友会'}}
+        </view>
+      </view>
+    </view>
+
+    <view class="tabs">
+      <view class="tab-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
+        {{item}}
+      </view>
+    </view>
+
+    <view wx:if="{{activeTab === 0}}" class="card">
+      <view class="text-bold mb-20">基本信息</view>
+      <view class="text-secondary">{{associationInfo.description}}</view>
+      <view class="divider"></view>
+      <view class="text-secondary">会长：{{associationInfo.president}}</view>
+      <view class="text-secondary mt-10">成员：{{associationInfo.memberCount}}人</view>
+      <view class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
+    </view>
+
+    <view wx:if="{{activeTab === 1}}">
+      <view class="list-item" wx:for="{{members}}" wx:key="id">
+        <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="flex-1">
+          <view class="text-primary">{{item.name}}</view>
+          <view class="text-placeholder mt-10">{{item.role}} · {{item.company}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

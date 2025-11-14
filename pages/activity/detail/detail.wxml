@@ -1,0 +1,50 @@
+<!--pages/activity/detail/detail.wxml-->
+<view class="container">
+  <image class="cover-image" src="{{activityInfo.cover}}" mode="aspectFill" />
+
+  <view class="card">
+    <view class="activity-title-large">{{activityInfo.title}}</view>
+    <view class="activity-organizer">主办方：{{activityInfo.organizer}}</view>
+
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-icon">📍</text>
+      <view class="info-content">
+        <view class="info-label">活动地点</view>
+        <view class="info-value">{{activityInfo.location}}</view>
+        <view class="info-detail">{{activityInfo.address}}</view>
+      </view>
+    </view>
+
+    <view class="info-row">
+      <text class="info-icon">🕐</text>
+      <view class="info-content">
+        <view class="info-label">活动时间</view>
+        <view class="info-value">{{activityInfo.startTime}} - {{activityInfo.endTime}}</view>
+      </view>
+    </view>
+
+    <view class="info-row">
+      <text class="info-icon">👥</text>
+      <view class="info-content">
+        <view class="info-label">报名人数</view>
+        <view class="info-value">{{activityInfo.participantCount}}/{{activityInfo.maxParticipant}}</view>
+      </view>
+    </view>
+
+    <view class="divider"></view>
+
+    <view wx:if="{{!activityInfo.isJoined}}" class="btn btn-primary full-width" bindtap="joinActivity">
+      立即报名
+    </view>
+    <view wx:else class="btn btn-plain full-width">
+      已报名
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="text-bold mb-20">活动详情</view>
+    <view class="text-secondary">{{activityInfo.description}}</view>
+  </view>
+</view>

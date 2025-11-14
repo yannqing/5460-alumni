@@ -1,0 +1,72 @@
+<!--pages/alumni/list/list.wxml-->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <input class="search-input" type="text" placeholder="搜索母校名称、昵称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <view class="search-icon" bindtap="onSearch">🔍</view>
+    </view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
+      <text>{{item}}</text>
+      <text class="filter-arrow">▾</text>
+    </view>
+  </view>
+
+  <!-- 校友列表 -->
+  <view class="alumni-list">
+    <view class="alumni-card" wx:for="{{alumniList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <!-- 头部：名称和认证标识 -->
+      <view class="card-header">
+        <view class="card-title-row">
+          <text class="card-title">{{item.name}}</text>
+          <view wx:if="{{item.isCertified}}" class="cert-badge">✓认证</view>
+        </view>
+      </view>
+
+      <!-- 学校信息 -->
+      <view class="card-subtitle">
+        <text class="subtitle-icon">🏫</text>
+        <text>{{item.school}}</text>
+      </view>
+
+      <!-- 位置信息 -->
+      <view class="card-location">
+        <text class="location-icon">📍</text>
+        <text>{{item.location}}</text>
+      </view>
+
+      <!-- 标签 -->
+      <view class="card-tags">
+        <text class="mini-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+        <text class="next-arrow">›</text>
+      </view>
+
+      <!-- 底部：统计数据和关注按钮 -->
+      <view class="card-footer">
+        <view class="card-stats">
+          <text class="stat-item">校友会 {{item.followerCount}}</text>
+          <text class="stat-item">校友会 {{item.followingCount}}</text>
+        </view>
+        <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+          <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+            {{item.isFollowed ? '已关注' : '+ 关注'}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+    <view wx:elif="{{!hasMore}}" class="loading-text">没有更多了</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && alumniList.length === 0}}" class="empty-state">
+      <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+      <text>暂无数据</text>
+    </view>
+  </view>
+</view>

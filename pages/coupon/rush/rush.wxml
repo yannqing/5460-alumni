@@ -1,0 +1,69 @@
+<!--pages/coupon/rush/rush.wxml-->
+<view class="container">
+  <view wx:if="{{couponInfo}}">
+    <image class="cover-image" src="{{couponInfo.image}}" mode="aspectFill" />
+
+    <view class="card">
+      <view class="coupon-title-large">{{couponInfo.title}}</view>
+      <view class="coupon-merchant-large">{{couponInfo.merchant}}</view>
+
+      <view class="price-section">
+        <view class="price-info">
+          <text class="price-label">抢购价</text>
+          <view class="price-value">
+            <text class="price-now-large">¥{{couponInfo.discountPrice}}</text>
+            <text class="price-original-large">¥{{couponInfo.originalPrice}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="stock-section">
+        <view class="stock-info">
+          <text class="stock-label">库存：</text>
+          <text class="stock-value">{{couponInfo.stock}}/{{couponInfo.totalStock}}</text>
+        </view>
+        <view class="stock-bar-large">
+          <view class="stock-progress" style="width: {{couponInfo.stock/couponInfo.totalStock*100}}%"></view>
+        </view>
+      </view>
+
+      <view class="divider"></view>
+
+      <!-- 倒计时 -->
+      <view wx:if="{{!canRush}}" class="countdown-section">
+        <view class="countdown-title">距离开抢还有</view>
+        <view class="countdown-timer">
+          <view class="time-item">
+            <text class="time-value">{{countdown.hours}}</text>
+            <text class="time-label">时</text>
+          </view>
+          <text class="time-colon">:</text>
+          <view class="time-item">
+            <text class="time-value">{{countdown.minutes}}</text>
+            <text class="time-label">分</text>
+          </view>
+          <text class="time-colon">:</text>
+          <view class="time-item">
+            <text class="time-value">{{countdown.seconds}}</text>
+            <text class="time-label">秒</text>
+          </view>
+        </view>
+        <view class="rush-time">抢购时间：{{couponInfo.rushTime}}</view>
+      </view>
+
+      <!-- 抢购按钮 -->
+      <view class="btn-section">
+        <view class="btn {{canRush ? 'btn-primary' : 'btn-disabled'}} full-width" bindtap="rushCoupon">
+          {{canRush ? '立即抢购' : '未到抢购时间'}}
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="text-bold mb-20">抢购说明</view>
+      <view class="text-secondary">{{couponInfo.description}}</view>
+    </view>
+  </view>
+</view>

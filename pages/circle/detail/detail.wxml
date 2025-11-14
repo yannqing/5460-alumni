@@ -1,0 +1,35 @@
+<!--pages/circle/detail/detail.wxml-->
+<view class="container">
+  <image class="cover-image" src="{{circleInfo.cover}}" mode="aspectFill" />
+
+  <view class="card">
+    <view class="circle-name">{{circleInfo.name}}</view>
+    <view class="circle-stats">
+      <text>{{circleInfo.memberCount}}成员</text>
+      <text class="dot">•</text>
+      <text>{{circleInfo.postCount}}帖子</text>
+    </view>
+    <view class="circle-desc">{{circleInfo.description}}</view>
+    <view class="btn btn-primary full-width" bindtap="toggleJoin">
+      {{circleInfo.isJoined ? '退出圈子' : '加入圈子'}}
+    </view>
+  </view>
+
+  <view class="posts-section">
+    <view class="section-title">最新动态</view>
+    <view class="post-item card" wx:for="{{posts}}" wx:key="id">
+      <view class="post-header">
+        <image class="avatar-small" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="flex-1">
+          <view class="text-primary">{{item.author}}</view>
+          <view class="text-placeholder">{{item.createTime}}</view>
+        </view>
+      </view>
+      <view class="post-content">{{item.content}}</view>
+      <view class="post-actions">
+        <text>👍 {{item.likeCount}}</text>
+        <text>💬 {{item.commentCount}}</text>
+      </view>
+    </view>
+  </view>
+</view>

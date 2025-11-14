@@ -1,0 +1,56 @@
+<!--pages/profile/profile.wxml-->
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view wx:if="{{isLogin}}" class="user-info" bindtap="editProfile">
+      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+      <view class="user-detail">
+        <view class="user-name">{{userInfo.nickName}}</view>
+        <view class="user-school">{{userInfo.school}} · {{userInfo.major}} · {{userInfo.graduateYear}}</view>
+        <view class="edit-hint">点击编辑资料 ›</view>
+      </view>
+    </view>
+
+    <view wx:else class="login-prompt" bindtap="handleLogin">
+      <image class="default-avatar" src="https://via.placeholder.com/150/f0f0f0/999999?text=Login" mode="aspectFill" />
+      <view class="login-text">点击登录</view>
+    </view>
+
+    <!-- 数据统计 -->
+    <view class="stats-section">
+      <view class="stat-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=school">
+        <view class="stat-value">{{stats.followSchools}}</view>
+        <view class="stat-label">关注母校</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="navigateTo" data-url="/pages/my-association/my-association">
+        <view class="stat-value">{{stats.joinedAssociations}}</view>
+        <view class="stat-label">加入校友会</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=alumni">
+        <view class="stat-value">{{stats.followAlumni}}</view>
+        <view class="stat-label">关注校友</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my">
+        <view class="stat-value">{{stats.coupons}}</view>
+        <view class="stat-label">优惠券</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-item" wx:for="{{menuItems}}" wx:key="id" bindtap="navigateTo" data-url="{{item.url}}">
+      <view class="menu-left">
+        <text class="menu-icon">{{item.icon}}</text>
+        <text class="menu-name">{{item.name}}</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 底部留白 -->
+  <view class="bottom-space"></view>
+</view>

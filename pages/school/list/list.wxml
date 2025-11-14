@@ -1,0 +1,108 @@
+<!--pages/school/list/list.wxml-->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <input class="search-input" type="text" placeholder="搜索母校名称、曾用名" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <view class="search-icon" bindtap="onSearch">🔍</view>
+    </view>
+  </view>
+
+  <!-- 筛选和排序栏 -->
+  <view class="filter-bar">
+    <view class="filter-item" bindtap="toggleFollowFilter">
+      <text class="{{filterType === 'followed' ? 'theme-color' : ''}}">{{filterType === 'followed' ? '已关注' : '全部'}}</text>
+    </view>
+    <view class="filter-item" bindtap="showFilterPanel">
+      <text>{{selectedCity}}</text>
+      <text class="arrow-down">▾</text>
+    </view>
+    <view class="filter-item" bindtap="showSortPanel">
+      <text>{{selectedSort}}</text>
+      <text class="arrow-down">▾</text>
+    </view>
+    <view class="filter-item" bindtap="goToMyFollow">
+      <text>我的关注</text>
+    </view>
+  </view>
+
+  <!-- 学校列表 -->
+  <view class="school-list">
+    <view class="school-item" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <view class="school-header">
+        <image class="school-icon" src="{{item.icon}}" mode="aspectFill" />
+        <view class="school-info">
+          <view class="school-name-row">
+            <text class="school-name">{{item.name}}</text>
+            <view wx:if="{{item.isCertified}}" class="certified-badge">✓ 认证</view>
+          </view>
+          <view wx:if="{{item.oldNames && item.oldNames.length > 0}}" class="school-old-names">
+            <text class="old-name-label">曾用名：</text>
+            <text>{{item.oldNames.join('、')}}</text>
+          </view>
+          <view class="school-location">地点：{{item.location}}</view>
+          <view class="school-tags">
+            <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="school-footer">
+        <view class="school-stats">
+          <text class="stat-item">校友 {{item.alumniCount}}</text>
+          <text class="stat-divider">|</text>
+          <text class="stat-item">校友会 {{item.associationCount}}</text>
+        </view>
+        <view class="school-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+          <view class="btn btn-small {{item.isFollowed ? 'btn-plain' : 'btn-primary'}}">
+            {{item.isFollowed ? '已关注' : '+ 关注'}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <view wx:elif="{{!hasMore}}" class="loading">没有更多了</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && schoolList.length === 0}}" class="empty-state">
+      <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+      <text>暂无数据</text>
+    </view>
+  </view>
+
+  <!-- 城市筛选弹窗 -->
+  <view class="popup-mask" wx:if="{{showFilter}}" bindtap="hideFilterPanel" catchtouchmove="true">
+    <view class="popup-content" catchtap="stopPropagation">
+      <view class="popup-header">
+        <text class="popup-title">选择城市</text>
+        <text class="popup-close" bindtap="hideFilterPanel">✕</text>
+      </view>
+      <view class="city-list">
+        <view class="city-item {{selectedCity === item ? 'active' : ''}}" wx:for="{{cityList}}" wx:key="*this" bindtap="onCityChange" data-city="{{item}}">
+          <text>{{item}}</text>
+          <text wx:if="{{selectedCity === item}}" class="check-icon">✓</text>
+        </view>
+      </view>
+      <view class="popup-footer">
+        <view class="btn btn-primary full-width" bindtap="confirmFilter">确定</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 排序弹窗 -->
+  <view class="popup-mask" wx:if="{{showSort}}" bindtap="hideSortPanel" catchtouchmove="true">
+    <view class="popup-content" catchtap="stopPropagation">
+      <view class="popup-header">
+        <text class="popup-title">选择排序</text>
+        <text class="popup-close" bindtap="hideSortPanel">✕</text>
+      </view>
+      <view class="sort-list">
+        <view class="sort-item {{selectedSort === item.label ? 'active' : ''}}" wx:for="{{sortOptions}}" wx:key="value" bindtap="onSortChange" data-value="{{item.value}}" data-label="{{item.label}}">
+          <text>{{item.label}}</text>
+          <text wx:if="{{selectedSort === item.label}}" class="check-icon">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

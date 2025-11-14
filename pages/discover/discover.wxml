@@ -1,0 +1,82 @@
+<!--pages/discover/discover.wxml-->
+<view class="container">
+  <!-- 分类入口 -->
+  <view class="category-section">
+    <view class="category-grid">
+      <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="navigateTo" data-url="{{item.url}}">
+        <view class="category-icon">{{item.icon}}</view>
+        <view class="category-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 推荐商家 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">推荐商家</view>
+      <view class="section-more" bindtap="navigateTo" data-url="/pages/merchant/list/list">
+        <text>查看更多</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+    <scroll-view class="merchant-scroll" scroll-x>
+      <view class="merchant-item" wx:for="{{merchants}}" wx:key="id" bindtap="viewMerchantDetail" data-id="{{item.id}}">
+        <image class="merchant-cover" src="{{item.cover}}" mode="aspectFill" />
+        <view class="merchant-info">
+          <view class="merchant-name">{{item.name}}</view>
+          <view class="merchant-category">{{item.category}}</view>
+          <view class="merchant-discount">{{item.discount}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 热门活动 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">热门活动</view>
+      <view class="section-more" bindtap="navigateTo" data-url="/pages/activity/list/list">
+        <text>查看更多</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+    <view class="activity-list">
+      <view class="card" wx:for="{{activities}}" wx:key="id" bindtap="viewActivityDetail" data-id="{{item.id}}">
+        <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
+        <view class="activity-info">
+          <view class="activity-title">{{item.title}}</view>
+          <view class="activity-meta">
+            <text>{{item.organizer}}</text>
+            <text class="dot">•</text>
+            <text>{{item.startTime}}</text>
+          </view>
+          <view class="activity-participant">{{item.participantCount}}人报名</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 热门圈子 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title">热门圈子</view>
+      <view class="section-more" bindtap="navigateTo" data-url="/pages/circle/list/list">
+        <text>查看更多</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+    <view class="circle-list">
+      <view class="circle-item card" wx:for="{{circles}}" wx:key="id" bindtap="viewCircleDetail" data-id="{{item.id}}">
+        <image class="circle-cover" src="{{item.cover}}" mode="aspectFill" />
+        <view class="circle-info">
+          <view class="circle-name">{{item.name}}</view>
+          <view class="circle-stats">
+            <text>{{item.memberCount}}成员</text>
+            <text class="dot">•</text>
+            <text>{{item.postCount}}帖子</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

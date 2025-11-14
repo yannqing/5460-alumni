@@ -1,0 +1,81 @@
+<!--pages/search/search.wxml-->
+<view class="container">
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <input class="search-input" type="text" placeholder="搜索母校、校友会、校友" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" focus />
+      <view class="search-btn" bindtap="onSearch">搜索</view>
+    </view>
+  </view>
+
+  <!-- 搜索前显示 -->
+  <view wx:if="{{!showResult}}">
+    <!-- 热门搜索 -->
+    <view class="section card">
+      <view class="section-title-small">热门搜索</view>
+      <view class="tag-list">
+        <view class="tag" wx:for="{{hotSearchList}}" wx:key="*this" bindtap="onHotSearchTap" data-keyword="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 搜索历史 -->
+    <view wx:if="{{searchHistory.length > 0}}" class="section card">
+      <view class="flex-between mb-20">
+        <view class="section-title-small">搜索历史</view>
+        <view class="text-placeholder" bindtap="clearHistory">清空</view>
+      </view>
+      <view class="history-list">
+        <view class="history-item" wx:for="{{searchHistory}}" wx:key="*this" bindtap="onHistoryTap" data-keyword="{{item}}">
+          <text class="history-icon">🕐</text>
+          <text class="history-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view wx:else>
+    <view class="tabs">
+      <view class="tab-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
+        {{item}}
+      </view>
+    </view>
+
+    <!-- 全部结果 -->
+    <view wx:if="{{activeTab === 0}}">
+      <view wx:if="{{searchResult.schools.length > 0}}" class="result-section">
+        <view class="section-title-small">母校</view>
+        <view class="list-item" wx:for="{{searchResult.schools}}" wx:key="id" bindtap="viewSchoolDetail" data-id="{{item.id}}">
+          <image class="avatar" src="{{item.icon}}" mode="aspectFill" />
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.location}} · {{item.alumniCount}}人</view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{searchResult.associations.length > 0}}" class="result-section">
+        <view class="section-title-small">校友会</view>
+        <view class="list-item" wx:for="{{searchResult.associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.location}} · {{item.memberCount}}人</view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{searchResult.alumni.length > 0}}" class="result-section">
+        <view class="section-title-small">校友</view>
+        <view class="list-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
+          <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.school}} · {{item.company}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

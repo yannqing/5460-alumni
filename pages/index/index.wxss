@@ -1,0 +1,494 @@
+/* pages/index/index.wxss */
+.container {
+  background-color: #f8f8f8;
+  padding-bottom: 40rpx;
+}
+
+/* 轮播图 */
+.banner-section {
+  margin-bottom: 20rpx;
+}
+
+.banner-swiper {
+  width: 100%;
+  height: 350rpx;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 快速入口 */
+.quick-entry-section {
+  position: relative;
+  margin: 20rpx 20rpx;
+}
+
+.quick-entry-bg-decoration {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 3rpx solid #e8e8e8;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  z-index: 1;
+}
+
+.quick-entry-content {
+  position: relative;
+  z-index: 2;
+  padding: 30rpx 30rpx 40rpx;
+}
+
+.quick-entry-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 30rpx;
+  padding-left: 10rpx;
+}
+
+.quick-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx 20rpx;
+}
+
+.quick-entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.quick-entry-icon-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quick-entry-icon {
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #fff5f8 0%, #ffebf2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 20rpx rgba(255, 107, 157, 0.12);
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 2;
+  padding: 15rpx;
+  box-sizing: border-box;
+}
+
+.quick-entry-icon image {
+  width: 100%;
+  height: 100%;
+}
+
+.quick-entry-icon-base {
+  width: 80rpx;
+  height: 14rpx;
+  background: linear-gradient(135deg, #ffe8f0 0%, #ffd4e5 100%);
+  border-radius: 50%;
+  margin-top: -8rpx;
+  opacity: 0.6;
+  filter: blur(2rpx);
+}
+
+.quick-entry-name {
+  font-size: 24rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+/* 通用区块 */
+.section {
+  margin-bottom: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 30rpx 20rpx;
+  background-color: transparent;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.hot-badge {
+  font-size: 28rpx;
+}
+
+.section-more {
+  font-size: 24rpx;
+  color: #999999;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.arrow {
+  font-size: 32rpx;
+  font-weight: 300;
+}
+
+/* 母校列表 */
+.school-list {
+  padding: 0 20rpx;
+}
+
+.school-item {
+  margin-bottom: 20rpx;
+}
+
+.school-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.school-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 3rpx solid #e0e0e0;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.school-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.school-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.school-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.certified-badge {
+  padding: 4rpx 12rpx;
+  background-color: #ff6b9d;
+  color: #ffffff;
+  font-size: 20rpx;
+  border-radius: 6rpx;
+}
+
+.school-location {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+}
+
+.school-tags {
+  display: flex;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+
+.school-action {
+  flex-shrink: 0;
+}
+
+.school-stats {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  font-size: 24rpx;
+  color: #666666;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.stat-item {
+  color: #666666;
+}
+
+.stat-divider {
+  color: #e0e0e0;
+}
+
+/* 校友会横向滚动 */
+.association-scroll {
+  white-space: nowrap;
+  padding: 0 20rpx;
+}
+
+.association-item {
+  display: inline-block;
+  width: 280rpx;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-right: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  vertical-align: top;
+}
+
+.association-item:last-child {
+  margin-right: 0;
+}
+
+.association-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  margin: 0 auto 16rpx;
+  display: block;
+}
+
+.association-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 8rpx;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.association-school {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+  white-space: normal;
+}
+
+.association-info {
+  font-size: 22rpx;
+  color: #999999;
+  white-space: normal;
+}
+
+.dot {
+  margin: 0 8rpx;
+}
+
+/* 校友列表 */
+.alumni-list {
+  padding: 0 20rpx;
+}
+
+.alumni-item {
+  margin-bottom: 20rpx;
+}
+
+.alumni-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.alumni-info {
+  min-width: 0;
+}
+
+.alumni-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+.alumni-education {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 6rpx;
+}
+
+.alumni-work {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.alumni-action {
+  flex-shrink: 0;
+}
+
+/* 优惠券列表 */
+.coupon-list {
+  padding: 0 20rpx;
+}
+
+.coupon-item {
+  margin-bottom: 20rpx;
+}
+
+.coupon-content {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.coupon-image {
+  width: 160rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.coupon-info {
+  min-width: 0;
+}
+
+.coupon-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coupon-merchant {
+  font-size: 22rpx;
+  color: #999999;
+  margin-bottom: 12rpx;
+}
+
+.coupon-price {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.price-now {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ff6b9d;
+}
+
+.price-original {
+  font-size: 22rpx;
+  color: #999999;
+  text-decoration: line-through;
+}
+
+.coupon-stock {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.stock-bar {
+  flex: 1;
+  height: 8rpx;
+  background-color: #f0f0f0;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.stock-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
+  border-radius: 4rpx;
+}
+
+.stock-text {
+  font-size: 20rpx;
+  color: #999999;
+  white-space: nowrap;
+}
+
+.coupon-action {
+  flex-shrink: 0;
+}
+
+/* 活动列表 */
+.activity-list {
+  padding: 0 20rpx;
+}
+
+.activity-item {
+  margin-bottom: 20rpx;
+  padding: 0;
+  overflow: hidden;
+}
+
+.activity-cover {
+  width: 100%;
+  height: 300rpx;
+}
+
+.activity-info {
+  padding: 24rpx;
+}
+
+.activity-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12rpx;
+}
+
+.activity-detail {
+  margin-bottom: 8rpx;
+}
+
+.activity-organizer {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.activity-meta {
+  margin-bottom: 12rpx;
+}
+
+.activity-location {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.activity-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.activity-time {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.activity-participant {
+  font-size: 22rpx;
+  color: #ff6b9d;
+}
+
+/* 底部留白 */
+.bottom-space {
+  height: 40rpx;
+}

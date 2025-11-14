@@ -1,0 +1,116 @@
+/* pages/coupon/list/list.wxss */
+.tabs {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.tab-item.active {
+  color: #ff6b9d;
+  font-weight: 600;
+  border-bottom: 4rpx solid #ff6b9d;
+}
+
+.coupon-list {
+  padding: 20rpx;
+}
+
+.coupon-item {
+  margin-bottom: 20rpx;
+}
+
+.coupon-content {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.coupon-image {
+  width: 160rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.coupon-info {
+  min-width: 0;
+}
+
+.coupon-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coupon-merchant {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+}
+
+.coupon-price {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.price-now {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ff6b9d;
+}
+
+.price-original {
+  font-size: 22rpx;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.coupon-time {
+  font-size: 20rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+}
+
+.coupon-stock {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.stock-bar {
+  flex: 1;
+  height: 8rpx;
+  background-color: #f0f0f0;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.stock-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
+  border-radius: 4rpx;
+}
+
+.stock-text {
+  font-size: 20rpx;
+  color: #999;
+  white-space: nowrap;
+}
+
+.coupon-action {
+  flex-shrink: 0;
+}

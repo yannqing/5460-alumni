@@ -1,0 +1,70 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/discover/discover",
+    "pages/search/search",
+    "pages/profile/profile",
+    "pages/school/list/list",
+    "pages/school/detail/detail",
+    "pages/alumni-association/list/list",
+    "pages/alumni-association/detail/detail",
+    "pages/alumni/list/list",
+    "pages/alumni/detail/detail",
+    "pages/coupon/list/list",
+    "pages/coupon/detail/detail",
+    "pages/coupon/rush/rush",
+    "pages/circle/list/list",
+    "pages/circle/detail/detail",
+    "pages/merchant/list/list",
+    "pages/merchant/detail/detail",
+    "pages/activity/list/list",
+    "pages/activity/detail/detail",
+    "pages/my-follow/my-follow",
+    "pages/my-association/my-association"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "校友圈",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f8f8f8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#e91e63",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/首页.png",
+        "selectedIconPath": "assets/icons/首页.png"
+      },
+      {
+        "pagePath": "pages/discover/discover",
+        "text": "发现",
+        "iconPath": "assets/icons/发现.png",
+        "selectedIconPath": "assets/icons/发现.png"
+      },
+      {
+        "pagePath": "pages/search/search",
+        "text": "搜索",
+        "iconPath": "assets/icons/搜索.png",
+        "selectedIconPath": "assets/icons/搜索.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/icons/我的.png",
+        "selectedIconPath": "assets/icons/我的.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "debug": true,
+  "sitemapLocation": "sitemap.json"
+}

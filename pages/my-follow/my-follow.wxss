@@ -1,0 +1,4 @@
+/* pages/my-follow/my-follow.wxss */
+.list {
+  padding: 20rpx 0;
+}

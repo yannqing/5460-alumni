@@ -1,0 +1,55 @@
+/* pages/activity/detail/detail.wxss */
+.cover-image {
+  width: 100%;
+  height: 400rpx;
+}
+
+.activity-title-large {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.activity-organizer {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 24rpx;
+}
+
+.info-row {
+  display: flex;
+  gap: 20rpx;
+  padding: 20rpx 0;
+}
+
+.info-icon {
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-label {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 6rpx;
+}
+
+.info-detail {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.full-width {
+  width: 100%;
+}

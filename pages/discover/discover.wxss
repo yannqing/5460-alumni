@@ -1,0 +1,151 @@
+/* pages/discover/discover.wxss */
+.category-section {
+  background-color: #fff;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.category-icon {
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #fff0f5 0%, #ffe4ef 100%);
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+}
+
+.category-name {
+  font-size: 24rpx;
+  color: #333;
+}
+
+.section {
+  margin-bottom: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.section-more {
+  font-size: 24rpx;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.arrow {
+  font-size: 32rpx;
+}
+
+.merchant-scroll {
+  white-space: nowrap;
+  padding: 0 20rpx;
+}
+
+.merchant-item {
+  display: inline-block;
+  width: 280rpx;
+  margin-right: 20rpx;
+  vertical-align: top;
+}
+
+.merchant-cover {
+  width: 280rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+}
+
+.merchant-info {
+  padding: 16rpx 0;
+}
+
+.merchant-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.merchant-category {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.merchant-discount {
+  font-size: 24rpx;
+  color: #ff6b9d;
+}
+
+.activity-list,
+.circle-list {
+  padding: 0 20rpx;
+}
+
+.activity-cover,
+.circle-cover {
+  width: 100%;
+  height: 300rpx;
+  border-radius: 12rpx 12rpx 0 0;
+}
+
+.activity-info,
+.circle-info {
+  padding: 24rpx;
+}
+
+.activity-title,
+.circle-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.activity-meta,
+.circle-stats {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.dot {
+  margin: 0 8rpx;
+}
+
+.activity-participant {
+  font-size: 22rpx;
+  color: #ff6b9d;
+}
+
+.circle-item {
+  margin-bottom: 20rpx;
+  padding: 0;
+  overflow: hidden;
+}

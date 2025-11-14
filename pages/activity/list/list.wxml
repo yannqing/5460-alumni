@@ -1,0 +1,19 @@
+<!--pages/activity/list/list.wxml-->
+<view class="container">
+  <view class="activity-list">
+    <view class="card" wx:for="{{activityList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
+      <view class="activity-info">
+        <view class="activity-title">{{item.title}}</view>
+        <view class="activity-meta">
+          <text>{{item.organizer}}</text>
+        </view>
+        <view class="activity-location">📍 {{item.location}}</view>
+        <view class="activity-footer">
+          <text>🕐 {{item.startTime}}</text>
+          <text class="theme-color">{{item.participantCount}}人报名</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

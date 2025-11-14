@@ -1,0 +1,82 @@
+/* pages/search/search.wxss */
+.search-bar {
+  background-color: #fff;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 50rpx;
+  padding: 16rpx 30rpx;
+  gap: 20rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.search-btn {
+  color: #ff6b9d;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.section {
+  margin: 20rpx;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.history-icon {
+  font-size: 32rpx;
+  color: #999;
+}
+
+.history-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.tabs {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.tab-item.active {
+  color: #ff6b9d;
+  font-weight: 600;
+  border-bottom: 4rpx solid #ff6b9d;
+}
+
+.result-section {
+  margin: 20rpx;
+}

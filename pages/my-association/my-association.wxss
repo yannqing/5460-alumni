@@ -1,0 +1,4 @@
+/* pages/my-association/my-association.wxss */
+.list {
+  padding: 20rpx 0;
+}
