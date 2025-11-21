@@ -25,7 +25,13 @@
     "pages/benefit/list/list",
     "pages/benefit/detail/detail",
     "pages/my-follow/my-follow",
-    "pages/my-association/my-association"
+    "pages/my-association/my-association",
+    "pages/alumni-union/detail/detail",
+    "pages/promotion/detail/detail",
+    "pages/enterprise/list/list",
+    "pages/enterprise/detail/detail",
+    "pages/shop/list/list",
+    "pages/shop/detail/detail"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -5,15 +5,21 @@
 
     <view class="card">
       <view class="flex">
-        <image class="avatar-large" src="{{associationInfo.icon}}" mode="aspectFill" />
+        <image class="avatar avatar-large" src="{{associationInfo.icon}}" mode="aspectFill" />
         <view class="flex-1 ml-20">
           <view class="name-row">
             <text class="text-primary text-bold">{{associationInfo.name}}</text>
-            <view class="certified-badge">官方认证</view>
+            <view wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" class="cert-tag-wrap">
+              <block wx:for="{{associationInfo.certifications}}" wx:key="id">
+                <view class="cert-tag" data-type="{{item.type}}" data-id="{{item.id}}" catchtap="handleCertificationTap">
+                  {{item.label}}
+                </view>
+              </block>
+            </view>
           </view>
-          <view class="text-secondary mt-10 school-row">
+          <view class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
             <image class="school-icon" src="/assets/icons/学校.png" mode="aspectFit" />
-            <text>{{associationInfo.schoolName}}</text>
+            <view class="school-tag">{{associationInfo.schoolName}}</view>
           </view>
           <view class="text-placeholder mt-10 location-row">
             <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
@@ -138,6 +144,68 @@
           </view>
         </view>
       </view>
+
+      <!-- 校友企业列表 -->
+      <view class="card mt-20 dashboard-card">
+        <view class="section-header">
+          <view class="section-title">
+            <view class="text-bold">校友企业</view>
+            <view class="section-subtitle">优秀校友创办的企业</view>
+          </view>
+          <view class="text-placeholder" bindtap="viewEnterpriseDetail" data-id="all">查看更多</view>
+        </view>
+        <view class="dashboard-list enterprise" wx:for="{{alumniEnterprises}}" wx:key="id" bindtap="viewEnterpriseDetail" data-id="{{item.id}}">
+          <view class="dashboard-item">
+            <view class="item-leading">
+              <image class="enterprise-logo" src="{{item.logo}}" mode="aspectFill" />
+            </view>
+            <view class="item-content">
+              <view class="item-title">{{item.name}}</view>
+              <view class="item-desc">{{item.description}}</view>
+              <view class="item-meta">
+                <text>{{item.industry}}</text>
+                <text class="meta-divider">·</text>
+                <text>{{item.location}}</text>
+              </view>
+            </view>
+            <view class="item-extra">
+              <text class="chevron">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 校友商铺列表 -->
+      <view class="card mt-20 dashboard-card">
+        <view class="section-header">
+          <view class="section-title">
+            <view class="text-bold">校友商铺</view>
+            <view class="section-subtitle">校友经营的优质商铺</view>
+          </view>
+          <view class="text-placeholder" bindtap="viewShopDetail" data-id="all">查看更多</view>
+        </view>
+        <view class="dashboard-list shop" wx:for="{{alumniShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
+          <view class="dashboard-item">
+            <view class="item-leading">
+              <image class="shop-cover" src="{{item.cover}}" mode="aspectFill" />
+            </view>
+            <view class="item-content">
+              <view class="item-title">{{item.name}}</view>
+              <view class="item-desc">{{item.description}}</view>
+              <view class="item-meta">
+                <text>⭐ {{item.rating}}</text>
+                <text class="meta-divider">·</text>
+                <text>{{item.category}}</text>
+                <text class="meta-divider">·</text>
+                <text>距离{{item.distance}}</text>
+              </view>
+            </view>
+            <view class="item-extra">
+              <text class="chevron">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
     </view>
 
     <view wx:if="{{activeTab === 1}}">
@@ -155,26 +223,5 @@
       </view>
     </view>
 
-    <view wx:if="{{activeTab === 2}}">
-      <view class="card" wx:if="{{associationUnion}}">
-        <view class="text-bold mb-20">校友总会</view>
-        <view class="flex mb-20">
-          <image class="avatar-large" src="{{associationUnion.icon}}" mode="aspectFill" />
-          <view class="flex-1 ml-20">
-            <view class="text-primary text-bold">{{associationUnion.name}}</view>
-            <view class="text-secondary mt-10">{{associationUnion.address}}</view>
-          </view>
-        </view>
-        <view class="text-secondary">{{associationUnion.description}}</view>
-        <view class="divider"></view>
-        <view class="text-secondary mt-10">官网：{{associationUnion.website}}</view>
-        <view class="text-secondary mt-10">电话：{{associationUnion.phone}}</view>
-        <view class="text-secondary mt-10">邮箱：{{associationUnion.email}}</view>
-      </view>
-      <view wx:else class="empty-state">
-        <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
-        <text>暂无校友总会信息</text>
-      </view>
-    </view>
   </view>
 </view>

@@ -1,0 +1,144 @@
+/* pages/enterprise/list/list.wxss */
+.enterprise-page {
+  min-height: 100vh;
+  background-color: #f8f8f8;
+  padding: 20rpx;
+}
+
+.enterprise-hero {
+  padding: 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.hero-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 8rpx;
+}
+
+.hero-subtitle {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 40rpx;
+  padding: 16rpx 24rpx;
+}
+
+.search-bar .icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.filter-tabs {
+  white-space: nowrap;
+  background-color: #fff;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.tab {
+  display: inline-block;
+  padding: 12rpx 24rpx;
+  margin: 0 12rpx;
+  font-size: 26rpx;
+  color: #666;
+  border-radius: 30rpx;
+  background-color: #f5f5f5;
+}
+
+.tab.active {
+  background-color: #ff6b9d;
+  color: #fff;
+}
+
+.enterprise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.enterprise-card {
+  padding: 32rpx;
+}
+
+.enterprise-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.enterprise-logo {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 16rpx;
+  margin-right: 24rpx;
+  background-color: #f5f5f5;
+}
+
+.enterprise-info {
+  flex: 1;
+}
+
+.enterprise-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 8rpx;
+}
+
+.enterprise-industry {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.enterprise-desc {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
+
+.enterprise-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.meta-item {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.meta-label {
+  color: #999;
+}
+
+.meta-value {
+  color: #666;
+}
+
+.empty-block {
+  padding: 80rpx 40rpx;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
+

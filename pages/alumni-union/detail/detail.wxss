@@ -1,0 +1,182 @@
+/* pages/alumni-union/detail/detail.wxss */
+.loading-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 封面区域 */
+.cover-section {
+  position: relative;
+  height: 500rpx;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+}
+
+.cover-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  padding: 40rpx 30rpx 30rpx;
+}
+
+.union-basic {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+}
+
+.union-icon-large {
+  border: 3rpx solid #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+}
+
+.union-basic-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.union-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.union-name-large {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.certified-badge-large {
+  padding: 4rpx 12rpx;
+  background-color: rgb(226, 175, 22);
+  color: #ffffff;
+  font-size: 22rpx;
+  border-radius: 6rpx;
+  flex-shrink: 0;
+}
+
+.union-school {
+  font-size: 26rpx;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+/* 信息区块 */
+.info-section,
+.contact-section {
+  margin: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title-small {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 24rpx;
+}
+
+.info-row,
+.contact-item {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.info-row:last-child,
+.contact-item:last-child {
+  border-bottom: none;
+}
+
+.info-label,
+.contact-label {
+  width: 180rpx;
+  font-size: 26rpx;
+  color: #999999;
+  flex-shrink: 0;
+}
+
+.info-value,
+.contact-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333333;
+  word-break: break-all;
+}
+
+.description-text {
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.link-text {
+  color: #ff6b9d;
+  text-decoration: underline;
+}
+
+/* 小程序跳转 */
+.app-section {
+  margin: 20rpx;
+  padding: 30rpx;
+  text-align: center;
+}
+
+.app-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin-bottom: 24rpx;
+  padding: 20rpx;
+  background-color: #fff0f5;
+  border-radius: 8rpx;
+}
+
+.tip-icon {
+  font-size: 32rpx;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: #ff6b9d;
+}
+
+.app-btn {
+  width: 100%;
+  padding: 24rpx 0;
+  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 40rpx;
+  box-shadow: 0 10rpx 20rpx rgba(255, 107, 157, 0.25);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 20rpx;
+}
+
+.empty-state image {
+  width: 200rpx;
+  height: 200rpx;
+  opacity: 0.5;
+}
+
+.empty-state text {
+  font-size: 26rpx;
+  color: #999999;
+}
+

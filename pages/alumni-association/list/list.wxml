@@ -48,12 +48,7 @@
             <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
             <text>{{item.location}}</text>
           </view>
-
-          <!-- 标签 -->
-          <view class="card-tags">
-            <text class="mini-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
-            <text class="next-arrow">›</text>
-          </view>
+          
         </view>
       </view>
 

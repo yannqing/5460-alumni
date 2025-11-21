@@ -1,0 +1,126 @@
+/* pages/shop/detail/detail.wxss */
+.shop-detail-page {
+  min-height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.cover-image {
+  width: 100%;
+  height: 400rpx;
+}
+
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.loading {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.hero-card {
+  padding: 32rpx;
+  margin: 20rpx;
+  margin-top: -40rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.shop-name-large {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 16rpx;
+}
+
+.shop-rating {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 12rpx;
+}
+
+.rating-text {
+  font-size: 32rpx;
+  color: #ff8a00;
+  margin-right: 8rpx;
+}
+
+.rating-desc {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.shop-category {
+  font-size: 26rpx;
+  color: #8c8c8c;
+}
+
+.info-card {
+  padding: 32rpx;
+  margin: 0 20rpx 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 24rpx;
+}
+
+.info-row {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  width: 160rpx;
+  font-size: 26rpx;
+  color: #8c8c8c;
+  flex-shrink: 0;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #1f1f1f;
+}
+
+.text-secondary {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  padding: 0 32rpx 32rpx;
+}
+
+.contact-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.contact-item:last-child {
+  border-bottom: none;
+}
+
+.contact-label {
+  font-size: 26rpx;
+  color: #8c8c8c;
+  margin-bottom: 8rpx;
+}
+
+.contact-value {
+  font-size: 26rpx;
+  color: #1f1f1f;
+}
+
+.link-text {
+  color: #ff6b9d;
+}
+

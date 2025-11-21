@@ -1,0 +1,64 @@
+<!--pages/enterprise/detail/detail.wxml-->
+<view class="container enterprise-detail-page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:else>
+    <view class="card hero-card">
+      <view class="enterprise-header">
+        <image class="enterprise-logo-large" src="{{enterpriseInfo.logo}}" mode="aspectFill" />
+        <view class="enterprise-info">
+          <view class="enterprise-name-large">{{enterpriseInfo.name}}</view>
+          <view class="enterprise-industry">{{enterpriseInfo.industry}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card info-card">
+      <view class="section-title">基本信息</view>
+      <view class="info-row">
+        <view class="info-label">企业名称</view>
+        <view class="info-value">{{enterpriseInfo.name}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">所属行业</view>
+        <view class="info-value">{{enterpriseInfo.industry}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">创始人</view>
+        <view class="info-value">{{enterpriseInfo.founder}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">企业规模</view>
+        <view class="info-value">{{enterpriseInfo.scale}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">企业地址</view>
+        <view class="info-value">{{enterpriseInfo.location}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">企业简介</view>
+      <view class="text-secondary">{{enterpriseInfo.description}}</view>
+    </view>
+
+    <view class="card" wx:if="{{enterpriseInfo.website || enterpriseInfo.phone || enterpriseInfo.email}}">
+      <view class="section-title">联系方式</view>
+      <view class="contact-item" wx:if="{{enterpriseInfo.website}}">
+        <view class="contact-label">官方网站</view>
+        <view class="contact-value link-text" bindtap="copyWebsite">{{enterpriseInfo.website}}</view>
+      </view>
+      <view class="contact-item" wx:if="{{enterpriseInfo.phone}}">
+        <view class="contact-label">联系电话</view>
+        <view class="contact-value link-text" bindtap="makeCall" data-phone="{{enterpriseInfo.phone}}">{{enterpriseInfo.phone}}</view>
+      </view>
+      <view class="contact-item" wx:if="{{enterpriseInfo.email}}">
+        <view class="contact-label">电子邮箱</view>
+        <view class="contact-value link-text" bindtap="copyEmail" data-email="{{enterpriseInfo.email}}">{{enterpriseInfo.email}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+

@@ -1,0 +1,66 @@
+<!--pages/shop/detail/detail.wxml-->
+<view class="container shop-detail-page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:else>
+    <image class="cover-image" src="{{shopInfo.cover}}" mode="aspectFill" />
+
+    <view class="card hero-card">
+      <view class="shop-name-large">{{shopInfo.name}}</view>
+      <view class="shop-rating">
+        <text class="rating-text">⭐ {{shopInfo.rating}}</text>
+        <text class="rating-desc">评分</text>
+      </view>
+      <view class="shop-category">{{shopInfo.category}}</view>
+    </view>
+
+    <view class="card info-card">
+      <view class="section-title">基本信息</view>
+      <view class="info-row">
+        <view class="info-label">商铺名称</view>
+        <view class="info-value">{{shopInfo.name}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">商铺类别</view>
+        <view class="info-value">{{shopInfo.category}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">店主</view>
+        <view class="info-value">{{shopInfo.owner}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">商铺地址</view>
+        <view class="info-value">{{shopInfo.location}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">距离</view>
+        <view class="info-value">{{shopInfo.distance}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">商铺简介</view>
+      <view class="text-secondary">{{shopInfo.description}}</view>
+    </view>
+
+    <view class="card" wx:if="{{shopInfo.phone || shopInfo.wechat}}">
+      <view class="section-title">联系方式</view>
+      <view class="contact-item" wx:if="{{shopInfo.phone}}">
+        <view class="contact-label">联系电话</view>
+        <view class="contact-value link-text" bindtap="makeCall" data-phone="{{shopInfo.phone}}">{{shopInfo.phone}}</view>
+      </view>
+      <view class="contact-item" wx:if="{{shopInfo.wechat}}">
+        <view class="contact-label">微信号</view>
+        <view class="contact-value">{{shopInfo.wechat}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">营业时间</view>
+      <view class="text-secondary">{{shopInfo.businessHours || '周一至周日 09:00-22:00'}}</view>
+    </view>
+  </view>
+</view>
+

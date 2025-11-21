@@ -5,11 +5,11 @@
   </view>
 
   <view wx:else>
-    <image class="cover-image" src="{{activityInfo.cover}}" mode="aspectFill" />
+  <image class="cover-image" src="{{activityInfo.cover}}" mode="aspectFill" />
 
     <view class="card hero-card">
-      <view class="activity-title-large">{{activityInfo.title}}</view>
-      <view class="activity-organizer">主办方：{{activityInfo.organizer}}</view>
+    <view class="activity-title-large">{{activityInfo.title}}</view>
+    <view class="activity-organizer">主办方：{{activityInfo.organizer}}</view>
       <view class="stat-row">
         <view class="stat-block">
           <text class="stat-number">{{activityInfo.participantCount}}</text>
@@ -41,20 +41,20 @@
     </view>
 
     <view class="card info-card">
-      <view class="info-row">
-        <text class="info-icon">📍</text>
-        <view class="info-content">
-          <view class="info-label">活动地点</view>
-          <view class="info-value">{{activityInfo.location}}</view>
-          <view class="info-detail">{{activityInfo.address}}</view>
-        </view>
+    <view class="info-row">
+      <text class="info-icon">📍</text>
+      <view class="info-content">
+        <view class="info-label">活动地点</view>
+        <view class="info-value">{{activityInfo.location}}</view>
+        <view class="info-detail">{{activityInfo.address}}</view>
       </view>
+    </view>
 
-      <view class="info-row">
-        <text class="info-icon">🕐</text>
-        <view class="info-content">
-          <view class="info-label">活动时间</view>
-          <view class="info-value">{{activityInfo.startTime}} - {{activityInfo.endTime}}</view>
+    <view class="info-row">
+      <text class="info-icon">🕐</text>
+      <view class="info-content">
+        <view class="info-label">活动时间</view>
+        <view class="info-value">{{activityInfo.startTime}} - {{activityInfo.endTime}}</view>
         </view>
       </view>
     </view>

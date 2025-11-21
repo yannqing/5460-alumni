@@ -1,0 +1,70 @@
+<!--pages/enterprise/list/list.wxml-->
+<view class="container enterprise-page">
+  <view class="enterprise-hero card">
+    <view class="hero-header">
+      <view>
+        <view class="hero-title">校友企业</view>
+        <view class="hero-subtitle">优秀校友创办的企业</view>
+      </view>
+    </view>
+    <view class="search-bar">
+      <text class="icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索企业名称/行业/创始人"
+        value="{{searchValue}}"
+        bindinput="handleSearchInput"
+      />
+    </view>
+  </view>
+
+  <scroll-view class="filter-tabs" scroll-x>
+    <view
+      class="tab {{filterCategory === option.id ? 'active' : ''}}"
+      wx:for="{{filterOptions}}"
+      wx:key="id"
+      data-id="{{option.id}}"
+      bindtap="handleFilterChange"
+    >
+      {{option.label}}
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{!displayList.length}}" class="empty-block card">
+    <text>暂无企业信息</text>
+  </view>
+
+  <view wx:else class="enterprise-list">
+    <view
+      class="enterprise-card card"
+      wx:for="{{displayList}}"
+      wx:key="id"
+      bindtap="viewDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="enterprise-header">
+        <image class="enterprise-logo" src="{{item.logo}}" mode="aspectFill" />
+        <view class="enterprise-info">
+          <view class="enterprise-name">{{item.name}}</view>
+          <view class="enterprise-industry">{{item.industry}}</view>
+        </view>
+      </view>
+      <view class="enterprise-desc">{{item.description}}</view>
+      <view class="enterprise-meta">
+        <view class="meta-item">
+          <text class="meta-label">创始人：</text>
+          <text class="meta-value">{{item.founder}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">规模：</text>
+          <text class="meta-value">{{item.scale}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">地址：</text>
+          <text class="meta-value">{{item.location}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+

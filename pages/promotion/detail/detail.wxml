@@ -1,0 +1,58 @@
+<!-- pages/promotion/detail/detail.wxml -->
+<view class="promotion-container">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:elif="{{promotionInfo}}" class="promotion-body">
+    <view class="hero-card">
+      <image class="hero-cover" src="{{promotionInfo.cover}}" mode="aspectFill" />
+      <view class="hero-overlay">
+        <view class="hero-content">
+          <image class="hero-icon" src="{{promotionInfo.icon}}" mode="aspectFill" />
+         <view class="hero-text">
+            <view class="hero-title">{{promotionInfo.name}}</view>
+            <view class="hero-subtitle">{{promotionInfo.city}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">基本信息</view>
+      <view class="info-row">
+        <text class="info-label">主办城市</text>
+        <text class="info-value">{{promotionInfo.city}}</text>
+      </view>
+      <view class="info-row" wx:if="{{promotionInfo.coverage}}">
+        <text class="info-label">服务范围</text>
+        <text class="info-value">{{promotionInfo.coverage}}</text>
+      </view>
+      <view class="info-row" wx:if="{{promotionInfo.description}}">
+        <text class="info-label">简介</text>
+        <text class="info-value description">{{promotionInfo.description}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">联系方式</view>
+      <view class="info-row" wx:if="{{promotionInfo.contactPhone}}">
+        <text class="info-label">电话</text>
+        <text class="info-value link" bindtap="handleCall">{{promotionInfo.contactPhone}}</text>
+      </view>
+      <view class="info-row" wx:if="{{promotionInfo.contactEmail}}">
+        <text class="info-label">邮箱</text>
+        <text class="info-value link" data-value="{{promotionInfo.contactEmail}}" bindtap="copyValue">{{promotionInfo.contactEmail}}</text>
+      </view>
+      <view class="info-row" wx:if="{{promotionInfo.address}}">
+        <text class="info-label">地址</text>
+        <text class="info-value">{{promotionInfo.address}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="empty-state">
+    <text>暂无相关信息</text>
+  </view>
+</view>
+

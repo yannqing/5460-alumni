@@ -1,0 +1,170 @@
+/* pages/shop/list/list.wxss */
+.shop-page {
+  min-height: 100vh;
+  background-color: #f8f8f8;
+  padding: 20rpx;
+}
+
+.shop-hero {
+  padding: 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.hero-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 8rpx;
+}
+
+.hero-subtitle {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 40rpx;
+  padding: 16rpx 24rpx;
+}
+
+.search-bar .icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.filter-tabs {
+  white-space: nowrap;
+  background-color: #fff;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.tab {
+  display: inline-block;
+  padding: 12rpx 24rpx;
+  margin: 0 12rpx;
+  font-size: 26rpx;
+  color: #666;
+  border-radius: 30rpx;
+  background-color: #f5f5f5;
+}
+
+.tab.active {
+  background-color: #ff6b9d;
+  color: #fff;
+}
+
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.shop-card {
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+}
+
+.shop-cover {
+  width: 200rpx;
+  height: 200rpx;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+
+.shop-content {
+  flex: 1;
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.shop-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 12rpx;
+}
+
+.shop-desc {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.shop-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.rating {
+  color: #ff8a00;
+}
+
+.meta-divider {
+  margin: 0 8rpx;
+  color: #d9d9d9;
+}
+
+.location-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 6rpx;
+}
+
+.distance {
+  margin-left: auto;
+}
+
+.shop-owner {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.owner-label {
+  color: #999;
+}
+
+.owner-name {
+  color: #666;
+}
+
+.empty-block {
+  padding: 80rpx 40rpx;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
+

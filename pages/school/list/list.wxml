@@ -40,16 +40,6 @@
             <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
             <text>{{item.location}}</text>
           </view>
-          <view class="school-tags">
-            <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="school-footer">
-        <view class="school-stats">
-          <text class="stat-item">校友 {{item.alumniCount}}</text>
-          <text class="stat-divider">|</text>
-          <text class="stat-item">校友会 {{item.associationCount}}</text>
         </view>
         <view class="school-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
           <view class="btn btn-small {{item.isFollowed ? 'btn-plain' : 'btn-primary'}}">

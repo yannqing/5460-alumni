@@ -1,18 +1,12 @@
 // pages/school/detail/detail.js
-const { schoolApi, associationApi } = require('../../../api/index.js')
-
 Page({
   data: {
     schoolId: '',
     schoolInfo: null,
     loading: true,
-
-    // 选项卡
-    activeTab: 0,
-    tabs: ['基本信息', '校友总会'],
-
-    // 校友总会信息
-    alumniUnion: null
+    
+    // 校友会列表
+    associationList: []
   },
 
   onLoad(options) {
@@ -30,111 +24,107 @@ Page({
 
   // 加载学校详情
   loadSchoolDetail() {
-    // 模拟数据
+    // TODO: 接后端接口
+    // wx.request({
+    //   url: `${app.globalData.apiBase}/school/${this.data.schoolId}`,
+    //   method: 'GET',
+    //   success: (res) => {
+    //     if (res.data.code === 200) {
+    //       const data = res.data.data
+    //       // 后端返回的数据中，如果学校已通过校友总会认证，会包含 certifiedUnion 字段
+    //       // certifiedUnion 格式: { id: 1, name: 'XX校友总会', ... }
+    //       this.setData({
+    //         schoolInfo: data,
+    //         associationList: data.associationList || [],
+    //         loading: false
+    //       })
+    //     }
+    //   },
+    //   fail: () => {
+    //     this.setData({ loading: false })
+    //   }
+    // })
+
+    // 模拟数据 - 只保留基本信息字段
     const mockData = {
       id: this.data.schoolId,
       name: '南京大学',
       icon: '/assets/logo/njdx.jpg',
       cover: '/assets/images/南京大学背景图.jpg',
       location: '江苏省南京市',
-      address: '江苏省南京市栖霞区仙林大道163号',
-      alumniCount: 12580,
-      associationCount: 156,
-      isFollowed: false,
-      isCertified: true,
-      tags: ['985', '211', '双一流'],
       oldNames: ['金陵大学', '国立中央大学'],
-      foundedYear: 1902,
-      description: '南京大学坐落于钟灵毓秀、虎踞龙蟠的金陵古都，是一所历史悠久、声誉卓著的百年名校。其前身是创建于1902年的三江师范学堂，此后历经两江师范学堂、南京高等师范学校、国立东南大学、国立第四中山大学、国立中央大学、国立南京大学等历史时期，于1950年更名为南京大学。',
-      website: 'https://www.nju.edu.cn',
-      phone: '025-83593186'
+      // 认证的校友总会信息（通过认证功能认证成功后自动添加，不是前端写死的）
+      // 如果学校未认证，此字段为 null 或 undefined
+      certifiedUnion: {
+        id: 1,
+        name: '南京大学校友总会'
+      }
     }
 
-    // 校友总会信息
-    const alumniUnionData = {
-      id: 1,
-      name: '南京大学校友总会',
-      icon: 'https://via.placeholder.com/150/ff6b9d/ffffff?text=NJU+Union',
-      isCertified: true,
-      description: '南京大学校友总会是南京大学校友的全球性组织',
-      hasApp: true,
-      appPath: '',
-      website: 'https://alumni.nju.edu.cn',
-      phone: '025-83593186',
-      email: 'alumni@nju.edu.cn',
-      wechat: 'NJU_Alumni'
-    }
+    // 校友会列表假数据
+    const associationListData = [
+      {
+        id: 101,
+        name: '南京大学上海校友会',
+        icon: 'https://via.placeholder.com/120/ff6b9d/ffffff?text=SH',
+        location: '上海市',
+        memberCount: 1250,
+        isCertified: true,
+        isJoined: false
+      },
+      {
+        id: 102,
+        name: '南京大学北京校友会',
+        icon: 'https://via.placeholder.com/120/4a90e2/ffffff?text=BJ',
+        location: '北京市',
+        memberCount: 980,
+        isCertified: true,
+        isJoined: true
+      },
+      {
+        id: 103,
+        name: '南京大学深圳校友会',
+        icon: 'https://via.placeholder.com/120/50c878/ffffff?text=SZ',
+        location: '深圳市',
+        memberCount: 856,
+        isCertified: false,
+        isJoined: false
+      },
+      {
+        id: 104,
+        name: '南京大学广州校友会',
+        icon: 'https://via.placeholder.com/120/ffa500/ffffff?text=GZ',
+        location: '广州市',
+        memberCount: 642,
+        isCertified: true,
+        isJoined: false
+      },
+      {
+        id: 105,
+        name: '南京大学杭州校友会',
+        icon: 'https://via.placeholder.com/120/9b59b6/ffffff?text=HZ',
+        location: '杭州市',
+        memberCount: 523,
+        isCertified: false,
+        isJoined: false
+      }
+    ]
 
     this.setData({
       schoolInfo: mockData,
-      alumniUnion: alumniUnionData,
+      associationList: associationListData,
       loading: false
     })
   },
 
-  // 切换选项卡
-  switchTab(e) {
-    const { index } = e.currentTarget.dataset
-    this.setData({ activeTab: index })
-  },
-
-  // 关注/取消关注
-  toggleFollow() {
+  // 查看认证的校友总会详情
+  viewCertifiedUnion() {
     const { schoolInfo } = this.data
-    schoolInfo.isFollowed = !schoolInfo.isFollowed
-    this.setData({ schoolInfo })
-
-    wx.showToast({
-      title: schoolInfo.isFollowed ? '关注成功' : '已取消关注',
-      icon: 'success'
-    })
-  },
-
-  // 查看校友总会详情
-  viewAlumniUnion() {
-    const { alumniUnion } = this.data
-    if (alumniUnion.hasApp && alumniUnion.appPath) {
-      // 跳转到小程序
-      wx.navigateToMiniProgram({
-        appId: alumniUnion.appPath,
-        success: () => {
-          console.log('跳转成功')
-        },
-        fail: () => {
-          wx.showToast({
-            title: '跳转失败',
-            icon: 'none'
-          })
-        }
-      })
-    } else {
-      // 显示校友总会信息
-      wx.showModal({
-        title: alumniUnion.name,
-        content: `${alumniUnion.description}\n\n联系方式：\n电话：${alumniUnion.phone}\n邮箱：${alumniUnion.email}\n微信：${alumniUnion.wechat}`,
-        showCancel: false
+    if (schoolInfo && schoolInfo.certifiedUnion && schoolInfo.certifiedUnion.id) {
+      wx.navigateTo({
+        url: `/pages/alumni-union/detail/detail?id=${schoolInfo.certifiedUnion.id}`
       })
     }
-  },
-
-  // 拨打电话
-  makeCall() {
-    wx.makePhoneCall({
-      phoneNumber: this.data.schoolInfo.phone
-    })
-  },
-
-  // 复制网址
-  copyWebsite() {
-    wx.setClipboardData({
-      data: this.data.schoolInfo.website,
-      success: () => {
-        wx.showToast({
-          title: '已复制',
-          icon: 'success'
-        })
-      }
-    })
   },
 
   // 预览图片
@@ -143,6 +133,33 @@ Page({
     wx.previewImage({
       urls: [url],
       current: url
+    })
+  },
+
+  // 查看校友会详情
+  viewAssociationDetail(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/alumni-association/detail/detail?id=${id}`
+    })
+  },
+
+  // 加入/退出校友会
+  toggleJoinAssociation(e) {
+    const { id } = e.currentTarget.dataset
+    const associationList = this.data.associationList.map(item => {
+      if (item.id === id) {
+        return { ...item, isJoined: !item.isJoined }
+      }
+      return item
+    })
+    this.setData({ associationList })
+    
+    const association = associationList.find(item => item.id === id)
+    wx.showToast({
+      title: association.isJoined ? '加入成功' : '已退出',
+      icon: 'success',
+      duration: 1500
     })
   }
 })

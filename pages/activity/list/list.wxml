@@ -59,7 +59,7 @@
       data-id="{{item.id}}"
     >
       <view class="cover-wrap">
-        <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
+      <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
         <view class="status-badge {{item.status}}">
           {{item.status === 'upcoming' ? '即将开始' : item.status === 'ongoing' ? '进行中' : '已结束'}}
         </view>

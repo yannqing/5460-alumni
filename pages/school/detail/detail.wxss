@@ -62,21 +62,28 @@
 }
 
 .certified-badge-large {
-  width: 40rpx;
-  height: 40rpx;
+  padding: 4rpx 12rpx;
   background-color: rgb(226, 175, 22);
   color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rpx;
+  border-radius: 6rpx;
+  font-size: 22rpx;
   flex-shrink: 0;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .school-location-large {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   font-size: 26rpx;
   color: #ffffff;
+}
+
+.school-location-large .location-icon {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
 }
 
 /* 操作栏 */
@@ -147,6 +154,129 @@
 /* 信息区块 */
 .info-section {
   margin-bottom: 20rpx;
+}
+
+/* 校友会列表区块 */
+.association-list-section {
+  margin-top: 20rpx;
+}
+
+.association-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.association-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.association-item:last-child {
+  border-bottom: none;
+}
+
+.association-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.association-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2rpx solid #f0f0f0;
+  background-color: #ffffff;
+}
+
+.association-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.association-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 10rpx;
+}
+
+.association-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.certified-badge-small {
+  padding: 2rpx 10rpx;
+  background-color: rgb(226, 175, 22);
+  color: #ffffff;
+  font-size: 20rpx;
+  border-radius: 4rpx;
+  flex-shrink: 0;
+}
+
+.association-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.association-location {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.location-icon-small {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
+}
+
+.association-members {
+  color: #999999;
+}
+
+.association-action {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+.join-btn {
+  padding: 12rpx 32rpx;
+  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
+  color: #ffffff;
+  font-size: 26rpx;
+  border-radius: 40rpx;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.3);
+  transition: all 0.3s;
+}
+
+.join-btn.joined {
+  background: linear-gradient(90deg, #e0e0e0 0%, #f0f0f0 100%);
+  color: #999999;
+  box-shadow: none;
+}
+
+.empty-association {
+  padding: 60rpx 0;
+  text-align: center;
+}
+
+.empty-association .empty-text {
+  font-size: 26rpx;
+  color: #999999;
 }
 
 .section-title-small {

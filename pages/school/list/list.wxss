@@ -67,8 +67,9 @@
 
 .school-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 20rpx;
-  margin-bottom: 20rpx;
 }
 
 .school-icon {
@@ -84,6 +85,9 @@
 .school-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .school-name-row {
@@ -124,7 +128,6 @@
   gap: 8rpx;
   font-size: 24rpx;
   color: #666666;
-  margin-bottom: 12rpx;
 }
 
 .school-location .location-icon {
@@ -139,31 +142,10 @@
   flex-wrap: wrap;
 }
 
-.school-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 20rpx;
-  border-top: 1rpx solid #f0f0f0;
-}
-
-.school-stats {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  font-size: 24rpx;
-}
-
-.stat-item {
-  color: #666666;
-}
-
-.stat-divider {
-  color: #e0e0e0;
-}
-
 .school-action {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 /* 弹窗 */
