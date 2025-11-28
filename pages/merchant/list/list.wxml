@@ -1,16 +1,2 @@
 <!--pages/merchant/list/list.wxml-->
-<view class="container">
-  <view class="merchant-list">
-    <view class="card" wx:for="{{merchantList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <image class="merchant-cover" src="{{item.cover}}" mode="aspectFill" />
-      <view class="merchant-info">
-        <view class="merchant-name">{{item.name}}</view>
-        <view class="merchant-category">{{item.category}}</view>
-        <view class="merchant-discount">{{item.discount}}</view>
-        <view class="merchant-tags">
-          <text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
-        </view>
-      </view>
-    </view>
-  </view>
-</view>
+<text>pages/merchant/list/list.wxml</text>

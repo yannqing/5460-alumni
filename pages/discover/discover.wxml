@@ -1,82 +1,117 @@
 <!--pages/discover/discover.wxml-->
-<view class="container">
-  <!-- 分类入口 -->
-  <view class="category-section">
-    <view class="category-grid">
-      <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="navigateTo" data-url="{{item.url}}">
-        <view class="category-icon">{{item.icon}}</view>
-        <view class="category-name">{{item.name}}</view>
+<view class="discover-page">
+  <!-- 顶部搜索栏 -->
+  <view class="hero-card">
+    <view class="search-bar">
+      <image class="search-icon-img" src="/assets/icons/搜索.png" mode="aspectFit"></image>
+      <input
+        class="search-input"
+        placeholder="搜索商家 / 优惠券 / 活动"
+        value="{{searchValue}}"
+        confirm-type="search"
+        bindinput="handleSearchInput"
+        bindconfirm="handleSearchConfirm"
+      />
+      <view class="search-action" bindtap="handleSearchConfirm">搜索</view>
+    </view>
+
+    <view class="hero-stats">
+      <view class="stats-item">
+        <text class="stats-value">{{stats.merchantCount}}</text>
+        <text class="stats-label">合作商家</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-value">{{stats.couponCount}}</text>
+        <text class="stats-label">可用优惠券</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-value">{{stats.activityCount}}</text>
+        <text class="stats-label">进行中活动</text>
       </view>
     </view>
   </view>
 
-  <!-- 推荐商家 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">推荐商家</view>
-      <view class="section-more" bindtap="navigateTo" data-url="/pages/merchant/list/list">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
+  <!-- 分类筛选 -->
+  <scroll-view class="category-bar" scroll-x enable-flex>
+    <view
+      class="category-chip {{selectedCategory === item.id ? 'active' : ''}}"
+      wx:for="{{categories}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="handleCategoryChange"
+    >
+      {{item.label}}
     </view>
-    <scroll-view class="merchant-scroll" scroll-x>
-      <view class="merchant-item" wx:for="{{merchants}}" wx:key="id" bindtap="viewMerchantDetail" data-id="{{item.id}}">
-        <image class="merchant-cover" src="{{item.cover}}" mode="aspectFill" />
-        <view class="merchant-info">
-          <view class="merchant-name">{{item.name}}</view>
-          <view class="merchant-category">{{item.category}}</view>
-          <view class="merchant-discount">{{item.discount}}</view>
+  </scroll-view>
+
+  <!-- 排序选项 -->
+  <view class="sort-row">
+    <view
+      class="sort-option {{sortType === option.id ? 'active' : ''}}"
+      wx:for="{{sortOptions}}"
+      wx:key="id"
+      wx:for-item="option"
+      data-id="{{option.id}}"
+      bindtap="handleSortChange"
+    >
+      {{option.label}}
+    </view>
+    <view class="sort-extra" bindtap="getLocation">重新定位</view>
+  </view>
+
+  <!-- 商家列表 -->
+  <view class="merchant-list">
+    <block wx:if="{{loading}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="skeleton-line wide"></view>
+        <view class="skeleton-line"></view>
+        <view class="skeleton-tags">
+          <view class="skeleton-tag"></view>
+          <view class="skeleton-tag"></view>
         </view>
       </view>
-    </scroll-view>
-  </view>
+    </block>
 
-  <!-- 热门活动 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">热门活动</view>
-      <view class="section-more" bindtap="navigateTo" data-url="/pages/activity/list/list">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
-    </view>
-    <view class="activity-list">
-      <view class="card" wx:for="{{activities}}" wx:key="id" bindtap="viewActivityDetail" data-id="{{item.id}}">
-        <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
-        <view class="activity-info">
-          <view class="activity-title">{{item.title}}</view>
-          <view class="activity-meta">
-            <text>{{item.organizer}}</text>
-            <text class="dot">•</text>
-            <text>{{item.startTime}}</text>
+    <block wx:elif="{{displayList.length}}">
+      <view class="merchant-card" wx:for="{{displayList}}" wx:key="id" bindtap="viewMerchantCoupons" data-id="{{item.id}}">
+        <view class="merchant-header">
+          <image class="merchant-avatar" src="{{item.avatar}}" mode="aspectFill" bindtap="viewMerchantDetail" data-id="{{item.id}}" catchtap="true"></image>
+          <view class="merchant-info">
+            <view class="merchant-name-row">
+              <text class="merchant-name">{{item.name}}</text>
+              <view wx:if="{{item.isCertified}}" class="cert-badge-small">✓</view>
+            </view>
+            <view class="merchant-meta">
+              <text class="merchant-location">📍 {{item.location}}</text>
+              <text class="meta-divider">·</text>
+              <text class="merchant-distance">距离 {{item.distance}}m</text>
+              <text class="meta-divider">·</text>
+              <text class="merchant-rating">⭐ {{item.rating}}</text>
+            </view>
           </view>
-          <view class="activity-participant">{{item.participantCount}}人报名</view>
         </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 热门圈子 -->
-  <view class="section">
-    <view class="section-header">
-      <view class="section-title">热门圈子</view>
-      <view class="section-more" bindtap="navigateTo" data-url="/pages/circle/list/list">
-        <text>查看更多</text>
-        <text class="arrow">›</text>
-      </view>
-    </view>
-    <view class="circle-list">
-      <view class="circle-item card" wx:for="{{circles}}" wx:key="id" bindtap="viewCircleDetail" data-id="{{item.id}}">
-        <image class="circle-cover" src="{{item.cover}}" mode="aspectFill" />
-        <view class="circle-info">
-          <view class="circle-name">{{item.name}}</view>
-          <view class="circle-stats">
-            <text>{{item.memberCount}}成员</text>
-            <text class="dot">•</text>
-            <text>{{item.postCount}}帖子</text>
+        <scroll-view class="merchant-coupons" scroll-x>
+          <view class="coupon-item" wx:for="{{item.coupons}}" wx:key="id" wx:for-item="coupon" bindtap="viewCouponDetail" data-id="{{coupon.id}}" catchtap="true">
+            <view class="coupon-card-mini">
+              <view class="coupon-left">
+                <view class="coupon-discount-large">{{coupon.discount}}</view>
+                <view class="coupon-label">优惠券</view>
+              </view>
+              <view class="coupon-divider"></view>
+              <view class="coupon-right">
+                <view class="coupon-title-mini">{{coupon.title}}</view>
+                <view class="coupon-expire-mini">有效期至 {{coupon.expireDate}}</view>
+              </view>
+            </view>
           </view>
-        </view>
+        </scroll-view>
       </view>
+    </block>
+
+    <view class="empty-state" wx:else>
+      <image class="empty-img" src="https://cdn.example.com/empty-benefit.png" mode="widthFix"></image>
+      <text class="empty-text">暂无符合条件的商家</text>
+      <view class="empty-btn" bindtap="refreshPage">重置筛选</view>
     </view>
   </view>
 </view>

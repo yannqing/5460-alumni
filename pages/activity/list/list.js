@@ -1,14 +1,14 @@
 // pages/activity/list/list.js
 const MOCK_ACTIVITIES = [
-  {
-    id: 1,
-    title: '2025年度校友联谊会',
+      {
+        id: 1,
+        title: '2025年度校友联谊会',
     cover: 'https://cdn.example.com/activity/cover-1.png',
-    organizer: '南京大学校友总会',
-    location: '南京国际会议中心',
-    startTime: '2025-12-15 14:00',
+        organizer: '南京大学校友总会',
+        location: '南京国际会议中心',
+        startTime: '2025-12-15 14:00',
     endTime: '2025-12-15 18:00',
-    participantCount: 156,
+        participantCount: 156,
     tags: ['大型峰会', '年度重磅'],
     status: 'upcoming',
     distance: 2.6

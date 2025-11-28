@@ -1,1 +1,255 @@
 /* pages/alumni/detail/detail.wxss */
+.alumni-detail-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 40rpx;
+}
+
+/* 背景和头像区域 */
+.profile-header {
+  position: relative;
+  width: 100%;
+  height: 450rpx;
+  overflow: hidden;
+}
+
+.background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5));
+}
+
+.profile-left-section {
+  position: absolute;
+  bottom: 40rpx;
+  left: 40rpx;
+  z-index: 2;
+}
+
+.avatar-nickname-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.avatar-circle {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
+  background-color: #fff;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.2);
+  margin-right: 20rpx;
+}
+
+.nickname-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+}
+
+.avatar-info-row {
+  display: flex;
+  align-items: center;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+}
+
+.gender-icon {
+  font-size: 24rpx;
+  margin-right: 4rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+}
+
+.gender-icon.gender-male {
+  color: #4a90e2;
+}
+
+.gender-icon.gender-female {
+  color: #ff6b9d;
+}
+
+.info-text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+}
+
+.info-divider {
+  margin: 0 12rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.profile-right-section {
+  position: absolute;
+  bottom: 40rpx;
+  right: 40rpx;
+  z-index: 2;
+}
+
+.follow-btn {
+  padding: 14rpx 48rpx;
+  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  color: #fff;
+  border-radius: 50rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 157, 0.4);
+  transition: all 0.3s;
+}
+
+.follow-btn.followed {
+  background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 信息卡片 */
+.info-card {
+  margin: 20rpx 30rpx;
+  padding: 32rpx;
+  background-color: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 28rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+/* 信息行 */
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  width: 160rpx;
+  font-size: 28rpx;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+  text-align: right;
+  word-break: break-all;
+}
+
+.signature-text {
+  font-style: italic;
+  color: #666;
+}
+
+/* 个人简介 */
+.bio-content {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+/* 爱好标签 */
+.hobby-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.hobby-tag {
+  padding: 12rpx 24rpx;
+  background: linear-gradient(135deg, #ff8a65, #ff7043);
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2rpx 8rpx rgba(255, 112, 67, 0.4);
+}
+
+/* 母校信息 */
+.school-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+}
+
+.school-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.school-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+  font-weight: 300;
+}
+
+/* 校友会列表 */
+.association-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.association-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background-color: #f9f9f9;
+  border-radius: 16rpx;
+  border: 1rpx solid #f0f0f0;
+}
+
+.association-info {
+  flex: 1;
+}
+
+.association-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.association-role {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.association-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+  font-weight: 300;
+  margin-left: 20rpx;
+}

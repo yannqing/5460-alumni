@@ -20,28 +20,30 @@ Page({
     const mockData = [
       {
         id: 1,
-        title: '星巴克100元优惠券',
+        title: '星巴克校友专属优惠券',
         merchant: '星巴克咖啡',
         originalPrice: 100,
         discountPrice: 59,
+        discount: '8折',
         image: 'https://via.placeholder.com/300x200/ff6b9d/ffffff?text=Starbucks',
         stock: 50,
         totalStock: 100,
         startTime: '2025-11-13 10:00:00',
-        endTime: '2025-11-20 23:59:59',
+        endTime: '2025-12-31 23:59:59',
         type: 'rush',
-        status: 'available' // available, used, expired
+        status: 'available'
       },
       {
         id: 2,
         title: '海底捞200元代金券',
         merchant: '海底捞火锅',
         originalPrice: 200,
-        discountPrice: 0,
+        discountPrice: 200,
+        discount: '满200减50',
         image: 'https://via.placeholder.com/300x200/ff8fb5/ffffff?text=Haidilao',
         stock: 200,
         totalStock: 200,
-        endTime: '2025-11-30 23:59:59',
+        endTime: '2025-12-25 23:59:59',
         type: 'normal',
         status: 'available'
       },
@@ -51,11 +53,26 @@ Page({
         merchant: '肯德基',
         originalPrice: 50,
         discountPrice: 29,
+        discount: '7折',
         image: 'https://via.placeholder.com/300x200/ffb6d4/ffffff?text=KFC',
         stock: 80,
         totalStock: 100,
-        endTime: '2025-12-10 23:59:59',
+        endTime: '2025-12-20 23:59:59',
         type: 'rush',
+        status: 'available'
+      },
+      {
+        id: 4,
+        title: 'IMAX 影城观影券',
+        merchant: '华影国际影城',
+        originalPrice: 80,
+        discountPrice: 56,
+        discount: '7折',
+        image: 'https://via.placeholder.com/300x200/ffcce0/ffffff?text=CIN',
+        stock: 120,
+        totalStock: 200,
+        endTime: '2025-12-31 23:59:59',
+        type: 'normal',
         status: 'available'
       }
     ]

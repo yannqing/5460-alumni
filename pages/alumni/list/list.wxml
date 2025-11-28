@@ -48,25 +48,11 @@
             <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
             <text>{{item.location}}</text>
           </view>
-
-          <!-- 标签 -->
-          <view class="card-tags">
-            <text class="mini-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
-            <text class="next-arrow">›</text>
-          </view>
         </view>
       </view>
-
-      <!-- 底部：统计数据和关注按钮 -->
-      <view class="card-footer">
-        <view class="card-stats">
-          <text class="stat-item">校友会 {{item.followerCount}}</text>
-          <text class="stat-item">校友会 {{item.followingCount}}</text>
-        </view>
-        <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-          <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
-            {{item.isFollowed ? '已关注' : '+ 关注'}}
-          </view>
+      <view class="card-action-bottom" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+        <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+          {{item.isFollowed ? '已关注' : '+ 关注'}}
         </view>
       </view>
     </view>

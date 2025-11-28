@@ -127,6 +127,21 @@ const merchantApi = {
   unfollowMerchant: (id) => del(`/merchants/${id}/follow`),
 }
 
+// ==================== 商铺相关接口 ====================
+const shopApi = {
+  // 获取商铺列表
+  getShopList: (params) => get('/shops', params),
+
+  // 获取商铺详情
+  getShopDetail: (id) => get(`/shops/${id}`),
+
+  // 关注商铺
+  followShop: (id) => post(`/shops/${id}/follow`),
+
+  // 取消关注商铺
+  unfollowShop: (id) => del(`/shops/${id}/follow`),
+}
+
 // ==================== 活动相关接口 ====================
 const activityApi = {
   // 获取活动列表
@@ -191,6 +206,7 @@ module.exports = {
   couponApi,
   circleApi,
   merchantApi,
+  shopApi,
   activityApi,
   userApi,
   searchApi,

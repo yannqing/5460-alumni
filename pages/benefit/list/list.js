@@ -248,7 +248,7 @@ Page({
   goToMerchant(e) {
     const { merchant } = e.currentTarget.dataset
     wx.navigateTo({
-      url: `/pages/merchant/detail/detail?name=${encodeURIComponent(merchant)}`
+      url: `/pages/shop/detail/detail?name=${encodeURIComponent(merchant)}`
     })
   },
 

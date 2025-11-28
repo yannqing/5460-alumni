@@ -1,31 +1,33 @@
 <!--pages/coupon/detail/detail.wxml-->
-<view class="container">
+<view class="coupon-detail-page">
   <view wx:if="{{couponInfo}}">
-    <image class="cover-image" src="{{couponInfo.image}}" mode="aspectFill" />
-
-    <view class="card">
-      <view class="coupon-header">
-        <view class="flex-1">
-          <view class="coupon-title-large">{{couponInfo.title}}</view>
-          <view class="coupon-merchant-large">{{couponInfo.merchant}}</view>
-          <view class="coupon-price-large">
-            <text class="price-now-large">¥{{couponInfo.discountPrice}}</text>
-            <text wx:if="{{couponInfo.originalPrice > 0}}" class="price-original-large">¥{{couponInfo.originalPrice}}</text>
-          </view>
+    <!-- 优惠券卡片 -->
+    <view class="coupon-card-large">
+      <view class="coupon-card-left">
+        <view class="coupon-discount-large">
+          <text wx:if="{{couponInfo.discountPrice > 0}}">¥{{couponInfo.discountPrice}}</text>
+          <text wx:else>{{couponInfo.discount || '优惠券'}}</text>
+        </view>
+        <view class="coupon-label-large">优惠券</view>
+        <view class="coupon-original-price" wx:if="{{couponInfo.originalPrice > 0}}">
+          原价¥{{couponInfo.originalPrice}}
         </view>
       </view>
-
-      <view class="divider"></view>
-
-      <view class="coupon-stock-section">
-        <view class="stock-info">
-          <text>剩余：{{couponInfo.stock}}/{{couponInfo.totalStock}}</text>
+      <view class="coupon-card-divider"></view>
+      <view class="coupon-card-right">
+        <view class="coupon-title-detail">{{couponInfo.title}}</view>
+        <view class="coupon-merchant-detail">{{couponInfo.merchant}}</view>
+        <view class="coupon-validity">
+          <text>有效期至 {{couponInfo.endTime}}</text>
         </view>
-        <view class="stock-bar-large">
-          <view class="stock-progress" style="width: {{couponInfo.stock/couponInfo.totalStock*100}}%"></view>
+        <view class="coupon-stock-info">
+          <text>剩余{{couponInfo.stock}}/{{couponInfo.totalStock}}</text>
         </view>
       </view>
+    </view>
 
+    <!-- 操作按钮 -->
+    <view class="action-section">
       <view class="btn btn-primary full-width" bindtap="handleCoupon">
         {{couponInfo.type === 'rush' ? '立即抢购' : '立即领取'}}
       </view>

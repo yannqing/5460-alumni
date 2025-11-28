@@ -97,6 +97,7 @@
 }
 
 .alumni-card {
+  position: relative;
   background-color: #ffffff;
   border-radius: 16rpx;
   padding: 30rpx;
@@ -109,7 +110,6 @@
   display: flex;
   align-items: flex-start;
   gap: 20rpx;
-  margin-bottom: 16rpx;
 }
 
 .alumni-avatar {
@@ -227,17 +227,22 @@
   align-items: center;
 }
 
-.card-action {
+.card-action-bottom {
+  position: absolute;
+  bottom: 30rpx;
+  right: 30rpx;
   flex-shrink: 0;
+  z-index: 1;
 }
 
 .follow-btn {
-  padding: 12rpx 32rpx;
+  padding: 10rpx 24rpx;
   background: linear-gradient(135deg, #ff6b9d 0%, #ff8fb5 100%);
   color: #ffffff;
-  font-size: 24rpx;
+  font-size: 22rpx;
   border-radius: 50rpx;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .follow-btn.followed {

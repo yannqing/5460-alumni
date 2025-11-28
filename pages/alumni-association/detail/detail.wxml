@@ -157,7 +157,7 @@
         <view class="dashboard-list enterprise" wx:for="{{alumniEnterprises}}" wx:key="id" bindtap="viewEnterpriseDetail" data-id="{{item.id}}">
           <view class="dashboard-item">
             <view class="item-leading">
-              <image class="enterprise-logo" src="{{item.logo}}" mode="aspectFill" />
+              <view class="item-icon enterprise-icon">企</view>
             </view>
             <view class="item-content">
               <view class="item-title">{{item.name}}</view>
@@ -187,13 +187,13 @@
         <view class="dashboard-list shop" wx:for="{{alumniShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
           <view class="dashboard-item">
             <view class="item-leading">
-              <image class="shop-cover" src="{{item.cover}}" mode="aspectFill" />
+              <view class="item-icon shop-icon">商</view>
             </view>
             <view class="item-content">
               <view class="item-title">{{item.name}}</view>
               <view class="item-desc">{{item.description}}</view>
               <view class="item-meta">
-                <text>⭐ {{item.rating}}</text>
+                <text class="rating-text">⭐ {{item.rating}}</text>
                 <text class="meta-divider">·</text>
                 <text>{{item.category}}</text>
                 <text class="meta-divider">·</text>

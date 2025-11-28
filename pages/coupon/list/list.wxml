@@ -9,26 +9,29 @@
 
   <!-- 优惠券列表 -->
   <view class="coupon-list">
-    <view class="coupon-item card" wx:for="{{couponList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <view class="coupon-content">
-        <image class="coupon-image" src="{{item.image}}" mode="aspectFill" />
-        <view class="coupon-info flex-1">
-          <view class="coupon-title">{{item.title}}</view>
-          <view class="coupon-merchant">{{item.merchant}}</view>
-          <view class="coupon-price">
-            <text class="price-now">¥{{item.discountPrice}}</text>
-            <text wx:if="{{item.originalPrice > 0}}" class="price-original">¥{{item.originalPrice}}</text>
+    <view class="coupon-item" wx:for="{{couponList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <view class="coupon-card">
+        <view class="coupon-left-section">
+          <view class="coupon-discount-big">
+            <text wx:if="{{item.discountPrice > 0}}">¥{{item.discountPrice}}</text>
+            <text wx:else>{{item.discount || '优惠券'}}</text>
           </view>
-          <view class="coupon-time">有效期至 {{item.endTime}}</view>
-          <view class="coupon-stock">
-            <view class="stock-bar">
-              <view class="stock-progress" style="width: {{item.stock/item.totalStock*100}}%"></view>
-            </view>
-            <text class="stock-text">剩余{{item.stock}}/{{item.totalStock}}</text>
+          <view class="coupon-label-text">优惠券</view>
+        </view>
+        <view class="coupon-divider-vertical"></view>
+        <view class="coupon-right-section">
+          <view class="coupon-title-main">{{item.title}}</view>
+          <view class="coupon-merchant-name">{{item.merchant}}</view>
+          <view class="coupon-meta">
+            <text class="coupon-time-text">有效期至 {{item.endTime}}</text>
+            <text class="coupon-stock-text">剩余{{item.stock}}/{{item.totalStock}}</text>
+          </view>
+          <view class="coupon-stock-bar">
+            <view class="stock-progress-bar" style="width: {{item.stock/item.totalStock*100}}%"></view>
           </view>
         </view>
-        <view class="coupon-action" catchtap="handleCoupon" data-id="{{item.id}}" data-type="{{item.type}}">
-          <view class="btn btn-primary btn-small">{{item.type === 'rush' ? '立即抢购' : '立即领取'}}</view>
+        <view class="coupon-action-btn" catchtap="handleCoupon" data-id="{{item.id}}" data-type="{{item.type}}">
+          {{item.type === 'rush' ? '立即抢购' : '立即领取'}}
         </view>
       </view>
     </view>
