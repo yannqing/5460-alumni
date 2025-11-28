@@ -12,6 +12,9 @@
         bindinput="handleSearchInput"
         bindconfirm="handleSearchConfirm"
       />
+      <view class="scan-btn" bindtap="scanCode">
+        <text class="scan-icon">📷</text>
+      </view>
       <view class="search-action" bindtap="handleSearchConfirm">搜索</view>
     </view>
 
@@ -31,8 +34,24 @@
     </view>
   </view>
 
-  <!-- 分类筛选 -->
-  <scroll-view class="category-bar" scroll-x enable-flex>
+  <!-- 模式切换 -->
+  <view class="mode-switch-bar">
+    <view class="mode-switch">
+      <view class="mode-item {{viewMode === 'list' ? 'active' : ''}}" bindtap="switchViewMode" data-mode="list">
+        <text class="mode-icon">📋</text>
+        <text class="mode-text">列表</text>
+      </view>
+      <view class="mode-item {{viewMode === 'map' ? 'active' : ''}}" bindtap="switchViewMode" data-mode="map">
+        <text class="mode-icon">🗺️</text>
+        <text class="mode-text">地图</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <!-- 分类筛选 -->
+    <scroll-view class="category-bar" scroll-x enable-flex>
     <view
       class="category-chip {{selectedCategory === item.id ? 'active' : ''}}"
       wx:for="{{categories}}"
@@ -42,7 +61,17 @@
     >
       {{item.label}}
     </view>
-  </scroll-view>
+    </scroll-view>
+
+    <!-- 校友商铺开关 -->
+    <view class="alumni-shop-filter">
+      <view class="filter-label">
+        <text class="filter-icon">🏪</text>
+        <text class="filter-text">校友商铺</text>
+      </view>
+      <switch checked="{{showAlumniOnly}}" bindchange="toggleAlumniOnly" color="#ff6b9d" />
+    </view>
+  </view>
 
   <!-- 排序选项 -->
   <view class="sort-row">
@@ -59,8 +88,53 @@
     <view class="sort-extra" bindtap="getLocation">重新定位</view>
   </view>
 
+  <!-- 地图模式 -->
+  <view class="map-container" wx:if="{{viewMode === 'map'}}">
+    <map
+      id="discoverMap"
+      class="discover-map"
+      latitude="{{mapCenter.latitude}}"
+      longitude="{{mapCenter.longitude}}"
+      scale="{{mapScale}}"
+      markers="{{mapMarkers}}"
+      bindmarkertap="onMarkerTap"
+      bindtap="onMapTap"
+    ></map>
+    <!-- 底部抽屉 -->
+    <view class="map-drawer {{showDrawer ? 'show' : ''}}" catchtap="true">
+      <view class="drawer-handle" bindtap="toggleDrawer"></view>
+      <view class="drawer-content" wx:if="{{selectedMerchant}}">
+        <view class="drawer-header">
+          <image class="drawer-avatar" src="{{selectedMerchant.avatar}}" mode="aspectFill"></image>
+          <view class="drawer-info">
+            <view class="drawer-name-row">
+              <text class="drawer-name">{{selectedMerchant.name}}</text>
+              <view wx:if="{{selectedMerchant.isCertified}}" class="drawer-cert-badge">校友商铺</view>
+            </view>
+            <view class="drawer-meta">
+              <text>⭐ {{selectedMerchant.rating}}</text>
+              <text class="meta-divider">·</text>
+              <text>距离 {{selectedMerchant.distance}}m</text>
+            </view>
+          </view>
+        </view>
+        <view class="drawer-coupons" wx:if="{{selectedMerchant.coupons && selectedMerchant.coupons.length}}">
+          <scroll-view class="drawer-coupons-scroll" scroll-x>
+            <view class="drawer-coupon-item" wx:for="{{selectedMerchant.coupons}}" wx:key="id" bindtap="viewCouponDetail" data-id="{{item.id}}" catchtap="true">
+              <text class="drawer-coupon-discount">{{item.discount}}</text>
+              <text class="drawer-coupon-title">{{item.title}}</text>
+            </view>
+          </scroll-view>
+        </view>
+        <view class="drawer-action" bindtap="viewMerchantDetail" data-id="{{selectedMerchant.id}}" catchtap="true">
+          <text>查看详情 ›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 商家列表 -->
-  <view class="merchant-list">
+  <view class="merchant-list" wx:if="{{viewMode === 'list'}}">
     <block wx:if="{{loading}}">
       <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
         <view class="skeleton-line wide"></view>
@@ -75,23 +149,30 @@
     <block wx:elif="{{displayList.length}}">
       <view class="merchant-card" wx:for="{{displayList}}" wx:key="id" bindtap="viewMerchantCoupons" data-id="{{item.id}}">
         <view class="merchant-header">
-          <image class="merchant-avatar" src="{{item.avatar}}" mode="aspectFill" bindtap="viewMerchantDetail" data-id="{{item.id}}" catchtap="true"></image>
+          <view class="merchant-avatar-wrapper">
+            <image class="merchant-avatar" src="{{item.avatar}}" mode="aspectFill" bindtap="viewMerchantDetail" data-id="{{item.id}}" catchtap="true"></image>
+            <view wx:if="{{item.isCertified}}" class="alumni-shop-badge">校友商铺</view>
+          </view>
           <view class="merchant-info">
             <view class="merchant-name-row">
               <text class="merchant-name">{{item.name}}</text>
-              <view wx:if="{{item.isCertified}}" class="cert-badge-small">✓</view>
             </view>
             <view class="merchant-meta">
-              <text class="merchant-location">📍 {{item.location}}</text>
-              <text class="meta-divider">·</text>
-              <text class="merchant-distance">距离 {{item.distance}}m</text>
-              <text class="meta-divider">·</text>
               <text class="merchant-rating">⭐ {{item.rating}}</text>
+              <text class="meta-divider">·</text>
+              <text class="merchant-avg-price" wx:if="{{item.avgPrice}}">人均¥{{item.avgPrice}}</text>
+              <text class="meta-divider" wx:if="{{item.avgPrice}}">·</text>
+              <text class="merchant-distance">距离 {{item.distance}}m</text>
+            </view>
+            <!-- 社交证明 -->
+            <view class="social-proof" wx:if="{{item.socialProof}}">
+              <text class="proof-text" wx:if="{{item.socialProof.association}}">{{item.socialProof.association}}成员常去</text>
+              <text class="proof-text" wx:if="{{item.socialProof.recentAlumni}}">{{item.socialProof.recentAlumni}}位校友刚刚来过</text>
             </view>
           </view>
         </view>
         <scroll-view class="merchant-coupons" scroll-x>
-          <view class="coupon-item" wx:for="{{item.coupons}}" wx:key="id" wx:for-item="coupon" bindtap="viewCouponDetail" data-id="{{coupon.id}}" catchtap="true">
+          <view class="coupon-item" wx:for="{{item.coupons}}" wx:key="id" wx:for-item="coupon" bindtap="handleCouponClick" data-coupon="{{coupon}}" data-merchant="{{item}}" catchtap="true">
             <view class="coupon-card-mini">
               <view class="coupon-left">
                 <view class="coupon-discount-large">{{coupon.discount}}</view>
