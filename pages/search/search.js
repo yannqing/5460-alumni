@@ -1,5 +1,5 @@
 // pages/search/search.js
-const { searchApi } = require('../../api/index.js')
+const { searchApi } = require('../../api/api.js')
 
 Page({
   data: {
@@ -126,6 +126,49 @@ Page({
   viewAlumniDetail(e) {
     wx.navigateTo({
       url: `/pages/alumni/detail/detail?id=${e.currentTarget.dataset.id}`
+    })
+  },
+
+  scanCode() {
+    wx.scanCode({
+      success: (res) => {
+        console.log('扫码结果:', res)
+        // 处理扫码结果，可能是优惠券、商家等
+        const result = res.result
+        if (result) {
+          // 如果是URL，可以跳转
+          if (result.startsWith('http')) {
+            wx.showModal({
+              title: '扫码结果',
+              content: `检测到链接：${result}`,
+              showCancel: true,
+              confirmText: '打开',
+              success: (modalRes) => {
+                if (modalRes.confirm) {
+                  // 可以在这里处理链接跳转
+                  wx.showToast({
+                    title: '功能开发中',
+                    icon: 'none'
+                  })
+                }
+              }
+            })
+          } else {
+            // 其他类型的扫码结果，可以用于搜索
+            this.setData({ keyword: result })
+            this.onSearch()
+          }
+        }
+      },
+      fail: (err) => {
+        console.error('扫码失败:', err)
+        if (err.errMsg !== 'scanCode:fail cancel') {
+          wx.showToast({
+            title: '扫码失败',
+            icon: 'none'
+          })
+        }
+      }
     })
   }
 })

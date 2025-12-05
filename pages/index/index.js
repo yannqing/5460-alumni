@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { schoolApi, alumniApi, couponApi, activityApi } = require('../../api/index.js')
+const { schoolApi, alumniApi, couponApi, activityApi } = require('../../api/api.js')
 
 const DEFAULT_AVATAR = '/assets/images/头像.png'
 

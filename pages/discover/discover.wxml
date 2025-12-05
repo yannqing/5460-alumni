@@ -13,7 +13,7 @@
         bindconfirm="handleSearchConfirm"
       />
       <view class="scan-btn" bindtap="scanCode">
-        <text class="scan-icon">📷</text>
+        <image class="scan-icon" src="/assets/icons/扫一扫.png" mode="aspectFit"></image>
       </view>
       <view class="search-action" bindtap="handleSearchConfirm">搜索</view>
     </view>

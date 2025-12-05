@@ -1,5 +1,5 @@
 // pages/coupon/list/list.js
-const { couponApi } = require('../../../api/index.js')
+const { couponApi } = require('../../../api/api.js')
 
 Page({
   data: {

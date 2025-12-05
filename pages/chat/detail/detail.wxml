@@ -1,0 +1,144 @@
+<!--pages/chat/detail/detail.wxml-->
+<view class="chat-detail-page">
+  <!-- 消息列表 -->
+  <scroll-view 
+    class="message-list" 
+    scroll-y 
+    scroll-into-view="{{scrollIntoView}}"
+    scroll-with-animation="{{true}}"
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="message-item" wx:for="{{messageList}}" wx:key="id" id="msg-{{item.id}}">
+      <!-- 对方消息 -->
+      <view class="message-row message-left" wx:if="{{!item.isMe}}">
+        <image class="message-avatar" src="{{chatInfo.avatar}}" mode="aspectFill" bindtap="viewProfile" data-type="{{chatType}}"></image>
+        <view class="message-content-wrapper">
+          <!-- 图片消息 -->
+          <view class="message-bubble message-bubble-left" wx:if="{{item.type === 'image'}}">
+            <image class="message-image" src="{{item.image}}" mode="aspectFill" bindtap="previewImage" data-url="{{item.image}}"></image>
+          </view>
+          <!-- 位置消息 -->
+          <view class="message-bubble message-bubble-left" wx:elif="{{item.type === 'location'}}">
+            <view class="message-location">
+              <text class="location-icon">📍</text>
+              <view class="location-info">
+                <text class="location-name">{{item.location.name}}</text>
+                <text class="location-address">{{item.location.address}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 名片消息 -->
+          <view class="message-bubble message-bubble-left" wx:elif="{{item.type === 'contact'}}">
+            <view class="message-contact">
+              <image class="contact-avatar" src="{{item.contact.avatar}}" mode="aspectFill"></image>
+              <view class="contact-info">
+                <text class="contact-name">{{item.contact.name}}</text>
+                <text class="contact-school">{{item.contact.school}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 普通文本消息 -->
+          <view class="message-bubble message-bubble-left" wx:else>
+            <text class="message-text">{{item.content}}</text>
+          </view>
+          <text class="message-time">{{item.time}}</text>
+        </view>
+      </view>
+      
+      <!-- 我的消息 -->
+      <view class="message-row message-right" wx:else>
+        <view class="message-content-wrapper">
+          <!-- 图片消息 -->
+          <view class="message-bubble message-bubble-right" wx:if="{{item.type === 'image'}}">
+            <image class="message-image" src="{{item.image}}" mode="aspectFill" bindtap="previewImage" data-url="{{item.image}}"></image>
+          </view>
+          <!-- 位置消息 -->
+          <view class="message-bubble message-bubble-right" wx:elif="{{item.type === 'location'}}">
+            <view class="message-location">
+              <text class="location-icon">📍</text>
+              <view class="location-info">
+                <text class="location-name">{{item.location.name}}</text>
+                <text class="location-address">{{item.location.address}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 名片消息 -->
+          <view class="message-bubble message-bubble-right" wx:elif="{{item.type === 'contact'}}">
+            <view class="message-contact">
+              <image class="contact-avatar" src="{{item.contact.avatar}}" mode="aspectFill"></image>
+              <view class="contact-info">
+                <text class="contact-name">{{item.contact.name}}</text>
+                <text class="contact-school">{{item.contact.school}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 普通文本消息 -->
+          <view class="message-bubble message-bubble-right" wx:else>
+            <text class="message-text">{{item.content}}</text>
+          </view>
+          <text class="message-time">{{item.time}}</text>
+        </view>
+        <image class="message-avatar" src="{{myAvatar}}" mode="aspectFill"></image>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 输入栏 -->
+  <view class="input-bar">
+    <view class="input-wrapper">
+      <input 
+        class="message-input" 
+        placeholder="输入消息..." 
+        value="{{inputValue}}"
+        bindinput="onInput"
+        bindconfirm="sendMessage"
+        confirm-type="send"
+        adjust-position="{{true}}"
+      />
+      <view class="input-actions">
+        <view class="action-btn" bindtap="toggleEmoji">
+          <text class="action-icon">😊</text>
+        </view>
+        <view class="action-btn" bindtap="sendMessage" wx:if="{{hasInput}}">
+          <text class="action-icon send-btn">发送</text>
+        </view>
+        <view class="action-btn" bindtap="showMoreActions" wx:else>
+          <text class="action-icon">+</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 表情选择面板 -->
+  <view class="emoji-panel {{showEmoji ? 'show' : ''}}">
+    <scroll-view class="emoji-scroll" scroll-y>
+      <view class="emoji-grid">
+        <view class="emoji-item" wx:for="{{emojiList}}" wx:key="*this" bindtap="insertEmoji" data-emoji="{{item}}">
+          <text class="emoji-text">{{item}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 更多功能菜单 -->
+  <view class="more-menu-mask {{showMoreMenu ? 'show' : ''}}" bindtap="hideMoreMenu"></view>
+  <view class="more-menu {{showMoreMenu ? 'show' : ''}}">
+    <view class="more-menu-item" bindtap="selectImage">
+      <view class="more-menu-icon">📷</view>
+      <text class="more-menu-text">图片</text>
+    </view>
+    <view class="more-menu-item" bindtap="selectLocation">
+      <view class="more-menu-icon">📍</view>
+      <text class="more-menu-text">位置</text>
+    </view>
+    <view class="more-menu-item" bindtap="selectContact">
+      <view class="more-menu-icon">👤</view>
+      <text class="more-menu-text">名片</text>
+    </view>
+    <view class="more-menu-cancel" bindtap="hideMoreMenu">
+      <text>取消</text>
+    </view>
+  </view>
+</view>
+

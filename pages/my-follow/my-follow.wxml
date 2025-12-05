@@ -1,19 +1,53 @@
 <!--pages/my-follow/my-follow.wxml-->
-<view class="container">
+<view class="follow-page">
   <view class="list">
-    <view class="list-item" wx:for="{{followList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <image class="avatar" src="{{item.icon || item.avatar}}" mode="aspectFill" />
-      <view class="flex-1">
-        <view class="text-primary text-bold">{{item.name}}</view>
-        <view class="text-placeholder mt-10">
-          {{item.location || (item.school + ' · ' + item.company)}}
+    <!-- 母校列表 -->
+    <block wx:if="{{type === 'school'}}">
+      <view class="school-card" wx:for="{{followList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+        <image class="school-avatar" src="{{item.icon}}" mode="aspectFill" />
+        <view class="school-content">
+          <view class="school-header">
+            <text class="school-name">{{item.name}}</text>
+            <view wx:if="{{item.is985}}" class="school-badge">985</view>
+            <view wx:if="{{item.is211}}" class="school-badge">211</view>
+          </view>
+          <view class="school-info">
+            <text class="info-item">📍 {{item.location}}</text>
+          </view>
+          <view class="school-footer">
+            <view class="alumni-count">
+              <text class="count-icon">👥</text>
+              <text class="count-text">{{item.alumniCount}}位校友</text>
+            </view>
+          </view>
         </view>
       </view>
-    </view>
+    </block>
+
+    <!-- 校友列表 -->
+    <block wx:else>
+      <view class="alumni-card" wx:for="{{followList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+        <image class="alumni-avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="alumni-content">
+          <view class="alumni-header">
+            <text class="alumni-name">{{item.name}}</text>
+            <view wx:if="{{item.isVerified}}" class="verified-badge">✓</view>
+          </view>
+          <view class="alumni-info">
+            <text class="info-item">🏫 {{item.school}}</text>
+            <text class="info-divider">·</text>
+            <text class="info-item">💼 {{item.company}}</text>
+          </view>
+          <view class="alumni-footer" wx:if="{{item.major}}">
+            <text class="major-text">专业：{{item.major}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
   </view>
 
   <view wx:if="{{followList.length === 0}}" class="empty-state">
-    <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
-    <text>暂无关注</text>
+    <image class="empty-image" src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+    <text class="empty-text">暂无关注</text>
   </view>
 </view>

@@ -1,0 +1,82 @@
+<!--pages/local-platform/detail/detail.wxml-->
+<view class="container">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:elif="{{platformInfo}}">
+    <!-- 顶部封面 + 头像，与校友会主页风格保持一致 -->
+    <image class="cover-image" src="{{platformInfo.cover}}" mode="aspectFill" />
+
+    <view class="card">
+      <view class="flex">
+        <image class="avatar avatar-large" src="{{platformInfo.icon}}" mode="aspectFill" />
+        <view class="flex-1 ml-20">
+          <view class="name-row">
+            <text class="text-primary text-bold">{{platformInfo.platformName}}</text>
+          </view>
+          <view wx:if="{{platformInfo.city}}" class="text-secondary mt-10 location-row">
+            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <text>{{platformInfo.city}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 顶部 Tab，与校友会主页一致：基本信息 / 成员列表 -->
+    <view class="tabs">
+      <view
+        class="tab-item {{activeTab === index ? 'active' : ''}}"
+        wx:for="{{tabs}}"
+        wx:key="*this"
+        bindtap="switchTab"
+        data-index="{{index}}"
+      >
+        {{item}}
+      </view>
+    </view>
+
+    <!-- Tab 内容：基本信息 -->
+    <view wx:if="{{activeTab === 0}}" class="tab-content">
+      <view class="card">
+        <view class="text-bold mb-20">基本信息</view>
+        <view wx:if="{{platformInfo.description}}" class="text-secondary">{{platformInfo.description}}</view>
+        <view class="divider"></view>
+        <view class="text-secondary">联系信息：{{platformInfo.contactInfo || '暂无'}}</view>
+        <view class="text-secondary mt-10" wx:if="{{platformInfo.city}}">
+          所在城市：{{platformInfo.city}}
+        </view>
+        <view class="text-secondary mt-10" wx:if="{{platformInfo.memberCount}}">
+          成员：{{platformInfo.memberCount}}人
+        </view>
+      </view>
+    </view>
+
+    <!-- Tab 内容：成员列表 -->
+    <view wx:if="{{activeTab === 1}}" class="tab-content">
+      <view class="card">
+        <view class="text-bold mb-20">成员列表</view>
+        <view wx:if="{{!members.length}}" class="text-placeholder">暂无成员</view>
+        <view wx:else class="member-list">
+          <view class="member-item" wx:for="{{members}}" wx:key="id">
+            <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
+            <view class="member-info">
+              <view class="member-name-row">
+                <text class="member-name">{{item.name}}</text>
+                <view class="member-tag">{{item.role}}</view>
+              </view>
+              <view class="member-company">{{item.company}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="empty-state">
+    <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+    <text>暂无校处会信息</text>
+  </view>
+</view>
+
+

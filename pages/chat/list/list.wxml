@@ -1,0 +1,65 @@
+<!--pages/chat/list/list.wxml-->
+<view class="chat-page">
+  <!-- 菜单栏 -->
+  <view class="menu-bar">
+    <view class="menu-btn" bindtap="toggleSidebar">
+      <text class="menu-icon">☰</text>
+      <text class="menu-text">菜单</text>
+    </view>
+  </view>
+
+  <!-- 侧边栏遮罩 -->
+  <view class="sidebar-mask {{showSidebar ? 'show' : ''}}" bindtap="toggleSidebar"></view>
+
+  <!-- 侧边栏 -->
+  <view class="sidebar {{showSidebar ? 'show' : ''}}">
+    <view class="sidebar-header">
+      <text class="sidebar-title">菜单</text>
+      <text class="sidebar-close" bindtap="toggleSidebar">×</text>
+    </view>
+    <view class="sidebar-content">
+      <view class="sidebar-item" bindtap="navigateToMyAssociations">
+        <text class="sidebar-icon">👥</text>
+        <text class="sidebar-text">我加入的校友会</text>
+        <text class="sidebar-arrow">›</text>
+      </view>
+      <view class="sidebar-item" bindtap="navigateToMyFollows">
+        <text class="sidebar-icon">❤️</text>
+        <text class="sidebar-text">我关注的</text>
+        <text class="sidebar-arrow">›</text>
+      </view>
+      <view class="sidebar-item" bindtap="navigateToMyFavorites">
+        <text class="sidebar-icon">⭐</text>
+        <text class="sidebar-text">我收藏的</text>
+        <text class="sidebar-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 聊天列表 -->
+  <scroll-view class="chat-list" scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+    <!-- 所有聊天（包括校友会通知） -->
+    <view class="chat-item" wx:for="{{allChatList}}" wx:key="id" bindtap="openChat" data-id="{{item.id}}" data-type="{{item.type || 'chat'}}">
+      <view class="chat-avatar-wrapper">
+        <image class="chat-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+        <view class="oa-badge" wx:if="{{item.isVerified}}">✓</view>
+        <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
+      </view>
+      <view class="chat-content">
+        <view class="chat-header">
+          <text class="chat-name">{{item.name}}</text>
+          <text class="chat-time">{{item.lastTime}}</text>
+        </view>
+        <view class="chat-preview">
+          <text class="chat-message">{{item.lastMessage}}</text>
+          <view class="chat-mute" wx:if="{{item.isMuted}}">🔇</view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="empty-state" wx:if="{{chatList.length === 0 && !loading}}">
+      <text class="empty-text">暂无聊天记录</text>
+    </view>
+  </scroll-view>
+</view>
+

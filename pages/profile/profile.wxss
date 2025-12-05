@@ -30,6 +30,15 @@
   flex-shrink: 0;
 }
 
+.user-avatar-placeholder {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
 .user-detail {
   flex: 1;
 }
@@ -144,127 +153,22 @@
 .card {
   background-color: #ffffff;
   margin: 20rpx;
-  border-radius: 24rpx;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
 }
 
 .menu-card {
-  padding: 32rpx;
+  padding: 0;
 }
 
-.card-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 24rpx;
-}
-
-/* 我的券包 */
-.coupon-tabs {
-  display: flex;
-  gap: 16rpx;
-  margin-bottom: 24rpx;
-}
-
-.tab-item {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8rpx;
-  padding: 16rpx;
-  background-color: #f5f5f5;
-  border-radius: 12rpx;
-  font-size: 26rpx;
-  color: #666;
-}
-
-.tab-item.active {
-  background-color: #fff0f5;
-  color: #ff6b9d;
-  font-weight: 500;
-}
-
-.tab-badge {
-  padding: 2rpx 10rpx;
-  background-color: #ff6b9d;
-  color: #fff;
-  border-radius: 20rpx;
-  font-size: 20rpx;
-  min-width: 32rpx;
-  text-align: center;
-}
-
-.tab-item.active .tab-badge {
-  background-color: #ff6b9d;
-}
-
-.view-all-btn {
-  text-align: center;
-  padding: 20rpx;
-  color: #ff6b9d;
-  font-size: 26rpx;
-  border-top: 1rpx solid #f0f0f0;
-  margin-top: 20rpx;
-}
-
-/* 校友认证入口 */
-.certification-card {
-  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
-  margin: 20rpx;
-  border-radius: 24rpx;
-  padding: 32rpx;
-  box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.3);
-  cursor: pointer;
-}
-
-.certification-content {
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-}
-
-.certification-icon {
-  font-size: 64rpx;
-  flex-shrink: 0;
-}
-
-.certification-text {
-  flex: 1;
-}
-
-.certification-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 8rpx;
-  display: block;
-}
-
-.certification-desc {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.9);
-  display: block;
-}
-
-.certification-arrow {
-  font-size: 48rpx;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 300;
-}
-
-/* 菜单项 */
-.menu-section {
-  border-top: 1rpx solid #f7f7f7;
-}
-
+/* 菜单项 - 简洁列表样式 */
 .menu-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  padding: 32rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #fff;
 }
 
 .menu-item:last-child {
@@ -274,19 +178,15 @@
 .menu-left {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: 24rpx;
   flex: 1;
 }
 
 .menu-icon {
-  font-size: 40rpx;
+  font-size: 36rpx;
   flex-shrink: 0;
-}
-
-.menu-texts {
-  display: flex;
-  flex-direction: column;
-  gap: 6rpx;
+  width: 40rpx;
+  text-align: center;
 }
 
 .menu-name {
@@ -294,28 +194,36 @@
   color: #333;
 }
 
-.menu-desc {
-  font-size: 22rpx;
-  color: #999;
+.menu-badge {
+  margin-left: 12rpx;
+  padding: 2rpx 10rpx;
+  background-color: #ff6b9d;
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  min-width: 32rpx;
+  text-align: center;
 }
 
-.menu-right {
-  flex-shrink: 0;
+.cert-status-badge {
+  margin-left: 12rpx;
+  padding: 4rpx 12rpx;
+  background-color: #52c41a;
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.cert-status-badge.unverified {
+  background-color: #ff9800;
 }
 
 .menu-arrow {
-  font-size: 40rpx;
+  font-size: 32rpx;
   color: #ccc;
   font-weight: 300;
   flex-shrink: 0;
-}
-
-.merchant-item {
-  background: linear-gradient(135deg, #fff0f5, #ffe4ef);
-  border-radius: 16rpx;
-  padding: 24rpx;
-  margin: 0;
-  border: none;
 }
 
 /* 校友卡弹窗 */

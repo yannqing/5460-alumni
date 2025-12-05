@@ -1,207 +1,285 @@
 // API接口统一管理
-const { get, post, put, del } = require('../utils/request.js')
+const { get, post, put, del, request } = require('../utils/request.js')
+
+
 
 // ==================== 母校相关接口 ====================
 const schoolApi = {
-  // 获取母校列表
-  getSchoolList: (params) => get('/schools', params),
-
-  // 获取母校详情
-  getSchoolDetail: (id) => get(`/schools/${id}`),
-
+  // 分页查询母校列表（使用 POST 请求，参数在 body 中）列表和搜索都是用这个接口，注意分页参数
+  getSchoolPage: (params) => post('/school/page', params),
+  // 根据id查询母校信息
+  getSchoolDetail: (id) => get(`/school/${id}`),
   // 关注母校
   followSchool: (id) => post(`/schools/${id}/follow`),
-
   // 取消关注母校
   unfollowSchool: (id) => del(`/schools/${id}/follow`),
-
   // 获取我的关注列表
   getMyFollowSchools: (params) => get('/schools/my-follow', params),
-
   // 获取母校的校友会列表
   getSchoolAssociations: (id, params) => get(`/schools/${id}/associations`, params),
 }
 
+
+
 // ==================== 校友会相关接口 ====================
 const associationApi = {
-  // 获取校友会列表
-  getAssociationList: (params) => get('/associations', params),
-
-  // 获取校友会详情
-  getAssociationDetail: (id) => get(`/associations/${id}`),
-
+  // 分页查询校友会列表（使用 POST 请求，参数在 body 中）列表和搜索都是用这个接口，注意分页参数
+  getAssociationList: (params) => post('/AlumniAssociation/page', params),
+  // 根据id查询校友会详情
+  getAssociationDetail: (id) => get(`/AlumniAssociation/${id}`),
   // 加入校友会
   joinAssociation: (id) => post(`/associations/${id}/join`),
-
   // 退出校友会
   leaveAssociation: (id) => post(`/associations/${id}/leave`),
-
   // 获取我加入的校友会列表
   getMyAssociations: (params) => get('/associations/my-joined', params),
-
   // 获取校友会成员列表
   getAssociationMembers: (id, params) => get(`/associations/${id}/members`, params),
-
   // 获取校友会活动列表
   getAssociationActivities: (id, params) => get(`/associations/${id}/activities`, params),
-
   // 关注校友会
   followAssociation: (id) => post(`/associations/${id}/follow`),
-
   // 取消关注校友会
   unfollowAssociation: (id) => del(`/associations/${id}/follow`),
 }
+
+// ==================== 校友总会相关接口 ====================
+const unionApi = {
+  // 根据 id 查询校友总会详情
+  getUnionDetail: (id) => get(`/AlumniHeadquarters/${id}`),
+}
+
+// ==================== 校处会相关接口 ====================
+const localPlatformApi = {
+  // 根据id查询校处会详情
+  getLocalPlatformDetail: (id) => get(`/localPlatform/${id}`),
+}
+
+
 
 // ==================== 校友相关接口 ====================
 const alumniApi = {
   // 获取校友列表
   getAlumniList: (params) => get('/alumni', params),
-
   // 获取校友详情
   getAlumniDetail: (id) => get(`/alumni/${id}`),
-
   // 关注校友
   followAlumni: (id) => post(`/alumni/${id}/follow`),
-
   // 取消关注校友
   unfollowAlumni: (id) => del(`/alumni/${id}/follow`),
-
   // 获取推荐校友
   getRecommendAlumni: (params) => get('/alumni/recommend', params),
 }
+
+
 
 // ==================== 优惠券相关接口 ====================
 const couponApi = {
   // 获取优惠券列表
   getCouponList: (params) => get('/coupons', params),
-
   // 获取优惠券详情
   getCouponDetail: (id) => get(`/coupons/${id}`),
-
   // 领取优惠券
   receiveCoupon: (id) => post(`/coupons/${id}/receive`),
-
   // 抢购优惠券
   rushCoupon: (id) => post(`/coupons/${id}/rush`),
-
   // 获取我的优惠券
   getMyCoupons: (params) => get('/coupons/my-coupons', params),
-
   // 获取抢购列表
   getRushList: (params) => get('/coupons/rush-list', params),
 }
+
+
 
 // ==================== 圈子相关接口 ====================
 const circleApi = {
   // 获取圈子列表
   getCircleList: (params) => get('/circles', params),
-
   // 获取圈子详情
   getCircleDetail: (id) => get(`/circles/${id}`),
-
   // 加入圈子
   joinCircle: (id) => post(`/circles/${id}/join`),
-
   // 退出圈子
   leaveCircle: (id) => post(`/circles/${id}/leave`),
-
   // 获取圈子动态
   getCirclePosts: (id, params) => get(`/circles/${id}/posts`, params),
-
   // 发布动态
   publishPost: (data) => post('/circles/posts', data),
 }
+
+
 
 // ==================== 商家相关接口 ====================
 const merchantApi = {
   // 获取商家列表
   getMerchantList: (params) => get('/merchants', params),
-
   // 获取商家详情
   getMerchantDetail: (id) => get(`/merchants/${id}`),
-
   // 关注商家
   followMerchant: (id) => post(`/merchants/${id}/follow`),
-
   // 取消关注商家
   unfollowMerchant: (id) => del(`/merchants/${id}/follow`),
 }
+
+
 
 // ==================== 商铺相关接口 ====================
 const shopApi = {
   // 获取商铺列表
   getShopList: (params) => get('/shops', params),
-
   // 获取商铺详情
   getShopDetail: (id) => get(`/shops/${id}`),
-
   // 关注商铺
   followShop: (id) => post(`/shops/${id}/follow`),
-
   // 取消关注商铺
   unfollowShop: (id) => del(`/shops/${id}/follow`),
 }
+
+
 
 // ==================== 活动相关接口 ====================
 const activityApi = {
   // 获取活动列表
   getActivityList: (params) => get('/activities', params),
-
   // 获取活动详情
   getActivityDetail: (id) => get(`/activities/${id}`),
-
   // 报名活动
   joinActivity: (id, data) => post(`/activities/${id}/join`, data),
-
   // 取消报名
   cancelActivity: (id) => post(`/activities/${id}/cancel`),
 }
 
+
+
 // ==================== 用户相关接口 ====================
 const userApi = {
-  // 登录
-  login: (data) => post('/user/login', data),
-
   // 获取用户信息
-  getUserInfo: () => get('/user/info'),
-
+  getUserInfo: () => get('/users/getInfo'),
   // 更新用户信息
-  updateUserInfo: (data) => put('/user/info', data),
-
+  updateUserInfo: (data) => put('/users/update', data),
   // 获取我的关注
   getMyFollows: (params) => get('/user/follows', params),
-
   // 获取我的粉丝
   getMyFans: (params) => get('/user/fans', params),
 }
+
+
 
 // ==================== 搜索相关接口 ====================
 const searchApi = {
   // 综合搜索
   search: (params) => get('/search', params),
-
   // 搜索母校
   searchSchools: (params) => get('/search/schools', params),
-
   // 搜索校友会
   searchAssociations: (params) => get('/search/associations', params),
-
   // 搜索校友
   searchAlumni: (params) => get('/search/alumni', params),
-
   // 获取热门搜索
   getHotSearch: () => get('/search/hot'),
-
   // 获取搜索历史
   getSearchHistory: () => get('/search/history'),
-
   // 清空搜索历史
   clearSearchHistory: () => del('/search/history'),
 }
 
+
+
+// ==================== 文件上传相关接口 ====================
+// 使用独立的文件上传工具
+const fileUploadUtil = require('../utils/fileUpload.js')
+
+// 文件上传/下载接口路径配置
+const FILE_API_PATHS = {
+  // 上传接口
+  UPLOAD_IMAGE: '/file/upload/images',      // 上传图片
+  UPLOAD_AUDIO: '/file/upload/audio',      // 上传音频
+  UPLOAD_VIDEO: '/file/upload/video',      // 上传视频（待后端提供接口）
+  UPLOAD_OTHER: '/file/upload/other',      // 上传其他格式文件（待后端提供接口）
+  
+  // 下载接口
+  DOWNLOAD_FILE: '/file/download/{fileId}' // 下载文件（{fileId} 会被替换为实际文件ID）
+}
+
+const fileApi = {
+  // 上传图片
+  uploadImage: (filePath, originalName) => {
+    return fileUploadUtil.uploadImage(filePath, FILE_API_PATHS.UPLOAD_IMAGE, originalName)
+  },
+  
+  // 上传音频
+  uploadAudio: (filePath, originalName) => {
+    return fileUploadUtil.uploadAudio(filePath, FILE_API_PATHS.UPLOAD_AUDIO, originalName)
+  },
+  
+  // 上传视频（接口路径在 FILE_API_PATHS.UPLOAD_VIDEO 中配置）
+  uploadVideo: (filePath, originalName) => {
+    return fileUploadUtil.uploadVideo(filePath, FILE_API_PATHS.UPLOAD_VIDEO, originalName)
+  },
+  
+  // 上传其他格式文件（接口路径在 FILE_API_PATHS.UPLOAD_OTHER 中配置）
+  uploadOtherFile: (filePath, originalName) => {
+    return fileUploadUtil.uploadOtherFile(filePath, FILE_API_PATHS.UPLOAD_OTHER, originalName)
+  },
+  
+  // 下载文件
+  downloadFile: (fileId, savePath) => {
+    return fileUploadUtil.downloadFile(fileId, FILE_API_PATHS.DOWNLOAD_FILE, savePath)
+  },
+  
+  // 保存文件到本地
+  saveFileToLocal: (tempFilePath) => {
+    return fileUploadUtil.saveFileToLocal(tempFilePath)
+  }
+}
+
+
+
+
+// ==================== 认证相关接口 ====================
+const authApi = {
+  // 认证登录（静默登录）
+  // 用 wx.login 的 code 换取 token 和用户信息
+
+  auth: (data) => post('/auth/login', data),
+  // auth: (data) => {
+  //   // 将参数拼接到 URL 上（查询参数）
+  //   let url = '/auth/login'
+  //   console.log('=== auth 接口参数处理 ===')
+  //   console.log('接收到的参数:', data)
+    
+  //   if (data && Object.keys(data).length > 0) {
+  //     const queryString = Object.keys(data)
+  //       .filter(key => data[key] !== undefined && data[key] !== null && data[key] !== '')
+  //       .map(key => {
+  //         const value = data[key]
+  //         console.log(`参数 ${key}:`, value, '类型:', typeof value)
+  //         return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+  //       })
+  //       .join('&')
+  //     console.log('拼接的查询字符串:', queryString)
+  //     if (queryString) {
+  //       url += (url.includes('?') ? '&' : '?') + queryString
+  //     }
+  //   }
+    
+  //   console.log('最终请求 URL:', url)
+    
+  //   // POST 请求，但参数在 URL 上，body 为空
+  //   return request({
+  //     url,
+  //     method: 'POST',
+  //     data: {}
+  //   })
+  // },
+}
+
+
 module.exports = {
   schoolApi,
   associationApi,
+  unionApi,
+  localPlatformApi,
   alumniApi,
   couponApi,
   circleApi,
@@ -210,4 +288,6 @@ module.exports = {
   activityApi,
   userApi,
   searchApi,
+  authApi,
+  fileApi,
 }

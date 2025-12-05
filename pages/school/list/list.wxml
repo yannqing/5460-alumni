@@ -3,26 +3,36 @@
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="搜索母校名称、曾用名" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <input class="search-input" type="text" placeholder="搜索母校名称、曾用名、合并院校名称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
       <image class="search-icon" src="/assets/icons/搜索栏搜索.png" mode="aspectFit" bindtap="onSearch" />
     </view>
   </view>
 
   <!-- 筛选和排序栏 -->
   <view class="filter-bar">
-    <view class="filter-item" bindtap="toggleFollowFilter">
-      <text class="{{filterType === 'followed' ? 'theme-color' : ''}}">{{filterType === 'followed' ? '已关注' : '全部'}}</text>
+    <!-- 第一个：办学层次选择 -->
+    <view class="filter-item">
+      <picker mode="selector" range="{{levelList}}" value="{{levelList.indexOf(selectedLevel) >= 0 ? levelList.indexOf(selectedLevel) : 0}}" bindchange="onLevelChange">
+        <text class="{{selectedLevel && selectedLevel !== '全部' ? 'theme-color' : ''}}">{{selectedLevel === '全部' ? '全部层次' : (selectedLevel || '全部层次')}}</text>
+        <text class="arrow-down">▾</text>
+      </picker>
     </view>
-    <view class="filter-item" bindtap="showFilterPanel">
-      <text>{{selectedCity}}</text>
-      <text class="arrow-down">▾</text>
+    <!-- 第二个：地区选择（自定义省市级选择器，只到市） -->
+    <view class="filter-item">
+      <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+        <text class="{{region && region.length > 0 ? 'theme-color' : ''}}">{{regionDisplayText || '全部城市'}}</text>
+        <text class="arrow-down">▾</text>
+      </picker>
     </view>
+    <!-- 第三个：排序 -->
     <view class="filter-item" bindtap="showSortPanel">
       <text>{{selectedSort}}</text>
       <text class="arrow-down">▾</text>
     </view>
+    <!-- 第四个：我的关注 -->
     <view class="filter-item" bindtap="goToMyFollow">
       <text>我的关注</text>
+      <text class="arrow-down">▾</text>
     </view>
   </view>
 
@@ -35,6 +45,10 @@
           <view class="school-name-row">
             <text class="school-name">{{item.name}}</text>
             <view wx:if="{{item.isCertified}}" class="certified-badge">✓ 认证</view>
+          </view>
+          <view wx:if="{{item.level}}" class="school-old-names">
+            <text class="old-name-label">办学层次：</text>
+            <text>{{item.level}}</text>
           </view>
           <view class="school-location">
             <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
@@ -57,25 +71,6 @@
     <view wx:if="{{!loading && schoolList.length === 0}}" class="empty-state">
       <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
       <text>暂无数据</text>
-    </view>
-  </view>
-
-  <!-- 城市筛选弹窗 -->
-  <view class="popup-mask" wx:if="{{showFilter}}" bindtap="hideFilterPanel" catchtouchmove="true">
-    <view class="popup-content" catchtap="stopPropagation">
-      <view class="popup-header">
-        <text class="popup-title">选择城市</text>
-        <text class="popup-close" bindtap="hideFilterPanel">✕</text>
-      </view>
-      <view class="city-list">
-        <view class="city-item {{selectedCity === item ? 'active' : ''}}" wx:for="{{cityList}}" wx:key="*this" bindtap="onCityChange" data-city="{{item}}">
-          <text>{{item}}</text>
-          <text wx:if="{{selectedCity === item}}" class="check-icon">✓</text>
-        </view>
-      </view>
-      <view class="popup-footer">
-        <view class="btn btn-primary full-width" bindtap="confirmFilter">确定</view>
-      </view>
     </view>
   </view>
 

@@ -14,13 +14,19 @@
           <view class="school-basic-info">
             <view class="school-name-row">
               <text class="school-name-large">{{schoolInfo.name}}</text>
-              <view wx:if="{{schoolInfo.certifiedUnion}}" class="certified-badge-large" catchtap="viewCertifiedUnion">
-                {{schoolInfo.certifiedUnion.name}}
+              <view class="cert-tag-wrap">
+                <view wx:if="{{schoolInfo.certifiedUnion}}" class="certified-badge-large" catchtap="viewCertifiedUnion">
+                  {{schoolInfo.certifiedUnion.name}}
+                </view>
+                <!-- 测试：校友总会标签（一直显示） -->
+                <view class="certified-badge-large" catchtap="viewAlumniHeadquarters">
+                  总会测试
+                </view>
               </view>
             </view>
-            <view class="school-location-large">
+            <view class="school-location-large" wx:if="{{schoolInfo.provinceCity}}">
               <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
-              {{schoolInfo.location}}
+              {{schoolInfo.provinceCity}}
             </view>
           </view>
         </view>
@@ -37,13 +43,23 @@
           <view class="info-value">{{schoolInfo.name}}</view>
         </view>
 
-        <view wx:if="{{schoolInfo.oldNames && schoolInfo.oldNames.length > 0}}" class="info-row">
+        <view wx:if="{{schoolInfo.previousName}}" class="info-row">
           <view class="info-label">曾用名</view>
-          <view class="info-value">{{schoolInfo.oldNames.join('、')}}</view>
+          <view class="info-value">{{schoolInfo.previousName}}</view>
         </view>
 
-        <view class="info-row">
+        <view wx:if="{{schoolInfo.mergedInstitutions}}" class="info-row">
+          <view class="info-label">合并院校</view>
+          <view class="info-value">{{schoolInfo.mergedInstitutions}}</view>
+        </view>
+
+        <view class="info-row" wx:if="{{schoolInfo.provinceCity}}">
           <view class="info-label">所在地</view>
+          <view class="info-value">{{schoolInfo.provinceCity}}</view>
+        </view>
+
+        <view class="info-row" wx:if="{{schoolInfo.location}}">
+          <view class="info-label">详细地址</view>
           <view class="info-value">{{schoolInfo.location}}</view>
         </view>
       </view>

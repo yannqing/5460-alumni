@@ -1,4 +1,6 @@
 // pages/alumni-association/detail/detail.js
+const { associationApi } = require('../../../api/api.js')
+
 Page({
   data: {
     associationId: '',
@@ -11,180 +13,217 @@ Page({
     benefitActivities: [],
     nearbyBenefits: [],
     alumniEnterprises: [],
-    alumniShops: []
+    alumniShops: [],
+    loading: false,
+    // 测试用：校友总会 ID（后续可由接口返回 unionId 替换）
+    testUnionId: 1,
+    // 加入校友会申请表单
+    showJoinModal: false,
+    joinForm: {
+      realName: '',
+      graduationYear: '',
+      major: '',
+      remark: ''
+    },
+    joinSubmitting: false
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     this.setData({ associationId: options.id })
+    // 确保已登录后再加载数据
+    await this.ensureLogin()
     this.loadAssociationDetail()
   },
 
-  loadAssociationDetail() {
-    const mockData = {
-      id: this.data.associationId,
-      name: '南京大学上海校友会',
-      schoolId: 'school-001',
-      schoolName: '南京大学',
-      icon: '/assets/logo/njdxxyh.jpg',
-      cover: '/assets/images/南京大学背景图.jpg',
-      location: '上海市',
-      address: '上海市浦东新区世纪大道XXX号',
-      memberCount: 1580,
-      isJoined: false,
-      isCertified: true,
-      president: '张三',
-      vicePresidents: ['李四', '王五'],
-      establishedYear: 2010,
-      description: '南京大学上海校友会成立于2010年，是南京大学在上海地区校友自愿组成的非营利性组织。',
-      certifications: [
-        { id: 'union-001', type: 'union', label: '南京大学校友总会' },
-        { id: 'promotion-001', type: 'promotion', label: '上海市校促会' }
-      ]
-    }
-
-    const mockMembers = [
-      {
-        id: 1,
-        name: '张三',
-        avatar: '/assets/images/头像.png',
-        role: '会长',
-        company: '腾讯科技',
-        showRealName: true
-      },
-      {
-        id: 2,
-        name: '李四',
-        avatar: '/assets/images/头像.png',
-        role: '副会长',
-        company: '阿里巴巴',
-        showRealName: true
+  onShow() {
+    // 页面显示时重新检查登录状态
+    this.ensureLogin().then(() => {
+      // 如果详情为空，重新加载
+      if (!this.data.associationInfo && this.data.associationId) {
+        this.loadAssociationDetail()
       }
-    ]
-
-    const mockNotifications = [
-      {
-        id: 1,
-        title: '校友会年度大会通知',
-        content: '将于2025年12月举办年度大会，请各位校友踊跃参加',
-        time: '2025-11-15 10:00',
-        isRead: false
-      },
-      {
-        id: 2,
-        title: '校友会活动通知',
-        content: '本周六将举办校友聚会活动',
-        time: '2025-11-14 15:00',
-        isRead: false
-      }
-    ]
-
-    const mockBenefitActivities = [
-      {
-        id: 1,
-        title: '校友企业招聘会',
-        time: '2025-12-20 09:00',
-        location: '上海国际会展中心',
-        participantCount: 328
-      },
-      {
-        id: 2,
-        title: '校友联谊活动',
-        time: '2025-12-15 14:00',
-        location: '南京国际会议中心',
-        participantCount: 156
-      }
-    ]
-
-    const mockNearbyBenefits = [
-      {
-        id: 1,
-        title: '星巴克校友专属优惠',
-        merchant: '星巴克咖啡',
-        discount: '8折',
-        distance: '500m',
-        isNew: true
-      },
-      {
-        id: 2,
-        title: '海底捞校友专享',
-        merchant: '海底捞火锅',
-        discount: '9折',
-        distance: '1.2km',
-        isNew: false
-      }
-    ]
-
-    const mockAlumniEnterprises = [
-      {
-        id: 1,
-        name: '腾讯科技',
-        logo: '/assets/images/头像.png',
-        industry: '互联网科技',
-        founder: '张三',
-        description: '腾讯科技是一家专注于互联网科技的公司',
-        location: '深圳市',
-        scale: '1000-5000人'
-      },
-      {
-        id: 2,
-        name: '阿里巴巴集团',
-        logo: '/assets/images/头像.png',
-        industry: '电子商务',
-        founder: '李四',
-        description: '阿里巴巴集团是全球领先的电子商务平台',
-        location: '杭州市',
-        scale: '5000人以上'
-      }
-    ]
-
-    const mockAlumniShops = [
-      {
-        id: 1,
-        name: '校友咖啡厅',
-        cover: '/assets/images/头像.png',
-        owner: '王五',
-        category: '餐饮',
-        location: '上海市浦东新区',
-        distance: '800m',
-        rating: 4.8,
-        description: '温馨的校友聚会场所'
-      },
-      {
-        id: 2,
-        name: '校友书店',
-        cover: '/assets/images/头像.png',
-        owner: '赵六',
-        category: '文化',
-        location: '上海市黄浦区',
-        distance: '1.5km',
-        rating: 4.6,
-        description: '提供优质图书和文化产品'
-      }
-    ]
-
-    this.setData({
-      associationInfo: mockData,
-      members: mockMembers,
-      notifications: mockNotifications,
-      benefitActivities: mockBenefitActivities,
-      nearbyBenefits: mockNearbyBenefits,
-      alumniEnterprises: mockAlumniEnterprises,
-      alumniShops: mockAlumniShops
     })
+  },
+
+  // 确保已登录
+  async ensureLogin() {
+    const app = getApp()
+    const isLogin = app.checkHasLogined()
+    
+    if (!isLogin) {
+      try {
+        await app.initApp()
+      } catch (error) {
+        wx.showToast({
+          title: '登录失败，请重试',
+          icon: 'none'
+        })
+        throw error
+      }
+    }
+  },
+
+  // 加载校友会详情
+  async loadAssociationDetail() {
+    if (this.data.loading) return
+
+    this.setData({ loading: true })
+
+    try {
+      const res = await associationApi.getAssociationDetail(this.data.associationId)
+      
+      if (res.data && res.data.code === 200) {
+        const item = res.data.data || {}
+
+        // 数据映射（与后端字段保持同步）
+        // 后端字段示例（AlumniAssociationListVo）：
+        // 实际返回结构中，ID 信息分散在不同对象中：
+        // - 校友会主键：alumni_association_id（后端未在 VO 中显式暴露，前端使用请求时的 id）
+        // - 母校 ID：data.schoolInfo.schoolId
+        // - 校处会 ID：目前 VO 中未暴露，前端暂不直接使用
+        const schoolInfo = item.schoolInfo || {}
+        const platformInfo = item.platform || {}
+
+        const mappedInfo = {
+          // 使用前端当前请求的 id 作为校友会 ID，避免依赖后端未暴露字段
+          id: this.data.associationId,
+          associationId: this.data.associationId,
+          name: item.associationName,
+          associationName: item.associationName,
+          // 从 schoolInfo 中读取真正的母校 ID，避免为 null/undefined
+          schoolId: schoolInfo.schoolId || null,
+          // 平台 ID 后端当前未直接返回，这里预留字段，兼容后续扩展
+          platformId: platformInfo.platformId || platformInfo.id || null,
+          presidentUserId: item.presidentUserId,
+          icon: '/assets/logo/njdxxyh.jpg', // 后端暂无图标字段，使用默认
+          cover: '/assets/images/南京大学背景图.jpg', // 后端暂无封面字段，使用默认
+          location: item.location || '',
+          memberCount: item.memberCount || 0,
+          contactInfo: item.contactInfo || '',
+          // 预留字段（后端暂无，使用默认值）
+          schoolName: schoolInfo.schoolName || '', // 优先使用返回的学校名称
+          address: item.location || '', // 使用 location 作为地址
+          isJoined: false, // 后端暂无此字段
+          isCertified: false, // 后端暂无此字段
+          president: '', // 需要根据 presidentUserId 查询，或后端返回
+          vicePresidents: [], // 后端暂无此字段
+          establishedYear: null, // 后端暂无此字段
+          description: '', // 后端暂无此字段
+          certifications: [] // 后端暂无此字段
+        }
+
+        this.setData({
+          associationInfo: mappedInfo,
+          loading: false
+        })
+
+        // 加载其他相关数据（成员、活动等，这些接口可能还未实现）
+        // this.loadMembers()
+        // this.loadActivities()
+        // this.loadNotifications()
+      } else {
+        this.setData({ loading: false })
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      this.setData({ loading: false })
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
+    }
   },
 
   switchTab(e) {
     this.setData({ activeTab: e.currentTarget.dataset.index })
   },
 
+  // 点击加入/退出按钮
   toggleJoin() {
     const { associationInfo } = this.data
-    associationInfo.isJoined = !associationInfo.isJoined
-    this.setData({ associationInfo })
-    wx.showToast({
-      title: associationInfo.isJoined ? '加入成功' : '已退出',
-      icon: 'success'
+    // 已加入：保持原来的退出逻辑
+    if (associationInfo.isJoined) {
+      associationInfo.isJoined = false
+      this.setData({ associationInfo })
+      wx.showToast({
+        title: '已退出',
+        icon: 'success'
+      })
+      return
+    }
+    // 未加入：打开申请表单
+    this.setData({
+      showJoinModal: true,
+      joinForm: {
+        realName: '',
+        graduationYear: '',
+        major: '',
+        remark: ''
+      }
     })
+  },
+
+  // 关闭申请弹窗
+  closeJoinModal() {
+    if (this.data.joinSubmitting) return
+    this.setData({ showJoinModal: false })
+  },
+
+  // 表单输入绑定
+  handleJoinInput(e) {
+    const { field } = e.currentTarget.dataset
+    const { value } = e.detail
+    this.setData({
+      joinForm: {
+        ...this.data.joinForm,
+        [field]: value
+      }
+    })
+  },
+
+  // 提交加入申请
+  async submitJoinApplication() {
+    const { associationId, joinForm, joinSubmitting, associationInfo } = this.data
+    if (joinSubmitting) return
+
+    if (!joinForm.realName) {
+      wx.showToast({ title: '请输入真实姓名', icon: 'none' })
+      return
+    }
+
+    this.setData({ joinSubmitting: true })
+    try {
+      // 当前后端 join 接口未要求表单字段，这里先直接提交申请
+      const res = await associationApi.joinAssociation(associationId)
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '申请已提交，待审核',
+          icon: 'success'
+        })
+        this.setData({
+          showJoinModal: false,
+          associationInfo: {
+            ...associationInfo,
+            isJoined: true
+          }
+        })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '提交失败，请重试',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.showToast({
+        title: '提交失败，请重试',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ joinSubmitting: false })
+    }
   },
 
   // 查看通知详情
@@ -231,6 +270,10 @@ Page({
     if (type === 'union') {
       wx.navigateTo({
         url: `/pages/alumni-union/detail/detail?id=${id}`
+      })
+    } else if (type === 'platform') {
+      wx.navigateTo({
+        url: `/pages/local-platform/detail/detail?id=${id}`
       })
     } else if (type === 'promotion') {
       wx.navigateTo({

@@ -48,7 +48,8 @@
 }
 
 .scan-icon {
-  font-size: 40rpx;
+  width: 40rpx;
+  height: 40rpx;
 }
 
 .search-action {

@@ -1,18 +1,33 @@
 <!--pages/my-association/my-association.wxml-->
-<view class="container">
+<view class="association-page">
   <view class="list">
-    <view class="list-item" wx:for="{{associationList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <image class="avatar" src="{{item.icon}}" mode="aspectFill" />
-      <view class="flex-1">
-        <view class="text-primary text-bold">{{item.name}}</view>
-        <view class="text-secondary mt-10">{{item.schoolName}} · {{item.location}}</view>
-        <view class="text-placeholder mt-10">{{item.memberCount}}人</view>
+    <view class="association-card" wx:for="{{associationList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <image class="association-avatar" src="{{item.icon}}" mode="aspectFill" />
+      <view class="association-content">
+        <view class="association-header">
+          <text class="association-name">{{item.name}}</text>
+          <view wx:if="{{item.isVerified}}" class="verified-badge">✓</view>
+        </view>
+        <view class="association-info">
+          <text class="info-item">🏫 {{item.schoolName}}</text>
+          <text class="info-divider">·</text>
+          <text class="info-item">📍 {{item.location}}</text>
+        </view>
+        <view class="association-footer">
+          <view class="member-count">
+            <text class="count-icon">👥</text>
+            <text class="count-text">{{item.memberCount}}人</text>
+          </view>
+          <view class="association-tags" wx:if="{{item.tags && item.tags.length}}">
+            <text class="tag-item" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+          </view>
+        </view>
       </view>
     </view>
   </view>
 
   <view wx:if="{{associationList.length === 0}}" class="empty-state">
-    <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
-    <text>暂未加入校友会</text>
+    <image class="empty-image" src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+    <text class="empty-text">暂未加入校友会</text>
   </view>
 </view>

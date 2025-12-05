@@ -14,18 +14,46 @@
     <view class="section-card card">
       <view class="section-title">基本信息</view>
       <view class="form-item">
-        <view class="label">姓名</view>
-        <input class="input" placeholder="请输入真实姓名" value="{{form.nickName}}" data-field="nickName" bindinput="handleInput" />
+        <view class="label">昵称</view>
+        <input class="input" placeholder="请输入昵称" value="{{form.nickname}}" data-field="nickname" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">真实姓名</view>
+        <input class="input" placeholder="请输入真实姓名" value="{{form.name}}" data-field="name" bindinput="handleInput" />
       </view>
       <view class="form-item">
         <view class="label">性别</view>
-        <picker mode="selector" range="{{genderOptions}}" value="{{genderIndex}}" bindchange="handleGenderChange">
-          <view class="picker-value">{{genderOptions[genderIndex] || '请选择'}}</view>
+        <picker mode="selector" range="{{genderOptions}}" value="{{form.genderIndex}}" bindchange="handleGenderChange">
+          <view class="picker-value">{{genderOptions[form.genderIndex] || '请选择'}}</view>
         </picker>
       </view>
       <view class="form-item">
-        <view class="label">手机</view>
-        <input class="input" type="number" maxlength="11" placeholder="用于接收活动通知" value="{{form.mobile}}" data-field="mobile" bindinput="handleInput" />
+        <view class="label">出生日期</view>
+        <picker mode="date" value="{{form.birthDate}}" bindchange="handleBirthDateChange">
+          <view class="picker-value">{{form.birthDate || '请选择出生日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <view class="label">手机号</view>
+        <input class="input" type="number" maxlength="11" placeholder="用于接收活动通知" value="{{form.phone}}" data-field="phone" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">星座</view>
+        <picker mode="selector" range="{{constellationOptions}}" value="{{form.constellationIndex}}" bindchange="handleConstellationChange">
+          <view class="picker-value">{{constellationOptions[form.constellationIndex] || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <view class="label">个性签名</view>
+        <input class="input" placeholder="请输入个性签名" value="{{form.signature}}" data-field="signature" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">微信号</view>
+        <input class="input" placeholder="请输入微信号" value="{{form.wxNum}}" data-field="wxNum" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">QQ号</view>
+        <input class="input" type="number" placeholder="请输入QQ号" value="{{form.qqNum}}" data-field="qqNum" bindinput="handleInput" />
       </view>
       <view class="form-item">
         <view class="label">邮箱</view>
@@ -34,38 +62,136 @@
     </view>
 
     <view class="section-card card">
-      <view class="section-title">校友信息</view>
+      <view class="section-title">位置信息</view>
       <view class="form-item">
-        <view class="label">母校</view>
-        <input class="input" placeholder="如：南京大学" value="{{form.school}}" data-field="school" bindinput="handleInput" />
+        <view class="label">籍贯</view>
+        <input class="input" placeholder="请输入籍贯" value="{{form.originProvince}}" data-field="originProvince" bindinput="handleInput" />
       </view>
       <view class="form-item">
-        <view class="label">专业</view>
-        <input class="input" placeholder="如：计算机科学" value="{{form.major}}" data-field="major" bindinput="handleInput" />
+        <view class="label">当前所在洲</view>
+        <input class="input" placeholder="请输入所在洲" value="{{form.curContinent}}" data-field="curContinent" bindinput="handleInput" />
       </view>
       <view class="form-item">
-        <view class="label">入学年份</view>
-        <picker mode="selector" range="{{yearOptions}}" value="{{yearIndex}}" bindchange="handleYearChange">
-          <view class="picker-value">{{yearOptions[yearIndex] || '请选择'}}</view>
-        </picker>
+        <view class="label">当前所在国</view>
+        <input class="input" placeholder="请输入所在国" value="{{form.curCountry}}" data-field="curCountry" bindinput="handleInput" />
       </view>
       <view class="form-item">
-        <view class="label">所在城市</view>
-        <input class="input" placeholder="例：深圳" value="{{form.city}}" data-field="city" bindinput="handleInput" />
+        <view class="label">当前所在省市</view>
+        <input class="input" placeholder="请输入所在省市" value="{{form.curProvince}}" data-field="curProvince" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">当前所在市区</view>
+        <input class="input" placeholder="请输入所在市区" value="{{form.curCity}}" data-field="curCity" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">当前所在村/区</view>
+        <input class="input" placeholder="请输入所在村/区" value="{{form.curCounty}}" data-field="curCounty" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">详细地址</view>
+        <input class="input" placeholder="请输入详细地址" value="{{form.address}}" data-field="address" bindinput="handleInput" />
       </view>
     </view>
 
     <view class="section-card card">
-      <view class="section-title">个人标签</view>
-      <view class="tag-input-row">
-        <input class="input" placeholder="输入后回车添加标签" value="{{tagInput}}" bindconfirm="addTag" bindinput="handleTagInput" confirm-type="done" />
-        <view class="tag-tip">最多3个</view>
-      </view>
-      <view class="tag-list">
-        <view class="tag-chip" wx:for="{{form.tags}}" wx:key="*this" data-index="{{index}}" bindtap="removeTag">
-          <text>{{item}}</text>
-          <text class="remove">✕</text>
+      <view class="section-title">教育经历</view>
+      <!-- 遮罩层，点击隐藏下拉列表 -->
+      <view wx:if="{{hasSchoolDropdownVisible}}" class="school-dropdown-mask" catchtap="hideSchoolDropdown"></view>
+      <view class="education-list">
+        <view class="education-item" wx:for="{{form.educationList}}" wx:key="eduIndex" wx:for-index="eduIndex">
+          <view class="education-header">
+            <text class="education-title">教育经历 {{eduIndex + 1}}</text>
+            <text class="delete-btn" bindtap="removeEducation" data-index="{{eduIndex}}">删除</text>
+          </view>
+          
+          <view class="form-item school-select-item">
+            <view class="label">学校</view>
+            <view class="school-input-wrapper">
+              <input
+                class="input school-input"
+                placeholder="请输入学校名称"
+                value="{{form.educationList[eduIndex].schoolName || ''}}"
+                data-index="{{eduIndex}}"
+                bindinput="searchSchool"
+                bindfocus="onSchoolFocus"
+              />
+              <!-- 学校下拉列表 -->
+              <view wx:if="{{showSchoolDropdown[eduIndex]}}" class="school-dropdown">
+                <view wx:if="{{schoolSearchLoading[eduIndex]}}" class="school-dropdown-loading">
+                  搜索中...
+                </view>
+                <view wx:elif="{{schoolSearchResults[eduIndex] && schoolSearchResults[eduIndex].length > 0}}" class="school-dropdown-list">
+                  <view 
+                    class="school-dropdown-item" 
+                    wx:for="{{schoolSearchResults[eduIndex]}}" 
+                    wx:key="schoolId" 
+                    wx:for-index="schoolIndex"
+                    data-index="{{eduIndex}}"
+                    data-school-index="{{schoolIndex}}"
+                    bindtap="selectSchool"
+                  >
+                    <text class="school-dropdown-name">{{item.schoolName || ''}}</text>
+                    <text wx:if="{{item.province || item.city}}" class="school-dropdown-location">{{item.province || ''}}{{item.city || ''}}</text>
+                  </view>
+                </view>
+                <view wx:else class="school-dropdown-empty">
+                  暂无匹配的学校
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="form-item">
+            <view class="label">入学年份</view>
+            <input class="input" type="number" placeholder="例如：2018" value="{{form.educationList[eduIndex].enrollmentYear || ''}}" data-index="{{eduIndex}}" data-field="enrollmentYear" bindinput="handleEducationYearInput" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">毕业年份</view>
+            <input class="input" type="number" placeholder="例如：2022" value="{{form.educationList[eduIndex].graduationYear || ''}}" data-index="{{eduIndex}}" data-field="graduationYear" bindinput="handleEducationYearInput" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">院系</view>
+            <input class="input" placeholder="请输入院系" value="{{form.educationList[eduIndex].department || ''}}" data-index="{{eduIndex}}" data-field="department" bindinput="handleEducationInput" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">专业</view>
+            <input class="input" placeholder="请输入专业" value="{{form.educationList[eduIndex].major || ''}}" data-index="{{eduIndex}}" data-field="major" bindinput="handleEducationInput" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">班级</view>
+            <input class="input" placeholder="请输入班级" value="{{form.educationList[eduIndex].className || ''}}" data-index="{{eduIndex}}" data-field="className" bindinput="handleEducationInput" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">学历层次</view>
+            <picker mode="selector" range="{{educationLevelOptions}}" value="{{educationLevelOptions.indexOf(form.educationList[eduIndex].educationLevel) >= 0 ? educationLevelOptions.indexOf(form.educationList[eduIndex].educationLevel) : 0}}" bindchange="handleEducationLevelChange" data-index="{{eduIndex}}">
+              <view class="picker-value">{{form.educationList[eduIndex].educationLevel || '请选择学历层次'}}</view>
+            </picker>
+          </view>
+
         </view>
+
+        <view class="add-education-btn" bindtap="addEducation">
+          <text>+ 添加教育经历</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">证件信息</view>
+      <view class="form-item">
+        <view class="label">证件类型</view>
+        <picker mode="selector" range="{{identifyTypeOptions}}" value="{{form.identifyTypeIndex}}" bindchange="handleIdentifyTypeChange">
+          <view class="picker-value">{{identifyTypeOptions[form.identifyTypeIndex] || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <view class="label">证件号</view>
+        <input class="input" placeholder="请输入证件号" value="{{form.identifyCode}}" data-field="identifyCode" bindinput="handleInput" />
       </view>
     </view>
 
@@ -73,13 +199,17 @@
       <view class="section-title">个人简介</view>
       <textarea
         class="textarea"
-        maxlength="200"
+        maxlength="1000"
         placeholder="介绍一下你的经历、擅长领域或兴趣爱好，便于校友联系你。"
-        value="{{form.bio}}"
-        data-field="bio"
+        value="{{form.description}}"
+        data-field="description"
         bindinput="handleTextarea"
       ></textarea>
-      <view class="textarea-count">{{form.bio.length}}/200</view>
+      <view class="textarea-count">{{form.description.length}}/1000</view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">其他信息</view>
     </view>
   </scroll-view>
 
@@ -87,4 +217,5 @@
     <button class="btn btn-primary" loading="{{saving}}" bindtap="saveProfile">保存资料</button>
   </view>
 </view>
+
 

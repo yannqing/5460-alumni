@@ -2,9 +2,13 @@
   "pages": [
     "pages/index/index",
     "pages/discover/discover",
+    "pages/chat/list/list",
     "pages/search/search",
     "pages/profile/profile",
     "pages/profile/edit/edit",
+    "pages/profile/privacy/privacy",
+    "pages/certification/certification",
+    "pages/merchant/apply/apply",
     "pages/school/list/list",
     "pages/school/detail/detail",
     "pages/alumni-association/list/list",
@@ -27,11 +31,14 @@
     "pages/my-follow/my-follow",
     "pages/my-association/my-association",
     "pages/alumni-union/detail/detail",
+    "pages/local-platform/detail/detail",
     "pages/promotion/detail/detail",
     "pages/enterprise/list/list",
     "pages/enterprise/detail/detail",
     "pages/shop/list/list",
-    "pages/shop/detail/detail"
+    "pages/shop/detail/detail",
+    "pages/chat/detail/detail",
+    "pages/my-favorites/my-favorites"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -59,6 +66,12 @@
         "selectedIconPath": "assets/icons/发现.png"
       },
       {
+        "pagePath": "pages/chat/list/list",
+        "text": "5460",
+        "iconPath": "assets/icons/聊天.png",
+        "selectedIconPath": "assets/icons/聊天.png"
+      },
+      {
         "pagePath": "pages/search/search",
         "text": "搜索",
         "iconPath": "assets/icons/搜索.png",
@@ -76,6 +89,9 @@
     "request": 10000,
     "downloadFile": 10000
   },
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ],
   "debug": true,
   "sitemapLocation": "sitemap.json"
 }

@@ -1,5 +1,5 @@
 // pages/alumni/list/list.js
-const { alumniApi } = require('../../../api/index.js')
+const { alumniApi } = require('../../../api/api.js')
 
 const BASE_ALUMNI = [
   {

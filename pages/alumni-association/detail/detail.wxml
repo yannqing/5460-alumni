@@ -9,19 +9,34 @@
         <view class="flex-1 ml-20">
           <view class="name-row">
             <text class="text-primary text-bold">{{associationInfo.name}}</text>
-            <view wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" class="cert-tag-wrap">
-              <block wx:for="{{associationInfo.certifications}}" wx:key="id">
+            <view class="cert-tag-wrap">
+              <block wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" wx:for="{{associationInfo.certifications}}" wx:key="id">
                 <view class="cert-tag" data-type="{{item.type}}" data-id="{{item.id}}" catchtap="handleCertificationTap">
                   {{item.label}}
                 </view>
               </block>
+              <!-- 测试：校友总会 / 校处会两个测试标签 -->
+              <view wx:if="{{testUnionId}}" 
+                    class="cert-tag" 
+                    data-type="union" 
+                    data-id="{{testUnionId}}" 
+                    catchtap="handleCertificationTap">
+                总会测试
+              </view>
+              <view wx:if="{{associationInfo.platformId}}" 
+                    class="cert-tag" 
+                    data-type="platform" 
+                    data-id="{{associationInfo.platformId}}" 
+                    catchtap="handleCertificationTap">
+                校处会测试
+              </view>
             </view>
           </view>
-          <view class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
+          <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
             <image class="school-icon" src="/assets/icons/学校.png" mode="aspectFit" />
             <view class="school-tag">{{associationInfo.schoolName}}</view>
           </view>
-          <view class="text-placeholder mt-10 location-row">
+          <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
             <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
             <text>{{associationInfo.location}}</text>
           </view>
@@ -43,11 +58,12 @@
     <view wx:if="{{activeTab === 0}}" class="tab-content">
       <view class="card">
         <view class="text-bold mb-20">基本信息</view>
-        <view class="text-secondary">{{associationInfo.description}}</view>
+        <view wx:if="{{associationInfo.description}}" class="text-secondary">{{associationInfo.description}}</view>
         <view class="divider"></view>
-        <view class="text-secondary">会长：{{associationInfo.president}}</view>
-        <view class="text-secondary mt-10">成员：{{associationInfo.memberCount}}人</view>
-        <view class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
+        <view wx:if="{{associationInfo.president}}" class="text-secondary">会长：{{associationInfo.president}}</view>
+        <view class="text-secondary mt-10">成员：{{associationInfo.memberCount || 0}}人</view>
+        <view wx:if="{{associationInfo.establishedYear}}" class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
+        <view wx:if="{{associationInfo.contactInfo}}" class="text-secondary mt-10">联系信息：{{associationInfo.contactInfo}}</view>
       </view>
 
       <!-- 通知列表 -->
@@ -223,5 +239,64 @@
       </view>
     </view>
 
+  </view>
+
+  <!-- 加入校友会申请表单弹窗 -->
+  <view wx:if="{{showJoinModal}}" class="join-modal-mask" catchtouchmove="true">
+    <view class="join-modal">
+      <view class="join-modal-title">加入校友会申请</view>
+      <view class="join-modal-subtitle">请填写以下信息，提交后将由管理员审核</view>
+
+      <view class="join-form-item">
+        <view class="join-form-label">真实姓名</view>
+        <input
+          class="join-form-input"
+          placeholder="请输入真实姓名"
+          value="{{joinForm.realName}}"
+          data-field="realName"
+          bindinput="handleJoinInput"
+        />
+      </view>
+
+      <view class="join-form-item">
+        <view class="join-form-label">毕业年份</view>
+        <input
+          class="join-form-input"
+          placeholder="例如：2018"
+          value="{{joinForm.graduationYear}}"
+          data-field="graduationYear"
+          bindinput="handleJoinInput"
+        />
+      </view>
+
+      <view class="join-form-item">
+        <view class="join-form-label">专业 / 院系</view>
+        <input
+          class="join-form-input"
+          placeholder="请输入毕业专业或所在院系"
+          value="{{joinForm.major}}"
+          data-field="major"
+          bindinput="handleJoinInput"
+        />
+      </view>
+
+      <view class="join-form-item">
+        <view class="join-form-label">申请说明</view>
+        <textarea
+          class="join-form-textarea"
+          placeholder="可以简单介绍一下自己，或补充说明申请理由（选填）"
+          value="{{joinForm.remark}}"
+          data-field="remark"
+          bindinput="handleJoinInput"
+        />
+      </view>
+
+      <view class="join-modal-actions">
+        <view class="join-modal-btn cancel" bindtap="closeJoinModal">取消</view>
+        <view class="join-modal-btn submit" bindtap="submitJoinApplication">
+          {{joinSubmitting ? '提交中...' : '提交申请'}}
+        </view>
+      </view>
+    </view>
   </view>
 </view>

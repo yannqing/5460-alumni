@@ -13,7 +13,7 @@
           <image class="union-icon-large avatar avatar-large" src="{{unionInfo.icon}}" mode="aspectFill" />
           <view class="union-basic-info">
             <view class="union-name-row">
-              <text class="union-name-large">{{unionInfo.name}}</text>
+              <text class="union-name-large">{{unionInfo.headquartersName}}</text>
             </view>
             <view class="union-school">{{unionInfo.schoolName}}</view>
           </view>
@@ -27,7 +27,7 @@
 
       <view class="info-row">
         <view class="info-label">名称</view>
-        <view class="info-value">{{unionInfo.name}}</view>
+        <view class="info-value">{{unionInfo.headquartersName}}</view>
       </view>
 
       <view class="info-row">
@@ -38,6 +38,21 @@
       <view wx:if="{{unionInfo.description}}" class="info-row">
         <view class="info-label">简介</view>
         <view class="info-value description-text">{{unionInfo.description}}</view>
+      </view>
+
+      <view class="info-row" wx:if="{{unionInfo.memberCount}}">
+        <view class="info-label">下属校友会数</view>
+        <view class="info-value">{{unionInfo.memberCount}}</view>
+      </view>
+
+      <view class="info-row" wx:if="{{unionInfo.establishedDate}}">
+        <view class="info-label">成立日期</view>
+        <view class="info-value">{{unionInfo.establishedDate}}</view>
+      </view>
+
+      <view class="info-row" wx:if="{{unionInfo.level}}">
+        <view class="info-label">级别</view>
+        <view class="info-value">{{unionInfo.level}}</view>
       </view>
     </view>
 
@@ -60,9 +75,9 @@
         <view class="contact-value link-text" bindtap="copyEmail" data-email="{{unionInfo.email}}">{{unionInfo.email}}</view>
       </view>
 
-      <view class="contact-item" wx:if="{{unionInfo.wechat}}">
+      <view class="contact-item" wx:if="{{unionInfo.wechatPublicAccount}}">
         <view class="contact-label">微信公众号</view>
-        <view class="contact-value">{{unionInfo.wechat}}</view>
+        <view class="contact-value">{{unionInfo.wechatPublicAccount}}</view>
       </view>
 
       <view class="contact-item" wx:if="{{unionInfo.address}}">

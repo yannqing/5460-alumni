@@ -15,9 +15,47 @@ Page({
       {
         id: 1,
         name: '南京大学',
-        icon: 'https://via.placeholder.com/100/ff6b9d/ffffff?text=NJU',
+        icon: '/assets/images/头像.png',
         location: '江苏省南京市',
-        alumniCount: 12580
+        alumniCount: 12580,
+        is985: true,
+        is211: true
+      },
+      {
+        id: 2,
+        name: '浙江大学',
+        icon: '/assets/images/头像.png',
+        location: '浙江省杭州市',
+        alumniCount: 15200,
+        is985: true,
+        is211: true
+      },
+      {
+        id: 3,
+        name: '清华大学',
+        icon: '/assets/images/头像.png',
+        location: '北京市',
+        alumniCount: 28000,
+        is985: true,
+        is211: true
+      },
+      {
+        id: 4,
+        name: '北京大学',
+        icon: '/assets/images/头像.png',
+        location: '北京市',
+        alumniCount: 26500,
+        is985: true,
+        is211: true
+      },
+      {
+        id: 5,
+        name: '复旦大学',
+        icon: '/assets/images/头像.png',
+        location: '上海市',
+        alumniCount: 18900,
+        is985: true,
+        is211: true
       }
     ]
 
@@ -27,7 +65,54 @@ Page({
         name: '张三',
         avatar: '/assets/images/头像.png',
         school: '南京大学',
-        company: '腾讯科技'
+        company: '腾讯科技',
+        major: '计算机科学与技术',
+        isVerified: true
+      },
+      {
+        id: 2,
+        name: '李四',
+        avatar: '/assets/images/头像.png',
+        school: '浙江大学',
+        company: '阿里巴巴',
+        major: '软件工程',
+        isVerified: true
+      },
+      {
+        id: 3,
+        name: '王五',
+        avatar: '/assets/images/头像.png',
+        school: '清华大学',
+        company: '字节跳动',
+        major: '人工智能',
+        isVerified: true
+      },
+      {
+        id: 4,
+        name: '赵六',
+        avatar: '/assets/images/头像.png',
+        school: '北京大学',
+        company: '百度',
+        major: '数据科学',
+        isVerified: true
+      },
+      {
+        id: 5,
+        name: '孙七',
+        avatar: '/assets/images/头像.png',
+        school: '复旦大学',
+        company: '美团',
+        major: '信息管理',
+        isVerified: true
+      },
+      {
+        id: 6,
+        name: '周八',
+        avatar: '/assets/images/头像.png',
+        school: '上海交通大学',
+        company: '京东',
+        major: '电子商务',
+        isVerified: true
       }
     ]
 

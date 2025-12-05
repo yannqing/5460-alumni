@@ -1,0 +1,134 @@
+<!--pages/merchant/apply/apply.wxml-->
+<view class="apply-container">
+  <scroll-view scroll-y class="form-scroll">
+    <!-- 申请状态提示 -->
+    <view class="status-card card" wx:if="{{merchantStatus === 'pending'}}">
+      <view class="status-icon">⏳</view>
+      <view class="status-title">申请审核中</view>
+      <view class="status-desc">我们正在审核您的商家申请，请耐心等待</view>
+    </view>
+    
+    <view class="status-card card" wx:elif="{{merchantStatus === 'approved'}}">
+      <view class="status-icon verified">✓</view>
+      <view class="status-title">申请已通过</view>
+      <view class="status-desc">恭喜您成为认证商家，可以开始管理店铺了</view>
+    </view>
+    
+    <view class="status-card card" wx:elif="{{merchantStatus === 'rejected'}}">
+      <view class="status-icon rejected">✗</view>
+      <view class="status-title">申请未通过</view>
+      <view class="status-desc">您的申请未通过审核，请检查信息后重新提交</view>
+    </view>
+    
+    <!-- 填写说明 -->
+    <view class="tip-card card" wx:if="{{merchantStatus === 'none' || merchantStatus === 'rejected'}}">
+      <view class="tip-title">📋 申请说明</view>
+      <view class="tip-list">
+        <text>1. 请确保填写的信息真实有效</text>
+        <text>2. 需要上传清晰的营业执照照片</text>
+        <text>3. 审核通常需要1-3个工作日</text>
+        <text>4. 通过后可发布优惠券、管理店铺等</text>
+      </view>
+    </view>
+
+    <!-- 店铺信息 -->
+    <view class="section-card card">
+      <view class="section-title">店铺信息</view>
+      
+      <!-- 店铺Logo -->
+      <view class="upload-section">
+        <view class="upload-label">
+          <text class="label-text">店铺Logo</text>
+        </view>
+        <view class="upload-hint">建议尺寸 200x200 像素，支持 JPG/PNG 格式</view>
+        <view class="upload-area logo-area" wx:if="{{!form.shopLogo}}" bindtap="chooseLogo">
+          <view class="upload-icon">📷</view>
+          <view class="upload-text">点击上传Logo</view>
+        </view>
+        <view class="image-preview logo-preview" wx:else>
+          <image class="preview-image" src="{{form.shopLogo}}" mode="aspectFill" />
+          <view class="remove-btn" bindtap="removeImage" data-field="shopLogo">✕</view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <view class="label">店铺名称</view>
+        <input class="input" placeholder="请输入店铺名称" value="{{form.shopName}}" data-field="shopName" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">店铺类型</view>
+        <picker mode="selector" range="{{shopTypeOptions}}" value="{{shopTypeIndex}}" bindchange="handleShopTypeChange">
+          <view class="picker-value">{{shopTypeOptions[shopTypeIndex] || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <view class="label">店铺地址</view>
+        <view class="input-wrapper" bindtap="chooseLocation">
+          <text class="input" wx:if="{{form.shopAddress}}">{{form.shopAddress}}</text>
+          <text class="input placeholder" wx:else>请选择店铺地址</text>
+          <text class="location-icon">📍</text>
+        </view>
+      </view>
+      <view class="form-item textarea-item">
+        <view class="label">店铺简介</view>
+        <textarea
+          class="textarea"
+          placeholder="请简要介绍您的店铺特色、主营业务等（至少10个字符）"
+          value="{{form.shopDescription}}"
+          data-field="shopDescription"
+          bindinput="handleInput"
+          maxlength="500"
+        ></textarea>
+      </view>
+      <view class="textarea-count">{{form.shopDescription.length}}/500</view>
+    </view>
+
+    <!-- 联系信息 -->
+    <view class="section-card card">
+      <view class="section-title">联系信息</view>
+      <view class="form-item">
+        <view class="label">联系人</view>
+        <input class="input" placeholder="请输入联系人姓名" value="{{form.contactName}}" data-field="contactName" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">联系电话</view>
+        <input class="input" type="number" maxlength="11" placeholder="请输入手机号" value="{{form.contactPhone}}" data-field="contactPhone" bindinput="handleInput" />
+      </view>
+      <view class="form-item">
+        <view class="label">联系邮箱</view>
+        <input class="input" placeholder="选填，用于接收通知" value="{{form.contactEmail}}" data-field="contactEmail" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <!-- 资质证明 -->
+    <view class="section-card card">
+      <view class="section-title">资质证明</view>
+      
+      <!-- 营业执照 -->
+      <view class="upload-section">
+        <view class="upload-label">
+          <text class="label-text">营业执照</text>
+          <text class="required">*</text>
+        </view>
+        <view class="upload-hint">请上传清晰的营业执照照片，确保信息完整可见</view>
+        <view class="upload-area" wx:if="{{!form.businessLicense}}" bindtap="chooseLicense">
+          <view class="upload-icon">📷</view>
+          <view class="upload-text">点击上传营业执照</view>
+        </view>
+        <view class="image-preview" wx:else>
+          <image class="preview-image" src="{{form.businessLicense}}" mode="aspectFit" />
+          <view class="remove-btn" bindtap="removeImage" data-field="businessLicense">✕</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部留白 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- 提交按钮 -->
+  <view class="bottom-action" wx:if="{{merchantStatus === 'none' || merchantStatus === 'rejected'}}">
+    <button class="btn btn-primary" loading="{{submitting}}" bindtap="submitApply">提交申请</button>
+  </view>
+</view>
+

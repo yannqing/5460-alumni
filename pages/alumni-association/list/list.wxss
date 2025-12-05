@@ -46,6 +46,15 @@
   align-items: center;
   justify-content: center;
   gap: 8rpx;
+  padding: 0 8rpx;
+}
+
+.filter-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: inline-block;
 }
 
 .filter-item.active {

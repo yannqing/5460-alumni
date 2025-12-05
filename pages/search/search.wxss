@@ -19,6 +19,19 @@
   font-size: 28rpx;
 }
 
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-shrink: 0;
+}
+
+.scan-btn-icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
 .search-btn {
   width: 32rpx;
   height: 32rpx;

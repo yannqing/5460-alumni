@@ -2,43 +2,12 @@
 <view class="profile-page">
   <!-- 个人信息卡片 -->
   <view class="user-card">
-    <view wx:if="{{isLogin}}" class="user-info">
-      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="editProfile"></image>
+    <view class="user-info">
+      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="editProfile" wx:if="{{userInfo.avatarUrl}}"></image>
+      <view class="user-avatar-placeholder" bindtap="editProfile" wx:else></view>
       <view class="user-detail">
-        <view class="user-name">{{userInfo.nickName}}</view>
+        <view class="user-name">{{userInfo.nickname || '用户'}}</view>
         <view class="edit-hint" bindtap="editProfile">编辑资料 ›</view>
-      </view>
-    </view>
-
-    <view wx:else class="login-prompt" bindtap="handleLogin">
-      <image class="default-avatar" src="/assets/images/头像.png" mode="aspectFill" />
-      <view class="login-text">点击登录</view>
-    </view>
-
-    <!-- 认证状态条 -->
-    <view class="certification-bar" wx:if="{{isLogin}}">
-      <view wx:if="{{certificationStatus === 'none'}}" class="cert-status-item" bindtap="goToCertification">
-        <view class="cert-icon">🔒</view>
-        <view class="cert-text">
-          <text class="cert-title">未认证</text>
-          <text class="cert-desc">完成认证享受更多权益</text>
-        </view>
-        <view class="cert-action">去认证 ›</view>
-      </view>
-      <view wx:elif="{{certificationStatus === 'pending'}}" class="cert-status-item">
-        <view class="cert-icon">⏳</view>
-        <view class="cert-text">
-          <text class="cert-title">认证中</text>
-          <text class="cert-desc">审核中，请耐心等待</text>
-        </view>
-      </view>
-      <view wx:else class="cert-status-item certified" bindtap="showAlumniCard">
-        <view class="cert-icon">✓</view>
-        <view class="cert-text">
-          <text class="cert-title">已认证</text>
-          <text class="cert-desc">点击查看校友卡</text>
-        </view>
-        <view class="cert-action">查看 ›</view>
       </view>
     </view>
 
@@ -61,104 +30,66 @@
     </view>
   </view>
 
-  <!-- 我的券包 -->
-  <view class="card menu-card" wx:if="{{isLogin}}">
-    <view class="card-title">我的券包</view>
-    <view class="coupon-tabs">
-      <view class="tab-item {{couponTab === 'unused' ? 'active' : ''}}" bindtap="switchCouponTab" data-tab="unused">
-        <text class="tab-text">未使用</text>
-        <text class="tab-badge" wx:if="{{couponStats.unused > 0}}">{{couponStats.unused}}</text>
-      </view>
-      <view class="tab-item {{couponTab === 'used' ? 'active' : ''}}" bindtap="switchCouponTab" data-tab="used">
-        <text class="tab-text">已使用</text>
-        <text class="tab-badge" wx:if="{{couponStats.used > 0}}">{{couponStats.used}}</text>
-      </view>
-      <view class="tab-item {{couponTab === 'expired' ? 'active' : ''}}" bindtap="switchCouponTab" data-tab="expired">
-        <text class="tab-text">已过期</text>
-        <text class="tab-badge" wx:if="{{couponStats.expired > 0}}">{{couponStats.expired}}</text>
-      </view>
-    </view>
-    <view class="view-all-btn" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab={{couponTab}}">
-      <text>查看全部 ›</text>
-    </view>
-  </view>
-
-  <!-- 校友认证入口（显眼） -->
-  <view class="card certification-card" wx:if="{{isLogin && certificationStatus !== 'verified'}}" bindtap="goToCertification">
-    <view class="certification-content">
-      <view class="certification-icon">🎓</view>
-      <view class="certification-text">
-        <view class="certification-title">校友认证</view>
-        <view class="certification-desc">完成认证，享受专属权益</view>
-      </view>
-      <view class="certification-arrow">›</view>
-    </view>
-  </view>
-
   <!-- 功能菜单 -->
   <view class="card menu-card">
-    <view class="menu-section">
-      <view class="menu-item" bindtap="navigateTo" data-url="/pages/privacy/privacy">
-        <view class="menu-left">
-          <text class="menu-icon">🔒</text>
-          <text class="menu-name">隐私设置</text>
-        </view>
-        <view class="menu-right">
-          <switch checked="{{privacySettings.allowSearch}}" bindchange="togglePrivacy" data-key="allowSearch" color="#ff6b9d" />
-        </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
+      <view class="menu-left">
+        <text class="menu-icon">🎫</text>
+        <text class="menu-name">我的券包</text>
+        <text class="menu-badge" wx:if="{{couponStats.unused > 0}}">{{couponStats.unused}}</text>
       </view>
-      <view class="menu-item" bindtap="navigateTo" data-url="/pages/privacy/privacy">
-        <view class="menu-left">
-          <text class="menu-icon">👣</text>
-          <text class="menu-name">允许展示足迹</text>
-        </view>
-        <view class="menu-right">
-          <switch checked="{{privacySettings.allowFootprint}}" bindchange="togglePrivacy" data-key="allowFootprint" color="#ff6b9d" />
-        </view>
-      </view>
+      <text class="menu-arrow">›</text>
     </view>
-  </view>
-
-  <!-- 我是商家 -->
-  <view class="card menu-card" wx:if="{{isLogin}}">
-    <view class="menu-section">
-      <view class="menu-item merchant-item" bindtap="applyMerchant">
-        <view class="menu-left">
-          <text class="menu-icon">🏪</text>
-          <view class="menu-texts">
-            <text class="menu-name">我是商家</text>
-            <text class="menu-desc">申请入驻，开启商家服务</text>
-          </view>
-        </view>
-        <text class="menu-arrow">›</text>
+    <view class="menu-item" bindtap="goToCertification">
+      <view class="menu-left">
+        <text class="menu-icon">🎓</text>
+        <text class="menu-name">校友认证</text>
+        <text class="cert-status-badge" wx:if="{{certificationStatus === 'verified'}}">已认证</text>
+        <text class="cert-status-badge unverified" wx:else>未认证</text>
       </view>
+      <text class="menu-arrow">›</text>
     </view>
-  </view>
-
-  <!-- 其他功能 -->
-  <view class="card menu-card">
-    <view class="menu-section">
-      <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=school">
-        <view class="menu-left">
-          <text class="menu-icon">🏫</text>
-          <text class="menu-name">我的母校</text>
-        </view>
-        <text class="menu-arrow">›</text>
+    <view class="menu-item" bindtap="applyMerchant">
+      <view class="menu-left">
+        <text class="menu-icon">🏪</text>
+        <text class="menu-name">我是商家</text>
       </view>
-      <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-association/my-association">
-        <view class="menu-left">
-          <text class="menu-icon">👥</text>
-          <text class="menu-name">我的校友会</text>
-        </view>
-        <text class="menu-arrow">›</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=school">
+      <view class="menu-left">
+        <text class="menu-icon">🏫</text>
+        <text class="menu-name">我的母校</text>
       </view>
-      <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=alumni">
-        <view class="menu-left">
-          <text class="menu-icon">⭐</text>
-          <text class="menu-name">我的关注</text>
-        </view>
-        <text class="menu-arrow">›</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-association/my-association">
+      <view class="menu-left">
+        <text class="menu-icon">👥</text>
+        <text class="menu-name">我的校友会</text>
       </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=alumni">
+      <view class="menu-left">
+        <text class="menu-icon">❤️</text>
+        <text class="menu-name">我的关注</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-favorites/my-favorites">
+      <view class="menu-left">
+        <text class="menu-icon">⭐</text>
+        <text class="menu-name">我的收藏</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/privacy/privacy">
+      <view class="menu-left">
+        <text class="menu-icon">🔐</text>
+        <text class="menu-name">个人隐私</text>
+      </view>
+      <text class="menu-arrow">›</text>
     </view>
   </view>
 
@@ -175,7 +106,7 @@
     </view>
     <view class="alumni-card-body">
       <image class="card-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-      <view class="card-name">{{userInfo.nickName}}</view>
+      <view class="card-name">{{userInfo.nickname}}</view>
       <view class="card-school">{{userInfo.school}} · {{userInfo.graduateYear}}级</view>
       <view class="card-qrcode">
         <image src="{{alumniCardQrcode}}" mode="aspectFit"></image>

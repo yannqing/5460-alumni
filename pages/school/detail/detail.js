@@ -1,4 +1,6 @@
 // pages/school/detail/detail.js
+const { schoolApi } = require('../../../api/api.js')
+
 Page({
   data: {
     schoolId: '',
@@ -11,8 +13,18 @@ Page({
 
   onLoad(options) {
     const { id } = options
-    this.setData({ schoolId: id })
-    this.loadSchoolDetail()
+    if (id) {
+      this.setData({ schoolId: id })
+      this.loadSchoolDetail()
+    } else {
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
+      })
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 1500)
+    }
   },
 
   onShareAppMessage() {
@@ -23,98 +35,109 @@ Page({
   },
 
   // 加载学校详情
-  loadSchoolDetail() {
-    // TODO: 接后端接口
-    // wx.request({
-    //   url: `${app.globalData.apiBase}/school/${this.data.schoolId}`,
-    //   method: 'GET',
-    //   success: (res) => {
-    //     if (res.data.code === 200) {
-    //       const data = res.data.data
-    //       // 后端返回的数据中，如果学校已通过校友总会认证，会包含 certifiedUnion 字段
-    //       // certifiedUnion 格式: { id: 1, name: 'XX校友总会', ... }
-    //       this.setData({
-    //         schoolInfo: data,
-    //         associationList: data.associationList || [],
-    //         loading: false
-    //       })
-    //     }
-    //   },
-    //   fail: () => {
-    //     this.setData({ loading: false })
-    //   }
-    // })
+  async loadSchoolDetail() {
+    try {
+      const res = await schoolApi.getSchoolDetail(this.data.schoolId)
+      
+      if (res.data && res.data.code === 200) {
+        const data = res.data.data || {}
+        
+        // 数据映射（与后端 SchoolDetailVo 字段完全一致）
+        const schoolInfo = {
+          // ===== 后端原始字段 =====
+          schoolId: data.schoolId || this.data.schoolId,
+          logo: data.logo || '',
+          schoolName: data.schoolName || '',
+          schoolCode: data.schoolCode || '',
+          province: data.province || '',
+          city: data.city || '',
+          level: data.level || '',
+          mergedInstitutions: data.mergedInstitutions || '',
+          previousName: data.previousName || '',
+          otherInfo: data.otherInfo || '',
+          description: data.description || '',
+          foundingDate: data.foundingDate || '',
+          location: data.location || '',
+          officialCertification: data.officialCertification,
+          // 校友总会信息（从 alumniHeadquarters 字段获取）
+          alumniHeadquarters: data.alumniHeadquarters || null,
+          // 校友会列表（从 alumniAssociationListVos 字段获取）
+          alumniAssociationListVos: data.alumniAssociationListVos || [],
 
-    // 模拟数据 - 只保留基本信息字段
-    const mockData = {
-      id: this.data.schoolId,
-      name: '南京大学',
-      icon: '/assets/logo/njdx.jpg',
-      cover: '/assets/images/南京大学背景图.jpg',
-      location: '江苏省南京市',
-      oldNames: ['金陵大学', '国立中央大学'],
-      // 认证的校友总会信息（通过认证功能认证成功后自动添加，不是前端写死的）
-      // 如果学校未认证，此字段为 null 或 undefined
-      certifiedUnion: {
-        id: 1,
-        name: '南京大学校友总会'
-      }
+          // ===== 前端内部使用的通用字段 =====
+          id: data.schoolId || this.data.schoolId,
+          name: data.schoolName || '',
+          icon: data.logo || '/assets/logo/njdx.jpg',
+          cover: data.cover || data.coverImage || data.background || '/assets/images/南京大学背景图.jpg',
+          // 兼容旧字段
+          certifiedUnion: data.certifiedUnion || null,
+          alumniCount: data.alumniCount || data.alumniNum || 0,
+          associationCount: data.associationCount || data.associationNum || 0
+        }
+
+        // 校友会列表（从 alumniAssociationListVos 映射）
+        const associationList = (schoolInfo.alumniAssociationListVos || []).map(item => ({
+          // 后端原始字段
+          alumniAssociationId: item.alumniAssociationId,
+          associationName: item.associationName,
+          schoolId: item.schoolId,
+          platformId: item.platformId,
+          presidentUserId: item.presidentUserId,
+          contactInfo: item.contactInfo,
+          location: item.location,
+          memberCount: item.memberCount,
+          // 前端通用字段
+          id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
+          name: item.associationName || '',
+          icon: '/assets/logo/njdxxyh.jpg',
+          isCertified: false,
+          isJoined: false
+        }))
+
+        // 计算省市合并显示（用于位置信息）
+        const provinceCityParts = []
+        if (schoolInfo.province) {
+          provinceCityParts.push(schoolInfo.province)
+        }
+        if (schoolInfo.city) {
+          provinceCityParts.push(schoolInfo.city)
+        }
+        const provinceCity = provinceCityParts.join('')
+
+        this.setData({
+          schoolInfo: {
+            ...schoolInfo,
+            provinceCity: provinceCity // 省市合并字段
+          },
+          associationList: associationList,
+          loading: false
+        })
+
+        // 设置导航栏标题
+        wx.setNavigationBarTitle({
+          title: schoolInfo.name || '母校详情'
+        })
+      } else {
+        // API 返回错误
+        this.setData({ loading: false })
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+        setTimeout(() => {
+          wx.navigateBack()
+      }, 1500)
     }
-
-    // 校友会列表假数据
-    const associationListData = [
-      {
-        id: 101,
-        name: '南京大学上海校友会',
-        icon: 'https://via.placeholder.com/120/ff6b9d/ffffff?text=SH',
-        location: '上海市',
-        memberCount: 1250,
-        isCertified: true,
-        isJoined: false
-      },
-      {
-        id: 102,
-        name: '南京大学北京校友会',
-        icon: 'https://via.placeholder.com/120/4a90e2/ffffff?text=BJ',
-        location: '北京市',
-        memberCount: 980,
-        isCertified: true,
-        isJoined: true
-      },
-      {
-        id: 103,
-        name: '南京大学深圳校友会',
-        icon: 'https://via.placeholder.com/120/50c878/ffffff?text=SZ',
-        location: '深圳市',
-        memberCount: 856,
-        isCertified: false,
-        isJoined: false
-      },
-      {
-        id: 104,
-        name: '南京大学广州校友会',
-        icon: 'https://via.placeholder.com/120/ffa500/ffffff?text=GZ',
-        location: '广州市',
-        memberCount: 642,
-        isCertified: true,
-        isJoined: false
-      },
-      {
-        id: 105,
-        name: '南京大学杭州校友会',
-        icon: 'https://via.placeholder.com/120/9b59b6/ffffff?text=HZ',
-        location: '杭州市',
-        memberCount: 523,
-        isCertified: false,
-        isJoined: false
-      }
-    ]
-
-    this.setData({
-      schoolInfo: mockData,
-      associationList: associationListData,
-      loading: false
-    })
+    } catch (error) {
+      this.setData({ loading: false })
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 1500)
+    }
   },
 
   // 查看认证的校友总会详情
@@ -123,6 +146,21 @@ Page({
     if (schoolInfo && schoolInfo.certifiedUnion && schoolInfo.certifiedUnion.id) {
       wx.navigateTo({
         url: `/pages/alumni-union/detail/detail?id=${schoolInfo.certifiedUnion.id}`
+      })
+    }
+  },
+
+  // 查看校友总会详情（从 alumniHeadquarters 字段）
+  viewAlumniHeadquarters() {
+    const { schoolInfo } = this.data
+    if (schoolInfo && schoolInfo.alumniHeadquarters && schoolInfo.alumniHeadquarters.headquartersId) {
+      wx.navigateTo({
+        url: `/pages/alumni-union/detail/detail?id=${schoolInfo.alumniHeadquarters.headquartersId}`
+      })
+    } else {
+      wx.showToast({
+        title: '暂无校友总会信息',
+        icon: 'none'
       })
     }
   },

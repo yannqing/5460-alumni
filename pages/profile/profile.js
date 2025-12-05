@@ -1,5 +1,6 @@
 // pages/profile/profile.js
 const app = getApp()
+const { userApi } = require('../../api/api.js')
 
 Page({
   data: {
@@ -7,31 +8,32 @@ Page({
     isLogin: false,
     certificationStatus: 'none', // none: 未认证, pending: 认证中, verified: 已认证
     stats: {
-      coupons: 12,
-      followedShops: 5,
-      footprints: 28
+      coupons: 0,
+      followedShops: 0,
+      footprints: 0
     },
     couponTab: 'unused', // unused, used, expired
     couponStats: {
-      unused: 8,
-      used: 3,
-      expired: 1
+      unused: 0,
+      used: 0,
+      expired: 0
     },
     privacySettings: {
       allowSearch: true,
       allowFootprint: true
     },
     showCardModal: false,
-    alumniCardQrcode: '/assets/images/头像.png', // TODO: 替换为真实二维码
-    alumniCardNumber: 'AL202500123456'
+    alumniCardQrcode: '',
+    alumniCardNumber: ''
   },
 
   onLoad() {
-    this.checkLogin()
+    this.loadUserInfo()
   },
 
   onShow() {
-    this.checkLogin()
+    // 每次显示页面时都重新加载用户信息，确保数据实时更新
+    this.loadUserInfo()
     this.loadUserData()
   },
 
@@ -41,96 +43,185 @@ Page({
   },
 
   checkLogin() {
-    const userInfo = app.globalData.userInfo
-    if (userInfo) {
-      this.setData({
-        userInfo,
-        isLogin: true
-      })
-    } else {
-      // 模拟登录用户数据
-      const mockUser = {
-        nickName: '张三',
-        avatarUrl: '/assets/images/头像.png',
-        school: '南京大学',
-        major: '计算机科学',
-        graduateYear: 2015
-      }
-      this.setData({
-        userInfo: mockUser,
-        isLogin: true
-      })
+    // 静默登录，始终从全局数据获取用户信息
+    const userData = app.globalData.userData || {}
+    const userInfo = app.globalData.userInfo || userData
+    
+    // 格式化用户信息
+    const formattedUserInfo = {
+      nickname: userInfo.nickname || '用户',
+      avatarUrl: userInfo.avatarUrl || '',
+      school: userInfo.school || userInfo.schoolName || '',
+      major: userInfo.major || '',
+      graduateYear: userInfo.graduateYear || userInfo.enrollYear || ''
     }
+    
+    this.setData({
+      userInfo: formattedUserInfo,
+      isLogin: true // 静默登录始终为已登录状态
+    })
+  },
+
+  // 加载用户信息（从全局数据读取最新值，如果为空则从后端获取）
+  async loadUserInfo() {
+    // 从全局数据获取用户信息，优先使用 userInfo，其次使用 userData
+    let userData = app.globalData.userData || {}
+    let userInfo = app.globalData.userInfo || userData
+    
+    // 如果全局数据为空或没有关键字段（nickname），尝试从后端重新获取
+    // 注意：登录接口可能只返回 token 和 roles，不包含用户详细信息
+    const hasUserInfo = userData && userData.nickname
+    if (!hasUserInfo) {
+      console.log('用户详细信息缺失，尝试从后端获取...')
+      try {
+        // 检查是否已登录
+        const isLogin = app.checkHasLogined()
+        if (isLogin) {
+          // 从后端获取用户详细信息
+          try {
+            const res = await userApi.getUserInfo()
+            console.log('getUserInfo 接口返回:', res)
+            
+            // 检查返回数据结构：res.data.code === 200 且 res.data.data 包含用户信息
+            if (res && res.data && res.data.code === 200 && res.data.data) {
+              // 更新全局数据，保留原有的 token 和 roles
+              const userInfoData = res.data.data
+              app.globalData.userData = {
+                ...(app.globalData.userData || {}),
+                ...userInfoData
+              }
+              app.globalData.userInfo = {
+                ...(app.globalData.userInfo || {}),
+                ...userInfoData
+              }
+              userData = app.globalData.userData
+              userInfo = app.globalData.userInfo
+              console.log('从后端获取用户信息成功:', userData)
+            } else if (res && res.code === 200 && res.data) {
+              // 兼容另一种数据结构
+              app.globalData.userData = {
+                ...(app.globalData.userData || {}),
+                ...res.data
+              }
+              app.globalData.userInfo = {
+                ...(app.globalData.userInfo || {}),
+                ...res.data
+              }
+              userData = app.globalData.userData
+              userInfo = app.globalData.userInfo
+              console.log('从后端获取用户信息成功（兼容格式）:', userData)
+            } else {
+              console.warn('从后端获取用户信息失败，返回数据格式不正确:', res)
+              console.warn('返回数据结构:', {
+                hasRes: !!res,
+                hasData: !!(res && res.data),
+                code: res && res.data ? res.data.code : 'N/A',
+                hasDataData: !!(res && res.data && res.data.data)
+              })
+            }
+          } catch (error) {
+            console.error('调用 getUserInfo 接口失败:', error)
+            console.error('错误详情:', error.message || error)
+          }
+        } else {
+          // 未登录，尝试初始化登录
+          console.log('未登录，尝试初始化登录...')
+          try {
+            await app.initApp()
+            userData = app.globalData.userData || {}
+            userInfo = app.globalData.userInfo || userData
+            console.log('登录初始化后的用户数据:', userData)
+            
+            // 登录后如果还是没有用户详细信息，再次尝试获取
+            if (!userData.nickname) {
+              console.log('登录后仍无用户详细信息，再次尝试获取...')
+              try {
+                const res = await userApi.getUserInfo()
+                if (res && res.data && res.data.code === 200 && res.data.data) {
+                  const userInfoData = res.data.data
+                  app.globalData.userData = {
+                    ...(app.globalData.userData || {}),
+                    ...userInfoData
+                  }
+                  app.globalData.userInfo = {
+                    ...(app.globalData.userInfo || {}),
+                    ...userInfoData
+                  }
+                  userData = app.globalData.userData
+                  userInfo = app.globalData.userInfo
+                  console.log('登录后获取用户信息成功:', userData)
+                }
+              } catch (error) {
+                console.error('登录后获取用户信息失败:', error)
+              }
+            }
+          } catch (error) {
+            console.error('登录初始化失败:', error)
+          }
+        }
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+      }
+    }
+    
+    // 兼容多种头像字段名：avatarUrl, avatar, headImg
+    const avatarUrl = userInfo.avatarUrl || userInfo.avatar || userInfo.headImg || userData.avatarUrl || userData.avatar || userData.headImg || ''
+    
+    // 调试信息（开发时使用）
+    console.log('加载用户信息 - userData:', userData)
+    console.log('加载用户信息 - userInfo:', userInfo)
+    console.log('加载用户信息 - avatarUrl:', avatarUrl)
+    console.log('加载用户信息 - nickname:', userInfo.nickname || userData.nickname)
+    
+    // 格式化用户信息
+    const formattedUserInfo = {
+      nickname: userInfo.nickname || userData.nickname || '用户',
+      avatarUrl: avatarUrl,
+      school: userInfo.school || userInfo.schoolName || userData.school || userData.schoolName || '',
+      major: userInfo.major || userData.major || '',
+      graduateYear: userInfo.graduateYear || userInfo.enrollYear || userData.graduateYear || userData.enrollYear || ''
+    }
+    
+    this.setData({
+      userInfo: formattedUserInfo,
+      isLogin: true
+    })
   },
 
   loadUserData() {
-    // TODO: 对接后端接口获取用户数据
-    // 模拟数据
+    // 从全局数据获取用户信息
+    const userData = app.globalData.userData || {}
+    
+    // 设置认证状态（从后端数据获取）
+    const certificationStatus = userData.certificationStatus || userData.is_apply_acard === 1 ? 'verified' : 'none'
+    
+    // 设置统计数据（从后端接口获取，这里先设为0，后续对接接口）
     this.setData({
-      certificationStatus: 'none', // 可以改为 'pending' 或 'verified' 测试不同状态
+      certificationStatus,
       stats: {
-        coupons: 12,
-        followedShops: 5,
-        footprints: 28
+        coupons: userData.couponCount || 0,
+        followedShops: userData.followedShopCount || 0,
+        footprints: userData.footprintCount || 0
       },
       couponStats: {
-        unused: 8,
-        used: 3,
-        expired: 1
-      }
+        unused: userData.unusedCouponCount || 0,
+        used: userData.usedCouponCount || 0,
+        expired: userData.expiredCouponCount || 0
+      },
+      alumniCardQrcode: userData.alumniCardQrcode || '',
+      alumniCardNumber: userData.alumniCardNumber || ''
     })
   },
 
-  handleLogin() {
-    wx.getUserProfile({
-      desc: '用于完善用户资料',
-      success: (res) => {
-        const userInfo = res.userInfo
-        this.setData({
-          userInfo,
-          isLogin: true
-        })
-        app.setUserInfo(userInfo)
-        wx.showToast({
-          title: '登录成功',
-          icon: 'success'
-        })
-      },
-      fail: () => {
-        wx.showToast({
-          title: '登录失败',
-          icon: 'none'
-        })
-      }
-    })
-  },
 
   navigateTo(e) {
     const { url } = e.currentTarget.dataset
     if (!url) return
     
-    if (!this.data.isLogin && url.includes('type=my')) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      })
-      return
-    }
-
-    if (url) {
-      wx.navigateTo({ url })
-    }
+    wx.navigateTo({ url })
   },
 
   editProfile() {
-    if (!this.data.isLogin) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      })
-      return
-    }
-
     wx.navigateTo({
       url: '/pages/profile/edit/edit'
     })
@@ -138,14 +229,6 @@ Page({
 
   // 去认证
   goToCertification() {
-    if (!this.data.isLogin) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      })
-      return
-    }
-
     wx.navigateTo({
       url: '/pages/certification/certification'
     })
@@ -193,14 +276,6 @@ Page({
 
   // 申请商家
   applyMerchant() {
-    if (!this.data.isLogin) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      })
-      return
-    }
-
     wx.navigateTo({
       url: '/pages/merchant/apply/apply'
     })

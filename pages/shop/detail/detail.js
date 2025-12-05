@@ -1,5 +1,5 @@
 // pages/shop/detail/detail.js
-const { shopApi } = require('../../../api/index.js')
+const { shopApi } = require('../../../api/api.js')
 
 Page({
   data: {
