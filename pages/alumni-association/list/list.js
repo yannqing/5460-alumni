@@ -1,12 +1,19 @@
 // pages/alumni-association/list/list.js
 const { associationApi, schoolApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
+
+const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 
 Page({
   data: {
+    // 图标路径
+    iconSearch: config.getIconUrl('sslss.png'),
+    iconSchool: config.getIconUrl('xx.png'),
+    iconLocation: config.getIconUrl('position.png'),
     keyword: '',
     filters: [
       { label: '类型', options: ['全部校友会', '地方校友会', '行业校友会', '海外校友会'], selected: 0 },
-      { label: '城市', options: ['全部城市', '南京', '上海', '杭州', '深圳'], selected: 0 },
+      { label: '城市', options: ['全部城市'], selected: 0 },
       { label: '排序', options: ['默认排序', '最新成立', '成员最多'], selected: 0 },
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
@@ -260,7 +267,7 @@ Page({
           // 注意：前端统一用字符串形式的 id，避免大整数精度丢失
           id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
           name: item.associationName,
-          icon: '/assets/logo/njdxxyh.jpg', // 后端暂无图标字段，使用默认
+          icon: DEFAULT_ALUMNI_AVATAR, // 后端暂无图标字段，使用默认
           // 下面这些是前端扩展字段，后端暂时没有
           associationCount: 0,
           followCount: 0,

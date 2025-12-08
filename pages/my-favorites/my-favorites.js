@@ -1,4 +1,6 @@
 // pages/my-favorites/my-favorites.js
+const config = require('../../utils/config.js')
+
 Page({
   data: {
     favoriteShops: []
@@ -19,7 +21,7 @@ Page({
       {
         id: 1,
         name: '星巴克咖啡',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         description: '高品质咖啡，舒适环境，适合商务洽谈',
         rating: 4.8,
         distance: 520,
@@ -30,7 +32,7 @@ Page({
       {
         id: 2,
         name: '海底捞火锅',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         description: '正宗川味火锅，服务周到，校友专享优惠',
         rating: 4.9,
         distance: 1280,
@@ -41,7 +43,7 @@ Page({
       {
         id: 4,
         name: '华影国际影城',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         description: 'IMAX影厅，舒适座椅，校友观影优惠',
         rating: 4.6,
         distance: 760,
@@ -52,7 +54,7 @@ Page({
       {
         id: 5,
         name: '肯德基',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         description: '快餐美食，方便快捷，适合工作餐',
         rating: 4.5,
         distance: 890,
@@ -63,7 +65,7 @@ Page({
       {
         id: 6,
         name: '必胜客',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         description: '意式披萨，家庭聚餐好选择',
         rating: 4.6,
         distance: 1500,

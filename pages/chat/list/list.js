@@ -1,4 +1,6 @@
 // pages/chat/list/list.js
+const config = require('../../../utils/config.js')
+
 Page({
   data: {
     chatList: [],
@@ -27,7 +29,7 @@ Page({
         {
           id: 'oa_1',
           name: '南京大学上海校友会',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           isVerified: true,
           lastTime: '2小时前',
           unreadCount: 3,
@@ -37,7 +39,7 @@ Page({
         {
           id: 'oa_2',
           name: '浙江大学杭州校友会',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           isVerified: true,
           lastTime: '5小时前',
           unreadCount: 1,
@@ -47,7 +49,7 @@ Page({
         {
           id: 'oa_3',
           name: '清华大学北京校友会',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           isVerified: true,
           lastTime: '昨天',
           unreadCount: 0,
@@ -57,7 +59,7 @@ Page({
         {
           id: 'oa_4',
           name: '北京大学校友会',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           isVerified: true,
           lastTime: '昨天',
           unreadCount: 2,
@@ -70,7 +72,7 @@ Page({
         {
           id: 1,
           name: '张三',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           lastMessage: '你好，请问这个活动什么时候开始？',
           lastTime: '10:30',
           unreadCount: 2,
@@ -79,7 +81,7 @@ Page({
         {
           id: 2,
           name: '李四',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           lastMessage: '好的，我会准时参加的',
           lastTime: '昨天',
           unreadCount: 0,
@@ -88,7 +90,7 @@ Page({
         {
           id: 3,
           name: '王五',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           lastMessage: '校友会聚餐，一起来吗？',
           lastTime: '昨天',
           unreadCount: 5,
@@ -97,7 +99,7 @@ Page({
         {
           id: 4,
           name: '赵六',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           lastMessage: '谢谢你的帮助！',
           lastTime: '周一',
           unreadCount: 0,
@@ -106,7 +108,7 @@ Page({
         {
           id: 5,
           name: '南京大学上海校友会',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           lastMessage: '本周六下午2点有校友活动，欢迎大家参加',
           lastTime: '周二',
           unreadCount: 1,
@@ -115,7 +117,7 @@ Page({
         {
           id: 6,
           name: '孙七',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           lastMessage: '好的，没问题',
           lastTime: '周三',
           unreadCount: 0,
@@ -124,7 +126,7 @@ Page({
         {
           id: 7,
           name: '周八',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           lastMessage: '这个优惠券怎么使用？',
           lastTime: '周四',
           unreadCount: 3,

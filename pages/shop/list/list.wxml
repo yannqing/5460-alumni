@@ -53,7 +53,7 @@
             <text class="category">{{item.category}}</text>
           </view>
           <view class="meta-item">
-            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{item.location}}</text>
             <text class="distance">距离{{item.distance}}</text>
           </view>

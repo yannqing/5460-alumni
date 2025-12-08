@@ -1,6 +1,7 @@
 
 // pages/alumni-union/detail/detail.js
 const { unionApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 
 Page({
   data: {
@@ -73,8 +74,8 @@ Page({
           updatedUser: data.updatedUser || null,
 
           // ===== 前端展示补充字段 =====
-          cover: schoolInfo.logo || '/assets/images/南京大学背景图.jpg',
-          icon: schoolInfo.logo || '/assets/logo/njdxxyh.jpg',
+          cover: schoolInfo.logo || config.defaultCover,
+          icon: schoolInfo.logo || config.defaultAlumniAvatar,
           hasApp: !!data.wechatPublicAccount
         }
 

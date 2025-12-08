@@ -1,4 +1,6 @@
 // pages/circle/detail/detail.js
+const config = require('../../../utils/config.js')
+
 Page({
   data: {
     circleId: '',
@@ -15,7 +17,7 @@ Page({
       {
         id: 1,
         author: '张三',
-        avatar: '/assets/images/头像.png',
+        avatar: config.defaultAvatar,
         content: '分享一下最近的创业心得...',
         images: [],
         likeCount: 25,

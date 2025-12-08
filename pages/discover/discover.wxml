@@ -3,7 +3,7 @@
   <!-- 顶部搜索栏 -->
   <view class="hero-card">
     <view class="search-bar">
-      <image class="search-icon-img" src="/assets/icons/搜索.png" mode="aspectFit"></image>
+      <image class="search-icon-img" src="{{iconSearch}}" mode="aspectFit"></image>
       <input
         class="search-input"
         placeholder="搜索商家 / 优惠券 / 活动"
@@ -13,7 +13,7 @@
         bindconfirm="handleSearchConfirm"
       />
       <view class="scan-btn" bindtap="scanCode">
-        <image class="scan-icon" src="/assets/icons/扫一扫.png" mode="aspectFit"></image>
+        <image class="scan-icon" src="{{iconScan}}" mode="aspectFit"></image>
       </view>
       <view class="search-action" bindtap="handleSearchConfirm">搜索</view>
     </view>

@@ -1,13 +1,17 @@
 // pages/chat/detail/detail.js
+const config = require('../../../utils/config.js')
+
+const DEFAULT_AVATAR = config.defaultAvatar
+
 Page({
   data: {
     chatId: null,
     chatType: 'chat',
     chatInfo: {
       name: '',
-      avatar: '/assets/images/头像.png'
+      avatar: DEFAULT_AVATAR
     },
-    myAvatar: '/assets/images/头像.png',
+    myAvatar: DEFAULT_AVATAR,
     messageList: [],
     inputValue: '',
     hasInput: false,
@@ -32,21 +36,21 @@ Page({
   loadChatInfo(id, type) {
     // 模拟加载聊天信息
     const chatInfoMap = {
-      1: { name: '张三', avatar: '/assets/images/头像.png', userId: 1 },
-      2: { name: '李四', avatar: '/assets/images/头像.png', userId: 2 },
-      3: { name: '王五', avatar: '/assets/images/头像.png', userId: 3 },
-      4: { name: '赵六', avatar: '/assets/images/头像.png', userId: 4 },
-      5: { name: '南京大学上海校友会', avatar: '/assets/images/头像.png', associationId: 1 },
-      6: { name: '孙七', avatar: '/assets/images/头像.png', userId: 6 },
-      7: { name: '周八', avatar: '/assets/images/头像.png', userId: 7 },
-      'oa_1': { name: '南京大学上海校友会', avatar: '/assets/images/头像.png', associationId: 1 },
-      'oa_2': { name: '浙江大学杭州校友会', avatar: '/assets/images/头像.png', associationId: 2 },
-      'oa_3': { name: '清华大学北京校友会', avatar: '/assets/images/头像.png', associationId: 3 },
-      'oa_4': { name: '北京大学校友会', avatar: '/assets/images/头像.png', associationId: 4 }
+      1: { name: '张三', avatar: DEFAULT_AVATAR, userId: 1 },
+      2: { name: '李四', avatar: DEFAULT_AVATAR, userId: 2 },
+      3: { name: '王五', avatar: DEFAULT_AVATAR, userId: 3 },
+      4: { name: '赵六', avatar: DEFAULT_AVATAR, userId: 4 },
+      5: { name: '南京大学上海校友会', avatar: DEFAULT_AVATAR, associationId: 1 },
+      6: { name: '孙七', avatar: DEFAULT_AVATAR, userId: 6 },
+      7: { name: '周八', avatar: DEFAULT_AVATAR, userId: 7 },
+      'oa_1': { name: '南京大学上海校友会', avatar: DEFAULT_AVATAR, associationId: 1 },
+      'oa_2': { name: '浙江大学杭州校友会', avatar: DEFAULT_AVATAR, associationId: 2 },
+      'oa_3': { name: '清华大学北京校友会', avatar: DEFAULT_AVATAR, associationId: 3 },
+      'oa_4': { name: '北京大学校友会', avatar: DEFAULT_AVATAR, associationId: 4 }
     }
     
     this.setData({
-      chatInfo: chatInfoMap[id] || { name: '未知用户', avatar: '/assets/images/头像.png' }
+      chatInfo: chatInfoMap[id] || { name: '未知用户', avatar: DEFAULT_AVATAR }
     })
     
     // 设置导航栏标题

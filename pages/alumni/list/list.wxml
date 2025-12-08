@@ -4,7 +4,7 @@
   <view class="search-bar">
     <view class="search-input-wrap">
       <input class="search-input" type="text" placeholder="搜索校友名称、昵称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-      <image class="search-icon" src="/assets/icons/搜索栏搜索.png" mode="aspectFit" bindtap="onSearch" />
+      <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
     </view>
   </view>
 
@@ -39,13 +39,13 @@
 
           <!-- 学校信息 -->
           <view class="card-subtitle">
-            <image class="subtitle-icon" src="/assets/icons/学校.png" mode="aspectFit" />
+            <image class="subtitle-icon" src="{{iconSchool}}" mode="aspectFit" />
             <text>{{item.school}}</text>
           </view>
 
           <!-- 位置信息 -->
           <view class="card-location">
-            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{item.location}}</text>
           </view>
         </view>

@@ -1,8 +1,12 @@
 // pages/search/search.js
 const { searchApi } = require('../../api/api.js')
+const config = require('../../utils/config.js')
 
 Page({
   data: {
+    // 图标路径
+    iconScan: config.getIconUrl('sys.png'),
+    iconSearch: config.getIconUrl('sslss.png'),
     keyword: '',
     activeTab: 0,
     tabs: ['全部', '母校', '校友会', '校友'],
@@ -69,7 +73,7 @@ Page({
         {
           id: 1,
           name: '张三',
-          avatar: '/assets/images/头像.png',
+          avatar: config.defaultAvatar,
           school: '南京大学',
           company: '腾讯科技'
         }

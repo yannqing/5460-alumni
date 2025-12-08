@@ -1,4 +1,6 @@
 // pages/alumni/detail/detail.js
+const config = require('../../../utils/config.js')
+
 Page({
   data: {
     alumniId: '',
@@ -25,7 +27,7 @@ Page({
       realName: '张三',
       nickname: '三三',
       account: 'zhangsan2024',
-      avatar: '/assets/images/头像.png',
+      avatar: config.defaultAvatar,
       background: 'https://cdn.example.com/backgrounds/alumni-bg.jpg',
       school: '南京大学',
       major: '计算机科学与技术',

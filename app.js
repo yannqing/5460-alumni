@@ -9,41 +9,21 @@ App({
   async onLaunch(opt) {
     this.globalData.urlOpt = opt
 
-    // 根据环境配置 baseUrl（完全手动切换，不自动判断）
-    // 开发环境
-    const DEV_BASE_URL = 'http://localhost:8086' // 开发环境API地址
-    // 测试环境
-    const TEST_BASE_URL = 'http://222.191.253.58:8000' // 测试环境API地址
-    // 生产环境
-    const PROD_BASE_URL = 'https://api.example.com' // 生产环境API地址
+    // 从配置文件读取环境配置
+    const config = require('./utils/config.js')
     
     // 完全手动切换环境，从本地存储读取
     const manualEnv = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
     
+    // 获取当前环境的配置
+    const envConfig = config.getEnvConfig(manualEnv)
+    
     console.log('=== 环境配置（手动切换） ===')
     console.log('手动设置的环境:', manualEnv)
+    console.log('当前API地址:', envConfig.apiBaseUrl)
     
-    switch (manualEnv) {
-      case 'dev':
-        this.globalData.baseUrl = DEV_BASE_URL
-        console.log('使用开发环境')
-        break;
-      case 'test':
-        this.globalData.baseUrl = TEST_BASE_URL
-        console.log('使用测试环境')
-        break;
-      case 'prod':
-        this.globalData.baseUrl = PROD_BASE_URL
-        console.log('使用生产环境')
-        break;
-      default:
-        // 默认使用测试环境
-        this.globalData.baseUrl = DEV_BASE_URL
-        console.log('使用默认环境（测试环境）')
-        break;
-    }
-    
-    console.log('当前API地址:', this.globalData.baseUrl)
+    // 设置全局配置（完整的API基础地址，包含前缀）
+    this.globalData.baseUrl = envConfig.apiBaseUrl
 
     // 获取系统信息
     this.getSystemInfo();

@@ -25,7 +25,7 @@
               </view>
             </view>
             <view class="school-location-large" wx:if="{{schoolInfo.provinceCity}}">
-              <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+              <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
               {{schoolInfo.provinceCity}}
             </view>
           </view>
@@ -79,7 +79,7 @@
                 </view>
                 <view class="association-meta">
                   <view class="association-location">
-                    <image class="location-icon-small" src="/assets/icons/定位.png" mode="aspectFit" />
+                    <image class="location-icon-small" src="{{iconLocation}}" mode="aspectFit" />
                     <text>{{item.location}}</text>
                   </view>
                   <text class="association-members">{{item.memberCount}}人</text>

@@ -56,32 +56,32 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "assets/icons/首页.png",
-        "selectedIconPath": "assets/icons/首页.png"
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home.png"
       },
       {
         "pagePath": "pages/discover/discover",
         "text": "发现",
-        "iconPath": "assets/icons/发现.png",
-        "selectedIconPath": "assets/icons/发现.png"
+        "iconPath": "assets/icons/find.png",
+        "selectedIconPath": "assets/icons/find.png"
       },
       {
         "pagePath": "pages/chat/list/list",
         "text": "5460",
-        "iconPath": "assets/icons/聊天.png",
-        "selectedIconPath": "assets/icons/聊天.png"
+        "iconPath": "assets/icons/chat.png",
+        "selectedIconPath": "assets/icons/chat.png"
       },
       {
         "pagePath": "pages/search/search",
         "text": "搜索",
-        "iconPath": "assets/icons/搜索.png",
-        "selectedIconPath": "assets/icons/搜索.png"
+        "iconPath": "assets/icons/search.png",
+        "selectedIconPath": "assets/icons/search.png"
       },
       {
         "pagePath": "pages/profile/profile",
         "text": "我的",
-        "iconPath": "assets/icons/我的.png",
-        "selectedIconPath": "assets/icons/我的.png"
+        "iconPath": "assets/icons/own.png",
+        "selectedIconPath": "assets/icons/own.png"
       }
     ]
   },

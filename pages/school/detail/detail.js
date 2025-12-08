@@ -1,8 +1,15 @@
 // pages/school/detail/detail.js
 const { schoolApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
+
+const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
+const DEFAULT_COVER = config.defaultCover
+const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 
 Page({
   data: {
+    // 图标路径
+    iconLocation: config.getIconUrl('position.png'),
     schoolId: '',
     schoolInfo: null,
     loading: true,
@@ -67,8 +74,8 @@ Page({
           // ===== 前端内部使用的通用字段 =====
           id: data.schoolId || this.data.schoolId,
           name: data.schoolName || '',
-          icon: data.logo || '/assets/logo/njdx.jpg',
-          cover: data.cover || data.coverImage || data.background || '/assets/images/南京大学背景图.jpg',
+          icon: data.logo || DEFAULT_SCHOOL_AVATAR,
+          cover: data.cover || data.coverImage || data.background || DEFAULT_COVER,
           // 兼容旧字段
           certifiedUnion: data.certifiedUnion || null,
           alumniCount: data.alumniCount || data.alumniNum || 0,
@@ -89,7 +96,7 @@ Page({
           // 前端通用字段
           id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
           name: item.associationName || '',
-          icon: '/assets/logo/njdxxyh.jpg',
+          icon: DEFAULT_ALUMNI_AVATAR,
           isCertified: false,
           isJoined: false
         }))

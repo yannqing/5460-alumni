@@ -1,9 +1,11 @@
 // pages/discover/discover.js
+const config = require('../../utils/config.js')
+
 const MOCK_MERCHANTS = [
   {
     id: 1,
       name: '星巴克咖啡',
-      avatar: '/assets/images/头像.png',
+      avatar: config.defaultAvatar,
       category: 'dining',
       distance: 520,
       rating: 4.8,
@@ -46,7 +48,7 @@ const MOCK_MERCHANTS = [
   {
     id: 2,
       name: '海底捞火锅',
-      avatar: '/assets/images/头像.png',
+      avatar: config.defaultAvatar,
       category: 'dining',
       distance: 1280,
       rating: 4.9,
@@ -81,7 +83,7 @@ const MOCK_MERCHANTS = [
   {
     id: 3,
       name: '华影国际影城',
-      avatar: '/assets/images/头像.png',
+      avatar: config.defaultAvatar,
       category: 'entertainment',
       distance: 760,
       rating: 4.6,
@@ -115,7 +117,7 @@ const MOCK_MERCHANTS = [
   {
     id: 4,
       name: '橙燃健身房',
-      avatar: '/assets/images/头像.png',
+      avatar: config.defaultAvatar,
       category: 'lifestyle',
       distance: 2100,
       rating: 4.7,
@@ -142,7 +144,7 @@ const MOCK_MERCHANTS = [
   {
     id: 5,
       name: '肯德基',
-      avatar: '/assets/images/头像.png',
+      avatar: config.defaultAvatar,
       category: 'dining',
       distance: 890,
       rating: 4.5,
@@ -174,6 +176,9 @@ const MOCK_MERCHANTS = [
 
 Page({
   data: {
+    // 图标路径
+    iconSearch: config.getIconUrl('search.png'),
+    iconScan: config.getIconUrl('sys.png'),
     searchValue: '',
     selectedCategory: 'all',
     sortType: 'distance',
@@ -408,7 +413,7 @@ Page({
         id: item.id,
         latitude: item.latitude || 31.2304,
         longitude: item.longitude || 121.4737,
-        iconPath: '/assets/images/头像.png', // 可以使用自定义图标
+        iconPath: config.defaultAvatar, // 可以使用自定义图标
         width: 50,
         height: 50,
         callout: {

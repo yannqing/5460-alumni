@@ -1,11 +1,19 @@
 // pages/shop/detail/detail.js
 const { shopApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
+
+const DEFAULT_AVATAR = config.defaultAvatar
 
 Page({
   data: {
     shopId: '',
     shopInfo: null,
-    loading: true
+    loading: true,
+    defaultAvatar: DEFAULT_AVATAR,
+    // 图标路径
+    iconLocation: config.getIconUrl('position.png'),
+    iconPhone: config.getIconUrl('电话.png'),
+    iconTime: config.getIconUrl('时间.png')
   },
 
   onLoad(options) {
@@ -34,7 +42,7 @@ Page({
     const mockData = {
       id: this.data.shopId || '1',
       name: '校友咖啡厅',
-      avatar: '/assets/images/头像.png',
+      avatar: DEFAULT_AVATAR,
       category: '餐饮',
       location: '上海市浦东新区世纪大道123号',
       distance: '800m',
@@ -49,9 +57,9 @@ Page({
         name: '南京大学上海校友会' // 认证的校友会名称
       },
       gallery: [
-        '/assets/images/头像.png',
-        '/assets/images/头像.png',
-        '/assets/images/头像.png'
+        DEFAULT_AVATAR,
+        DEFAULT_AVATAR,
+        DEFAULT_AVATAR
       ],
       coupons: [
         {
@@ -86,7 +94,7 @@ Page({
         {
           id: 1,
           name: '李四',
-          avatar: '/assets/images/头像.png',
+          avatar: DEFAULT_AVATAR,
           school: '南京大学',
           grade: '2015',
           privacy: 'public'
@@ -94,7 +102,7 @@ Page({
         {
           id: 2,
           name: '王五',
-          avatar: '/assets/images/头像.png',
+          avatar: DEFAULT_AVATAR,
           school: '天津大学',
           grade: '2010',
           privacy: 'private'
@@ -102,7 +110,7 @@ Page({
         {
           id: 3,
           name: '赵六',
-          avatar: '/assets/images/头像.png',
+          avatar: DEFAULT_AVATAR,
           school: '复旦大学',
           grade: '2018',
           privacy: 'public'
@@ -110,7 +118,7 @@ Page({
         {
           id: 4,
           name: '孙七',
-          avatar: '/assets/images/头像.png',
+          avatar: DEFAULT_AVATAR,
           school: '上海交通大学',
           grade: '2012',
           privacy: 'private'
@@ -118,7 +126,7 @@ Page({
         {
           id: 5,
           name: '周八',
-          avatar: '/assets/images/头像.png',
+          avatar: DEFAULT_AVATAR,
           school: '浙江大学',
           grade: '2016',
           privacy: 'public'
@@ -130,7 +138,7 @@ Page({
           type: 'activity',
           title: '周末校友聚会活动',
           description: '本周末举办校友聚会活动，欢迎各位校友参加，现场有精美礼品赠送。',
-          image: '/assets/images/头像.png',
+          image: DEFAULT_AVATAR,
           time: '2天前'
         },
         {
@@ -138,7 +146,7 @@ Page({
           type: 'product',
           title: '新品上市：手冲咖啡',
           description: '精选优质咖啡豆，手工现磨，口感醇厚，欢迎品尝。',
-          image: '/assets/images/头像.png',
+          image: DEFAULT_AVATAR,
           time: '5天前'
         },
         {
@@ -146,7 +154,7 @@ Page({
           type: 'activity',
           title: '读书分享会',
           description: '每月一次的读书分享会，本期主题：科技与未来。',
-          image: '/assets/images/头像.png',
+          image: DEFAULT_AVATAR,
           time: '1周前'
         }
       ]

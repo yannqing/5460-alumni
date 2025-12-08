@@ -1,4 +1,6 @@
 // pages/enterprise/list/list.js
+const config = require('../../../utils/config.js')
+
 Page({
   data: {
     associationId: '',
@@ -44,7 +46,7 @@ Page({
       {
         id: 1,
         name: '腾讯科技',
-        logo: '/assets/images/头像.png',
+        logo: config.defaultAvatar,
         industry: '互联网科技',
         founder: '张三',
         description: '腾讯科技是一家专注于互联网科技的公司，致力于为用户提供优质的产品和服务。',
@@ -55,7 +57,7 @@ Page({
       {
         id: 2,
         name: '阿里巴巴集团',
-        logo: '/assets/images/头像.png',
+        logo: config.defaultAvatar,
         industry: '电子商务',
         founder: '李四',
         description: '阿里巴巴集团是全球领先的电子商务平台，为全球商家和消费者提供一站式服务。',
@@ -66,7 +68,7 @@ Page({
       {
         id: 3,
         name: '字节跳动',
-        logo: '/assets/images/头像.png',
+        logo: config.defaultAvatar,
         industry: '互联网科技',
         founder: '王五',
         description: '字节跳动是一家全球化的移动互联网平台公司，致力于用技术丰富人们的生活。',

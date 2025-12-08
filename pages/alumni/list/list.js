@@ -1,11 +1,12 @@
 // pages/alumni/list/list.js
 const { alumniApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 
 const BASE_ALUMNI = [
   {
     id: 1,
     name: '张三',
-    avatar: '/assets/images/头像.png',
+    avatar: config.defaultAvatar,
     school: '南京大学',
     city: '南京',
     location: '江苏省南京市',
@@ -23,7 +24,7 @@ const BASE_ALUMNI = [
   {
     id: 2,
     name: '李四',
-    avatar: '/assets/images/头像.png',
+    avatar: config.defaultAvatar,
     school: '浙江大学',
     city: '杭州',
     location: '浙江省杭州市',
@@ -41,7 +42,7 @@ const BASE_ALUMNI = [
   {
     id: 3,
     name: '王五',
-    avatar: '/assets/images/头像.png',
+    avatar: config.defaultAvatar,
     school: '复旦大学',
     city: '上海',
     location: '上海市',
@@ -59,7 +60,7 @@ const BASE_ALUMNI = [
   {
     id: 4,
     name: '赵六',
-    avatar: '/assets/images/头像.png',
+    avatar: config.defaultAvatar,
     school: '上海交通大学',
     city: '深圳',
     location: '广东省深圳市',
@@ -78,6 +79,10 @@ const BASE_ALUMNI = [
 
 Page({
   data: {
+    // 图标路径
+    iconSearch: config.getIconUrl('sslss.png'),
+    iconSchool: config.getIconUrl('xx.png'),
+    iconLocation: config.getIconUrl('position.png'),
     keyword: '',
     filters: [
       { label: '身份', options: ['全部校友', '企业高管', '创业校友', '在读校友'], selected: 0 },

@@ -1,4 +1,6 @@
 // pages/promotion/detail/detail.js
+const config = require('../../../utils/config.js')
+
 Page({
   data: {
     promotionId: '',
@@ -21,8 +23,8 @@ Page({
       name: '上海市校友企业促进会',
       city: '上海市',
       coverage: '长三角地区校企合作与校友资源对接',
-      icon: '/assets/logo/njdx.jpg',
-      cover: '/assets/images/南京大学背景图.jpg',
+      icon: config.defaultSchoolAvatar,
+      cover: config.defaultCover,
       description: '致力于联动各地校友企业资源，帮助校友项目落地，提供产业交流平台。',
       contactPhone: '021-8888 1234',
       contactEmail: 'support@shxch.org',

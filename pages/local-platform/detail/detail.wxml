@@ -16,7 +16,7 @@
             <text class="text-primary text-bold">{{platformInfo.platformName}}</text>
           </view>
           <view wx:if="{{platformInfo.city}}" class="text-secondary mt-10 location-row">
-            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{platformInfo.city}}</text>
           </view>
         </view>

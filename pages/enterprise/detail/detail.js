@@ -1,4 +1,6 @@
 // pages/enterprise/detail/detail.js
+const config = require('../../../utils/config.js')
+
 Page({
   data: {
     enterpriseId: '',
@@ -26,7 +28,7 @@ Page({
     const mockData = {
       id: this.data.enterpriseId,
       name: '腾讯科技',
-      logo: '/assets/images/头像.png',
+      logo: config.defaultAvatar,
       industry: '互联网科技',
       founder: '张三',
       description: '腾讯科技是一家专注于互联网科技的公司，致力于为用户提供优质的产品和服务。公司成立于2000年，经过多年的发展，已经成为行业内的领先企业。',

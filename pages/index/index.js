@@ -1,10 +1,18 @@
 // pages/index/index.js
 const { schoolApi, alumniApi, couponApi, activityApi } = require('../../api/api.js')
+const config = require('../../utils/config.js')
 
-const DEFAULT_AVATAR = '/assets/images/头像.png'
+const DEFAULT_AVATAR = config.defaultAvatar
+const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
+const DEFAULT_COVER = config.defaultCover
+const DEFAULT_GOODS = config.defaultGoods
 
 Page({
   data: {
+    // 图标路径
+    iconNotify: config.getIconUrl('notice.png'),
+    iconActivity: config.getIconUrl('acitivity1.png'),
+    iconLocation: config.getIconUrl('position.png'),
     scrollIntoView: '', // 滑动到指定卡片
     currentCardIndex: 0, // 当前卡片索引
     activeTab: 0, // 当前标签页索引
@@ -14,7 +22,7 @@ Page({
         id: 1,
         name: '南京大学上海校友会',
         schoolName: '南京大学',
-        icon: '/assets/logo/njdx.jpg',
+        icon: DEFAULT_SCHOOL_AVATAR,
         location: '上海市',
         hasNotification: true,
         hasNewActivity: false,
@@ -24,7 +32,7 @@ Page({
         id: 2,
         name: '浙江大学杭州校友会',
         schoolName: '浙江大学',
-        icon: '/assets/logo/njdx.jpg',
+        icon: DEFAULT_SCHOOL_AVATAR,
         location: '浙江省杭州市',
         hasNotification: false,
         hasNewActivity: true,
@@ -34,7 +42,7 @@ Page({
         id: 3,
         name: '复旦大学上海校友会',
         schoolName: '复旦大学',
-        icon: '/assets/logo/njdx.jpg',
+        icon: DEFAULT_SCHOOL_AVATAR,
         location: '上海市',
         hasNotification: true,
         hasNewActivity: true,
@@ -44,14 +52,14 @@ Page({
 
     // 快速入口
     quickEntries: [
-      { id: 1, name: '母校', icon: '/assets/icons/母校.png', url: '/pages/school/list/list' },
-      { id: 2, name: '校友会', icon: '/assets/icons/校友会.png', url: '/pages/alumni-association/list/list' },
-      { id: 3, name: '校友', icon: '/assets/icons/校友.png', url: '/pages/alumni/list/list' },
-      { id: 4, name: '优惠券', icon: '/assets/icons/优惠券.png', url: '/pages/coupon/list/list' },
-      { id: 5, name: '圈子', icon: '/assets/icons/圈子.png', url: '/pages/circle/list/list' },
-      { id: 6, name: '活动', icon: '/assets/icons/活动.png', url: '/pages/activity/list/list' },
-      { id: 7, name: '商家', icon: '/assets/icons/商家.png', url: '/pages/merchant/list/list' },
-      { id: 8, name: '更多', icon: '/assets/icons/更多.png', url: '' }
+      { id: 1, name: '母校', icon: config.getIconUrl('school.png'), url: '/pages/school/list/list' },
+      { id: 2, name: '校友会', icon: config.getIconUrl('xyh.png'), url: '/pages/alumni-association/list/list' },
+      { id: 3, name: '校友', icon: config.getIconUrl('xy.png'), url: '/pages/alumni/list/list' },
+      { id: 4, name: '优惠券', icon: config.getIconUrl('yhj.png'), url: '/pages/coupon/list/list' },
+      { id: 5, name: '圈子', icon: config.getIconUrl('circle.png'), url: '/pages/circle/list/list' },
+      { id: 6, name: '活动', icon: config.getIconUrl('acitivity.png'), url: '/pages/activity/list/list' },
+      { id: 7, name: '商家', icon: config.getIconUrl('shop.png'), url: '/pages/merchant/list/list' },
+      { id: 8, name: '更多', icon: config.getIconUrl('more.png'), url: '' }
     ],
 
     // 校友圈帖子
@@ -89,9 +97,9 @@ Page({
           username: '王小刚',
           avatar: DEFAULT_AVATAR,
           time: '3小时前',
-          groupIcon: '/assets/logo/njdx.jpg',
+          groupIcon: DEFAULT_SCHOOL_AVATAR,
           groupName: '江南大学无锡校友会',
-          cover: '/assets/images/南京大学背景图.jpg',
+          cover: DEFAULT_COVER,
           title: '江南大学洛杉矶校友会成立。',
           description: '欢迎各位新老校友加入，欢迎各位新老校友加入，欢迎各位新老校友加入……',
           location: 'Casliser Roll.RD',
@@ -105,7 +113,7 @@ Page({
           username: '王小刚',
           avatar: DEFAULT_AVATAR,
           time: '3小时前',
-          groupIcon: '/assets/logo/njdx.jpg',
+          groupIcon: DEFAULT_SCHOOL_AVATAR,
           groupName: '江南大学无锡校友会',
           eventTitle: '洛杉矶苏超观影会',
           timeRange: '2024.11.04 17:50 — 2024.11.04 21:50',
@@ -131,7 +139,7 @@ Page({
           username: '王小刚',
           avatar: DEFAULT_AVATAR,
           time: '2小时前',
-          groupIcon: '/assets/logo/njdx.jpg',
+          groupIcon: DEFAULT_SCHOOL_AVATAR,
           groupName: '江南大学无锡校友会',
           eventTitle: '校友徒步嘉年华',
           timeRange: '2024.12.01 08:00 — 2024.12.01 12:00',
@@ -160,9 +168,9 @@ Page({
           distance: '3.13km',
           associations: '江南大学无锡校友会 等13个校友会',
           products: [
-            { id: 1, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' },
-            { id: 2, image: '/assets/images/商品图.jpg', name: '商品名称', price: '159-367-' },
-            { id: 3, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' }
+            { id: 1, image: DEFAULT_GOODS, name: '商品名称', price: '满200减100' },
+            { id: 2, image: DEFAULT_GOODS, name: '商品名称', price: '159-367-' },
+            { id: 3, image: DEFAULT_GOODS, name: '商品名称', price: '满200减100' }
           ]
         },
         {
@@ -172,9 +180,9 @@ Page({
           distance: '3.13km',
           associations: '江南大学无锡校友会 等13个校友会',
           products: [
-            { id: 1, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' },
-            { id: 2, image: '/assets/images/商品图.jpg', name: '商品名称', price: '159-367-' },
-            { id: 3, image: '/assets/images/商品图.jpg', name: '商品名称', price: '满200减100' }
+            { id: 1, image: DEFAULT_GOODS, name: '商品名称', price: '满200减100' },
+            { id: 2, image: DEFAULT_GOODS, name: '商品名称', price: '159-367-' },
+            { id: 3, image: DEFAULT_GOODS, name: '商品名称', price: '满200减100' }
           ]
         }
       ],
@@ -185,7 +193,7 @@ Page({
           avatar: DEFAULT_AVATAR,
           tags: [
             { name: '江南大学无锡校友会' },
-            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+            { icon: DEFAULT_SCHOOL_AVATAR, name: '江南大学无锡校友会' }
           ]
         },
         {
@@ -194,7 +202,7 @@ Page({
           avatar: DEFAULT_AVATAR,
           tags: [
             { name: '江南大学无锡校友会' },
-            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+            { icon: DEFAULT_SCHOOL_AVATAR, name: '江南大学无锡校友会' }
           ]
         },
         {
@@ -203,7 +211,7 @@ Page({
           avatar: DEFAULT_AVATAR,
           tags: [
             { name: '江南大学无锡校友会' },
-            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+            { icon: DEFAULT_SCHOOL_AVATAR, name: '江南大学无锡校友会' }
           ]
         },
         {
@@ -212,7 +220,7 @@ Page({
           avatar: DEFAULT_AVATAR,
           tags: [
             { name: '江南大学无锡校友会' },
-            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+            { icon: DEFAULT_SCHOOL_AVATAR, name: '江南大学无锡校友会' }
           ]
         },
         {
@@ -221,7 +229,7 @@ Page({
           avatar: DEFAULT_AVATAR,
           tags: [
             { name: '江南大学无锡校友会' },
-            { icon: '/assets/logo/njdx.jpg', name: '江南大学无锡校友会' }
+            { icon: DEFAULT_SCHOOL_AVATAR, name: '江南大学无锡校友会' }
           ]
         }
       ],
@@ -229,7 +237,7 @@ Page({
         {
           id: 1,
           name: '南京大学',
-          icon: '/assets/logo/njdx.jpg',
+          icon: DEFAULT_SCHOOL_AVATAR,
           location: '江苏省南京市',
           alumniCount: 12580,
           associationCount: 156,
@@ -240,7 +248,7 @@ Page({
         {
           id: 2,
           name: '浙江大学',
-          icon: '/assets/logo/njdx.jpg',
+          icon: DEFAULT_SCHOOL_AVATAR,
           location: '浙江省杭州市',
           alumniCount: 15620,
           associationCount: 189,
@@ -251,7 +259,7 @@ Page({
         {
           id: 3,
           name: '复旦大学',
-          icon: '/assets/logo/njdx.jpg',
+          icon: DEFAULT_SCHOOL_AVATAR,
           location: '上海市',
           alumniCount: 14230,
           associationCount: 178,

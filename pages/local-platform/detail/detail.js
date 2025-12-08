@@ -1,8 +1,11 @@
 // pages/local-platform/detail/detail.js
 const { localPlatformApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 
 Page({
   data: {
+    // 图标路径
+    iconLocation: config.getIconUrl('position.png'),
     platformId: '',
     platformInfo: null,
     loading: true,
@@ -55,8 +58,8 @@ Page({
           adminUserId: data.adminUserId || null,
           contactInfo: data.contactInfo || '',
           // 以下为前端展示补充字段（后端暂无则给默认值）
-          icon: '/assets/logo/njdxxyh.jpg',
-          cover: '/assets/images/南京大学背景图.jpg',
+          icon: config.defaultAlumniAvatar,
+          cover: config.defaultCover,
           location: data.city || '',
           description: data.scope || '',
           memberCount: data.memberCount || 0

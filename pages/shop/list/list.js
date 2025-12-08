@@ -1,6 +1,10 @@
 // pages/shop/list/list.js
+const config = require('../../../utils/config.js')
+
 Page({
   data: {
+    // 图标路径
+    iconLocation: config.getIconUrl('position.png'),
     associationId: '',
     searchValue: '',
     filterCategory: 'all',
@@ -44,7 +48,7 @@ Page({
       {
         id: 1,
         name: '校友咖啡厅',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         owner: '王五',
         category: '餐饮',
         location: '上海市浦东新区世纪大道',
@@ -56,7 +60,7 @@ Page({
       {
         id: 2,
         name: '校友书店',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         owner: '赵六',
         category: '文化',
         location: '上海市黄浦区南京路',
@@ -68,7 +72,7 @@ Page({
       {
         id: 3,
         name: '校友餐厅',
-        cover: '/assets/images/头像.png',
+        cover: config.defaultAvatar,
         owner: '孙七',
         category: '餐饮',
         location: '上海市徐汇区淮海路',

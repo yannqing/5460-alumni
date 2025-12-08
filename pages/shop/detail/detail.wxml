@@ -45,7 +45,7 @@
 
       <view class="info-section">
         <view class="info-item" bindtap="openLocation">
-          <image class="info-icon" src="/assets/icons/定位.png" mode="aspectFit"></image>
+          <image class="info-icon" src="{{iconLocation}}" mode="aspectFit"></image>
           <view class="info-content">
             <text class="info-label">地址</text>
             <text class="info-value">{{shopInfo.location}}</text>
@@ -53,14 +53,14 @@
           <text class="nav-text">导航</text>
         </view>
         <view class="info-item" bindtap="makeCall" data-phone="{{shopInfo.phone}}">
-          <image class="info-icon" src="/assets/icons/电话.png" mode="aspectFit"></image>
+          <image class="info-icon" src="{{iconPhone}}" mode="aspectFit"></image>
           <view class="info-content">
             <text class="info-label">电话</text>
             <text class="info-value link-text">{{shopInfo.phone}}</text>
           </view>
         </view>
         <view class="info-item" wx:if="{{shopInfo.businessHours}}">
-          <image class="info-icon" src="/assets/icons/时间.png" mode="aspectFit"></image>
+          <image class="info-icon" src="{{iconTime}}" mode="aspectFit"></image>
           <view class="info-content">
             <text class="info-label">营业时间</text>
             <text class="info-value">{{shopInfo.businessHours}}</text>
@@ -134,7 +134,7 @@
         >
           <image 
             class="avatar-img {{item.privacy === 'private' ? 'blur' : ''}}" 
-            src="{{item.privacy === 'private' ? '/assets/images/头像.png' : item.avatar}}" 
+            src="{{item.privacy === 'private' ? defaultAvatar : item.avatar}}" 
             mode="aspectFill"
           ></image>
           <view class="avatar-info" wx:if="{{item.privacy === 'private'}}">

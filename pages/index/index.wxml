@@ -12,14 +12,14 @@
           <view class="association-card-actions">
             <view class="action-item" catchtap="onNotificationTap" data-id="{{item.id}}">
               <view class="action-icon-wrapper">
-                <image class="action-icon-image" src="/assets/icons/通知.png" mode="aspectFit" />
+                <image class="action-icon-image" src="{{iconNotify}}" mode="aspectFit" />
                 <view wx:if="{{item.hasNotification}}" class="notification-dot"></view>
               </view>
               <text class="action-label">通知</text>
             </view>
             <view class="action-item" catchtap="onActivityTap" data-id="{{item.id}}">
               <view class="action-icon-wrapper">
-                <image class="action-icon-image" src="/assets/icons/活动1.png" mode="aspectFit" />
+                <image class="action-icon-image" src="{{iconActivity}}" mode="aspectFit" />
                 <view wx:if="{{item.hasNewActivity}}" class="new-badge">上新</view>
               </view>
               <text class="action-label">活动</text>
@@ -96,7 +96,7 @@
                 </view>
               </view>
               <view class="news-location">
-                <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
                 <text class="location-name">{{item.location}}</text>
               </view>
               <view class="news-stats">
@@ -132,7 +132,7 @@
               </view>
               <view class="event-bottom-row">
                 <view class="event-location">
-                  <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
                   <text class="location-name">{{item.location}}</text>
                 </view>
                 <view class="event-stats">

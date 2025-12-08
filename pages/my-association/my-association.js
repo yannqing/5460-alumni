@@ -1,4 +1,6 @@
 // pages/my-association/my-association.js
+const config = require('../../utils/config.js')
+
 Page({
   data: {
     associationList: [
@@ -6,7 +8,7 @@ Page({
         id: 1,
         name: '南京大学上海校友会',
         schoolName: '南京大学',
-        icon: '/assets/images/头像.png',
+        icon: config.defaultAvatar,
         location: '上海市',
         memberCount: 1580,
         isVerified: true,
@@ -16,7 +18,7 @@ Page({
         id: 2,
         name: '浙江大学杭州校友会',
         schoolName: '浙江大学',
-        icon: '/assets/images/头像.png',
+        icon: config.defaultAvatar,
         location: '杭州市',
         memberCount: 2350,
         isVerified: true,
@@ -26,7 +28,7 @@ Page({
         id: 3,
         name: '清华大学北京校友会',
         schoolName: '清华大学',
-        icon: '/assets/images/头像.png',
+        icon: config.defaultAvatar,
         location: '北京市',
         memberCount: 5200,
         isVerified: true,
@@ -36,7 +38,7 @@ Page({
         id: 4,
         name: '北京大学校友会',
         schoolName: '北京大学',
-        icon: '/assets/images/头像.png',
+        icon: config.defaultAvatar,
         location: '北京市',
         memberCount: 4800,
         isVerified: true,
@@ -46,7 +48,7 @@ Page({
         id: 5,
         name: '复旦大学上海校友会',
         schoolName: '复旦大学',
-        icon: '/assets/images/头像.png',
+        icon: config.defaultAvatar,
         location: '上海市',
         memberCount: 3200,
         isVerified: true,
@@ -56,7 +58,7 @@ Page({
         id: 6,
         name: '上海交通大学校友会',
         schoolName: '上海交通大学',
-        icon: '/assets/images/头像.png',
+        icon: config.defaultAvatar,
         location: '上海市',
         memberCount: 2800,
         isVerified: true,

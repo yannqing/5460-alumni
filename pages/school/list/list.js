@@ -1,8 +1,14 @@
 // pages/school/list/list.js
 const { schoolApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
+
+const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
 
 Page({
   data: {
+    // 图标路径
+    iconSearch: config.getIconUrl('sslss.png'),
+    iconLocation: config.getIconUrl('position.png'),
     // 是否为选择模式
     selectMode: false,
     // 搜索关键词
@@ -20,7 +26,7 @@ Page({
 
     // 办学层次筛选（新增）- 从上到下按从高到低排序
     selectedLevel: '全部', // 选中的办学层次
-    levelList: ['全部', '研究生', '本科', '专科', '高职', '中职'],
+    levelList: ['全部', '本科', '专科'],
 
     // 列表数据
     schoolList: [],
@@ -281,7 +287,7 @@ Page({
           // 列表项内部仍使用 id/name/icon/location 等字段，方便前端共用
           id: item.schoolId,
           name: item.schoolName,
-          icon: item.logo || '/assets/logo/njdx.jpg',
+          icon: item.logo || DEFAULT_SCHOOL_AVATAR,
           // 优先使用后端的 location，没有则用 省份+城市 拼接
           location: item.location || `${item.province || ''}${item.city || ''}`,
           level: item.level || '',

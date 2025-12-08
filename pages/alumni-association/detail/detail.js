@@ -1,8 +1,15 @@
 // pages/alumni-association/detail/detail.js
 const { associationApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
+
+const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
+const DEFAULT_COVER = config.defaultCover
 
 Page({
   data: {
+    // 图标路径
+    iconSchool: config.getIconUrl('xx.png'),
+    iconLocation: config.getIconUrl('position.png'),
     associationId: '',
     associationInfo: null,
     activeTab: 0,
@@ -95,8 +102,8 @@ Page({
           // 平台 ID 后端当前未直接返回，这里预留字段，兼容后续扩展
           platformId: platformInfo.platformId || platformInfo.id || null,
           presidentUserId: item.presidentUserId,
-          icon: '/assets/logo/njdxxyh.jpg', // 后端暂无图标字段，使用默认
-          cover: '/assets/images/南京大学背景图.jpg', // 后端暂无封面字段，使用默认
+          icon: DEFAULT_ALUMNI_AVATAR, // 后端暂无图标字段，使用默认
+          cover: DEFAULT_COVER, // 后端暂无封面字段，使用默认
           location: item.location || '',
           memberCount: item.memberCount || 0,
           contactInfo: item.contactInfo || '',
