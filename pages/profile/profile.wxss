@@ -175,6 +175,11 @@
   border-bottom: none;
 }
 
+.menu-divider {
+  height: 20rpx;
+  background-color: #f5f5f5;
+}
+
 .menu-left {
   display: flex;
   align-items: center;

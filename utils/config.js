@@ -10,7 +10,7 @@ const config = {
   
   // 测试环境
   test: {
-    baseUrl: 'http://222.191.253.58:8000',
+    baseUrl: 'https://cni-alumni.yannqing.com',
     apiPrefix: '', // API前缀路径，如 '/api/v1'，如果不需要前缀则留空
     iconPathPrefix: 'upload/images', // 图标路径前缀，如 'test' 或 'test/upload'，如果不需要前缀则留空
   },
@@ -27,19 +27,19 @@ const config = {
   timeout: 10000,
 
   // 默认个人头像
-  defaultAvatar: 'http://222.191.253.58:8000/upload/images/assets/images/avatar.png',
+  defaultAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png',
 
   // 默认母校头像
-  defaultSchoolAvatar: 'http://222.191.253.58:8000/upload/images/assets/logo/njdx.jpg',
+  defaultSchoolAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/logo/njdx.jpg',
 
   // 默认校友会头像
-  defaultAlumniAvatar: 'http://222.191.253.58:8000/upload/images/assets/logo/njdxxyh.jpg',
+  defaultAlumniAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/logo/njdxxyh.jpg',
   
   // 默认背景图
-  defaultCover: 'http://222.191.253.58:8000/upload/images/assets/images/njdxbjt.jpg',
+  defaultCover: 'https://cni-alumni.yannqing.com/upload/images/assets/images/njdxbjt.jpg',
 
   // 默认商品图
-  defaultGoods: 'http://222.191.253.58:8000/upload/images/assets/images/bread.jpg',
+  defaultGoods: 'https://cni-alumni.yannqing.com/upload/images/assets/images/bread.jpg',
 
   // ==================== 图标路径配置 ====================
   // 图标固定路径（assets/icons/ 这个路径不会变）
@@ -105,6 +105,70 @@ const config = {
       // 完整的API基础地址（baseUrl + apiPrefix）
       apiBaseUrl: envConfig.baseUrl + apiPrefix,
     }
+  },
+
+  // ==================== 图片URL处理 ====================
+  /**
+   * 处理图片URL，确保返回完整的URL
+   * 如果传入的是相对路径，会拼接当前环境的 baseUrl
+   * 如果传入的是完整URL，会检查并修正为当前环境的 baseUrl
+   * @param {string} imageUrl - 图片URL（可能是相对路径或完整URL）
+   * @param {string} env - 可选，环境名称，如果不传则从本地存储读取
+   * @returns {string} 完整的图片URL
+   * @example
+   * // 相对路径
+   * config.getImageUrl('/upload/images/avatar.png') // 返回: 'https://cni-alumni.yannqing.com/upload/images/avatar.png'
+   * 
+   * // 完整URL（旧地址）
+   * config.getImageUrl('http://222.191.253.58:8000/upload/images/avatar.png') // 返回: 'https://cni-alumni.yannqing.com/upload/images/avatar.png'
+   * 
+   * // 完整URL（当前环境）
+   * config.getImageUrl('https://cni-alumni.yannqing.com/upload/images/avatar.png') // 返回: 'https://cni-alumni.yannqing.com/upload/images/avatar.png'
+   */
+  getImageUrl(imageUrl, env) {
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return ''
+    }
+
+    // 如果没有传入环境参数，从本地存储读取
+    if (!env) {
+      env = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
+    }
+    
+    const envConfig = this[env] || this.test // 默认使用测试环境
+    const baseUrl = envConfig.baseUrl
+
+    // 如果已经是完整URL（以 http:// 或 https:// 开头）
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      // 检查是否是旧地址，如果是则替换为当前环境的 baseUrl
+      const oldBaseUrls = [
+        'http://222.191.253.58:8000',
+        'https://222.191.253.58:8000',
+        'http://localhost:8086'
+      ]
+      
+      for (const oldBaseUrl of oldBaseUrls) {
+        if (imageUrl.startsWith(oldBaseUrl)) {
+          // 提取路径部分（去掉旧 baseUrl）
+          const path = imageUrl.replace(oldBaseUrl, '')
+          // 拼接新的 baseUrl
+          return baseUrl + path
+        }
+      }
+      
+      // 如果已经是当前环境的 baseUrl，直接返回
+      if (imageUrl.startsWith(baseUrl)) {
+        return imageUrl
+      }
+      
+      // 其他完整URL，直接返回（可能是外部图片）
+      return imageUrl
+    }
+
+    // 相对路径，拼接 baseUrl
+    // 确保路径以 / 开头
+    const path = imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl
+    return baseUrl + path
   }
 }
 

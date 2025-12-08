@@ -64,11 +64,16 @@ function mapUserInfoToForm(userInfo) {
     }
   })
 
+  // 处理头像URL，确保使用正确的 baseUrl
+  const config = require('../../../utils/config.js')
+  const rawAvatarUrl = userInfo.avatarUrl || ''
+  const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : ''
+
   return {
     // 基础信息
     nickname: userInfo.nickname || '',
     name: userInfo.name || '',
-    avatarUrl: userInfo.avatarUrl || '',
+    avatarUrl: avatarUrl,
     phone: userInfo.phone || '',
     wxNum: userInfo.wxNum || '',
     qqNum: userInfo.qqNum || '',
@@ -435,8 +440,11 @@ Page({
 
       if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
         // 获取返回的图片URL
-        const imageUrl = uploadRes.data.fileUrl || ''
-        if (imageUrl) {
+        const rawImageUrl = uploadRes.data.fileUrl || ''
+        if (rawImageUrl) {
+          // 使用 config.getImageUrl 处理图片URL，确保是完整的URL
+          const config = require('../../../utils/config.js')
+          const imageUrl = config.getImageUrl(rawImageUrl)
           // 更新表单中的头像URL
           this.setData({ 'form.avatarUrl': imageUrl })
           wx.showToast({
@@ -469,15 +477,21 @@ Page({
   },
 
   validateForm() {
-    const { phone, email, identifyCode } = this.data.form
+    const { phone, email, identifyCode, educationList } = this.data.form
+    
+    // 验证手机号
     if (phone && !/^1[3-9]\d{9}$/.test(phone)) {
       wx.showToast({ title: '手机号格式不正确', icon: 'none' })
       return false
     }
+    
+    // 验证邮箱
     if (email && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) {
       wx.showToast({ title: '邮箱格式不正确', icon: 'none' })
       return false
     }
+    
+    // 验证证件号
     if (identifyCode) {
       const { identifyType } = this.data.form
       if (identifyType === 0) {
@@ -494,6 +508,26 @@ Page({
         }
       }
     }
+    
+    // 验证教育经历中的学校
+    if (educationList && educationList.length > 0) {
+      for (let i = 0; i < educationList.length; i++) {
+        const edu = educationList[i]
+        const schoolName = (edu.schoolName || '').trim()
+        const schoolId = edu.schoolInfo?.schoolId || edu.schoolId
+        
+        // 如果填写了学校名称，必须有有效的 schoolId（说明是从数据库中选择的）
+        if (schoolName && (!schoolId || schoolId === '' || schoolId === null || schoolId === undefined)) {
+          wx.showToast({ 
+            title: '没有该学校，请从下拉列表中选择', 
+            icon: 'none',
+            duration: 3000
+          })
+          return false
+        }
+      }
+    }
+    
     return true
   },
 
@@ -729,10 +763,23 @@ Page({
       }
     }
     
-    // 更新 schoolName（与 handleEducationInput 的实现方式完全一致）
+    // 获取当前已有的学校信息
+    const currentItem = educationList[indexNum]
+    const originalSchoolName = currentItem.schoolInfo?.schoolName || currentItem.schoolName || ''
+    
+    // 检查新输入的值是否与原来的学校名称匹配
+    // 如果不匹配，说明用户手动修改了学校名称，需要清除 schoolInfo 和 schoolId
+    const isSchoolNameChanged = safeInputValue.trim() !== originalSchoolName.trim()
+    
+    // 更新 schoolName，如果学校名称被修改，清除 schoolInfo 和 schoolId
     educationList[indexNum] = {
       ...educationList[indexNum],
-      schoolName: safeInputValue
+      schoolName: safeInputValue,
+      // 如果学校名称被修改，清除关联的学校信息
+      ...(isSchoolNameChanged ? {
+        schoolInfo: null,
+        schoolId: ''
+      } : {})
     }
     
     // 整体更新数组，确保数据正确响应

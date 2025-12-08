@@ -38,7 +38,12 @@
     "pages/shop/list/list",
     "pages/shop/detail/detail",
     "pages/chat/detail/detail",
-    "pages/my-favorites/my-favorites"
+    "pages/my-favorites/my-favorites",
+    "pages/audit/index/index",
+    "pages/audit/list/list",
+    "pages/audit/user/list/list",
+    "pages/audit/content/list/list",
+    "pages/audit/merchant/list/list"
   ],
   "window": {
     "backgroundTextStyle": "light",

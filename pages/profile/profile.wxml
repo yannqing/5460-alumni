@@ -32,6 +32,14 @@
 
   <!-- 功能菜单 -->
   <view class="card menu-card">
+    <!-- 管理入口 -->
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/audit/index/index">
+      <view class="menu-left">
+        <text class="menu-icon">⚙️</text>
+        <text class="menu-name">管理入口</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
       <view class="menu-left">
         <text class="menu-icon">🎫</text>

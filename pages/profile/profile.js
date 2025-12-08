@@ -165,12 +165,17 @@ Page({
     }
     
     // 兼容多种头像字段名：avatarUrl, avatar, headImg
-    const avatarUrl = userInfo.avatarUrl || userInfo.avatar || userInfo.headImg || userData.avatarUrl || userData.avatar || userData.headImg || ''
+    const rawAvatarUrl = userInfo.avatarUrl || userInfo.avatar || userInfo.headImg || userData.avatarUrl || userData.avatar || userData.headImg || ''
+    
+    // 使用 config.getImageUrl 处理图片URL，确保使用正确的 baseUrl
+    const config = require('../../utils/config.js')
+    const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : ''
     
     // 调试信息（开发时使用）
     console.log('加载用户信息 - userData:', userData)
     console.log('加载用户信息 - userInfo:', userInfo)
-    console.log('加载用户信息 - avatarUrl:', avatarUrl)
+    console.log('加载用户信息 - rawAvatarUrl:', rawAvatarUrl)
+    console.log('加载用户信息 - avatarUrl (处理后):', avatarUrl)
     console.log('加载用户信息 - nickname:', userInfo.nickname || userData.nickname)
     
     // 格式化用户信息
