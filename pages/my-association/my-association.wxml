@@ -27,7 +27,7 @@
   </view>
 
   <view wx:if="{{associationList.length === 0}}" class="empty-state">
-    <image class="empty-image" src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+    <view class="empty-placeholder">暂无校友会</view>
     <text class="empty-text">暂未加入校友会</text>
   </view>
 </view>

@@ -9,6 +9,17 @@
         <view class="user-name">{{userInfo.nickname || '用户'}}</view>
         <view class="edit-hint" bindtap="editProfile">编辑资料 ›</view>
       </view>
+      <!-- 关注和粉丝统计 -->
+      <view class="follow-stats">
+        <view class="follow-stat-item" bindtap="goToMyFans">
+          <view class="follow-stat-value">{{followStats.fansCount || 0}}</view>
+          <view class="follow-stat-label">粉丝</view>
+        </view>
+        <view class="follow-stat-item" bindtap="goToMyFollow">
+          <view class="follow-stat-value">{{followStats.followingCount || 0}}</view>
+          <view class="follow-stat-label">关注</view>
+        </view>
+      </view>
     </view>
 
     <!-- 数据栏 -->
@@ -40,20 +51,20 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
-      <view class="menu-left">
-        <text class="menu-icon">🎫</text>
-        <text class="menu-name">我的券包</text>
-        <text class="menu-badge" wx:if="{{couponStats.unused > 0}}">{{couponStats.unused}}</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
     <view class="menu-item" bindtap="goToCertification">
       <view class="menu-left">
         <text class="menu-icon">🎓</text>
         <text class="menu-name">校友认证</text>
         <text class="cert-status-badge" wx:if="{{certificationStatus === 'verified'}}">已认证</text>
         <text class="cert-status-badge unverified" wx:else>未认证</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
+      <view class="menu-left">
+        <text class="menu-icon">🎫</text>
+        <text class="menu-name">我的券包</text>
+        <text class="menu-badge" wx:if="{{couponStats.unused > 0}}">{{couponStats.unused}}</text>
       </view>
       <text class="menu-arrow">›</text>
     </view>
@@ -75,13 +86,6 @@
       <view class="menu-left">
         <text class="menu-icon">👥</text>
         <text class="menu-name">我的校友会</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=alumni">
-      <view class="menu-left">
-        <text class="menu-icon">❤️</text>
-        <text class="menu-name">我的关注</text>
       </view>
       <text class="menu-arrow">›</text>
     </view>

@@ -34,7 +34,7 @@
   </view>
 
   <view wx:if="{{favoriteShops.length === 0}}" class="empty-state">
-    <image class="empty-image" src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+    <view class="empty-placeholder">暂无收藏</view>
     <text class="empty-text">暂无收藏的店铺</text>
     <view class="empty-btn" bindtap="goToDiscover">去发现</view>
   </view>

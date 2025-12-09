@@ -41,6 +41,12 @@ const config = {
   // 默认商品图
   defaultGoods: 'https://cni-alumni.yannqing.com/upload/images/assets/images/bread.jpg',
 
+  // 默认个人页背景图
+  defaultGoods: 'https://cni-alumni.yannqing.com/upload/images/assets/images/person_bg.jpg',
+
+  // 默认空状态图片（使用 data URI，避免网络请求）
+  defaultEmptyImage: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5OTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+5pqC5peg5pWw5o2uPC90ZXh0Pjwvc3ZnPg==',
+
   // ==================== 图标路径配置 ====================
   // 图标固定路径（assets/icons/ 这个路径不会变）
   iconFixedPath: 'assets/icons',

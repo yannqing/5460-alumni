@@ -1,5 +1,6 @@
 // pages/alumni/detail/detail.js
 const config = require('../../../utils/config.js')
+const { alumniApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -12,48 +13,155 @@ Page({
     this.loadAlumniDetail()
   },
 
-  loadAlumniDetail() {
-    // 计算年龄和星座
-    const birthDate = new Date('1990-05-15')
-    const today = new Date()
-    const age = today.getFullYear() - birthDate.getFullYear()
-    const month = birthDate.getMonth() + 1
-    const day = birthDate.getDate()
-    const zodiac = this.getZodiac(month, day)
-    
-    const mockData = {
-      id: this.data.alumniId,
-      name: '张三',
-      realName: '张三',
-      nickname: '三三',
-      account: 'zhangsan2024',
-      avatar: config.defaultAvatar,
-      background: 'https://cdn.example.com/backgrounds/alumni-bg.jpg',
-      school: '南京大学',
-      major: '计算机科学与技术',
-      graduateYear: 2015,
-      company: '腾讯科技',
-      position: '高级工程师',
-      location: '上海市',
-      email: 'zhangsan@example.com',
-      phone: '138****8888',
-      wechat: 'zhangsan_wx',
-      qq: '123456789',
-      gender: 'male', // 'male' or 'female'
-      birthDate: '1990-05-15',
-      age: age,
-      zodiac: zodiac,
-      bio: '热爱技术，专注于前端开发领域，喜欢分享技术心得，致力于推动前端技术发展。',
-      signature: '代码改变世界，技术成就未来',
-      hobbies: ['编程', '阅读', '旅行', '摄影'],
-      isFollowed: false,
-      isCertified: true,
-      associations: [
-        { id: 1, name: '南京大学上海校友会', role: '会员' },
-        { id: 2, name: '南京大学计算机系校友会', role: '理事' }
-      ]
+  async loadAlumniDetail() {
+    const { alumniId } = this.data
+
+    try {
+      const res = await alumniApi.getAlumniInfo(alumniId)
+      console.log('校友详情接口返回:', res)
+
+      if (res.data && res.data.code === 200) {
+        const data = res.data.data || {}
+
+        // 数据映射：将后端字段映射为前端所需格式
+        const alumniInfo = this.mapAlumniData(data)
+
+        this.setData({ alumniInfo })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('加载校友详情失败:', error)
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
     }
-    this.setData({ alumniInfo: mockData })
+  },
+
+  // 数据映射：将后端数据映射为前端格式
+  mapAlumniData(data) {
+    // 处理头像
+    let avatarUrl = data.avatarUrl || ''
+    if (avatarUrl) {
+      avatarUrl = config.getImageUrl(avatarUrl)
+    }
+
+    // 处理性别
+    const genderMap = {
+      0: 'unknown',
+      1: 'male',
+      2: 'female'
+    }
+    const gender = genderMap[data.gender] || 'unknown'
+
+    // 计算年龄和星座
+    let age = ''
+    let constellation = ''
+    if (data.birthDate) {
+      const birthDate = new Date(data.birthDate)
+      const today = new Date()
+      age = today.getFullYear() - birthDate.getFullYear()
+
+      const month = birthDate.getMonth() + 1
+      const day = birthDate.getDate()
+      constellation = this.getZodiacName(data.constellation, month, day)
+    }
+
+    // 构建位置信息
+    let location = data.address || ''
+    if (!location) {
+      const locationParts = []
+      if (data.curProvince) locationParts.push(data.curProvince)
+      if (data.curCity) locationParts.push(data.curCity)
+      if (data.curCounty) locationParts.push(data.curCounty)
+      location = locationParts.join('') || '未设置'
+    }
+
+    // 处理教育经历
+    const educationList = (data.alumniEducationList || []).map(edu => ({
+      schoolId: edu.schoolId,
+      logo: edu.logo ? config.getImageUrl(edu.logo) : '',
+      schoolName: edu.schoolName || '',
+      province: edu.province || '',
+      city: edu.city || '',
+      level: edu.level || '',
+      enrollmentYear: edu.enrollmentYear || '',
+      graduationYear: edu.graduationYear || '',
+      department: edu.department || '',
+      major: edu.major || '',
+      className: edu.className || '',
+      educationLevel: edu.educationLevel || '',
+      certificationStatus: edu.certificationStatus || 0,
+      officialCertification: edu.officialCertification || 0
+    }))
+
+    // 处理标签
+    const tagList = (data.tagList || []).map(tag => ({
+      tagId: tag.tagId,
+      code: tag.code,
+      name: tag.name,
+      color: tag.color,
+      category: tag.category,
+      iconUrl: tag.iconUrl ? config.getImageUrl(tag.iconUrl) : '',
+      sortOrder: tag.sortOrder
+    }))
+
+    // 返回映射后的数据（使用后端实际字段名）
+    return {
+      wxId: data.wxId,
+      nickname: data.nickname || '',
+      name: data.name || '',
+      avatarUrl: avatarUrl,
+      phone: data.phone || '',
+      wxNum: data.wxNum || '',
+      qqNum: data.qqNum || '',
+      email: data.email || '',
+      originProvince: data.originProvince || '',
+      curContinent: data.curContinent || '',
+      curCountry: data.curCountry || '',
+      curProvince: data.curProvince || '',
+      curCity: data.curCity || '',
+      curCounty: data.curCounty || '',
+      address: data.address || '',
+      latitude: data.latitude || '',
+      longitude: data.longitude || '',
+      constellation: constellation,
+      signature: data.signature || '',
+      description: data.description || '',
+      gender: gender,
+      genderValue: data.gender,
+      identifyType: data.identifyType,
+      identifyCode: data.identifyCode || '',
+      birthDate: data.birthDate || '',
+      age: age,
+      location: location,
+      alumniEducationList: educationList,
+      tagList: tagList
+    }
+  },
+
+  // 获取星座名称
+  getZodiacName(constellationCode, month, day) {
+    // 如果后端返回了星座代码，可以根据代码映射
+    // 否则根据生日计算
+    if (constellationCode) {
+      const zodiacMap = {
+        1: '白羊座', 2: '金牛座', 3: '双子座', 4: '巨蟹座',
+        5: '狮子座', 6: '处女座', 7: '天秤座', 8: '天蝎座',
+        9: '射手座', 10: '摩羯座', 11: '水瓶座', 12: '双鱼座'
+      }
+      return zodiacMap[constellationCode] || ''
+    }
+
+    if (month && day) {
+      return this.getZodiac(month, day)
+    }
+
+    return ''
   },
 
   getZodiac(month, day) {

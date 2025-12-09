@@ -37,7 +37,7 @@
     </view>
 
     <view wx:if="{{couponList.length === 0}}" class="empty-state">
-      <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+      <view class="empty-placeholder">暂无券包</view>
       <text>暂无优惠券</text>
     </view>
   </view>

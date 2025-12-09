@@ -1,81 +1,7 @@
 // pages/alumni/list/list.js
 const { alumniApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
-
-const BASE_ALUMNI = [
-  {
-    id: 1,
-    name: '张三',
-    avatar: config.defaultAvatar,
-    school: '南京大学',
-    city: '南京',
-    location: '江苏省南京市',
-    major: '计算机科学',
-    graduateYear: 2015,
-    company: '腾讯科技',
-    position: '高级工程师',
-    followerCount: 12580,
-    followingCount: 156,
-    isFollowed: false,
-    isCertified: true,
-    tags: ['985', '211', '互联网'],
-    identity: '企业高管'
-  },
-  {
-    id: 2,
-    name: '李四',
-    avatar: config.defaultAvatar,
-    school: '浙江大学',
-    city: '杭州',
-    location: '浙江省杭州市',
-    major: '软件工程',
-    graduateYear: 2016,
-    company: '阿里巴巴',
-    position: '技术专家',
-    followerCount: 15620,
-    followingCount: 189,
-    isFollowed: true,
-    isCertified: true,
-    tags: ['985', '211', '电商'],
-    identity: '创业校友'
-  },
-  {
-    id: 3,
-    name: '王五',
-    avatar: config.defaultAvatar,
-    school: '复旦大学',
-    city: '上海',
-    location: '上海市',
-    major: '人工智能',
-    graduateYear: 2017,
-    company: '字节跳动',
-    position: '算法工程师',
-    followerCount: 14230,
-    followingCount: 178,
-    isFollowed: false,
-    isCertified: true,
-    tags: ['985', '211', 'AI'],
-    identity: '在读校友'
-  },
-  {
-    id: 4,
-    name: '赵六',
-    avatar: config.defaultAvatar,
-    school: '上海交通大学',
-    city: '深圳',
-    location: '广东省深圳市',
-    major: '通信工程',
-    graduateYear: 2014,
-    company: '华为技术',
-    position: '研发总监',
-    followerCount: 16500,
-    followingCount: 195,
-    isFollowed: false,
-    isCertified: true,
-    tags: ['985', '211', '通信'],
-    identity: '企业高管'
-  }
-]
+const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.js')
 
 Page({
   data: {
@@ -94,6 +20,7 @@ Page({
     activeFilterIndex: -1,
     alumniList: [],
     page: 1,
+    pageSize: 10,
     hasMore: true,
     loading: false
   },
@@ -112,21 +39,159 @@ Page({
     }
   },
 
-  loadAlumniList(reset = false) {
+  async loadAlumniList(reset = false) {
+    if (this.data.loading) return
+    if (!reset && !this.data.hasMore) return
+
     this.setData({ loading: true })
 
-    const mockData = this.generateMockAlumni()
+    const { keyword, filters, page, pageSize } = this.data
+    const [identityFilter, cityFilter, sortFilter, followFilter] = filters
 
-    setTimeout(() => {
-      this.setData({
-        alumniList: reset ? mockData : [...this.data.alumniList, ...mockData],
-        loading: false,
-        page: reset ? 1 : this.data.page + 1
+    // 构建请求参数
+    const params = {
+      page: reset ? 1 : page,
+      size: pageSize
+    }
+
+    // 搜索关键词
+    if (keyword && keyword.trim()) {
+      params.keyword = keyword.trim()
+    }
+
+    // 身份筛选
+    if (identityFilter.selected > 0) {
+      params.identity = identityFilter.options[identityFilter.selected]
+    }
+
+    // 城市筛选
+    if (cityFilter.selected > 0) {
+      params.city = cityFilter.options[cityFilter.selected]
+    }
+
+    // 排序方式
+    if (sortFilter.selected === 1) {
+      params.sortBy = 'createTime' // 最新加入
+      params.sortOrder = 'desc'
+    } else if (sortFilter.selected === 2) {
+      params.sortBy = 'followerCount' // 人气最高
+      params.sortOrder = 'desc'
+    }
+
+    // 关注筛选
+    if (followFilter.selected === 1) {
+      params.onlyFollowed = true
+    }
+
+    try {
+      const res = await alumniApi.queryAlumniList(params)
+      console.log('校友列表接口返回:', res)
+
+      if (res.data && res.data.code === 200) {
+        const data = res.data.data || {}
+        const records = data.records || []
+
+        // 数据映射
+        const mappedList = records.map(item => this.mapAlumniItem(item))
+
+        this.setData({
+          alumniList: reset ? mappedList : [...this.data.alumniList, ...mappedList],
+          page: reset ? 2 : page + 1,
+          hasMore: mappedList.length >= pageSize,
+          loading: false
+        })
+
+        if (reset) {
+          wx.stopPullDownRefresh()
+        }
+      } else {
+        this.setData({ loading: false })
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+        if (reset) {
+          wx.stopPullDownRefresh()
+        }
+      }
+    } catch (error) {
+      console.error('加载校友列表失败:', error)
+      this.setData({ loading: false })
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
       })
       if (reset) {
         wx.stopPullDownRefresh()
       }
-    }, 500)
+    }
+  },
+
+  // 数据映射：将后端数据映射为前端所需格式
+  mapAlumniItem(item) {
+    // 处理头像 - 使用后端返回的 avatarUrl 字段
+    let avatarUrl = item.avatarUrl || ''
+    if (avatarUrl) {
+      avatarUrl = config.getImageUrl(avatarUrl)
+    }
+
+    // 构建位置信息 - 优先使用完整的位置组合
+    let location = ''
+    const locationParts = []
+
+    if (item.curProvince) {
+      locationParts.push(item.curProvince)
+    }
+    if (item.curCity) {
+      locationParts.push(item.curCity)
+    }
+
+    if (locationParts.length > 0) {
+      location = locationParts.join('')
+    } else if (item.curCountry) {
+      location = item.curCountry
+    } else if (item.curContinent) {
+      location = item.curContinent
+    }
+
+    // 如果没有位置信息，显示默认文本
+    if (!location) {
+      location = '未设置位置'
+    }
+
+    // 显示昵称，如果没有则显示真实姓名
+    const displayName = item.nickname || item.name || '未知用户'
+
+    // 返回统一格式
+    return {
+      id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
+      name: displayName,
+      avatarUrl: avatarUrl,
+      school: '暂无学校信息', // 后端接口未返回学校信息，显示占位文本
+      city: item.curCity || '',
+      location: location,
+      major: '', // 后端接口未返回专业信息
+      graduateYear: '', // 后端接口未返回毕业年份
+      company: '', // 后端接口未返回公司信息
+      position: '', // 后端接口未返回职位信息
+      followerCount: 0, // 后端接口未返回粉丝数
+      followingCount: 0, // 后端接口未返回关注数
+      isFollowed: false, // 后端接口未返回关注状态
+      isCertified: false, // 后端接口未返回认证状态
+      tags: [], // 后端接口未返回标签
+      identity: '', // 后端接口未返回身份
+      // 保留后端原始字段
+      wxId: item.wxId,
+      phone: item.phone || '',
+      wxNum: item.wxNum || '',
+      qqNum: item.qqNum || '',
+      email: item.email || '',
+      gender: item.gender || 0,
+      signature: item.signature || '',
+      constellation: item.constellation || 0,
+      identifyCode: item.identifyCode || '',
+      birthDate: item.birthDate || ''
+    }
   },
 
   // 搜索
@@ -165,47 +230,39 @@ Page({
     this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
   },
 
-  generateMockAlumni() {
-    const [identityFilter, cityFilter, sortFilter, followFilter] = this.data.filters
-    let list = BASE_ALUMNI.slice()
-
-    if (identityFilter.selected > 0) {
-      list = list.filter(item => item.identity === identityFilter.options[identityFilter.selected])
-    }
-
-    if (cityFilter.selected > 0) {
-      list = list.filter(item => item.city === cityFilter.options[cityFilter.selected])
-    }
-
-    if (followFilter.selected === 1) {
-      list = list.filter(item => item.isFollowed)
-    }
-
-    if (sortFilter.selected === 1) {
-      list = list.sort((a, b) => b.graduateYear - a.graduateYear)
-    } else if (sortFilter.selected === 2) {
-      list = list.sort((a, b) => b.followerCount - a.followerCount)
-    }
-
-    return list
-  },
-
   viewDetail(e) {
     wx.navigateTo({
       url: `/pages/alumni/detail/detail?id=${e.currentTarget.dataset.id}`
     })
   },
 
-  toggleFollow(e) {
+  async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
     const { alumniList } = this.data
     const index = alumniList.findIndex(item => item.id === id)
-    if (index !== -1) {
+
+    if (index === -1) return
+
+    // 调用通用关注接口
+    const result = await toggleFollow(
+      followed,
+      FollowTargetType.USER, // 1-用户
+      id
+    )
+
+    if (result.success) {
+      // 更新列表中的关注状态
       alumniList[index].isFollowed = !followed
       this.setData({ alumniList })
+
       wx.showToast({
-        title: followed ? '已取消关注' : '关注成功',
+        title: result.message,
         icon: 'success'
+      })
+    } else {
+      wx.showToast({
+        title: result.message,
+        icon: 'none'
       })
     }
   }

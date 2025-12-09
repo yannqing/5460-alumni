@@ -1,53 +1,88 @@
 <!--pages/my-follow/my-follow.wxml-->
 <view class="follow-page">
-  <view class="list">
-    <!-- 母校列表 -->
-    <block wx:if="{{type === 'school'}}">
-      <view class="school-card" wx:for="{{followList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-        <image class="school-avatar" src="{{item.icon}}" mode="aspectFill" />
-        <view class="school-content">
-          <view class="school-header">
-            <text class="school-name">{{item.name}}</text>
-            <view wx:if="{{item.is985}}" class="school-badge">985</view>
-            <view wx:if="{{item.is211}}" class="school-badge">211</view>
-          </view>
-          <view class="school-info">
-            <text class="info-item">📍 {{item.location}}</text>
-          </view>
-          <view class="school-footer">
-            <view class="alumni-count">
-              <text class="count-icon">👥</text>
-              <text class="count-text">{{item.alumniCount}}位校友</text>
-            </view>
-          </view>
-        </view>
-      </view>
-    </block>
-
-    <!-- 校友列表 -->
-    <block wx:else>
-      <view class="alumni-card" wx:for="{{followList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-        <image class="alumni-avatar" src="{{item.avatar}}" mode="aspectFill" />
-        <view class="alumni-content">
-          <view class="alumni-header">
-            <text class="alumni-name">{{item.name}}</text>
-            <view wx:if="{{item.isVerified}}" class="verified-badge">✓</view>
-          </view>
-          <view class="alumni-info">
-            <text class="info-item">🏫 {{item.school}}</text>
-            <text class="info-divider">·</text>
-            <text class="info-item">💼 {{item.company}}</text>
-          </view>
-          <view class="alumni-footer" wx:if="{{item.major}}">
-            <text class="major-text">专业：{{item.major}}</text>
-          </view>
-        </view>
-      </view>
-    </block>
+  <!-- 顶部Tab栏 -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 'follow' ? 'active' : ''}}" bindtap="switchTab" data-tab="follow">
+      我的关注
+    </view>
+    <view class="tab-item {{currentTab === 'fans' ? 'active' : ''}}" bindtap="switchTab" data-tab="fans">
+      我的粉丝
+    </view>
+    <view class="tab-item {{currentTab === 'friend' ? 'active' : ''}}" bindtap="switchTab" data-tab="friend">
+      好友
+    </view>
   </view>
 
-  <view wx:if="{{followList.length === 0}}" class="empty-state">
-    <image class="empty-image" src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
-    <text class="empty-text">暂无关注</text>
-  </view>
+  <!-- 类型筛选（好友tab不显示类型筛选） -->
+  <scroll-view class="type-scroll" scroll-x="{{true}}" enable-flex="{{true}}" wx:if="{{currentTab !== 'friend'}}">
+    <view class="type-tabs">
+      <view
+        class="type-tab {{activeType === '' ? 'active' : ''}}"
+        bindtap="selectType"
+        data-type="">
+        全部
+      </view>
+      <view
+        class="type-tab {{activeType === 'user' ? 'active' : ''}}"
+        bindtap="selectType"
+        data-type="user">
+        用户
+      </view>
+      <view
+        class="type-tab {{activeType === 'association' ? 'active' : ''}}"
+        bindtap="selectType"
+        data-type="association">
+        校友会
+      </view>
+      <view
+        class="type-tab {{activeType === 'school' ? 'active' : ''}}"
+        bindtap="selectType"
+        data-type="school">
+        母校
+      </view>
+      <view
+        class="type-tab {{activeType === 'merchant' ? 'active' : ''}}"
+        bindtap="selectType"
+        data-type="merchant">
+        商铺
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 列表内容 -->
+  <scroll-view class="list-scroll" scroll-y="{{true}}" bindscrolltolower="loadMore">
+    <view class="list">
+      <!-- 统一卡片格式 -->
+      <block wx:for="{{list}}" wx:key="id">
+        <view class="follow-item-card" bindtap="viewDetail" data-item="{{item}}">
+          <image class="item-avatar" src="{{item.targetAvatar}}" mode="aspectFill" />
+          <view class="item-content">
+            <view class="item-name">{{item.targetName}}</view>
+            <view class="item-description" wx:if="{{item.targetDescription}}">{{item.targetDescription}}</view>
+            <view class="follow-time">关注时间：{{item.followTime}}</view>
+          </view>
+          <view class="follow-status" wx:if="{{currentTab === 'follow'}}" catchtap="updateFollowStatus" data-item="{{item}}">
+            <text class="status-text">{{item.followStatusText}}</text>
+          </view>
+          <view class="follow-status" wx:else>
+            <text class="status-text-readonly">{{item.followStatusText}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-state">加载中...</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && list.length === 0}}" class="empty-state">
+      <view class="empty-icon">💭</view>
+      <text class="empty-text">
+        {{currentTab === 'follow' ? '暂无关注' : currentTab === 'fans' ? '暂无粉丝' : '暂无好友'}}
+      </text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view wx:if="{{!loading && list.length > 0 && !hasMore}}" class="no-more">没有更多了</view>
+  </scroll-view>
 </view>

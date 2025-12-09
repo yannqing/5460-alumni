@@ -1,22 +1,63 @@
 <!--pages/profile/privacy/privacy.wxml-->
 <view class="privacy-page">
+  <!-- 基本信息 -->
   <view class="card menu-card">
-    <view class="section-title">个人信息展示设置</view>
+    <view class="section-title">基本信息</view>
     <view class="menu-item">
       <view class="menu-left">
         <text class="menu-icon">👤</text>
         <view class="menu-content">
-          <text class="menu-name">展示真实姓名</text>
+          <text class="menu-name">头像</text>
+          <text class="menu-desc">其他用户可以看到您的头像</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showAvatar}}" bindchange="togglePrivacy" data-key="showAvatar" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">✏️</text>
+        <view class="menu-content">
+          <text class="menu-name">昵称</text>
+          <text class="menu-desc">其他用户可以看到您的昵称</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showNickname}}" bindchange="togglePrivacy" data-key="showNickname" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">👨</text>
+        <view class="menu-content">
+          <text class="menu-name">真实姓名</text>
           <text class="menu-desc">其他用户可以看到您的真实姓名</text>
         </view>
       </view>
-      <switch checked="{{privacySettings.showRealName}}" bindchange="togglePrivacy" data-key="showRealName" color="#ff6b9d" />
+      <switch checked="{{privacySettings.showName}}" bindchange="togglePrivacy" data-key="showName" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">⚧</text>
+        <view class="menu-content">
+          <text class="menu-name">性别</text>
+          <text class="menu-desc">其他用户可以看到您的性别</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showGender}}" bindchange="togglePrivacy" data-key="showGender" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">🎂</text>
+        <view class="menu-content">
+          <text class="menu-name">出生日期</text>
+          <text class="menu-desc">其他用户可以看到您的出生日期</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showBirthDate}}" bindchange="togglePrivacy" data-key="showBirthDate" color="#ff6b9d" />
     </view>
     <view class="menu-item">
       <view class="menu-left">
         <text class="menu-icon">📱</text>
         <view class="menu-content">
-          <text class="menu-name">展示手机号</text>
+          <text class="menu-name">手机号</text>
           <text class="menu-desc">其他用户可以看到您的手机号</text>
         </view>
       </view>
@@ -24,9 +65,29 @@
     </view>
     <view class="menu-item">
       <view class="menu-left">
+        <text class="menu-icon">⭐</text>
+        <view class="menu-content">
+          <text class="menu-name">星座</text>
+          <text class="menu-desc">其他用户可以看到您的星座</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showConstellation}}" bindchange="togglePrivacy" data-key="showConstellation" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">✍️</text>
+        <view class="menu-content">
+          <text class="menu-name">个性签名</text>
+          <text class="menu-desc">其他用户可以看到您的个性签名</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showSignature}}" bindchange="togglePrivacy" data-key="showSignature" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
         <text class="menu-icon">💬</text>
         <view class="menu-content">
-          <text class="menu-name">展示微信号</text>
+          <text class="menu-name">微信号</text>
           <text class="menu-desc">其他用户可以看到您的微信号</text>
         </view>
       </view>
@@ -34,72 +95,142 @@
     </view>
     <view class="menu-item">
       <view class="menu-left">
+        <text class="menu-icon">🐧</text>
+        <view class="menu-content">
+          <text class="menu-name">QQ号</text>
+          <text class="menu-desc">其他用户可以看到您的QQ号</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showQqNum}}" bindchange="togglePrivacy" data-key="showQqNum" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
         <text class="menu-icon">📧</text>
         <view class="menu-content">
-          <text class="menu-name">展示邮箱</text>
+          <text class="menu-name">邮箱</text>
           <text class="menu-desc">其他用户可以看到您的邮箱地址</text>
         </view>
       </view>
       <switch checked="{{privacySettings.showEmail}}" bindchange="togglePrivacy" data-key="showEmail" color="#ff6b9d" />
     </view>
+  </view>
+
+  <!-- 位置信息 -->
+  <view class="card menu-card">
+    <view class="section-title">位置信息</view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">🏠</text>
+        <view class="menu-content">
+          <text class="menu-name">籍贯</text>
+          <text class="menu-desc">其他用户可以看到您的籍贯</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showOriginProvince}}" bindchange="togglePrivacy" data-key="showOriginProvince" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">🌍</text>
+        <view class="menu-content">
+          <text class="menu-name">当前所在洲</text>
+          <text class="menu-desc">其他用户可以看到您的当前所在洲</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showCurContinent}}" bindchange="togglePrivacy" data-key="showCurContinent" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">🌏</text>
+        <view class="menu-content">
+          <text class="menu-name">当前所在国</text>
+          <text class="menu-desc">其他用户可以看到您的当前所在国</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showCurCountry}}" bindchange="togglePrivacy" data-key="showCurCountry" color="#ff6b9d" />
+    </view>
     <view class="menu-item">
       <view class="menu-left">
         <text class="menu-icon">📍</text>
         <view class="menu-content">
-          <text class="menu-name">展示位置信息</text>
-          <text class="menu-desc">其他用户可以看到您的位置信息</text>
+          <text class="menu-name">当前所在省市</text>
+          <text class="menu-desc">其他用户可以看到您的当前所在省市</text>
         </view>
       </view>
-      <switch checked="{{privacySettings.showLocation}}" bindchange="togglePrivacy" data-key="showLocation" color="#ff6b9d" />
+      <switch checked="{{privacySettings.showCurProvince}}" bindchange="togglePrivacy" data-key="showCurProvince" color="#ff6b9d" />
     </view>
     <view class="menu-item">
       <view class="menu-left">
-        <text class="menu-icon">🎓</text>
+        <text class="menu-icon">🏙️</text>
         <view class="menu-content">
-          <text class="menu-name">展示学校信息</text>
-          <text class="menu-desc">其他用户可以看到您的学校、专业等信息</text>
+          <text class="menu-name">当前所在市区</text>
+          <text class="menu-desc">其他用户可以看到您的当前所在市区</text>
         </view>
       </view>
-      <switch checked="{{privacySettings.showSchoolInfo}}" bindchange="togglePrivacy" data-key="showSchoolInfo" color="#ff6b9d" />
+      <switch checked="{{privacySettings.showCurCity}}" bindchange="togglePrivacy" data-key="showCurCity" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">🏘️</text>
+        <view class="menu-content">
+          <text class="menu-name">当前所在村/区</text>
+          <text class="menu-desc">其他用户可以看到您的当前所在村/区</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showCurCounty}}" bindchange="togglePrivacy" data-key="showCurCounty" color="#ff6b9d" />
+    </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <text class="menu-icon">🏡</text>
+        <view class="menu-content">
+          <text class="menu-name">详细地址</text>
+          <text class="menu-desc">其他用户可以看到您的详细地址</text>
+        </view>
+      </view>
+      <switch checked="{{privacySettings.showAddress}}" bindchange="togglePrivacy" data-key="showAddress" color="#ff6b9d" />
     </view>
   </view>
 
+  <!-- 证件信息 -->
   <view class="card menu-card">
-    <view class="section-title">互动设置</view>
+    <view class="section-title">证件信息</view>
     <view class="menu-item">
       <view class="menu-left">
-        <text class="menu-icon">🔒</text>
+        <text class="menu-icon">🪪</text>
         <view class="menu-content">
-          <text class="menu-name">允许被搜索</text>
-          <text class="menu-desc">开启后，其他用户可以通过搜索找到您</text>
+          <text class="menu-name">证件类型</text>
+          <text class="menu-desc">其他用户可以看到您的证件类型</text>
         </view>
       </view>
-      <switch checked="{{privacySettings.allowSearch}}" bindchange="togglePrivacy" data-key="allowSearch" color="#ff6b9d" />
+      <switch checked="{{privacySettings.showIdentifyType}}" bindchange="togglePrivacy" data-key="showIdentifyType" color="#ff6b9d" />
     </view>
     <view class="menu-item">
       <view class="menu-left">
-        <text class="menu-icon">👣</text>
+        <text class="menu-icon">🔢</text>
         <view class="menu-content">
-          <text class="menu-name">允许展示足迹</text>
-          <text class="menu-desc">开启后，其他用户可以看到您的足迹记录</text>
+          <text class="menu-name">证件号</text>
+          <text class="menu-desc">其他用户可以看到您的证件号</text>
         </view>
       </view>
-      <switch checked="{{privacySettings.allowFootprint}}" bindchange="togglePrivacy" data-key="allowFootprint" color="#ff6b9d" />
+      <switch checked="{{privacySettings.showIdentifyCode}}" bindchange="togglePrivacy" data-key="showIdentifyCode" color="#ff6b9d" />
     </view>
+  </view>
+
+  <!-- 个人简介 -->
+  <view class="card menu-card">
+    <view class="section-title">个人简介</view>
     <view class="menu-item">
       <view class="menu-left">
-        <text class="menu-icon">💌</text>
+        <text class="menu-icon">📝</text>
         <view class="menu-content">
-          <text class="menu-name">允许接收私信</text>
-          <text class="menu-desc">开启后，其他用户可以给您发送私信</text>
+          <text class="menu-name">个人简介</text>
+          <text class="menu-desc">其他用户可以看到您的个人简介</text>
         </view>
       </view>
-      <switch checked="{{privacySettings.allowMessage}}" bindchange="togglePrivacy" data-key="allowMessage" color="#ff6b9d" />
+      <switch checked="{{privacySettings.showDescription}}" bindchange="togglePrivacy" data-key="showDescription" color="#ff6b9d" />
     </view>
   </view>
 
   <!-- 底部留白 -->
   <view class="bottom-space"></view>
 </view>
-
 

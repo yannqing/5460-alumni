@@ -19,6 +19,21 @@ page {
   min-height: 100vh;
 }
 
+/* 全局空状态样式 */
+.empty-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200rpx;
+  height: 200rpx;
+  background: linear-gradient(135deg, #f0f0f0 0%, #fafafa 100%);
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #999999;
+  text-align: center;
+  margin: 40rpx auto;
+}
+
 /* 通用卡片样式 */
 .card {
   background-color: #ffffff;

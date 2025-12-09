@@ -1,6 +1,7 @@
 // pages/alumni-association/list/list.js
 const { associationApi, schoolApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
+const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.js')
 
 const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 
@@ -276,19 +277,27 @@ Page({
           schoolName: '' // 需要根据 schoolId 查询
         }))
 
-        // 根据 schoolId 批量补齐 schoolName（简单串行调用，后续可按需优化）
+        // 根据 schoolId 批量补齐 schoolName（并行请求优化）
         const schoolIdSet = new Set(mappedList.map(i => i.schoolId).filter(Boolean))
         const schoolNameMap = {}
-        for (const sid of schoolIdSet) {
-          try {
-            const schoolRes = await schoolApi.getSchoolDetail(sid)
-            if (schoolRes.data && schoolRes.data.code === 200 && schoolRes.data.data) {
-              schoolNameMap[sid] = schoolRes.data.data.schoolName || schoolRes.data.data.name || ''
-            }
-          } catch (e) {
-            // 请求失败时忽略，保持空
-          }
-        }
+        
+        // 将所有请求改为并行执行，显著提升加载速度
+        const schoolPromises = Array.from(schoolIdSet).map(sid => 
+          schoolApi.getSchoolDetail(sid)
+            .then(schoolRes => {
+              if (schoolRes.data && schoolRes.data.code === 200 && schoolRes.data.data) {
+                schoolNameMap[sid] = schoolRes.data.data.schoolName || schoolRes.data.data.name || ''
+              }
+            })
+            .catch(e => {
+              // 请求失败时忽略，保持空
+            })
+        )
+        
+        // 等待所有学校信息请求完成
+        await Promise.all(schoolPromises)
+        
+        // 填充学校名称
         mappedList.forEach(item => {
           if (item.schoolId && schoolNameMap[item.schoolId]) {
             item.schoolName = schoolNameMap[item.schoolId]
@@ -551,16 +560,33 @@ Page({
     })
   },
 
-  toggleFollow(e) {
+  async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
     const { associationList } = this.data
     const index = associationList.findIndex(item => item.id === id)
-    if (index !== -1) {
+
+    if (index === -1) return
+
+    // 调用通用关注接口
+    const result = await toggleFollow(
+      followed,
+      FollowTargetType.ASSOCIATION, // 2-校友会
+      id
+    )
+
+    if (result.success) {
+      // 更新列表中的关注状态
       associationList[index].isFollowed = !followed
       this.setData({ associationList })
+
       wx.showToast({
-        title: followed ? '已取消关注' : '关注成功',
+        title: result.message,
         icon: 'success'
+      })
+    } else {
+      wx.showToast({
+        title: result.message,
+        icon: 'none'
       })
     }
   }

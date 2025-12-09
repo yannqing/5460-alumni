@@ -54,6 +54,33 @@
   opacity: 0.9;
 }
 
+/* 关注和粉丝统计 */
+.follow-stats {
+  display: flex;
+  gap: 40rpx;
+  margin-left: auto;
+}
+
+.follow-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  min-width: 80rpx;
+}
+
+.follow-stat-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.follow-stat-label {
+  font-size: 22rpx;
+  opacity: 0.85;
+  color: #ffffff;
+}
+
 .login-prompt {
   display: flex;
   align-items: center;

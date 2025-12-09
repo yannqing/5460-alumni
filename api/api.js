@@ -35,6 +35,8 @@ const associationApi = {
   getMyAssociations: (params) => get('/associations/my-joined', params),
   // 获取校友会成员列表
   getAssociationMembers: (id, params) => get(`/associations/${id}/members`, params),
+  // 分页查询校友会成员列表
+  getMemberPage: (params) => post('/AlumniAssociation/member/page', params),
   // 获取校友会活动列表
   getAssociationActivities: (id, params) => get(`/associations/${id}/activities`, params),
   // 关注校友会
@@ -59,10 +61,14 @@ const localPlatformApi = {
 
 // ==================== 校友相关接口 ====================
 const alumniApi = {
-  // 获取校友列表
+  // 获取校友列表（旧接口，保留兼容）
   getAlumniList: (params) => get('/alumni', params),
-  // 获取校友详情
+  // 查询校友列表（新接口）
+  queryAlumniList: (params) => post('/users/query/alumni', params),
+  // 获取校友详情（旧接口，保留兼容）
   getAlumniDetail: (id) => get(`/alumni/${id}`),
+  // 获取校友信息（根据隐私设置）
+  getAlumniInfo: (id) => get(`/users/getAlumniInfo/${id}`),
   // 关注校友
   followAlumni: (id) => post(`/alumni/${id}/follow`),
   // 取消关注校友
@@ -161,6 +167,10 @@ const userApi = {
   getMyFollows: (params) => get('/user/follows', params),
   // 获取我的粉丝
   getMyFans: (params) => get('/user/fans', params),
+  // 获取个人隐私设置
+  getPrivacy: () => get('/users/getPrivacy'),
+  // 更新个人隐私设置
+  updatePrivacy: (data) => put('/users/update/privacy', data),
 }
 
 
@@ -236,6 +246,28 @@ const fileApi = {
 
 
 
+// ==================== 关注相关接口 ====================
+const followApi = {
+  // 添加关注
+  // targetType: 1-用户, 2-校友会, 3-母校, 4-商户
+  // followStatus: 1-正常关注, 2-特别关注, 3-免打扰, 4-已取消
+  addFollow: (params) => post('/follow/add', params),
+  // 取消关注
+  removeFollow: (params) => del('/follow/remove', params),
+  // 更新关注状态
+  updateFollowStatus: (params) => put('/follow/updateStatus', params),
+  // 分页查询我关注的列表
+  getMyFollowingList: (params) => post('/follow/following/page', params),
+  // 分页查询我的粉丝列表
+  getMyFollowerList: (params) => post('/follow/follower/page', params),
+  // 分页查询好友列表（互相关注）
+  getMyFriendList: (params) => post('/follow/friend/page', params),
+  // 获取关注和粉丝统计（旧接口，保留兼容）
+  getFollowStats: () => get('/follow/stats'),
+  // 获取当前用户的关注统计
+  getCurrentUserStats: () => get('/follow/statistics/current'),
+}
+
 // ==================== 认证相关接口 ====================
 const authApi = {
   // 认证登录（静默登录）
@@ -288,6 +320,7 @@ module.exports = {
   activityApi,
   userApi,
   searchApi,
+  followApi,
   authApi,
   fileApi,
 }

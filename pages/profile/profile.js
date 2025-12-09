@@ -1,6 +1,6 @@
 // pages/profile/profile.js
 const app = getApp()
-const { userApi } = require('../../api/api.js')
+const { userApi, followApi } = require('../../api/api.js')
 
 Page({
   data: {
@@ -24,7 +24,12 @@ Page({
     },
     showCardModal: false,
     alumniCardQrcode: '',
-    alumniCardNumber: ''
+    alumniCardNumber: '',
+    // 关注和粉丝统计
+    followStats: {
+      followingCount: 0,
+      fansCount: 0
+    }
   },
 
   onLoad() {
@@ -196,10 +201,10 @@ Page({
   loadUserData() {
     // 从全局数据获取用户信息
     const userData = app.globalData.userData || {}
-    
+
     // 设置认证状态（从后端数据获取）
     const certificationStatus = userData.certificationStatus || userData.is_apply_acard === 1 ? 'verified' : 'none'
-    
+
     // 设置统计数据（从后端接口获取，这里先设为0，后续对接接口）
     this.setData({
       certificationStatus,
@@ -215,6 +220,43 @@ Page({
       },
       alumniCardQrcode: userData.alumniCardQrcode || '',
       alumniCardNumber: userData.alumniCardNumber || ''
+    })
+
+    // 加载关注和粉丝统计
+    this.loadFollowStats()
+  },
+
+  // 加载关注和粉丝统计
+  async loadFollowStats() {
+    try {
+      const res = await followApi.getCurrentUserStats()
+      console.log('关注统计接口返回:', res)
+
+      if (res.data && res.data.code === 200) {
+        const stats = res.data.data || {}
+        this.setData({
+          followStats: {
+            followingCount: stats.followingCount || 0,
+            fansCount: stats.fansCount || stats.followerCount || 0
+          }
+        })
+      }
+    } catch (error) {
+      console.error('加载关注统计失败:', error)
+    }
+  },
+
+  // 跳转到我的关注页面
+  goToMyFollow() {
+    wx.navigateTo({
+      url: '/pages/my-follow/my-follow?tab=follow'
+    })
+  },
+
+  // 跳转到我的粉丝页面
+  goToMyFans() {
+    wx.navigateTo({
+      url: '/pages/my-follow/my-follow?tab=fans'
     })
   },
 

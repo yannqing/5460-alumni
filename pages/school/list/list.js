@@ -1,6 +1,7 @@
 // pages/school/list/list.js
 const { schoolApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
+const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.js')
 
 const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
 
@@ -540,18 +541,33 @@ Page({
   },
 
   // 关注/取消关注
-  toggleFollow(e) {
+  async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
     const { schoolList } = this.data
 
     const index = schoolList.findIndex(item => item.id === id)
-    if (index !== -1) {
+    if (index === -1) return
+
+    // 调用通用关注接口
+    const result = await toggleFollow(
+      followed,
+      FollowTargetType.SCHOOL, // 3-母校
+      id
+    )
+
+    if (result.success) {
+      // 更新列表中的关注状态
       schoolList[index].isFollowed = !followed
       this.setData({ schoolList })
 
       wx.showToast({
-        title: followed ? '已取消关注' : '关注成功',
+        title: result.message,
         icon: 'success'
+      })
+    } else {
+      wx.showToast({
+        title: result.message,
+        icon: 'none'
       })
     }
   },

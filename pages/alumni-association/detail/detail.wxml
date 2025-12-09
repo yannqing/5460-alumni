@@ -227,15 +227,64 @@
     <view wx:if="{{activeTab === 1}}">
       <view class="member-list">
         <view class="member-item" wx:for="{{members}}" wx:key="id">
-          <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <image class="member-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
           <view class="member-info">
             <view class="member-name-row">
-              <text class="member-name">{{item.name}}</text>
+              <text class="member-name">{{item.nickname || item.name}}</text>
               <view class="member-tag">{{item.role}}</view>
             </view>
             <view class="member-company">{{item.company}}</view>
           </view>
         </view>
+      </view>
+    </view>
+
+    <!-- 关系图谱 -->
+    <view wx:if="{{activeTab === 2}}" class="graph-container">
+      <!-- 关系网络信息框（动态显示） -->
+      <view class="graph-header" catchtap="closeNodeCard">
+        <!-- 未选中状态：显示关系网络标题 -->
+        <view wx:if="{{!showNodeCard}}" class="graph-header-default">
+          <view class="graph-title">
+            <view class="status-dot"></view>
+            <text>关系网络</text>
+          </view>
+          <view class="graph-stat">节点: {{graphData ? graphData.nodes.length : 0}}</view>
+        </view>
+        
+        <!-- 选中状态：显示节点统计 -->
+        <view wx:else class="graph-header-selected" catchtap="">
+          <view class="node-info-header">
+            <view class="node-info-left">
+              <view class="node-name">{{selectedNode.name}}</view>
+              <view class="node-group">Group {{selectedNode.group}}</view>
+            </view>
+            <view class="node-info-stats">
+              <text class="info-stat-text">人数 {{selectedNode.value}}</text>
+              <text class="stat-divider">·</text>
+              <text class="info-stat-text">关联数 {{selectedNode.connections}}</text>
+            </view>
+          </view>
+          <view class="node-info-related" wx:if="{{selectedNode.relatedNodes.length > 0}}">
+            <view class="info-related-title">关联节点</view>
+            <view class="info-related-tags">
+              <text class="info-related-tag" wx:for="{{selectedNode.relatedNodes}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="graph-canvas-wrapper">
+        <canvas 
+          type="2d" 
+          id="graph-canvas" 
+          class="graph-canvas"
+          bindtouchstart="onGraphTouchStart"
+          bindtouchmove="onGraphTouchMove"
+          bindtouchend="onGraphTouchEnd"
+          disable-scroll="{{true}}"
+        ></canvas>
+        <view class="graph-hint">单指拖动节点 · 点击查看关联</view>
       </view>
     </view>
 

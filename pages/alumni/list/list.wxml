@@ -30,7 +30,7 @@
     <view class="alumni-card" wx:for="{{alumniList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
       <!-- 头部：头像、名称和认证标识 -->
       <view class="card-header">
-        <image class="alumni-avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <image class="alumni-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.name}}</text>
@@ -63,7 +63,7 @@
 
     <!-- 空状态 -->
     <view wx:if="{{!loading && alumniList.length === 0}}" class="empty-state">
-      <image src="https://via.placeholder.com/200/f0f0f0/999999?text=Empty" mode="aspectFill" />
+      <view class="empty-placeholder">暂无数据</view>
       <text>暂无数据</text>
     </view>
   </view>
