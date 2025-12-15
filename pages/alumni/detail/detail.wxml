@@ -7,7 +7,7 @@
       <view class="header-overlay"></view>
       <view class="profile-left-section">
         <view class="avatar-nickname-row">
-          <image class="avatar-circle" src="{{alumniInfo.avatar || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <image class="avatar-circle" src="{{alumniInfo.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
           <view class="nickname-text">{{alumniInfo.nickname}}</view>
         </view>
         <view class="avatar-info-row">
@@ -41,67 +41,125 @@
       </view>
       <view class="info-row">
         <view class="info-label">真实姓名</view>
-        <view class="info-value">{{alumniInfo.realName}}</view>
+        <view class="info-value">{{alumniInfo.name}}</view>
       </view>
       <view class="info-row">
-        <view class="info-label">账号</view>
-        <view class="info-value">{{alumniInfo.account}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">出生年月</view>
+        <view class="info-label">出生日期</view>
         <view class="info-value">{{alumniInfo.birthDate}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">专业</view>
-        <view class="info-value">{{alumniInfo.major}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">毕业年份</view>
-        <view class="info-value">{{alumniInfo.graduateYear}}年</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">邮箱</view>
-        <view class="info-value">{{alumniInfo.email}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">微信号</view>
-        <view class="info-value">{{alumniInfo.wechat}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">QQ号</view>
-        <view class="info-value">{{alumniInfo.qq}}</view>
       </view>
       <view class="info-row">
         <view class="info-label">手机号</view>
         <view class="info-value">{{alumniInfo.phone}}</view>
       </view>
       <view class="info-row">
+        <view class="info-label">星座</view>
+        <view class="info-value">{{alumniInfo.constellation}}</view>
+      </view>
+      <view class="info-row">
         <view class="info-label">个性签名</view>
         <view class="info-value signature-text">{{alumniInfo.signature || '暂无签名'}}</view>
       </view>
+      <view class="info-row">
+        <view class="info-label">微信号</view>
+        <view class="info-value">{{alumniInfo.wxNum}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">QQ号</view>
+        <view class="info-value">{{alumniInfo.qqNum}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">邮箱</view>
+        <view class="info-value">{{alumniInfo.email}}</view>
+      </view>
     </view>
 
-    <!-- 工作信息卡片 -->
+    <!-- 位置信息卡片 -->
     <view class="info-card">
-      <view class="card-title">工作信息</view>
+      <view class="card-title">位置信息</view>
       <view class="info-row">
-        <view class="info-label">公司</view>
-        <view class="info-value">{{alumniInfo.company}}</view>
+        <view class="info-label">籍贯</view>
+        <view class="info-value">{{alumniInfo.originProvince}}</view>
       </view>
       <view class="info-row">
-        <view class="info-label">职位</view>
-        <view class="info-value">{{alumniInfo.position}}</view>
+        <view class="info-label">当前所在洲</view>
+        <view class="info-value">{{alumniInfo.curContinent}}</view>
       </view>
       <view class="info-row">
-        <view class="info-label">所在地</view>
-        <view class="info-value">{{alumniInfo.location}}</view>
+        <view class="info-label">当前所在国</view>
+        <view class="info-value">{{alumniInfo.curCountry}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">当前所在省市</view>
+        <view class="info-value">{{alumniInfo.curProvince}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">当前所在市区</view>
+        <view class="info-value">{{alumniInfo.curCity}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">当前所在村/区</view>
+        <view class="info-value">{{alumniInfo.curCounty}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">详细地址</view>
+        <view class="info-value">{{alumniInfo.address}}</view>
+      </view>
+    </view>
+
+    <!-- 教育经历卡片 -->
+    <view class="info-card" wx:if="{{alumniInfo.alumniEducationList && alumniInfo.alumniEducationList.length}}">
+      <view class="card-title">教育经历</view>
+      <block wx:for="{{alumniInfo.alumniEducationList}}" wx:key="index">
+        <view class="education-block" style="{{index > 0 ? 'margin-top: 20rpx; border-top: 1px solid #eee; padding-top: 20rpx;' : ''}}">
+          <view class="info-row">
+            <view class="info-label">学校</view>
+            <view class="info-value">{{item.schoolName}}</view>
+          </view>
+          <view class="info-row">
+            <view class="info-label">入学年份</view>
+            <view class="info-value">{{item.enrollmentYear}}</view>
+          </view>
+          <view class="info-row">
+            <view class="info-label">毕业年份</view>
+            <view class="info-value">{{item.graduationYear}}</view>
+          </view>
+          <view class="info-row">
+            <view class="info-label">院系</view>
+            <view class="info-value">{{item.department}}</view>
+          </view>
+          <view class="info-row">
+            <view class="info-label">专业</view>
+            <view class="info-value">{{item.major}}</view>
+          </view>
+          <view class="info-row">
+            <view class="info-label">班级</view>
+            <view class="info-value">{{item.className}}</view>
+          </view>
+          <view class="info-row">
+            <view class="info-label">学历层次</view>
+            <view class="info-value">{{item.educationLevel}}</view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 证件信息卡片 -->
+    <view class="info-card">
+      <view class="card-title">证件信息</view>
+      <view class="info-row">
+        <view class="info-label">证件类型</view>
+        <view class="info-value">{{alumniInfo.identifyType === 0 ? '身份证' : (alumniInfo.identifyType === 1 ? '护照' : '其他')}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">证件号</view>
+        <view class="info-value">{{alumniInfo.identifyCode}}</view>
       </view>
     </view>
 
     <!-- 个人简介卡片 -->
     <view class="info-card">
       <view class="card-title">个人简介</view>
-      <view class="bio-content">{{alumniInfo.bio}}</view>
+      <view class="bio-content">{{alumniInfo.description || alumniInfo.bio || '暂无简介'}}</view>
     </view>
 
     <!-- 爱好卡片 -->

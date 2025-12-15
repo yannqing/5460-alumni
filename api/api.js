@@ -61,12 +61,8 @@ const localPlatformApi = {
 
 // ==================== 校友相关接口 ====================
 const alumniApi = {
-  // 获取校友列表（旧接口，保留兼容）
-  getAlumniList: (params) => get('/alumni', params),
   // 查询校友列表（新接口）
   queryAlumniList: (params) => post('/users/query/alumni', params),
-  // 获取校友详情（旧接口，保留兼容）
-  getAlumniDetail: (id) => get(`/alumni/${id}`),
   // 获取校友信息（根据隐私设置）
   getAlumniInfo: (id) => get(`/users/getAlumniInfo/${id}`),
   // 关注校友
@@ -306,6 +302,96 @@ const authApi = {
   // },
 }
 
+// ==================== 聊天相关接口 ====================
+const chatApi = {
+  // 获取会话列表
+  getConversations: (params) => get('/chat/conversations', params),
+  
+  // 获取聊天历史记录
+  getChatHistory: (params) => post('/chat/history', params),
+  
+  // 发送消息
+  sendMessage: (data) => post('/chat/send', data),
+
+  // 获取与某人的聊天记录
+  getChatMessages: (userId, params) => get(`/chat/messages/${userId}`, params),
+  
+  // 标记消息已读
+  markMessageRead: (messageId) => post(`/chat/message/${messageId}/read`),
+  
+  // 批量标记消息已读
+  markMessagesRead: (messageIds) => post('/chat/messages/read', { messageIds }),
+  
+  // 删除聊天记录
+  deleteChat: (userId) => del(`/chat/${userId}`),
+  
+  // 清空聊天记录
+  clearChatHistory: (userId) => post(`/chat/${userId}/clear`),
+  
+  // 获取未读消息数量
+  getUnreadCount: () => get('/chat/unread/count'),
+  
+  // 获取在线用户列表
+  getOnlineUsers: (params) => get('/chat/online/users', params),
+  
+  // 检查用户是否在线
+  checkUserOnline: (userId) => get(`/chat/user/${userId}/online`),
+  
+  // 上传聊天图片
+  uploadChatImage: (filePath) => {
+    return new Promise((resolve, reject) => {
+      const token = wx.getStorageSync('token')
+      const app = getApp()
+      const baseUrl = app.globalData.baseUrl
+      
+      wx.uploadFile({
+        url: `${baseUrl}/chat/upload/image`,
+        filePath: filePath,
+        name: 'file',
+        header: {
+          'Authorization': `Bearer ${token}`
+        },
+        success: (res) => {
+          try {
+            const data = JSON.parse(res.data)
+            resolve({ data })
+          } catch (error) {
+            reject(error)
+          }
+        },
+        fail: reject
+      })
+    })
+  },
+  
+  // 上传聊天语音
+  uploadChatVoice: (filePath) => {
+    return new Promise((resolve, reject) => {
+      const token = wx.getStorageSync('token')
+      const app = getApp()
+      const baseUrl = app.globalData.baseUrl
+      
+      wx.uploadFile({
+        url: `${baseUrl}/chat/upload/voice`,
+        filePath: filePath,
+        name: 'file',
+        header: {
+          'Authorization': `Bearer ${token}`
+        },
+        success: (res) => {
+          try {
+            const data = JSON.parse(res.data)
+            resolve({ data })
+          } catch (error) {
+            reject(error)
+          }
+        },
+        fail: reject
+      })
+    })
+  }
+}
+
 
 module.exports = {
   schoolApi,
@@ -323,4 +409,5 @@ module.exports = {
   followApi,
   authApi,
   fileApi,
+  chatApi,
 }

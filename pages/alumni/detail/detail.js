@@ -1,6 +1,7 @@
 // pages/alumni/detail/detail.js
 const config = require('../../../utils/config.js')
 const { alumniApi } = require('../../../api/api.js')
+const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.js')
 
 Page({
   data: {
@@ -48,6 +49,8 @@ Page({
     let avatarUrl = data.avatarUrl || ''
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
+    } else {
+      avatarUrl = config.defaultAvatar
     }
 
     // 处理性别
@@ -140,7 +143,13 @@ Page({
       age: age,
       location: location,
       alumniEducationList: educationList,
-      tagList: tagList
+      tagList: tagList,
+      // 关键：关注状态字段
+      isFollowed: data.isFollowed || false,
+      followStatus: data.followStatus || 4,
+      // 母校信息
+      school: data.schoolInfo ? data.schoolInfo.schoolName : '',
+      schoolId: data.schoolInfo ? data.schoolInfo.schoolId : ''
     }
   },
 
@@ -201,14 +210,44 @@ Page({
     return '未知'
   },
 
-  toggleFollow() {
+  async toggleFollow() {
     const { alumniInfo } = this.data
-    alumniInfo.isFollowed = !alumniInfo.isFollowed
-    this.setData({ alumniInfo })
+    if (!alumniInfo || !alumniInfo.wxId) {
+      wx.showToast({
+        title: '数据加载中，请稍后',
+        icon: 'none'
+      })
+      return
+    }
+
+    const isFollowed = alumniInfo.isFollowed || false
+    const targetId = alumniInfo.wxId
+
+    // 调用通用关注函数
+    const result = await toggleFollow(isFollowed, FollowTargetType.USER, targetId, 1, true)
+
+    // 如果用户取消了操作，不做处理
+    if (result.canceled) {
+      return
+    }
+
+    if (result.success) {
+      // 更新关注状态
+      this.setData({
+        'alumniInfo.isFollowed': !isFollowed,
+        'alumniInfo.followStatus': !isFollowed ? 1 : 4
+      })
+
     wx.showToast({
-      title: alumniInfo.isFollowed ? '关注成功' : '已取消关注',
+        title: result.message,
       icon: 'success'
     })
+    } else {
+      wx.showToast({
+        title: result.message,
+        icon: 'none'
+      })
+    }
   },
 
   viewSchoolDetail(e) {

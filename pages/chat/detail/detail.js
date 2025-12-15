@@ -1,7 +1,6 @@
 // pages/chat/detail/detail.js
 const config = require('../../../utils/config.js')
-
-const DEFAULT_AVATAR = config.defaultAvatar
+const { chatApi, alumniApi, associationApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -9,93 +8,322 @@ Page({
     chatType: 'chat',
     chatInfo: {
       name: '',
-      avatar: DEFAULT_AVATAR
+      avatar: '',
+      isOnline: false
     },
-    myAvatar: DEFAULT_AVATAR,
+    myAvatar: '',
+    myUserId: null,
     messageList: [],
     inputValue: '',
     hasInput: false,
     scrollIntoView: '',
     showEmoji: false,
     showMoreMenu: false,
+    socketConnected: false,
     emojiList: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃']
   },
 
+  // WebSocket 事件监听器引用
+  messageListener: null,
+  onlineStatusListener: null,
+  connectListener: null,
+  disconnectListener: null,
+
   onLoad(options) {
     const { id, type } = options
-    if (id) {
+    const app = getApp()
+    const myUserId = app.globalData.userData?.wxId || wx.getStorageSync('userId')
+    let myAvatar = app.globalData.userData?.avatar || ''
+    if (myAvatar) {
+      myAvatar = config.getImageUrl(myAvatar)
+    }
+    
+    if (id && id !== 'undefined' && id !== 'null') {
       this.setData({ 
         chatId: id,
-        chatType: type || 'chat'
+        chatType: type || 'chat',
+        myUserId: myUserId,
+        myAvatar: myAvatar
       })
       this.loadChatInfo(id, type)
       this.loadMessages(id)
+      this.initWebSocket()
+    } else {
+      console.error('[ChatDetail] 无效的聊天ID:', id)
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
+      })
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 1500)
     }
   },
 
-  loadChatInfo(id, type) {
-    // 模拟加载聊天信息
-    const chatInfoMap = {
-      1: { name: '张三', avatar: DEFAULT_AVATAR, userId: 1 },
-      2: { name: '李四', avatar: DEFAULT_AVATAR, userId: 2 },
-      3: { name: '王五', avatar: DEFAULT_AVATAR, userId: 3 },
-      4: { name: '赵六', avatar: DEFAULT_AVATAR, userId: 4 },
-      5: { name: '南京大学上海校友会', avatar: DEFAULT_AVATAR, associationId: 1 },
-      6: { name: '孙七', avatar: DEFAULT_AVATAR, userId: 6 },
-      7: { name: '周八', avatar: DEFAULT_AVATAR, userId: 7 },
-      'oa_1': { name: '南京大学上海校友会', avatar: DEFAULT_AVATAR, associationId: 1 },
-      'oa_2': { name: '浙江大学杭州校友会', avatar: DEFAULT_AVATAR, associationId: 2 },
-      'oa_3': { name: '清华大学北京校友会', avatar: DEFAULT_AVATAR, associationId: 3 },
-      'oa_4': { name: '北京大学校友会', avatar: DEFAULT_AVATAR, associationId: 4 }
-    }
-    
-    this.setData({
-      chatInfo: chatInfoMap[id] || { name: '未知用户', avatar: DEFAULT_AVATAR }
-    })
-    
-    // 设置导航栏标题
-    wx.setNavigationBarTitle({
-      title: this.data.chatInfo.name
-    })
+  onUnload() {
+    // 页面卸载时移除 WebSocket 监听
+    this.removeWebSocketListeners()
   },
 
-  loadMessages(id) {
-    // 模拟消息数据
-    const mockMessages = [
-      {
-        id: 1,
-        isMe: false,
-        content: '你好，请问这个活动什么时候开始？',
-        time: '10:25'
-      },
-      {
-        id: 2,
-        isMe: true,
-        content: '活动是本周六下午2点开始',
-        time: '10:26'
-      },
-      {
-        id: 3,
-        isMe: false,
-        content: '好的，谢谢！',
-        time: '10:27'
-      },
-      {
-        id: 4,
-        isMe: true,
-        content: '不客气，到时候见！',
-        time: '10:28'
+  onShow() {
+    // 页面显示时刷新在线状态
+    this.refreshOnlineStatus()
+  },
+
+  /**
+   * 初始化 WebSocket 监听
+   */
+  initWebSocket() {
+    const app = getApp()
+    const socketManager = app.globalData.socketManager
+
+    if (!socketManager) {
+      console.error('[ChatDetail] WebSocket 管理器未初始化')
+      wx.showToast({
+        title: '消息服务未连接',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 监听新消息
+    this.messageListener = (data) => {
+      if (data.type === 'message') {
+        this.handleNewMessage(data)
       }
-    ]
+    }
+    socketManager.on('onMessage', this.messageListener)
+
+    // 监听在线状态变化
+    this.onlineStatusListener = (data) => {
+      this.handleOnlineStatusChange(data)
+    }
+    socketManager.on('onOnlineStatus', this.onlineStatusListener)
+
+    // 监听连接状态
+    this.connectListener = () => {
+      this.setData({ socketConnected: true })
+      this.refreshOnlineStatus()
+    }
+    socketManager.on('onConnect', this.connectListener)
+
+    this.disconnectListener = () => {
+      this.setData({ socketConnected: false })
+      wx.showToast({
+        title: '消息服务已断开',
+        icon: 'none'
+      })
+    }
+    socketManager.on('onDisconnect', this.disconnectListener)
+
+    // 获取当前连接状态
+    const status = socketManager.getStatus()
+    this.setData({ socketConnected: status.isConnected })
+
+    // 刷新对方在线状态
+    this.refreshOnlineStatus()
+  },
+
+  /**
+   * 移除 WebSocket 监听
+   */
+  removeWebSocketListeners() {
+    const app = getApp()
+    const socketManager = app.globalData.socketManager
+
+    if (socketManager) {
+      if (this.messageListener) {
+        socketManager.off('onMessage', this.messageListener)
+      }
+      if (this.onlineStatusListener) {
+        socketManager.off('onOnlineStatus', this.onlineStatusListener)
+      }
+      if (this.connectListener) {
+        socketManager.off('onConnect', this.connectListener)
+      }
+      if (this.disconnectListener) {
+        socketManager.off('onDisconnect', this.disconnectListener)
+      }
+    }
+  },
+
+  /**
+   * 处理接收到的新消息
+   */
+  handleNewMessage(data) {
+    console.log('[ChatDetail] 收到新消息:', data)
     
+    const messageData = data.data || {}
+    const { fromUserId, toUserId, content, messageType, timestamp } = messageData
+
+    // 只处理当前聊天的消息
+    if (fromUserId !== this.data.chatId && toUserId !== this.data.chatId) {
+      return
+    }
+
+    // 判断是否是我发的消息
+    const isMe = fromUserId === this.data.myUserId
+
+    // 添加到消息列表
+    const newMessage = {
+      id: timestamp || Date.now(),
+      isMe: isMe,
+      content: content,
+      type: messageType || 'text',
+      time: this.formatTime(timestamp),
+      avatar: isMe ? this.data.myAvatar : this.data.chatInfo.avatar,
+      status: 'success'
+    }
+
+    // 如果是图片消息
+    if (messageType === 'image') {
+      newMessage.image = messageData.imageUrl || content
+    }
+
+    const messageList = [...this.data.messageList, newMessage]
     this.setData({
-      messageList: mockMessages
+      messageList: messageList,
+      scrollIntoView: `msg-${newMessage.id}`
     })
+  },
+
+  /**
+   * 处理在线状态变化
+   */
+  handleOnlineStatusChange(data) {
+    console.log('[ChatDetail] 在线状态变化:', data)
     
-    // 滚动到底部
-    setTimeout(() => {
-      this.scrollToBottom()
-    }, 100)
+    const { userId, status, onlineUsers } = data
+    
+    // 检查对方是否在线
+    if (userId === this.data.chatId || (onlineUsers && onlineUsers.includes(this.data.chatId))) {
+      const isOnline = status === 'online' || (onlineUsers && onlineUsers.includes(String(this.data.chatId)))
+      this.setData({
+        'chatInfo.isOnline': isOnline
+      })
+    }
+  },
+
+  /**
+   * 刷新在线状态
+   */
+  refreshOnlineStatus() {
+    const app = getApp()
+    const socketManager = app.globalData.socketManager
+    
+    if (socketManager && socketManager.isConnected) {
+      const isOnline = socketManager.isUserOnline(this.data.chatId)
+      this.setData({
+        'chatInfo.isOnline': isOnline
+      })
+    }
+  },
+
+  /**
+   * 格式化时间
+   */
+  formatTime(timestamp) {
+    if (!timestamp) {
+      const now = new Date()
+      return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    }
+    
+    const date = new Date(timestamp)
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+  },
+
+  async loadChatInfo(id, type) {
+    try {
+      let name = '未知用户'
+      let avatar = ''
+      
+      // 判断是否是校友会或官方账号
+      if (type === 'association' || type === 'official') {
+        const res = await associationApi.getAssociationDetail(id)
+        if (res.data && res.data.code === 200) {
+          const info = res.data.data
+          name = info.name || '未知校友会'
+          avatar = info.logo ? config.getImageUrl(info.logo) : ''
+        }
+      } else {
+        // 默认为校友
+        const res = await alumniApi.getAlumniInfo(id)
+        if (res.data && res.data.code === 200) {
+          const info = res.data.data
+          name = info.name || info.nickname || '未知校友'
+          avatar = info.avatarUrl ? config.getImageUrl(info.avatarUrl) : ''
+        }
+      }
+      
+      this.setData({
+        chatInfo: {
+          name,
+          avatar,
+          userId: id,
+          isOnline: this.data.chatInfo.isOnline // 保持在线状态不变
+        }
+      })
+      
+      // 设置导航栏标题
+      wx.setNavigationBarTitle({
+        title: name
+      })
+    } catch (error) {
+      console.error('[ChatDetail] 加载聊天对象信息失败:', error)
+    }
+  },
+
+  async loadMessages(id) {
+    try {
+      // 从后端获取聊天历史
+      const params = {
+        current: 1,
+        size: 20,
+        otherUserId: id
+      }
+      const res = await chatApi.getChatHistory(params)
+      
+      console.log('[ChatDetail] 历史消息响应:', res)
+
+      if (res.data && res.data.code === 200) {
+        const messages = res.data.data?.records || []
+        console.log('[ChatDetail] 历史消息列表:', messages)
+        
+        // 映射消息数据
+        const mappedMessages = messages.map(msg => {
+          const content = msg.msgContent?.content || ''
+          const msgType = (msg.messageFormat || 'TEXT').toLowerCase()
+          
+          return {
+            id: msg.messageId,
+            isMe: msg.isMine,
+            content: content,
+            type: msgType === 'image' ? 'image' : 'text', // 目前主要支持文本和图片
+            time: this.formatTime(msg.createTime),
+            // 如果是对方的消息，尝试从 msgContent 中获取头像，否则使用默认头像
+            avatar: msg.isMine ? this.data.myAvatar : (msg.msgContent?.formUserPortrait ? config.getImageUrl(msg.msgContent.formUserPortrait) : this.data.chatInfo.avatar),
+            image: msgType === 'image' ? config.getImageUrl(content) : '',
+            status: 'success'
+          }
+        })
+        
+        // 按时间正序排序（旧消息在前）
+        mappedMessages.reverse()
+
+        this.setData({
+          messageList: mappedMessages
+        })
+        
+        // 滚动到底部
+        setTimeout(() => {
+          this.scrollToBottom()
+        }, 100)
+        
+        return
+      }
+    } catch (error) {
+      console.error('[ChatDetail] 加载消息历史失败:', error)
+    }
   },
 
   onInput(e) {
@@ -106,18 +334,24 @@ Page({
     })
   },
 
-  sendMessage() {
-    const { inputValue, messageList } = this.data
-    if (!inputValue.trim()) return
+  async sendMessage() {
+    const { inputValue, messageList, chatId } = this.data
+    if (!inputValue.trim()) {
+      return
+    }
 
-    const now = new Date()
-    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    const content = inputValue.trim()
+    const timestamp = Date.now()
     
+    // 立即显示消息（发送中状态）
     const newMessage = {
-      id: messageList.length + 1,
+      id: timestamp,
       isMe: true,
-      content: inputValue.trim(),
-      time: timeStr
+      content: content,
+      type: 'text',
+      time: this.formatTime(timestamp),
+      avatar: this.data.myAvatar,
+      status: 'sending'
     }
     
     this.setData({
@@ -126,11 +360,51 @@ Page({
       hasInput: false,
       scrollIntoView: `msg-${newMessage.id}`
     })
-    
-    // 模拟对方回复
-    setTimeout(() => {
-      this.receiveMessage()
-    }, 1000)
+
+    try {
+      // 构造发送参数
+      const payload = {
+        toUserId: chatId, // 使用 toUserId 
+        toId: chatId,     // 保留 toId 以兼容
+        otherUserId: chatId, // 保留 otherUserId 以兼容
+        messageFormat: 'TEXT',
+        messageType: 'MESSAGE',
+        msgContent: {
+            content: content,
+            type: 'text'
+        }
+      }
+
+      const res = await chatApi.sendMessage(payload)
+      
+      if (res.data && res.data.code === 200) {
+        // 发送成功
+        const updatedList = this.data.messageList.map(msg => {
+          if (msg.id === timestamp) {
+            return { ...msg, status: 'success' }
+          }
+          return msg
+        })
+        this.setData({ messageList: updatedList })
+      } else {
+         throw new Error(res.data?.msg || '发送失败')
+      }
+    } catch (error) {
+        console.error('发送消息失败:', error)
+        // 发送失败
+        const updatedList = this.data.messageList.map(msg => {
+          if (msg.id === timestamp) {
+            return { ...msg, status: 'failed' }
+          }
+          return msg
+        })
+        this.setData({ messageList: updatedList })
+        
+        wx.showToast({
+          title: '发送失败',
+          icon: 'none'
+        })
+    }
   },
 
   receiveMessage() {
@@ -203,34 +477,89 @@ Page({
     })
   },
 
-  sendImageMessage(imagePaths) {
-    const { messageList } = this.data
-    const now = new Date()
-    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+  async sendImageMessage(imagePaths) {
+    const { messageList, chatId, socketConnected } = this.data
+
+    if (!socketConnected) {
+      wx.showToast({
+        title: '消息服务未连接',
+        icon: 'none'
+      })
+      return
+    }
     
-    // 为每张图片创建消息
-    imagePaths.forEach((imagePath, index) => {
-      const newMessage = {
-        id: messageList.length + index + 1,
-        isMe: true,
-        content: '',
-        image: imagePath,
-        type: 'image',
-        time: timeStr
+    wx.showLoading({ title: '发送中...' })
+    
+    try {
+      // 为每张图片创建消息并上传
+      for (let i = 0; i < imagePaths.length; i++) {
+        const imagePath = imagePaths[i]
+        const timestamp = Date.now() + i
+        
+        // 先显示本地图片（发送中状态）
+        const newMessage = {
+          id: timestamp,
+          isMe: true,
+          content: '',
+          image: imagePath,
+          type: 'image',
+          time: this.formatTime(timestamp),
+          avatar: this.data.myAvatar,
+          status: 'sending'
+        }
+        
+        messageList.push(newMessage)
+        this.setData({
+          messageList: messageList,
+          scrollIntoView: `msg-${newMessage.id}`
+        })
+        
+        // 上传图片
+        const uploadRes = await chatApi.uploadChatImage(imagePath)
+        
+        if (uploadRes.data && uploadRes.data.code === 200) {
+          const imageUrl = uploadRes.data.data.url
+          
+          // 更新消息中的图片URL
+          const updatedList = messageList.map(msg => {
+            if (msg.id === timestamp) {
+              return { ...msg, image: imageUrl, status: 'success' }
+            }
+            return msg
+          })
+          this.setData({ messageList: updatedList })
+          
+          // 通过 WebSocket 发送图片消息
+          const app = getApp()
+          const socketManager = app.globalData.socketManager
+          
+          if (socketManager) {
+            socketManager.sendChatMessage(chatId, imageUrl, 'image', {
+              imageUrl: imageUrl
+            })
+          }
+        } else {
+          // 上传失败
+          const updatedList = messageList.map(msg => {
+            if (msg.id === timestamp) {
+              return { ...msg, status: 'failed' }
+            }
+            return msg
+          })
+          this.setData({ messageList: updatedList })
+        }
       }
       
-      messageList.push(newMessage)
-    })
-    
-    this.setData({
-      messageList: messageList,
-      scrollIntoView: `msg-${messageList[messageList.length - 1].id}`
-    })
-    
-    // 模拟对方回复
-    setTimeout(() => {
-      this.receiveMessage()
-    }, 1000)
+      wx.hideLoading()
+      
+    } catch (error) {
+      console.error('[ChatDetail] 发送图片失败:', error)
+      wx.hideLoading()
+      wx.showToast({
+        title: '发送失败',
+        icon: 'none'
+      })
+    }
   },
 
   selectLocation() {

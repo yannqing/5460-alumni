@@ -1,7 +1,7 @@
 // pages/alumni-association/list/list.js
 const { associationApi, schoolApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
-const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.js')
+const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
 
 const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 
@@ -211,7 +211,7 @@ Page({
       // 如果只选择了省份（城市是"全部"），不传 location 参数，在前端过滤
       // 如果选择了具体城市，传 location 参数
       const params = {
-        current: reset ? 1 : current,
+        current: reset ? 1 : current + 1, // 加载更多时请求下一页
         pageSize: pageSize,
         // 搜索关键词：校友会名称
         associationName: keyword || undefined,
@@ -220,6 +220,7 @@ Page({
         // 会长名称（暂不使用）
         presidentUsername: undefined,
         // 排序字段：根据筛选选择
+        // 默认排序不传参数，让后端按数据库默认排序（alumniAssociationId升序）
         sortField: sortFilter.selected === 1 ? 'createTime' : (sortFilter.selected === 2 ? 'memberCount' : undefined),
         // 排序顺序
         sortOrder: sortFilter.selected > 0 ? 'descend' : undefined
@@ -272,7 +273,8 @@ Page({
           // 下面这些是前端扩展字段，后端暂时没有
           associationCount: 0,
           followCount: 0,
-          isFollowed: false,
+          isFollowed: false, // 初始值
+          followStatus: 4, // 关注状态：1-正常关注，4-未关注
           isCertified: false,
           schoolName: '' // 需要根据 schoolId 查询
         }))
@@ -348,22 +350,28 @@ Page({
           return
         }
 
+        // 更新列表数据
+        const finalList = reset ? mappedList : [...this.data.associationList, ...mappedList]
+
         if (reset) {
           this.setData({
-            associationList: mappedList,
-            current: currentPage,
+            associationList: finalList,
+            current: 1, // 重置为第1页
             hasMore: currentPage < totalPages,
             loading: false,
             refreshing: false
           })
         } else {
           this.setData({
-            associationList: [...this.data.associationList, ...mappedList],
-            current: currentPage,
+            associationList: finalList,
+            current: currentPage, // 更新为当前已加载的页码
             hasMore: currentPage < totalPages,
             loading: false
           })
         }
+
+        // 加载完列表后，获取关注状态（使用工具类方法）
+        loadAndUpdateFollowStatus(this, 'associationList', FollowTargetType.ASSOCIATION)
       } else {
         // API 返回错误
         this.setData({
@@ -560,34 +568,9 @@ Page({
     })
   },
 
+  // 关注/取消关注（使用工具类方法）
   async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
-    const { associationList } = this.data
-    const index = associationList.findIndex(item => item.id === id)
-
-    if (index === -1) return
-
-    // 调用通用关注接口
-    const result = await toggleFollow(
-      followed,
-      FollowTargetType.ASSOCIATION, // 2-校友会
-      id
-    )
-
-    if (result.success) {
-      // 更新列表中的关注状态
-      associationList[index].isFollowed = !followed
-      this.setData({ associationList })
-
-      wx.showToast({
-        title: result.message,
-        icon: 'success'
-      })
-    } else {
-      wx.showToast({
-        title: result.message,
-        icon: 'none'
-      })
-    }
+    await handleListItemFollow(this, 'associationList', id, followed, FollowTargetType.ASSOCIATION)
   }
 })

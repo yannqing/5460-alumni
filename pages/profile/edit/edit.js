@@ -415,12 +415,12 @@ Page({
         return
       }
 
-      // 检查文件大小（2MB = 2 * 1024 * 1024 字节）
+      // 检查文件大小（10MB = 2 * 1024 * 1024 字节）
       const fileSize = chooseRes.tempFiles?.[0]?.size || 0
-      const maxSize = 2 * 1024 * 1024 // 2MB
+      const maxSize = 10 * 1024 * 1024 // 10MB
       if (fileSize > maxSize) {
         wx.showToast({
-          title: '图片大小不能超过2MB',
+          title: '图片大小不能超过10MB',
           icon: 'none'
         })
         return

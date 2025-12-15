@@ -42,6 +42,7 @@
     <view class="chat-item" wx:for="{{allChatList}}" wx:key="id" bindtap="openChat" data-id="{{item.id}}" data-type="{{item.type || 'chat'}}">
       <view class="chat-avatar-wrapper">
         <image class="chat-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+        <view class="online-status" wx:if="{{item.isOnline}}"></view>
         <view class="oa-badge" wx:if="{{item.isVerified}}">✓</view>
         <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
       </view>

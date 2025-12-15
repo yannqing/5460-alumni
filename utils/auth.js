@@ -120,8 +120,57 @@ async function login(inviter_wx_uuid) {
     wx.setStorageSync('token', data.token)
     wx.setStorageSync('expire_time', data.expire_time)
 
-    // 存储用户数据到全局
-    getApp().globalData.userData = data
+    // 取用户唯一ID（优先 wxId，补充常见字段）
+    let userId =
+      data.wxId ||
+      data.wx_id ||
+      data.wx_uuid ||
+      data.wxUid ||
+      data.userId ||
+      data.id ||
+      data.uuid
+
+    // 如果登录响应没有 ID，再调用用户信息接口兜底
+    if (!userId) {
+      console.warn('[Auth] 登录响应缺少用户ID，尝试调用 /users/getInfo 兜底')
+      try {
+        const { userApi } = require('../api/api.js')
+        const infoRes = await userApi.getUserInfo()
+        if (infoRes?.data?.code === 200) {
+          const info = infoRes.data.data || {}
+          userId =
+            info.wxId ||
+            info.wx_id ||
+            info.wx_uuid ||
+            info.wxUid ||
+            info.userId ||
+            info.id ||
+            info.uuid ||
+            info.openId ||
+            info.openid ||
+            info.unionId ||
+            info.unionid
+          // 将获取到的用户信息与原始数据合并
+          Object.assign(data, info)
+        }
+      } catch (e) {
+        console.warn('[Auth] 兜底获取用户信息失败:', e)
+      }
+    }
+
+    if (userId) {
+      wx.setStorageSync('userId', userId)
+    } else {
+      console.warn('[Auth] 登录成功但未获取到用户ID字段，返回数据为:', data)
+    }
+
+    // 存储用户数据到全局，并补齐 wxId 字段
+    const app = getApp()
+    app.globalData.userData = {
+      ...data,
+      wxId: data.wxId || data.wx_id || data.wx_uuid || data.wxUid || data.userId || data.id || data.uuid || ''
+    }
+    app.globalData.token = data.token || ''
 
     // 二次加工用户信息
     formatUserInfoData(data)

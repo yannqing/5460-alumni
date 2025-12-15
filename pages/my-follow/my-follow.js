@@ -30,6 +30,13 @@ Page({
     this.loadList(true)
   },
 
+  onShow() {
+    // 页面显示时，如果列表为空则加载数据
+    if (this.data.list.length === 0) {
+      this.loadList(true)
+    }
+  },
+
   onPullDownRefresh() {
     this.loadList(true)
     wx.stopPullDownRefresh()
@@ -152,7 +159,10 @@ Page({
       case 2: // 校友会
         targetName = targetInfo.associationName || targetInfo.name || targetInfo.alumniName || '未知校友会'
         avatarUrl = targetInfo.logo || targetInfo.avatar || ''
-        targetDescription = targetInfo.description || targetInfo.intro || ''
+        // 优先显示地址，如果没有地址再显示描述
+        targetDescription = targetInfo.location ||
+                           (targetInfo.province && targetInfo.city ? `${targetInfo.province} ${targetInfo.city}` : '') ||
+                           targetInfo.description || targetInfo.intro || ''
         break
       case 3: // 母校
         targetName = targetInfo.schoolName || targetInfo.name || '未知母校'

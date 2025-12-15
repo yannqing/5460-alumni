@@ -1,7 +1,7 @@
 // pages/school/list/list.js
 const { schoolApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
-const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.js')
+const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
 
 const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
 
@@ -236,7 +236,7 @@ Page({
       // 注意：后端使用 AND 关系，如果同时传多个字段，要求同时满足所有条件
       // 因此搜索时只传 schoolName，避免同时传 previousName 和 description 导致查不到数据
       const params = {
-        current: reset ? 1 : current,
+        current: reset ? 1 : current + 1, // 加载更多时请求下一页
         pageSize: pageSize,
         // 搜索关键字：只搜索 schoolName（学校名称）
         // 如果同时传 schoolName、previousName、description，后端会要求同时满足三个条件（AND），几乎查不到数据
@@ -250,8 +250,9 @@ Page({
         // 办学层次筛选（新增）
         level: selectedLevel && selectedLevel !== '全部' ? selectedLevel : undefined,
         // 排序字段/顺序（根据 sortType 映射）
-        sortField: sortType !== 'default' ? this.getSortField(sortType) : undefined,
-        sortOrder: sortType !== 'default' ? this.getSortOrder(sortType) : undefined
+        // 默认排序按 schoolId 升序，与数据库保持一致
+        sortField: this.getSortField(sortType),
+        sortOrder: this.getSortOrder(sortType)
       }
 
       // 移除 undefined 参数
@@ -296,26 +297,35 @@ Page({
           foundingDate: item.foundingDate || '',
           // 后端的认证字段：0/1
           isCertified: item.officialCertification === 1,
+          // 关注状态字段（初始值）
+          isFollowed: false,
+          followStatus: 4, // 关注状态：1-正常关注，4-未关注
           // 预留字段，后端后续补充时可直接使用
           officialCertification: item.officialCertification
         }))
 
+        // 更新列表数据
+        const finalList = reset ? mappedList : [...this.data.schoolList, ...mappedList]
+
         if (reset) {
           this.setData({
-            schoolList: mappedList,
-            current: currentPage,
+            schoolList: finalList,
+            current: 1, // 重置为第1页
             hasMore: currentPage < totalPages,
             loading: false,
             refreshing: false
           })
         } else {
           this.setData({
-            schoolList: [...this.data.schoolList, ...mappedList],
-            current: currentPage,
+            schoolList: finalList,
+            current: currentPage, // 更新为当前已加载的页码
             hasMore: currentPage < totalPages,
             loading: false
           })
         }
+
+        // 加载完列表后，获取关注状态（使用工具类方法）
+        loadAndUpdateFollowStatus(this, 'schoolList', FollowTargetType.SCHOOL)
       } else {
         // API 返回错误
         this.setData({
@@ -348,17 +358,18 @@ Page({
   // 获取排序字段（根据前端 sortType 映射到后端 sortField）
   getSortField(sortType) {
     const map = {
+      'default': undefined,         // 默认排序：不传参数，让后端按数据库默认排序（school_id升序）
       'alumni': 'alumniCount',      // 校友数量
       'association': 'associationCount', // 校友会数量
       'name': 'schoolName'          // 名称排序
     }
-    return map[sortType] || undefined
+    return map[sortType]
   },
 
   // 获取排序顺序（根据前端 sortType 映射到后端 sortOrder）
   getSortOrder(sortType) {
-    // 默认使用升序，可以根据需要调整
-    return 'ascend'
+    // 默认排序不传参数，其他排序使用升序
+    return sortType === 'default' ? undefined : 'ascend'
   },
 
   // 搜索
@@ -548,16 +559,24 @@ Page({
     const index = schoolList.findIndex(item => item.id === id)
     if (index === -1) return
 
-    // 调用通用关注接口
+    // 调用通用关注接口，显示确认框
     const result = await toggleFollow(
       followed,
       FollowTargetType.SCHOOL, // 3-母校
-      id
+      id,
+      1, // followStatus: 1-正常关注
+      true // 显示确认框
     )
 
+    // 如果用户取消了操作，不做处理
+    if (result.canceled) {
+      return
+    }
+
     if (result.success) {
-      // 更新列表中的关注状态
+      // 更新列表中的关注状态和 followStatus
       schoolList[index].isFollowed = !followed
+      schoolList[index].followStatus = !followed ? 1 : 4
       this.setData({ schoolList })
 
       wx.showToast({
@@ -570,6 +589,12 @@ Page({
         icon: 'none'
       })
     }
+  },
+
+  // 关注/取消关注（使用工具类方法）
+  async toggleFollow(e) {
+    const { id, followed } = e.currentTarget.dataset
+    await handleListItemFollow(this, 'schoolList', id, followed, FollowTargetType.SCHOOL)
   },
 
   // 跳转到我的关注

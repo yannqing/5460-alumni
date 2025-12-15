@@ -1,7 +1,7 @@
 // pages/alumni/list/list.js
 const { alumniApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
-const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.js')
+const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
 
 Page({
   data: {
@@ -54,11 +54,6 @@ Page({
       size: pageSize
     }
 
-    // 搜索关键词
-    if (keyword && keyword.trim()) {
-      params.keyword = keyword.trim()
-    }
-
     // 身份筛选
     if (identityFilter.selected > 0) {
       params.identity = identityFilter.options[identityFilter.selected]
@@ -83,8 +78,63 @@ Page({
       params.onlyFollowed = true
     }
 
+    // 搜索逻辑
+    let requestPromise
+    if (keyword && keyword.trim()) {
+      const searchKey = keyword.trim()
+      params.keyword = searchKey
+      
+      // 手机号搜索
+      if (/^\d{11}$/.test(searchKey)) {
+        params.phone = searchKey
+        requestPromise = alumniApi.queryAlumniList(params)
+      } else {
+        // 混合搜索：分别请求 name 和 nickname，然后合并结果
+        // 请求1：按名称搜索
+        const params1 = { ...params, name: searchKey }
+        // 请求2：按昵称搜索
+        const params2 = { ...params, nickname: searchKey }
+
+        requestPromise = Promise.all([
+          alumniApi.queryAlumniList(params1),
+          alumniApi.queryAlumniList(params2)
+        ]).then(([res1, res2]) => {
+          // 构造合并后的结果
+          const records1 = (res1.data && res1.data.data && res1.data.data.records) || []
+          const records2 = (res2.data && res2.data.data && res2.data.data.records) || []
+          
+          // 合并并去重（根据 wxId）
+          const combined = [...records1, ...records2]
+          const map = new Map()
+          combined.forEach(item => {
+            if (item.wxId && !map.has(item.wxId)) {
+              map.set(item.wxId, item)
+            }
+          })
+          const uniqueRecords = Array.from(map.values())
+          
+          // 返回伪造的响应结构，保持与单个请求一致
+          return {
+            data: {
+              code: 200,
+              data: {
+                records: uniqueRecords,
+                total: uniqueRecords.length,
+                current: page,
+                size: pageSize
+              },
+              msg: 'success'
+            }
+          }
+        })
+      }
+    } else {
+      // 无搜索关键词，正常请求
+      requestPromise = alumniApi.queryAlumniList(params)
+    }
+
     try {
-      const res = await alumniApi.queryAlumniList(params)
+      const res = await requestPromise
       console.log('校友列表接口返回:', res)
 
       if (res.data && res.data.code === 200) {
@@ -94,8 +144,11 @@ Page({
         // 数据映射
         const mappedList = records.map(item => this.mapAlumniItem(item))
 
+        // 更新列表数据
+        const finalList = reset ? mappedList : [...this.data.alumniList, ...mappedList]
+
         this.setData({
-          alumniList: reset ? mappedList : [...this.data.alumniList, ...mappedList],
+          alumniList: finalList,
           page: reset ? 2 : page + 1,
           hasMore: mappedList.length >= pageSize,
           loading: false
@@ -104,6 +157,9 @@ Page({
         if (reset) {
           wx.stopPullDownRefresh()
         }
+
+        // 加载完列表后，获取关注状态（使用工具类方法）
+        loadAndUpdateFollowStatus(this, 'alumniList', FollowTargetType.USER)
       } else {
         this.setData({ loading: false })
         wx.showToast({
@@ -160,26 +216,27 @@ Page({
     }
 
     // 显示昵称，如果没有则显示真实姓名
-    const displayName = item.nickname || item.name || '未知用户'
+    const displayName = item.nickname || item.name || item.realName || '未知用户'
 
     // 返回统一格式
     return {
       id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
       name: displayName,
       avatarUrl: avatarUrl,
-      school: '暂无学校信息', // 后端接口未返回学校信息，显示占位文本
+      school: item.school || '暂无学校信息', // 尝试从后端获取学校信息
       city: item.curCity || '',
       location: location,
-      major: '', // 后端接口未返回专业信息
-      graduateYear: '', // 后端接口未返回毕业年份
-      company: '', // 后端接口未返回公司信息
-      position: '', // 后端接口未返回职位信息
-      followerCount: 0, // 后端接口未返回粉丝数
-      followingCount: 0, // 后端接口未返回关注数
-      isFollowed: false, // 后端接口未返回关注状态
-      isCertified: false, // 后端接口未返回认证状态
-      tags: [], // 后端接口未返回标签
-      identity: '', // 后端接口未返回身份
+      major: item.major || '', // 尝试从后端获取专业信息
+      graduateYear: item.graduateYear || '', // 尝试从后端获取毕业年份
+      company: item.company || '', // 尝试从后端获取公司信息
+      position: item.position || '', // 尝试从后端获取职位信息
+      followerCount: item.followerCount || 0, // 尝试从后端获取粉丝数
+      followingCount: item.followingCount || 0, // 尝试从后端获取关注数
+      isFollowed: item.isFollowed || false, // 关注状态
+      followStatus: item.followStatus || 4, // 关注状态
+      isCertified: item.certificationStatus === 1, // 根据 certificationStatus 判断认证状态
+      tags: item.tags || [], // 尝试从后端获取标签
+      identity: item.identity || '', // 尝试从后端获取身份
       // 保留后端原始字段
       wxId: item.wxId,
       phone: item.phone || '',
@@ -236,34 +293,9 @@ Page({
     })
   },
 
+  // 关注/取消关注（使用工具类方法）
   async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
-    const { alumniList } = this.data
-    const index = alumniList.findIndex(item => item.id === id)
-
-    if (index === -1) return
-
-    // 调用通用关注接口
-    const result = await toggleFollow(
-      followed,
-      FollowTargetType.USER, // 1-用户
-      id
-    )
-
-    if (result.success) {
-      // 更新列表中的关注状态
-      alumniList[index].isFollowed = !followed
-      this.setData({ alumniList })
-
-      wx.showToast({
-        title: result.message,
-        icon: 'success'
-      })
-    } else {
-      wx.showToast({
-        title: result.message,
-        icon: 'none'
-      })
-    }
+    await handleListItemFollow(this, 'alumniList', id, followed, FollowTargetType.USER)
   }
 })

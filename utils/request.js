@@ -16,10 +16,13 @@ const getHeaders = (url) => {
     if (gtoken && gtoken.trim() !== '') {
       // 根据文档，token 直接放在 header 中，不使用 Bearer 前缀
       headers.token = gtoken
+      // 兼容部分接口使用 x-token
+      headers['x-token'] = gtoken
     } else {
       let uinfo = wx.getStorageSync('userInfo') || {}
       if (uinfo.token && uinfo.token.trim() !== '') {
         headers.token = uinfo.token
+        headers['x-token'] = uinfo.token
       }
     }
   }

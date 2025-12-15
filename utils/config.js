@@ -6,6 +6,7 @@ const config = {
     baseUrl: 'http://localhost:8086',
     apiPrefix: '', // API前缀路径，如 '/api/v1'，如果不需要前缀则留空
     iconPathPrefix: '/upload/images', // 图标路径前缀，如 'dev' 或 'dev/upload'，如果不需要前缀则留空
+    wsUrl: 'wss://cni-alumni.yannqing.com/ws', // WebSocket 地址
   },
   
   // 测试环境
@@ -13,6 +14,7 @@ const config = {
     baseUrl: 'https://cni-alumni.yannqing.com',
     apiPrefix: '', // API前缀路径，如 '/api/v1'，如果不需要前缀则留空
     iconPathPrefix: 'upload/images', // 图标路径前缀，如 'test' 或 'test/upload'，如果不需要前缀则留空
+    wsUrl: 'wss://cni-alumni.yannqing.com/ws', // WebSocket 地址
   },
   
   // 生产环境
@@ -20,6 +22,7 @@ const config = {
     baseUrl: 'https://api.example.com',
     apiPrefix: '', // API前缀路径，如 '/api/v1'，如果不需要前缀则留空
     iconPathPrefix: '/upload/images', // 图标路径前缀，如 'prod' 或 'prod/upload'，如果不需要前缀则留空
+    wsUrl: 'wss://api.example.com/ws', // WebSocket 地址（生产环境使用 wss 加密）
   },
 
   // ==================== 通用配置 ====================
@@ -110,6 +113,8 @@ const config = {
       apiPrefix: apiPrefix,
       // 完整的API基础地址（baseUrl + apiPrefix）
       apiBaseUrl: envConfig.baseUrl + apiPrefix,
+      // WebSocket 地址
+      wsUrl: envConfig.wsUrl || 'wss://cni-alumni.yannqing.com/ws',
     }
   },
 

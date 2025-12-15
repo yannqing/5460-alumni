@@ -3,7 +3,7 @@
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="搜索校友名称、昵称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <input class="search-input" type="text" placeholder="搜索校友名称、昵称或手机号" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
       <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
     </view>
   </view>

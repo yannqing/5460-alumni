@@ -180,6 +180,18 @@
   z-index: 1;
 }
 
+.online-status {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24rpx;
+  height: 24rpx;
+  background-color: #07c160;
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+  z-index: 2;
+}
+
 .chat-avatar {
   width: 96rpx;
   height: 96rpx;

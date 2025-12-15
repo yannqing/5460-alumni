@@ -8,7 +8,7 @@
           <text>更换头像</text>
         </view>
       </view>
-      <view class="avatar-tip">建议使用清晰的本人照片，大小不超过2MB</view>
+      <view class="avatar-tip">建议使用清晰的本人照片，大小不超过10MB</view>
     </view>
 
     <view class="section-card card">
