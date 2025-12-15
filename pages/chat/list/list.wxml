@@ -39,7 +39,7 @@
   <!-- 聊天列表 -->
   <scroll-view class="chat-list" scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
     <!-- 所有聊天（包括校友会通知） -->
-    <view class="chat-item" wx:for="{{allChatList}}" wx:key="id" bindtap="openChat" data-id="{{item.id}}" data-type="{{item.type || 'chat'}}">
+    <view class="chat-item" wx:for="{{allChatList}}" wx:key="id" bindtap="openChat" data-id="{{item.id}}" data-userid="{{item.userId}}" data-type="{{item.type || 'chat'}}">
       <view class="chat-avatar-wrapper">
         <image class="chat-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
         <view class="online-status" wx:if="{{item.isOnline}}"></view>

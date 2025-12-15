@@ -22,8 +22,6 @@ Page({
 
   onLoad() {
     this.initWebSocket()
-    this.loadChatList()
-    this.loadUnreadTotal()
   },
 
   onShow() {
@@ -306,7 +304,7 @@ Page({
   },
 
   openChat(e) {
-    const { id, type } = e.currentTarget.dataset
+    const { id, type, userid } = e.currentTarget.dataset
     
     // 标记已读
     const chat = this.data.chatList.find(c => c.id === id)
@@ -316,8 +314,12 @@ Page({
       this.setData({ chatList: this.data.chatList })
     }
     
+    // 优先使用 userId 跳转，因为详情页需要 UserID 来获取信息和发送消息
+    // 如果没有 userId (极少情况)，则降级使用 id
+    const targetId = userid || id
+    
     wx.navigateTo({
-      url: `/pages/chat/detail/detail?id=${id}&type=${type || 'chat'}`
+      url: `/pages/chat/detail/detail?id=${targetId}&type=${type || 'chat'}`
     })
   },
 

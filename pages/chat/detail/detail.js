@@ -247,12 +247,23 @@ Page({
         }
       } else {
         // 默认为校友
-        const res = await alumniApi.getAlumniInfo(id)
-        if (res.data && res.data.code === 200) {
-          const info = res.data.data
-          name = info.name || info.nickname || '未知校友'
-          avatar = info.avatarUrl ? config.getImageUrl(info.avatarUrl) : ''
+      // const res = await alumniApi.getAlumniInfo(id)
+      // if (res.data && res.data.code === 200) {
+      //   const info = res.data.data
+      //   name = info.name || info.nickname || '未知校友'
+      //   avatar = info.avatarUrl ? config.getImageUrl(info.avatarUrl) : ''
+      // }
+      
+      // 直接使用页面参数中的信息（如果有）
+      const pages = getCurrentPages()
+      const prevPage = pages[pages.length - 2]
+      if (prevPage && prevPage.data.chatList) {
+        const currentChat = prevPage.data.chatList.find(c => (c.userId || c.targetId) == id)
+        if (currentChat) {
+          name = currentChat.name || currentChat.peerNickname || '未知校友'
+          avatar = currentChat.avatar || (currentChat.peerAvatar ? config.getImageUrl(currentChat.peerAvatar) : '')
         }
+      }
       }
       
       this.setData({
@@ -278,20 +289,39 @@ Page({
       // 从后端获取聊天历史
       const params = {
         current: 1,
-        size: 20,
-        otherUserId: id
+        size: 30,
+        otherUserId: id,
       }
       const res = await chatApi.getChatHistory(params)
       
       console.log('[ChatDetail] 历史消息响应:', res)
 
       if (res.data && res.data.code === 200) {
-        const messages = res.data.data?.records || []
+        let messages = res.data.data?.records || []
+
         console.log('[ChatDetail] 历史消息列表:', messages)
         
         // 映射消息数据
         const mappedMessages = messages.map(msg => {
-          const content = msg.msgContent?.content || ''
+          // 处理消息内容：可能在 msgContent.content 中，也可能直接是 msgContent 字符串
+          let content = ''
+          let formUserPortrait = ''
+          
+          if (msg.msgContent) {
+             if (typeof msg.msgContent === 'string') {
+               try {
+                 const parsed = JSON.parse(msg.msgContent)
+                 content = parsed.content || msg.msgContent
+                 formUserPortrait = parsed.formUserPortrait
+               } catch (e) {
+                 content = msg.msgContent
+               }
+             } else {
+               content = msg.msgContent.content || ''
+               formUserPortrait = msg.msgContent.formUserPortrait
+             }
+          }
+          
           const msgType = (msg.messageFormat || 'TEXT').toLowerCase()
           
           return {
@@ -301,7 +331,7 @@ Page({
             type: msgType === 'image' ? 'image' : 'text', // 目前主要支持文本和图片
             time: this.formatTime(msg.createTime),
             // 如果是对方的消息，尝试从 msgContent 中获取头像，否则使用默认头像
-            avatar: msg.isMine ? this.data.myAvatar : (msg.msgContent?.formUserPortrait ? config.getImageUrl(msg.msgContent.formUserPortrait) : this.data.chatInfo.avatar),
+            avatar: msg.isMine ? this.data.myAvatar : (formUserPortrait ? config.getImageUrl(formUserPortrait) : this.data.chatInfo.avatar),
             image: msgType === 'image' ? config.getImageUrl(content) : '',
             status: 'success'
           }
@@ -367,12 +397,13 @@ Page({
         toUserId: chatId, // 使用 toUserId 
         toId: chatId,     // 保留 toId 以兼容
         otherUserId: chatId, // 保留 otherUserId 以兼容
+        content: content,    // 直接在顶层添加 content 字段
         messageFormat: 'TEXT',
         messageType: 'MESSAGE',
-        msgContent: {
+        msgContent: JSON.stringify({ // 将 msgContent 转为字符串，以防后端需要
             content: content,
             type: 'text'
-        }
+        })
       }
 
       const res = await chatApi.sendMessage(payload)
