@@ -16,6 +16,20 @@
   margin-bottom: 20rpx;
 }
 
+.message-system {
+  display: flex;
+  justify-content: center;
+  padding: 10rpx 0;
+}
+
+.system-text {
+  font-size: 24rpx;
+  color: #999;
+  background-color: #dcdcdc;
+  padding: 6rpx 18rpx;
+  border-radius: 8rpx;
+}
+
 .message-row {
   display: flex;
   align-items: flex-start;
@@ -36,6 +50,7 @@
   border-radius: 50%;
   flex-shrink: 0;
   cursor: pointer;
+  background-color: #cccccc; /* 默认灰色背景，防止头像加载失败时不显示 */
 }
 
 .message-content-wrapper {

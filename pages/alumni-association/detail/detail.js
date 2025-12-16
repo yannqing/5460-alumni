@@ -916,10 +916,10 @@ Page({
     // 已加入：保持原来的退出逻辑
     if (associationInfo.isJoined) {
       associationInfo.isJoined = false
-      this.setData({ associationInfo })
-      wx.showToast({
+    this.setData({ associationInfo })
+    wx.showToast({
         title: '已退出',
-        icon: 'success'
+      icon: 'success'
       })
       return
     }

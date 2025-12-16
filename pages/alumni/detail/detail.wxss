@@ -101,22 +101,44 @@
   bottom: 40rpx;
   right: 40rpx;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.action-btn {
+  height: 64rpx;
+  line-height: 64rpx;
+  padding: 0 32rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
 }
 
 .follow-btn {
-  padding: 14rpx 48rpx;
-  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
   color: #fff;
-  border-radius: 50rpx;
-  font-size: 26rpx;
-  font-weight: 500;
-  box-shadow: 0 4rpx 16rpx rgba(255, 107, 157, 0.4);
-  transition: all 0.3s;
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.4);
 }
 
 .follow-btn.followed {
-  background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+  box-shadow: none;
+}
+
+.message-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.message-btn:active {
+  opacity: 0.9;
+  transform: scale(0.98);
 }
 
 /* 信息卡片 */

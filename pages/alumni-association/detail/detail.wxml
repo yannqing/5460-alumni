@@ -9,35 +9,20 @@
         <view class="flex-1 ml-20">
           <view class="name-row">
             <text class="text-primary text-bold">{{associationInfo.name}}</text>
-            <view class="cert-tag-wrap">
-              <block wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" wx:for="{{associationInfo.certifications}}" wx:key="id">
+            <view wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" class="cert-tag-wrap">
+              <block wx:for="{{associationInfo.certifications}}" wx:key="id">
                 <view class="cert-tag" data-type="{{item.type}}" data-id="{{item.id}}" catchtap="handleCertificationTap">
                   {{item.label}}
                 </view>
               </block>
-              <!-- 测试：校友总会 / 校处会两个测试标签 -->
-              <view wx:if="{{testUnionId}}" 
-                    class="cert-tag" 
-                    data-type="union" 
-                    data-id="{{testUnionId}}" 
-                    catchtap="handleCertificationTap">
-                总会测试
-              </view>
-              <view wx:if="{{associationInfo.platformId}}" 
-                    class="cert-tag" 
-                    data-type="platform" 
-                    data-id="{{associationInfo.platformId}}" 
-                    catchtap="handleCertificationTap">
-                校处会测试
-              </view>
             </view>
           </view>
           <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
-            <image class="school-icon" src="{{iconSchool}}" mode="aspectFit" />
+            <image class="school-icon" src="/assets/icons/学校.png" mode="aspectFit" />
             <view class="school-tag">{{associationInfo.schoolName}}</view>
           </view>
           <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
-            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
             <text>{{associationInfo.location}}</text>
           </view>
         </view>
@@ -112,7 +97,7 @@
             <view class="item-content">
               <view class="item-title">{{item.title}}</view>
               <view class="item-desc location-row">
-                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
                 <text>{{item.location}}</text>
               </view>
               <view class="item-meta">
@@ -227,10 +212,10 @@
     <view wx:if="{{activeTab === 1}}">
       <view class="member-list">
         <view class="member-item" wx:for="{{members}}" wx:key="id">
-          <image class="member-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+          <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
           <view class="member-info">
             <view class="member-name-row">
-              <text class="member-name">{{item.nickname || item.name}}</text>
+              <text class="member-name">{{item.name}}</text>
               <view class="member-tag">{{item.role}}</view>
             </view>
             <view class="member-company">{{item.company}}</view>
@@ -239,113 +224,5 @@
       </view>
     </view>
 
-    <!-- 关系图谱 -->
-    <view wx:if="{{activeTab === 2}}" class="graph-container">
-      <!-- 关系网络信息框（动态显示） -->
-      <view class="graph-header" catchtap="closeNodeCard">
-        <!-- 未选中状态：显示关系网络标题 -->
-        <view wx:if="{{!showNodeCard}}" class="graph-header-default">
-          <view class="graph-title">
-            <view class="status-dot"></view>
-            <text>关系网络</text>
-          </view>
-          <view class="graph-stat">节点: {{graphData ? graphData.nodes.length : 0}}</view>
-        </view>
-        
-        <!-- 选中状态：显示节点统计 -->
-        <view wx:else class="graph-header-selected" catchtap="">
-          <view class="node-info-header">
-            <view class="node-info-left">
-              <view class="node-name">{{selectedNode.name}}</view>
-              <view class="node-group">Group {{selectedNode.group}}</view>
-            </view>
-            <view class="node-info-stats">
-              <text class="info-stat-text">人数 {{selectedNode.value}}</text>
-              <text class="stat-divider">·</text>
-              <text class="info-stat-text">关联数 {{selectedNode.connections}}</text>
-            </view>
-          </view>
-          <view class="node-info-related" wx:if="{{selectedNode.relatedNodes.length > 0}}">
-            <view class="info-related-title">关联节点</view>
-            <view class="info-related-tags">
-              <text class="info-related-tag" wx:for="{{selectedNode.relatedNodes}}" wx:key="*this">{{item}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-      
-      <view class="graph-canvas-wrapper">
-        <canvas 
-          type="2d" 
-          id="graph-canvas" 
-          class="graph-canvas"
-          bindtouchstart="onGraphTouchStart"
-          bindtouchmove="onGraphTouchMove"
-          bindtouchend="onGraphTouchEnd"
-          disable-scroll="{{true}}"
-        ></canvas>
-        <view class="graph-hint">单指拖动节点 · 点击查看关联</view>
-      </view>
-    </view>
-
-  </view>
-
-  <!-- 加入校友会申请表单弹窗 -->
-  <view wx:if="{{showJoinModal}}" class="join-modal-mask" catchtouchmove="true">
-    <view class="join-modal">
-      <view class="join-modal-title">加入校友会申请</view>
-      <view class="join-modal-subtitle">请填写以下信息，提交后将由管理员审核</view>
-
-      <view class="join-form-item">
-        <view class="join-form-label">真实姓名</view>
-        <input
-          class="join-form-input"
-          placeholder="请输入真实姓名"
-          value="{{joinForm.realName}}"
-          data-field="realName"
-          bindinput="handleJoinInput"
-        />
-      </view>
-
-      <view class="join-form-item">
-        <view class="join-form-label">毕业年份</view>
-        <input
-          class="join-form-input"
-          placeholder="例如：2018"
-          value="{{joinForm.graduationYear}}"
-          data-field="graduationYear"
-          bindinput="handleJoinInput"
-        />
-      </view>
-
-      <view class="join-form-item">
-        <view class="join-form-label">专业 / 院系</view>
-        <input
-          class="join-form-input"
-          placeholder="请输入毕业专业或所在院系"
-          value="{{joinForm.major}}"
-          data-field="major"
-          bindinput="handleJoinInput"
-        />
-      </view>
-
-      <view class="join-form-item">
-        <view class="join-form-label">申请说明</view>
-        <textarea
-          class="join-form-textarea"
-          placeholder="可以简单介绍一下自己，或补充说明申请理由（选填）"
-          value="{{joinForm.remark}}"
-          data-field="remark"
-          bindinput="handleJoinInput"
-        />
-      </view>
-
-      <view class="join-modal-actions">
-        <view class="join-modal-btn cancel" bindtap="closeJoinModal">取消</view>
-        <view class="join-modal-btn submit" bindtap="submitJoinApplication">
-          {{joinSubmitting ? '提交中...' : '提交申请'}}
-        </view>
-      </view>
-    </view>
   </view>
 </view>

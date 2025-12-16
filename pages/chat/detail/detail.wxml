@@ -10,8 +10,13 @@
     show-scrollbar="{{false}}"
   >
     <view class="message-item" wx:for="{{messageList}}" wx:key="id" id="msg-{{item.id}}">
+      <!-- 系统消息/撤回消息 -->
+      <view class="message-system" wx:if="{{item.type === 'system' || item.isRecall}}">
+        <text class="system-text">{{item.content}}</text>
+      </view>
+
       <!-- 对方消息 -->
-      <view class="message-row message-left" wx:if="{{!item.isMe}}">
+      <view class="message-row message-left" wx:elif="{{!item.isMe}}">
         <image class="message-avatar" src="{{chatInfo.avatar}}" mode="aspectFill" bindtap="viewProfile" data-type="{{chatType}}"></image>
         <view class="message-content-wrapper">
           <!-- 图片消息 -->
@@ -48,7 +53,7 @@
       
       <!-- 我的消息 -->
       <view class="message-row message-right" wx:else>
-        <view class="message-content-wrapper">
+        <view class="message-content-wrapper" bindlongpress="onLongPressMessage" data-msg="{{item}}">
           <!-- 图片消息 -->
           <view class="message-bubble message-bubble-right" wx:if="{{item.type === 'image'}}">
             <image class="message-image" src="{{item.image}}" mode="aspectFill" bindtap="previewImage" data-url="{{item.image}}"></image>

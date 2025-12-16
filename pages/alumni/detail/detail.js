@@ -98,59 +98,48 @@ Page({
       major: edu.major || '',
       className: edu.className || '',
       educationLevel: edu.educationLevel || '',
-      certificationStatus: edu.certificationStatus || 0,
-      officialCertification: edu.officialCertification || 0
     }))
 
-    // 处理标签
-    const tagList = (data.tagList || []).map(tag => ({
-      tagId: tag.tagId,
-      code: tag.code,
-      name: tag.name,
-      color: tag.color,
-      category: tag.category,
-      iconUrl: tag.iconUrl ? config.getImageUrl(tag.iconUrl) : '',
-      sortOrder: tag.sortOrder
-    }))
-
-    // 返回映射后的数据（使用后端实际字段名）
     return {
-      wxId: data.wxId,
-      nickname: data.nickname || '',
+      id: data.id,
+      nickname: data.nickname || data.name || '未知校友',
       name: data.name || '',
       avatarUrl: avatarUrl,
-      phone: data.phone || '',
-      wxNum: data.wxNum || '',
-      qqNum: data.qqNum || '',
-      email: data.email || '',
-      originProvince: data.originProvince || '',
-      curContinent: data.curContinent || '',
-      curCountry: data.curCountry || '',
-      curProvince: data.curProvince || '',
-      curCity: data.curCity || '',
-      curCounty: data.curCounty || '',
-      address: data.address || '',
-      latitude: data.latitude || '',
-      longitude: data.longitude || '',
-      constellation: constellation,
-      signature: data.signature || '',
-      description: data.description || '',
+      background: data.background ? config.getImageUrl(data.background) : '',
       gender: gender,
-      genderValue: data.gender,
-      identifyType: data.identifyType,
-      identifyCode: data.identifyCode || '',
-      birthDate: data.birthDate || '',
-      age: age,
-      location: location,
-      alumniEducationList: educationList,
-      tagList: tagList,
-      // 关键：关注状态字段
+      age: age || '?',
+      zodiac: constellation || '未知',
+      constellation: constellation || '未知',
+      birthDate: data.birthDate || '未设置',
+      phone: data.phone || '未设置',
+      signature: data.signature || '',
+      wxNum: data.wxNum || '未设置',
+      qqNum: data.qqNum || '未设置',
+      email: data.email || '未设置',
+      originProvince: data.originProvince || '未设置',
+      curContinent: data.curContinent || '未设置',
+      curCountry: data.curCountry || '未设置',
+      curProvince: data.curProvince || '未设置',
+      curCity: data.curCity || '未设置',
+      curCounty: data.curCounty || '未设置',
+      address: data.address || '未设置',
+      educationList: educationList,
       isFollowed: data.isFollowed || false,
-      followStatus: data.followStatus || 4,
-      // 母校信息
-      school: data.schoolInfo ? data.schoolInfo.schoolName : '',
-      schoolId: data.schoolInfo ? data.schoolInfo.schoolId : ''
+      identifyType: data.identifyType
     }
+  },
+
+  // 跳转到私信页面
+  goToChat() {
+    const { alumniInfo, alumniId } = this.data
+    if (!alumniInfo) return
+
+    const name = encodeURIComponent(alumniInfo.nickname)
+    const avatar = encodeURIComponent(alumniInfo.avatarUrl)
+    
+    wx.navigateTo({
+      url: `/pages/chat/detail/detail?id=${alumniId}&name=${name}&avatar=${avatar}&type=chat`
+    })
   },
 
   // 获取星座名称

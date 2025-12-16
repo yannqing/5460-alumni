@@ -26,7 +26,8 @@
         </view>
       </view>
       <view class="profile-right-section">
-        <view class="follow-btn {{alumniInfo.isFollowed ? 'followed' : ''}}" bindtap="toggleFollow">
+        <view class="action-btn message-btn" bindtap="goToChat">私信</view>
+        <view class="action-btn follow-btn {{alumniInfo.isFollowed ? 'followed' : ''}}" bindtap="toggleFollow">
           {{alumniInfo.isFollowed ? '已关注' : '关注TA'}}
         </view>
       </view>

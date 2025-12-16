@@ -240,12 +240,15 @@ Page({
         const mappedChatList = chatList.map(chat => ({
           id: chat.conversationId || chat.id || chat.userId,
           userId: chat.userId || chat.targetId,
+          peerId: chat.peerId || chat.userId || chat.targetId, // 确保获取 peerId
+          conversationId: chat.conversationId || chat.id, // 保存会话ID
+          draftContent: chat.draftContent || '', // 草稿内容
           // 优先使用后端返回的 peerNickname
           name: chat.peerNickname || chat.userName || chat.targetName || chat.name || '未知用户',
           // 优先使用后端返回的 peerAvatar
           avatar: chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : ''),
-          // 优先使用后端返回的 lastMessageContent
-          lastMessage: chat.lastMessageContent || chat.lastMessage || chat.lastMsg || '',
+          // 优先使用草稿，否则使用最后一条消息
+          lastMessage: (chat.draftContent) ? ('[草稿] ' + chat.draftContent) : (chat.lastMessageContent || chat.lastMessage || chat.lastMsg || ''),
           lastTime: this.formatTime(chat.lastMessageTime || chat.lastMsgTime || chat.updateTime),
           unreadCount: chat.unreadCount || 0,
           isMuted: chat.isMuted || false,
@@ -304,22 +307,29 @@ Page({
   },
 
   openChat(e) {
-    const { id, type, userid } = e.currentTarget.dataset
+    const { id, type, peerid } = e.currentTarget.dataset
     
-    // 标记已读
+    // 查找当前聊天对象以获取更多信息
     const chat = this.data.chatList.find(c => c.id === id)
+    
     if (chat && chat.unreadCount > 0) {
       // 重置未读数
       chat.unreadCount = 0
       this.setData({ chatList: this.data.chatList })
     }
     
-    // 优先使用 userId 跳转，因为详情页需要 UserID 来获取信息和发送消息
-    // 如果没有 userId (极少情况)，则降级使用 id
-    const targetId = userid || id
+    // 优先使用 peerId 跳转，因为详情页需要 peerId (User ID) 来获取信息和发送消息
+    // 如果没有 peerId (极少情况)，则降级使用 id (conversationId)
+    const targetId = peerid || id
+    
+    // 获取昵称和头像传递给详情页
+    const name = chat ? (chat.name || '') : ''
+    const avatar = chat ? (chat.avatar || '') : ''
+    const conversationId = chat ? (chat.conversationId || '') : ''
+    const draftContent = chat ? (chat.draftContent || '') : ''
     
     wx.navigateTo({
-      url: `/pages/chat/detail/detail?id=${targetId}&type=${type || 'chat'}`
+      url: `/pages/chat/detail/detail?id=${targetId}&type=${type || 'chat'}&name=${encodeURIComponent(name)}&avatar=${encodeURIComponent(avatar)}&conversationId=${conversationId}&draftContent=${encodeURIComponent(draftContent)}`
     })
   },
 

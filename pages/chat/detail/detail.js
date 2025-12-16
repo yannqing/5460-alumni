@@ -1,10 +1,11 @@
 // pages/chat/detail/detail.js
 const config = require('../../../utils/config.js')
-const { chatApi, alumniApi, associationApi } = require('../../../api/api.js')
+const { chatApi, alumniApi, associationApi, userApi } = require('../../../api/api.js')
 
 Page({
   data: {
     chatId: null,
+    conversationId: null, // 会话ID
     chatType: 'chat',
     chatInfo: {
       name: '',
@@ -29,23 +30,67 @@ Page({
   connectListener: null,
   disconnectListener: null,
 
-  onLoad(options) {
-    const { id, type } = options
+  async onLoad(options) {
+    const { id, type, name, avatar, conversationId, draftContent } = options
     const app = getApp()
     const myUserId = app.globalData.userData?.wxId || wx.getStorageSync('userId')
-    let myAvatar = app.globalData.userData?.avatar || ''
-    if (myAvatar) {
-      myAvatar = config.getImageUrl(myAvatar)
+
+    // 如果有草稿，恢复显示
+    if (draftContent && draftContent !== 'undefined' && draftContent !== 'null') {
+      const decodedDraft = decodeURIComponent(draftContent)
+      if (decodedDraft) {
+        this.setData({
+          inputValue: decodedDraft,
+          hasInput: true
+        })
+      }
+    }
+    
+    // 获取我的头像：优先从全局数据获取，如果没有则尝试从缓存获取
+    let myAvatar = app.globalData.userData?.avatar
+    if (!myAvatar) {
+      const userInfo = wx.getStorageSync('userInfo')
+      // 尝试多种可能的字段名
+      if (userInfo) {
+        myAvatar = userInfo.avatar || userInfo.avatarUrl || userInfo.portrait || userInfo.headImgUrl
+      }
+    }
+    
+    // 如果还是没有，尝试从 app.globalData.userInfo 获取（有些小程序存储在这里）
+    if (!myAvatar && app.globalData.userInfo) {
+       const gUserInfo = app.globalData.userInfo
+       myAvatar = gUserInfo.avatar || gUserInfo.avatarUrl || gUserInfo.portrait || gUserInfo.headImgUrl
+    }
+
+    // 如果所有缓存都失效，尝试从接口获取最新用户信息
+    if (!myAvatar) {
+      console.log('[ChatDetail] 缓存中未找到头像，尝试从接口获取...')
+      try {
+        const res = await userApi.getUserInfo()
+        if (res.data && res.data.code === 200) {
+          const info = res.data.data || {}
+          // 更新全局数据
+          app.globalData.userData = {
+            ...(app.globalData.userData || {}),
+            ...info
+          }
+          // 再次尝试获取头像
+          myAvatar = info.avatar || info.avatarUrl || info.portrait || info.headImgUrl
+        }
+      } catch (e) {
+        console.error('[ChatDetail] 获取用户信息失败:', e)
+      }
     }
     
     if (id && id !== 'undefined' && id !== 'null') {
       this.setData({ 
         chatId: id,
+        conversationId: conversationId || null,
         chatType: type || 'chat',
         myUserId: myUserId,
         myAvatar: myAvatar
       })
-      this.loadChatInfo(id, type)
+      this.loadChatInfo(id, type, name, avatar) // 传递 URL 参数中的 name 和 avatar
       this.loadMessages(id)
       this.initWebSocket()
     } else {
@@ -61,6 +106,12 @@ Page({
   },
 
   onUnload() {
+    // 保存草稿
+    if (this.data.conversationId) {
+      // 即使内容为空也调用，以便清空草稿
+      chatApi.saveDraft(this.data.conversationId, this.data.inputValue)
+    }
+
     // 页面卸载时移除 WebSocket 监听
     this.removeWebSocketListeners()
   },
@@ -232,40 +283,48 @@ Page({
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
   },
 
-  async loadChatInfo(id, type) {
+  async loadChatInfo(id, type, urlName, urlAvatar) {
     try {
       let name = '未知用户'
       let avatar = ''
       
-      // 判断是否是校友会或官方账号
-      if (type === 'association' || type === 'official') {
-        const res = await associationApi.getAssociationDetail(id)
-        if (res.data && res.data.code === 200) {
-          const info = res.data.data
-          name = info.name || '未知校友会'
-          avatar = info.logo ? config.getImageUrl(info.logo) : ''
-        }
-      } else {
-        // 默认为校友
-      // const res = await alumniApi.getAlumniInfo(id)
-      // if (res.data && res.data.code === 200) {
-      //   const info = res.data.data
-      //   name = info.name || info.nickname || '未知校友'
-      //   avatar = info.avatarUrl ? config.getImageUrl(info.avatarUrl) : ''
-      // }
-      
-      // 直接使用页面参数中的信息（如果有）
-      const pages = getCurrentPages()
-      const prevPage = pages[pages.length - 2]
-      if (prevPage && prevPage.data.chatList) {
-        const currentChat = prevPage.data.chatList.find(c => (c.userId || c.targetId) == id)
-        if (currentChat) {
-          name = currentChat.name || currentChat.peerNickname || '未知校友'
-          avatar = currentChat.avatar || (currentChat.peerAvatar ? config.getImageUrl(currentChat.peerAvatar) : '')
-        }
-      }
+      // 优先使用 URL 参数传递过来的信息（这是最可靠的，因为来自列表页）
+      if (urlName && urlName !== 'undefined') {
+        name = decodeURIComponent(urlName)
       }
       
+      if (urlAvatar && urlAvatar !== 'undefined') {
+        avatar = decodeURIComponent(urlAvatar)
+        // 这里的 urlAvatar 已经是处理过的完整 URL，不需要再次调用 config.getImageUrl
+      }
+
+      // 如果 URL 参数没有提供足够信息，则尝试其他方式
+      if (name === '未知用户' || !avatar) {
+        // 判断是否是校友会或官方账号
+        if (type === 'association' || type === 'official') {
+          const res = await associationApi.getAssociationDetail(id)
+          if (res.data && res.data.code === 200) {
+            const info = res.data.data
+            name = info.name || '未知校友会'
+            avatar = info.logo ? config.getImageUrl(info.logo) : ''
+          }
+        } else {
+          // 尝试从上一页获取（作为 URL 参数的备选）
+          const pages = getCurrentPages()
+          const prevPage = pages[pages.length - 2]
+          if (prevPage && prevPage.data.chatList) {
+            // 使用 id (可能是 userId, peerId, targetId 等) 进行模糊匹配
+            const currentChat = prevPage.data.chatList.find(c => 
+              c.peerId == id || c.userId == id || c.id == id
+            )
+            if (currentChat) {
+              if (name === '未知用户') name = currentChat.name || currentChat.peerNickname || '未知校友'
+              if (!avatar) avatar = currentChat.avatar || (currentChat.peerAvatar ? config.getImageUrl(currentChat.peerAvatar) : '')
+            }
+          }
+        }
+      }
+
       this.setData({
         chatInfo: {
           name,
@@ -330,6 +389,7 @@ Page({
             content: content,
             type: msgType === 'image' ? 'image' : 'text', // 目前主要支持文本和图片
             time: this.formatTime(msg.createTime),
+            timestamp: msg.createTime, // 保存原始时间戳用于撤回判断
             // 如果是对方的消息，尝试从 msgContent 中获取头像，否则使用默认头像
             avatar: msg.isMine ? this.data.myAvatar : (formUserPortrait ? config.getImageUrl(formUserPortrait) : this.data.chatInfo.avatar),
             image: msgType === 'image' ? config.getImageUrl(content) : '',
@@ -380,6 +440,7 @@ Page({
       content: content,
       type: 'text',
       time: this.formatTime(timestamp),
+      timestamp: timestamp,
       avatar: this.data.myAvatar,
       status: 'sending'
     }
@@ -412,7 +473,11 @@ Page({
         // 发送成功
         const updatedList = this.data.messageList.map(msg => {
           if (msg.id === timestamp) {
-            return { ...msg, status: 'success' }
+            // 尝试获取后端返回的消息ID
+            const newId = (res.data.data && (typeof res.data.data === 'string' || typeof res.data.data === 'number')) 
+              ? res.data.data 
+              : (res.data.data?.messageId || msg.id)
+            return { ...msg, status: 'success', id: newId }
           }
           return msg
         })
@@ -750,12 +815,68 @@ Page({
     const imageUrls = messageList
       .filter(msg => msg.type === 'image' && msg.image)
       .map(msg => msg.image)
-    const currentIndex = imageUrls.indexOf(url)
     
     wx.previewImage({
-      urls: imageUrls,
-      current: url
+      current: url,
+      urls: imageUrls
     })
+  },
+
+  onLongPressMessage(e) {
+    const { msg } = e.currentTarget.dataset
+    // 只能撤回自己的消息
+    if (!msg.isMe) return
+    
+    // 检查时间限制（2分钟内可撤回）
+    const now = Date.now()
+    const msgTime = msg.timestamp || msg.id // 优先使用timestamp，否则尝试使用id(如果是本地发送的timestamp)
+    
+    if (now - msgTime > 2 * 60 * 1000) {
+      return // 超过2分钟不可撤回，不显示菜单
+    }
+    
+    wx.showActionSheet({
+      itemList: ['撤回'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          this.recallMessage(msg)
+        }
+      }
+    })
+  },
+  
+  async recallMessage(msg) {
+    try {
+      wx.showLoading({ title: '撤回中' })
+      const res = await chatApi.recallMessage(msg.id)
+      wx.hideLoading()
+      
+      if (res.data && res.data.code === 200) {
+        wx.showToast({ title: '已撤回', icon: 'none' })
+        
+        // 更新本地消息列表
+        const updatedList = this.data.messageList.map(item => {
+          if (item.id === msg.id) {
+             // 替换为系统消息提示
+             return {
+               ...item,
+               type: 'system',
+               content: '你撤回了一条消息',
+               isRecall: true
+             }
+          }
+          return item
+        })
+        
+        this.setData({ messageList: updatedList })
+      } else {
+        wx.showToast({ title: res.data?.msg || '撤回失败', icon: 'none' })
+      }
+    } catch (e) {
+      wx.hideLoading()
+      console.error('撤回消息失败:', e)
+      wx.showToast({ title: '撤回失败', icon: 'none' })
+    }
   }
 })
 

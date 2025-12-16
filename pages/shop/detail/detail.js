@@ -56,6 +56,7 @@ Page({
         id: 'association-001',
         name: '南京大学上海校友会' // 认证的校友会名称
       },
+      ownerId: '123', // 添加拥有者ID，用于私信
       gallery: [
         DEFAULT_AVATAR,
         DEFAULT_AVATAR,
@@ -364,6 +365,25 @@ Page({
       title: newFavorited ? '收藏成功' : '取消收藏',
       icon: 'success'
     })
+  },
+
+  // 跳转到私信页面
+  goToChat() {
+    const { shopInfo } = this.data
+    if (!shopInfo) return
+
+    // 如果有ownerId，跳转到聊天页
+    if (shopInfo.ownerId) {
+      const name = encodeURIComponent(shopInfo.name) // 使用店铺名或店主名
+      const avatar = encodeURIComponent(shopInfo.logo) // 使用店铺Logo
+      
+      wx.navigateTo({
+        url: `/pages/chat/detail/detail?id=${shopInfo.ownerId}&name=${name}&avatar=${avatar}&type=chat`
+      })
+    } else {
+      // 降级处理：如果没有ownerId，还是使用原来的联系方式弹窗
+      this.contactShop()
+    }
   },
 
   // 联系店铺

@@ -16,11 +16,11 @@
     <view class="card basic-info-card">
       <!-- 右上角操作图标 -->
       <view class="card-action-icons">
+        <view class="action-icon-item" bindtap="goToChat">
+          <text class="icon-text">💬</text>
+        </view>
         <view class="action-icon-item" bindtap="toggleFavorite">
           <text class="icon-text {{shopInfo.isFavorited ? 'favorited' : ''}}">{{shopInfo.isFavorited ? '❤️' : '🤍'}}</text>
-        </view>
-        <view class="action-icon-item" bindtap="contactShop">
-          <text class="icon-text">💬</text>
         </view>
       </view>
       <view class="shop-header">

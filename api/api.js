@@ -337,6 +337,12 @@ const chatApi = {
   // 检查用户是否在线
   checkUserOnline: (userId) => get(`/chat/user/${userId}/online`),
   
+  // 保存草稿
+  saveDraft: (conversationId, draftContent) => post(`/chat/conversation/${conversationId}/draft?draftContent=${encodeURIComponent(draftContent)}`, { conversationId }),
+  
+  // 撤回消息
+  recallMessage: (messageId) => del(`/chat/recall/${messageId}`),
+
   // 上传聊天图片
   uploadChatImage: (filePath) => {
     return new Promise((resolve, reject) => {
