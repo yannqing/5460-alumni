@@ -1,0 +1,52 @@
+<view class="container">
+  <view class="form-group">
+    <view class="label">文章标题</view>
+    <input class="input" placeholder="请输入标题" value="{{formData.articleTitle}}" bindinput="onInput" data-field="articleTitle" />
+  </view>
+
+  <view class="form-group">
+    <view class="label">封面图</view>
+    <view class="upload-box" bindtap="chooseImage">
+      <image wx:if="{{formData.cover}}" src="{{formData.cover}}" mode="aspectFill" class="cover-image"></image>
+      <view wx:else class="placeholder">+</view>
+    </view>
+  </view>
+
+  <view class="form-group">
+    <view class="label">文章类型</view>
+    <picker bindchange="onTypeChange" value="{{formData.articleType - 1}}" range="{{articleTypes}}">
+      <view class="input picker">
+        {{articleTypes[formData.articleType - 1]}}
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-group">
+    <view class="label">文章链接</view>
+    <input class="input" placeholder="请输入链接（类型为链接时必填）" value="{{formData.articleLink}}" bindinput="onInput" data-field="articleLink" />
+  </view>
+
+  <view class="form-group">
+    <view class="label">描述</view>
+    <textarea class="textarea description" placeholder="请输入简短描述" value="{{formData.description}}" bindinput="onInput" data-field="description" maxlength="200" style="height: 150rpx;"></textarea>
+  </view>
+
+  <view class="form-group">
+    <view class="label">详细内容</view>
+    <textarea class="textarea" placeholder="请输入内容" value="{{formData.content}}" bindinput="onInput" data-field="content" maxlength="-1"></textarea>
+  </view>
+
+  <view class="form-group row">
+    <view class="label">是否启用</view>
+    <switch checked="{{formData.articleStatus === 1}}" bindchange="onSwitchChange" data-field="articleStatus" color="#4bcce9" />
+  </view>
+
+  <view class="form-group row">
+    <view class="label">是否置顶</view>
+    <switch checked="{{formData.isTop}}" bindchange="onSwitchChange" data-field="isTop" color="#4bcce9" />
+  </view>
+
+  <view class="btn-area">
+    <button class="submit-btn" bindtap="submit">保存</button>
+  </view>
+</view>

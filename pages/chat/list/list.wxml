@@ -38,29 +38,56 @@
 
   <!-- 聊天列表 -->
   <scroll-view class="chat-list" scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
-    <!-- 所有聊天（包括校友会通知） -->
-    <view class="chat-item" wx:for="{{allChatList}}" wx:key="id" bindtap="openChat" data-id="{{item.id}}" data-peerid="{{item.peerId}}" data-type="{{item.type || 'chat'}}">
-      <view class="chat-avatar-wrapper">
-        <image class="chat-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
-        <view class="online-status" wx:if="{{item.isOnline}}"></view>
-        <view class="oa-badge" wx:if="{{item.isVerified}}">✓</view>
-        <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
-      </view>
-      <view class="chat-content">
-        <view class="chat-header">
-          <text class="chat-name">{{item.name}}</text>
-          <text class="chat-time">{{item.lastTime}}</text>
+    
+    <view class="chat-item-container {{item.isTouchMove ? 'touch-move-active' : ''}}" 
+          wx:for="{{allChatList}}" 
+          wx:key="id" 
+          bindtouchstart="touchstart" 
+          bindtouchmove="touchmove" 
+          data-index="{{index}}">
+      
+      <!-- 内容区域 -->
+      <view class="chat-content-wrapper" bindtap="openChat" data-id="{{item.id}}" data-peerid="{{item.peerId}}" data-type="{{item.type || 'chat'}}">
+        <view class="chat-avatar-wrapper">
+          <image class="chat-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+          <view class="online-status" wx:if="{{item.isOnline}}"></view>
+          <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
         </view>
-        <view class="chat-preview">
-          <text class="chat-message">{{item.lastMessage}}</text>
-          <view class="chat-mute" wx:if="{{item.isMuted}}">🔇</view>
+        
+        <view class="chat-info">
+          <view class="chat-header">
+            <view class="chat-name-wrap">
+              <text class="chat-name">{{item.name}}</text>
+              <text class="chat-tag" wx:if="{{item.isPinned}}">置顶</text>
+            </view>
+            <text class="chat-time">{{item.lastTime}}</text>
+          </view>
+          <view class="chat-preview">
+            <text class="chat-message">{{item.lastMessage}}</text>
+            <view class="chat-status-icons">
+               <text class="chat-mute" wx:if="{{item.isMuted}}">🔇</text>
+            </view>
+          </view>
         </view>
       </view>
+
+      <!-- 滑动操作按钮 -->
+      <view class="action-buttons">
+        <view class="action-btn pin {{item.isPinned ? 'unpin' : ''}}" catchtap="pinConversation" data-index="{{index}}" data-id="{{item.conversationId}}" data-ispinned="{{item.isPinned}}">
+          {{item.isPinned ? '取消置顶' : '置顶'}}
+        </view>
+        <view class="action-btn read" catchtap="markRead" data-index="{{index}}" data-id="{{item.conversationId}}">
+          已读
+        </view>
+        <view class="action-btn delete" catchtap="deleteConversation" data-index="{{index}}" data-id="{{item.userId}}">
+          删除
+        </view>
+      </view>
+
     </view>
     
-    <view class="empty-state" wx:if="{{chatList.length === 0 && !loading}}">
+    <view class="empty-state" wx:if="{{allChatList.length === 0 && !loading}}">
       <text class="empty-text">暂无聊天记录</text>
     </view>
   </scroll-view>
 </view>
-

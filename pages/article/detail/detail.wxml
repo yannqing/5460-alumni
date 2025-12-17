@@ -1,0 +1,24 @@
+<view class="container">
+  <block wx:if="{{article}}">
+    <view class="article-header">
+      <view class="article-title" wx:if="{{article.title}}">{{article.title}}</view>
+      <view class="article-meta">
+        <text class="article-time">{{article.createTime || article.time}}</text>
+        <text class="article-author">{{article.author || article.groupName || article.source || '官方发布'}}</text>
+      </view>
+    </view>
+    <view class="article-content">
+      <rich-text nodes="{{article.content || article.description}}"></rich-text>
+    </view>
+  </block>
+  <view wx:elif="{{loading}}" class="loading-state">
+    <view class="loading-text">加载中...</view>
+  </view>
+  <view wx:else class="error-state">
+    <view class="error-text">文章不存在或已删除</view>
+  </view>
+
+  <view class="edit-btn" wx:if="{{canEdit}}" bindtap="goToEdit">
+    <text>修改</text>
+  </view>
+</view>

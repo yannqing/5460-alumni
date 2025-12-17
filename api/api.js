@@ -338,10 +338,13 @@ const chatApi = {
   checkUserOnline: (userId) => get(`/chat/user/${userId}/online`),
   
   // 保存草稿
-  saveDraft: (conversationId, draftContent) => post(`/chat/conversation/${conversationId}/draft?draftContent=${encodeURIComponent(draftContent)}`, { conversationId }),
+  saveDraft: (conversationId, draftContent) => put(`/chat/conversation/${conversationId}/draft?draftContent=${encodeURIComponent(draftContent)}`, { conversationId }),
   
   // 撤回消息
   recallMessage: (messageId) => del(`/chat/recall/${messageId}`),
+
+  // 置顶/取消置顶会话
+  pinConversation: (conversationId, isPinned) => put(`/chat/conversation/${conversationId}/pin?isPinned=${isPinned}`),
 
   // 上传聊天图片
   uploadChatImage: (filePath) => {
@@ -398,6 +401,22 @@ const chatApi = {
   }
 }
 
+// ==================== 首页文章相关接口 ====================
+const homeArticleApi = {
+  // 分页查询首页文章列表
+  getPage: (params) => post('/home-page-article/page', params),
+  // 分页查询本人创建的文章列表
+  getMyArticlePage: (params) => post('/home-page-article/my-page', params),
+  // 新增首页文章
+  createArticle: (data) => post('/home-page-article/create', data),
+  // 根据ID查询文章详情
+  getHomeArticleDetail: (id) => get(`/home-page-article/${id}`),
+  // 更新首页文章
+  updateArticle: (data) => post('/home-page-article/update', data),
+  // 删除文章
+  deleteArticle: (id) => del(`/home-page-article/${id}`),
+}
+
 
 module.exports = {
   schoolApi,
@@ -416,4 +435,5 @@ module.exports = {
   authApi,
   fileApi,
   chatApi,
+  homeArticleApi,
 }

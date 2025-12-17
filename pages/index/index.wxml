@@ -1,208 +1,68 @@
 <!--pages/index/index.wxml-->
 <view class="container">
-  <!-- 校友会卡片 -->
-  <view class="association-cards-section">
-    <scroll-view class="association-cards-scroll" scroll-x enhanced scroll-into-view="{{scrollIntoView}}" bindscroll="onScroll" bindscrollend="onScrollEnd">
-      <view class="association-card-item" wx:for="{{associationCards}}" wx:key="id" id="card-{{item.id}}">
-        <view class="association-card-content" bindtap="onAssociationCardTap" data-id="{{item.id}}">
-          <view class="association-card-header">
-            <image class="association-card-icon" src="{{item.icon}}" mode="aspectFill" />
-            <view class="association-card-title">{{item.name}}</view>
-          </view>
-          <view class="association-card-actions">
-            <view class="action-item" catchtap="onNotificationTap" data-id="{{item.id}}">
-              <view class="action-icon-wrapper">
-                <image class="action-icon-image" src="{{iconNotify}}" mode="aspectFit" />
-                <view wx:if="{{item.hasNotification}}" class="notification-dot"></view>
-              </view>
-              <text class="action-label">通知</text>
-            </view>
-            <view class="action-item" catchtap="onActivityTap" data-id="{{item.id}}">
-              <view class="action-icon-wrapper">
-                <image class="action-icon-image" src="{{iconActivity}}" mode="aspectFit" />
-                <view wx:if="{{item.hasNewActivity}}" class="new-badge">上新</view>
-              </view>
-              <text class="action-label">活动</text>
-            </view>
-            <view class="action-item benefit-action-item" catchtap="onBenefitTap" data-id="{{item.id}}">
-              <view class="benefit-card-mini">
-                <view wx:if="{{item.hasNewBenefit}}" class="benefit-new-badge-mini">上新</view>
-                <view class="benefit-buttons-mini">
-                  <view class="benefit-btn-mini">可用场馆</view>
-                  <view class="benefit-btn-mini">可享优惠</view>
-                </view>
-              </view>
-              <text class="action-label">附近权益</text>
-            </view>
-          </view>
-        </view>
-      </view>
-    </scroll-view>
+  <!-- 顶部 Banner 区域 -->
+  <view class="header-banner">
+    <view class="platform-tag">5460-校友服务平台</view>
+    
+    <view class="slogan-container">
+      <text class="slogan-side">相遇</text>
+      <text class="slogan-main">我思念你</text>
+      <text class="slogan-side">搞定</text>
+    </view>
+    
+    <view class="sub-slogan">5460-校友服务平台</view>
   </view>
 
-  <!-- 快速入口 -->
-  <view class="quick-entry-section">
-    <view class="quick-entry-bg-decoration"></view>
-    <view class="quick-entry-content">
-      <view class="quick-entry-title">校友功能</view>
-      <view class="quick-entry-grid">
-        <view class="quick-entry-item" wx:for="{{quickEntries}}" wx:key="id" bindtap="onQuickEntryTap" data-url="{{item.url}}">
-          <view class="quick-entry-icon-wrapper">
-            <view class="quick-entry-icon">
-              <image src="{{item.icon}}" mode="aspectFit" />
-            </view>
-            <view class="quick-entry-icon-base"></view>
-          </view>
-          <view class="quick-entry-name">{{item.name}}</view>
-        </view>
+  <!-- 导航菜单区域 -->
+  <view class="nav-container">
+    <view class="nav-header">
+      <view class="nav-title-tag">校友功能</view>
+    </view>
+    <view class="nav-grid">
+      <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
+        <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
+        <text class="nav-text">母校</text>
+      </view>
+      <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
+        <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
+        <text class="nav-text">校友会</text>
+      </view>
+      <view class="nav-item" bindtap="navTo" data-url="/pages/alumni/list/list">
+        <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
+        <text class="nav-text">校友</text>
+      </view>
+      <view class="nav-item" bindtap="navTo" data-url="/pages/circle/list/list">
+        <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
+        <text class="nav-text">圈子</text>
       </view>
     </view>
   </view>
 
-  <!-- 标签页整体容器 -->
-  <view class="tab-container">
-    <!-- 标签页导航 -->
-    <view class="tab-nav">
-      <view class="tab-item {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">校友圈</view>
-      <view class="tab-item {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">附近权益</view>
-      <view class="tab-item {{activeTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">可能认识的人</view>
-    </view>
-
-    <!-- 标签页内容 -->
-    <view class="tab-content-wrapper">
-    <!-- 校友圈 -->
-    <view class="tab-content" wx:if="{{activeTab === 0}}">
-      <view class="post-list">
-        <view class="post-item card" wx:for="{{circlePosts}}" wx:key="id">
-          <view class="post-header">
-            <image class="post-avatar" src="{{item.avatar}}" mode="aspectFill" />
-            <view class="post-user-info">
-              <text class="post-username">{{item.username}}</text>
-              <text class="post-time">{{item.time}}</text>
-            </view>
-            <view class="post-group">
-              <image class="group-icon" src="{{item.groupIcon}}" mode="aspectFill" />
-              <text class="group-name">{{item.groupName}}</text>
-            </view>
+  <!-- 文章列表区域 -->
+  <view class="article-list">
+    <view class="article-item" wx:for="{{articleList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="article-main">
+        <view class="article-header">
+          <view class="user-info">
+            <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+            <!-- <text class="user-name">{{item.username}}</text> -->
           </view>
-        <view class="post-body" bindtap="viewCircleDetail" data-id="{{item.id}}">
-          <block wx:if="{{item.type === 'news'}}">
-            <view class="post-news-card">
-              <view class="news-main">
-                <image class="news-cover" src="{{item.cover}}" mode="aspectFill" />
-                <view class="news-info">
-                  <view class="news-title">{{item.title}}</view>
-                  <view class="news-desc">{{item.description}}</view>
-                </view>
-              </view>
-              <view class="news-location">
-                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                <text class="location-name">{{item.location}}</text>
-              </view>
-              <view class="news-stats">
-                <view class="event-stat-pill {{item.liked ? 'liked' : ''}}" catchtap="onLikeTap" data-id="{{item.id}}">
-                  <view class="stat-icon like"></view>
-                  <text class="stat-label">点赞</text>
-                  <text class="stat-value">{{item.likes}}</text>
-                </view>
-                <view class="event-stat-pill" catchtap="onShareTap" data-id="{{item.id}}">
-                  <view class="stat-icon share"></view>
-                  <text class="stat-label">转发</text>
-                  <text class="stat-value">{{item.shares}}</text>
-                </view>
-              </view>
-            </view>
-          </block>
-          <block wx:elif="{{item.type === 'event'}}">
-            <view class="post-event-card">
-              <view class="event-top-row">
-                <view class="event-title">{{item.eventTitle}}</view>
-                <view class="event-time">{{item.timeRange}}</view>
-              </view>
-              <view class="event-participants-row">
-                <view class="participant-stack">
-                  <block wx:for="{{item.participants}}" wx:key="id" wx:for-item="participant" wx:for-index="pIndex">
-                    <image class="participant-avatar" src="{{participant.avatar}}" mode="aspectFill" style="margin-left: {{pIndex === 0 ? 0 : -20}}rpx;" />
-                  </block>
-                </view>
-                <text class="participant-text">{{item.participantText}}</text>
-              </view>
-              <view class="event-cta-row">
-                <view class="event-cta-button" catchtap="onEventCtaTap" data-id="{{item.id}}">{{item.ctaText}}</view>
-              </view>
-              <view class="event-bottom-row">
-                <view class="event-location">
-                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                  <text class="location-name">{{item.location}}</text>
-                </view>
-                <view class="event-stats">
-                  <view class="event-stat-pill {{item.liked ? 'liked' : ''}}" catchtap="onLikeTap" data-id="{{item.id}}">
-                    <view class="stat-icon like"></view>
-                    <text class="stat-label">点赞</text>
-                    <text class="stat-value">{{item.likes}}</text>
-                  </view>
-                  <view class="event-stat-pill" catchtap="onShareTap" data-id="{{item.id}}">
-                    <view class="stat-icon share"></view>
-                    <text class="stat-label">转发</text>
-                    <text class="stat-value">{{item.shares}}</text>
-                  </view>
-                </view>
-              </view>
-            </view>
-          </block>
+          <text class="publish-time">{{item.time}}</text>
         </view>
+        <view class="article-content">
+          <view class="article-title">{{item.title}}</view>
+          <view class="article-desc">{{item.description}}</view>
         </view>
       </view>
+      <!-- 如果有封面图，显示封面图 -->
+      <!-- <image wx:if="{{item.cover}}" class="article-cover" src="{{item.cover}}" mode="aspectFill"></image> -->
     </view>
 
-    <!-- 附近权益 -->
-    <view class="tab-content" wx:if="{{activeTab === 1}}">
-      <view class="benefit-list">
-        <view class="benefit-store-item card" wx:for="{{nearbyBenefits}}" wx:key="id">
-          <view class="store-header">
-            <image class="store-avatar" src="{{item.storeAvatar}}" mode="aspectFill" />
-            <view class="store-info">
-              <view class="store-name">{{item.storeName}}</view>
-              <view class="store-distance">{{item.distance}}</view>
-            </view>
-            <view class="store-tags">
-              <text class="store-tag">{{item.associations}}</text>
-            </view>
-          </view>
-          <view class="store-products">
-            <view class="product-item" wx:for="{{item.products}}" wx:key="id" wx:for-item="product">
-              <image class="product-image" src="{{product.image}}" mode="aspectFill" />
-              <view class="product-name">{{product.name}}</view>
-              <view class="product-price">{{product.price}}</view>
-            </view>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 可能认识的人 -->
-    <view class="tab-content" wx:if="{{activeTab === 2}}">
-      <view class="people-list">
-        <view class="people-item card" wx:for="{{recommendedPeople}}" wx:key="id">
-          <image class="people-avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="people-info">
-            <view class="people-name-row">
-              <text class="people-name">{{item.name}}</text>
-              <view class="people-follow-btn" bindtap="followPerson" data-id="{{item.id}}">关注</view>
-            </view>
-            <view class="people-tags">
-              <view class="people-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">
-                <image wx:if="{{tag.icon}}" class="tag-icon" src="{{tag.icon}}" mode="aspectFill" />
-                <text>{{tag.name}}</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-    </view>
+    <!-- 加载更多/无数据提示 -->
+    <view class="loading-more" wx:if="{{loading}}">加载中...</view>
+    <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">没有更多了</view>
+    <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
+      <text>暂无内容</text>
     </view>
   </view>
-
-  <!-- 底部留白 -->
-  <view class="bottom-space"></view>
 </view>

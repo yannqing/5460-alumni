@@ -1,1245 +1,178 @@
 /* pages/index/index.wxss */
 .container {
+  min-height: 100vh;
   background-color: #f8f8f8;
-  padding-bottom: 40rpx;
+  padding-bottom: 20rpx;
 }
 
-/* 通用样式 */
-.card {
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-/* 校友会卡片 */
-.association-cards-section {
-  margin: 20rpx 0;
-  padding: 0 20rpx;
-}
-
-.association-cards-scroll {
-  white-space: nowrap;
-  width: 100%;
-  -webkit-overflow-scrolling: touch;
-}
-
-.association-card-item {
-  display: inline-block;
-  width: 345rpx;
-  margin-right: 20rpx;
-  vertical-align: top;
-  flex-shrink: 0;
-}
-
-.association-card-item:last-child {
-  margin-right: 0;
-}
-
-.association-card-content {
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 40rpx 20rpx;
-  border: 3rpx solid #e8e8e8;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.association-card-header {
+/* 顶部 Banner */
+.header-banner {
+  height: 450rpx;
+  background: linear-gradient(180deg, #5b7fff 0%, #7a9bff 100%);
+  position: relative;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: border-box;
+  color: #fff;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12rpx;
-  margin-bottom: 20rpx;
 }
 
-.association-card-icon {
-  width: 60rpx;
-  height: 60rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 2rpx solid #e0e0e0;
-  background-color: #ffffff;
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
-}
-
-.association-card-title {
+.platform-tag {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 100rpx);
+  left: 30rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
   font-size: 24rpx;
-  font-weight: 600;
-  color: #333333;
-  flex: 1;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.association-card-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 4rpx;
-}
-
-.action-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6rpx;
-  flex: 0.8;
-  min-width: 0;
-}
-
-.action-icon-wrapper {
-  position: relative;
-  width: 64rpx;
-  height: 64rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-icon-placeholder {
-  width: 64rpx;
-  height: 64rpx;
-  background-color: #e0e0e0;
-  border-radius: 6rpx;
-  border: 2rpx solid #d0d0d0;
-  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
-}
-
-.action-icon-image {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 6rpx;
-  background: linear-gradient(135deg, #fff5f8 0%, #ffebf2 100%);
-  border: 2rpx solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.12);
-  padding: 10rpx;
-  box-sizing: border-box;
-}
-
-.notification-dot {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 14rpx;
-  height: 14rpx;
-  background-color: #ff0000;
-  border-radius: 50%;
-  border: 2rpx solid #ffffff;
-}
-
-.new-badge {
-  position: absolute;
-  top: -6rpx;
-  right: -6rpx;
-  padding: 2rpx 8rpx;
-  background-color: #ff0000;
-  color: #ffffff;
-  font-size: 18rpx;
-  border-radius: 10rpx;
-  white-space: nowrap;
-}
-
-.action-label {
-  font-size: 20rpx;
-  color: #333333;
-  white-space: nowrap;
-}
-
-/* 附近权益卡片样式 */
-.benefit-action-item {
-  flex: 1.8;
-  padding: 0;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.benefit-card-mini {
-  position: relative;
-  background: linear-gradient(135deg, #fff5f8 0%, #ffebf2 100%);
-  border-radius: 6rpx;
-  padding: 5rpx;
-  height: 64rpx;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  border: 2rpx solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.12);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.benefit-new-badge-mini {
-  position: absolute;
-  top: 2rpx;
-  right: 2rpx;
-  padding: 2rpx 6rpx;
-  background-color: #ff0000;
-  color: #ffffff;
-  font-size: 14rpx;
-  border-radius: 10rpx;
-  white-space: nowrap;
-  z-index: 2;
-}
-
-.benefit-buttons-mini {
-  display: flex;
-  gap: 5rpx;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  padding: 0 3rpx;
-  box-sizing: border-box;
-}
-
-.benefit-btn-mini {
-  padding: 3rpx 8rpx;
-  background: linear-gradient(135deg, #ffd4e5 0%, #ffc2d9 100%);
-  color:rgb(49, 49, 49);
-  font-size: 14rpx;
-  font-weight: 600;
-  border-radius: 10rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.5);
-  white-space: nowrap;
-  box-shadow: 0 2rpx 4rpx rgba(255, 107, 157, 0.15);
-  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.1);
-  flex: 1;
-  min-width: 0;
-  text-align: center;
-}
-
-/* 快速入口 */
-.quick-entry-section {
-  position: relative;
-  margin: 20rpx 20rpx;
-}
-
-.quick-entry-bg-decoration {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ffffff;
-  border-radius: 24rpx;
-  border: 3rpx solid #e8e8e8;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-  z-index: 1;
-}
-
-.quick-entry-content {
-  position: relative;
-  z-index: 2;
-  padding: 20rpx 30rpx 20rpx;
-}
-
-.quick-entry-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 30rpx;
-  padding-left: 10rpx;
-}
-
-.quick-entry-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30rpx 20rpx;
-}
-
-.quick-entry-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.quick-entry-icon-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.quick-entry-icon {
-  width: 100rpx;
-  height: 100rpx;
-  background: linear-gradient(135deg, #fff5f8 0%, #ffebf2 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6rpx 20rpx rgba(255, 107, 157, 0.12);
-  border: 2rpx solid rgba(255, 255, 255, 0.8);
-  position: relative;
-  z-index: 2;
-  padding: 15rpx;
-  box-sizing: border-box;
-}
-
-.quick-entry-icon image {
-  width: 100%;
-  height: 100%;
-}
-
-.quick-entry-icon-base {
-  width: 80rpx;
-  height: 14rpx;
-  background: linear-gradient(135deg, #ffe8f0 0%, #ffd4e5 100%);
-  border-radius: 50%;
-  margin-top: -8rpx;
-  opacity: 0.6;
-  filter: blur(2rpx);
-}
-
-.quick-entry-name {
-  font-size: 24rpx;
-  color: #333333;
+  padding: 8rpx 24rpx;
+  border-radius: 30rpx;
   font-weight: 500;
 }
 
-/* 通用区块 */
-.section {
-  margin-bottom: 20rpx;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 30rpx 30rpx 20rpx;
-  background-color: transparent;
-}
-
-.section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333333;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.hot-badge {
-  font-size: 28rpx;
-}
-
-.section-more {
-  font-size: 24rpx;
-  color: #999999;
-  display: flex;
-  align-items: center;
-  gap: 4rpx;
-}
-
-.arrow {
-  font-size: 32rpx;
-  font-weight: 300;
-}
-
-/* 母校列表 */
-.school-list {
-  padding: 0 20rpx;
-}
-
-.school-item {
-  margin-bottom: 20rpx;
-}
-
-.school-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 20rpx;
-  margin-bottom: 20rpx;
-}
-
-.school-icon {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 3rpx solid #e0e0e0;
-  background-color: #ffffff;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-}
-
-.school-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.school-name-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  margin-bottom: 8rpx;
-}
-
-.school-name {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333333;
-}
-
-.certified-badge {
-  padding: 4rpx 12rpx;
-  background-color: rgb(226, 175, 22);
-  color: #ffffff;
-  font-size: 20rpx;
-  border-radius: 6rpx;
-}
-
-.school-location {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  font-size: 24rpx;
-  color: #666666;
-  margin-bottom: 12rpx;
-}
-
-.school-location .location-icon {
-  width: 24rpx;
-  height: 24rpx;
-  flex-shrink: 0;
-}
-
-.school-tags {
-  display: flex;
-  gap: 8rpx;
-  flex-wrap: wrap;
-}
-
-.school-action {
-  flex-shrink: 0;
-}
-
-.school-stats {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  font-size: 24rpx;
-  color: #666666;
-  padding-top: 20rpx;
-  border-top: 1rpx solid #f0f0f0;
-}
-
-.stat-item {
-  color: #666666;
-}
-
-.stat-divider {
-  color: #e0e0e0;
-}
-
-/* 校友会横向滚动 */
-.association-scroll {
-  white-space: nowrap;
-  padding: 0 20rpx;
-}
-
-.association-item {
-  display: inline-block;
-  width: 280rpx;
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin-right: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
-  vertical-align: top;
-}
-
-.association-item:last-child {
-  margin-right: 0;
-}
-
-.association-icon {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 50%;
-  margin: 0 auto 16rpx;
-  display: block;
-}
-
-.association-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 8rpx;
-  white-space: normal;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.association-school {
-  font-size: 24rpx;
-  color: #666666;
-  margin-bottom: 12rpx;
-  white-space: normal;
-}
-
-.association-info {
-  font-size: 22rpx;
-  color: #999999;
-  white-space: normal;
-}
-
-.dot {
-  margin: 0 8rpx;
-}
-
-/* 校友列表 */
-.alumni-list {
-  padding: 0 20rpx;
-}
-
-.alumni-item {
-  margin-bottom: 20rpx;
-}
-
-.alumni-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 20rpx;
-}
-
-.alumni-info {
-  min-width: 0;
-}
-
-.alumni-name {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 8rpx;
-}
-
-.alumni-education {
-  font-size: 24rpx;
-  color: #666666;
-  margin-bottom: 6rpx;
-}
-
-.alumni-work {
-  font-size: 24rpx;
-  color: #666666;
-}
-
-.alumni-action {
-  flex-shrink: 0;
-}
-
-/* 优惠券列表 */
-.coupon-list {
-  padding: 0 20rpx;
-}
-
-.coupon-item {
-  margin-bottom: 20rpx;
-}
-
-.coupon-content {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-
-.coupon-image {
-  width: 160rpx;
-  height: 120rpx;
-  border-radius: 8rpx;
-  flex-shrink: 0;
-}
-
-.coupon-info {
-  min-width: 0;
-}
-
-.coupon-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 8rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.coupon-merchant {
-  font-size: 22rpx;
-  color: #999999;
-  margin-bottom: 12rpx;
-}
-
-.coupon-price {
+.slogan-container {
+  margin-top: 180rpx;
   display: flex;
   align-items: baseline;
-  gap: 12rpx;
-  margin-bottom: 12rpx;
+  gap: 20rpx;
 }
 
-.price-now {
+.slogan-main {
+  font-size: 56rpx;
+  font-weight: bold;
+  font-style: italic;
+  letter-spacing: 4rpx;
+}
+
+.slogan-side {
+  font-size: 28rpx;
+  opacity: 0.8;
+}
+
+.sub-slogan {
   font-size: 32rpx;
-  font-weight: 600;
-  color: #ff6b9d;
-}
-
-.price-original {
-  font-size: 22rpx;
-  color: #999999;
-  text-decoration: line-through;
-}
-
-.coupon-stock {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.stock-bar {
-  flex: 1;
-  height: 8rpx;
-  background-color: #f0f0f0;
-  border-radius: 4rpx;
-  overflow: hidden;
-}
-
-.stock-progress {
-  height: 100%;
-  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
-  border-radius: 4rpx;
-}
-
-.stock-text {
-  font-size: 20rpx;
-  color: #999999;
-  white-space: nowrap;
-}
-
-.coupon-action {
-  flex-shrink: 0;
-}
-
-/* 活动列表 */
-.activity-list {
-  padding: 0 20rpx;
-}
-
-.activity-item {
-  margin-bottom: 20rpx;
-  padding: 0;
-  overflow: hidden;
-}
-
-.activity-cover {
-  width: 100%;
-  height: 300rpx;
-}
-
-.activity-info {
-  padding: 24rpx;
-}
-
-.activity-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 12rpx;
-}
-
-.activity-detail {
-  margin-bottom: 8rpx;
-}
-
-.activity-organizer {
-  font-size: 24rpx;
-  color: #666666;
-}
-
-.activity-meta {
-  margin-bottom: 12rpx;
-}
-
-.activity-location {
-  font-size: 24rpx;
-  color: #666666;
-}
-
-.activity-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12rpx;
-  border-top: 1rpx solid #f0f0f0;
-}
-
-.activity-time {
-  font-size: 22rpx;
-  color: #999999;
-}
-
-.activity-participant {
-  font-size: 22rpx;
-  color: #ff6b9d;
-}
-
-/* 标签页整体容器 */
-.tab-container {
-  background-color: #ffffff;
-  border-radius: 16rpx 16rpx 0 0;
-  margin: 0;
-  overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-/* 标签页导航 */
-.tab-nav {
-  display: flex;
-  background-color: #ffffff;
-  padding: 0;
-  gap: 0;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.tab-item {
-  flex: 1;
-  text-align: center;
-  padding: 18rpx 0;
-  font-size: 26rpx;
-  color:rgb(34, 33, 33);
-  background: linear-gradient(90deg,rgb(248, 248, 248) 0%,rgb(219, 144, 173) 100%);
-  border-radius: 30rpx 30rpx 0 0;
-  position: relative;
-  white-space: nowrap;
-  margin: 0;
-}
-
-.tab-item:first-child {
-  border-top-left-radius: 30rpx;
-}
-
-.tab-item:last-child {
-  border-top-right-radius: 30rpx;
-}
-
-.tab-item.active {
-  color:rgb(34, 32, 32);
-  font-weight: 600;
-  background: linear-gradient(90deg, rgb(230, 220, 226) 0%, rgb(228, 100, 149) 100%);
-  box-shadow: inset 0 2rpx 4rpx rgba(0, 0, 0, 0.08);
-}
-
-/* 标签页内容 */
-.tab-content-wrapper {
-  background-color: #ffffff;
-}
-
-.tab-content {
-  padding: 0;
-  background-color: #ffffff;
-}
-
-/* 校友圈帖子列表 */
-.post-list {
-  padding: 0;
-  background-color: #ffffff;
-  border-radius: 0;
-}
-
-.post-item {
-  margin-bottom: 0;
-  padding: 24rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-  background-color: #ffffff;
-}
-
-.post-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.post-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16rpx;
-  position: relative;
-  gap: 16rpx;
-}
-
-.post-avatar {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background-color: #f0f0f0;
-}
-
-.post-user-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-}
-
-.post-username {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-}
-
-.post-time {
-  font-size: 22rpx;
-  color: #999999;
-}
-
-.post-group {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.group-icon {
-  width: 40rpx;
-  height: 40rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background-color: #f0f0f0;
-}
-
-.group-name {
-  font-size: 24rpx;
-  color: #666666;
-  white-space: nowrap;
-}
-
-.post-body {
-  margin: 0;
-}
-
-.post-event-card {
-  background-color: #f9f9f9;
-  border-radius: 20rpx;
-  padding: 30rpx;
-  border: 1rpx solid #f1f1f1;
-}
-
-.post-news-card {
-  background-color: #f9f9f9;
-  border-radius: 20rpx;
-  padding: 30rpx;
-  border: 1rpx solid #f1f1f1;
-}
-
-.news-main {
-  display: flex;
-  gap: 24rpx;
-}
-
-.news-cover {
-  width: 200rpx;
-  height: 200rpx;
-  border-radius: 12rpx;
-  background: linear-gradient(135deg, #ededed 0%, #ffffff 100%);
-  flex-shrink: 0;
-}
-
-.news-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 14rpx;
-}
-
-.news-title {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #1f1f1f;
-  line-height: 1.4;
-}
-
-.news-desc {
-  font-size: 26rpx;
-  color: #787878;
-  line-height: 1.6;
-}
-
-.news-stats {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16rpx;
-  margin-top: 30rpx;
-}
-
-.news-location {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-  margin-top: 20rpx;
-  color: #7a7a7a;
-}
-
-.event-top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20rpx;
-}
-
-.event-title {
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #1f1f1f;
-  flex: 1;
-  line-height: 1.4;
-}
-
-.event-time {
-  font-size: 26rpx;
-  color: #9a9a9a;
-  white-space: nowrap;
-}
-
-.event-participants-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20rpx;
-  margin: 30rpx 0 24rpx;
-}
-
-.participant-stack {
-  display: flex;
-  align-items: center;
-}
-
-.participant-avatar {
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 50%;
-  border: 4rpx solid #ffffff;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
-  background: linear-gradient(135deg, #ededed 0%, #ffffff 100%);
-}
-
-.participant-text {
-  font-size: 24rpx;
-  color: #9a9a9a;
-  flex: 1;
-  text-align: right;
-}
-
-.event-cta-row {
-  margin-bottom: 24rpx;
-}
-
-.event-cta-button {
-  width: 100%;
-  padding: 24rpx 0;
-  text-align: center;
-  border-radius: 12rpx;
-  background: linear-gradient(90deg, #ffe6ef 0%, #ffd6e5 100%);
-  color: #c45986;
-  font-size: 28rpx;
-  font-weight: 600;
-  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.6), 0 6rpx 16rpx rgba(255, 107, 157, 0.18);
-}
-
-.event-bottom-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 20rpx;
-}
-
-.event-location {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-}
-
-.location-name {
-  font-size: 28rpx;
-  color: #7a7a7a;
-}
-
-.location-icon {
-  width: 36rpx;
-  height: 36rpx;
-}
-
-.event-stats {
-  display: flex;
-  gap: 16rpx;
-}
-
-.event-stat-pill {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 12rpx 24rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(135deg, #efefef 0%, #ffffff 100%);
-  box-shadow: inset 0 0 0 1rpx #e3e3e3;
-}
-
-.event-stat-pill.liked {
-  background: linear-gradient(135deg, #ffe0f0 0%, #ffafd2 100%);
-  box-shadow: inset 0 0 0 1rpx #ff8fbf, 0 4rpx 12rpx rgba(255, 143, 191, 0.35);
-}
-
-.event-stat-pill.liked .stat-label,
-.event-stat-pill.liked .stat-value {
-  color: #d92672;
-}
-
-.event-stat-pill.liked .stat-icon {
-  background: linear-gradient(135deg, #ff96c5 0%, #ff6ea9 100%);
-  color: #ffffff;
-}
-
-.stat-label {
-  font-size: 22rpx;
-  color: #8a8a8a;
-}
-
-.stat-value {
-  font-size: 26rpx;
-  color: #5a5a5a;
-  font-weight: 600;
-}
-
-.stat-icon {
-  width: 32rpx;
-  height: 32rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #e5e5e5 0%, #f8f8f8 100%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20rpx;
-  color: #8a8a8a;
-}
-
-.stat-icon.like::after {
-  content: '❤';
-  font-size: 20rpx;
-}
-
-.stat-icon.share::after {
-  content: '↗';
-  font-size: 20rpx;
-}
-
-/* 附近权益列表 */
-.benefit-list {
-  padding: 0 20rpx;
-}
-
-.benefit-store-item {
-  margin-bottom: 20rpx;
-  padding: 24rpx;
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.store-header {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 20rpx;
-  gap: 16rpx;
-}
-
-.store-avatar {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background-color: #f0f0f0;
-}
-
-.store-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6rpx;
-  min-width: 0;
-}
-
-.store-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-}
-
-.store-distance {
-  font-size: 22rpx;
-  color: #999999;
-}
-
-.store-tags {
-  flex-shrink: 0;
-  max-width: 200rpx;
-}
-
-.store-tag {
-  font-size: 22rpx;
-  color: #666666;
-  background-color: #f5f5f5;
-  padding: 4rpx 12rpx;
-  border-radius: 4rpx;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.store-products {
-  display: flex;
-  gap: 12rpx;
-  margin-top: 16rpx;
-}
-
-.product-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  min-width: 0;
-}
-
-.product-image {
-  width: 100%;
-  height: 180rpx;
-  border-radius: 8rpx;
-  background-color: #f0f0f0;
-  flex-shrink: 0;
-}
-
-.product-name {
-  font-size: 24rpx;
-  color: #333333;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.4;
-}
-
-.product-price {
-  font-size: 22rpx;
-  color: #ff6b9d;
+  margin-top: 24rpx;
+  opacity: 0.95;
   font-weight: 500;
 }
 
-/* 可能认识的人列表 */
-.people-list {
-  padding: 0;
-  background-color: #ffffff;
-  border-radius: 0;
+/* 导航区域 */
+.nav-container {
+  margin: -80rpx 15rpx 30rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 60rpx 20rpx 35rpx;
+  position: relative;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+  z-index: 10;
 }
 
-.people-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
+.nav-header {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.people-item {
+.nav-title-tag {
+  background-color: #6ed4d6; /* 浅青色 */
+  color: #fff;
+  font-size: 24rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx 0 20rpx 0;
+  box-shadow: 2rpx 2rpx 4rpx rgba(0,0,0,0.1);
+}
+
+.nav-grid {
   display: flex;
-  align-items: flex-start;
-  padding: 24rpx;
-  margin-bottom: 0;
-  gap: 20rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-  background-color: #ffffff;
+  justify-content: space-around;
+  align-items: center;
 }
 
-.people-item:last-child {
-  border-bottom: none;
-}
-
-.people-avatar {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background-color: #f0f0f0;
-}
-
-.people-info {
-  flex: 1;
+.nav-item {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
-  min-width: 0;
-}
-
-.people-name-row {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16rpx;
 }
 
-.people-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-  flex: 1;
-}
-
-.people-follow-btn {
-  font-size: 24rpx;
-  color: #999999;
-  padding: 8rpx 20rpx;
-  border: 1rpx solid #e0e0e0;
-  border-radius: 20rpx;
-  flex-shrink: 0;
-  background-color: #ffffff;
-}
-
-.people-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8rpx;
-  align-items: center;
-}
-
-.people-tag {
-  display: flex;
-  align-items: center;
-  gap: 6rpx;
-  font-size: 22rpx;
-  color: #666666;
-  background-color: #f5f5f5;
-  padding: 6rpx 12rpx;
-  border-radius: 20rpx;
-  white-space: nowrap;
-}
-
-.tag-icon {
-  width: 24rpx;
-  height: 24rpx;
+.nav-icon {
+  width: 80rpx;
+  height: 80rpx;
+  /* background-color: #f9f9f9; */
   border-radius: 50%;
-  flex-shrink: 0;
-  background-color: #e0e0e0;
 }
 
-/* 底部留白 */
-.bottom-space {
-  height: 40rpx;
+.nav-text {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 文章列表 */
+.article-list {
+  padding: 0;
+}
+
+.article-item {
+  background-color: #fff;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.article-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.user-avatar {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  border: 1rpx solid #f0f0f0;
+}
+
+.publish-time {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.article-content {
+  padding-left: 0;
+}
+
+.article-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
+}
+
+.article-desc {
+  font-size: 30rpx;
+  color: #555;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.loading-more, .no-more, .empty-state {
+  text-align: center;
+  padding: 40rpx;
+  color: #999;
+  font-size: 26rpx;
 }

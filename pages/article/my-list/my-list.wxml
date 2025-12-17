@@ -1,0 +1,47 @@
+<view class="container">
+  <view class="article-list">
+    <block wx:for="{{articles}}" wx:key="id">
+      <view class="article-card" bindtap="goToDetail" data-id="{{item.id}}">
+        <!-- 头部：用户信息 -->
+        <view class="card-header">
+          <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+          <view class="user-info">
+            <text class="user-name">{{item.publisher}}</text>
+            <text class="publish-time">{{item.time}}</text>
+          </view>
+        </view>
+
+        <!-- 内容区域：根据是否有图决定布局 -->
+        <view class="card-body {{item.cover ? 'has-cover' : ''}}">
+          <view class="text-content">
+            <view class="article-title">{{item.title}}</view>
+            <view class="article-desc" wx:if="{{item.description}}">{{item.description}}</view>
+          </view>
+          
+          <!-- 右侧封面图 (如果有) -->
+          <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
+        </view>
+        
+        <!-- 底部状态栏 -->
+        <view class="card-footer" wx:if="{{item.isTop}}">
+           <text class="article-tag">置顶</text>
+        </view>
+      </view>
+    </block>
+
+    <view class="empty-state" wx:if="{{!loading && articles.length === 0}}">
+      <image class="empty-img" src="/assets/images/empty.png" mode="widthFix" wx:if="{{false}}"></image>
+      <text>暂无文章</text>
+    </view>
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="no-more-state" wx:if="{{!hasMore && articles.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+  </view>
+
+  <view class="footer-btn-wrapper">
+    <button class="add-btn" bindtap="goToAdd">新增文章</button>
+  </view>
+</view>
