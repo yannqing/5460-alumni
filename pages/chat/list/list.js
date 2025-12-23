@@ -423,21 +423,41 @@ Page({
    * 标记已读
    */
   async markRead(e) {
-    const { id, index } = e.currentTarget.dataset
-    // id 可能是 conversationId 或者 userId，这里假设接口需要 conversationId
-    // 如果没有 API 支持会话级别的标记已读，可能需要遍历消息标记
-    // 但 chatApi 中有 markMessagesRead，没有 markConversationRead
-    // 假设需求是清空未读数
+    const { peerid, index } = e.currentTarget.dataset
+    
+    if (!peerid) {
+      console.error('[ChatList] 标记已读失败：缺少 peerid')
+      wx.showToast({ title: '操作失败', icon: 'none' })
+      return
+    }
     
     // 乐观更新
     const list = this.data.allChatList
+    const originalUnreadCount = list[index].unreadCount
     list[index].unreadCount = 0
     list[index].isTouchMove = false // 关闭滑动菜单
     this.setData({ allChatList: list })
 
-    // 这里如果后端有接口，应该调用接口
-    // 比如 chatApi.markSessionRead(id)
-    // 暂时没有特定接口，先仅前端更新
+    try {
+      // 调用后端接口标记已读
+      const res = await chatApi.markConversationRead(peerid)
+      
+      if (res.data && res.data.code === 200) {
+        // 更新未读总数
+        this.loadUnreadTotal()
+      } else {
+        // 回滚
+        list[index].unreadCount = originalUnreadCount
+        this.setData({ allChatList: list })
+        wx.showToast({ title: res.data?.msg || '操作失败', icon: 'none' })
+      }
+    } catch (error) {
+      console.error('[ChatList] 标记已读失败:', error)
+      // 回滚
+      list[index].unreadCount = originalUnreadCount
+      this.setData({ allChatList: list })
+      wx.showToast({ title: '操作失败', icon: 'none' })
+    }
   },
 
   /**
@@ -448,7 +468,10 @@ Page({
     // id 即 conversationId
     if (!id) return
 
-    const newIsPinned = !ispinned
+    // dataset 中的值是字符串，需要正确转换为布尔值
+    // ispinned 可能是 "true"、"false"、true、false 或 undefined
+    const currentIsPinned = ispinned === true || ispinned === 'true'
+    const newIsPinned = !currentIsPinned
     
     try {
       // 调用 API，注意传递 isPinned 参数
@@ -483,7 +506,13 @@ Page({
    */
   async deleteConversation(e) {
     const { id, index } = e.currentTarget.dataset
-    // id 这里是 userId (chatApi.deleteChat(userId))
+    // id 是 conversationId
+    
+    if (!id) {
+      console.error('[ChatList] 删除会话失败：缺少 conversationId')
+      wx.showToast({ title: '操作失败', icon: 'none' })
+      return
+    }
     
     wx.showModal({
       title: '提示',
@@ -491,17 +520,19 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            const apiRes = await chatApi.deleteChat(id)
+            const apiRes = await chatApi.deleteConversation(id)
             if (apiRes.data && apiRes.data.code === 200) {
               const list = this.data.allChatList
               list.splice(index, 1)
-              this.setData({ allChatList: list })
+              this.setData({ allChatList: list, chatList: list })
               wx.showToast({ title: '删除成功', icon: 'success' })
+              // 更新未读总数
+              this.loadUnreadTotal()
             } else {
-              wx.showToast({ title: '删除失败', icon: 'none' })
+              wx.showToast({ title: apiRes.data?.msg || '删除失败', icon: 'none' })
             }
           } catch (error) {
-            console.error(error)
+            console.error('[ChatList] 删除会话失败:', error)
             wx.showToast({ title: '删除失败', icon: 'none' })
           }
         } else {

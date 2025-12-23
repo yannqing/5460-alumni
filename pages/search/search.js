@@ -49,45 +49,172 @@ Page({
     wx.setStorageSync('searchHistory', history)
   },
 
-  performSearch(keyword) {
-    // 模拟搜索结果
-    const mockResult = {
-      schools: [
-        {
-          id: 1,
-          name: '南京大学',
-          icon: 'https://via.placeholder.com/100/ff6b9d/ffffff?text=NJU',
-          location: '江苏省南京市',
-          alumniCount: 12580
-        }
-      ],
-      associations: [
-        {
-          id: 1,
-          name: '南京大学上海校友会',
-          location: '上海市',
-          memberCount: 1580
-        }
-      ],
-      alumni: [
-        {
-          id: 1,
-          name: '张三',
-          avatar: config.defaultAvatar,
-          school: '南京大学',
-          company: '腾讯科技'
-        }
-      ]
-    }
+  async performSearch(keyword) {
+    try {
+      wx.showLoading({ title: '搜索中...' })
 
-    this.setData({
-      searchResult: mockResult,
-      showResult: true
-    })
+      const { activeTab } = this.data
+      
+      // 根据当前tab确定搜索类型
+      // 后端SearchType枚举：ALUMNI(校友), ASSOCIATION(校友会), MERCHANT(商户), ALL(全部)
+      let types = []
+      if (activeTab === 0) {
+        // 全部：搜索所有类型
+        types = ['ALUMNI', 'ASSOCIATION']
+      } else if (activeTab === 1) {
+        // 母校：统一搜索接口不支持学校搜索
+        types = []
+      } else if (activeTab === 2) {
+        // 校友会
+        types = ['ASSOCIATION']
+      } else if (activeTab === 3) {
+        // 校友
+        types = ['ALUMNI']
+      }
+
+      // 如果没有可搜索的类型，显示空结果
+      if (types.length === 0) {
+        wx.hideLoading()
+        this.setData({
+          searchResult: {
+            schools: [],
+            associations: [],
+            alumni: []
+          },
+          showResult: true
+        })
+        return
+      }
+
+      // 构建请求参数
+      const requestParams = {
+        keyword: keyword.trim(),
+        types: types,
+        pageNum: 1,
+        pageSize: 20,
+        highlight: true
+      }
+
+      console.log('[Search] 统一搜索请求参数:', requestParams)
+
+      // 调用统一搜索接口
+      const res = await searchApi.unifiedSearch(requestParams)
+      wx.hideLoading()
+
+      console.log('[Search] 统一搜索响应:', res.data)
+
+      if (res.data && res.data.code === 200) {
+        const data = res.data.data || {}
+        const items = data.items || []
+        const typeCounts = data.typeCounts || {}
+
+        console.log('[Search] 原始响应数据:', JSON.stringify(data, null, 2))
+        console.log('[Search] items数量:', items.length)
+        console.log('[Search] items内容:', JSON.stringify(items, null, 2))
+
+        // 将搜索结果按类型分类
+        const schools = []
+        const associations = []
+        const alumni = []
+
+        items.forEach((item, index) => {
+          // 处理type字段：可能是字符串、枚举对象或枚举code
+          let type = item.type
+          if (typeof type === 'object' && type !== null) {
+            // 如果是对象，可能是枚举对象，尝试获取code属性
+            type = type.code || type.name || type
+          }
+          // 确保type是字符串
+          type = String(type).toUpperCase()
+          
+          const extra = item.extra || {}
+
+          console.log(`[Search] 处理第${index + 1}项:`, {
+            type: type,
+            id: item.id,
+            title: item.title,
+            extra: extra
+          })
+
+          if (type === 'ALUMNI') {
+            // 校友结果
+            alumni.push({
+              id: item.id,
+              name: item.title || '',
+              avatar: item.avatar ? config.getImageUrl(item.avatar) : config.defaultAvatar,
+              school: extra.schoolName || item.subtitle || '',
+              company: extra.company || ''
+            })
+          } else if (type === 'ASSOCIATION') {
+            // 校友会结果
+            associations.push({
+              id: item.id,
+              name: item.title || '',
+              location: extra.location || extra.city || extra.province || item.subtitle || '',
+              memberCount: extra.memberCount || extra.memberNum || 0
+            })
+          } else if (type === 'SCHOOL' || type === 'MERCHANT') {
+            // 母校或商户结果（暂时不支持，但保留处理逻辑）
+            // 可以根据需要扩展
+          } else {
+            console.warn(`[Search] 未知的搜索类型: ${type}`, item)
+          }
+        })
+
+        this.setData({
+          searchResult: {
+            schools: schools,
+            associations: associations,
+            alumni: alumni
+          },
+          showResult: true
+        })
+
+        console.log('[Search] 搜索结果处理完成:', {
+          schools: schools.length,
+          associations: associations.length,
+          alumni: alumni.length
+        })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '搜索失败',
+          icon: 'none'
+        })
+        this.setData({
+          searchResult: {
+            schools: [],
+            associations: [],
+            alumni: []
+          },
+          showResult: true
+        })
+      }
+    } catch (err) {
+      wx.hideLoading()
+      console.error('[Search] 搜索异常:', err)
+      wx.showToast({
+        title: '搜索失败，请稍后重试',
+        icon: 'none'
+      })
+      this.setData({
+        searchResult: {
+          schools: [],
+          associations: [],
+          alumni: []
+        },
+        showResult: true
+      })
+    }
   },
 
   switchTab(e) {
-    this.setData({ activeTab: e.currentTarget.dataset.index })
+    const index = e.currentTarget.dataset.index
+    this.setData({ activeTab: index })
+    
+    // 如果已经搜索过，切换tab后重新搜索
+    if (this.data.showResult && this.data.keyword.trim()) {
+      this.performSearch(this.data.keyword)
+    }
   },
 
   onHotSearchTap(e) {

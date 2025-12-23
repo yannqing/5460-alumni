@@ -79,6 +79,58 @@
           </view>
         </view>
       </view>
+
+      <!-- 空结果提示 -->
+      <view wx:if="{{searchResult.schools.length === 0 && searchResult.associations.length === 0 && searchResult.alumni.length === 0}}" class="empty-result">
+        <text class="empty-text">暂无搜索结果</text>
+      </view>
+    </view>
+
+    <!-- 母校结果 -->
+    <view wx:if="{{activeTab === 1}}">
+      <view wx:if="{{searchResult.schools.length > 0}}" class="result-section">
+        <view class="list-item" wx:for="{{searchResult.schools}}" wx:key="id" bindtap="viewSchoolDetail" data-id="{{item.id}}">
+          <image class="avatar" src="{{item.icon}}" mode="aspectFill" />
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.location}} · {{item.alumniCount}}人</view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="empty-result">
+        <text class="empty-text">暂无搜索结果</text>
+      </view>
+    </view>
+
+    <!-- 校友会结果 -->
+    <view wx:if="{{activeTab === 2}}">
+      <view wx:if="{{searchResult.associations.length > 0}}" class="result-section">
+        <view class="list-item" wx:for="{{searchResult.associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.location}} · {{item.memberCount}}人</view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="empty-result">
+        <text class="empty-text">暂无搜索结果</text>
+      </view>
+    </view>
+
+    <!-- 校友结果 -->
+    <view wx:if="{{activeTab === 3}}">
+      <view wx:if="{{searchResult.alumni.length > 0}}" class="result-section">
+        <view class="list-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
+          <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.school}} · {{item.company}}</view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="empty-result">
+        <text class="empty-text">暂无搜索结果</text>
+      </view>
     </view>
   </view>
 </view>

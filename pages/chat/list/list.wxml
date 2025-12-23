@@ -76,10 +76,10 @@
         <view class="action-btn pin {{item.isPinned ? 'unpin' : ''}}" catchtap="pinConversation" data-index="{{index}}" data-id="{{item.conversationId}}" data-ispinned="{{item.isPinned}}">
           {{item.isPinned ? '取消置顶' : '置顶'}}
         </view>
-        <view class="action-btn read" catchtap="markRead" data-index="{{index}}" data-id="{{item.conversationId}}">
+        <view class="action-btn read" catchtap="markRead" data-index="{{index}}" data-peerid="{{item.peerId || item.userId}}">
           已读
         </view>
-        <view class="action-btn delete" catchtap="deleteConversation" data-index="{{index}}" data-id="{{item.userId}}">
+        <view class="action-btn delete" catchtap="deleteConversation" data-index="{{index}}" data-id="{{item.conversationId}}">
           删除
         </view>
       </view>

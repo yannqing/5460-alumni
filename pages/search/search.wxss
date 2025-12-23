@@ -93,3 +93,13 @@
 .result-section {
   margin: 20rpx;
 }
+
+.empty-result {
+  padding: 100rpx 20rpx;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}

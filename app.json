@@ -43,7 +43,11 @@
     "pages/audit/list/list",
     "pages/audit/user/list/list",
     "pages/audit/content/list/list",
-    "pages/audit/merchant/list/list"
+    "pages/audit/merchant/list/list",
+    "pages/article/detail/detail",
+    "pages/article/form/form",
+    "pages/article/my-list/my-list",
+    "pages/article/audit-list/audit-list"
   ],
   "window": {
     "backgroundTextStyle": "light",

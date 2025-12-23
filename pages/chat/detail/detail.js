@@ -205,7 +205,7 @@ Page({
     console.log('[ChatDetail] 收到新消息:', data)
     
     const messageData = data.data || {}
-    const { fromUserId, toUserId, content, messageType, timestamp } = messageData
+    const { fromUserId, toUserId, content, messageType, timestamp, messageId } = messageData
 
     // 只处理当前聊天的消息
     if (fromUserId !== this.data.chatId && toUserId !== this.data.chatId) {
@@ -215,13 +215,66 @@ Page({
     // 判断是否是我发的消息
     const isMe = fromUserId === this.data.myUserId
 
+    // 使用 messageId 或 timestamp 作为消息ID
+    const msgId = messageId || timestamp || Date.now()
+    const msgTimestamp = timestamp || Date.now()
+
+    // 检查消息是否已存在（避免重复添加）
+    const existingMessage = this.data.messageList.find(msg => {
+      // 如果消息ID相同
+      if (msg.id === msgId) {
+        return true
+      }
+      // 如果是我发送的消息，通过内容和时间戳匹配（允许一定的时间误差）
+      if (isMe && msg.isMe && msg.content === content) {
+        // 如果消息的 timestamp 与接收到的 timestamp 匹配，或者时间差在10秒内
+        const msgTime = msg.timestamp || (typeof msg.id === 'number' && msg.id > 1577836800000 ? msg.id : null)
+        if (msgTime) {
+          const timeDiff = Math.abs(msgTime - msgTimestamp)
+          if (timeDiff < 10000) {  // 10秒内的消息认为是同一条
+            return true
+          }
+        }
+      }
+      return false
+    })
+
+    if (existingMessage) {
+      // 消息已存在，更新它而不是添加新消息
+      const updatedList = this.data.messageList.map(msg => {
+        // 匹配临时消息：通过ID或内容和时间匹配
+        if (msg.id === existingMessage.id || 
+            (isMe && msg.isMe && msg.content === content && 
+             (msg.id === existingMessage.id || 
+              (msg.timestamp && Math.abs(msg.timestamp - msgTimestamp) < 10000)))) {
+          return {
+            ...msg,
+            id: msgId,  // 使用后端返回的真实ID
+            timestamp: msgTimestamp,  // 确保 timestamp 字段存在
+            status: 'success',
+            // 确保所有字段都正确
+            isMe: isMe,
+            content: content,
+            type: messageType || 'text',
+            time: this.formatTime(msgTimestamp),
+            avatar: isMe ? this.data.myAvatar : this.data.chatInfo.avatar
+          }
+        }
+        return msg
+      })
+      this.setData({ messageList: updatedList })
+      console.log('[ChatDetail] WebSocket消息更新了临时消息的ID:', msgId)
+      return
+    }
+
     // 添加到消息列表
     const newMessage = {
-      id: timestamp || Date.now(),
+      id: msgId,
       isMe: isMe,
       content: content,
       type: messageType || 'text',
-      time: this.formatTime(timestamp),
+      time: this.formatTime(msgTimestamp),
+      timestamp: msgTimestamp,  // 确保 timestamp 字段存在，用于撤回判断
       avatar: isMe ? this.data.myAvatar : this.data.chatInfo.avatar,
       status: 'success'
     }
@@ -416,6 +469,101 @@ Page({
     }
   },
 
+  /**
+   * 重新加载最新消息（用于发送消息后获取真实的消息ID）
+   */
+  async reloadLatestMessages(sentContent, sentTimestamp) {
+    try {
+      const { chatId, messageList } = this.data
+      
+      // 只加载最后几条消息
+      const params = {
+        current: 1,
+        size: 5,  // 只加载最后5条，减少请求量
+        otherUserId: chatId,
+      }
+      const res = await chatApi.getChatHistory(params)
+      
+      if (res.data && res.data.code === 200) {
+        let messages = res.data.data?.records || []
+        
+        if (messages.length > 0) {
+          // 映射消息数据
+          const mappedMessages = messages.map(msg => {
+            let content = ''
+            let formUserPortrait = ''
+            
+            if (msg.msgContent) {
+              if (typeof msg.msgContent === 'string') {
+                try {
+                  const parsed = JSON.parse(msg.msgContent)
+                  content = parsed.content || msg.msgContent
+                  formUserPortrait = parsed.formUserPortrait
+                } catch (e) {
+                  content = msg.msgContent
+                }
+              } else {
+                content = msg.msgContent.content || ''
+                formUserPortrait = msg.msgContent.formUserPortrait
+              }
+            }
+            
+            const msgType = (msg.messageFormat || 'TEXT').toLowerCase()
+            
+            return {
+              id: msg.messageId,
+              isMe: msg.isMine,
+              content: content,
+              type: msgType === 'image' ? 'image' : 'text',
+              time: this.formatTime(msg.createTime),
+              timestamp: msg.createTime,
+              avatar: msg.isMine ? this.data.myAvatar : (formUserPortrait ? config.getImageUrl(formUserPortrait) : this.data.chatInfo.avatar),
+              image: msgType === 'image' ? config.getImageUrl(content) : '',
+              status: 'success'
+            }
+          })
+          
+          // 按时间正序排序
+          mappedMessages.reverse()
+          
+          // 查找匹配的临时消息并更新
+          const updatedList = messageList.map(msg => {
+            // 如果是临时消息（使用timestamp作为ID），且内容和时间匹配
+            if (msg.id === sentTimestamp && msg.content === sentContent && msg.isMe) {
+              // 在最新消息中查找匹配的消息
+              const matchedMsg = mappedMessages.find(m => 
+                m.isMe && 
+                m.content === sentContent && 
+                Math.abs(m.timestamp - sentTimestamp) < 10000  // 10秒内的消息认为是同一条
+              )
+              
+              if (matchedMsg) {
+                console.log('[ChatDetail] 找到匹配的消息，更新ID:', matchedMsg.id)
+                return {
+                  ...msg,
+                  id: matchedMsg.id,
+                  timestamp: matchedMsg.timestamp,
+                  status: 'success',
+                  time: matchedMsg.time
+                }
+              }
+            }
+            return msg
+          })
+          
+          // 如果找到了匹配的消息并更新了，更新列表
+          const hasUpdate = updatedList.some((msg, index) => msg.id !== messageList[index]?.id)
+          if (hasUpdate) {
+            this.setData({ messageList: updatedList })
+            console.log('[ChatDetail] 消息ID已更新，现在可以正常撤回')
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[ChatDetail] 重新加载最新消息失败:', error)
+    }
+  },
+
   onInput(e) {
     const value = e.detail.value
     this.setData({
@@ -469,19 +617,56 @@ Page({
 
       const res = await chatApi.sendMessage(payload)
       
+      console.log('[ChatDetail] 发送消息响应:', res.data)
+      
       if (res.data && res.data.code === 200) {
-        // 发送成功
-        const updatedList = this.data.messageList.map(msg => {
-          if (msg.id === timestamp) {
-            // 尝试获取后端返回的消息ID
-            const newId = (res.data.data && (typeof res.data.data === 'string' || typeof res.data.data === 'number')) 
-              ? res.data.data 
-              : (res.data.data?.messageId || msg.id)
-            return { ...msg, status: 'success', id: newId }
-          }
-          return msg
-        })
-        this.setData({ messageList: updatedList })
+        // 尝试获取后端返回的消息ID
+        const newId = (res.data.data && (typeof res.data.data === 'string' || typeof res.data.data === 'number')) 
+          ? res.data.data 
+          : (res.data.data?.messageId || res.data.data?.id)
+        
+        console.log('[ChatDetail] 后端返回的消息ID:', newId, '临时ID:', timestamp)
+        
+        // 如果获取到了真实的消息ID，直接更新
+        if (newId && newId !== timestamp && newId !== 'undefined' && newId !== 'null') {
+          const finalTimestamp = res.data.data?.createTime || res.data.data?.timestamp || timestamp
+          const updatedList = this.data.messageList.map(msg => {
+            // 匹配临时消息：通过 timestamp ID 或内容和时间匹配
+            if (msg.id === timestamp || (msg.timestamp === timestamp && msg.content === content && msg.isMe)) {
+              console.log('[ChatDetail] 更新消息ID:', msg.id, '->', newId)
+              return { 
+                ...msg, 
+                status: 'success', 
+                id: newId,
+                timestamp: finalTimestamp,  // 确保 timestamp 字段存在
+                // 确保所有必要字段都存在
+                isMe: true,
+                content: content,
+                type: 'text',
+                time: this.formatTime(finalTimestamp),
+                avatar: this.data.myAvatar
+              }
+            }
+            return msg
+          })
+          this.setData({ messageList: updatedList })
+          console.log('[ChatDetail] 消息ID已更新，现在可以正常撤回')
+          
+          // 滚动到底部，确保新消息可见
+          setTimeout(() => {
+            const lastMsg = updatedList[updatedList.length - 1]
+            if (lastMsg) {
+              this.setData({ scrollIntoView: `msg-${lastMsg.id}` })
+            }
+          }, 100)
+        } else {
+          // 如果后端没有返回messageId，重新加载最新消息来获取真实的消息ID
+          console.log('[ChatDetail] 后端未返回有效的messageId，重新加载最新消息...')
+          // 延迟一下，确保后端已经保存了消息
+          setTimeout(async () => {
+            await this.reloadLatestMessages(content, timestamp)
+          }, 500)
+        }
       } else {
          throw new Error(res.data?.msg || '发送失败')
       }
@@ -829,8 +1014,34 @@ Page({
     
     // 检查时间限制（2分钟内可撤回）
     const now = Date.now()
-    const msgTime = msg.timestamp || msg.id // 优先使用timestamp，否则尝试使用id(如果是本地发送的timestamp)
+    // 优先使用 timestamp，如果不存在则尝试使用 id（如果是本地发送的 timestamp）
+    // 如果 id 是数字且看起来是时间戳（大于某个合理值），则使用它
+    let msgTime = msg.timestamp
+    if (!msgTime) {
+      const msgId = msg.id
+      // 如果 id 是数字且大于 2020-01-01 的时间戳（1577836800000），则可能是时间戳
+      if (typeof msgId === 'number' && msgId > 1577836800000) {
+        msgTime = msgId
+      } else if (typeof msgId === 'string' && !isNaN(msgId) && parseInt(msgId) > 1577836800000) {
+        msgTime = parseInt(msgId)
+      }
+    }
     
+    // 如果仍然没有时间戳，说明可能是从历史记录加载的消息，默认允许撤回（由后端判断）
+    if (!msgTime) {
+      // 没有时间戳，仍然显示撤回选项，让后端判断是否可以撤回
+      wx.showActionSheet({
+        itemList: ['撤回'],
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            this.recallMessage(msg)
+          }
+        }
+      })
+      return
+    }
+    
+    // 检查是否在2分钟内
     if (now - msgTime > 2 * 60 * 1000) {
       return // 超过2分钟不可撤回，不显示菜单
     }
@@ -848,15 +1059,45 @@ Page({
   async recallMessage(msg) {
     try {
       wx.showLoading({ title: '撤回中' })
-      const res = await chatApi.recallMessage(msg.id)
+      
+      // 检查消息ID是否是临时的（看起来像时间戳）
+      let messageId = msg.id
+      const isTemporaryId = typeof messageId === 'number' && messageId > 1577836800000 && 
+                            Math.abs(Date.now() - messageId) < 60000  // 1分钟内的消息ID可能是临时的
+      
+      // 如果是临时ID，尝试重新加载消息来获取真实ID
+      if (isTemporaryId && msg.content) {
+        console.log('[ChatDetail] 检测到临时消息ID，尝试获取真实ID...')
+        try {
+          await this.reloadLatestMessages(msg.content, messageId)
+          // 重新获取消息列表，查找更新后的消息
+          const updatedMsg = this.data.messageList.find(m => 
+            m.content === msg.content && 
+            m.isMe && 
+            m.id !== messageId &&
+            Math.abs((m.timestamp || m.id) - messageId) < 10000
+          )
+          if (updatedMsg && updatedMsg.id !== messageId) {
+            messageId = updatedMsg.id
+            console.log('[ChatDetail] 获取到真实消息ID:', messageId)
+          }
+        } catch (e) {
+          console.warn('[ChatDetail] 获取真实消息ID失败，使用临时ID:', e)
+        }
+      }
+      
+      const res = await chatApi.recallMessage(messageId)
       wx.hideLoading()
       
       if (res.data && res.data.code === 200) {
         wx.showToast({ title: '已撤回', icon: 'none' })
         
-        // 更新本地消息列表
+        // 更新本地消息列表（通过原始消息ID或内容匹配）
         const updatedList = this.data.messageList.map(item => {
-          if (item.id === msg.id) {
+          // 匹配消息：通过ID或内容和时间戳匹配
+          if (item.id === msg.id || item.id === messageId || 
+              (item.content === msg.content && item.isMe && 
+               Math.abs((item.timestamp || item.id) - (msg.timestamp || msg.id)) < 10000)) {
              // 替换为系统消息提示
              return {
                ...item,
@@ -871,6 +1112,15 @@ Page({
         this.setData({ messageList: updatedList })
       } else {
         wx.showToast({ title: res.data?.msg || '撤回失败', icon: 'none' })
+        // 如果是"消息不存在"的错误，可能是消息ID还没更新，尝试重新加载
+        if (res.data?.msg && res.data.msg.includes('不存在')) {
+          console.log('[ChatDetail] 撤回失败，消息可能还未同步，尝试重新加载...')
+          if (msg.content) {
+            setTimeout(async () => {
+              await this.reloadLatestMessages(msg.content, msg.id)
+            }, 1000)
+          }
+        }
       }
     } catch (e) {
       wx.hideLoading()

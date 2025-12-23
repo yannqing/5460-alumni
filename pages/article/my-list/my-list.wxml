@@ -1,30 +1,42 @@
 <view class="container">
   <view class="article-list">
-    <block wx:for="{{articles}}" wx:key="id">
-      <view class="article-card" bindtap="goToDetail" data-id="{{item.id}}">
-        <!-- 头部：用户信息 -->
-        <view class="card-header">
-          <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
-          <view class="user-info">
-            <text class="user-name">{{item.publisher}}</text>
-            <text class="publish-time">{{item.time}}</text>
+    <block wx:for="{{articles}}" wx:key="id" wx:for-index="idx">
+      <view class="article-card">
+        <view bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
+          <!-- 头部：用户信息 -->
+          <view class="card-header">
+            <view class="user-avatar-wrapper">
+              <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+            </view>
+            <view class="user-info">
+              <text class="user-name">{{item.publisher}}</text>
+              <text class="publish-time">{{item.time}}</text>
+            </view>
           </view>
-        </view>
 
-        <!-- 内容区域：根据是否有图决定布局 -->
-        <view class="card-body {{item.cover ? 'has-cover' : ''}}">
-          <view class="text-content">
-            <view class="article-title">{{item.title}}</view>
-            <view class="article-desc" wx:if="{{item.description}}">{{item.description}}</view>
+          <!-- 内容区域：根据是否有图决定布局 -->
+          <view class="card-body has-cover">
+            <view class="text-content">
+              <view class="article-title">{{item.title}}</view>
+              <view class="article-desc" wx:if="{{item.description}}">{{item.description}}</view>
+            </view>
+            
+            <!-- 右侧封面图：始终显示图片框 -->
+            <view class="article-cover-wrapper">
+              <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
+            </view>
           </view>
           
-          <!-- 右侧封面图 (如果有) -->
-          <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
+          <!-- 底部状态栏 -->
+          <view class="card-footer" wx:if="{{item.isTop}}">
+             <text class="article-tag">置顶</text>
+          </view>
         </view>
         
-        <!-- 底部状态栏 -->
-        <view class="card-footer" wx:if="{{item.isTop}}">
-           <text class="article-tag">置顶</text>
+        <!-- 操作按钮 -->
+        <view class="card-actions">
+          <view class="action-btn edit-btn" bindtap="goToEdit" data-id="{{item.id}}" data-index="{{idx}}">编辑</view>
+          <view class="action-btn delete-btn" bindtap="deleteArticle" data-id="{{item.id}}" data-index="{{idx}}">删除</view>
         </view>
       </view>
     </block>

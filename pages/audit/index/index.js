@@ -28,6 +28,12 @@ Page({
         name: '商家审核',
         icon: '🏪',
         url: '/pages/audit/merchant/list/list'
+      },
+      {
+        id: 5,
+        name: '文章审核',
+        icon: '📄',
+        url: '/pages/article/audit-list/audit-list'
       }
     ]
   },

@@ -96,6 +96,13 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/article/my-list/my-list">
+      <view class="menu-left">
+        <text class="menu-icon">📝</text>
+        <text class="menu-name">我的文章</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/privacy/privacy">
       <view class="menu-left">
         <text class="menu-icon">🔐</text>

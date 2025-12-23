@@ -40,22 +40,26 @@
 
   <!-- 文章列表区域 -->
   <view class="article-list">
-    <view class="article-item" wx:for="{{articleList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-      <view class="article-main">
-        <view class="article-header">
-          <view class="user-info">
-            <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
-            <!-- <text class="user-name">{{item.username}}</text> -->
+    <view class="article-item" wx:for="{{articleList}}" wx:key="id" wx:for-index="idx" bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
+      <view class="article-header">
+        <view class="user-info">
+          <view class="user-avatar-wrapper">
+            <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
           </view>
-          <text class="publish-time">{{item.time}}</text>
+          <text class="user-name">{{item.username}}</text>
         </view>
+        <text class="publish-time">{{item.time}}</text>
+      </view>
+      <view class="article-body">
         <view class="article-content">
           <view class="article-title">{{item.title}}</view>
           <view class="article-desc">{{item.description}}</view>
         </view>
+        <!-- 封面图：始终显示图片框 -->
+        <view class="article-cover-wrapper">
+          <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
+        </view>
       </view>
-      <!-- 如果有封面图，显示封面图 -->
-      <!-- <image wx:if="{{item.cover}}" class="article-cover" src="{{item.cover}}" mode="aspectFill"></image> -->
     </view>
 
     <!-- 加载更多/无数据提示 -->

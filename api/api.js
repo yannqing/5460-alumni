@@ -43,6 +43,8 @@ const associationApi = {
   followAssociation: (id) => post(`/associations/${id}/follow`),
   // 取消关注校友会
   unfollowAssociation: (id) => del(`/associations/${id}/follow`),
+  // 分页查询本人是会长的校友会列表（超级管理员可查看所有）
+  getMyPresidentAssociations: (params) => post('/AlumniAssociation/my-president/page', params),
 }
 
 // ==================== 校友总会相关接口 ====================
@@ -173,6 +175,8 @@ const userApi = {
 
 // ==================== 搜索相关接口 ====================
 const searchApi = {
+  // 统一搜索接口
+  unifiedSearch: (params) => post('/search/unified', params),
   // 综合搜索
   search: (params) => get('/search', params),
   // 搜索母校
@@ -316,13 +320,14 @@ const chatApi = {
   // 获取与某人的聊天记录
   getChatMessages: (userId, params) => get(`/chat/messages/${userId}`, params),
   
-  // 标记消息已读
-  markMessageRead: (messageId) => post(`/chat/message/${messageId}/read`),
   
-  // 批量标记消息已读
-  markMessagesRead: (messageIds) => post('/chat/messages/read', { messageIds }),
+  // 标记会话已读（传对方的 wxId/userId）
+  markConversationRead: (otherWxId) => put(`/chat/read/${otherWxId}`),
   
-  // 删除聊天记录
+  // 删除会话（传会话ID）
+  deleteConversation: (conversationId) => del(`/chat/conversation/${conversationId}`),
+  
+  // 删除聊天记录（旧接口，保留兼容）
   deleteChat: (userId) => del(`/chat/${userId}`),
   
   // 清空聊天记录
@@ -344,7 +349,7 @@ const chatApi = {
   recallMessage: (messageId) => del(`/chat/recall/${messageId}`),
 
   // 置顶/取消置顶会话
-  pinConversation: (conversationId, isPinned) => put(`/chat/conversation/${conversationId}/pin?isPinned=${isPinned}`),
+  pinConversation: (conversationId, isPinned) => put(`/chat/conversation/${conversationId}/pin?isPinned=${isPinned}`, {}),
 
   // 上传聊天图片
   uploadChatImage: (filePath) => {
@@ -412,9 +417,19 @@ const homeArticleApi = {
   // 根据ID查询文章详情
   getHomeArticleDetail: (id) => get(`/home-page-article/${id}`),
   // 更新首页文章
-  updateArticle: (data) => post('/home-page-article/update', data),
+  updateArticle: (data) => put('/home-page-article/update', data),
   // 删除文章
   deleteArticle: (id) => del(`/home-page-article/${id}`),
+}
+
+// ==================== 文章审核相关接口 ====================
+const articleApplyApi = {
+  // 获取待审核记录列表（分页）
+  getPendingList: (params) => post('/home-page-article-apply/pending/page', params),
+  // 获取已审核记录列表（分页）
+  getApprovedList: (params) => post('/home-page-article-apply/approved/page', params),
+  // 审核文章
+  approveArticle: (data) => post('/home-page-article-apply/approve', data),
 }
 
 
@@ -436,4 +451,5 @@ module.exports = {
   fileApi,
   chatApi,
   homeArticleApi,
+  articleApplyApi,
 }
