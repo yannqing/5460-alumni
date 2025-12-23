@@ -5,6 +5,10 @@
     <view class="header-section-inner">
       <view class="header-top-row">
         <view class="logo-placeholder">logo</view>
+        <view class="header-icons">
+          <text class="header-icon">⋯</text>
+          <text class="header-icon">◎</text>
+        </view>
       </view>
       <view class="search-container">
         <text class="search-icon">🔍</text>
