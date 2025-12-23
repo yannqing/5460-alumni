@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { homeArticleApi } = require('../../api/api');
+const { homeArticleApi, associationApi } = require('../../api/api');
 const config = require('../../utils/config.js');
 const app = getApp();
 
@@ -94,6 +94,7 @@ Page({
           const username = item.publishUsername || '官方发布';
           
           // 处理头像：使用 publisherAvatar 字段
+          // 如果都没有且是校友会类型，使用 publishWxId 获取校友会头像
           let avatar = '';
           if (item.publisherAvatar) {
             // 如果 publisherAvatar 是对象，提取 URL
@@ -107,7 +108,13 @@ Page({
             if (avatar) {
               avatar = config.getImageUrl(avatar);
             }
+          } else {
+            // 如果头像为空，且发布类型是校友会，且 publishWxId 存在，标记需要异步获取
+            avatar = null; // 保持为 null，后续异步获取
           }
+          
+          // 处理发布类型
+          const publishType = item.publishType || item.publish_type || null;
           
           // 处理封面图：使用 coverImg 字段
           let cover = '';
@@ -148,7 +155,12 @@ Page({
             username: username,
             avatar: avatar,
             cover: cover,
-            time: time
+            time: time,
+            publishType: publishType, // 保存 publishType 字段
+            publishWxId: item.publishWxId || item.publish_wx_id || null, // 保存 publishWxId，用于获取校友会头像
+            articleType: item.articleType || item.article_type || 1, // 保存文章类型：1-公众号，2-内部路径，3-第三方链接
+            articleLink: item.articleLink || item.article_link || '', // 保存文章链接
+            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 1) && (item.publishWxId || item.publish_wx_id) // 标记需要获取头像
           };
         });
 
@@ -163,6 +175,9 @@ Page({
           loading: false,
           refreshing: false
         });
+        
+        // 异步获取缺失的头像（校友会类型）
+        this.fetchMissingAvatars(newList);
         
         console.log('[Index] 加载文章列表成功:', {
           currentPage,
@@ -209,38 +224,186 @@ Page({
   },
 
   /**
-   * 跳转详情
+   * 异步获取缺失的头像（校友会类型）
+   */
+  async fetchMissingAvatars(records) {
+    if (!records || records.length === 0) return;
+    
+    // 找出需要获取头像的记录
+    const needFetchList = records.filter(item => 
+      item.needFetchAvatar && 
+      item.publishWxId && 
+      (item.publishType === 'association' || item.publishType === 1)
+    );
+    
+    if (needFetchList.length === 0) return;
+    
+    // 批量获取校友会信息
+    const fetchPromises = needFetchList.map(async (item) => {
+      try {
+        const res = await associationApi.getAssociationDetail(item.publishWxId);
+        if (res.data && res.data.code === 200) {
+          const association = res.data.data || {};
+          let logoUrl = association.logo || association.icon || association.avatar || '';
+          if (logoUrl) {
+            logoUrl = config.getImageUrl(logoUrl);
+            // 更新对应文章的头像
+            const articleList = this.data.articleList.map(article => {
+              if (article.id === item.id && article.publishWxId === item.publishWxId) {
+                return {
+                  ...article,
+                  avatar: logoUrl,
+                  needFetchAvatar: false
+                };
+              }
+              return article;
+            });
+            this.setData({ articleList });
+          }
+        }
+      } catch (err) {
+        // 获取失败，静默处理
+      }
+    });
+    
+    // 并行获取，不等待所有完成
+    Promise.all(fetchPromises).catch(() => {
+      // 静默处理错误
+    });
+  },
+
+  /**
+   * 跳转详情或链接
    */
   goToDetail(e) {
     const id = e.currentTarget.dataset.id;
     const index = e.currentTarget.dataset.index;
     const item = index !== undefined ? this.data.articleList[index] : null;
     
-    console.log('[Index] 点击文章，ID:', id, '索引:', index, '完整数据:', item);
-    
-    if (!id || id === 'undefined' || id === 'null' || id === '') {
-      console.warn('[Index] 文章ID无效，无法跳转，ID值:', id);
+    if (!item) {
       wx.showToast({
-        title: '文章ID错误，无法打开',
-        icon: 'none',
-        duration: 2000
+        title: '文章数据错误',
+        icon: 'none'
       });
       return;
     }
     
-    wx.navigateTo({
-      url: `/pages/article/detail/detail?id=${id}`,
-      success: () => {
-        console.log('[Index] 跳转成功，文章ID:', id);
-      },
-      fail: (err) => {
-        console.error('[Index] 跳转失败:', err);
+    const articleType = item.articleType || item.article_type || 1;
+    const articleLink = item.articleLink || item.article_link || '';
+    
+    // 根据文章类型跳转
+    if (articleType === 1) {
+      // 公众号：直接跳转到公众号文章（使用 web-view）
+      if (articleLink) {
+        // 检查是否是公众号文章链接
+        if (articleLink.includes('mp.weixin.qq.com') || articleLink.startsWith('http')) {
+          // 使用 web-view 打开公众号文章
+          wx.navigateTo({
+            url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}`,
+            fail: (err) => {
+              // 如果跳转失败，尝试使用 openUrl（需要基础库 2.20.2+）
+              if (wx.openUrl) {
+                wx.openUrl({
+                  url: articleLink,
+                  fail: () => {
+                    // 如果都失败，复制链接
+                    wx.setClipboardData({
+                      data: articleLink,
+                      success: () => {
+                        wx.showToast({
+                          title: '链接已复制',
+                          icon: 'success'
+                        });
+                      }
+                    });
+                  }
+                });
+              } else {
+                // 不支持 openUrl，复制链接
+                wx.setClipboardData({
+                  data: articleLink,
+                  success: () => {
+                    wx.showToast({
+                      title: '链接已复制',
+                      icon: 'success'
+                    });
+                  }
+                });
+              }
+            }
+          });
+        } else {
+          wx.showToast({
+            title: '链接格式错误',
+            icon: 'none'
+          });
+        }
+      } else {
         wx.showToast({
-          title: err.errMsg || '跳转失败',
-          icon: 'none',
-          duration: 2000
+          title: '链接不存在',
+          icon: 'none'
         });
       }
-    });
+    } else if (articleType === 2) {
+      // 内部路径：跳转到小程序内部页面
+      if (articleLink) {
+        let path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`;
+        wx.navigateTo({
+          url: path,
+          fail: () => {
+            wx.switchTab({
+              url: path,
+              fail: () => {
+                wx.showToast({
+                  title: '页面不存在',
+                  icon: 'none'
+                });
+              }
+            });
+          }
+        });
+      } else {
+        wx.showToast({
+          title: '路径不存在',
+          icon: 'none'
+        });
+      }
+    } else if (articleType === 3) {
+      // 第三方链接：复制链接到剪贴板
+      if (articleLink) {
+        wx.setClipboardData({
+          data: articleLink,
+          success: () => {
+            wx.showToast({
+              title: '链接已复制',
+              icon: 'success'
+            });
+          }
+        });
+      } else {
+        wx.showToast({
+          title: '链接不存在',
+          icon: 'none'
+        });
+      }
+    } else {
+      // 未知类型，默认跳转到详情页
+      if (id && id !== 'undefined' && id !== 'null' && id !== '') {
+        wx.navigateTo({
+          url: `/pages/article/detail/detail?id=${id}`,
+          fail: (err) => {
+            wx.showToast({
+              title: '跳转失败',
+              icon: 'none'
+            });
+          }
+        });
+      } else {
+        wx.showToast({
+          title: '文章ID错误',
+          icon: 'none'
+        });
+      }
+    }
   }
 });

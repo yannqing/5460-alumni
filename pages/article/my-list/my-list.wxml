@@ -36,7 +36,6 @@
         <!-- 操作按钮 -->
         <view class="card-actions">
           <view class="action-btn edit-btn" bindtap="goToEdit" data-id="{{item.id}}" data-index="{{idx}}">编辑</view>
-          <view class="action-btn delete-btn" bindtap="deleteArticle" data-id="{{item.id}}" data-index="{{idx}}">删除</view>
         </view>
       </view>
     </block>

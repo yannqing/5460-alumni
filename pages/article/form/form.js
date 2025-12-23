@@ -1,4 +1,4 @@
-const { homeArticleApi, fileApi, associationApi } = require('../../../api/api.js')
+const { homeArticleApi, fileApi, associationApi, merchantApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
 Page({
@@ -15,20 +15,33 @@ Page({
       articleStatus: 1, // 对应 articleStatus (0-禁用, 1-启用)
       isTop: false,
       publishUsername: '', // 发布者名称
-      publishType: 0, // 发布类型 (0-母校, 1-校友会, 2-商铺, 3-校友)
-      publishAssociationId: null // 选中的校友会ID
+      publishType: 1, // 发布类型 (1-校友会, 2-商铺, 3-校友)，默认校友会
+      publishAssociationId: null // 选中的发布者ID（校友会或商铺）
     },
     articleTypes: ['公众号', '内部路径', '第三方链接'], // 对应值 1, 2, 3
-    publishTypes: ['母校', '校友会', '商铺', '校友'], // 发布类型选项
+    publishTypes: ['校友会', '校友'], // 发布类型选项（移除母校和商铺）
     publisherList: [], // 发布者列表（校友会列表）
     selectedPublisherIndex: -1, // 选中的发布者索引
     isEdit: false
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     if (options.id) {
       this.setData({ isEdit: true })
+      // 编辑模式：设置标题为"文章编辑"
+      wx.setNavigationBarTitle({
+        title: '编辑文章'
+      })
       this.loadDetail(options.id)
+    } else {
+      // 新增模式：设置标题为"新增文章"
+      wx.setNavigationBarTitle({
+        title: '新增文章'
+      })
+      // 新增模式：默认是校友会，自动加载校友会列表
+      if (this.data.formData.publishType === 1) {
+        await this.loadPublisherList();
+      }
     }
   },
 
@@ -76,11 +89,36 @@ Page({
           return;
         }
 
-        const publishType = data.publishType !== undefined && data.publishType !== null ? data.publishType : 0;
+        // 处理发布类型：后端返回的是字符串（"alumni"、"association"），需要转换为数字
+        // 注意：移除母校和商铺后，索引对应关系：0-校友会, 1-校友，但实际值：1-校友会, 3-校友
+        let publishType = 1; // 默认校友会
+        if (data.publishType !== undefined && data.publishType !== null) {
+          if (typeof data.publishType === 'string') {
+            // 后端返回的是字符串，转换为数字
+            if (data.publishType === 'association') {
+              publishType = 1; // 校友会
+            } else if (data.publishType === 'alumni') {
+              publishType = 3; // 校友
+            } else {
+              publishType = 1; // 默认校友会
+            }
+          } else if (typeof data.publishType === 'number') {
+            // 如果已经是数字，直接使用，但需要确保值在有效范围内
+            if (data.publishType === 0 || data.publishType === 2) {
+              publishType = 1; // 如果原来是母校(0)或商铺(2)，改为校友会(1)
+            } else if (data.publishType === 1) {
+              publishType = 1; // 校友会
+            } else if (data.publishType === 3) {
+              publishType = 3; // 校友
+            } else {
+              publishType = 1; // 默认校友会
+            }
+          }
+        }
         
         // 如果发布类型是校友会，先加载校友会列表
         if (publishType === 1) {
-          await this.loadPublisherList();
+          await this.loadPublisherList(); // 加载校友会列表
         }
         
         // 等待列表加载完成后再设置数据
@@ -99,6 +137,20 @@ Page({
               return itemId === targetId;
             });
           }
+          // 如果还是没匹配到，尝试通过 publishWxId 匹配
+          if (selectedIndex < 0 && data.publishWxId) {
+            selectedIndex = publisherList.findIndex(item => {
+              const itemId = String(item.id);
+              const targetId = String(data.publishWxId);
+              return itemId === targetId;
+            });
+          }
+        }
+        
+        // 处理文章类型：确保是数字类型
+        let articleType = 1; // 默认公众号
+        if (data.articleType !== undefined && data.articleType !== null) {
+          articleType = parseInt(data.articleType) || 1;
         }
         
         this.setData({
@@ -109,13 +161,13 @@ Page({
             coverImg: typeof data.coverImg === 'object' ? (data.coverImg.fileId || data.coverImg.id) : (data.coverImg || ''), 
             content: data.content || '',
             description: data.description || '',
-            articleType: data.articleType || 1,
-            articleLink: data.articleLink || '',
+            articleType: articleType, // 确保是数字类型
+            articleLink: data.articleLink || data.article_link || '',
             articleStatus: data.articleStatus !== undefined ? data.articleStatus : 1,
             isTop: data.isTop === true || data.isTop === 1 || data.top === true,
             publishUsername: data.publishUsername || '',
-            publishType: publishType,
-            publishAssociationId: data.publishAssociationId || null
+            publishType: publishType, // 确保是数字类型
+            publishAssociationId: data.publishAssociationId || data.publishWxId || null
           },
           selectedPublisherIndex: selectedIndex >= 0 ? selectedIndex : -1
         });
@@ -138,13 +190,19 @@ Page({
   },
 
   onTypeChange(e) {
+    const selectedIndex = parseInt(e.detail.value) || 0;
+    const articleType = selectedIndex + 1; // 1-公众号, 2-内部路径, 3-第三方链接
     this.setData({
-      'formData.articleType': parseInt(e.detail.value) + 1
-    })
+      'formData.articleType': articleType
+    });
   },
 
   async onPublishTypeChange(e) {
-    const publishType = parseInt(e.detail.value);
+    // picker 的 value 是索引：0-校友会, 1-校友
+    // 但实际值应该是：1-校友会, 3-校友
+    const selectedIndex = parseInt(e.detail.value) || 0;
+    const publishType = selectedIndex === 0 ? 1 : 3; // 0->校友会(1), 1->校友(3)
+    
     this.setData({
       'formData.publishType': publishType,
       'formData.publishUsername': '',
@@ -184,6 +242,50 @@ Page({
           return {
             id: item.alumniAssociationId || item.associationId || item.id,
             name: item.associationName || item.name || '未知校友会',
+            avatar: avatar
+          };
+        });
+
+        this.setData({
+          publisherList: publisherList
+        });
+      } else {
+        wx.showToast({ title: res.data?.msg || '加载失败', icon: 'none' });
+        this.setData({ publisherList: [] });
+      }
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({ title: '加载失败，请稍后重试', icon: 'none' });
+      this.setData({ publisherList: [] });
+    }
+  },
+
+  // 加载商铺列表
+  async loadMerchantList() {
+    try {
+      wx.showLoading({ title: '加载中...' });
+      // 商铺列表可能需要分页参数，根据实际API调整
+      const res = await merchantApi.getMerchantList({
+        pageNum: 1,
+        pageSize: 100 // 加载足够多的数据
+      });
+      wx.hideLoading();
+
+      if (res.data && res.data.code === 200) {
+        const data = res.data.data || {};
+        const records = data.records || data.list || [];
+        
+        // 映射数据，提取名称和头像
+        const publisherList = records.map(item => {
+          let avatar = '';
+          if (item.logo || item.icon || item.avatar || item.merchantLogo) {
+            const avatarUrl = item.logo || item.icon || item.avatar || item.merchantLogo;
+            avatar = config.getImageUrl(avatarUrl);
+          }
+          
+          return {
+            id: item.merchantId || item.id,
+            name: item.merchantName || item.name || '未知商铺',
             avatar: avatar
           };
         });
@@ -296,10 +398,13 @@ Page({
     const userInfo = wx.getStorageSync('userInfo') || {};
 
     // 构建请求参数
+    // 确保 articleType 是数字类型
+    const articleType = parseInt(formData.articleType) || 1;
+    
     const payload = {
       articleTitle: formData.articleTitle.trim(),
       description: formData.description || '',
-      articleType: formData.articleType,
+      articleType: articleType, // 确保是数字类型
       articleLink: formData.articleLink || '',
       articleStatus: formData.articleStatus,
       content: formData.content || '',
@@ -357,6 +462,13 @@ Page({
       // 使用选中的校友会作为发布者
       payload.publishWxId = formData.publishAssociationId; // 使用校友会ID作为发布者ID
       payload.publishUsername = formData.publishUsername.trim();
+    } else if (formData.publishType === 3) {
+      // 校友类型，使用个人账号信息
+      payload.publishWxId = userData.wxId || userData.id || userInfo.wxId || userInfo.id || 0;
+      // 发布者名称：优先使用表单中填入的值，如果没有则使用用户信息
+      payload.publishUsername = formData.publishUsername && formData.publishUsername.trim() 
+        ? formData.publishUsername.trim() 
+        : (userData.nickname || userData.nickName || userInfo.nickname || userInfo.nickName || '');
     } else {
       // 其他情况使用个人账号信息
       payload.publishWxId = userData.wxId || userData.id || userInfo.wxId || userInfo.id || 0;
@@ -366,9 +478,16 @@ Page({
         : (userData.nickname || userData.nickName || userInfo.nickname || userInfo.nickName || '');
     }
     
-    // 添加发布类型
+    // 添加发布类型：将数字转换为后端期望的字符串格式
+    // 后端期望：alumni（校友）、association（校友会）
     if (formData.publishType !== undefined && formData.publishType !== null) {
-      payload.publishType = formData.publishType;
+      if (formData.publishType === 1) {
+        // 校友会
+        payload.publishType = 'association';
+      } else if (formData.publishType === 3) {
+        // 校友
+        payload.publishType = 'alumni';
+      }
     }
 
     try {

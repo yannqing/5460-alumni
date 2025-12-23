@@ -134,7 +134,6 @@
 .card-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 20rpx;
   margin-top: 20rpx;
   padding-top: 20rpx;
   border-top: 1rpx solid #f0f0f0;

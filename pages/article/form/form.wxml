@@ -28,9 +28,9 @@
 
   <view class="form-group">
     <view class="label">发布类型</view>
-    <picker bindchange="onPublishTypeChange" value="{{formData.publishType}}" range="{{publishTypes}}">
+    <picker bindchange="onPublishTypeChange" value="{{formData.publishType === 1 ? 0 : 1}}" range="{{publishTypes}}">
       <view class="input picker">
-        {{publishTypes[formData.publishType]}}
+        {{formData.publishType === 1 ? publishTypes[0] : publishTypes[1]}}
       </view>
     </picker>
   </view>

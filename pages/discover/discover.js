@@ -176,42 +176,31 @@ const MOCK_MERCHANTS = [
 
 Page({
   data: {
-    // 图标路径
-    iconSearch: config.getIconUrl('search.png'),
-    iconScan: config.getIconUrl('sys.png'),
     searchValue: '',
-    selectedCategory: 'all',
+    selectedTab: 'all',
     sortType: 'distance',
     loading: false,
-    merchantList: [],
-    displayList: [],
     viewMode: 'list', // list: 列表模式, map: 地图模式
-    showAlumniOnly: false, // 是否只显示校友商铺
     mapCenter: {
       latitude: 31.2304, // 默认上海坐标
       longitude: 121.4737
     },
     mapScale: 15,
     mapMarkers: [],
-    showDrawer: false,
-    selectedMerchant: null,
-    isAlumni: false, // 是否已认证校友
-    categories: [
-      { id: 'all', label: '全部分类' },
-      { id: 'dining', label: '餐饮美食' },
-      { id: 'entertainment', label: '娱乐休闲' },
-      { id: 'lifestyle', label: '生活服务' }
+    navTabs: [
+      { id: 'all', label: '全部分类', icon: '⊞' },
+      { id: 'coupon', label: '附近优惠', icon: '🎟️' },
+      { id: 'venue', label: '附近场所', icon: '🏌️' },
+      { id: 'alumni', label: '附近校友', icon: '🎓' },
+      { id: 'activity', label: '附近活动', icon: '🏃' }
     ],
     sortOptions: [
       { id: 'distance', label: '距离最近' },
       { id: 'popularity', label: '好评优先' },
       { id: 'discount', label: '优惠力度' }
     ],
-    stats: {
-      merchantCount: 0,
-      couponCount: 0,
-      activityCount: 0
-    }
+    alumniList: [],
+    activityList: []
   },
 
   onLoad() {
@@ -223,23 +212,45 @@ Page({
     
     // 模拟加载延迟
     setTimeout(() => {
-      let totalCoupons = 0
-      MOCK_MERCHANTS.forEach(merchant => {
-        totalCoupons += merchant.coupons.length
-      })
+      // 模拟校友列表数据
+      const mockAlumniList = [
+        {
+          id: 1,
+          name: '刘汾阳',
+          distance: 520,
+          association: '江南大学无锡校友会',
+          tag: '江南',
+          avatar: config.defaultAvatar
+        }
+      ]
+      
+      // 模拟活动列表数据
+      const mockActivityList = [
+        {
+          id: 1,
+          title: '洛杉矶苏超观影会',
+          dateRange: '2025.10.4 - 2026.5.3',
+          association: '江南大学无锡校友会',
+          participantCount: 24,
+          participantAvatars: [
+            config.defaultAvatar,
+            config.defaultAvatar,
+            config.defaultAvatar,
+            config.defaultAvatar,
+            config.defaultAvatar
+          ],
+          location: '北京市朝阳区',
+          signedUp: true,
+          signedCount: 22
+        }
+      ]
       
       this.setData({
-        merchantList: MOCK_MERCHANTS,
-        displayList: MOCK_MERCHANTS,
-        loading: false,
-        stats: {
-          merchantCount: MOCK_MERCHANTS.length,
-          couponCount: totalCoupons,
-          activityCount: 5
-        }
+        alumniList: mockAlumniList,
+        activityList: mockActivityList,
+        loading: false
       })
       this.updateMapMarkers()
-      this.applyFilterAndSort()
     }, 500)
   },
 
@@ -255,86 +266,43 @@ Page({
       wx.navigateTo({
         url: `/pages/search/search?keyword=${searchValue}`
       })
-    } else {
-      this.applyFilterAndSort()
     }
   },
 
-  handleCategoryChange(e) {
-    const categoryId = e.currentTarget.dataset.id
+  handleTabChange(e) {
+    const tabId = e.currentTarget.dataset.id
     this.setData({
-      selectedCategory: categoryId
+      selectedTab: tabId
     })
-    this.applyFilterAndSort()
+    // TODO: 根据选中的标签加载对应数据
   },
+
 
   handleSortChange(e) {
     const sortId = e.currentTarget.dataset.id
     this.setData({
       sortType: sortId
     })
-    this.applyFilterAndSort()
-  },
-
-  applyFilterAndSort() {
-    let list = [...this.data.merchantList]
-    const { selectedCategory, sortType, searchValue, showAlumniOnly } = this.data
-
-    // 校友商铺筛选
-    if (showAlumniOnly) {
-      list = list.filter(item => item.isCertified)
-    }
-
-    // 分类筛选
-    if (selectedCategory !== 'all') {
-      list = list.filter(item => item.category === selectedCategory)
-    }
-
-    // 搜索筛选
-    if (searchValue.trim()) {
-      const keyword = searchValue.toLowerCase()
-      list = list.filter(item => 
-        item.name.toLowerCase().includes(keyword) ||
-        item.location.toLowerCase().includes(keyword) ||
-        item.coupons.some(coupon => coupon.title.toLowerCase().includes(keyword))
-      )
-    }
-
-    // 排序
-    if (sortType === 'distance') {
-      list.sort((a, b) => a.distance - b.distance)
-    } else if (sortType === 'popularity') {
-      list.sort((a, b) => b.rating - a.rating)
-    } else if (sortType === 'discount') {
-      // 优惠力度：按优惠券折扣力度排序
-      list.sort((a, b) => {
-        const aMaxDiscount = Math.max(...a.coupons.map(c => c.discountPrice || 0))
-        const bMaxDiscount = Math.max(...b.coupons.map(c => c.discountPrice || 0))
-        return bMaxDiscount - aMaxDiscount
-      })
-    }
-
-    this.setData({
-      displayList: list
-    })
-    
-    // 更新地图标记
-    if (this.data.viewMode === 'map') {
-      this.updateMapMarkers()
-    }
+    // TODO: 根据排序类型重新排序列表
   },
 
   getLocation() {
     wx.showLoading({ title: '定位中...' })
     wx.getLocation({
       type: 'gcj02',
-      success: () => {
+      success: (res) => {
         wx.hideLoading()
+        this.setData({
+          mapCenter: {
+            latitude: res.latitude,
+            longitude: res.longitude
+          }
+        })
+        this.updateMapMarkers()
         wx.showToast({
           title: '定位成功',
           icon: 'success'
         })
-        this.applyFilterAndSort()
       },
       fail: () => {
         wx.hideLoading()
@@ -346,36 +314,33 @@ Page({
     })
   },
 
-  viewMerchantDetail(e) {
-    const merchantId = e.currentTarget.dataset.id
-    wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${merchantId}`
+
+  handleFollow(e) {
+    const id = e.currentTarget.dataset.id
+    // TODO: 实现关注功能
+    wx.showToast({
+      title: '关注成功',
+      icon: 'success'
     })
   },
 
-  viewCouponDetail(e) {
-    const couponId = e.currentTarget.dataset.id
-    wx.navigateTo({
-      url: `/pages/coupon/detail/detail?id=${couponId}`
+  handleSignup(e) {
+    const id = e.currentTarget.dataset.id
+    // TODO: 实现报名功能
+    wx.showToast({
+      title: '报名成功',
+      icon: 'success'
     })
   },
 
-  viewMerchantCoupons(e) {
-    const merchantId = e.currentTarget.dataset.id
-    // 跳转到商铺详情页，显示优惠券列表
-    wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${merchantId}`
-    })
+  handleLike(e) {
+    const id = e.currentTarget.dataset.id
+    // TODO: 实现点赞功能
   },
 
-  refreshPage() {
-    this.setData({
-      selectedCategory: 'all',
-      sortType: 'distance',
-      searchValue: '',
-      showAlumniOnly: false
-    })
-    this.applyFilterAndSort()
+  handleShare(e) {
+    const id = e.currentTarget.dataset.id
+    // TODO: 实现分享功能
   },
 
   // 切换视图模式
@@ -392,131 +357,64 @@ Page({
     }
   },
 
-  // 切换校友商铺筛选
-  toggleAlumniOnly(e) {
-    const value = e.detail.value
-    this.setData({
-      showAlumniOnly: value
-    })
-    this.applyFilterAndSort()
-  },
 
   // 更新地图标记
   updateMapMarkers() {
-    const { displayList } = this.data
-    const markers = displayList.map((item, index) => {
-      // 校友商铺使用品牌色（深红），普通商铺使用灰色
-      const markerColor = item.isCertified ? '#ff6b9d' : '#999'
-      const markerBg = item.isCertified ? '#ff6b9d' : '#999'
-      
-      return {
-        id: item.id,
-        latitude: item.latitude || 31.2304,
-        longitude: item.longitude || 121.4737,
-        iconPath: config.defaultAvatar, // 可以使用自定义图标
+    // 活动标记
+    const activityMarkers = this.data.activityList.map((item, index) => ({
+      id: `activity_${item.id}`,
+      latitude: item.latitude || 31.2304,
+      longitude: item.longitude || 121.4737,
+      iconPath: '/assets/images/activity-marker.png', // 活动图标
+      width: 50,
+      height: 50,
+      callout: {
+        content: item.title,
+        color: '#333',
+        fontSize: 14,
+        borderRadius: 8,
+        bgColor: '#fff',
+        padding: 12,
+        display: 'BYCLICK'
+      }
+    }))
+    
+    // 场地标记
+    const venueMarkers = [
+      {
+        id: 'venue_1',
+        latitude: 31.2314,
+        longitude: 121.4747,
+        iconPath: '/assets/images/venue-marker.png', // 场地图标
         width: 50,
         height: 50,
         callout: {
-          content: `${item.name}\n⭐ ${item.rating} | 距离${item.distance}m`,
+          content: '场地',
           color: '#333',
           fontSize: 14,
           borderRadius: 8,
           bgColor: '#fff',
           padding: 12,
-          display: 'BYCLICK',
-          borderColor: markerColor,
-          borderWidth: 2
-        },
-        label: {
-          content: item.name,
-          color: '#fff',
-          fontSize: 12,
-          bgColor: markerBg,
-          borderRadius: 8,
-          padding: 4,
-          anchorX: 0,
-          anchorY: 0
+          display: 'BYCLICK'
         }
       }
-    })
+    ]
     
     this.setData({
-      mapMarkers: markers
+      mapMarkers: [...activityMarkers, ...venueMarkers]
     })
   },
 
   // 地图标记点击
   onMarkerTap(e) {
     const { markerId } = e.detail
-    const merchant = this.data.displayList.find(item => item.id === markerId)
-    if (merchant) {
-      this.setData({
-        selectedMerchant: merchant,
-        showDrawer: true
-      })
-    }
+    // TODO: 处理标记点击事件
   },
 
   // 地图点击
   onMapTap() {
-    this.setData({
-      showDrawer: false,
-      selectedMerchant: null
-    })
+    // TODO: 处理地图点击事件
   },
 
-  // 切换抽屉
-  toggleDrawer() {
-    this.setData({
-      showDrawer: !this.data.showDrawer
-    })
-  },
 
-  // 扫一扫
-  scanCode() {
-    wx.scanCode({
-      success: (res) => {
-        console.log('扫码结果:', res)
-        // TODO: 处理扫码结果，可能是优惠券、商家等
-        wx.showToast({
-          title: '扫码成功',
-          icon: 'success'
-        })
-      },
-      fail: (err) => {
-        console.error('扫码失败:', err)
-        wx.showToast({
-          title: '扫码失败',
-          icon: 'none'
-        })
-      }
-    })
-  },
-
-  // 处理优惠券点击
-  handleCouponClick(e) {
-    const { coupon, merchant } = e.currentTarget.dataset
-    if (!this.data.isAlumni) {
-      wx.showModal({
-        title: '提示',
-        content: '认证后领取优惠券，享受更多权益',
-        showCancel: true,
-        cancelText: '取消',
-        confirmText: '去认证',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: '/pages/certification/certification'
-            })
-          }
-        }
-      })
-      return
-    }
-
-    // 已认证校友，跳转到优惠券详情
-    wx.navigateTo({
-      url: `/pages/coupon/detail/detail?id=${coupon.id}`
-    })
-  }
 })

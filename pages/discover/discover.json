@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "发现"
+  "navigationBarTitleText": "发现",
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#4a90e2"
 }

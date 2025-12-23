@@ -1,0 +1,11 @@
+/* pages/article/web-view/web-view.wxss */
+.web-view-container {
+  width: 100%;
+  height: 100vh;
+}
+
+web-view {
+  width: 100%;
+  height: 100%;
+}
+

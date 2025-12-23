@@ -47,7 +47,8 @@
     "pages/article/detail/detail",
     "pages/article/form/form",
     "pages/article/my-list/my-list",
-    "pages/article/audit-list/audit-list"
+    "pages/article/audit-list/audit-list",
+    "pages/article/web-view/web-view"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -103,3 +103,23 @@
   font-size: 28rpx;
   color: #999;
 }
+
+.loading-more {
+  padding: 40rpx 20rpx;
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.no-more {
+  padding: 40rpx 20rpx;
+  text-align: center;
+}
+
+.no-more-text {
+  font-size: 26rpx;
+  color: #ccc;
+}
