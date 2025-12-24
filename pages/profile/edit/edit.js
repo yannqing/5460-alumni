@@ -109,8 +109,15 @@ function mapUserInfoToForm(userInfo) {
 /**
  * 将前端表单数据映射为后端更新格式
  * 字段名称与后端 UpdateUserInfoDto 完全一致
+ * @param {Object} form - 表单数据对象，可以是完整表单或部分字段
  */
 function mapFormToUpdateData(form) {
+  // 如果 form 已经是部分字段的更新数据（直接包含后端字段名），直接返回
+  if (form && typeof form === 'object' && !form.nickname && !form.name && !form.avatarUrl && !form.phone && !form.wxNum && !form.qqNum && !form.email && !form.gender && !form.originProvince && !form.curContinent && !form.curCountry && !form.curProvince && !form.curCity && !form.curCounty && !form.address && !form.constellation && !form.signature && !form.description && !form.identifyType && !form.identifyCode && !form.birthDate && !form.educationList && !form.alumniEducationList) {
+    // 看起来已经是后端格式的数据，直接返回
+    return form
+  }
+  
   const data = {
     // 基础信息
     nickname: form.nickname || null,
@@ -185,6 +192,20 @@ function mapFormToUpdateData(form) {
 
 Page({
   data: {
+    // 记录当前正在编辑的字段（用于显示保存按钮）
+    editingField: null,
+    // 记录当前正在编辑的教育经历索引（用于显示确定按钮）
+    editingEducationIndex: null,
+    // 记录个人简介是否正在编辑（用于显示确定按钮）
+    editingDescription: false,
+    // 用于防止 blur 事件干扰的标志
+    isSaving: false,
+    // blur 定时器，用于延迟隐藏保存按钮
+    blurTimer: null,
+    // 教育经历 blur 定时器
+    educationBlurTimer: null,
+    // 个人简介 blur 定时器
+    descriptionBlurTimer: null,
     form: {
       // 基础信息
       nickname: '',
@@ -354,6 +375,136 @@ Page({
     this.setData({
       [`form.${field}`]: e.detail.value
     })
+    
+    // 输入过程中，确保保存按钮保持显示
+    // 如果当前字段正在编辑，确保 editingField 保持设置
+    if (field && this.data.editingField === field) {
+      // 输入过程中保持编辑状态
+      // 如果因为某些原因 editingField 被清空了，重新设置
+      if (!this.data.editingField) {
+        this.setData({
+          editingField: field
+        })
+      }
+    }
+  },
+  
+  // 输入框获得焦点
+  handleInputFocus(e) {
+    const { field } = e.currentTarget.dataset
+    if (field) {
+      // 清除之前的 blur 定时器
+      if (this.data.blurTimer) {
+        clearTimeout(this.data.blurTimer)
+        this.data.blurTimer = null
+      }
+      
+      // 清除保存标志，设置当前编辑字段
+      this.setData({
+        editingField: field,
+        isSaving: false
+      })
+    }
+  },
+  
+  // 输入框失去焦点
+  handleInputBlur(e) {
+    const { field } = e.currentTarget.dataset
+    
+    // 如果正在保存，不处理 blur 事件
+    if (this.data.isSaving) {
+      return
+    }
+    
+    // 清除之前的定时器
+    if (this.data.blurTimer) {
+      clearTimeout(this.data.blurTimer)
+      this.data.blurTimer = null
+    }
+    
+    // 只有当失去焦点的字段是当前编辑的字段时，才隐藏保存按钮
+    if (field && this.data.editingField === field) {
+      // 延迟隐藏，确保点击保存按钮时能触发
+      // 使用更长的延迟时间，确保状态稳定
+      const timer = setTimeout(() => {
+        // 如果正在保存，不隐藏
+        if (this.data.isSaving) {
+          return
+        }
+        // 再次检查，确保当前编辑字段没有变化（可能重新获得了焦点）
+        if (this.data.editingField === field) {
+          this.setData({
+            editingField: null,
+            blurTimer: null
+          })
+        }
+      }, 500) // 增加到 500ms，确保点击保存按钮时有足够时间
+      
+      // 保存定时器引用，以便在重新获得焦点时清除
+      this.setData({
+        blurTimer: timer
+      })
+    }
+  },
+  
+  // 输入框确认保存（键盘确认）
+  async handleInputConfirm(e) {
+    const { field } = e.currentTarget.dataset
+    const value = e.detail.value
+    
+    // 更新表单数据
+    this.setData({
+      [`form.${field}`]: value
+    })
+    
+    // 构建更新数据（直接使用后端字段名）
+    const updateData = {}
+    updateData[field] = value || null
+    
+    // 保存单个字段（updateData 已经是后端格式，直接使用）
+    await this.saveSingleField(updateData, true)
+  },
+  
+  // 点击勾选按钮保存字段
+  async handleSaveField(e) {
+    const { field } = e.currentTarget.dataset
+    if (!field) return
+    
+    // 阻止事件冒泡和默认行为
+    if (e.stopPropagation) {
+      e.stopPropagation()
+    }
+    if (e.preventDefault) {
+      e.preventDefault()
+    }
+    
+    // 清除 blur 定时器，防止隐藏保存按钮
+    if (this.data.blurTimer) {
+      clearTimeout(this.data.blurTimer)
+      this.data.blurTimer = null
+    }
+    
+    // 设置保存标志，防止 blur 事件干扰
+    this.setData({
+      isSaving: true
+    })
+    
+    // 获取当前表单中该字段的值
+    const value = this.data.form[field] || ''
+    
+    // 构建更新数据（直接使用后端字段名）
+    const updateData = {}
+    updateData[field] = value || null
+    
+    // 保存单个字段
+    await this.saveSingleField(updateData, true)
+    
+    // 保存完成后，清除编辑状态和保存标志
+    this.setData({
+      editingField: null,
+      isSaving: false,
+      blurTimer: null
+    })
   },
 
   handleTextarea(e) {
@@ -361,37 +512,149 @@ Page({
     this.setData({
       [`form.${field}`]: e.detail.value
     })
+    
+    // 输入过程中，确保确定按钮保持显示
+    if (field === 'description' && this.data.editingDescription) {
+      // 如果因为某些原因 editingDescription 被清空了，重新设置
+      if (!this.data.editingDescription) {
+        this.setData({
+          editingDescription: true
+        })
+      }
+    }
+  },
+  
+  // 个人简介输入框获得焦点
+  handleDescriptionFocus(e) {
+    // 清除之前的 blur 定时器
+    if (this.data.descriptionBlurTimer) {
+      clearTimeout(this.data.descriptionBlurTimer)
+      this.data.descriptionBlurTimer = null
+    }
+    
+    // 设置编辑状态
+    this.setData({
+      editingDescription: true
+    })
+  },
+  
+  // 个人简介输入框失去焦点
+  handleDescriptionBlur(e) {
+    // 如果正在保存，不处理 blur 事件
+    if (this.data.isSaving) {
+      return
+    }
+    
+    // 清除之前的定时器
+    if (this.data.descriptionBlurTimer) {
+      clearTimeout(this.data.descriptionBlurTimer)
+      this.data.descriptionBlurTimer = null
+    }
+    
+    // 延迟隐藏，确保点击确定按钮时能触发
+    const timer = setTimeout(() => {
+      // 如果正在保存，不隐藏
+      if (this.data.isSaving) {
+        return
+      }
+      // 再次检查，确保当前编辑状态没有变化
+      if (this.data.editingDescription) {
+        this.setData({
+          editingDescription: false,
+          descriptionBlurTimer: null
+        })
+      }
+    }, 500)
+    
+    // 保存定时器引用
+    this.setData({
+      descriptionBlurTimer: timer
+    })
+  },
+  
+  // 保存个人简介
+  async handleSaveDescription(e) {
+    // 阻止事件冒泡
+    if (e.stopPropagation) {
+      e.stopPropagation()
+    }
+    if (e.preventDefault) {
+      e.preventDefault()
+    }
+    
+    // 清除 blur 定时器
+    if (this.data.descriptionBlurTimer) {
+      clearTimeout(this.data.descriptionBlurTimer)
+      this.data.descriptionBlurTimer = null
+    }
+    
+    // 设置保存标志
+    this.setData({
+      isSaving: true
+    })
+    
+    // 获取当前个人简介的值
+    const value = this.data.form.description || ''
+    
+    // 构建更新数据
+    const updateData = { description: value || null }
+    
+    // 保存单个字段
+    await this.saveSingleField(updateData, true)
+    
+    // 保存完成后，清除编辑状态和保存标志
+    this.setData({
+      editingDescription: false,
+      isSaving: false,
+      descriptionBlurTimer: null
+    })
   },
 
-  handleGenderChange(e) {
+  async handleGenderChange(e) {
     const index = Number(e.detail.value)
     this.setData({
       'form.genderIndex': index,
       'form.gender': index // 0-未知，1-男，2-女
     })
+    
+    // 选择后自动保存
+    const updateData = { gender: index }
+    await this.saveSingleField(updateData, true)
   },
 
-  handleIdentifyTypeChange(e) {
+  async handleIdentifyTypeChange(e) {
     const index = Number(e.detail.value)
     this.setData({
       'form.identifyTypeIndex': index,
       'form.identifyType': index // 0-身份证，1-护照
     })
+    
+    // 选择后自动保存
+    const updateData = { identifyType: index }
+    await this.saveSingleField(updateData, true)
   },
 
-  handleConstellationChange(e) {
+  async handleConstellationChange(e) {
     const index = Number(e.detail.value)
     // 前端索引0-11 -> 后端值1-12（与后端数据库定义一致）
     this.setData({
       'form.constellationIndex': index,
       'form.constellation': index + 1
     })
+    
+    // 选择后自动保存
+    const updateData = { constellation: index + 1 }
+    await this.saveSingleField(updateData, true)
   },
 
-  handleBirthDateChange(e) {
+  async handleBirthDateChange(e) {
     this.setData({
       'form.birthDate': e.detail.value
     })
+    
+    // 选择后自动保存
+    const updateData = { birthDate: e.detail.value }
+    await this.saveSingleField(updateData, true)
   },
 
   /**
@@ -447,10 +710,10 @@ Page({
           const imageUrl = config.getImageUrl(rawImageUrl)
           // 更新表单中的头像URL
           this.setData({ 'form.avatarUrl': imageUrl })
-          wx.showToast({
-            title: '上传成功',
-            icon: 'success'
-          })
+          
+          // 上传成功后自动保存
+          const updateData = { avatarUrl: imageUrl }
+          await this.saveSingleField(updateData, true)
         } else {
           wx.showToast({
             title: '上传失败，未获取到图片地址',
@@ -534,7 +797,50 @@ Page({
   // ==================== 数据保存逻辑 ====================
   
   /**
-   * 保存用户资料
+   * 保存单个字段（通用方法）
+   * @param {Object} updateData - 要更新的字段数据
+   * @param {Boolean} showSuccessToast - 是否显示成功提示，默认 true
+   */
+  async saveSingleField(updateData, showSuccessToast = true) {
+    if (this.data.saving) {
+      return false // 如果正在保存，不重复保存
+    }
+    
+    this.setData({ saving: true })
+
+    try {
+      let success = false
+      if (USE_MOCK_DATA) {
+        // 使用假数据（保存到全局数据）
+        success = this.saveToMock(updateData)
+      } else {
+        // 使用真实接口
+        success = await this.saveToApi(updateData)
+      }
+
+      if (success) {
+        if (showSuccessToast) {
+          wx.showToast({ title: '保存成功', icon: 'success', duration: 1500 })
+        }
+        this.setData({ saving: false })
+        return true
+      } else {
+        this.setData({ saving: false })
+        return false
+      }
+    } catch (error) {
+      console.error('保存字段失败:', error)
+      this.setData({ saving: false })
+      wx.showToast({
+        title: '保存失败，请重试',
+        icon: 'none'
+      })
+      return false
+    }
+  },
+  
+  /**
+   * 保存用户资料（完整保存，用于底部保存按钮）
    * 联调时：只需要修改 saveToApi 函数中的接口调用
    */
   async saveProfile() {
@@ -543,13 +849,15 @@ Page({
     this.setData({ saving: true })
 
     try {
+      // 使用完整表单数据
+      const updateData = mapFormToUpdateData(this.data.form)
       let success = false
       if (USE_MOCK_DATA) {
         // 使用假数据（保存到全局数据）
-        success = this.saveToMock()
+        success = this.saveToMock(updateData)
       } else {
         // 使用真实接口
-        success = await this.saveToApi()
+        success = await this.saveToApi(updateData)
       }
 
       if (success) {
@@ -574,10 +882,11 @@ Page({
   /**
    * 保存到假数据（联调时可删除此函数）
    */
-  saveToMock() {
+  saveToMock(updateData = null) {
+    const dataToSave = updateData || this.data.form
     app.globalData.userInfo = {
       ...(app.globalData.userInfo || {}),
-      ...this.data.form
+      ...dataToSave
     }
     return true
   },
@@ -585,37 +894,55 @@ Page({
   /**
    * 保存到真实接口
    * 联调时：只需要修改这里的接口调用和参数构建
+   * @param {Object} updateData - 要更新的数据，如果为 null 则使用完整表单数据
    */
-  async saveToApi() {
-    // 使用统一的数据映射函数
-    const updateData = mapFormToUpdateData(this.data.form)
+  async saveToApi(updateData = null) {
+    // 如果传入了 updateData，直接使用；否则使用完整表单数据
+    const dataToSave = updateData || mapFormToUpdateData(this.data.form)
 
-    const res = await userApi.updateUserInfo(updateData)
+    const res = await userApi.updateUserInfo(dataToSave)
     
     if (res.data && res.data.code === 200) {
       // 保存成功后，重新从后端加载最新数据，确保获取到完整的用户信息（包括头像）
       // 因为后端更新接口返回的 data 是 null，所以需要重新加载
-      try {
-        const latestUserInfo = await this.loadFromApi()
-        if (latestUserInfo) {
-          // 使用最新数据更新全局数据
-          app.globalData.userData = {
-            ...(app.globalData.userData || {}),
-            ...latestUserInfo
+      // 注意：单字段保存时，只更新对应字段，不重新加载全部数据（避免覆盖用户正在编辑的其他字段）
+      const fullFormData = mapFormToUpdateData(this.data.form)
+      const isFullSave = !updateData || Object.keys(updateData).length >= Object.keys(fullFormData).length * 0.8 // 如果更新字段超过80%，认为是完整保存
+      
+      if (isFullSave) {
+        // 完整保存时才重新加载全部数据
+        try {
+          const latestUserInfo = await this.loadFromApi()
+          if (latestUserInfo) {
+            // 使用最新数据更新全局数据
+            app.globalData.userData = {
+              ...(app.globalData.userData || {}),
+              ...latestUserInfo
+            }
+            app.globalData.userInfo = {
+              ...(app.globalData.userInfo || {}),
+              ...latestUserInfo
+            }
+            
+            // 同时更新当前页面的表单数据，确保头像等字段显示正确
+            const formData = mapUserInfoToForm(latestUserInfo)
+            // genderIndex 已经在 mapUserInfoToForm 中计算好了
+            this.setData({
+              form: formData
+            })
+          } else {
+            // 如果重新加载失败，至少使用当前表单数据更新全局数据
+            app.globalData.userData = {
+              ...(app.globalData.userData || {}),
+              ...this.data.form
+            }
+            app.globalData.userInfo = {
+              ...(app.globalData.userInfo || {}),
+              ...this.data.form
+            }
           }
-          app.globalData.userInfo = {
-            ...(app.globalData.userInfo || {}),
-            ...latestUserInfo
-          }
-          
-          // 同时更新当前页面的表单数据，确保头像等字段显示正确
-          const formData = mapUserInfoToForm(latestUserInfo)
-          // genderIndex 已经在 mapUserInfoToForm 中计算好了
-          this.setData({
-            form: formData
-          })
-        } else {
-          // 如果重新加载失败，至少使用当前表单数据更新全局数据
+        } catch (error) {
+          // 重新加载失败时，使用当前表单数据更新全局数据
           app.globalData.userData = {
             ...(app.globalData.userData || {}),
             ...this.data.form
@@ -625,15 +952,15 @@ Page({
             ...this.data.form
           }
         }
-      } catch (error) {
-        // 重新加载失败时，使用当前表单数据更新全局数据
+      } else {
+        // 单字段保存时，只更新全局数据中的对应字段
         app.globalData.userData = {
           ...(app.globalData.userData || {}),
-          ...this.data.form
+          ...updateData
         }
         app.globalData.userInfo = {
           ...(app.globalData.userInfo || {}),
-          ...this.data.form
+          ...updateData
         }
       }
       
@@ -878,8 +1205,60 @@ Page({
     }
   },
 
+  // 保存教育经历
+  async handleSaveEducation(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+    
+    if (isNaN(indexNum)) {
+      return
+    }
+    
+    // 阻止事件冒泡
+    if (e.stopPropagation) {
+      e.stopPropagation()
+    }
+    if (e.preventDefault) {
+      e.preventDefault()
+    }
+    
+    // 清除 blur 定时器
+    if (this.data.educationBlurTimer) {
+      clearTimeout(this.data.educationBlurTimer)
+      this.data.educationBlurTimer = null
+    }
+    
+    // 设置保存标志
+    this.setData({
+      isSaving: true
+    })
+    
+    // 获取当前教育经历列表
+    const educationList = this.data.form.educationList || []
+    if (!educationList[indexNum]) {
+      this.setData({
+        isSaving: false,
+        editingEducationIndex: null
+      })
+      return
+    }
+    
+    // 构建更新数据
+    const updateData = mapFormToUpdateData({ educationList: educationList })
+    
+    // 保存该教育经历
+    await this.saveSingleField(updateData, true)
+    
+    // 保存完成后，清除编辑状态和保存标志
+    this.setData({
+      editingEducationIndex: null,
+      isSaving: false,
+      educationBlurTimer: null
+    })
+  },
+  
   // 选择学校（点击下拉列表项）- 完全重构
-  selectSchool(e) {
+  async selectSchool(e) {
     const { index, schoolIndex } = e.currentTarget.dataset
     const indexNum = parseInt(index)
     const schoolIndexNum = parseInt(schoolIndex)
@@ -945,6 +1324,11 @@ Page({
       [`schoolSearchResults.${indexNum}`]: [],
       hasSchoolDropdownVisible: hasVisible
     })
+    
+    // 选择学校后，设置当前编辑的教育经历索引，显示确定按钮
+    this.setData({
+      editingEducationIndex: indexNum
+    })
   },
 
   // 学校输入框聚焦时触发（显示下拉列表，如果有输入内容）- 完全重构
@@ -955,6 +1339,17 @@ Page({
     if (isNaN(indexNum)) {
       return
     }
+    
+    // 清除之前的 blur 定时器
+    if (this.data.educationBlurTimer) {
+      clearTimeout(this.data.educationBlurTimer)
+      this.data.educationBlurTimer = null
+    }
+    
+    // 设置当前编辑的教育经历索引
+    this.setData({
+      editingEducationIndex: indexNum
+    })
     
     // 获取当前输入的值
     const educationList = this.data.form.educationList || []
@@ -993,6 +1388,64 @@ Page({
     })
   },
 
+  // 教育经历输入框获得焦点
+  handleEducationFocus(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+    if (!isNaN(indexNum)) {
+      // 清除之前的 blur 定时器
+      if (this.data.educationBlurTimer) {
+        clearTimeout(this.data.educationBlurTimer)
+        this.data.educationBlurTimer = null
+      }
+      
+      // 设置当前编辑的教育经历索引
+      this.setData({
+        editingEducationIndex: indexNum
+      })
+    }
+  },
+  
+  // 教育经历输入框失去焦点
+  handleEducationBlur(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+    
+    // 如果正在保存，不处理 blur 事件
+    if (this.data.isSaving) {
+      return
+    }
+    
+    // 清除之前的定时器
+    if (this.data.educationBlurTimer) {
+      clearTimeout(this.data.educationBlurTimer)
+      this.data.educationBlurTimer = null
+    }
+    
+    // 只有当失去焦点的教育经历是当前编辑的时，才隐藏确定按钮
+    if (!isNaN(indexNum) && this.data.editingEducationIndex === indexNum) {
+      // 延迟隐藏，确保点击确定按钮时能触发
+      const timer = setTimeout(() => {
+        // 如果正在保存，不隐藏
+        if (this.data.isSaving) {
+          return
+        }
+        // 再次检查，确保当前编辑的教育经历没有变化
+        if (this.data.editingEducationIndex === indexNum) {
+          this.setData({
+            editingEducationIndex: null,
+            educationBlurTimer: null
+          })
+        }
+      }, 500)
+      
+      // 保存定时器引用
+      this.setData({
+        educationBlurTimer: timer
+      })
+    }
+  },
+  
   // 教育经历输入
   handleEducationInput(e) {
     const { index, field } = e.currentTarget.dataset
@@ -1005,8 +1458,37 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
+    
+    // 输入过程中，确保确定按钮保持显示
+    const indexNum = parseInt(index)
+    if (!isNaN(indexNum) && this.data.editingEducationIndex === indexNum) {
+      // 如果因为某些原因 editingEducationIndex 被清空了，重新设置
+      if (this.data.editingEducationIndex !== indexNum) {
+        this.setData({
+          editingEducationIndex: indexNum
+        })
+      }
+    }
   },
-
+  
+  // 教育经历输入确认保存
+  async handleEducationInputConfirm(e) {
+    const { index, field } = e.currentTarget.dataset
+    const { value } = e.detail
+    const educationList = this.data.form.educationList || []
+    educationList[index] = {
+      ...educationList[index],
+      [field]: value
+    }
+    this.setData({
+      'form.educationList': educationList
+    })
+    
+    // 保存该教育经历
+    const updateData = mapFormToUpdateData({ educationList: educationList })
+    await this.saveSingleField(updateData, true)
+  },
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
   // 教育经历年份输入
   handleEducationYearInput(e) {
     const { index, field } = e.currentTarget.dataset
@@ -1019,10 +1501,39 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
+    
+    // 输入过程中，确保确定按钮保持显示
+    const indexNum = parseInt(index)
+    if (!isNaN(indexNum) && this.data.editingEducationIndex === indexNum) {
+      // 如果因为某些原因 editingEducationIndex 被清空了，重新设置
+      if (this.data.editingEducationIndex !== indexNum) {
+        this.setData({
+          editingEducationIndex: indexNum
+        })
+      }
+    }
+  },
+  
+  // 教育经历年份输入确认保存
+  async handleEducationYearInputConfirm(e) {
+    const { index, field } = e.currentTarget.dataset
+    const value = e.detail.value ? parseInt(e.detail.value) : null
+    const educationList = this.data.form.educationList || []
+    educationList[index] = {
+      ...educationList[index],
+      [field]: value
+    }
+    this.setData({
+      'form.educationList': educationList
+    })
+    
+    // 保存该教育经历
+    const updateData = mapFormToUpdateData({ educationList: educationList })
+    await this.saveSingleField(updateData, true)
   },
 
   // 学历层次选择
-  handleEducationLevelChange(e) {
+  async handleEducationLevelChange(e) {
     const { index } = e.currentTarget.dataset
     const levelIndex = Number(e.detail.value)
     const educationList = this.data.form.educationList || []
@@ -1033,6 +1544,10 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
+    
+    // 选择后自动保存该教育经历
+    const updateData = mapFormToUpdateData({ educationList: educationList })
+    await this.saveSingleField(updateData, true)
   },
 
   // 认证状态选择

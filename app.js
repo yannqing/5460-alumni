@@ -127,11 +127,12 @@ App({
     // 监听连接成功事件
     socketManager.on('onConnect', (data) => {
       console.log('[App] WebSocket 连接成功:', data)
-      wx.showToast({
-        title: '消息服务已连接',
-        icon: 'none',
-        duration: 1500
-      })
+      // 连接成功时不显示提示（已注释）
+      // wx.showToast({
+      //   title: '消息服务已连接',
+      //   icon: 'none',
+      //   duration: 1500
+      // })
     })
 
     // 监听连接断开事件
@@ -142,6 +143,7 @@ App({
     // 监听连接错误事件
     socketManager.on('onError', (error) => {
       console.error('[App] WebSocket 错误:', error)
+      // 网络错误提示已在 socketManager 中显示，这里不需要重复显示
     })
 
     // 监听重连事件

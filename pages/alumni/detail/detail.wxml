@@ -144,19 +144,6 @@
       </block>
     </view>
 
-    <!-- 证件信息卡片 -->
-    <view class="info-card">
-      <view class="card-title">证件信息</view>
-      <view class="info-row">
-        <view class="info-label">证件类型</view>
-        <view class="info-value">{{alumniInfo.identifyType === 0 ? '身份证' : (alumniInfo.identifyType === 1 ? '护照' : '其他')}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">证件号</view>
-        <view class="info-value">{{alumniInfo.identifyCode}}</view>
-      </view>
-    </view>
-
     <!-- 个人简介卡片 -->
     <view class="info-card">
       <view class="card-title">个人简介</view>

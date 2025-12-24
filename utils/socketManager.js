@@ -117,6 +117,14 @@ class SocketManager {
           console.error('[WebSocket] ❌ 连接请求失败:', err)
           this.isConnecting = false
           this.handleError(err)
+          
+          // 显示网络错误提示
+          wx.showToast({
+            title: '网络错误',
+            icon: 'none',
+            duration: 2000
+          })
+          
           this.tryReconnect()
         }
       })
@@ -181,12 +189,12 @@ class SocketManager {
     // 触发连接成功事件
     this.emit('onConnect', { userId: this.userId })
     
-    // 显示成功提示
-    wx.showToast({
-      title: 'WebSocket 已连接',
-      icon: 'success',
-      duration: 2000
-    })
+    // 显示成功提示（已注释，连接成功时不显示提示）
+    // wx.showToast({
+    //   title: 'WebSocket 已连接',
+    //   icon: 'success',
+    //   duration: 2000
+    // })
   }
 
   /**
@@ -245,6 +253,13 @@ class SocketManager {
     this.isConnecting = false
     this.handleError(err)
     this.emit('onError', err)
+    
+    // 显示网络错误提示
+    wx.showToast({
+      title: '网络错误',
+      icon: 'none',
+      duration: 2000
+    })
   }
 
   /**
@@ -480,6 +495,14 @@ class SocketManager {
     if (this.reconnectCount >= this.config.reconnectMaxTimes) {
       console.error('[WebSocket] 达到最大重连次数，停止重连')
       this.emit('onError', { message: '连接失败，请稍后重试' })
+      
+      // 显示网络错误提示
+      wx.showToast({
+        title: '网络错误',
+        icon: 'none',
+        duration: 2000
+      })
+      
       return
     }
 

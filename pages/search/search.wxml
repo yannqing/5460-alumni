@@ -2,8 +2,13 @@
 <view class="container">
   <!-- 搜索框 -->
   <view class="search-bar">
-    <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="搜索母校、校友会、校友" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" focus />
+    <!-- 返回按钮（仅在显示搜索结果时显示） -->
+    <view wx:if="{{showResult}}" class="back-button" catchtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    
+    <view class="search-input-wrap {{showResult ? 'with-back' : ''}}">
+      <input class="search-input" type="text" placeholder="搜索母校、校友会、校友" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" focus="{{!showResult}}" />
       <view class="search-actions">
         <image class="scan-btn-icon" src="{{iconScan}}" mode="aspectFit" bindtap="scanCode" />
         <image class="search-btn" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
@@ -71,11 +76,13 @@
 
       <view wx:if="{{searchResult.alumni.length > 0}}" class="result-section">
         <view class="section-title-small">校友</view>
-        <view class="list-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
-          <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="flex-1">
-            <view class="text-primary text-bold">{{item.name}}</view>
-            <view class="text-placeholder mt-10">{{item.school}} · {{item.company}}</view>
+        <view class="list-item alumni-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
+          <image class="avatar alumni-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="flex-1 alumni-content">
+            <view class="text-primary text-bold alumni-name">{{item.name}}</view>
+            <view class="text-placeholder mt-10 alumni-info">{{item.school}} {{item.company}}</view>
+            <view class="text-placeholder mt-8 alumni-location">位置：{{item.location || '无'}}</view>
+            <view class="text-placeholder mt-8 alumni-signature">签名：{{item.signature || '无'}}</view>
           </view>
         </view>
       </view>
@@ -146,11 +153,13 @@
     <!-- 校友结果 -->
     <view wx:if="{{activeTab === 3}}">
       <view wx:if="{{searchResult.alumni.length > 0}}" class="result-section">
-        <view class="list-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
-          <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="flex-1">
-            <view class="text-primary text-bold">{{item.name}}</view>
-            <view class="text-placeholder mt-10">{{item.school}} · {{item.company}}</view>
+        <view class="list-item alumni-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
+          <image class="avatar alumni-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="flex-1 alumni-content">
+            <view class="text-primary text-bold alumni-name">{{item.name}}</view>
+            <view class="text-placeholder mt-10 alumni-info">{{item.school}} {{item.company}}</view>
+            <view class="text-placeholder mt-8 alumni-location">位置：{{item.location || '无'}}</view>
+            <view class="text-placeholder mt-8 alumni-signature">签名：{{item.signature || '无'}}</view>
           </view>
         </view>
       </view>
@@ -190,3 +199,4 @@
     </view>
   </view>
 </view>
+

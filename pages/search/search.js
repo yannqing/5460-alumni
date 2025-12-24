@@ -75,14 +75,14 @@ Page({
       const { activeTab, pageNum, pageSize } = this.data
       
       // 根据当前tab确定搜索类型
-      // 后端SearchType枚举：ALUMNI(校友), ASSOCIATION(校友会), MERCHANT(商户), ALL(全部)
+      // 后端SearchType枚举：ALUMNI(校友), ASSOCIATION(校友会), MERCHANT(商户), SCHOOL(母校), ALL(全部)
       let types = []
       if (activeTab === 0) {
-        // 全部：使用ALL类型
+        // 全部：包含所有类型
         types = ['ALL']
       } else if (activeTab === 1) {
-        // 母校：待定，暂时不处理
-        types = []
+        // 母校
+        types = ['SCHOOL']
       } else if (activeTab === 2) {
         // 校友会
         types = ['ASSOCIATION']
@@ -152,12 +152,21 @@ Page({
           const extra = item.extra || {}
 
           if (type === 'ALUMNI') {
+            // 处理位置信息：只使用 curProvince 和 curCity，合成省和市
+            let location = '';
+            if (extra.curProvince || extra.curCity) {
+              const parts = [extra.curProvince, extra.curCity].filter(Boolean);
+              location = parts.join('');
+            }
+            
             alumni.push({
               id: item.id,
               name: item.title || '',
               avatar: item.avatar ? config.getImageUrl(item.avatar) : config.defaultAvatar,
               school: extra.schoolName || item.subtitle || '',
-              company: extra.company || ''
+              company: extra.company || '',
+              location: location || '',
+              signature: extra.signature || ''
             })
           } else if (type === 'ASSOCIATION') {
             associations.push({
@@ -174,16 +183,33 @@ Page({
               location: extra.location || extra.address || item.subtitle || '',
               rating: extra.rating || 0
             })
+          } else if (type === 'SCHOOL') {
+            schools.push({
+              id: item.id,
+              name: item.title || '',
+              icon: item.avatar ? config.getImageUrl(item.avatar) : (item.icon ? config.getImageUrl(item.icon) : config.defaultAvatar),
+              location: extra.location || extra.city || extra.province || item.subtitle || '',
+              alumniCount: extra.alumniCount || extra.alumniNum || 0
+            })
           } else if (type === 'ALL') {
             // ALL类型需要根据extra中的实际类型来判断
             const actualType = extra.type || extra.searchType
             if (actualType === 'ALUMNI' || actualType === '校友') {
+              // 处理位置信息：只使用 curProvince 和 curCity，合成省和市
+              let location = '';
+              if (extra.curProvince || extra.curCity) {
+                const parts = [extra.curProvince, extra.curCity].filter(Boolean);
+                location = parts.join('');
+              }
+              
               alumni.push({
                 id: item.id,
                 name: item.title || '',
                 avatar: item.avatar ? config.getImageUrl(item.avatar) : config.defaultAvatar,
                 school: extra.schoolName || item.subtitle || '',
-                company: extra.company || ''
+                company: extra.company || '',
+                location: location || '',
+                signature: extra.signature || ''
               })
             } else if (actualType === 'ASSOCIATION' || actualType === '校友会') {
               associations.push({
@@ -199,6 +225,14 @@ Page({
                 avatar: item.avatar ? config.getImageUrl(item.avatar) : config.defaultAvatar,
                 location: extra.location || extra.address || item.subtitle || '',
                 rating: extra.rating || 0
+              })
+            } else if (actualType === 'SCHOOL' || actualType === '母校' || actualType === '学校') {
+              schools.push({
+                id: item.id,
+                name: item.title || '',
+                icon: item.avatar ? config.getImageUrl(item.avatar) : (item.icon ? config.getImageUrl(item.icon) : config.defaultAvatar),
+                location: extra.location || extra.city || extra.province || item.subtitle || '',
+                alumniCount: extra.alumniCount || extra.alumniNum || 0
               })
             }
           }
@@ -370,5 +404,49 @@ Page({
         }
       }
     })
+  },
+
+  // 返回按钮点击事件
+  goBack(e) {
+    // 阻止事件冒泡
+    if (e && e.stopPropagation) {
+      e.stopPropagation()
+    }
+    
+    const pages = getCurrentPages()
+    if (pages.length > 1) {
+      // 如果有上一页，则返回
+      wx.navigateBack({
+        fail: () => {
+          // 如果返回失败，则清空搜索结果
+          this.setData({
+            showResult: false,
+            keyword: '',
+            searchResult: {
+              schools: [],
+              associations: [],
+              alumni: [],
+              merchants: []
+            },
+            pageNum: 1,
+            hasMore: true
+          })
+        }
+      })
+    } else {
+      // 如果没有上一页（从 tabBar 进入），则清空搜索结果
+      this.setData({
+        showResult: false,
+        keyword: '',
+        searchResult: {
+          schools: [],
+          associations: [],
+          alumni: [],
+          merchants: []
+        },
+        pageNum: 1,
+        hasMore: true
+      })
+    }
   }
 })
