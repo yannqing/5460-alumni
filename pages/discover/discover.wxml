@@ -26,22 +26,37 @@
     </view>
   </view>
 
-  <!-- 导航标签 -->
-  <view class="nav-tabs">
-    <view
-      class="nav-tab {{selectedTab === item.id ? 'active' : ''}}"
-      wx:for="{{navTabs}}"
-      wx:key="id"
-      data-id="{{item.id}}"
-      bindtap="handleTabChange"
-    >
-      <text class="tab-icon">{{item.icon}}</text>
-      <text class="tab-text">{{item.label}}</text>
+  <!-- 白色内容区域 -->
+  <view class="white-content-container">
+    <!-- 导航标签 -->
+    <view class="nav-tabs">
+      <view
+        class="nav-tab {{selectedTab === item.id ? 'active' : ''}}"
+        wx:for="{{navTabs}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="handleTabChange"
+      >
+        <text class="tab-icon">{{item.icon}}</text>
+        <text class="tab-text">{{item.label}}</text>
+      </view>
     </view>
+
   </view>
 
   <!-- 视图切换和排序 -->
   <view class="view-sort-container">
+    <view class="sort-options">
+      <view
+        class="sort-item {{sortType === item.id ? 'active' : ''}}"
+        wx:for="{{sortOptions}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="handleSortChange"
+      >
+        {{item.label}}
+      </view>
+    </view>
     <view class="view-toggle">
       <view
         class="toggle-item {{viewMode === 'map' ? 'active' : ''}}"
@@ -60,26 +75,68 @@
         <text class="toggle-text">列表</text>
       </view>
     </view>
-    <view class="sort-divider"></view>
-    <view class="sort-options">
-      <view
-        class="sort-item {{sortType === item.id ? 'active' : ''}}"
-        wx:for="{{sortOptions}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="handleSortChange"
-      >
-        {{item.label}}
-      </view>
-    </view>
   </view>
 
   <!-- 列表视图 -->
   <view class="list-view" wx:if="{{viewMode === 'list'}}">
+    <!-- 附近优惠列表 -->
+    <view class="content-list" wx:if="{{selectedTab === 'coupon'}}">
+      <view class="coupon-card" wx:for="{{couponList}}" wx:key="id">
+        <view class="coupon-main">
+          <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="coupon-content">
+            <view class="coupon-name">{{item.name}}</view>
+            <view class="coupon-distance">距离 {{item.distance}}m</view>
+            <view class="coupon-associations-wrapper">
+              <view class="coupon-associations">
+                <view class="association-tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">
+                  <image class="association-avatar" src="{{defaultAvatar}}" mode="aspectFill"></image>
+                  <text class="association-text">{{assoc}}</text>
+                </view>
+              </view>
+              <view class="coupon-expand" bindtap="handleExpand" data-id="{{item.id}}">
+                <text class="expand-icon">></text>
+              </view>
+            </view>
+          </view>
+        </view>
+        <scroll-view class="coupon-buttons" scroll-x="true" show-scrollbar="false">
+          <view class="coupon-btn-wrapper">
+            <view class="coupon-btn" wx:for="{{item.coupons}}" wx:key="*this" wx:for-item="coupon" wx:for-index="couponIdx">
+              <view class="coupon-btn-left">
+                <text class="coupon-discount">{{coupon.discount}}</text>
+                <text class="coupon-type">{{coupon.type}}</text>
+              </view>
+              <view class="coupon-btn-divider"></view>
+              <view class="coupon-btn-right">
+                <text class="coupon-title">{{coupon.title || coupon.discount}}</text>
+                <text class="coupon-expire">{{coupon.expireDate}}</text>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
 
-    <!-- 内容列表 -->
-    <view class="content-list">
-      <!-- 校友卡片 -->
+    <!-- 附近场所列表 -->
+    <view class="content-list" wx:if="{{selectedTab === 'venue'}}">
+      <view class="coupon-card" wx:for="{{venueList}}" wx:key="id">
+        <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="coupon-content">
+          <view class="coupon-name">{{item.name}}</view>
+          <view class="coupon-distance">距离 {{item.distance}}m</view>
+          <view class="coupon-associations">
+            <view class="association-tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">{{assoc}}</view>
+          </view>
+          <view class="coupon-rating" wx:if="{{item.rating}}">
+            <text>⭐ {{item.rating}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 附近校友列表 -->
+    <view class="content-list" wx:if="{{selectedTab === 'alumni'}}">
       <view class="content-card" wx:for="{{alumniList}}" wx:key="id">
         <view class="card-avatar">
           <image class="avatar-img" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
@@ -94,8 +151,10 @@
           <view class="follow-btn" bindtap="handleFollow" data-id="{{item.id}}">关注</view>
         </view>
       </view>
+    </view>
 
-      <!-- 活动卡片 -->
+    <!-- 附近活动列表 -->
+    <view class="content-list" wx:if="{{selectedTab === 'activity'}}">
       <view class="activity-card" wx:for="{{activityList}}" wx:key="id">
         <view class="activity-title">{{item.title}}</view>
         <view class="activity-date">{{item.dateRange}}</view>

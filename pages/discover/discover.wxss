@@ -15,7 +15,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 0;
 }
 
 .header-section-inner {
@@ -79,12 +79,12 @@
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.95);
+  color: #fff;
 }
 
 .search-btn {
   padding: 10rpx 28rpx;
-  background-color: #4a90e2;
+  background-color: rgba(54, 168, 202, 0.8);
   color: #fff;
   border-radius: 40rpx;
   font-size: 26rpx;
@@ -99,13 +99,22 @@
   margin-top: 4rpx;
 }
 
+/* 白色内容容器 */
+.white-content-container {
+  background-color: #fff;
+  margin-top: calc(env(safe-area-inset-top) + 390rpx);
+  border-top-left-radius: 32rpx;
+  border-top-right-radius: 32rpx;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+
 /* 导航标签 */
 .nav-tabs {
   display: flex;
-  background-color: #fff;
-  padding: 20rpx 0;
+  padding: 30rpx 30rpx;
   border-bottom: 1rpx solid #f0f0f0;
-  margin-top: calc(env(safe-area-inset-top) + 430rpx);
 }
 
 .nav-tab {
@@ -114,7 +123,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8rpx;
-  padding: 12rpx 8rpx;
+  padding: 20rpx 8rpx;
   border-radius: 8rpx;
   margin: 0 4rpx;
 }
@@ -146,27 +155,29 @@
 .view-sort-container {
   display: flex;
   align-items: center;
-  background-color: #fff;
+  justify-content: space-between;
   padding: 20rpx 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
   gap: 20rpx;
+  position: relative;
+  z-index: 20;
 }
 
 .view-toggle {
   display: flex;
   gap: 16rpx;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .toggle-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 12rpx 24rpx;
+  padding: 8rpx 16rpx;
   border-radius: 8rpx;
   background-color: #f5f5f5;
-  gap: 6rpx;
+  gap: 4rpx;
 }
 
 .toggle-item.active {
@@ -174,12 +185,14 @@
 }
 
 .toggle-icon {
-  font-size: 32rpx;
+  font-size: 30rpx;
+  line-height: 1;
 }
 
 .toggle-text {
-  font-size: 24rpx;
+  font-size: 25rpx;
   color: #666;
+  line-height: 1;
 }
 
 .toggle-item.active .toggle-text {
@@ -197,12 +210,14 @@
   display: flex;
   align-items: center;
   gap: 30rpx;
-  flex: 1;
+  flex-shrink: 0;
 }
 
 /* 列表视图 */
 .list-view {
-  padding: 20rpx 30rpx;
+  padding: 0;
+  position: relative;
+  z-index: 20;
 }
 
 .sort-item {
@@ -222,6 +237,198 @@
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+  padding: 20rpx 30rpx;
+}
+
+/* 优惠卡片 */
+.coupon-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.coupon-main {
+  display: flex;
+  gap: 20rpx;
+  align-items: flex-start;
+}
+
+.coupon-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  background-color: #f0f0f0;
+  flex-shrink: 0;
+}
+
+.coupon-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.coupon-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+.coupon-distance {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.coupon-associations-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  width: 100%;
+}
+
+.coupon-associations {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8rpx;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.coupon-associations::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.association-tag {
+  padding: 6rpx 12rpx 6rpx 6rpx;
+  background-color: #f5f5f5;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: #666;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.association-avatar {
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.association-text {
+  line-height: 22rpx;
+}
+
+.coupon-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+  flex-shrink: 0;
+  background-color:rgb(176, 208, 235);
+  border-radius: 50%;
+}
+
+.expand-icon {
+  font-size: 24rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.coupon-buttons {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.coupon-btn-wrapper {
+  display: inline-flex;
+  gap: 12rpx;
+  flex-direction: row;
+}
+
+.coupon-btn {
+  padding: 32rpx 20rpx;
+  background-color:rgb(45, 192, 123);
+  border-radius: 8rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 16rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 280rpx;
+  box-sizing: border-box;
+}
+
+.coupon-btn-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4rpx;
+  flex-shrink: 0;
+}
+
+.coupon-discount {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.coupon-type {
+  font-size: 22rpx;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.coupon-btn-divider {
+  width: 1rpx;
+  height: 40rpx;
+  background-color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.coupon-btn-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.coupon-title {
+  font-size: 24rpx;
+  color: #fff;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coupon-expire {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.2;
+}
+
+.coupon-rating {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 4rpx;
 }
 
 /* 校友/内容卡片 */

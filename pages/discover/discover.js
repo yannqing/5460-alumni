@@ -177,10 +177,11 @@ const MOCK_MERCHANTS = [
 Page({
   data: {
     searchValue: '',
-    selectedTab: 'all',
+    selectedTab: 'coupon',
     sortType: 'distance',
     loading: false,
     viewMode: 'list', // list: 列表模式, map: 地图模式
+    defaultAvatar: config.defaultAvatar,
     mapCenter: {
       latitude: 31.2304, // 默认上海坐标
       longitude: 121.4737
@@ -188,7 +189,6 @@ Page({
     mapScale: 15,
     mapMarkers: [],
     navTabs: [
-      { id: 'all', label: '全部分类', icon: '⊞' },
       { id: 'coupon', label: '附近优惠', icon: '🎟️' },
       { id: 'venue', label: '附近场所', icon: '🏌️' },
       { id: 'alumni', label: '附近校友', icon: '🎓' },
@@ -200,7 +200,9 @@ Page({
       { id: 'discount', label: '优惠力度' }
     ],
     alumniList: [],
-    activityList: []
+    activityList: [],
+    couponList: [],
+    venueList: []
   },
 
   onLoad() {
@@ -212,6 +214,78 @@ Page({
     
     // 模拟加载延迟
     setTimeout(() => {
+      // 模拟优惠列表数据
+      const mockCouponList = [
+        {
+          id: 1,
+          name: '星巴克咖啡·江南大悦城店',
+          distance: 520,
+          image: config.defaultAvatar,
+          associations: ['江南大学无锡校友会', '南京大学无锡校友会'],
+          coupons: [
+            {
+              discount: '8折',
+              type: '优惠券',
+              title: '星巴克校友专属优惠',
+              expireDate: '有效期至2025-12-31'
+            },
+            {
+              discount: '买一送一',
+              type: '优惠券',
+              title: '买一送一',
+              expireDate: '有效期至2025-12-25'
+            },
+            {
+              discount: '买一送一',
+              type: '优惠券',
+              title: '买一送一',
+              expireDate: '有效期至2025-12-20'
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: '无锡市新区体育馆',
+          distance: 520,
+          image: config.defaultAvatar,
+          associations: ['江南大学无锡校友会', '南京大学无锡校友会'],
+          coupons: [
+            {
+              discount: '8折',
+              type: '优惠券',
+              title: '星巴克校友专属优惠',
+              expireDate: '有效期至2025-12-31'
+            },
+            {
+              discount: '买一送一',
+              type: '优惠券',
+              title: '买一送一',
+              expireDate: '有效期至2025-12-20'
+            }
+          ]
+        }
+      ]
+      
+      // 模拟场所列表数据
+      const mockVenueList = [
+        {
+          id: 1,
+          name: '星巴克咖啡·江南大悦城店',
+          distance: 520,
+          image: config.defaultAvatar,
+          associations: ['江南大学无锡校友会'],
+          rating: 4.8
+        },
+        {
+          id: 2,
+          name: '无锡市新区体育馆',
+          distance: 520,
+          image: config.defaultAvatar,
+          associations: ['江南大学无锡校友会'],
+          rating: 4.9
+        }
+      ]
+      
       // 模拟校友列表数据
       const mockAlumniList = [
         {
@@ -246,6 +320,8 @@ Page({
       ]
       
       this.setData({
+        couponList: mockCouponList,
+        venueList: mockVenueList,
         alumniList: mockAlumniList,
         activityList: mockActivityList,
         loading: false
@@ -274,7 +350,8 @@ Page({
     this.setData({
       selectedTab: tabId
     })
-    // TODO: 根据选中的标签加载对应数据
+    // 根据选中的标签加载对应数据
+    this.loadDiscoverData()
   },
 
 
@@ -416,5 +493,14 @@ Page({
     // TODO: 处理地图点击事件
   },
 
+  // 展开更多
+  handleExpand(e) {
+    const id = e.currentTarget.dataset.id
+    // TODO: 处理展开更多事件
+    wx.showToast({
+      title: '展开更多',
+      icon: 'none'
+    })
+  }
 
 })
