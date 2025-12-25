@@ -1,5 +1,6 @@
 // pages/discover/discover.js
 const config = require('../../utils/config.js')
+const { shopApi } = require('../../api/api.js')
 
 const MOCK_MERCHANTS = [
   {
@@ -202,16 +203,259 @@ Page({
     alumniList: [],
     activityList: [],
     couponList: [],
-    venueList: []
+    venueList: [],
+    refreshing: false
   },
 
   onLoad() {
     this.loadDiscoverData()
   },
 
-  loadDiscoverData() {
+  // 下拉刷新
+  async onPullDownRefresh() {
+    console.log('[Discover] 下拉刷新触发')
+    this.setData({ refreshing: true })
+    
+    try {
+      await this.loadDiscoverData()
+    } catch (error) {
+      console.error('[Discover] 刷新失败:', error)
+      wx.showToast({
+        title: '刷新失败',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ refreshing: false })
+      // 停止下拉刷新动画
+      wx.stopPullDownRefresh()
+    }
+  },
+
+  // 上拉加载更多（可选）
+  onReachBottom() {
+    console.log('[Discover] 上拉加载更多')
+    // 这里可以添加分页加载逻辑
+  },
+
+  async loadDiscoverData() {
     this.setData({ loading: true })
     
+    // 如果是附近优惠tab，调用后端接口
+    if (this.data.selectedTab === 'coupon') {
+      await this.loadNearbyShops()
+    } else {
+      // 其他tab使用模拟数据
+      this.loadMockData()
+    }
+  },
+
+  async loadNearbyShops() {
+    try {
+      // 从全局数据获取位置信息
+      const app = getApp()
+      const location = app.globalData.location
+      
+      // 如果全局数据中没有位置信息，显示失败
+      if (!location) {
+        this.setData({
+          couponList: [],
+          loading: false
+        })
+        wx.showToast({
+          title: '获取位置失败，请重试',
+          icon: 'none',
+          duration: 2000
+        })
+        return
+      }
+      
+      const requestData = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        radius: 30, // 默认30公里
+        current: 1,
+        pageSize: 10
+      }
+
+      // 调试日志：输出请求参数
+      console.log('[Discover] 请求附近商铺参数:', requestData)
+
+      const res = await shopApi.getNearbyShops(requestData)
+      
+      // 调试日志：输出响应数据
+      console.log('[Discover] 附近商铺响应:', res)
+      console.log('[Discover] 响应code:', res.code)
+      console.log('[Discover] 响应data:', res.data)
+      
+      if (res && res.data.code === 200 && res.data.data) {
+        const shops = res.data.data.records || res.data.items || res.data.list || []
+        
+        // 调试日志：输出解析后的店铺列表
+        console.log('[Discover] 解析后的店铺列表:', shops)
+        console.log('[Discover] 店铺数量:', shops.length)
+        
+        // 如果没有数据，直接返回
+        if (shops.length === 0) {
+          this.setData({
+            couponList: [],
+            loading: false
+          })
+          return
+        }
+        const couponList = shops.map(shop => {
+          // 处理图片：shopImages可能是字符串数组或单个字符串
+          let image = config.defaultAvatar
+          if (shop.shopImages) {
+            if (Array.isArray(shop.shopImages) && shop.shopImages.length > 0) {
+              image = config.getImageUrl(shop.shopImages[0])
+            } else if (typeof shop.shopImages === 'string') {
+              image = config.getImageUrl(shop.shopImages)
+            }
+          }
+
+          // 处理距离：小于1km用m显示，大于等于1km用km显示，保留一位小数
+          let distanceText = '0m'
+          if (shop.distance !== undefined && shop.distance !== null) {
+            if (shop.distance < 1) {
+              // 小于1km，显示为米
+              distanceText = Math.round(shop.distance * 1000) + 'm'
+            } else {
+              // 大于等于1km，显示为公里，保留一位小数
+              let kmValue = shop.distance.toFixed(1)
+              // 如果小数部分是0，则只显示整数
+              if (kmValue.endsWith('.0')) {
+                distanceText = Math.round(shop.distance) + 'km'
+              } else {
+                distanceText = kmValue + 'km'
+              }
+            }
+          }
+
+          // 处理优惠券列表
+          let coupons = []
+          if (shop.coupons && Array.isArray(shop.coupons) && shop.coupons.length > 0) {
+            coupons = shop.coupons.map(coupon => {
+              // 处理优惠券字段映射
+              // 折扣信息：根据 discountValue 和 couponType 计算
+              let discount = '优惠'
+              if (coupon.discountValue !== undefined && coupon.discountValue !== null) {
+                if (coupon.couponType === 1) {
+                  // 折扣券：discountValue 如 0.8 表示 8折
+                  discount = Math.round(coupon.discountValue * 10) + '折'
+                } else if (coupon.couponType === 2) {
+                  // 满减券：discountValue 表示减免金额
+                  discount = '满' + (coupon.minSpend || 0) + '减' + coupon.discountValue
+                } else if (coupon.couponType === 3) {
+                  // 礼品券
+                  discount = '礼品券'
+                }
+              }
+              
+              // 优惠券类型
+              let type = '优惠券'
+              if (coupon.couponType === 1) {
+                type = '折扣券'
+              } else if (coupon.couponType === 2) {
+                type = '满减券'
+              } else if (coupon.couponType === 3) {
+                type = '礼品券'
+              }
+              
+              // 标题：使用 couponName（后端字段名）
+              const title = coupon.couponName || discount || ''
+              
+              // 有效期：使用 validEndTime 格式化（后端字段名）
+              let expireDate = '有效期至长期有效'
+              if (coupon.validEndTime) {
+                // 格式化日期：从 "2025-12-31T23:59:59" 格式转换为 "有效期至2025-12-31"
+                const dateStr = coupon.validEndTime.split('T')[0] || coupon.validEndTime.split(' ')[0]
+                expireDate = '有效期至' + dateStr
+              }
+              
+              return {
+                discount: discount,
+                type: type,
+                title: title,
+                expireDate: expireDate
+              }
+            })
+          }
+
+          // 处理校友会标签（如果后端没有返回，暂时为空数组）
+          const associations = shop.associations || []
+
+          return {
+            id: shop.shopId || shop.id,
+            name: shop.shopName || shop.name || '',
+            distance: distanceText,
+            image: image,
+            associations: associations,
+            coupons: coupons
+          }
+        })
+
+        // 调试日志：输出最终处理后的列表
+        console.log('[Discover] 最终处理后的优惠列表:', couponList)
+        console.log('[Discover] 最终列表数量:', couponList.length)
+        
+        this.setData({
+          couponList: couponList,
+          loading: false
+        }, () => {
+          console.log('[Discover] setData完成，当前couponList:', this.data.couponList)
+        })
+      } else {
+        this.setData({
+          couponList: [],
+          loading: false
+        })
+      }
+    } catch (error) {
+      this.setData({
+        couponList: [],
+        loading: false
+      })
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+    }
+  },
+
+  getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      // 使用微信官方接口获取位置信息
+      wx.getLocation({
+        type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
+        altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
+        success: (res) => {
+          console.log('[Discover] 获取到当前位置:', res.latitude, res.longitude)
+          resolve({
+            latitude: res.latitude,
+            longitude: res.longitude
+          })
+        },
+        fail: (err) => {
+          console.error('[Discover] 获取位置失败:', err)
+          // 如果获取位置失败，提示用户并尝试使用默认位置
+          if (err.errMsg && err.errMsg.includes('auth deny')) {
+            wx.showToast({
+              title: '需要位置权限',
+              icon: 'none',
+              duration: 2000
+            })
+          }
+          // 使用默认位置（无锡，靠近店铺位置）
+          resolve({
+            latitude: 31.5907370,
+            longitude: 120.3597840
+          })
+        }
+      })
+    })
+  },
+
+  loadMockData() {
     // 模拟加载延迟
     setTimeout(() => {
       // 模拟优惠列表数据

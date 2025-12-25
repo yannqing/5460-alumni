@@ -78,15 +78,28 @@
   </view>
 
   <!-- 列表视图 -->
-  <view class="list-view" wx:if="{{viewMode === 'list'}}">
+  <scroll-view
+    class="list-view"
+    wx:if="{{viewMode === 'list'}}"
+    scroll-y="true"
+    refresher-enabled="true"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onPullDownRefresh"
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+  >
     <!-- 附近优惠列表 -->
     <view class="content-list" wx:if="{{selectedTab === 'coupon'}}">
-      <view class="coupon-card" wx:for="{{couponList}}" wx:key="id">
+      <!-- 空列表提示 -->
+      <view class="empty-tip" wx:if="{{couponList.length === 0 && !loading}}">
+        <text>暂无附近优惠</text>
+      </view>
+      <view class="coupon-card" wx:for="{{couponList}}" wx:key="id" wx:for-index="idx">
         <view class="coupon-main">
           <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
           <view class="coupon-content">
             <view class="coupon-name">{{item.name}}</view>
-            <view class="coupon-distance">距离 {{item.distance}}m</view>
+            <view class="coupon-distance">距离 {{item.distance}}</view>
             <view class="coupon-associations-wrapper">
               <view class="coupon-associations">
                 <view class="association-tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">
@@ -187,7 +200,7 @@
         </view>
       </view>
     </view>
-  </view>
+  </scroll-view>
 
   <!-- 地图视图 -->
   <view class="map-view" wx:if="{{viewMode === 'map'}}">

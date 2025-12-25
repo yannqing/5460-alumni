@@ -1,4 +1,7 @@
 {
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
   "pages": [
     "pages/index/index",
     "pages/discover/discover",
@@ -100,8 +103,14 @@
     "downloadFile": 10000
   },
   "requiredPrivateInfos": [
-    "chooseLocation"
+    "chooseLocation",
+    "getLocation"
   ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于查找附近的商铺、校友和活动"
+    }
+  },
   "debug": true,
   "sitemapLocation": "sitemap.json"
 }

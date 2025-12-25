@@ -129,14 +129,14 @@ const merchantApi = {
 
 // ==================== 商铺相关接口 ====================
 const shopApi = {
-  // 获取商铺列表
-  getShopList: (params) => get('/shops', params),
   // 获取商铺详情
   getShopDetail: (id) => get(`/shops/${id}`),
   // 关注商铺
   followShop: (id) => post(`/shops/${id}/follow`),
   // 取消关注商铺
   unfollowShop: (id) => del(`/shops/${id}/follow`),
+  // 获取附近商铺
+  getNearbyShops: (data) => post('/NearbyBenefits/shops/nearby', data),
 }
 
 

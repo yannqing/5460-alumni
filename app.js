@@ -29,6 +29,9 @@ App({
     // 获取系统信息
     this.getSystemInfo();
 
+    // 获取用户位置信息
+    this.getUserLocation();
+
     // 自动初始化登录
     try {
       await this.initApp()
@@ -68,7 +71,8 @@ App({
     systemInfo: null,
     statusBarHeight: 0,
     urlOpt: null,
-    socketManager: socketManager  // WebSocket 管理器实例
+    socketManager: socketManager,  // WebSocket 管理器实例
+    location: null  // 存储用户位置信息
   },
 
   getSystemInfo() {
@@ -78,6 +82,28 @@ App({
         this.globalData.statusBarHeight = res.statusBarHeight;
       }
     });
+  },
+
+  /**
+   * 获取用户位置信息（小程序启动时调用）
+   */
+  getUserLocation() {
+    wx.getLocation({
+      type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
+      altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
+      success: (res) => {
+        console.log('[App] 获取到用户位置:', res.latitude, res.longitude)
+        this.globalData.location = {
+          latitude: res.latitude,
+          longitude: res.longitude
+        }
+      },
+      fail: (err) => {
+        console.error('[App] 获取位置失败:', err)
+        // 获取位置失败，不设置默认值
+        this.globalData.location = null
+      }
+    })
   },
 
   /**

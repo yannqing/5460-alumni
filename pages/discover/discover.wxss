@@ -1,8 +1,10 @@
 /* pages/discover/discover.wxss */
 .discover-page {
-  min-height: 100vh;
+  height: 100vh;
   background-color: #f5f5f5;
-  padding-bottom: 100rpx;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* 蓝色头部 */
@@ -102,11 +104,13 @@
 /* 白色内容容器 */
 .white-content-container {
   background-color: #fff;
-  margin-top: calc(env(safe-area-inset-top) + 390rpx);
   border-top-left-radius: 32rpx;
   border-top-right-radius: 32rpx;
   overflow: hidden;
-  position: relative;
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 390rpx);
+  left: 0;
+  right: 0;
   z-index: 10;
 }
 
@@ -158,8 +162,12 @@
   justify-content: space-between;
   padding: 20rpx 30rpx;
   gap: 20rpx;
-  position: relative;
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 435rpx + 120rpx);
+  left: 0;
+  right: 0;
   z-index: 20;
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .view-toggle {
@@ -215,9 +223,13 @@
 
 /* 列表视图 */
 .list-view {
-  padding: 0;
+  flex: 1;
+  height: 0;
+  margin-top: calc(env(safe-area-inset-top) + 435rpx + 120rpx + 80rpx);
   position: relative;
   z-index: 20;
+  background-color: #f5f5f5;
+  overflow-y: auto;
 }
 
 .sort-item {
@@ -229,7 +241,6 @@
 .sort-item.active {
   color: #4a90e2;
   font-weight: 600;
-  border-bottom: 2rpx solid #4a90e2;
 }
 
 /* 内容列表 */
@@ -238,6 +249,17 @@
   flex-direction: column;
   gap: 20rpx;
   padding: 20rpx 30rpx;
+  min-height: 200rpx;
+}
+
+/* 空列表提示 */
+.empty-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+  color: #999;
+  font-size: 28rpx;
 }
 
 /* 优惠卡片 */
