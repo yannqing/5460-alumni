@@ -262,6 +262,16 @@
   font-size: 28rpx;
 }
 
+/* 没有更多了提示 */
+.no-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 26rpx;
+}
+
 /* 优惠卡片 */
 .coupon-card {
   background-color: #fff;

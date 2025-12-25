@@ -129,6 +129,10 @@
           </view>
         </scroll-view>
       </view>
+      <!-- 没有更多了提示 -->
+      <view class="no-more" wx:if="{{!hasMore && couponList.length > 0 && !loading}}">
+        <text>没有更多了</text>
+      </view>
     </view>
 
     <!-- 附近场所列表 -->

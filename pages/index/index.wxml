@@ -39,7 +39,15 @@
   </view>
 
   <!-- 文章列表区域 -->
-  <view class="article-list">
+  <scroll-view
+    class="article-list"
+    scroll-y="true"
+    refresher-enabled="true"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onListRefresh"
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+  >
     <view class="article-item" wx:for="{{articleList}}" wx:key="id" wx:for-index="idx" bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
       <view class="article-header">
         <view class="user-info">
@@ -68,5 +76,5 @@
     <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
       <text>暂无内容</text>
     </view>
-  </view>
+  </scroll-view>
 </view>

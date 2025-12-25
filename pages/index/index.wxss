@@ -1,21 +1,27 @@
 /* pages/index/index.wxss */
 .container {
-  min-height: 100vh;
+  height: 100vh;
   background-color: #f8f8f8;
-  padding-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* 顶部 Banner */
 .header-banner {
   height: 450rpx;
   background: linear-gradient(180deg, #5b7fff 0%, #7a9bff 100%);
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   padding-top: env(safe-area-inset-top);
   box-sizing: border-box;
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 10;
 }
 
 .platform-tag {
@@ -58,13 +64,16 @@
 
 /* 导航区域 */
 .nav-container {
-  margin: -80rpx 15rpx 30rpx;
+  margin: 0 15rpx;
   background-color: #fff;
   border-radius: 20rpx;
   padding: 60rpx 20rpx 35rpx;
-  position: relative;
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 370rpx);
+  left: 0;
+  right: 0;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
-  z-index: 10;
+  z-index: 20;
 }
 
 .nav-header {
@@ -110,15 +119,20 @@
 
 /* 文章列表 */
 .article-list {
-  padding: 0;
+  flex: 1;
+  height: 0;
+  margin-top: calc(env(safe-area-inset-top) + 420rpx + 200rpx);
+  padding: 0 0 20rpx 0;
+  background-color: #f8f8f8;
 }
 
 .article-item {
   background-color: #fff;
   padding: 30rpx;
-  margin-bottom: 20rpx;
+  margin: 0 15rpx 20rpx;
   display: flex;
   flex-direction: column;
+  border-radius: 8rpx;
 }
 
 .article-header {

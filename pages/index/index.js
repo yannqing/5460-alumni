@@ -34,9 +34,10 @@ Page({
   },
 
   /**
-   * 页面相关事件处理函数--监听用户下拉动作
+   * 列表下拉刷新处理函数
    */
-  onPullDownRefresh: function () {
+  onListRefresh: function () {
+    console.log('[Index] 列表下拉刷新触发')
     this.setData({ refreshing: true });
     this.getArticleList(true);
   },
@@ -192,10 +193,10 @@ Page({
     } catch (error) {
       console.error('获取首页文章失败', error);
       this.setData({ loading: false, refreshing: false });
-    } finally {
-      if (reset) {
-        wx.stopPullDownRefresh();
-      }
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
     }
   },
 

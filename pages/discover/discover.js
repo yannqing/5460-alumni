@@ -204,7 +204,10 @@ Page({
     activityList: [],
     couponList: [],
     venueList: [],
-    refreshing: false
+    refreshing: false,
+    currentPage: 1,
+    pageSize: 10,
+    hasMore: true
   },
 
   onLoad() {
@@ -231,26 +234,38 @@ Page({
     }
   },
 
-  // 上拉加载更多（可选）
+  // 上拉加载更多
   onReachBottom() {
     console.log('[Discover] 上拉加载更多')
-    // 这里可以添加分页加载逻辑
+    // 如果正在加载或没有更多数据，则不执行
+    if (this.data.loading || !this.data.hasMore) {
+      return
+    }
+    // 如果是附近优惠tab，加载更多数据
+    if (this.data.selectedTab === 'coupon') {
+      this.loadNearbyShops(false)
+    }
   },
 
   async loadDiscoverData() {
-    this.setData({ loading: true })
+    this.setData({ loading: true, currentPage: 1, hasMore: true })
     
     // 如果是附近优惠tab，调用后端接口
     if (this.data.selectedTab === 'coupon') {
-      await this.loadNearbyShops()
+      await this.loadNearbyShops(true)
     } else {
       // 其他tab使用模拟数据
       this.loadMockData()
     }
   },
 
-  async loadNearbyShops() {
+  async loadNearbyShops(reset = true) {
     try {
+      // 如果正在加载且不是重置，则不执行
+      if (this.data.loading && !reset) {
+        return
+      }
+
       // 从全局数据获取位置信息
       const app = getApp()
       const location = app.globalData.location
@@ -268,13 +283,16 @@ Page({
         })
         return
       }
+
+      // 计算当前页码
+      const currentPage = reset ? 1 : this.data.currentPage + 1
       
       const requestData = {
         latitude: location.latitude,
         longitude: location.longitude,
         radius: 30, // 默认30公里
-        current: 1,
-        pageSize: 10
+        current: currentPage,
+        pageSize: this.data.pageSize
       }
 
       // 调试日志：输出请求参数
@@ -288,17 +306,21 @@ Page({
       console.log('[Discover] 响应data:', res.data)
       
       if (res && res.data.code === 200 && res.data.data) {
-        const shops = res.data.data.records || res.data.items || res.data.list || []
+        const data = res.data.data
+        const shops = data.records || data.items || data.list || []
+        const total = data.total || 0
         
         // 调试日志：输出解析后的店铺列表
         console.log('[Discover] 解析后的店铺列表:', shops)
         console.log('[Discover] 店铺数量:', shops.length)
+        console.log('[Discover] 总数量:', total)
         
-        // 如果没有数据，直接返回
+        // 如果没有数据
         if (shops.length === 0) {
           this.setData({
-            couponList: [],
-            loading: false
+            couponList: reset ? [] : this.data.couponList,
+            loading: false,
+            hasMore: false
           })
           return
         }
@@ -398,22 +420,32 @@ Page({
         console.log('[Discover] 最终处理后的优惠列表:', couponList)
         console.log('[Discover] 最终列表数量:', couponList.length)
         
+        // 计算当前总数据量和是否还有更多
+        const currentList = reset ? couponList : this.data.couponList.concat(couponList)
+        const hasMore = currentList.length < total && shops.length > 0
+        
         this.setData({
-          couponList: couponList,
+          couponList: currentList,
+          currentPage: currentPage,
+          hasMore: hasMore,
           loading: false
         }, () => {
           console.log('[Discover] setData完成，当前couponList:', this.data.couponList)
+          console.log('[Discover] 当前页码:', currentPage, '是否还有更多:', hasMore)
         })
       } else {
         this.setData({
-          couponList: [],
-          loading: false
+          couponList: reset ? [] : this.data.couponList,
+          loading: false,
+          hasMore: false
         })
       }
     } catch (error) {
+      console.error('[Discover] 加载附近商铺失败:', error)
       this.setData({
-        couponList: [],
-        loading: false
+        couponList: reset ? [] : this.data.couponList,
+        loading: false,
+        hasMore: false
       })
       wx.showToast({
         title: '加载失败',
