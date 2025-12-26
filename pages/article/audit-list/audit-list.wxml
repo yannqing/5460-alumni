@@ -22,14 +22,31 @@
           <view class="audit-status {{item.statusClass}}">{{item.statusText}}</view>
         </view>
 
+        <!-- 文章内容区域 -->
+        <view class="article-content-wrapper" bindtap="viewArticleDetail" data-id="{{item.homeArticleId}}" data-index="{{idx}}">
+          <view class="article-body">
+            <view class="article-text-content">
+              <view class="article-description" wx:if="{{item.articleDescription}}">{{item.articleDescription}}</view>
+            </view>
+            <view class="article-cover-wrapper" wx:if="{{item.coverImg}}">
+              <image class="article-cover" src="{{item.coverImg}}" mode="aspectFill"></image>
+            </view>
+          </view>
+        </view>
+
         <view class="audit-info" bindtap="viewArticleDetail" data-id="{{item.homeArticleId}}" data-index="{{idx}}">
           <view class="info-row">
             <text class="info-label">文章ID：</text>
             <text class="info-value">{{item.homeArticleId}}</text>
           </view>
           <view class="info-row" wx:if="{{item.publishUsername}}">
-            <text class="info-label">发布者：</text>
-            <text class="info-value">{{item.publishUsername}}</text>
+            <view class="publisher-info">
+              <view class="publisher-avatar-wrapper" wx:if="{{item.publisherAvatar}}">
+                <image class="publisher-avatar" src="{{item.publisherAvatar}}" mode="aspectFill"></image>
+              </view>
+              <text class="info-label">发布者：</text>
+              <text class="info-value">{{item.publishUsername}}</text>
+            </view>
           </view>
           <view class="info-row">
             <text class="info-label">提交时间：</text>

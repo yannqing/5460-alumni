@@ -412,7 +412,9 @@ Page({
             distance: distanceText,
             image: image,
             associations: associations,
-            coupons: coupons
+            coupons: coupons,
+            latitude: shop.latitude,
+            longitude: shop.longitude
           }
         })
 
@@ -713,48 +715,107 @@ Page({
 
   // 更新地图标记
   updateMapMarkers() {
-    // 活动标记
-    const activityMarkers = this.data.activityList.map((item, index) => ({
-      id: `activity_${item.id}`,
-      latitude: item.latitude || 31.2304,
-      longitude: item.longitude || 121.4737,
-      iconPath: '/assets/images/activity-marker.png', // 活动图标
-      width: 50,
-      height: 50,
-      callout: {
-        content: item.title,
-        color: '#333',
-        fontSize: 14,
-        borderRadius: 8,
-        bgColor: '#fff',
-        padding: 12,
-        display: 'BYCLICK'
-      }
-    }))
+    const markers = []
+    let markerId = 1 // 从1开始，确保id是数字
     
-    // 场地标记
-    const venueMarkers = [
-      {
-        id: 'venue_1',
-        latitude: 31.2314,
-        longitude: 121.4747,
-        iconPath: '/assets/images/venue-marker.png', // 场地图标
-        width: 50,
-        height: 50,
-        callout: {
-          content: '场地',
-          color: '#333',
-          fontSize: 14,
-          borderRadius: 8,
-          bgColor: '#fff',
-          padding: 12,
-          display: 'BYCLICK'
+    // 附近优惠标记（使用优惠列表数据）
+    if (this.data.selectedTab === 'coupon' && this.data.couponList.length > 0) {
+      this.data.couponList.forEach((item, index) => {
+        if (item.latitude && item.longitude) {
+          markers.push({
+            id: markerId++,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            width: 30,
+            height: 30,
+            callout: {
+              content: item.name || '商铺',
+              color: '#333',
+              fontSize: 14,
+              borderRadius: 8,
+              bgColor: '#fff',
+              padding: 8,
+              display: 'BYCLICK'
+            }
+          })
         }
-      }
-    ]
+      })
+    }
+    
+    // 附近场所标记
+    if (this.data.selectedTab === 'venue' && this.data.venueList.length > 0) {
+      this.data.venueList.forEach((item, index) => {
+        if (item.latitude && item.longitude) {
+          markers.push({
+            id: markerId++,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            width: 30,
+            height: 30,
+            callout: {
+              content: item.name || '场所',
+              color: '#333',
+              fontSize: 14,
+              borderRadius: 8,
+              bgColor: '#fff',
+              padding: 8,
+              display: 'BYCLICK'
+            }
+          })
+        }
+      })
+    }
+    
+    // 附近校友标记
+    if (this.data.selectedTab === 'alumni' && this.data.alumniList.length > 0) {
+      this.data.alumniList.forEach((item, index) => {
+        if (item.latitude && item.longitude) {
+          markers.push({
+            id: markerId++,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            width: 30,
+            height: 30,
+            callout: {
+              content: item.name || '校友',
+              color: '#333',
+              fontSize: 14,
+              borderRadius: 8,
+              bgColor: '#fff',
+              padding: 8,
+              display: 'BYCLICK'
+            }
+          })
+        }
+      })
+    }
+    
+    // 附近活动标记
+    if (this.data.selectedTab === 'activity' && this.data.activityList.length > 0) {
+      this.data.activityList.forEach((item, index) => {
+        if (item.latitude && item.longitude) {
+          markers.push({
+            id: markerId++,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            width: 30,
+            height: 30,
+            callout: {
+              content: item.title || '活动',
+              color: '#333',
+              fontSize: 14,
+              borderRadius: 8,
+              bgColor: '#fff',
+              padding: 8,
+              display: 'BYCLICK'
+            }
+          })
+        }
+      })
+    }
     
     this.setData({
-      mapMarkers: [...activityMarkers, ...venueMarkers]
+      mapMarkers: markers
     })
   },
 

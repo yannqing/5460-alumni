@@ -174,42 +174,81 @@ Page({
 
       const fieldCode = keyToFieldCodeMap[key]
 
-      // 更新 privacyList 中对应字段的值
+      if (!fieldCode) {
+        // 如果找不到对应的 fieldCode 映射，恢复原值并提示错误
+        console.error('[Privacy] 找不到字段映射，key:', key)
+        this.setData({
+          [`privacySettings.${key}`]: !value
+        })
+        wx.showToast({
+          title: '字段映射错误，请刷新后重试',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 从 privacyList 中找到当前要更新的字段
+      const currentItem = this.data.privacyList.find(item => item.fieldCode === fieldCode)
+      
+      console.log('[Privacy] 查找字段:', {
+        key: key,
+        fieldCode: fieldCode,
+        privacyListLength: this.data.privacyList.length,
+        privacyList: this.data.privacyList,
+        currentItem: currentItem
+      })
+      
+      if (!currentItem) {
+        // 如果找不到对应的项，可能是后端还没有该字段的记录，需要先创建
+        console.error('[Privacy] 找不到对应的隐私设置项，fieldCode:', fieldCode)
+        this.setData({
+          [`privacySettings.${key}`]: !value
+        })
+        wx.showToast({
+          title: '该字段尚未初始化，请刷新后重试',
+          icon: 'none'
+        })
+        return
+      }
+      
+      if (!currentItem.userPrivacySettingId) {
+        // 如果找不到 userPrivacySettingId，恢复原值并提示错误
+        console.error('[Privacy] userPrivacySettingId 为空，currentItem:', currentItem)
+        this.setData({
+          [`privacySettings.${key}`]: !value
+        })
+        wx.showToast({
+          title: '数据错误，请刷新后重试',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 构造请求数据：只传入当前要更新的那一个字段的对象
       // 注意：value=true表示开关打开（隐藏信息，visibility=0）
       //       value=false表示开关关闭（显示信息，visibility=1）
-      const privacyList = this.data.privacyList.map(item => {
-        if (item.fieldCode === fieldCode) {
-          return {
-            ...item,
-            visibility: value ? 0 : 1,  // 反转逻辑：true=0（隐藏），false=1（显示）
-            searchable: 1  // 固定为1，表示可被搜索
-          }
-        }
-        // 对于其他字段，也需要确保 searchable 为 1
-        return {
-          ...item,
-          searchable: 1
-        }
-      })
-
-      // 调用后端接口保存隐私设置
-      // 注意：userPrivacySettingId 保持字符串格式（避免 JavaScript 精度丢失）
-      // 后端的 Jackson 或 FastJson 会自动将字符串解析为 Long 类型
-      const cleanedList = privacyList.map(item => ({
-        userPrivacySettingId: String(item.userPrivacySettingId),  // 确保是字符串
-        fieldCode: item.fieldCode,
-        visibility: item.visibility,
-        searchable: item.searchable
-      }))
-      
       const requestData = {
-        PrivacySettingsRequestList: cleanedList
+        userPrivacySettingId: String(currentItem.userPrivacySettingId),  // 确保是字符串，避免精度丢失
+        fieldCode: fieldCode,
+        visibility: value ? 0 : 1,  // 反转逻辑：true=0（隐藏），false=1（显示）
+        searchable: 1  // 固定为1，表示可被搜索
       }
+      
       const res = await userApi.updatePrivacy(requestData)
 
       if (res.data && res.data.code === 200) {
-        // 更新本地存储的 privacyList
-        this.setData({ privacyList })
+        // 更新本地存储的 privacyList 中对应字段的值
+        const updatedPrivacyList = this.data.privacyList.map(item => {
+          if (item.fieldCode === fieldCode) {
+            return {
+              ...item,
+              visibility: requestData.visibility,
+              searchable: requestData.searchable
+            }
+          }
+          return item
+        })
+        this.setData({ privacyList: updatedPrivacyList })
 
         wx.showToast({
           title: value ? '已隐藏' : '已显示',  // 更新提示文案

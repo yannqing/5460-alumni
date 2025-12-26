@@ -104,24 +104,68 @@ Page({
               statusClass = 'rejected'
             }
 
-            // 处理时间
+            // 处理时间：去掉T
             let createTime = item.createTime || ''
             if (createTime) {
-              createTime = createTime.split(' ')[0]
+              createTime = createTime.replace('T', ' ')
             }
 
             let completedTime = item.completedTime || ''
             if (completedTime) {
-              completedTime = completedTime.split(' ')[0]
+              completedTime = completedTime.replace('T', ' ')
+            }
+
+            // 处理文章信息
+            let articleTitle = '加载中...'
+            let articleDescription = ''
+            let publishUsername = ''
+            let publisherAvatar = ''
+            let coverImg = ''
+
+            if (articleInfo) {
+              // 处理标题
+              articleTitle = articleInfo.articleTitle || articleInfo.title || '无标题'
+              
+              // 处理描述
+              articleDescription = articleInfo.description || articleInfo.content || ''
+              
+              // 处理发布者名称
+              publishUsername = articleInfo.publishUsername || '未知用户'
+              
+              // 处理发布者头像
+              if (articleInfo.publisherAvatar) {
+                if (typeof articleInfo.publisherAvatar === 'object') {
+                  publisherAvatar = articleInfo.publisherAvatar.fileUrl || articleInfo.publisherAvatar.thumbnailUrl || articleInfo.publisherAvatar.url || ''
+                } else {
+                  publisherAvatar = articleInfo.publisherAvatar
+                }
+                if (publisherAvatar) {
+                  publisherAvatar = config.getImageUrl(publisherAvatar)
+                }
+              }
+              
+              // 处理封面图
+              if (articleInfo.coverImg) {
+                if (typeof articleInfo.coverImg === 'object') {
+                  coverImg = articleInfo.coverImg.thumbnailUrl || articleInfo.coverImg.fileUrl || ''
+                  if (coverImg) {
+                    coverImg = config.getImageUrl(coverImg)
+                  }
+                } else {
+                  coverImg = config.getImageUrl(`/file/download/${articleInfo.coverImg}`)
+                }
+              }
             }
 
             return {
               ...item,
               id: item.homeArticleApplyId ? String(item.homeArticleApplyId) : '',
               homeArticleId: item.homeArticleId ? String(item.homeArticleId) : '',
-              articleTitle: articleInfo ? (articleInfo.articleTitle || '无标题') : '加载中...',
-              articleDescription: articleInfo ? (articleInfo.description || '') : '',
-              publishUsername: articleInfo ? (articleInfo.publishUsername || '未知用户') : '',
+              articleTitle: articleTitle,
+              articleDescription: articleDescription,
+              publishUsername: publishUsername,
+              publisherAvatar: publisherAvatar,
+              coverImg: coverImg,
               statusText: statusText,
               statusClass: statusClass,
               createTime: createTime,
