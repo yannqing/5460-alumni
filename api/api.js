@@ -135,8 +135,13 @@ const shopApi = {
   followShop: (id) => post(`/shops/${id}/follow`),
   // 取消关注商铺
   unfollowShop: (id) => del(`/shops/${id}/follow`),
-  // 获取附近商铺
-  getNearbyShops: (data) => post('/NearbyBenefits/shops/nearby', data),
+}
+
+// ==================== 附近权益相关接口 ====================
+const nearbyApi = {
+  // 统一附近查询（附近优惠，附近场所，附近校友）
+  // queryType: 1-商铺, 2-企业/场所, 3-校友
+  getNearby: (data) => post('/NearbyBenefits/nearby', data),
 }
 
 
@@ -443,6 +448,7 @@ module.exports = {
   circleApi,
   merchantApi,
   shopApi,
+  nearbyApi,
   activityApi,
   userApi,
   searchApi,

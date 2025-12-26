@@ -683,3 +683,44 @@
   right: 0;
   bottom: 0;
 }
+
+/* 定位按钮 */
+.location-btn {
+  position: absolute;
+  right: 30rpx;
+  bottom: 150rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.location-icon {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+/* 隐藏的 Canvas */
+.hidden-canvas {
+  position: absolute;
+  top: -9999rpx;
+  left: -9999rpx;
+  width: 50px;
+  height: 50px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 圆形头像标记 */
+.marker-avatar {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  border: 2rpx solid #fff;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.2);
+}

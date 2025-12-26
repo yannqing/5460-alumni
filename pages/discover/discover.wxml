@@ -218,5 +218,11 @@
       bindmarkertap="onMarkerTap"
       bindtap="onMapTap"
     ></map>
+    <!-- 隐藏的 Canvas，用于绘制圆形头像 -->
+    <canvas canvas-id="roundAvatarCanvas" class="hidden-canvas"></canvas>
+    <!-- 定位到我的位置按钮 -->
+    <view class="location-btn" bindtap="locateToMyPosition">
+      <text class="location-icon">📍</text>
+    </view>
   </view>
 </view>
