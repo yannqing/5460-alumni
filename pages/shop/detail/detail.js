@@ -1,5 +1,5 @@
 // pages/shop/detail/detail.js
-const { shopApi } = require('../../../api/api.js')
+const { nearbyApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
 const DEFAULT_AVATAR = config.defaultAvatar
@@ -22,149 +22,147 @@ Page({
     this.loadShopDetail()
   },
 
-  loadShopDetail() {
-    // TODO: 对接后端接口
-    // shopApi.getShopDetail(this.data.shopId).then(res => {
-    //   this.setData({
-    //     shopInfo: res.data,
-    //     loading: false
-    //   })
-    // }).catch(err => {
-    //   console.error('获取商铺详情失败', err)
-    //   this.setData({ loading: false })
-    //   wx.showToast({
-    //     title: '加载失败',
-    //     icon: 'none'
-    //   })
-    // })
+  async loadShopDetail() {
+    try {
+      wx.showLoading({ title: '加载中...' })
+      const res = await nearbyApi.getShopDetail({ shopId: this.data.shopId })
+      wx.hideLoading()
 
-    // 模拟数据
-    const mockData = {
-      id: this.data.shopId || '1',
-      name: '校友咖啡厅',
-      avatar: DEFAULT_AVATAR,
-      category: '餐饮',
-      location: '上海市浦东新区世纪大道123号',
-      distance: '800m',
-      rating: 4.8,
-      phone: '021-12345678',
-      wechat: 'alumni_cafe',
-      businessHours: '周一至周日 08:00-22:00',
-      description: '温馨的校友聚会场所，提供优质咖啡和简餐。店内环境优雅，是校友们交流聚会的好去处。',
-      isFavorited: false, // 是否已收藏
-      certifiedAssociation: {
-        id: 'association-001',
-        name: '南京大学上海校友会' // 认证的校友会名称
-      },
-      ownerId: '123', // 添加拥有者ID，用于私信
-      gallery: [
-        DEFAULT_AVATAR,
-        DEFAULT_AVATAR,
-        DEFAULT_AVATAR
-      ],
-      coupons: [
-        {
-          id: 1,
-          type: 'discount',
-          discount: '8折',
-          title: '校友专属优惠',
-          description: '全场商品8折优惠',
-          expireDate: '2025-12-31',
-          status: 'available' // available, claimed, alumni-only
-        },
-        {
-          id: 2,
-          type: 'full-reduction',
-          discount: '满100减20',
-          title: '满减优惠券',
-          description: '满100元立减20元',
-          expireDate: '2025-12-25',
-          status: 'claimed'
-        },
-        {
-          id: 3,
-          type: 'gift',
-          discount: '礼品券',
-          title: '免费咖啡一杯',
-          description: '消费满50元送咖啡一杯',
-          expireDate: '2025-12-20',
-          status: 'alumni-only'
+      console.log('[ShopDetail] 商铺详情响应:', res)
+
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const shopData = res.data.data
+        
+        // 处理图片
+        let avatar = config.defaultAvatar
+        let gallery = []
+        if (shopData.shopImages) {
+          if (Array.isArray(shopData.shopImages) && shopData.shopImages.length > 0) {
+            avatar = config.getImageUrl(shopData.shopImages[0])
+            gallery = shopData.shopImages.map(img => config.getImageUrl(img))
+          } else if (typeof shopData.shopImages === 'string') {
+            avatar = config.getImageUrl(shopData.shopImages)
+            gallery = [avatar]
+          }
         }
-      ],
-      recentAlumni: [
-        {
-          id: 1,
-          name: '李四',
-          avatar: DEFAULT_AVATAR,
-          school: '南京大学',
-          grade: '2015',
-          privacy: 'public'
-        },
-        {
-          id: 2,
-          name: '王五',
-          avatar: DEFAULT_AVATAR,
-          school: '天津大学',
-          grade: '2010',
-          privacy: 'private'
-        },
-        {
-          id: 3,
-          name: '赵六',
-          avatar: DEFAULT_AVATAR,
-          school: '复旦大学',
-          grade: '2018',
-          privacy: 'public'
-        },
-        {
-          id: 4,
-          name: '孙七',
-          avatar: DEFAULT_AVATAR,
-          school: '上海交通大学',
-          grade: '2012',
-          privacy: 'private'
-        },
-        {
-          id: 5,
-          name: '周八',
-          avatar: DEFAULT_AVATAR,
-          school: '浙江大学',
-          grade: '2016',
-          privacy: 'public'
+        if (gallery.length === 0) {
+          gallery = [avatar]
         }
-      ],
-      dynamics: [
-        {
-          id: 1,
-          type: 'activity',
-          title: '周末校友聚会活动',
-          description: '本周末举办校友聚会活动，欢迎各位校友参加，现场有精美礼品赠送。',
-          image: DEFAULT_AVATAR,
-          time: '2天前'
-        },
-        {
-          id: 2,
-          type: 'product',
-          title: '新品上市：手冲咖啡',
-          description: '精选优质咖啡豆，手工现磨，口感醇厚，欢迎品尝。',
-          image: DEFAULT_AVATAR,
-          time: '5天前'
-        },
-        {
-          id: 3,
-          type: 'activity',
-          title: '读书分享会',
-          description: '每月一次的读书分享会，本期主题：科技与未来。',
-          image: DEFAULT_AVATAR,
-          time: '1周前'
+
+        // 处理距离
+        let distanceText = '0m'
+        if (shopData.distance !== undefined && shopData.distance !== null) {
+          if (shopData.distance < 1) {
+            distanceText = Math.round(shopData.distance * 1000) + 'm'
+          } else {
+            let kmValue = shopData.distance.toFixed(1)
+            if (kmValue.endsWith('.0')) {
+              distanceText = Math.round(shopData.distance) + 'km'
+            } else {
+              distanceText = kmValue + 'km'
+            }
+          }
         }
-      ]
+
+        // 处理优惠券列表
+        let coupons = []
+        if (shopData.coupons && Array.isArray(shopData.coupons) && shopData.coupons.length > 0) {
+          coupons = shopData.coupons.map(coupon => {
+            let discount = '优惠'
+            if (coupon.discountValue !== undefined && coupon.discountValue !== null) {
+              if (coupon.couponType === 1) {
+                discount = Math.round(coupon.discountValue * 10) + '折'
+              } else if (coupon.couponType === 2) {
+                discount = '满' + (coupon.minSpend || 0) + '减' + coupon.discountValue
+              } else if (coupon.couponType === 3) {
+                discount = '礼品券'
+              }
+            }
+            
+            let type = '优惠券'
+            if (coupon.couponType === 1) {
+              type = '折扣券'
+            } else if (coupon.couponType === 2) {
+              type = '满减券'
+            } else if (coupon.couponType === 3) {
+              type = '礼品券'
+            }
+
+            const title = coupon.couponName || discount || ''
+            let expireDate = '有效期至长期有效'
+            if (coupon.validEndTime) {
+              const dateStr = coupon.validEndTime.split('T')[0] || coupon.validEndTime.split(' ')[0]
+              expireDate = '有效期至' + dateStr
+            }
+
+            return {
+              id: coupon.couponId || coupon.id,
+              discount: discount,
+              type: type,
+              title: title,
+              description: coupon.description || '',
+              expireDate: expireDate,
+              status: coupon.status || 'available' // available, claimed, alumni-only
+            }
+          })
+        }
+
+        // 处理地址信息
+        let location = ''
+        if (shopData.address) {
+          location = shopData.address
+        } else if (shopData.province || shopData.city || shopData.district) {
+          location = [shopData.province, shopData.city, shopData.district].filter(Boolean).join('')
+        }
+
+        // 构建商铺信息对象
+        const shopInfo = {
+          id: shopData.shopId || shopData.id || this.data.shopId,
+          name: shopData.shopName || shopData.name || '未知商铺',
+          avatar: avatar,
+          category: shopData.shopType || shopData.category || '其他',
+          location: location,
+          distance: distanceText,
+          latitude: shopData.latitude,
+          longitude: shopData.longitude,
+          rating: shopData.ratingScore || shopData.rating || 0,
+          phone: shopData.phone || '',
+          wechat: shopData.wechat || '',
+          businessHours: shopData.businessHours || '',
+          description: shopData.description || '',
+          isFavorited: shopData.isFavorited || false,
+          certifiedAssociation: shopData.associations && shopData.associations.length > 0 ? {
+            id: shopData.associations[0].id,
+            name: shopData.associations[0].name || shopData.associations[0]
+          } : null,
+          ownerId: shopData.merchantId || shopData.ownerId,
+          gallery: gallery,
+          coupons: coupons,
+          recentAlumni: shopData.recentAlumni || [],
+          dynamics: shopData.dynamics || []
+        }
+
+        this.setData({
+          shopInfo: shopInfo,
+          loading: false
+        })
+      } else {
+        console.error('[ShopDetail] 接口返回错误:', res.data?.code, res.data?.msg)
+        this.setData({ loading: false })
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('[ShopDetail] 获取商铺详情失败:', error)
+      this.setData({ loading: false })
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
     }
-
-    this.setData({
-      shopInfo: mockData,
-      loading: false
-    })
   },
 
   // 查看校友会详情（认证标签点击）

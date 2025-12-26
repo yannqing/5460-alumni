@@ -346,9 +346,11 @@ Page({
   },
 
   navigateToMyAssociations() {
+    // 功能已移除
     this.toggleSidebar()
-    wx.navigateTo({
-      url: '/pages/my-association/my-association'
+    wx.showToast({
+      title: '功能已移除',
+      icon: 'none'
     })
   },
 

@@ -434,19 +434,33 @@ Page({
              }
           }
           
+          // 检查是否为撤回消息：status === 4 表示已撤回，或者内容包含"撤回"
+          const isRecalled = msg.status === 4 || 
+                            (content && (content.includes('撤回了一条消息') || content.includes('撤回')))
+          
+          // 如果是撤回消息，统一显示为"你撤回了一条消息"或"对方撤回了一条消息"
+          if (isRecalled) {
+            if (msg.isMine) {
+              content = '你撤回了一条消息'
+            } else {
+              content = '对方撤回了一条消息'
+            }
+          }
+          
           const msgType = (msg.messageFormat || 'TEXT').toLowerCase()
           
           return {
             id: msg.messageId,
             isMe: msg.isMine,
             content: content,
-            type: msgType === 'image' ? 'image' : 'text', // 目前主要支持文本和图片
+            type: isRecalled ? 'system' : (msgType === 'image' ? 'image' : 'text'), // 撤回消息设置为 system 类型
             time: this.formatTime(msg.createTime),
             timestamp: msg.createTime, // 保存原始时间戳用于撤回判断
             // 如果是对方的消息，尝试从 msgContent 中获取头像，否则使用默认头像
             avatar: msg.isMine ? this.data.myAvatar : (formUserPortrait ? config.getImageUrl(formUserPortrait) : this.data.chatInfo.avatar),
             image: msgType === 'image' ? config.getImageUrl(content) : '',
-            status: 'success'
+            status: 'success',
+            isRecall: isRecalled // 标记为撤回消息
           }
         })
         
@@ -508,18 +522,32 @@ Page({
               }
             }
             
+            // 检查是否为撤回消息：status === 4 表示已撤回，或者内容包含"撤回"
+            const isRecalled = msg.status === 4 || 
+                              (content && (content.includes('撤回了一条消息') || content.includes('撤回')))
+            
+            // 如果是撤回消息，统一显示为"你撤回了一条消息"或"对方撤回了一条消息"
+            if (isRecalled) {
+              if (msg.isMine) {
+                content = '你撤回了一条消息'
+              } else {
+                content = '对方撤回了一条消息'
+              }
+            }
+            
             const msgType = (msg.messageFormat || 'TEXT').toLowerCase()
             
             return {
               id: msg.messageId,
               isMe: msg.isMine,
               content: content,
-              type: msgType === 'image' ? 'image' : 'text',
+              type: isRecalled ? 'system' : (msgType === 'image' ? 'image' : 'text'), // 撤回消息设置为 system 类型
               time: this.formatTime(msg.createTime),
               timestamp: msg.createTime,
               avatar: msg.isMine ? this.data.myAvatar : (formUserPortrait ? config.getImageUrl(formUserPortrait) : this.data.chatInfo.avatar),
               image: msgType === 'image' ? config.getImageUrl(content) : '',
-              status: 'success'
+              status: 'success',
+              isRecall: isRecalled // 标记为撤回消息
             }
           })
           

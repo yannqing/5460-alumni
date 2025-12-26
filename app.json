@@ -1,10 +1,8 @@
 {
-  "requiredPrivateInfos": [
-    "getLocation"
-  ],
   "pages": [
     "pages/index/index",
     "pages/discover/discover",
+    "pages/discover/search-list/search-list",
     "pages/chat/list/list",
     "pages/search/search",
     "pages/profile/profile",
@@ -32,7 +30,6 @@
     "pages/benefit/list/list",
     "pages/benefit/detail/detail",
     "pages/my-follow/my-follow",
-    "pages/my-association/my-association",
     "pages/alumni-union/detail/detail",
     "pages/local-platform/detail/detail",
     "pages/promotion/detail/detail",

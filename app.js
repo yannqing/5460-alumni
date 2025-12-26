@@ -72,7 +72,8 @@ App({
     statusBarHeight: 0,
     urlOpt: null,
     socketManager: socketManager,  // WebSocket 管理器实例
-    location: null  // 存储用户位置信息
+    location: null,  // 存储用户位置信息
+    isShowingMessageNotification: false  // 标记是否正在显示消息提示
   },
 
   getSystemInfo() {
@@ -181,6 +182,127 @@ App({
     socketManager.on('onOnlineStatus', (data) => {
       console.log('[App] 在线状态变化:', data)
       // 可以在这里更新全局在线用户列表
+    })
+
+    // 监听全局消息（用于显示消息提示弹窗）
+    socketManager.on('onMessage', (data) => {
+      if (data.type === 'message') {
+        this.handleGlobalMessage(data)
+      }
+    })
+  },
+
+  /**
+   * 处理全局消息（显示消息提示弹窗）
+   */
+  async handleGlobalMessage(data) {
+    try {
+      // 如果正在显示消息提示，则忽略新消息（避免重复弹窗）
+      if (this.globalData.isShowingMessageNotification) {
+        console.log('[App] 正在显示消息提示，忽略新消息')
+        return
+      }
+
+      const messageData = data.data || {}
+      const { fromUserId, content, messageType } = messageData
+
+      // 获取当前用户ID，排除自己发送的消息
+      const myUserId = this.globalData.userData?.wxId || wx.getStorageSync('userId')
+      if (String(fromUserId) === String(myUserId)) {
+        console.log('[App] 是自己发送的消息，不显示提示')
+        return
+      }
+
+      // 获取当前页面信息
+      const pages = getCurrentPages()
+      const currentPage = pages[pages.length - 1]
+      const currentRoute = currentPage ? currentPage.route : ''
+
+      // 如果当前在聊天详情页，且是当前聊天的消息，则不显示弹窗
+      if (currentRoute === 'pages/chat/detail/detail') {
+        const chatId = currentPage.data?.chatId
+        if (chatId && String(fromUserId) === String(chatId)) {
+          console.log('[App] 当前在聊天详情页，不显示消息提示')
+          return
+        }
+      }
+
+      // 获取发送者信息
+      let senderName = '未知用户'
+      let senderAvatar = ''
+      
+      try {
+        const { alumniApi } = require('./api/api.js')
+        const res = await alumniApi.getAlumniInfo(fromUserId)
+        if (res.data && res.data.code === 200 && res.data.data) {
+          const userInfo = res.data.data
+          senderName = userInfo.name || userInfo.nickname || '未知用户'
+          const config = require('./utils/config.js')
+          senderAvatar = userInfo.avatarUrl ? config.getImageUrl(userInfo.avatarUrl) : ''
+        }
+      } catch (error) {
+        console.error('[App] 获取发送者信息失败:', error)
+      }
+
+      // 格式化消息内容（图片消息显示特殊提示）
+      let messageContent = content
+      if (messageType === 'image') {
+        messageContent = '[图片]'
+      } else if (messageType === 'location') {
+        messageContent = '[位置]'
+      } else if (messageType === 'contact') {
+        messageContent = '[名片]'
+      } else if (!messageContent || messageContent.trim() === '') {
+        messageContent = '[消息]'
+      }
+
+      // 限制消息内容长度
+      if (messageContent.length > 30) {
+        messageContent = messageContent.substring(0, 30) + '...'
+      }
+
+      // 显示消息提示弹窗
+      this.showMessageNotification({
+        senderId: fromUserId,
+        senderName: senderName,
+        senderAvatar: senderAvatar,
+        messageContent: messageContent
+      })
+    } catch (error) {
+      console.error('[App] 处理全局消息失败:', error)
+    }
+  },
+
+  /**
+   * 显示消息通知弹窗
+   */
+  showMessageNotification({ senderId, senderName, senderAvatar, messageContent }) {
+    // 标记正在显示消息提示
+    this.globalData.isShowingMessageNotification = true
+
+    // 使用自定义弹窗显示消息提示
+    wx.showModal({
+      title: senderName,
+      content: messageContent,
+      showCancel: true,
+      cancelText: '忽略',
+      confirmText: '查看',
+      confirmColor: '#4a90e2',
+      success: (res) => {
+        // 重置标记
+        this.globalData.isShowingMessageNotification = false
+        
+        if (res.confirm) {
+          // 点击"查看"，跳转到聊天详情页
+          wx.navigateTo({
+            url: `/pages/chat/detail/detail?id=${senderId}&type=chat&name=${encodeURIComponent(senderName)}&avatar=${encodeURIComponent(senderAvatar || '')}`
+          })
+        }
+      },
+      fail: () => {
+        // 重置标记
+        this.globalData.isShowingMessageNotification = false
+      }
     })
   },
 

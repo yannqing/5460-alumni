@@ -2,179 +2,6 @@
 const config = require('../../utils/config.js')
 const { shopApi, nearbyApi } = require('../../api/api.js')
 
-const MOCK_MERCHANTS = [
-  {
-    id: 1,
-      name: '星巴克咖啡',
-      avatar: config.defaultAvatar,
-      category: 'dining',
-      distance: 520,
-      rating: 4.8,
-      location: '科技园店',
-      avgPrice: 45,
-      latitude: 31.2304,
-      longitude: 121.4737,
-      isCertified: true,
-      socialProof: {
-        association: '南京大学上海校友会',
-        recentAlumni: 3
-      },
-    coupons: [
-      {
-        id: 1,
-        title: '星巴克校友专属优惠',
-        discount: '8折',
-        expireDate: '2025-12-31',
-        originalPrice: 100,
-        discountPrice: 80
-      },
-      {
-        id: 2,
-        title: '买一送一',
-        discount: '买一送一',
-        expireDate: '2025-12-25',
-        originalPrice: 50,
-        discountPrice: 25
-      },
-      {
-        id: 3,
-        title: '满100减20',
-        discount: '满100减20',
-        expireDate: '2025-12-20',
-        originalPrice: 100,
-        discountPrice: 80
-      }
-    ]
-  },
-  {
-    id: 2,
-      name: '海底捞火锅',
-      avatar: config.defaultAvatar,
-      category: 'dining',
-      distance: 1280,
-      rating: 4.9,
-      location: '南山店',
-      avgPrice: 120,
-      latitude: 31.2314,
-      longitude: 121.4747,
-      isCertified: true,
-      socialProof: {
-        association: '南京大学上海校友会',
-        recentAlumni: 5
-      },
-    coupons: [
-      {
-        id: 4,
-        title: '海底捞校友专享',
-        discount: '9折',
-        expireDate: '2025-12-15',
-        originalPrice: 200,
-        discountPrice: 180
-      },
-      {
-        id: 5,
-        title: '满200减50',
-        discount: '满200减50',
-        expireDate: '2025-12-10',
-        originalPrice: 200,
-        discountPrice: 150
-      }
-    ]
-  },
-  {
-    id: 3,
-      name: '华影国际影城',
-      avatar: config.defaultAvatar,
-      category: 'entertainment',
-      distance: 760,
-      rating: 4.6,
-      location: '购物中心店',
-      avgPrice: 60,
-      latitude: 31.2294,
-      longitude: 121.4727,
-      isCertified: false,
-      socialProof: {
-        recentAlumni: 2
-      },
-    coupons: [
-      {
-        id: 6,
-        title: 'IMAX 影城观影券',
-        discount: '7折',
-        expireDate: '2025-11-01',
-        originalPrice: 80,
-        discountPrice: 56
-      },
-      {
-        id: 7,
-        title: '周末特惠',
-        discount: '6折',
-        expireDate: '2025-12-31',
-        originalPrice: 80,
-        discountPrice: 48
-      }
-    ]
-  },
-  {
-    id: 4,
-      name: '橙燃健身房',
-      avatar: config.defaultAvatar,
-      category: 'lifestyle',
-      distance: 2100,
-      rating: 4.7,
-      location: '商业街店',
-      avgPrice: 0,
-      latitude: 31.2324,
-      longitude: 121.4757,
-      isCertified: true,
-      socialProof: {
-        association: '南京大学上海校友会',
-        recentAlumni: 1
-      },
-    coupons: [
-      {
-        id: 8,
-        title: '健身年卡伴侣价',
-        discount: '立减¥800',
-        expireDate: '2026-01-31',
-        originalPrice: 3000,
-        discountPrice: 2200
-      }
-    ]
-  },
-  {
-    id: 5,
-      name: '肯德基',
-      avatar: config.defaultAvatar,
-      category: 'dining',
-      distance: 890,
-      rating: 4.5,
-      location: '商业街店',
-      avgPrice: 35,
-      latitude: 31.2284,
-      longitude: 121.4717,
-      isCertified: false,
-    coupons: [
-      {
-        id: 9,
-        title: '肯德基套餐优惠',
-        discount: '7折',
-        expireDate: '2025-12-20',
-        originalPrice: 50,
-        discountPrice: 35
-      },
-      {
-        id: 10,
-        title: '早餐特惠',
-        discount: '6折',
-        expireDate: '2025-12-18',
-        originalPrice: 30,
-        discountPrice: 18
-      }
-    ]
-  }
-]
-
 Page({
   data: {
     searchValue: '',
@@ -291,7 +118,9 @@ Page({
     
     const queryType = tabToQueryType[this.data.selectedTab]
     if (queryType) {
-      await this.loadNearbyData(queryType, true)
+      // 如果有搜索关键词，传递关键词；否则传递空字符串
+      const keyword = this.data.searchKeyword || ''
+      await this.loadNearbyData(queryType, true, keyword)
     } else {
       // 活动tab使用模拟数据
       this.loadMockData()
@@ -559,11 +388,16 @@ Page({
         } else if (queryType === 3) {
           // 校友类型
           const alumniList = records.map(alumni => {
+            // 处理头像：使用 avatarUrl 字段（与后端一致）
             let avatar = config.defaultAvatar
-            if (alumni.avatar) {
+            if (alumni.avatarUrl) {
+              avatar = config.getImageUrl(alumni.avatarUrl)
+            } else if (alumni.avatar) {
+              // 兼容旧字段
               avatar = config.getImageUrl(alumni.avatar)
             }
 
+            // 处理距离
             let distanceText = '0m'
             if (alumni.distance !== undefined && alumni.distance !== null) {
               if (alumni.distance < 1) {
@@ -578,11 +412,15 @@ Page({
               }
             }
 
+            // 处理姓名：优先使用 name，如果没有则使用 nickname
+            const displayName = alumni.name || alumni.realName || alumni.nickname || ''
+
             return {
-              id: alumni.userId || alumni.id,
-              name: alumni.name || alumni.realName || '',
+              id: alumni.wxId || alumni.userId || alumni.id,
+              name: displayName,
               distance: distanceText,
               avatar: avatar,
+              signature: alumni.signature || '', // 个性签名
               association: alumni.association || alumni.associationName || '',
               tag: alumni.tag || '',
               latitude: alumni.latitude,
@@ -661,92 +499,8 @@ Page({
   },
 
   loadMockData() {
-    // 模拟加载延迟
+    // 只保留活动列表的模拟数据（附近优惠、附近场所、附近校友已使用真实数据）
     setTimeout(() => {
-      // 模拟优惠列表数据
-      const mockCouponList = [
-        {
-          id: 1,
-          name: '星巴克咖啡·江南大悦城店',
-          distance: 520,
-          image: config.defaultAvatar,
-          associations: ['江南大学无锡校友会', '南京大学无锡校友会'],
-          coupons: [
-            {
-              discount: '8折',
-              type: '优惠券',
-              title: '星巴克校友专属优惠',
-              expireDate: '有效期至2025-12-31'
-            },
-            {
-              discount: '买一送一',
-              type: '优惠券',
-              title: '买一送一',
-              expireDate: '有效期至2025-12-25'
-            },
-            {
-              discount: '买一送一',
-              type: '优惠券',
-              title: '买一送一',
-              expireDate: '有效期至2025-12-20'
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: '无锡市新区体育馆',
-          distance: 520,
-          image: config.defaultAvatar,
-          associations: ['江南大学无锡校友会', '南京大学无锡校友会'],
-          coupons: [
-            {
-              discount: '8折',
-              type: '优惠券',
-              title: '星巴克校友专属优惠',
-              expireDate: '有效期至2025-12-31'
-            },
-            {
-              discount: '买一送一',
-              type: '优惠券',
-              title: '买一送一',
-              expireDate: '有效期至2025-12-20'
-            }
-          ]
-        }
-      ]
-      
-      // 模拟场所列表数据
-      const mockVenueList = [
-        {
-          id: 1,
-          name: '星巴克咖啡·江南大悦城店',
-          distance: 520,
-          image: config.defaultAvatar,
-          associations: ['江南大学无锡校友会'],
-          rating: 4.8
-        },
-        {
-          id: 2,
-          name: '无锡市新区体育馆',
-          distance: 520,
-          image: config.defaultAvatar,
-          associations: ['江南大学无锡校友会'],
-          rating: 4.9
-        }
-      ]
-      
-      // 模拟校友列表数据
-      const mockAlumniList = [
-        {
-          id: 1,
-          name: '刘汾阳',
-          distance: 520,
-          association: '江南大学无锡校友会',
-          tag: '江南',
-          avatar: config.defaultAvatar
-        }
-      ]
-      
       // 模拟活动列表数据
       const mockActivityList = [
         {
@@ -769,9 +523,9 @@ Page({
       ]
       
       this.setData({
-        couponList: mockCouponList,
-        venueList: mockVenueList,
-        alumniList: mockAlumniList,
+        couponList: [],
+        venueList: [],
+        alumniList: [],
         activityList: mockActivityList,
         loading: false
       })
@@ -797,13 +551,10 @@ Page({
       }
       const queryType = tabToQueryType[selectedTab]
       if (queryType) {
-        // 重置页码并加载搜索结果
-        this.setData({
-          searchKeyword: searchValue.trim(),
-          currentPage: 1,
-          hasMore: true
+        // 跳转到搜索列表页面
+        wx.navigateTo({
+          url: `/pages/discover/search-list/search-list?keyword=${encodeURIComponent(searchValue.trim())}&queryType=${queryType}`
         })
-        this.loadNearbyData(queryType, true, searchValue.trim())
       } else {
         // 活动tab跳转到搜索页面
         wx.navigateTo({
@@ -815,8 +566,11 @@ Page({
 
   handleTabChange(e) {
     const tabId = e.currentTarget.dataset.id
+    // 切换tab时清除搜索关键词，重新加载数据
     this.setData({
-      selectedTab: tabId
+      selectedTab: tabId,
+      searchKeyword: '',
+      searchValue: ''
     })
     // 根据选中的标签加载对应数据
     this.loadDiscoverData()
@@ -1209,6 +963,18 @@ Page({
   },
 
   // 展开更多
+  // 点击商铺卡片，跳转到商铺详情页
+  handleShopTap(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) {
+      console.error('[Discover] 商铺ID不存在')
+      return
+    }
+    wx.navigateTo({
+      url: `/pages/shop/detail/detail?id=${id}`
+    })
+  },
+
   handleExpand(e) {
     const id = e.currentTarget.dataset.id
     // TODO: 处理展开更多事件

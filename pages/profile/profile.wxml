@@ -82,20 +82,6 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-follow/my-follow?type=school">
-      <view class="menu-left">
-        <text class="menu-icon">🏫</text>
-        <text class="menu-name">我的母校</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-association/my-association">
-      <view class="menu-left">
-        <text class="menu-icon">👥</text>
-        <text class="menu-name">我的校友会</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-favorites/my-favorites">
       <view class="menu-left">
         <text class="menu-icon">⭐</text>

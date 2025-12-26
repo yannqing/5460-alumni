@@ -129,8 +129,6 @@ const merchantApi = {
 
 // ==================== 商铺相关接口 ====================
 const shopApi = {
-  // 获取商铺详情
-  getShopDetail: (id) => get(`/shops/${id}`),
   // 关注商铺
   followShop: (id) => post(`/shops/${id}/follow`),
   // 取消关注商铺
@@ -142,6 +140,8 @@ const nearbyApi = {
   // 统一附近查询（附近优惠，附近场所，附近校友）
   // queryType: 1-商铺, 2-企业/场所, 3-校友
   getNearby: (data) => post('/NearbyBenefits/nearby', data),
+  // 获取商铺详情（POST请求，使用request body）
+  getShopDetail: (data) => post('/NearbyBenefits/shops/detail', data),
 }
 
 
@@ -353,7 +353,7 @@ const chatApi = {
   // 撤回消息
   recallMessage: (messageId) => del(`/chat/recall/${messageId}`),
 
-  // 置顶/取消置顶会话
+  // 置顶/取消置顶会话（conversationId 作为路径参数，isPinned 作为查询参数）
   pinConversation: (conversationId, isPinned) => put(`/chat/conversation/${conversationId}/pin?isPinned=${isPinned}`, {}),
 
   // 上传聊天图片

@@ -94,7 +94,7 @@
       <view class="empty-tip" wx:if="{{couponList.length === 0 && !loading}}">
         <text>暂无附近优惠</text>
       </view>
-      <view class="coupon-card" wx:for="{{couponList}}" wx:key="id" wx:for-index="idx">
+      <view class="coupon-card" wx:for="{{couponList}}" wx:key="id" wx:for-index="idx" bindtap="handleShopTap" data-id="{{item.id}}">
         <view class="coupon-main">
           <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
           <view class="coupon-content">
@@ -160,8 +160,9 @@
         </view>
         <view class="card-content">
           <view class="card-name">{{item.name}}</view>
-          <view class="card-distance">距离 {{item.distance}}m</view>
-          <view class="card-association">{{item.association}}</view>
+          <view class="card-distance">距离 {{item.distance}}</view>
+          <view class="card-signature" wx:if="{{item.signature}}">{{item.signature}}</view>
+          <view class="card-association" wx:if="{{item.association}}">{{item.association}}</view>
           <view class="card-tag" wx:if="{{item.tag}}">{{item.tag}}</view>
         </view>
         <view class="card-action">

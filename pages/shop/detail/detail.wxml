@@ -4,7 +4,7 @@
     <view class="loading">加载中...</view>
   </view>
 
-  <view wx:else>
+  <view wx:elif="{{shopInfo}}">
     <!-- 多图轮播 -->
     <swiper class="shop-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
       <swiper-item wx:for="{{shopInfo.gallery}}" wx:key="*this">
