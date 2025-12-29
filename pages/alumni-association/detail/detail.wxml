@@ -1,4 +1,7 @@
 <!--pages/alumni-association/detail/detail.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="container">
   <view wx:if="{{associationInfo}}">
     <image class="cover-image" src="{{associationInfo.cover}}" mode="aspectFill" />

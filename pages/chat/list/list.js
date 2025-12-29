@@ -15,7 +15,15 @@ Page({
     
     // 滑动操作相关
     startX: 0,
-    startY: 0
+    startY: 0,
+    
+    // 消息通知相关
+    showMessageNotification: false,
+    messageNotificationData: {
+      peerNickname : '',
+      peerAvatar : '',
+      messageContent: ''
+    }
   },
 
   // WebSocket 事件监听器引用（用于移除监听）
@@ -59,7 +67,7 @@ Page({
 
     // 监听新消息
     this.messageListener = (data) => {
-      if (data.type === 'message') {
+      if (data.type === 'msg') {
         this.handleNewMessage(data)
       }
     }

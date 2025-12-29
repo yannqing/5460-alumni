@@ -1,4 +1,7 @@
 <!--pages/chat/detail/detail.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="chat-detail-page">
   <!-- 消息列表 -->
   <scroll-view 
@@ -22,6 +25,7 @@
           <!-- 图片消息 -->
           <view class="message-bubble message-bubble-left" wx:if="{{item.type === 'image'}}">
             <image class="message-image" src="{{item.image}}" mode="aspectFill" bindtap="previewImage" data-url="{{item.image}}"></image>
+            <text class="message-time message-time-inside">{{item.time}}</text>
           </view>
           <!-- 位置消息 -->
           <view class="message-bubble message-bubble-left" wx:elif="{{item.type === 'location'}}">
@@ -32,6 +36,7 @@
                 <text class="location-address">{{item.location.address}}</text>
               </view>
             </view>
+            <text class="message-time message-time-inside">{{item.time}}</text>
           </view>
           <!-- 名片消息 -->
           <view class="message-bubble message-bubble-left" wx:elif="{{item.type === 'contact'}}">
@@ -42,12 +47,13 @@
                 <text class="contact-school">{{item.contact.school}}</text>
               </view>
             </view>
+            <text class="message-time message-time-inside">{{item.time}}</text>
           </view>
           <!-- 普通文本消息 -->
           <view class="message-bubble message-bubble-left" wx:else>
             <text class="message-text">{{item.content}}</text>
+            <text class="message-time message-time-inside">{{item.time}}</text>
           </view>
-          <text class="message-time">{{item.time}}</text>
         </view>
       </view>
       
@@ -57,6 +63,7 @@
           <!-- 图片消息 -->
           <view class="message-bubble message-bubble-right" wx:if="{{item.type === 'image'}}">
             <image class="message-image" src="{{item.image}}" mode="aspectFill" bindtap="previewImage" data-url="{{item.image}}"></image>
+            <text class="message-time message-time-inside message-time-right">{{item.time}}</text>
           </view>
           <!-- 位置消息 -->
           <view class="message-bubble message-bubble-right" wx:elif="{{item.type === 'location'}}">
@@ -67,6 +74,7 @@
                 <text class="location-address">{{item.location.address}}</text>
               </view>
             </view>
+            <text class="message-time message-time-inside message-time-right">{{item.time}}</text>
           </view>
           <!-- 名片消息 -->
           <view class="message-bubble message-bubble-right" wx:elif="{{item.type === 'contact'}}">
@@ -77,12 +85,13 @@
                 <text class="contact-school">{{item.contact.school}}</text>
               </view>
             </view>
+            <text class="message-time message-time-inside message-time-right">{{item.time}}</text>
           </view>
           <!-- 普通文本消息 -->
           <view class="message-bubble message-bubble-right" wx:else>
             <text class="message-text">{{item.content}}</text>
+            <text class="message-time message-time-inside message-time-right">{{item.time}}</text>
           </view>
-          <text class="message-time">{{item.time}}</text>
         </view>
         <image class="message-avatar" src="{{myAvatar}}" mode="aspectFill"></image>
       </view>

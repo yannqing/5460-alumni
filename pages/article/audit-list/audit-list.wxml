@@ -1,3 +1,6 @@
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="container">
   <!-- 标签栏 -->
   <view class="tabs-container">
@@ -69,6 +72,7 @@
         <!-- 操作按钮：只有待审核状态才显示审核按钮 -->
         <view class="audit-actions" wx:if="{{currentTab === 0 && item.applyStatus === 0}}">
           <view class="action-btn approve-btn" bindtap="approveArticle" data-id="{{item.id}}" data-index="{{idx}}">通过审核</view>
+          <view class="action-btn reject-btn" bindtap="rejectArticle" data-id="{{item.id}}" data-index="{{idx}}">拒绝</view>
         </view>
       </view>
     </block>

@@ -11,7 +11,13 @@ Page({
     current: 1,
     pageSize: 10,
     hasMore: true,
-    loading: false
+    loading: false,
+    activeStatus: -1, // 当前选中的状态：-1-待审核, 1-已通过, 0-已拒绝
+    statusTabs: [
+      { value: -1, label: '待审核' },
+      { value: 1, label: '已通过' },
+      { value: 0, label: '已拒绝' }
+    ]
   },
 
   onLoad() {
@@ -47,7 +53,7 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const { current, pageSize } = this.data
+      const { current, pageSize, activeStatus } = this.data
       const page = reset ? 1 : current + 1
       const params = { current: page, size: pageSize }
       
@@ -58,7 +64,15 @@ Page({
         const records = data.records || []
         const total = data.total || 0;
         
-        const mappedRecords = records.map((item, idx) => {
+        // 根据当前选中的状态筛选文章
+        const filteredRecords = records.filter(item => {
+          const articleStatus = item.articleStatus !== undefined && item.articleStatus !== null 
+            ? item.articleStatus 
+            : (item.article_status !== undefined && item.article_status !== null ? item.article_status : -1)
+          return articleStatus === activeStatus
+        })
+        
+        const mappedRecords = filteredRecords.map((item, idx) => {
           // 处理封面图逻辑：优先使用 coverImg 字段
           let coverUrl = ''
           if (item.coverImg) {
@@ -178,15 +192,23 @@ Page({
             articleLink: item.articleLink || item.article_link || '', // 保存文章链接
             time: displayTime,
             isTop: item.isTop === true || item.isTop === 1 || item.top === true,
-            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 1) && (item.publishWxId || item.publish_wx_id) // 标记需要获取头像
+            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 1) && (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
+            articleStatus: item.articleStatus !== undefined && item.articleStatus !== null 
+              ? item.articleStatus 
+              : (item.article_status !== undefined && item.article_status !== null ? item.article_status : -1) // 保存文章状态
           }
         })
 
-        const currentTotal = reset ? mappedRecords.length : this.data.articles.length + mappedRecords.length;
+        // 注意：由于前端筛选，需要根据实际筛选后的数据判断是否还有更多
+        // 如果后端返回的数据为空，说明没有更多了
+        // 如果筛选后的数据少于请求的数据（records.length），说明当前状态的数据可能已经加载完了
+        // 但如果筛选后的数据等于 pageSize，可能还有更多数据，需要继续加载
+        const hasMoreData = records.length > 0 && (filteredRecords.length === pageSize || records.length === pageSize);
+        
         this.setData({
           articles: reset ? mappedRecords : this.data.articles.concat(mappedRecords),
           current: page,
-          hasMore: currentTotal < total && mappedRecords.length > 0,
+          hasMore: hasMoreData,
           loading: false
         });
         
@@ -215,7 +237,7 @@ Page({
     let item = null;
     if (index !== undefined && this.data.articles[index]) {
       item = this.data.articles[index];
-      if (!articleId || articleId === 'undefined' || articleId === 'null' || articleId === '') {
+    if (!articleId || articleId === 'undefined' || articleId === 'null' || articleId === '') {
         articleId = item.id || item.homeArticleId;
       }
     }
@@ -327,10 +349,10 @@ Page({
       // 未知类型，默认跳转到详情页
       if (articleId && articleId !== 'undefined' && articleId !== 'null' && articleId !== '') {
         this.setData({ isBack: true });
-        wx.navigateTo({ 
-          url: `/pages/article/detail/detail?id=${articleId}&from=manage`,
-          fail: (err) => {
-            wx.showToast({ title: '跳转失败', icon: 'none' });
+    wx.navigateTo({ 
+      url: `/pages/article/detail/detail?id=${articleId}&from=manage`,
+      fail: (err) => {
+        wx.showToast({ title: '跳转失败', icon: 'none' });
           }
         });
       } else {
@@ -453,5 +475,31 @@ Page({
         wx.showToast({ title: '跳转失败', icon: 'none' });
       }
     });
+  },
+
+  // 切换状态标签
+  switchStatus(e) {
+    const { status } = e.currentTarget.dataset;
+    if (status === this.data.activeStatus) return;
+    
+    this.setData({
+      activeStatus: status,
+      articles: [],
+      current: 1,
+      hasMore: true
+    });
+    
+    // 重新加载数据
+    this.loadData(true);
+  },
+
+  // 获取状态文本
+  getStatusText(status) {
+    const statusMap = {
+      '-1': '待审核',
+      '1': '已通过',
+      '0': '已拒绝'
+    };
+    return statusMap[String(status)] || '未知';
   }
 })

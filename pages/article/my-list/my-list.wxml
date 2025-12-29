@@ -1,4 +1,20 @@
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="container">
+  <!-- 状态标签页 -->
+  <view class="status-tabs">
+    <view 
+      class="status-tab {{activeStatus === item.value ? 'active' : ''}}"
+      wx:for="{{statusTabs}}"
+      wx:key="value"
+      data-status="{{item.value}}"
+      bindtap="switchStatus"
+    >
+      <text>{{item.label}}</text>
+    </view>
+  </view>
+
   <view class="article-list">
     <block wx:for="{{articles}}" wx:key="id" wx:for-index="idx">
       <view class="article-card">
@@ -9,7 +25,13 @@
               <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
             </view>
             <view class="user-info">
-              <text class="user-name">{{item.publisher}}</text>
+              <view class="user-name-row">
+                <text class="user-name">{{item.publisher}}</text>
+                <!-- 状态标签：显示在用户名称右侧 -->
+                <text class="article-tag status-tag status-{{item.articleStatus}}" wx:if="{{item.articleStatus !== undefined && item.articleStatus !== null}}">
+                  {{item.articleStatus === -1 ? '待审核' : (item.articleStatus === 1 ? '已通过' : '已拒绝')}}
+                </text>
+              </view>
               <text class="publish-time">{{item.time}}</text>
             </view>
           </view>
@@ -29,7 +51,7 @@
           
           <!-- 底部状态栏 -->
           <view class="card-footer" wx:if="{{item.isTop}}">
-             <text class="article-tag">置顶</text>
+            <text class="article-tag">置顶</text>
           </view>
         </view>
         

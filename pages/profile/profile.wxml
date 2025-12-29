@@ -1,4 +1,7 @@
 <!--pages/profile/profile.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="profile-page">
   <!-- 个人信息卡片 -->
   <view class="user-card">

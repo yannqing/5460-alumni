@@ -4,8 +4,8 @@ const config = require('../../../utils/config.js')
 Page({
   data: {
     applyList: [],
-    currentTab: 0, // 0-待审核，1-已审核
-    tabs: ['待审核', '已审核'],
+    currentTab: 0, // 0-待审核，1-已审核，2-已拒绝
+    tabs: ['待审核', '已审核', '已拒绝'],
     current: 1,
     pageSize: 10,
     hasMore: true,
@@ -64,8 +64,13 @@ Page({
       if (currentTab === 0) {
         // 待审核列表
         res = await articleApplyApi.getPendingList(params)
-      } else {
-        // 已审核列表
+      } else if (currentTab === 1) {
+        // 已审核列表（已通过）
+        params.applyStatus = 1
+        res = await articleApplyApi.getApprovedList(params)
+      } else if (currentTab === 2) {
+        // 已拒绝列表
+        params.applyStatus = 2
         res = await articleApplyApi.getApprovedList(params)
       }
 
@@ -220,6 +225,16 @@ Page({
 
   // 审核通过
   async approveArticle(e) {
+    await this.handleAudit(e, 1, '确定要通过这篇文章的审核吗？', '审核通过')
+  },
+
+  // 审核拒绝
+  async rejectArticle(e) {
+    await this.handleAudit(e, 2, '确定要拒绝这篇文章的审核吗？', '审核拒绝')
+  },
+
+  // 统一的审核处理方法
+  async handleAudit(e, applyStatus, confirmText, successText) {
     const { id, index } = e.currentTarget.dataset
     let applyId = id
     if (!applyId || applyId === 'undefined' || applyId === 'null' || applyId === '') {
@@ -233,17 +248,27 @@ Page({
       return
     }
 
+    // 确保ID是字符串形式，避免大整数精度丢失
+    // 后端Jackson会自动将字符串数字转换为Long类型
+    const applyIdStr = String(applyId).trim()
+    
+    // 验证ID是否为有效数字字符串
+    if (!/^\d+$/.test(applyIdStr)) {
+      wx.showToast({ title: '审核记录ID格式错误', icon: 'none' })
+      return
+    }
+
     wx.showModal({
       title: '确认审核',
-      content: '确定要通过这篇文章的审核吗？',
+      content: confirmText,
       success: async (res) => {
         if (res.confirm) {
           try {
             wx.showLoading({ title: '审核中...' })
 
             const approveData = {
-              homeArticleApplyId: Number(applyId),
-              applyStatus: 1, // 1-通过
+              homeArticleApplyId: applyIdStr, // 直接使用字符串，后端会自动转换为Long
+              applyStatus: applyStatus, // 1-通过，2-拒绝
               appliedDescription: ''
             }
 
@@ -251,7 +276,7 @@ Page({
             wx.hideLoading()
 
             if (approveRes.data && approveRes.data.code === 200) {
-              wx.showToast({ title: '审核通过', icon: 'success' })
+              wx.showToast({ title: successText, icon: 'success' })
               // 刷新列表
               this.loadData(true)
             } else {

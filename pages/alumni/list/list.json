@@ -1,5 +1,8 @@
 {
   "navigationBarTitleText": "校友",
   "enablePullDownRefresh": true,
-  "backgroundTextStyle": "dark"
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }

@@ -1,4 +1,7 @@
 <!--pages/profile/edit/edit.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="edit-container">
   <scroll-view scroll-y class="form-scroll">
     <view class="avatar-card card">

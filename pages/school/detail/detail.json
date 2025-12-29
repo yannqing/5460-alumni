@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "母校详情",
-  "enablePullDownRefresh": false
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }

@@ -1,4 +1,7 @@
 <!--pages/shop/detail/detail.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="shop-detail-page">
   <view wx:if="{{loading}}" class="loading-wrap">
     <view class="loading">加载中...</view>

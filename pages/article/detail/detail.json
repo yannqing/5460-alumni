@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "文章详情",
-  "usingComponents": {}
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }

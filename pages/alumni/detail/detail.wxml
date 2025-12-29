@@ -1,4 +1,7 @@
 <!--pages/alumni/detail/detail.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="alumni-detail-page">
   <view wx:if="{{alumniInfo}}">
     <!-- 背景和头像区域 -->

@@ -186,7 +186,8 @@ App({
 
     // 监听全局消息（用于显示消息提示弹窗）
     socketManager.on('onMessage', (data) => {
-      if (data.type === 'message') {
+      if (data.type === 'msg') {
+        console.log('[App] 收到消息，准备处理通知')
         this.handleGlobalMessage(data)
       }
     })
@@ -197,17 +198,92 @@ App({
    */
   async handleGlobalMessage(data) {
     try {
+      console.log('[App] 收到全局消息:', data)
+      
       // 如果正在显示消息提示，则忽略新消息（避免重复弹窗）
       if (this.globalData.isShowingMessageNotification) {
         console.log('[App] 正在显示消息提示，忽略新消息')
         return
       }
 
-      const messageData = data.data || {}
-      const { fromUserId, content, messageType } = messageData
+      // 消息数据结构：{type: "msg", content: {category, content, contentType, fromId, fromName, fromAvatar, ...}}
+      let messageData = {}
+      let fromUserId = null
+      let content = ''
+      let messageType = 'text'
+      let senderName = '未知用户'
+      let senderAvatar = ''
+      const config = require('./utils/config.js')
+      
+      // 消息在 content 字段中（UnifiedMessage 结构）
+      if (data.content) {
+        console.log('[App] 处理 msg 类型消息，content:', data.content)
+        messageData = data.content || {}
+        // 从 UnifiedMessage 结构中提取信息
+        // fromId 是 Long 类型，需要转换为字符串
+        fromUserId = messageData.fromId ? String(messageData.fromId) : (messageData.fromUserId || messageData.formUserId)
+        content = messageData.content || ''
+        // contentType 可能是 "TEXT", "IMAGE" 等，需要转换为小写
+        messageType = (messageData.contentType || messageData.type || 'text').toLowerCase()
+        
+        // 方案1：直接从WebSocket消息中提取头像和昵称（实时性最高）
+        senderName = messageData.fromName || '未知用户'
+        senderAvatar = messageData.fromAvatar ? config.getImageUrl(messageData.fromAvatar) : ''
+        
+        console.log('[App] 从 content 中提取的字段:', { 
+          fromUserId, 
+          content, 
+          messageType, 
+          category: messageData.category,
+          fromName: messageData.fromName,
+          fromAvatar: messageData.fromAvatar,
+          senderName,
+          senderAvatar
+        })
+      } else if (data.data) {
+        // 兼容旧格式：{type: "msg", data: {...}}
+        messageData = data.data || {}
+        console.log('[App] 处理 data 格式消息，data:', messageData)
+        
+        // 检查消息数据结构，可能在不同的字段中
+        fromUserId = messageData.fromUserId || messageData.fromId || messageData.formUserId
+        content = messageData.content || ''
+        messageType = messageData.messageType || messageData.type || 'text'
+        
+        // 尝试从旧格式中提取发送者信息
+        senderName = messageData.fromName || messageData.formUserName || '未知用户'
+        senderAvatar = messageData.fromAvatar || messageData.formUserPortrait || ''
+        if (senderAvatar) {
+          senderAvatar = config.getImageUrl(senderAvatar)
+        }
+        
+        // 如果消息内容在 ChatMessageContent 中
+        if (messageData.ChatMessageContent) {
+          const msgContent = messageData.ChatMessageContent
+          fromUserId = fromUserId || msgContent.formUserId
+          content = content || msgContent.content || ''
+          messageType = messageType || msgContent.type || 'text'
+          // 从 ChatMessageContent 中提取发送者信息
+          if (!senderName || senderName === '未知用户') {
+            senderName = msgContent.formUserName || '未知用户'
+          }
+          if (!senderAvatar) {
+            senderAvatar = msgContent.formUserPortrait ? config.getImageUrl(msgContent.formUserPortrait) : ''
+          }
+        }
+      }
+
+      console.log('[App] 解析后的消息字段:', { fromUserId, content, messageType, senderName, senderAvatar })
+
+      if (!fromUserId) {
+        console.warn('[App] 消息中缺少发送者ID，无法显示通知')
+        return
+      }
 
       // 获取当前用户ID，排除自己发送的消息
-      const myUserId = this.globalData.userData?.wxId || wx.getStorageSync('userId')
+      const myUserId = this.globalData.userData?.wxId || this.globalData.userData?.userId || wx.getStorageSync('userId')
+      console.log('[App] 当前用户ID:', myUserId, '发送者ID:', fromUserId)
+      
       if (String(fromUserId) === String(myUserId)) {
         console.log('[App] 是自己发送的消息，不显示提示')
         return
@@ -217,6 +293,7 @@ App({
       const pages = getCurrentPages()
       const currentPage = pages[pages.length - 1]
       const currentRoute = currentPage ? currentPage.route : ''
+      console.log('[App] 当前页面路由:', currentRoute)
 
       // 如果当前在聊天详情页，且是当前聊天的消息，则不显示弹窗
       if (currentRoute === 'pages/chat/detail/detail') {
@@ -227,30 +304,13 @@ App({
         }
       }
 
-      // 获取发送者信息
-      let senderName = '未知用户'
-      let senderAvatar = ''
-      
-      try {
-        const { alumniApi } = require('./api/api.js')
-        const res = await alumniApi.getAlumniInfo(fromUserId)
-        if (res.data && res.data.code === 200 && res.data.data) {
-          const userInfo = res.data.data
-          senderName = userInfo.name || userInfo.nickname || '未知用户'
-          const config = require('./utils/config.js')
-          senderAvatar = userInfo.avatarUrl ? config.getImageUrl(userInfo.avatarUrl) : ''
-        }
-      } catch (error) {
-        console.error('[App] 获取发送者信息失败:', error)
-      }
-
       // 格式化消息内容（图片消息显示特殊提示）
-      let messageContent = content
-      if (messageType === 'image') {
+      let messageContent = content || ''
+      if (messageType === 'image' || messageType === 'IMAGE') {
         messageContent = '[图片]'
-      } else if (messageType === 'location') {
+      } else if (messageType === 'location' || messageType === 'LOCATION') {
         messageContent = '[位置]'
-      } else if (messageType === 'contact') {
+      } else if (messageType === 'contact' || messageType === 'CONTACT') {
         messageContent = '[名片]'
       } else if (!messageContent || messageContent.trim() === '') {
         messageContent = '[消息]'
@@ -261,7 +321,7 @@ App({
         messageContent = messageContent.substring(0, 30) + '...'
       }
 
-      // 显示消息提示弹窗
+      // 直接使用从WebSocket消息中提取的头像和昵称显示通知（实时性最高）
       this.showMessageNotification({
         senderId: fromUserId,
         senderName: senderName,
@@ -273,37 +333,29 @@ App({
     }
   },
 
+
   /**
    * 显示消息通知弹窗
    */
   showMessageNotification({ senderId, senderName, senderAvatar, messageContent }) {
+    console.log('[App] 显示消息通知:', { senderId, senderName, senderAvatar, messageContent })
+    
     // 标记正在显示消息提示
     this.globalData.isShowingMessageNotification = true
 
-    // 使用自定义弹窗显示消息提示
-    wx.showModal({
-      title: senderName,
-      content: messageContent,
-      showCancel: true,
-      cancelText: '忽略',
-      confirmText: '查看',
-      confirmColor: '#4a90e2',
-      success: (res) => {
-        // 重置标记
-        this.globalData.isShowingMessageNotification = false
-        
-        if (res.confirm) {
-          // 点击"查看"，跳转到聊天详情页
-          wx.navigateTo({
-            url: `/pages/chat/detail/detail?id=${senderId}&type=chat&name=${encodeURIComponent(senderName)}&avatar=${encodeURIComponent(senderAvatar || '')}`
-          })
-        }
-      },
-      fail: () => {
-        // 重置标记
-        this.globalData.isShowingMessageNotification = false
-      }
+    // 使用消息通知工具显示顶部通知
+    const messageNotification = require('./utils/messageNotification.js')
+    messageNotification.showMessageNotification({
+      senderName: senderName,
+      senderAvatar: senderAvatar,
+      messageContent: messageContent,
+      duration: 3000
     })
+
+    // 2秒后重置标记
+    setTimeout(() => {
+      this.globalData.isShowingMessageNotification = false
+    }, 2000)
   },
 
   /**

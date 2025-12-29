@@ -1,4 +1,7 @@
 <!--pages/profile/privacy/privacy.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="privacy-page">
   <!-- 基本信息 -->
   <view class="card menu-card">
@@ -233,6 +236,7 @@
   <!-- 底部留白 -->
   <view class="bottom-space"></view>
 </view>
+
 
 
 

@@ -4,6 +4,44 @@
   padding-bottom: 140rpx; /* 留出底部按钮空间 */
 }
 
+/* 状态标签页 */
+.status-tabs {
+  display: flex;
+  background: #fff;
+  padding: 0 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.status-tab {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.status-tab.active {
+  color: #4bcce9;
+  font-weight: 600;
+}
+
+.status-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #4bcce9;
+  border-radius: 2rpx;
+}
+
 .article-list {
   padding: 20rpx;
 }
@@ -43,13 +81,21 @@
 .user-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4rpx;
 }
 
 .user-name {
   font-size: 28rpx;
   font-weight: 600;
   color: #333;
-  margin-bottom: 4rpx;
+  flex: 1;
 }
 
 .publish-time {
@@ -128,6 +174,32 @@
   background: rgba(255, 77, 79, 0.1);
   padding: 4rpx 12rpx;
   border-radius: 4rpx;
+  margin-right: 12rpx;
+}
+
+.status-tag {
+  font-size: 24rpx;
+  padding: 1rpx 10rpx;
+  border-radius: 4rpx;
+  line-height: 0.5;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 12rpx;
+}
+
+.status-tag.status--1 {
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.status-tag.status-1 {
+  color: #52c41a;
+  background: rgba(82, 196, 26, 0.1);
+}
+
+.status-tag.status-0 {
+  color: #ff4d4f;
+  background: rgba(255, 77, 79, 0.1);
 }
 
 /* 操作按钮 */

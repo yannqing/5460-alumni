@@ -1,6 +1,9 @@
 {
   "navigationBarTitleText": "聊天",
-  "navigationStyle": "default"
+  "navigationStyle": "default",
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }
 
 

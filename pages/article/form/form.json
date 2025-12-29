@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "新增文章",
-  "usingComponents": {}
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }

@@ -1,4 +1,7 @@
 <!--pages/discover/search-list/search-list.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="search-list-page">
   <!-- 列表视图 -->
   <scroll-view

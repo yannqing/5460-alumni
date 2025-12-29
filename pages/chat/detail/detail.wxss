@@ -57,7 +57,6 @@
   max-width: 60%;
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
 }
 
 .message-left .message-content-wrapper {
@@ -75,6 +74,7 @@
   border-radius: 12rpx;
   word-wrap: break-word;
   word-break: break-all;
+  position: relative;
 }
 
 .message-bubble-left {
@@ -93,12 +93,33 @@
 .message-text {
   font-size: 28rpx;
   line-height: 1.5;
+  padding-right: 20rpx;
+  display: block;
 }
 
 .message-time {
   font-size: 20rpx;
   color: #999;
   padding: 0 8rpx;
+}
+
+/* 消息框内部的时间样式 */
+.message-time-inside {
+  position: absolute;
+  bottom: 8rpx;
+  right: 12rpx;
+  font-size: 20rpx;
+  padding: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.message-bubble-left .message-time-inside {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.message-bubble-right .message-time-inside {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* 输入栏 */
@@ -289,6 +310,7 @@
   max-width: 400rpx;
   max-height: 600rpx;
   border-radius: 8rpx;
+  display: block;
 }
 
 /* 位置消息样式 */
@@ -297,6 +319,8 @@
   align-items: center;
   gap: 16rpx;
   min-width: 300rpx;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .location-icon {
@@ -329,6 +353,8 @@
   gap: 16rpx;
   min-width: 300rpx;
   padding: 8rpx 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .contact-avatar {

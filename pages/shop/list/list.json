@@ -1,5 +1,8 @@
 {
   "navigationBarTitleText": "校友商铺",
-  "enablePullDownRefresh": true
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }
 

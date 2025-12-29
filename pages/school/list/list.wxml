@@ -1,4 +1,7 @@
 <!--pages/school/list/list.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="container">
   <!-- 搜索栏 -->
   <view class="search-bar">

@@ -1,4 +1,7 @@
 <!--pages/my-favorites/my-favorites.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="favorites-page">
   <view class="shop-list">
     <view class="shop-card" wx:for="{{favoriteShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">

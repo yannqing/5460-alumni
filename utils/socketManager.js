@@ -215,7 +215,7 @@ class SocketManager {
           // 心跳响应
           this.handleHeartbeatResponse(data)
           break
-        case 'message':
+        case 'msg':
           // 聊天消息
           this.handleChatMessage(data)
           break

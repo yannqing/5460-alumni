@@ -1,2 +1,5 @@
 <!--pages/merchant/list/list.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <text>pages/merchant/list/list.wxml</text>

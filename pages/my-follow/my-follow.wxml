@@ -1,4 +1,7 @@
 <!--pages/my-follow/my-follow.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="follow-page">
   <!-- 顶部Tab栏 -->
   <view class="tab-bar">

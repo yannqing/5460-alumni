@@ -1,4 +1,7 @@
 <!--pages/notification/list/list.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="container notification-page">
   <view class="notify-header card">
     <view class="notify-title-row">

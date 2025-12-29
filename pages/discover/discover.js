@@ -542,21 +542,25 @@ Page({
 
   handleSearchConfirm() {
     const { searchValue, selectedTab } = this.data
-    if (searchValue.trim()) {
-      // 使用当前选中的tab进行搜索
-      const tabToQueryType = {
-        'coupon': 1,  // 商铺
-        'venue': 2,   // 企业/场所
-        'alumni': 3   // 校友
-      }
-      const queryType = tabToQueryType[selectedTab]
-      if (queryType) {
-        // 跳转到搜索列表页面
-        wx.navigateTo({
-          url: `/pages/discover/search-list/search-list?keyword=${encodeURIComponent(searchValue.trim())}&queryType=${queryType}`
-        })
-      } else {
-        // 活动tab跳转到搜索页面
+    // 保存搜索关键词，直接在当前页面加载搜索结果
+    this.setData({
+      searchKeyword: searchValue.trim()
+    })
+    
+    // 使用当前选中的tab进行搜索，直接加载数据
+    const tabToQueryType = {
+      'coupon': 1,  // 商铺
+      'venue': 2,   // 企业/场所
+      'alumni': 3   // 校友
+    }
+    const queryType = tabToQueryType[selectedTab]
+    
+    if (queryType) {
+      // 直接在当前页面加载搜索结果，传递 queryType 和 keyword
+      this.loadNearbyData(queryType, true, searchValue.trim())
+    } else {
+      // 活动tab跳转到搜索页面
+      if (searchValue.trim()) {
         wx.navigateTo({
           url: `/pages/search/search?keyword=${searchValue}`
         })

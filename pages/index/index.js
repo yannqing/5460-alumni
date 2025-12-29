@@ -23,7 +23,15 @@ Page({
     refreshing: false,
     
     // 预留字段，防止报错
-    recommendedPeople: [], 
+    recommendedPeople: [],
+    
+    // 消息通知相关
+    showMessageNotification: false,
+    messageNotificationData: {
+      senderName: '',
+      senderAvatar: '',
+      messageContent: ''
+    } 
   },
 
   /**
@@ -125,7 +133,7 @@ Page({
               cover = item.coverImg.thumbnailUrl || item.coverImg.fileUrl || '';
               if (cover) {
                 cover = config.getImageUrl(cover);
-              }
+            }
             } else {
               // 如果是ID（数字或字符串），构造下载URL
               cover = config.getImageUrl(`/file/download/${item.coverImg}`);
@@ -390,9 +398,9 @@ Page({
     } else {
       // 未知类型，默认跳转到详情页
       if (id && id !== 'undefined' && id !== 'null' && id !== '') {
-        wx.navigateTo({
-          url: `/pages/article/detail/detail?id=${id}`,
-          fail: (err) => {
+    wx.navigateTo({
+      url: `/pages/article/detail/detail?id=${id}`,
+      fail: (err) => {
             wx.showToast({
               title: '跳转失败',
               icon: 'none'

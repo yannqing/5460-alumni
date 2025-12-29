@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "校友会",
-  "enablePullDownRefresh": true
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }

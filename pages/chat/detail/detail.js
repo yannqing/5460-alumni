@@ -90,6 +90,10 @@ Page({
         myUserId: myUserId,
         myAvatar: myAvatar
       })
+      
+      // 进入聊天详情页时，自动标记该会话为已读
+      this.markConversationAsRead(id)
+      
       this.loadChatInfo(id, type, name, avatar) // 传递 URL 参数中的 name 和 avatar
       this.loadMessages(id)
       this.initWebSocket()
@@ -139,7 +143,7 @@ Page({
 
     // 监听新消息
     this.messageListener = (data) => {
-      if (data.type === 'message') {
+      if (data.type === 'msg') {
         this.handleNewMessage(data)
       }
     }
@@ -555,16 +559,20 @@ Page({
           mappedMessages.reverse()
           
           // 查找匹配的临时消息并更新
+          // 优先匹配：通过内容和时间戳匹配最新消息中的最后一条我发送的消息
+          const myLatestMessage = mappedMessages.filter(m => m.isMe).pop() // 获取最新的一条我发送的消息
+          
           const updatedList = messageList.map(msg => {
             // 如果是临时消息（使用timestamp作为ID），且内容和时间匹配
             if (msg.id === sentTimestamp && msg.content === sentContent && msg.isMe) {
-              // 在最新消息中查找匹配的消息
+              // 优先使用最新消息中匹配的消息
               const matchedMsg = mappedMessages.find(m => 
                 m.isMe && 
                 m.content === sentContent && 
                 Math.abs(m.timestamp - sentTimestamp) < 10000  // 10秒内的消息认为是同一条
               )
               
+              // 如果找到了精确匹配的消息
               if (matchedMsg) {
                 console.log('[ChatDetail] 找到匹配的消息，更新ID:', matchedMsg.id)
                 return {
@@ -573,6 +581,18 @@ Page({
                   timestamp: matchedMsg.timestamp,
                   status: 'success',
                   time: matchedMsg.time
+                }
+              }
+              
+              // 如果没有找到精确匹配，但最新消息中有我发送的消息，且内容相同，也更新
+              if (myLatestMessage && myLatestMessage.content === sentContent) {
+                console.log('[ChatDetail] 使用最新消息更新ID:', myLatestMessage.id)
+                return {
+                  ...msg,
+                  id: myLatestMessage.id,
+                  timestamp: myLatestMessage.timestamp,
+                  status: 'success',
+                  time: myLatestMessage.time
                 }
               }
             }
@@ -584,6 +604,16 @@ Page({
           if (hasUpdate) {
             this.setData({ messageList: updatedList })
             console.log('[ChatDetail] 消息ID已更新，现在可以正常撤回')
+            
+            // 滚动到底部，确保新消息可见
+            setTimeout(() => {
+              const lastMsg = updatedList[updatedList.length - 1]
+              if (lastMsg) {
+                this.setData({ scrollIntoView: `msg-${lastMsg.id}` })
+              }
+            }, 100)
+          } else {
+            console.warn('[ChatDetail] 未找到匹配的消息进行更新，可能消息还未保存到后端')
           }
         }
       }
@@ -648,53 +678,11 @@ Page({
       console.log('[ChatDetail] 发送消息响应:', res.data)
       
       if (res.data && res.data.code === 200) {
-        // 尝试获取后端返回的消息ID
-        const newId = (res.data.data && (typeof res.data.data === 'string' || typeof res.data.data === 'number')) 
-          ? res.data.data 
-          : (res.data.data?.messageId || res.data.data?.id)
-        
-        console.log('[ChatDetail] 后端返回的消息ID:', newId, '临时ID:', timestamp)
-        
-        // 如果获取到了真实的消息ID，直接更新
-        if (newId && newId !== timestamp && newId !== 'undefined' && newId !== 'null') {
-          const finalTimestamp = res.data.data?.createTime || res.data.data?.timestamp || timestamp
-          const updatedList = this.data.messageList.map(msg => {
-            // 匹配临时消息：通过 timestamp ID 或内容和时间匹配
-            if (msg.id === timestamp || (msg.timestamp === timestamp && msg.content === content && msg.isMe)) {
-              console.log('[ChatDetail] 更新消息ID:', msg.id, '->', newId)
-              return { 
-                ...msg, 
-                status: 'success', 
-                id: newId,
-                timestamp: finalTimestamp,  // 确保 timestamp 字段存在
-                // 确保所有必要字段都存在
-                isMe: true,
-                content: content,
-                type: 'text',
-                time: this.formatTime(finalTimestamp),
-                avatar: this.data.myAvatar
-              }
-            }
-            return msg
-          })
-          this.setData({ messageList: updatedList })
-          console.log('[ChatDetail] 消息ID已更新，现在可以正常撤回')
-          
-          // 滚动到底部，确保新消息可见
-          setTimeout(() => {
-            const lastMsg = updatedList[updatedList.length - 1]
-            if (lastMsg) {
-              this.setData({ scrollIntoView: `msg-${lastMsg.id}` })
-            }
-          }, 100)
-        } else {
-          // 如果后端没有返回messageId，重新加载最新消息来获取真实的消息ID
-          console.log('[ChatDetail] 后端未返回有效的messageId，重新加载最新消息...')
-          // 延迟一下，确保后端已经保存了消息
-          setTimeout(async () => {
-            await this.reloadLatestMessages(content, timestamp)
-          }, 500)
-        }
+        // 无论后端是否返回消息ID，都立即重新加载最新消息，确保消息已保存到历史记录
+        // 这样可以保证撤回时能找到消息
+        console.log('[ChatDetail] 消息发送成功，立即重新加载最新消息以更新消息ID...')
+        // 立即调用，不延迟，确保消息实时可撤回
+        await this.reloadLatestMessages(content, timestamp)
       } else {
          throw new Error(res.data?.msg || '发送失败')
       }
@@ -1154,6 +1142,31 @@ Page({
       wx.hideLoading()
       console.error('撤回消息失败:', e)
       wx.showToast({ title: '撤回失败', icon: 'none' })
+    }
+  },
+
+  /**
+   * 标记会话为已读
+   * 进入聊天详情页时自动调用
+   */
+  async markConversationAsRead(chatId) {
+    try {
+      if (!chatId) {
+        console.warn('[ChatDetail] 聊天ID为空，无法标记已读')
+        return
+      }
+      
+      console.log('[ChatDetail] 标记会话为已读，chatId:', chatId)
+      const res = await chatApi.markConversationRead(chatId)
+      
+      if (res.data && res.data.code === 200) {
+        console.log('[ChatDetail] 会话已标记为已读')
+      } else {
+        console.warn('[ChatDetail] 标记已读失败:', res.data?.msg)
+      }
+    } catch (error) {
+      console.error('[ChatDetail] 标记已读异常:', error)
+      // 静默失败，不影响页面正常使用
     }
   }
 })

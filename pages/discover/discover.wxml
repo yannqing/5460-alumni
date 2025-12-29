@@ -1,4 +1,7 @@
 <!--pages/discover/discover.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="discover-page">
   <!-- 蓝色头部 -->
   <view class="header-section">

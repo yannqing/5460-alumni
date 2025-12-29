@@ -1,3 +1,6 @@
+<!-- 消息通知组件 -->
+<message-notification />
+
 <view class="container">
   <block wx:if="{{article}}">
     <!-- 发布者信息 -->

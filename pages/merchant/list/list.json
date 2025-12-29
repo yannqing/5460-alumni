@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "通知详情",
+  "navigationBarTitleText": "商户列表",
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification"
   }

@@ -207,6 +207,11 @@
   color: #fff;
 }
 
+.reject-btn {
+  background: #f5222d;
+  color: #fff;
+}
+
 /* 空状态 */
 .empty-state {
   padding: 100rpx 0;

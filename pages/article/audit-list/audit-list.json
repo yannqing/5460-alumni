@@ -1,7 +1,10 @@
 {
   "navigationBarTitleText": "文章审核",
   "enablePullDownRefresh": true,
-  "usingComponents": {}
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }
+
 
 

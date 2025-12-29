@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "校友详情"
+  "navigationBarTitleText": "校友详情",
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
 }

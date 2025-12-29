@@ -1,0 +1,12 @@
+<!-- 消息通知组件 -->
+<view class="message-notification {{showMessageNotification ? '' : 'hide'}}" wx:if="{{showMessageNotification}}">
+  <view class="message-notification-avatar">
+    <image wx:if="{{messageNotificationData && messageNotificationData.senderAvatar}}" src="{{messageNotificationData.senderAvatar}}" mode="aspectFill"></image>
+    <view wx:else class="default-avatar">👤</view>
+  </view>
+  <view class="message-notification-content">
+    <view class="message-notification-name">{{messageNotificationData && messageNotificationData.senderName ? messageNotificationData.senderName : '未知用户'}}</view>
+    <view class="message-notification-text">{{messageNotificationData && messageNotificationData.messageContent ? messageNotificationData.messageContent : ''}}</view>
+  </view>
+</view>
+

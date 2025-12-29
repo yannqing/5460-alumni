@@ -88,7 +88,7 @@ Page({
           wx.showToast({ title: '文章ID错误', icon: 'none' });
           return;
         }
-
+        
         // 处理发布类型：后端返回的是字符串（"alumni"、"association"），需要转换为数字
         // 注意：移除母校和商铺后，索引对应关系：0-校友会, 1-校友，但实际值：1-校友会, 3-校友
         let publishType = 1; // 默认校友会
@@ -406,7 +406,6 @@ Page({
       description: formData.description || '',
       articleType: articleType, // 确保是数字类型
       articleLink: formData.articleLink || '',
-      articleStatus: formData.articleStatus,
       content: formData.content || '',
       isTop: formData.isTop || false
     };
