@@ -283,6 +283,7 @@ Page({
 
   /**
    * 跳转详情或链接
+   * 按照方案A：使用web-view作为中间页（推荐方案）
    */
   goToDetail(e) {
     const id = e.currentTarget.dataset.id;
@@ -299,46 +300,23 @@ Page({
     
     const articleType = item.articleType || item.article_type || 1;
     const articleLink = item.articleLink || item.article_link || '';
+    const articleTitle = item.title || item.articleTitle || '文章详情';
     
     // 根据文章类型跳转
     if (articleType === 1) {
-      // 公众号：直接跳转到公众号文章（使用 web-view）
+      // 公众号：使用 web-view 打开公众号文章
       if (articleLink) {
-        // 检查是否是公众号文章链接
-        if (articleLink.includes('mp.weixin.qq.com') || articleLink.startsWith('http')) {
-          // 使用 web-view 打开公众号文章
+        // 检查是否是有效的HTTP链接
+        if (articleLink.startsWith('http://') || articleLink.startsWith('https://')) {
+          // 跳转到web-view页面，传递文章URL和标题
           wx.navigateTo({
-            url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}`,
+            url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
             fail: (err) => {
-              // 如果跳转失败，尝试使用 openUrl（需要基础库 2.20.2+）
-              if (wx.openUrl) {
-                wx.openUrl({
-                  url: articleLink,
-                  fail: () => {
-                    // 如果都失败，复制链接
-                    wx.setClipboardData({
-                      data: articleLink,
-                      success: () => {
-                        wx.showToast({
-                          title: '链接已复制',
-                          icon: 'success'
-                        });
-                      }
-                    });
-                  }
-                });
-              } else {
-                // 不支持 openUrl，复制链接
-                wx.setClipboardData({
-                  data: articleLink,
-                  success: () => {
-                    wx.showToast({
-                      title: '链接已复制',
-                      icon: 'success'
-                    });
-                  }
-                });
-              }
+              console.error('[Index] 跳转web-view失败:', err);
+              wx.showToast({
+                title: '跳转失败，请稍后重试',
+                icon: 'none'
+              });
             }
           });
         } else {
@@ -378,17 +356,25 @@ Page({
         });
       }
     } else if (articleType === 3) {
-      // 第三方链接：复制链接到剪贴板
+      // 第三方链接：使用 web-view 打开
       if (articleLink) {
-        wx.setClipboardData({
-          data: articleLink,
-          success: () => {
-            wx.showToast({
-              title: '链接已复制',
-              icon: 'success'
-            });
-          }
-        });
+        if (articleLink.startsWith('http://') || articleLink.startsWith('https://')) {
+          wx.navigateTo({
+            url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
+            fail: (err) => {
+              console.error('[Index] 跳转web-view失败:', err);
+              wx.showToast({
+                title: '跳转失败，请稍后重试',
+                icon: 'none'
+              });
+            }
+          });
+        } else {
+          wx.showToast({
+            title: '链接格式错误',
+            icon: 'none'
+          });
+        }
       } else {
         wx.showToast({
           title: '链接不存在',
@@ -398,9 +384,9 @@ Page({
     } else {
       // 未知类型，默认跳转到详情页
       if (id && id !== 'undefined' && id !== 'null' && id !== '') {
-    wx.navigateTo({
-      url: `/pages/article/detail/detail?id=${id}`,
-      fail: (err) => {
+        wx.navigateTo({
+          url: `/pages/article/detail/detail?id=${id}`,
+          fail: (err) => {
             wx.showToast({
               title: '跳转失败',
               icon: 'none'
