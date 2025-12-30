@@ -34,12 +34,35 @@
   font-size: 30rpx;
   font-weight: 600;
   box-shadow: 0 10rpx 20rpx rgba(255, 107, 157, 0.25);
+  transition: all 0.3s ease;
 }
 
+/* 待审核状态 */
+.join-button.pending {
+  background: linear-gradient(90deg, #ffa726 0%, #ffb74d 100%);
+  color: #ffffff;
+  box-shadow: 0 10rpx 20rpx rgba(255, 167, 38, 0.25);
+}
+
+/* 已加入状态 */
 .join-button.joined {
-  background: linear-gradient(90deg, #e0e0e0 0%, #f0f0f0 100%);
-  color: #999999;
-  box-shadow: none;
+  background: linear-gradient(90deg, #66bb6a 0%, #81c784 100%);
+  color: #ffffff;
+  box-shadow: 0 10rpx 20rpx rgba(102, 187, 106, 0.25);
+}
+
+/* 被拒绝状态 */
+.join-button.rejected {
+  background: linear-gradient(90deg, #ef5350 0%, #e57373 100%);
+  color: #ffffff;
+  box-shadow: 0 10rpx 20rpx rgba(239, 83, 80, 0.25);
+}
+
+/* 已撤销状态 */
+.join-button.cancelled {
+  background: linear-gradient(90deg, #bdbdbd 0%, #d0d0d0 100%);
+  color: #757575;
+  box-shadow: 0 10rpx 20rpx rgba(189, 189, 189, 0.15);
 }
 
 .full-width {

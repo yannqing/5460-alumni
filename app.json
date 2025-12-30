@@ -14,6 +14,7 @@
     "pages/school/detail/detail",
     "pages/alumni-association/list/list",
     "pages/alumni-association/detail/detail",
+    "pages/alumni-association/apply/apply",
     "pages/alumni/list/list",
     "pages/alumni/detail/detail",
     "pages/coupon/list/list",

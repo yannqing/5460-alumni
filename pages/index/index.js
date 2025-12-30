@@ -304,27 +304,21 @@ Page({
     
     // 根据文章类型跳转
     if (articleType === 1) {
-      // 公众号：使用 web-view 打开公众号文章
+      // 公众号：使用微信官方API打开公众号文章
       if (articleLink) {
-        // 检查是否是有效的HTTP链接
-        if (articleLink.startsWith('http://') || articleLink.startsWith('https://')) {
-          // 跳转到web-view页面，传递文章URL和标题
-          wx.navigateTo({
-            url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
-            fail: (err) => {
-              console.error('[Index] 跳转web-view失败:', err);
-              wx.showToast({
-                title: '跳转失败，请稍后重试',
-                icon: 'none'
-              });
-            }
-          });
-        } else {
-          wx.showToast({
-            title: '链接格式错误',
-            icon: 'none'
-          });
-        }
+        wx.openOfficialAccountArticle({
+          url: articleLink,
+          success(res) {
+            console.log('[Index] 打开公众号文章成功');
+          },
+          fail: (err) => {
+            console.error('[Index] 打开公众号文章失败:', err);
+            wx.showToast({
+              title: '打开文章失败',
+              icon: 'none'
+            });
+          }
+        });
       } else {
         wx.showToast({
           title: '链接不存在',

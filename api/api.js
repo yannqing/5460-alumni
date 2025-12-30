@@ -45,6 +45,8 @@ const associationApi = {
   unfollowAssociation: (id) => del(`/associations/${id}/follow`),
   // 分页查询本人是会长的校友会列表（超级管理员可查看所有）
   getMyPresidentAssociations: (params) => post('/AlumniAssociation/my-president/page', params),
+  // 申请加入校友会（普通用户）
+  applyToJoinAssociation: (data) => post('/AlumniAssociationApplication/apply', data),
 }
 
 // ==================== 校友总会相关接口 ====================

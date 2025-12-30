@@ -31,8 +31,12 @@
         </view>
       </view>
       <view class="mt-20">
-        <view class="join-button {{associationInfo.isJoined ? 'joined' : ''}}" bindtap="toggleJoin">
-          {{associationInfo.isJoined ? '已加入校友会' : '加入校友会'}}
+        <view class="join-button {{associationInfo.applicationStatus === 0 ? 'pending' : ''}} {{associationInfo.applicationStatus === 1 ? 'joined' : ''}} {{associationInfo.applicationStatus === 2 ? 'rejected' : ''}} {{associationInfo.applicationStatus === 3 ? 'cancelled' : ''}}" bindtap="toggleJoin">
+          <block wx:if="{{associationInfo.applicationStatus === 0}}">审核中</block>
+          <block wx:elif="{{associationInfo.applicationStatus === 1}}">已加入校友会</block>
+          <block wx:elif="{{associationInfo.applicationStatus === 2}}">申请被拒绝</block>
+          <block wx:elif="{{associationInfo.applicationStatus === 3}}">已撤销申请</block>
+          <block wx:else>加入校友会</block>
         </view>
       </view>
     </view>

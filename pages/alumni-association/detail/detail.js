@@ -123,7 +123,9 @@ Page({
           vicePresidents: [], // 后端暂无此字段
           establishedYear: null, // 后端暂无此字段
           description: '', // 后端暂无此字段
-          certifications: [] // 后端暂无此字段
+          certifications: [], // 后端暂无此字段
+          // 申请状态：0-待审核, 1-已通过, 2-已拒绝, 3-已撤销, null-未申请
+          applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null
         }
 
         this.setData({
@@ -913,25 +915,82 @@ Page({
   // 点击加入/退出按钮
   toggleJoin() {
     const { associationInfo } = this.data
-    // 已加入：保持原来的退出逻辑
-    if (associationInfo.isJoined) {
-      associationInfo.isJoined = false
-    this.setData({ associationInfo })
-    wx.showToast({
-        title: '已退出',
-      icon: 'success'
-      })
-      return
+    const { applicationStatus } = associationInfo
+
+    // 根据申请状态显示不同提示或执行不同操作
+    switch (applicationStatus) {
+      case 0: // 待审核
+        wx.showModal({
+          title: '提示',
+          content: '您的申请正在审核中，请耐心等待',
+          showCancel: false
+        })
+        break
+
+      case 1: // 已通过（已加入）
+        wx.showModal({
+          title: '退出校友会',
+          content: '确定要退出该校友会吗？',
+          confirmText: '确定退出',
+          confirmColor: '#ff6b9d',
+          success: (res) => {
+            if (res.confirm) {
+              // TODO: 调用退出校友会接口
+              wx.showToast({
+                title: '已退出',
+                icon: 'success'
+              })
+              // 更新状态
+              this.setData({
+                'associationInfo.applicationStatus': null
+              })
+            }
+          }
+        })
+        break
+
+      case 2: // 已拒绝
+        wx.showModal({
+          title: '申请被拒绝',
+          content: '您的申请已被拒绝，是否重新申请？',
+          confirmText: '重新申请',
+          confirmColor: '#ff6b9d',
+          success: (res) => {
+            if (res.confirm) {
+              this.goToApplyPage()
+            }
+          }
+        })
+        break
+
+      case 3: // 已撤销
+        wx.showModal({
+          title: '提示',
+          content: '您已撤销申请，是否重新申请？',
+          confirmText: '重新申请',
+          confirmColor: '#ff6b9d',
+          success: (res) => {
+            if (res.confirm) {
+              this.goToApplyPage()
+            }
+          }
+        })
+        break
+
+      case null: // 未申请
+      default:
+        this.goToApplyPage()
+        break
     }
-    // 未加入：打开申请表单
-    this.setData({
-      showJoinModal: true,
-      joinForm: {
-        realName: '',
-        graduationYear: '',
-        major: '',
-        remark: ''
-      }
+  },
+
+  // 跳转到申请页面
+  goToApplyPage() {
+    const { associationInfo } = this.data
+    const schoolId = associationInfo.schoolId || ''
+    const schoolName = associationInfo.schoolName || ''
+    wx.navigateTo({
+      url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&schoolId=${schoolId}&schoolName=${encodeURIComponent(schoolName)}`
     })
   },
 
