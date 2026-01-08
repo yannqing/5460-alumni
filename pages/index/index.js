@@ -150,12 +150,41 @@ Page({
           
           // 处理ID：确保ID存在且有效
           const id = item.id || item.homeArticleId || item.homeArticleId || '';
-          
+
           // 如果ID为空，记录警告但继续处理（可能后端数据有问题）
           if (!id) {
             console.warn('[Index] 文章ID为空，数据:', item);
           }
-          
+
+          // 处理子文章
+          let children = [];
+          let hasChildren = false;
+          if (item.children && Array.isArray(item.children) && item.children.length > 0) {
+            hasChildren = true;
+            children = item.children.map(child => {
+              // 处理子文章的封面图
+              let childCover = '';
+              if (child.coverImg) {
+                if (typeof child.coverImg === 'object') {
+                  childCover = child.coverImg.thumbnailUrl || child.coverImg.fileUrl || '';
+                  if (childCover) {
+                    childCover = config.getImageUrl(childCover);
+                  }
+                } else {
+                  childCover = config.getImageUrl(`/file/download/${child.coverImg}`);
+                }
+              }
+
+              return {
+                id: child.id || child.homeArticleId || '',
+                title: child.articleTitle || child.title || '无标题',
+                cover: childCover,
+                articleType: child.articleType || child.article_type || 1,
+                articleLink: child.articleLink || child.article_link || ''
+              };
+            });
+          }
+
           return {
             ...item,
             id: id ? String(id) : '', // 确保ID为字符串，如果为空则保持空字符串
@@ -169,7 +198,9 @@ Page({
             publishWxId: item.publishWxId || item.publish_wx_id || null, // 保存 publishWxId，用于获取校友会头像
             articleType: item.articleType || item.article_type || 1, // 保存文章类型：1-公众号，2-内部路径，3-第三方链接
             articleLink: item.articleLink || item.article_link || '', // 保存文章链接
-            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 1) && (item.publishWxId || item.publish_wx_id) // 标记需要获取头像
+            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 1) && (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
+            hasChildren: hasChildren, // 是否有子文章
+            children: children // 子文章列表
           };
         });
 
@@ -392,6 +423,119 @@ Page({
           title: '文章ID错误',
           icon: 'none'
         });
+      }
+    }
+  },
+
+  /**
+   * 点击子文章跳转
+   */
+  goToChildDetail(e) {
+    const { item } = e.currentTarget.dataset
+
+    if (!item) {
+      wx.showToast({
+        title: '文章数据错误',
+        icon: 'none'
+      })
+      return
+    }
+
+    const articleType = item.articleType || 1
+    const articleLink = item.articleLink || ''
+    const articleTitle = item.title || '文章详情'
+
+    // 根据文章类型跳转
+    if (articleType === 1) {
+      // 公众号：使用微信官方API打开公众号文章
+      if (articleLink) {
+        wx.openOfficialAccountArticle({
+          url: articleLink,
+          success(res) {
+            console.log('[Index] 打开公众号文章成功')
+          },
+          fail: (err) => {
+            console.error('[Index] 打开公众号文章失败:', err)
+            wx.showToast({
+              title: '打开文章失败',
+              icon: 'none'
+            })
+          }
+        })
+      } else {
+        wx.showToast({
+          title: '链接不存在',
+          icon: 'none'
+        })
+      }
+    } else if (articleType === 2) {
+      // 内部路径：跳转到小程序内部页面
+      if (articleLink) {
+        let path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`
+        wx.navigateTo({
+          url: path,
+          fail: () => {
+            wx.switchTab({
+              url: path,
+              fail: () => {
+                wx.showToast({
+                  title: '页面不存在',
+                  icon: 'none'
+                })
+              }
+            })
+          }
+        })
+      } else {
+        wx.showToast({
+          title: '路径不存在',
+          icon: 'none'
+        })
+      }
+    } else if (articleType === 3) {
+      // 第三方链接：使用 web-view 打开
+      if (articleLink) {
+        if (articleLink.startsWith('http://') || articleLink.startsWith('https://')) {
+          wx.navigateTo({
+            url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
+            fail: (err) => {
+              console.error('[Index] 跳转web-view失败:', err)
+              wx.showToast({
+                title: '跳转失败，请稍后重试',
+                icon: 'none'
+              })
+            }
+          })
+        } else {
+          wx.showToast({
+            title: '链接格式错误',
+            icon: 'none'
+          })
+        }
+      } else {
+        wx.showToast({
+          title: '链接不存在',
+          icon: 'none'
+        })
+      }
+    } else {
+      // 未知类型，默认跳转到详情页
+      const id = item.id
+      if (id && id !== 'undefined' && id !== 'null' && id !== '') {
+        wx.navigateTo({
+          url: `/pages/article/detail/detail?id=${id}`,
+          fail: (err) => {
+            wx.showToast({
+              title: '跳转失败',
+              icon: 'none'
+            })
+          }
+        })
+      } else {
+        wx.showToast({
+          title: '文章ID错误',
+          icon: 'none'
+        })
       }
     }
   }

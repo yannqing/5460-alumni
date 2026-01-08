@@ -62,13 +62,38 @@
         <text class="publish-time">{{item.time}}</text>
       </view>
       <view class="article-body">
-        <view class="article-content">
+        <!-- 封面图：始终显示图片框 -->
+        <view class="article-cover-wrapper {{item.hasChildren ? 'with-title-overlay' : ''}}">
+          <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
+          <!-- 如果有子文章，标题显示在图片上 -->
+          <view wx:if="{{item.hasChildren}}" class="cover-title-overlay">
+            <view class="overlay-title">{{item.title}}</view>
+          </view>
+        </view>
+
+        <!-- 如果没有子文章，正常显示标题和描述 -->
+        <view wx:if="{{!item.hasChildren}}" class="article-content">
           <view class="article-title">{{item.title}}</view>
           <view class="article-desc">{{item.description}}</view>
         </view>
-        <!-- 封面图：始终显示图片框 -->
-        <view class="article-cover-wrapper">
-          <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
+
+        <!-- 如果有子文章，显示子文章列表 -->
+        <view wx:if="{{item.hasChildren}}" class="children-list">
+          <view
+            wx:for="{{item.children}}"
+            wx:key="id"
+            wx:for-item="child"
+            class="child-item"
+            catchtap="goToChildDetail"
+            data-item="{{child}}"
+          >
+            <view class="child-content">
+              <view class="child-title">{{child.title}}</view>
+            </view>
+            <view class="child-cover-wrapper">
+              <image wx:if="{{child.cover}}" class="child-cover" src="{{child.cover}}" mode="aspectFill"></image>
+            </view>
+          </view>
         </view>
       </view>
     </view>

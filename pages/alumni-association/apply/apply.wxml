@@ -2,8 +2,8 @@
 <view class="container">
   <view class="form-container">
     <view class="form-header">
-      <view class="form-title">申请加入校友会</view>
-      <view class="form-subtitle">请填写以下信息，提交后等待审核</view>
+      <view class="form-title">{{mode === 'view' ? '申请详情' : '申请加入校友会'}}</view>
+      <view class="form-subtitle">{{mode === 'view' ? '您的申请正在审核中' : '请填写以下信息，提交后等待审核'}}</view>
     </view>
 
     <!-- 基本信息 -->
@@ -19,6 +19,7 @@
           bindinput="handleInput"
           data-field="name"
           maxlength="20"
+          disabled="{{mode === 'view'}}"
         />
       </view>
 
@@ -31,6 +32,7 @@
           bindinput="handleInput"
           data-field="identifyCode"
           maxlength="18"
+          disabled="{{mode === 'view'}}"
         />
       </view>
 
@@ -44,6 +46,7 @@
           bindinput="handleInput"
           data-field="phone"
           maxlength="11"
+          disabled="{{mode === 'view'}}"
         />
       </view>
 
@@ -56,6 +59,7 @@
           bindinput="handleInput"
           data-field="applicationReason"
           maxlength="200"
+          disabled="{{mode === 'view'}}"
         />
       </view>
     </view>
@@ -77,8 +81,9 @@
           value="{{formData.enrollmentYear}}"
           bindchange="handleYearChange"
           data-field="enrollmentYear"
+          disabled="{{mode === 'view'}}"
         >
-          <view class="form-picker">
+          <view class="form-picker {{mode === 'view' ? 'disabled' : ''}}">
             {{formData.enrollmentYear || '请选择入学年份'}}
           </view>
         </picker>
@@ -92,8 +97,9 @@
           value="{{formData.graduationYear}}"
           bindchange="handleYearChange"
           data-field="graduationYear"
+          disabled="{{mode === 'view'}}"
         >
-          <view class="form-picker">
+          <view class="form-picker {{mode === 'view' ? 'disabled' : ''}}">
             {{formData.graduationYear || '请选择毕业年份'}}
           </view>
         </picker>
@@ -108,6 +114,7 @@
           bindinput="handleInput"
           data-field="department"
           maxlength="50"
+          disabled="{{mode === 'view'}}"
         />
       </view>
 
@@ -120,6 +127,7 @@
           bindinput="handleInput"
           data-field="major"
           maxlength="50"
+          disabled="{{mode === 'view'}}"
         />
       </view>
 
@@ -132,6 +140,7 @@
           bindinput="handleInput"
           data-field="className"
           maxlength="50"
+          disabled="{{mode === 'view'}}"
         />
       </view>
 
@@ -142,8 +151,9 @@
           range="{{educationLevels}}"
           value="{{educationLevelIndex}}"
           bindchange="handleEducationLevelChange"
+          disabled="{{mode === 'view'}}"
         >
-          <view class="form-picker">
+          <view class="form-picker {{mode === 'view' ? 'disabled' : ''}}">
             {{formData.educationLevel || '请选择学历层次'}}
           </view>
         </picker>
@@ -157,22 +167,29 @@
         <block wx:for="{{attachments}}" wx:key="index">
           <view class="upload-item">
             <image class="upload-image" src="{{item.url}}" mode="aspectFill" />
-            <view class="upload-delete" bindtap="deleteAttachment" data-index="{{index}}">×</view>
+            <view wx:if="{{mode === 'edit'}}" class="upload-delete" bindtap="deleteAttachment" data-index="{{index}}">×</view>
           </view>
         </block>
-        <view wx:if="{{attachments.length < 3}}" class="upload-button" bindtap="chooseImage">
+        <view wx:if="{{mode === 'edit' && attachments.length < 3}}" class="upload-button" bindtap="chooseImage">
           <text class="upload-icon">+</text>
           <text class="upload-text">上传图片</text>
         </view>
       </view>
-      <view class="upload-hint">最多上传3张图片</view>
+      <view wx:if="{{mode === 'edit'}}" class="upload-hint">最多上传3张图片</view>
     </view>
 
-    <!-- 提交按钮 -->
+    <!-- 按钮区域 -->
     <view class="form-actions">
-      <button class="submit-button" bindtap="submitApplication" disabled="{{submitting}}">
+      <!-- 编辑模式：显示提交按钮 -->
+      <button wx:if="{{mode === 'edit'}}" class="submit-button" bindtap="submitApplication" disabled="{{submitting}}">
         {{submitting ? '提交中...' : '提交申请'}}
       </button>
+
+      <!-- 查看模式：显示撤销和编辑按钮 -->
+      <view wx:if="{{mode === 'view'}}" class="view-mode-actions">
+        <button class="action-button cancel-button" bindtap="cancelApplication">撤销申请</button>
+        <button class="action-button edit-button" bindtap="enterEditMode">编辑</button>
+      </view>
     </view>
   </view>
 </view>

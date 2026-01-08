@@ -1,6 +1,7 @@
 // pages/discover/discover.js
 const config = require('../../utils/config.js')
 const { shopApi, nearbyApi } = require('../../api/api.js')
+const { FollowTargetType, handleListItemFollow } = require('../../utils/followHelper.js')
 
 Page({
   data: {
@@ -336,16 +337,21 @@ Page({
         } else if (queryType === 2) {
           // 企业/场所类型
           const venueList = records.map(venue => {
+            // 处理图片
             let image = config.defaultAvatar
-            if (venue.image || venue.venueImage) {
-              const img = venue.image || venue.venueImage
-              if (Array.isArray(img) && img.length > 0) {
-                image = config.getImageUrl(img[0])
-              } else if (typeof img === 'string') {
-                image = config.getImageUrl(img)
+            if (venue.images) {
+              if (Array.isArray(venue.images) && venue.images.length > 0) {
+                image = config.getImageUrl(venue.images[0])
+              } else if (typeof venue.images === 'string') {
+                // 如果是字符串，可能是逗号分隔的图片列表
+                const imageList = venue.images.split(',')
+                if (imageList.length > 0 && imageList[0]) {
+                  image = config.getImageUrl(imageList[0].trim())
+                }
               }
             }
 
+            // 处理距离
             let distanceText = '0m'
             if (venue.distance !== undefined && venue.distance !== null) {
               if (venue.distance < 1) {
@@ -360,13 +366,48 @@ Page({
               }
             }
 
+            // 处理场所类型标签
+            let typeLabel = ''
+            if (venue.placeType === 1) {
+              typeLabel = '商铺'
+            } else if (venue.placeType === 2) {
+              typeLabel = '企业'
+            } else if (venue.placeType === 3) {
+              typeLabel = '场馆'
+            }
+
+            // 处理地址
+            let address = venue.address || ''
+            if (!address && (venue.province || venue.city || venue.district)) {
+              const addressParts = []
+              if (venue.province) addressParts.push(venue.province)
+              if (venue.city && venue.city !== venue.province) addressParts.push(venue.city)
+              if (venue.district) addressParts.push(venue.district)
+              if (venue.address) addressParts.push(venue.address)
+              address = addressParts.join('')
+            }
+
+            // 处理评分
+            let ratingScore = 0
+            if (venue.ratingScore !== undefined && venue.ratingScore !== null) {
+              ratingScore = parseFloat(venue.ratingScore) || 0
+            }
+
             return {
-              id: venue.venueId || venue.id,
-              name: venue.venueName || venue.name || '',
+              id: venue.placeId || venue.venueId || venue.id,
+              name: venue.placeName || venue.venueName || venue.name || '未知场所',
               distance: distanceText,
               image: image,
-              associations: venue.associations || [],
-              rating: venue.rating || venue.ratingScore || 0,
+              typeLabel: typeLabel,
+              address: address,
+              contactPhone: venue.contactPhone || '',
+              contactEmail: venue.contactEmail || '',
+              description: venue.description || '',
+              ratingScore: ratingScore,
+              ratingCount: venue.ratingCount || 0,
+              viewCount: venue.viewCount || 0,
+              clickCount: venue.clickCount || 0,
+              businessHours: venue.businessHours || '',
               latitude: venue.latitude,
               longitude: venue.longitude
             }
@@ -424,7 +465,9 @@ Page({
               association: alumni.association || alumni.associationName || '',
               tag: alumni.tag || '',
               latitude: alumni.latitude,
-              longitude: alumni.longitude
+              longitude: alumni.longitude,
+              followStatus: alumni.followStatus || null, // 关注状态
+              isFollowed: alumni.isFollowed || false // 是否已关注
             }
           })
 
@@ -650,13 +693,10 @@ Page({
   },
 
 
-  handleFollow(e) {
-    const id = e.currentTarget.dataset.id
-    // TODO: 实现关注功能
-    wx.showToast({
-      title: '关注成功',
-      icon: 'success'
-    })
+  // 关注/取消关注校友
+  async handleFollow(e) {
+    const { id, followed } = e.currentTarget.dataset
+    await handleListItemFollow(this, 'alumniList', id, followed, FollowTargetType.USER)
   },
 
   handleSignup(e) {

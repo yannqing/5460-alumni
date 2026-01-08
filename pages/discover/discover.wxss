@@ -12,7 +12,7 @@
   background-color: #4a90e2;
   padding: 0;
   padding-top: env(safe-area-inset-top);
-  padding-bottom: 60px;
+  padding-bottom: 40rpx;
   position: fixed;
   top: 0;
   left: 0;
@@ -21,7 +21,7 @@
 }
 
 .header-section-inner {
-  padding: 100rpx 30rpx 0;
+  padding: 80rpx 30rpx 0;
 }
 
 .header-top-row {
@@ -43,18 +43,6 @@
   font-size: 26rpx;
   flex-shrink: 0;
   font-weight: 500;
-}
-
-.header-icons {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-
-.header-icon {
-  font-size: 36rpx;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1;
 }
 
 .search-container {
@@ -94,13 +82,6 @@
   white-space: nowrap;
 }
 
-.header-subtitle {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.8);
-  text-align: center;
-  margin-top: 4rpx;
-}
-
 /* 白色内容容器 */
 .white-content-container {
   background-color: #fff;
@@ -108,7 +89,7 @@
   border-top-right-radius: 32rpx;
   overflow: hidden;
   position: fixed;
-  top: calc(env(safe-area-inset-top) + 390rpx);
+  top: calc(env(safe-area-inset-top) + 300rpx);
   left: 0;
   right: 0;
   z-index: 10;
@@ -163,7 +144,7 @@
   padding: 20rpx 30rpx;
   gap: 20rpx;
   position: fixed;
-  top: calc(env(safe-area-inset-top) + 435rpx + 120rpx);
+  top: calc(env(safe-area-inset-top) + 345rpx + 120rpx);
   left: 0;
   right: 0;
   z-index: 20;
@@ -225,7 +206,7 @@
 .list-view {
   flex: 1;
   height: 0;
-  margin-top: calc(env(safe-area-inset-top) + 435rpx + 120rpx + 80rpx);
+  margin-top: calc(env(safe-area-inset-top) + 345rpx + 120rpx + 80rpx);
   position: relative;
   z-index: 20;
   background-color: #f5f5f5;
@@ -272,195 +253,226 @@
   font-size: 26rpx;
 }
 
-/* 优惠卡片 */
-.coupon-card {
-  background-color: #fff;
-  border-radius: 16rpx;
+/* 商铺卡片 */
+.shop-card {
+  background: #fff;
+  border-radius: 12rpx;
   padding: 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 20rpx;
 }
 
-.coupon-main {
+.shop-main {
   display: flex;
   gap: 20rpx;
-  align-items: flex-start;
+  margin-bottom: 20rpx;
 }
 
-.coupon-image {
+.shop-image {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 12rpx;
-  background-color: #f0f0f0;
+  border-radius: 8rpx;
+  background: #f5f5f5;
   flex-shrink: 0;
 }
 
-.coupon-content {
+.shop-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
-  min-width: 0;
-  align-items: flex-start;
+  gap: 8rpx;
 }
 
-.coupon-name {
+.shop-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #333;
-  line-height: 1.4;
+  color: #262626;
 }
 
-.coupon-distance {
+.shop-distance {
   font-size: 24rpx;
-  color: #666;
+  color: #8c8c8c;
 }
 
-.coupon-associations-wrapper {
+.shop-tags {
   display: flex;
-  align-items: center;
-  gap: 12rpx;
-  width: 100%;
-}
-
-.coupon-associations {
-  display: flex;
-  flex-wrap: nowrap;
   gap: 8rpx;
-  overflow-x: auto;
-  flex: 1;
-  min-width: 0;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  flex-wrap: wrap;
 }
 
-.coupon-associations::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-.association-tag {
-  padding: 6rpx 12rpx 6rpx 6rpx;
-  background-color: #f5f5f5;
-  border-radius: 20rpx;
+.tag {
+  padding: 4rpx 12rpx;
+  background: #f5f5f5;
+  border-radius: 4rpx;
   font-size: 22rpx;
-  color: #666;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  flex-shrink: 0;
+  color: #595959;
 }
 
-.association-avatar {
-  width: 22rpx;
-  height: 22rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.association-text {
-  line-height: 22rpx;
-}
-
-.coupon-expand {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40rpx;
-  height: 40rpx;
-  flex-shrink: 0;
-  background-color:rgb(176, 208, 235);
-  border-radius: 50%;
-}
-
-.expand-icon {
-  font-size: 24rpx;
-  color: #333;
-  font-weight: 500;
-}
-
-.coupon-buttons {
-  width: 100%;
-  white-space: nowrap;
-}
-
-.coupon-btn-wrapper {
-  display: inline-flex;
-  gap: 12rpx;
-  flex-direction: row;
-}
-
-.coupon-btn {
-  padding: 32rpx 20rpx;
-  background-color:rgb(45, 192, 123);
-  border-radius: 8rpx;
-  display: inline-flex;
-  align-items: center;
-  gap: 16rpx;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 280rpx;
-  box-sizing: border-box;
-}
-
-.coupon-btn-left {
+.coupons {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4rpx;
-  flex-shrink: 0;
+  gap: 12rpx;
 }
 
-.coupon-discount {
+.coupon {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 20rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  border-left: 6rpx solid #ff6b6b;
+}
+
+.coupon-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 140rpx;
+}
+
+.coupon-value {
   font-size: 32rpx;
-  font-weight: 600;
-  color: #fff;
-  line-height: 1.2;
+  font-weight: 700;
+  color: #262626;
 }
 
 .coupon-type {
   font-size: 22rpx;
-  color: #fff;
-  line-height: 1.2;
+  color: #8c8c8c;
 }
 
-.coupon-btn-divider {
-  width: 1rpx;
-  height: 40rpx;
-  background-color: rgba(255, 255, 255, 0.3);
-  flex-shrink: 0;
-}
-
-.coupon-btn-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4rpx;
+.coupon-right {
   flex: 1;
-  min-width: 0;
+  padding-left: 20rpx;
+  border-left: 1px dashed #d9d9d9;
 }
 
 .coupon-title {
-  font-size: 24rpx;
-  color: #fff;
-  line-height: 1.2;
+  font-size: 26rpx;
+  color: #595959;
+  line-height: 1.4;
+}
+
+/* 场所卡片 */
+.venue-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.venue-image {
+  width: 100%;
+  height: 320rpx;
+  background-color: #f5f5f5;
+  display: block;
+}
+
+.venue-content {
+  padding: 24rpx;
+}
+
+.venue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.venue-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #262626;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.coupon-expire {
-  font-size: 20rpx;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.2;
+.venue-type-tag {
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  flex-shrink: 0;
+  margin-left: 12rpx;
 }
 
-.coupon-rating {
+.venue-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  margin-bottom: 16rpx;
+  padding: 12rpx;
+  background-color: #f8f9fa;
+  border-radius: 8rpx;
+}
+
+.venue-icon {
   font-size: 24rpx;
-  color: #666;
-  margin-top: 4rpx;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+.venue-address-text {
+  font-size: 26rpx;
+  color: #595959;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.venue-info-row {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 16rpx;
+  flex-wrap: wrap;
+}
+
+.venue-distance,
+.venue-contact {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.venue-stats {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 16rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 16rpx;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.stat-icon {
+  font-size: 24rpx;
+}
+
+.stat-text {
+  font-size: 24rpx;
+  color: #595959;
+}
+
+.venue-description {
+  font-size: 26rpx;
+  color: #8c8c8c;
+  line-height: 1.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 /* 校友/内容卡片 */
@@ -539,6 +551,11 @@
   border-radius: 40rpx;
   font-size: 26rpx;
   text-align: center;
+}
+
+.follow-btn.followed {
+  background-color: #f0f0f0;
+  color: #666;
 }
 
 /* 活动卡片 */
@@ -678,7 +695,7 @@
 .map-view {
   flex: 1;
   height: 0;
-  margin-top: calc(env(safe-area-inset-top) + 435rpx + 120rpx + 80rpx);
+  margin-top: calc(env(safe-area-inset-top) + 345rpx + 120rpx + 80rpx);
   position: relative;
   z-index: 20;
   background-color: #f5f5f5;

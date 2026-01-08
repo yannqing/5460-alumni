@@ -8,10 +8,6 @@
     <view class="header-section-inner">
       <view class="header-top-row">
         <view class="logo-placeholder">logo</view>
-        <view class="header-icons">
-          <text class="header-icon">⋯</text>
-          <text class="header-icon">◎</text>
-        </view>
       </view>
       <view class="search-container">
         <text class="search-icon">🔍</text>
@@ -25,7 +21,6 @@
         />
         <view class="search-btn" bindtap="handleSearchConfirm">搜索</view>
       </view>
-      <view class="header-subtitle">silogn</view>
     </view>
   </view>
 
@@ -93,66 +88,80 @@
   >
     <!-- 附近优惠列表 -->
     <view class="content-list" wx:if="{{selectedTab === 'coupon'}}">
-      <!-- 空列表提示 -->
-      <view class="empty-tip" wx:if="{{couponList.length === 0 && !loading}}">
-        <text>暂无附近优惠</text>
-      </view>
-      <view class="coupon-card" wx:for="{{couponList}}" wx:key="id" wx:for-index="idx" bindtap="handleShopTap" data-id="{{item.id}}">
-        <view class="coupon-main">
-          <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
-          <view class="coupon-content">
-            <view class="coupon-name">{{item.name}}</view>
-            <view class="coupon-distance">距离 {{item.distance}}</view>
-            <view class="coupon-associations-wrapper">
-              <view class="coupon-associations">
-                <view class="association-tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">
-                  <image class="association-avatar" src="{{defaultAvatar}}" mode="aspectFill"></image>
-                  <text class="association-text">{{assoc}}</text>
-                </view>
-              </view>
-              <view class="coupon-expand" bindtap="handleExpand" data-id="{{item.id}}">
-                <text class="expand-icon">></text>
-              </view>
+      <view class="empty-tip" wx:if="{{couponList.length === 0 && !loading}}">暂无附近优惠</view>
+
+      <view class="shop-card" wx:for="{{couponList}}" wx:key="id" bindtap="handleShopTap" data-id="{{item.id}}">
+        <view class="shop-main">
+          <image class="shop-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="shop-info">
+            <text class="shop-name">{{item.name}}</text>
+            <text class="shop-distance">{{item.distance}}</text>
+            <view class="shop-tags" wx:if="{{item.associations && item.associations.length > 0}}">
+              <text class="tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">{{assoc}}</text>
             </view>
           </view>
         </view>
-        <scroll-view class="coupon-buttons" scroll-x="true" show-scrollbar="false">
-          <view class="coupon-btn-wrapper">
-            <view class="coupon-btn" wx:for="{{item.coupons}}" wx:key="*this" wx:for-item="coupon" wx:for-index="couponIdx">
-              <view class="coupon-btn-left">
-                <text class="coupon-discount">{{coupon.discount}}</text>
-                <text class="coupon-type">{{coupon.type}}</text>
-              </view>
-              <view class="coupon-btn-divider"></view>
-              <view class="coupon-btn-right">
-                <text class="coupon-title">{{coupon.title || coupon.discount}}</text>
-                <text class="coupon-expire">{{coupon.expireDate}}</text>
-              </view>
+
+        <view class="coupons" wx:if="{{item.coupons && item.coupons.length > 0}}">
+          <view class="coupon" wx:for="{{item.coupons}}" wx:key="*this" wx:for-item="coupon">
+            <view class="coupon-left">
+              <text class="coupon-value">{{coupon.discount}}</text>
+              <text class="coupon-type">{{coupon.type}}</text>
+            </view>
+            <view class="coupon-right">
+              <text class="coupon-title">{{coupon.title}}</text>
             </view>
           </view>
-        </scroll-view>
+        </view>
       </view>
-      <!-- 没有更多了提示 -->
-      <view class="no-more" wx:if="{{!hasMore && couponList.length > 0 && !loading}}">
-        <text>没有更多了</text>
-      </view>
+
+      <view class="no-more" wx:if="{{!hasMore && couponList.length > 0 && !loading}}">没有更多了</view>
     </view>
 
     <!-- 附近场所列表 -->
     <view class="content-list" wx:if="{{selectedTab === 'venue'}}">
-      <view class="coupon-card" wx:for="{{venueList}}" wx:key="id">
-        <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
-        <view class="coupon-content">
-          <view class="coupon-name">{{item.name}}</view>
-          <view class="coupon-distance">距离 {{item.distance}}m</view>
-          <view class="coupon-associations">
-            <view class="association-tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">{{assoc}}</view>
+      <view class="empty-tip" wx:if="{{venueList.length === 0 && !loading}}">暂无附近场所</view>
+
+      <view class="venue-card" wx:for="{{venueList}}" wx:key="id">
+        <image class="venue-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="venue-content">
+          <view class="venue-header">
+            <view class="venue-name">{{item.name}}</view>
+            <view class="venue-type-tag" wx:if="{{item.typeLabel}}">{{item.typeLabel}}</view>
           </view>
-          <view class="coupon-rating" wx:if="{{item.rating}}">
-            <text>⭐ {{item.rating}}</text>
+
+          <view class="venue-address" wx:if="{{item.address}}">
+            <text class="venue-icon">📍</text>
+            <text class="venue-address-text">{{item.address}}</text>
           </view>
+
+          <view class="venue-info-row">
+            <view class="venue-distance">
+              <text class="venue-icon">📏</text>
+              <text>{{item.distance}}</text>
+            </view>
+            <view class="venue-contact" wx:if="{{item.contactPhone}}">
+              <text class="venue-icon">📞</text>
+              <text>{{item.contactPhone}}</text>
+            </view>
+          </view>
+
+          <view class="venue-stats" wx:if="{{item.ratingScore > 0 || item.viewCount > 0}}">
+            <view class="stat-item" wx:if="{{item.ratingScore > 0}}">
+              <text class="stat-icon">⭐</text>
+              <text class="stat-text">{{item.ratingScore}}分</text>
+            </view>
+            <view class="stat-item" wx:if="{{item.viewCount > 0}}">
+              <text class="stat-icon">👁️</text>
+              <text class="stat-text">{{item.viewCount}}次浏览</text>
+            </view>
+          </view>
+
+          <view class="venue-description" wx:if="{{item.description}}">{{item.description}}</view>
         </view>
       </view>
+
+      <view class="no-more" wx:if="{{!hasMore && venueList.length > 0 && !loading}}">没有更多了</view>
     </view>
 
     <!-- 附近校友列表 -->
@@ -169,7 +178,9 @@
           <view class="card-tag" wx:if="{{item.tag}}">{{item.tag}}</view>
         </view>
         <view class="card-action">
-          <view class="follow-btn" bindtap="handleFollow" data-id="{{item.id}}">关注</view>
+          <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}" bindtap="handleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+            {{item.isFollowed ? '已关注' : '关注'}}
+          </view>
         </view>
       </view>
     </view>

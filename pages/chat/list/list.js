@@ -243,25 +243,38 @@ Page({
         const chatList = res.data.data?.records || res.data.data || []
         
         // 映射聊天列表数据
-        const mappedChatList = chatList.map(chat => ({
-          id: chat.conversationId || chat.id || chat.userId,
-          userId: chat.userId || chat.targetId,
-          peerId: chat.peerId || chat.userId || chat.targetId, // 确保获取 peerId
-          conversationId: chat.conversationId || chat.id, // 保存会话ID
-          draftContent: chat.draftContent || '', // 草稿内容
-          // 优先使用后端返回的 peerNickname
-          name: chat.peerNickname || chat.userName || chat.targetName || chat.name || '未知用户',
-          // 优先使用后端返回的 peerAvatar
-          avatar: chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : ''),
-          // 优先使用草稿，否则使用最后一条消息
-          lastMessage: (chat.draftContent) ? ('[草稿] ' + chat.draftContent) : (chat.lastMessageContent || chat.lastMessage || chat.lastMsg || ''),
-          lastTime: this.formatTime(chat.lastMessageTime || chat.lastMsgTime || chat.updateTime),
-          unreadCount: chat.unreadCount || 0,
-          isMuted: chat.isMuted || false,
-          isPinned: chat.isPinned || false, // 添加置顶状态
-          isOnline: this.isUserOnline(chat.userId || chat.targetId),
-          isTouchMove: false // 初始不显示滑动菜单
-        }))
+        const mappedChatList = chatList.map(chat => {
+          const conversationId = chat.conversationId || chat.id
+          const isSystemNotification = conversationId && conversationId.startsWith('notification_')
+
+          // 判断头像：如果是系统通知使用默认图标，否则使用用户头像
+          let avatar = ''
+          if (isSystemNotification) {
+            avatar = config.getIconUrl('sys_noti.png')
+          } else {
+            avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : '')
+          }
+
+          return {
+            id: conversationId || chat.userId,
+            userId: chat.userId || chat.targetId,
+            peerId: chat.peerId || chat.userId || chat.targetId, // 确保获取 peerId
+            conversationId: conversationId, // 保存会话ID
+            draftContent: chat.draftContent || '', // 草稿内容
+            // 优先使用后端返回的 peerNickname
+            name: chat.peerNickname || chat.userName || chat.targetName || chat.name || '未知用户',
+            // 头像处理
+            avatar: avatar,
+            // 优先使用草稿，否则使用最后一条消息
+            lastMessage: (chat.draftContent) ? ('[草稿] ' + chat.draftContent) : (chat.lastMessageContent || chat.lastMessage || chat.lastMsg || ''),
+            lastTime: this.formatTime(chat.lastMessageTime || chat.lastMsgTime || chat.updateTime),
+            unreadCount: chat.unreadCount || 0,
+            isMuted: chat.isMuted || false,
+            isPinned: chat.isPinned || false, // 添加置顶状态
+            isOnline: this.isUserOnline(chat.userId || chat.targetId),
+            isTouchMove: false // 初始不显示滑动菜单
+          }
+        })
         
         this.setData({
           chatList: mappedChatList,
@@ -284,22 +297,11 @@ Page({
    */
   async loadUnreadTotal() {
     try {
-      const res = await chatApi.getUnreadCount()
-      if (res.data && res.data.code === 200) {
-        const total = res.data.data || 0
+      // 使用全局的 updateUnreadCount 方法
+      const app = getApp()
+      if (app && app.updateUnreadCount) {
+        const total = await app.updateUnreadCount()
         this.setData({ unreadTotal: total })
-
-        // 更新底部 TabBar 未读角标（假设“5460消息”在第 3 个 tab，索引 2）
-        if (typeof wx.setTabBarBadge === 'function') {
-          if (total > 0) {
-            wx.setTabBarBadge({
-              index: 2,
-              text: String(total > 99 ? '99+' : total)
-            })
-          } else {
-            wx.removeTabBarBadge({ index: 2 })
-          }
-        }
       }
     } catch (error) {
       console.error('[ChatList] 获取未读总数失败:', error)
@@ -323,25 +325,36 @@ Page({
 
   openChat(e) {
     const { id, type, peerid } = e.currentTarget.dataset
-    
+
     // 查找当前聊天对象以获取更多信息
     const chat = this.data.allChatList.find(c => c.id === id)
-    
+
+    // 获取 conversationId
+    const conversationId = chat ? (chat.conversationId || '') : ''
+
+    // 判断是否为系统通知
+    if (conversationId && conversationId.startsWith('notification_')) {
+      // 跳转到通知列表页面
+      wx.navigateTo({
+        url: '/pages/notification/notification-list/notification-list'
+      })
+      return
+    }
+
     if (chat && chat.unreadCount > 0) {
       // 重置未读数
       chat.unreadCount = 0
       this.setData({ allChatList: this.data.allChatList })
     }
-    
+
     // 优先使用 peerId 跳转
     const targetId = peerid || id
-    
+
     // 获取昵称和头像传递给详情页
     const name = chat ? (chat.name || '') : ''
     const avatar = chat ? (chat.avatar || '') : ''
-    const conversationId = chat ? (chat.conversationId || '') : ''
     const draftContent = chat ? (chat.draftContent || '') : ''
-    
+
     wx.navigateTo({
       url: `/pages/chat/detail/detail?id=${targetId}&type=${type || 'chat'}&name=${encodeURIComponent(name)}&avatar=${encodeURIComponent(avatar)}&conversationId=${conversationId}&draftContent=${encodeURIComponent(draftContent)}`
     })

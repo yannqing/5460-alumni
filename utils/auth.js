@@ -120,6 +120,16 @@ async function login(inviter_wx_uuid) {
     wx.setStorageSync('token', data.token)
     wx.setStorageSync('expire_time', data.expire_time)
 
+    // 存储角色列表到缓存
+    if (data.roles && Array.isArray(data.roles)) {
+      wx.setStorageSync('roles', data.roles)
+      console.log('[Auth] 已存储角色列表到缓存:', data.roles)
+    } else {
+      // 如果没有角色信息，存储空数组
+      wx.setStorageSync('roles', [])
+      console.warn('[Auth] 登录响应中没有角色信息')
+    }
+
     // 取用户唯一ID（优先 wxId，补充常见字段）
     let userId =
       data.wxId ||
@@ -172,7 +182,7 @@ async function login(inviter_wx_uuid) {
     }
     app.globalData.token = data.token || ''
 
-    // 二次加工用户信息
+    // 二次加工用户信息（包括角色处理）
     formatUserInfoData(data)
 
     return data
@@ -221,17 +231,52 @@ async function initApp() {
 function formatUserInfoData(userData) {
   let config_roles = {};
 
-  userData && userData.wx_roles && userData.wx_roles.forEach(element => {
-    let roleName = element.name
-    config_roles[roleName] = true;
-  });
+  // 新格式：处理 roles 数组（优先使用）
+  if (userData && userData.roles && Array.isArray(userData.roles)) {
+    userData.roles.forEach(role => {
+      // 使用 roleCode 作为标识（如 SYSTEM_USER, ASSOCIATION_PRESIDENT）
+      if (role.roleCode) {
+        config_roles[role.roleCode] = true;
+      }
+      // 同时也存储 roleName 方便查询（如 "普通用户", "校友会会长"）
+      if (role.roleName) {
+        config_roles[role.roleName] = true;
+      }
+    });
+    console.log('[Auth] 处理新格式角色数据:', config_roles)
+  }
+  // 旧格式兼容：处理 wx_roles 数组
+  else if (userData && userData.wx_roles && Array.isArray(userData.wx_roles)) {
+    userData.wx_roles.forEach(element => {
+      let roleName = element.name
+      config_roles[roleName] = true;
+    });
+    console.log('[Auth] 处理旧格式角色数据:', config_roles)
+  }
 
   getApp().globalData.userConfig.roles = config_roles;
   getApp().globalData.userConfig.is_apply_acard = userData.is_apply_acard;
 }
 
 // 检测是否有某些角色
+// 参数可以是角色代码（roleCode）或角色名称（roleName）
 function checkHasRoles($arr) {
+  // 优先从缓存读取角色列表（新格式）
+  const roles = wx.getStorageSync('roles') || []
+
+  // 新格式：检查 roles 数组
+  if (roles.length > 0) {
+    for (let i = 0; i < roles.length; i++) {
+      const role = roles[i]
+      // 检查 roleCode 或 roleName 是否在目标数组中
+      if ($arr.includes(role.roleCode) || $arr.includes(role.roleName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 旧格式兼容：检查 wx_roles 数组
   const user_roles = getApp().globalData.userData.wx_roles || []
   for (let i = 0; i < user_roles.length; i++) {
     let name = user_roles[i].name;
@@ -242,10 +287,61 @@ function checkHasRoles($arr) {
   return false;
 }
 
+/**
+ * 获取当前用户的角色列表
+ * @returns {Array} 角色列表数组
+ */
+function getUserRoles() {
+  return wx.getStorageSync('roles') || []
+}
+
+/**
+ * 检查用户是否有指定的角色代码
+ * @param {string} roleCode - 角色代码，如 'SYSTEM_USER', 'ASSOCIATION_PRESIDENT'
+ * @returns {boolean}
+ */
+function hasRoleCode(roleCode) {
+  const roles = wx.getStorageSync('roles') || []
+  return roles.some(role => role.roleCode === roleCode)
+}
+
+/**
+ * 检查用户是否有指定的角色名称
+ * @param {string} roleName - 角色名称，如 '普通用户', '校友会会长'
+ * @returns {boolean}
+ */
+function hasRoleName(roleName) {
+  const roles = wx.getStorageSync('roles') || []
+  return roles.some(role => role.roleName === roleName)
+}
+
+/**
+ * 获取用户的所有角色代码
+ * @returns {Array<string>} 角色代码数组，如 ['SYSTEM_USER', 'ASSOCIATION_PRESIDENT']
+ */
+function getUserRoleCodes() {
+  const roles = wx.getStorageSync('roles') || []
+  return roles.map(role => role.roleCode).filter(code => code)
+}
+
+/**
+ * 获取用户的所有角色名称
+ * @returns {Array<string>} 角色名称数组，如 ['普通用户', '校友会会长']
+ */
+function getUserRoleNames() {
+  const roles = wx.getStorageSync('roles') || []
+  return roles.map(role => role.roleName).filter(name => name)
+}
+
 module.exports = {
   login,
   initApp,
   getUserInfo,
   checkHasLogined,
-  checkHasRoles
+  checkHasRoles,
+  getUserRoles,
+  hasRoleCode,
+  hasRoleName,
+  getUserRoleCodes,
+  getUserRoleNames
 };

@@ -144,9 +144,9 @@
 
 .article-body {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 24rpx;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20rpx;
 }
 
 .user-info {
@@ -184,8 +184,7 @@
 }
 
 .article-content {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   padding-left: 0;
 }
 
@@ -208,18 +207,94 @@
 }
 
 .article-cover-wrapper {
-  width: 200rpx;
-  height: 150rpx;
+  width: 100%;
+  height: 350rpx;
   border-radius: 8rpx;
   background: #f0f0f0;
-  flex-shrink: 0;
   overflow: hidden;
+  position: relative;
 }
 
 .article-cover {
   width: 100%;
   height: 100%;
   border-radius: 8rpx;
+  object-fit: cover;
+}
+
+/* 有子文章时，图片上的标题覆盖层 */
+.article-cover-wrapper.with-title-overlay .article-cover {
+  filter: brightness(0.7);
+}
+
+.cover-title-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40rpx 30rpx 30rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+}
+
+.overlay-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.4;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+}
+
+/* 子文章列表 */
+.children-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.child-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx;
+  background: #f8f8f8;
+  border-radius: 8rpx;
+  transition: all 0.3s;
+}
+
+.child-item:active {
+  background: #f0f0f0;
+  transform: scale(0.98);
+}
+
+.child-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.child-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.child-cover-wrapper {
+  width: 120rpx;
+  height: 90rpx;
+  border-radius: 6rpx;
+  background: #e0e0e0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.child-cover {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 

@@ -36,11 +36,13 @@ App({
     try {
       await this.initApp()
       console.log('登录初始化成功')
-      
+
       // 登录成功后初始化 WebSocket
       // 延迟一点时间确保用户数据已经加载
       setTimeout(() => {
         this.initWebSocket()
+        // 初始化加载未读消息数
+        this.updateUnreadCount()
       }, 1000)
     } catch (error) {
       console.error('登录初始化失败:', error)
@@ -189,6 +191,8 @@ App({
       if (data.type === 'msg') {
         console.log('[App] 收到消息，准备处理通知')
         this.handleGlobalMessage(data)
+        // 收到新消息时更新未读数
+        this.updateUnreadCount()
       }
     })
   },
@@ -364,6 +368,39 @@ App({
   closeWebSocket() {
     console.log('[App] 关闭 WebSocket 连接')
     socketManager.close()
+  },
+
+  /**
+   * 更新全局未读消息数（TabBar 角标）
+   */
+  async updateUnreadCount() {
+    try {
+      const { chatApi } = require('./api/api.js')
+      const res = await chatApi.getUnreadTotal()
+
+      if (res.data && res.data.code === 200) {
+        const total = res.data.data || 0
+        console.log('[App] 未读消息总数:', total)
+
+        // 更新底部 TabBar 未读角标（"5460消息"在第 3 个 tab，索引 2）
+        if (typeof wx.setTabBarBadge === 'function') {
+          if (total > 0) {
+            wx.setTabBarBadge({
+              index: 2,
+              text: String(total > 99 ? '99+' : total)
+            })
+          } else {
+            wx.removeTabBarBadge({ index: 2 })
+          }
+        }
+
+        return total
+      }
+    } catch (error) {
+      console.error('[App] 更新未读消息数失败:', error)
+    }
+
+    return 0
   },
 
   // 将 auth 模块的方法混入 App 实例

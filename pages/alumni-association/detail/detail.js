@@ -50,10 +50,10 @@ Page({
   },
 
   onShow() {
-    // 页面显示时重新检查登录状态
+    // 页面显示时重新检查登录状态并刷新数据
     this.ensureLogin().then(() => {
-      // 如果详情为空，重新加载
-      if (!this.data.associationInfo && this.data.associationId) {
+      // 重新加载详情数据以获取最新的申请状态
+      if (this.data.associationId) {
         this.loadAssociationDetail()
       }
     })
@@ -919,12 +919,8 @@ Page({
 
     // 根据申请状态显示不同提示或执行不同操作
     switch (applicationStatus) {
-      case 0: // 待审核
-        wx.showModal({
-          title: '提示',
-          content: '您的申请正在审核中，请耐心等待',
-          showCancel: false
-        })
+      case 0: // 待审核 - 进入申请详情页面（查看模式）
+        this.goToApplicationDetailPage()
         break
 
       case 1: // 已通过（已加入）
@@ -991,6 +987,13 @@ Page({
     const schoolName = associationInfo.schoolName || ''
     wx.navigateTo({
       url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&schoolId=${schoolId}&schoolName=${encodeURIComponent(schoolName)}`
+    })
+  },
+
+  // 跳转到申请详情页面（查看模式）
+  goToApplicationDetailPage() {
+    wx.navigateTo({
+      url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&mode=view`
     })
   },
 

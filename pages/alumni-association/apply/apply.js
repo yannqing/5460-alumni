@@ -3,6 +3,9 @@ const { associationApi, fileApi, userApi } = require('../../../api/api.js')
 
 Page({
   data: {
+    mode: 'edit', // 'edit' 或 'view'，默认为编辑模式
+    isEditingApplication: false, // 是否正在编辑已有申请
+    applicationId: '', // 申请ID（编辑模式下使用）
     alumniAssociationId: '', // 校友会ID
     schoolId: '', // 学校ID（从详情页获取，不展示）
     schoolName: '', // 学校名称（从详情页获取，仅展示）
@@ -22,7 +25,9 @@ Page({
     educationLevels: ['专科', '本科', '硕士', '博士'],
     educationLevelIndex: -1,
     submitting: false,
-    loadingUserInfo: false
+    loadingUserInfo: false,
+    applicationDetail: null, // 申请详情
+    loadingDetail: false
   },
 
   async onLoad(options) {
@@ -32,19 +37,29 @@ Page({
         alumniAssociationId: options.id
       })
     }
-    if (options.schoolId) {
-      this.setData({
-        schoolId: options.schoolId
-      })
-    }
-    if (options.schoolName) {
-      this.setData({
-        schoolName: decodeURIComponent(options.schoolName)
-      })
-    }
 
-    // 加载用户信息并填充表单
-    await this.loadUserInfo()
+    // 判断是编辑模式还是查看模式
+    const mode = options.mode || 'edit'
+    this.setData({ mode })
+
+    if (mode === 'view') {
+      // 查看模式：加载申请详情
+      await this.loadApplicationDetail()
+    } else {
+      // 编辑模式：加载学校信息和用户信息
+      if (options.schoolId) {
+        this.setData({
+          schoolId: options.schoolId
+        })
+      }
+      if (options.schoolName) {
+        this.setData({
+          schoolName: decodeURIComponent(options.schoolName)
+        })
+      }
+      // 加载用户信息并填充表单
+      await this.loadUserInfo()
+    }
   },
 
   // 加载用户信息
@@ -278,23 +293,30 @@ Page({
       return
     }
 
-    const { formData, attachments, alumniAssociationId, schoolId } = this.data
+    const { formData, attachments, alumniAssociationId, schoolId, isEditingApplication, applicationId } = this.data
 
     // 构建请求数据
     const requestData = {
-      alumniAssociationId: parseInt(alumniAssociationId),
       name: formData.name.trim(),
       identifyCode: formData.identifyCode.trim(),
       phone: formData.phone ? formData.phone.trim() : undefined,
       applicationReason: formData.applicationReason ? formData.applicationReason.trim() : undefined,
       attachmentIds: attachments.length > 0 ? attachments.map(item => item.fileId) : undefined,
-      schoolId: schoolId ? parseInt(schoolId) : undefined,
+      schoolId: schoolId ? String(schoolId) : undefined, // 保持字符串类型，避免精度丢失
       enrollmentYear: formData.enrollmentYear || undefined,
       graduationYear: formData.graduationYear || undefined,
       department: formData.department ? formData.department.trim() : undefined,
       major: formData.major ? formData.major.trim() : undefined,
       className: formData.className ? formData.className.trim() : undefined,
       educationLevel: formData.educationLevel || undefined
+    }
+
+    // 如果是编辑模式，添加 applicationId
+    if (isEditingApplication && applicationId) {
+      requestData.applicationId = String(applicationId) // 保持字符串类型，避免精度丢失
+    } else {
+      // 新申请模式，添加 alumniAssociationId
+      requestData.alumniAssociationId = String(alumniAssociationId)
     }
 
     // 移除 undefined 值
@@ -307,11 +329,14 @@ Page({
     this.setData({ submitting: true })
 
     try {
-      const res = await associationApi.applyToJoinAssociation(requestData)
+      // 根据是否为编辑模式调用不同的接口
+      const res = isEditingApplication && applicationId
+        ? await associationApi.updateApplication(requestData)
+        : await associationApi.applyToJoinAssociation(requestData)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
-          title: '申请提交成功，请等待审核',
+          title: isEditingApplication ? '修改提交成功' : '申请提交成功',
           icon: 'success',
           duration: 2000
         })
@@ -322,7 +347,7 @@ Page({
         }, 2000)
       } else {
         wx.showToast({
-          title: res.data?.message || '申请提交失败',
+          title: res.data?.message || '提交失败',
           icon: 'none'
         })
         this.setData({ submitting: false })
@@ -330,10 +355,134 @@ Page({
     } catch (error) {
       console.error('提交申请失败:', error)
       wx.showToast({
-        title: '申请提交失败，请重试',
+        title: '提交失败，请重试',
         icon: 'none'
       })
       this.setData({ submitting: false })
     }
+  },
+
+  // 加载申请详情（查看模式或编辑已有申请）
+  async loadApplicationDetail() {
+    if (this.data.loadingDetail) return
+
+    this.setData({ loadingDetail: true })
+
+    try {
+      const res = await associationApi.getApplicationDetail(this.data.alumniAssociationId)
+
+      if (res.data && res.data.code === 200) {
+        const detail = res.data.data || {}
+
+        // 填充表单数据
+        const formData = {
+          name: detail.name || '',
+          identifyCode: detail.identifyCode || '',
+          phone: detail.phone || '',
+          applicationReason: detail.applicationReason || '',
+          enrollmentYear: detail.enrollmentYear || '',
+          graduationYear: detail.graduationYear || '',
+          department: detail.department || '',
+          major: detail.major || '',
+          className: detail.className || '',
+          educationLevel: detail.educationLevel || ''
+        }
+
+        // 设置学历层次索引
+        let educationLevelIndex = -1
+        if (detail.educationLevel) {
+          educationLevelIndex = this.data.educationLevels.indexOf(detail.educationLevel)
+        }
+
+        // 处理附件
+        const attachments = (detail.attachmentFiles || []).map(file => ({
+          url: file.url || '',
+          fileId: file.id || ''
+        }))
+
+        this.setData({
+          applicationDetail: detail,
+          applicationId: detail.applicationId || '', // 保存申请ID
+          formData,
+          educationLevelIndex,
+          attachments,
+          schoolId: detail.schoolId || '',
+          schoolName: detail.schoolName || '',
+          loadingDetail: false
+        })
+      } else {
+        this.setData({ loadingDetail: false })
+        wx.showToast({
+          title: res.data?.message || '加载失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('加载申请详情失败:', error)
+      this.setData({ loadingDetail: false })
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
+    }
+  },
+
+  // 撤销申请
+  async cancelApplication() {
+    const { applicationId } = this.data
+
+    if (!applicationId) {
+      wx.showToast({
+        title: '申请ID不存在',
+        icon: 'none'
+      })
+      return
+    }
+
+    wx.showModal({
+      title: '撤销申请',
+      content: '确定要撤销申请吗？',
+      confirmText: '确定撤销',
+      confirmColor: '#ff6b9d',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            const result = await associationApi.cancelApplication(applicationId)
+
+            if (result.data && result.data.code === 200) {
+              wx.showToast({
+                title: '已撤销申请',
+                icon: 'success',
+                duration: 2000
+              })
+
+              // 延迟返回上一页
+              setTimeout(() => {
+                wx.navigateBack()
+              }, 2000)
+            } else {
+              wx.showToast({
+                title: result.data?.message || '撤销失败',
+                icon: 'none'
+              })
+            }
+          } catch (error) {
+            console.error('撤销申请失败:', error)
+            wx.showToast({
+              title: '撤销失败，请重试',
+              icon: 'none'
+            })
+          }
+        }
+      }
+    })
+  },
+
+  // 进入编辑模式
+  enterEditMode() {
+    this.setData({
+      mode: 'edit',
+      isEditingApplication: true // 标记为编辑已有申请
+    })
   }
 })

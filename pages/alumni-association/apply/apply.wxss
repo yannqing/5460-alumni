@@ -331,3 +331,68 @@
 .submit-button::after {
   border: none;
 }
+
+/* 查看模式样式 */
+.form-input[disabled],
+.form-textarea[disabled] {
+  background-color: #f5f5f5;
+  color: #666666;
+  border-color: #e0e0e0;
+}
+
+.form-picker.disabled {
+  background-color: #f5f5f5;
+  color: #666666;
+  border-color: #e0e0e0;
+}
+
+.form-picker.disabled::after {
+  display: none;
+}
+
+/* 查看模式按钮 */
+.view-mode-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-button {
+  flex: 1;
+  height: 100rpx;
+  border-radius: 50rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cancel-button {
+  background: linear-gradient(135deg, #999999 0%, #bbbbbb 100%);
+  color: #ffffff;
+  box-shadow: 0 12rpx 32rpx rgba(153, 153, 153, 0.35);
+}
+
+.cancel-button:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 8rpx 24rpx rgba(153, 153, 153, 0.3);
+}
+
+.edit-button {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fb5 100%);
+  color: #ffffff;
+  box-shadow: 0 12rpx 32rpx rgba(255, 107, 157, 0.35);
+}
+
+.edit-button:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.3);
+}
+
+.action-button::after {
+  border: none;
+}

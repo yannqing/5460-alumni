@@ -47,6 +47,12 @@ const associationApi = {
   getMyPresidentAssociations: (params) => post('/AlumniAssociation/my-president/page', params),
   // 申请加入校友会（普通用户）
   applyToJoinAssociation: (data) => post('/AlumniAssociationApplication/apply', data),
+  // 查看用户自己的校友会申请详情
+  getApplicationDetail: (alumniAssociationId) => get(`/AlumniAssociationApplication/detail/${alumniAssociationId}`),
+  // 撤销校友会申请
+  cancelApplication: (applicationId) => put(`/AlumniAssociationApplication/cancel/${applicationId}`),
+  // 编辑并重新提交待审核的校友会申请（普通用户）
+  updateApplication: (data) => put('/AlumniAssociationApplication/update', data),
 }
 
 // ==================== 校友总会相关接口 ====================
@@ -342,7 +348,10 @@ const chatApi = {
   
   // 获取未读消息数量
   getUnreadCount: () => get('/chat/unread/count'),
-  
+
+  // 获取所有未读消息总数（包括聊天消息和通知消息）
+  getUnreadTotal: () => get('/chat/unread/total'),
+
   // 获取在线用户列表
   getOnlineUsers: (params) => get('/chat/online/users', params),
   
@@ -391,7 +400,7 @@ const chatApi = {
       const token = wx.getStorageSync('token')
       const app = getApp()
       const baseUrl = app.globalData.baseUrl
-      
+
       wx.uploadFile({
         url: `${baseUrl}/chat/upload/voice`,
         filePath: filePath,
@@ -410,6 +419,18 @@ const chatApi = {
         fail: reject
       })
     })
+  },
+
+  // 获取用户通知列表
+  getNotificationList: (params) => post('/chat/notifications', params),
+
+  // 标记通知为已读（单条或全部）
+  // notificationId 为空时标记全部已读，有值时标记单条已读
+  markNotificationRead: (notificationId) => {
+    const url = notificationId
+      ? `/chat/notifications/read?notificationId=${notificationId}`
+      : '/chat/notifications/read'
+    return put(url)
   }
 }
 
