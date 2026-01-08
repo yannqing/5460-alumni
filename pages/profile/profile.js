@@ -1,6 +1,7 @@
 // pages/profile/profile.js
 const app = getApp()
 const { userApi, followApi } = require('../../api/api.js')
+const { hasManagementPermission } = require('../../utils/auth.js')
 
 Page({
   data: {
@@ -29,17 +30,21 @@ Page({
     followStats: {
       followingCount: 0,
       fansCount: 0
-    }
+    },
+    // 是否有管理权限（控制"管理入口"和"我的文章"按钮显示）
+    hasManagementPermission: false
   },
 
   onLoad() {
     this.loadUserInfo()
+    this.checkManagementPermission()
   },
 
   onShow() {
     // 每次显示页面时都重新加载用户信息，确保数据实时更新
     this.loadUserInfo()
     this.loadUserData()
+    this.checkManagementPermission()
   },
 
   onPullDownRefresh() {
@@ -326,5 +331,17 @@ Page({
     wx.navigateTo({
       url: '/pages/merchant/apply/apply'
     })
+  },
+
+  /**
+   * 检查用户是否有管理权限
+   * 使用公共方法检查，避免在每个按钮处重复写控制逻辑
+   */
+  checkManagementPermission() {
+    const hasPermission = hasManagementPermission()
+    this.setData({
+      hasManagementPermission: hasPermission
+    })
+    console.log('[Profile] 管理权限检查结果:', hasPermission)
   }
 })

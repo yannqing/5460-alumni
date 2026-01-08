@@ -232,21 +232,26 @@ Page({
     }
 
     // 根据通知类型和相关业务类型跳转到对应页面
-    // 例如：评论通知跳转到文章详情，关注通知跳转到用户主页等
     const { relatedType, relatedId, messageType } = item
 
-    // TODO: 根据业务类型跳转到对应页面
-    // if (relatedType === 'ARTICLE' && relatedId) {
-    //   wx.navigateTo({
-    //     url: `/pages/article/detail/detail?id=${relatedId}`
-    //   })
-    // } else if (relatedType === 'USER' && relatedId) {
-    //   wx.navigateTo({
-    //     url: `/pages/user/profile/profile?userId=${relatedId}`
-    //   })
-    // }
+    // 如果是用户类型（如关注通知），跳转到用户主页
+    if (relatedType === 'USER' && relatedId) {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${relatedId}`,
+        fail: (err) => {
+          console.error('[Notification] 跳转用户主页失败:', err)
+          // 跳转失败时显示详情
+          wx.showModal({
+            title: item.title || '通知详情',
+            content: item.content || '暂无内容',
+            showCancel: false
+          })
+        }
+      })
+      return
+    }
 
-    // 暂时显示详情
+    // 其他类型的通知保持原有逻辑（显示详情）
     wx.showModal({
       title: item.title || '通知详情',
       content: item.content || '暂无内容',

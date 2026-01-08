@@ -333,6 +333,38 @@ function getUserRoleNames() {
   return roles.map(role => role.roleName).filter(name => name)
 }
 
+/**
+ * 检查用户是否有管理权限（文章管理和审核管理）
+ * 允许的角色：ORGANIZE_ALUMNI_BOSS, SYSTEM_SUPER_ADMIN, ORGANIZE_LOCAL_BOSS, ORGANIZE_ALUMNI_ADM, ORGANIZE_LOCAL_ADMII
+ * @returns {boolean} 是否有管理权限
+ */
+function hasManagementPermission() {
+  // 允许的角色代码列表
+  const allowedRoleCodes = [
+    'ORGANIZE_ALUMNI_BOSS',      // 校友会会长
+    'SYSTEM_SUPER_ADMIN',        // 系统管理员
+    'ORGANIZE_LOCAL_BOSS',       // 校处会会长
+    'ORGANIZE_ALUMNI_ADM',       // 校友会管理员
+    'ORGANIZE_LOCAL_ADMII'       // 校处会管理员
+  ]
+  
+  // 优先从缓存读取角色列表
+  const roles = wx.getStorageSync('roles') || []
+  
+  // 检查是否有允许的角色
+  if (roles.length > 0) {
+    for (let i = 0; i < roles.length; i++) {
+      const role = roles[i]
+      // 检查 roleCode 是否在允许列表中
+      if (role.roleCode && allowedRoleCodes.includes(role.roleCode)) {
+        return true
+      }
+    }
+  }
+  
+  return false
+}
+
 module.exports = {
   login,
   initApp,
@@ -343,5 +375,6 @@ module.exports = {
   hasRoleCode,
   hasRoleName,
   getUserRoleCodes,
-  getUserRoleNames
+  getUserRoleNames,
+  hasManagementPermission
 };
