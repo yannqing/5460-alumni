@@ -21,7 +21,7 @@
 }
 
 .header-section-inner {
-  padding: 80rpx 30rpx 0;
+  padding:100rpx 30rpx 0;
 }
 
 .header-top-row {
@@ -29,6 +29,25 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24rpx;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.action-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 28rpx;
+  flex-shrink: 0;
 }
 
 .logo-placeholder {
@@ -53,6 +72,26 @@
   padding: 12rpx 18rpx;
   gap: 16rpx;
   margin-bottom: 18rpx;
+}
+
+.slogan-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12rpx;
+}
+
+.slogan-btn {
+  width: 200rpx;
+  height: 60rpx;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 26rpx;
+  flex-shrink: 0;
 }
 
 .search-icon {
@@ -89,7 +128,7 @@
   border-top-right-radius: 32rpx;
   overflow: hidden;
   position: fixed;
-  top: calc(env(safe-area-inset-top) + 300rpx);
+  top: calc(env(safe-area-inset-top) + 350rpx);
   left: 0;
   right: 0;
   z-index: 10;
@@ -144,7 +183,7 @@
   padding: 20rpx 30rpx;
   gap: 20rpx;
   position: fixed;
-  top: calc(env(safe-area-inset-top) + 345rpx + 120rpx);
+  top: calc(env(safe-area-inset-top) + 345rpx + 180rpx);
   left: 0;
   right: 0;
   z-index: 20;
@@ -206,7 +245,7 @@
 .list-view {
   flex: 1;
   height: 0;
-  margin-top: calc(env(safe-area-inset-top) + 345rpx + 120rpx + 80rpx);
+  margin-top: calc(env(safe-area-inset-top) + 345rpx + 120rpx + 135rpx);
   position: relative;
   z-index: 20;
   background-color: #f5f5f5;
