@@ -1,0 +1,7 @@
+<!--pages/chat/settings/settings.wxml-->
+<view class="settings-page">
+  <view class="settings-content">
+    <text>聊天设置页面</text>
+  </view>
+</view>
+
