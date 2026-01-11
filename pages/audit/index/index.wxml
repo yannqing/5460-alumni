@@ -3,7 +3,7 @@
   <view class="audit-content">
     <view class="audit-title">管理功能</view>
     <view class="audit-grid">
-      <view 
+      <view
         class="audit-item"
         wx:for="{{auditFunctions}}"
         wx:key="id"
@@ -15,6 +15,48 @@
             <text class="audit-icon-text">{{item.icon}}</text>
           </view>
           <view class="audit-icon-base"></view>
+        </view>
+        <view class="audit-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="audit-content">
+    <view class="audit-title">校友会</view>
+    <view class="audit-grid">
+      <view
+        class="audit-item"
+        wx:for="{{alumniFunctions}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="onFunctionTap"
+      >
+        <view class="audit-icon-wrapper">
+          <view class="audit-icon alumni-icon">
+            <text class="audit-icon-text">{{item.icon}}</text>
+          </view>
+          <view class="audit-icon-base alumni-icon-base"></view>
+        </view>
+        <view class="audit-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="audit-content">
+    <view class="audit-title">商户</view>
+    <view class="audit-grid">
+      <view
+        class="audit-item"
+        wx:for="{{merchantFunctions}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="onFunctionTap"
+      >
+        <view class="audit-icon-wrapper">
+          <view class="audit-icon merchant-icon">
+            <text class="audit-icon-text">{{item.icon}}</text>
+          </view>
+          <view class="audit-icon-base merchant-icon-base"></view>
         </view>
         <view class="audit-name">{{item.name}}</view>
       </view>
