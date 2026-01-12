@@ -21,9 +21,6 @@
         />
         <view class="search-btn" bindtap="handleSearchConfirm">搜索</view>
       </view>
-      <view class="slogan-container">
-        <view class="slogan-btn">silogn</view>
-      </view>
     </view>
   </view>
 

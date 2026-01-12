@@ -2,4 +2,82 @@
 <!-- 消息通知组件 -->
 <message-notification />
 
-<text>pages/merchant/list/list.wxml</text>
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <input class="search-input" type="text" placeholder="搜索商铺名称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
+    </view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item" wx:for="{{filters}}" wx:key="label" data-index="{{index}}" bindtap="openFilterOptions">
+      <text>{{item.options[item.selected]}}</text>
+      <text class="filter-arrow">▾</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showFilterOptions}}">
+    <view class="filter-mask" bindtap="closeFilterOptions"></view>
+    <view class="filter-options-panel">
+      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
+        {{item}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 商铺列表 -->
+  <view class="merchant-list">
+    <view class="merchant-card" wx:for="{{merchantList}}" wx:key="merchantId" bindtap="viewDetail" data-id="{{item.merchantId}}">
+      <!-- 头部：商铺名称和会员等级 -->
+      <view class="card-header">
+        <view class="card-info">
+          <view class="card-title-row">
+            <text class="card-title">{{item.merchantName}}</text>
+            <view wx:if="{{item.memberTier > 0}}" class="tier-badge tier-{{item.memberTier}}">
+              {{item.tierName}}
+            </view>
+            <view wx:if="{{item.isAlumniCertified === 1}}" class="cert-badge">✓ 校友认证</view>
+          </view>
+
+          <!-- 业务类别 -->
+          <view class="card-subtitle" wx:if="{{item.businessCategory}}">
+            <image class="subtitle-icon" src="{{iconCategory}}" mode="aspectFit" />
+            <text>{{item.businessCategory}}</text>
+          </view>
+
+          <!-- 评分信息 -->
+          <view class="card-rating" wx:if="{{item.ratingScore > 0}}">
+            <image class="rating-icon" src="{{iconStar}}" mode="aspectFit" />
+            <text class="rating-score">{{item.ratingScore}}</text>
+            <text class="rating-count">({{item.ratingCount}}条评价)</text>
+          </view>
+
+          <!-- 商铺数量 -->
+          <view class="card-stats">
+            <view class="stat-item">
+              <text class="stat-label">门店：</text>
+              <text class="stat-value">{{item.shopCount}}家</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-label">优惠券：</text>
+              <text class="stat-value">{{item.totalCouponIssued}}张</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+    <view wx:elif="{{!hasMore}}" class="loading-text">没有更多了</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && merchantList.length === 0}}" class="empty-state">
+      <view class="empty-placeholder">暂无数据</view>
+      <text>暂无数据</text>
+    </view>
+  </view>
+</view>

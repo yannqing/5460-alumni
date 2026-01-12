@@ -1,9 +1,7 @@
 {
-  "navigationBarTitleText": "商户列表",
+  "navigationBarTitleText": "商铺",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification"
   }
 }
-
-
-

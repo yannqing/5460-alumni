@@ -10,10 +10,11 @@ Page({
    */
   data: {
     // 导航图标 - 请替换为实际的云存储图片地址或本地图片
-    iconSchool: 'https://img.icons8.com/ios-filled/100/4a90e2/university.png', 
-    iconAssociation: 'https://img.icons8.com/ios-filled/100/4a90e2/conference-call.png', 
-    iconAlumni: 'https://img.icons8.com/ios-filled/100/4a90e2/student-male.png', 
-    iconCircle: 'https://img.icons8.com/ios-filled/100/4a90e2/circled.png', 
+    iconSchool: 'https://img.icons8.com/ios-filled/100/4a90e2/organization.png',
+    iconAssociation: 'https://img.icons8.com/ios-filled/100/4a90e2/conference-call.png',
+    iconAlumni: 'https://img.icons8.com/ios-filled/100/4a90e2/student-male.png',
+    iconCircle: 'https://img.icons8.com/ios-filled/100/4a90e2/shop.png',
+    iconActivity: 'https://img.icons8.com/ios-filled/100/4a90e2/city.png',
 
     articleList: [],
     loading: false,
@@ -21,17 +22,17 @@ Page({
     size: 10,
     hasMore: true,
     refreshing: false,
-    
+
     // 预留字段，防止报错
     recommendedPeople: [],
-    
+
     // 消息通知相关
     showMessageNotification: false,
     messageNotificationData: {
       senderName: '',
       senderAvatar: '',
       messageContent: ''
-    } 
+    }
   },
 
   /**
@@ -82,7 +83,7 @@ Page({
 
       // 根据实际接口返回结构处理
       // 假设 res.data 是后端返回的 Result 对象
-      const result = res.data || res; 
+      const result = res.data || res;
 
       if (result.code === 200) {
         // 假设分页数据在 result.data.records 或 result.data.list 中
@@ -90,18 +91,18 @@ Page({
         const data = result.data || {};
         const records = data.records || data.list || [];
         const total = data.total || 0;
-        
+
         // 处理数据，映射字段名
         const newList = records.map(item => {
           // 处理标题：优先使用 articleTitle，否则使用 title
           const title = item.articleTitle || item.title || '无标题';
-          
+
           // 处理描述/内容：优先使用 description，否则使用 content
           const description = item.description || item.content || '';
-          
+
           // 处理作者名：使用 publishUsername 字段
           const username = item.publishUsername || '官方发布';
-          
+
           // 处理头像：使用 publisherAvatar 字段
           // 如果都没有且是校友会类型，使用 publishWxId 获取校友会头像
           let avatar = '';
@@ -121,10 +122,10 @@ Page({
             // 如果头像为空，且发布类型是校友会，且 publishWxId 存在，标记需要异步获取
             avatar = null; // 保持为 null，后续异步获取
           }
-          
+
           // 处理发布类型
           const publishType = item.publishType || item.publish_type || null;
-          
+
           // 处理封面图：使用 coverImg 字段
           let cover = '';
           if (item.coverImg) {
@@ -133,13 +134,13 @@ Page({
               cover = item.coverImg.thumbnailUrl || item.coverImg.fileUrl || '';
               if (cover) {
                 cover = config.getImageUrl(cover);
-            }
+              }
             } else {
               // 如果是ID（数字或字符串），构造下载URL
               cover = config.getImageUrl(`/file/download/${item.coverImg}`);
             }
           }
-          
+
           // 处理时间：格式化时间，去掉T
           let time = '';
           if (item.createTime) {
@@ -147,7 +148,7 @@ Page({
           } else if (item.publishTime) {
             time = item.publishTime.replace('T', ' ');
           }
-          
+
           // 处理ID：确保ID存在且有效
           const id = item.id || item.homeArticleId || item.homeArticleId || '';
 
@@ -207,7 +208,7 @@ Page({
         // 更新分页状态
         const nextPage = currentPage + 1;
         const currentTotal = reset ? newList.length : this.data.articleList.length + newList.length;
-        
+
         this.setData({
           articleList: reset ? newList : this.data.articleList.concat(newList),
           page: nextPage,
@@ -215,10 +216,10 @@ Page({
           loading: false,
           refreshing: false
         });
-        
+
         // 异步获取缺失的头像（校友会类型）
         this.fetchMissingAvatars(newList);
-        
+
         console.log('[Index] 加载文章列表成功:', {
           currentPage,
           total,
@@ -268,16 +269,16 @@ Page({
    */
   async fetchMissingAvatars(records) {
     if (!records || records.length === 0) return;
-    
+
     // 找出需要获取头像的记录
-    const needFetchList = records.filter(item => 
-      item.needFetchAvatar && 
-      item.publishWxId && 
+    const needFetchList = records.filter(item =>
+      item.needFetchAvatar &&
+      item.publishWxId &&
       (item.publishType === 'association' || item.publishType === 1)
     );
-    
+
     if (needFetchList.length === 0) return;
-    
+
     // 批量获取校友会信息
     const fetchPromises = needFetchList.map(async (item) => {
       try {
@@ -305,7 +306,7 @@ Page({
         // 获取失败，静默处理
       }
     });
-    
+
     // 并行获取，不等待所有完成
     Promise.all(fetchPromises).catch(() => {
       // 静默处理错误
@@ -320,7 +321,7 @@ Page({
     const id = e.currentTarget.dataset.id;
     const index = e.currentTarget.dataset.index;
     const item = index !== undefined ? this.data.articleList[index] : null;
-    
+
     if (!item) {
       wx.showToast({
         title: '文章数据错误',
@@ -328,11 +329,11 @@ Page({
       });
       return;
     }
-    
+
     const articleType = item.articleType || item.article_type || 1;
     const articleLink = item.articleLink || item.article_link || '';
     const articleTitle = item.title || item.articleTitle || '文章详情';
-    
+
     // 根据文章类型跳转
     if (articleType === 1) {
       // 公众号：使用微信官方API打开公众号文章

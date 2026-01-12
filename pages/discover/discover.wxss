@@ -71,27 +71,6 @@
   border-radius: 50rpx;
   padding: 12rpx 18rpx;
   gap: 16rpx;
-  margin-bottom: 18rpx;
-}
-
-.slogan-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 12rpx;
-}
-
-.slogan-btn {
-  width: 200rpx;
-  height: 60rpx;
-  background-color: rgba(255, 255, 255, 0.25);
-  border-radius: 10rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 26rpx;
-  flex-shrink: 0;
 }
 
 .search-icon {

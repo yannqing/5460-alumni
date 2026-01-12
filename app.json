@@ -33,6 +33,7 @@
     "pages/benefit/detail/detail",
     "pages/my-follow/my-follow",
     "pages/alumni-union/detail/detail",
+    "pages/local-platform/list/list",
     "pages/local-platform/detail/detail",
     "pages/promotion/detail/detail",
     "pages/enterprise/list/list",

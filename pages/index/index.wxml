@@ -24,7 +24,7 @@
     <view class="nav-grid">
       <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
         <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
-        <text class="nav-text">母校</text>
+        <text class="nav-text">校友总会</text>
       </view>
       <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
         <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
@@ -34,9 +34,13 @@
         <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
         <text class="nav-text">校友</text>
       </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/circle/list/list">
+      <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list">
         <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
-        <text class="nav-text">圈子</text>
+        <text class="nav-text">商铺</text>
+      </view>
+      <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
+        <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
+        <text class="nav-text">城市</text>
       </view>
     </view>
   </view>

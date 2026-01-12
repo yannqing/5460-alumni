@@ -63,6 +63,8 @@ const unionApi = {
 
 // ==================== 校处会相关接口 ====================
 const localPlatformApi = {
+  // 分页查询校处会列表（使用 POST 请求，参数在 body 中）
+  getLocalPlatformPage: (params) => post('/localPlatform/page', params),
   // 根据id查询校处会详情
   getLocalPlatformDetail: (id) => get(`/localPlatform/${id}`),
 }
@@ -123,6 +125,8 @@ const circleApi = {
 
 // ==================== 商家相关接口 ====================
 const merchantApi = {
+  // 分页查询商铺列表（使用 POST 请求，参数在 body 中）
+  getMerchantPage: (params) => post('/merchant/page', params),
   // 获取商家列表
   getMerchantList: (params) => get('/merchants', params),
   // 获取商家详情
@@ -219,7 +223,7 @@ const FILE_API_PATHS = {
   UPLOAD_AUDIO: '/file/upload/audio',      // 上传音频
   UPLOAD_VIDEO: '/file/upload/video',      // 上传视频（待后端提供接口）
   UPLOAD_OTHER: '/file/upload/other',      // 上传其他格式文件（待后端提供接口）
-  
+
   // 下载接口
   DOWNLOAD_FILE: '/file/download/{fileId}' // 下载文件（{fileId} 会被替换为实际文件ID）
 }
@@ -229,27 +233,27 @@ const fileApi = {
   uploadImage: (filePath, originalName) => {
     return fileUploadUtil.uploadImage(filePath, FILE_API_PATHS.UPLOAD_IMAGE, originalName)
   },
-  
+
   // 上传音频
   uploadAudio: (filePath, originalName) => {
     return fileUploadUtil.uploadAudio(filePath, FILE_API_PATHS.UPLOAD_AUDIO, originalName)
   },
-  
+
   // 上传视频（接口路径在 FILE_API_PATHS.UPLOAD_VIDEO 中配置）
   uploadVideo: (filePath, originalName) => {
     return fileUploadUtil.uploadVideo(filePath, FILE_API_PATHS.UPLOAD_VIDEO, originalName)
   },
-  
+
   // 上传其他格式文件（接口路径在 FILE_API_PATHS.UPLOAD_OTHER 中配置）
   uploadOtherFile: (filePath, originalName) => {
     return fileUploadUtil.uploadOtherFile(filePath, FILE_API_PATHS.UPLOAD_OTHER, originalName)
   },
-  
+
   // 下载文件
   downloadFile: (fileId, savePath) => {
     return fileUploadUtil.downloadFile(fileId, FILE_API_PATHS.DOWNLOAD_FILE, savePath)
   },
-  
+
   // 保存文件到本地
   saveFileToLocal: (tempFilePath) => {
     return fileUploadUtil.saveFileToLocal(tempFilePath)
@@ -292,7 +296,7 @@ const authApi = {
   //   let url = '/auth/login'
   //   console.log('=== auth 接口参数处理 ===')
   //   console.log('接收到的参数:', data)
-    
+
   //   if (data && Object.keys(data).length > 0) {
   //     const queryString = Object.keys(data)
   //       .filter(key => data[key] !== undefined && data[key] !== null && data[key] !== '')
@@ -307,9 +311,9 @@ const authApi = {
   //       url += (url.includes('?') ? '&' : '?') + queryString
   //     }
   //   }
-    
+
   //   console.log('最终请求 URL:', url)
-    
+
   //   // POST 请求，但参数在 URL 上，body 为空
   //   return request({
   //     url,
@@ -323,29 +327,29 @@ const authApi = {
 const chatApi = {
   // 获取会话列表
   getConversations: (params) => get('/chat/conversations', params),
-  
+
   // 获取聊天历史记录
   getChatHistory: (params) => post('/chat/history', params),
-  
+
   // 发送消息
   sendMessage: (data) => post('/chat/send', data),
 
   // 获取与某人的聊天记录
   getChatMessages: (userId, params) => get(`/chat/messages/${userId}`, params),
-  
-  
+
+
   // 标记会话已读（传对方的 wxId/userId）
   markConversationRead: (otherWxId) => put(`/chat/read/${otherWxId}`),
-  
+
   // 删除会话（传会话ID）
   deleteConversation: (conversationId) => del(`/chat/conversation/${conversationId}`),
-  
+
   // 删除聊天记录（旧接口，保留兼容）
   deleteChat: (userId) => del(`/chat/${userId}`),
-  
+
   // 清空聊天记录
   clearChatHistory: (userId) => post(`/chat/${userId}/clear`),
-  
+
   // 获取未读消息数量
   getUnreadCount: () => get('/chat/unread/count'),
 
@@ -354,13 +358,13 @@ const chatApi = {
 
   // 获取在线用户列表
   getOnlineUsers: (params) => get('/chat/online/users', params),
-  
+
   // 检查用户是否在线
   checkUserOnline: (userId) => get(`/chat/user/${userId}/online`),
-  
+
   // 保存草稿
   saveDraft: (conversationId, draftContent) => put(`/chat/conversation/${conversationId}/draft?draftContent=${encodeURIComponent(draftContent)}`, { conversationId }),
-  
+
   // 撤回消息
   recallMessage: (messageId) => del(`/chat/recall/${messageId}`),
 
@@ -373,7 +377,7 @@ const chatApi = {
       const token = wx.getStorageSync('token')
       const app = getApp()
       const baseUrl = app.globalData.baseUrl
-      
+
       wx.uploadFile({
         url: `${baseUrl}/chat/upload/image`,
         filePath: filePath,
@@ -393,7 +397,7 @@ const chatApi = {
       })
     })
   },
-  
+
   // 上传聊天语音
   uploadChatVoice: (filePath) => {
     return new Promise((resolve, reject) => {
