@@ -1,4 +1,4 @@
-const { schoolApi, localPlatformApi, userApi, associationApi } = require('../../../api/api.js')
+const { schoolApi, localPlatformApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
 
 // 防抖函数
@@ -22,8 +22,9 @@ Page({
             schoolName: '',
             platformId: '',
             platformName: '',
-            contactName: '',
-            contactPhone: '',
+            chargeName: '',
+            contactInfo: '',
+            logo: '',
 
             applicationReason: '',
             presidentWxId: '',
@@ -40,6 +41,12 @@ Page({
 
         // 其他成员列表
         members: [],
+        
+        // 成员搜索结果
+        memberSearchResults: [],
+        
+        // 申请材料
+        attachments: [],
 
         loading: false,
         submitting: false
@@ -49,6 +56,7 @@ Page({
         // 创建搜索防抖函数
         this.searchSchoolDebounced = debounce(this.searchSchool, 500)
         this.searchPlatformDebounced = debounce(this.searchPlatform, 500)
+        this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
 
         this.loadInitialData()
     },
@@ -69,10 +77,16 @@ Page({
             const res = await userApi.getUserInfo()
             if (res.data && res.data.code === 200) {
                 const userInfo = res.data.data
+                console.log('获取到的用户信息:', userInfo)
+                
+                // 尝试获取用户的 wx_id，检查所有可能的字段名
+                const userId = userInfo.wxId || userInfo.wx_id || userInfo.userId || userInfo.user_id || userInfo.id
+                console.log('获取到的用户ID:', userId)
+                
                 this.setData({
-                    'formData.contactName': userInfo.name || userInfo.realName || userInfo.nickname || '',
-                    'formData.contactPhone': userInfo.phone || userInfo.mobile || '',
-                    'formData.presidentWxId': userInfo.userId || userInfo.id
+                    'formData.chargeName': userInfo.name || userInfo.realName || userInfo.nickname || '',
+                    'formData.contactInfo': userInfo.phone || userInfo.mobile || '',
+                    'formData.presidentWxId': userId
                 })
             }
         } catch (e) {
@@ -246,6 +260,280 @@ Page({
         this.setData({ members })
     },
 
+    // --- 成员姓名搜索处理 ---
+
+    handleMemberNameInput(e) {
+        const { index } = e.currentTarget.dataset
+        const value = e.detail.value
+        const members = this.data.members
+        members[index].name = value
+        
+        // 确保memberSearchResults数组长度足够
+        const memberSearchResults = [...this.data.memberSearchResults]
+        while (memberSearchResults.length <= index) {
+            memberSearchResults.push([])
+        }
+        
+        this.setData({ 
+            members,
+            memberSearchResults
+        })
+
+        if (value.trim()) {
+            this.searchAlumniDebounced(value, index)
+        } else {
+            memberSearchResults[index] = []
+            this.setData({ memberSearchResults })
+        }
+    },
+
+    handleMemberNameFocus(e) {
+        const { index } = e.currentTarget.dataset
+        const members = this.data.members
+        const memberName = members[index].name
+        
+        // 确保memberSearchResults数组长度足够
+        const memberSearchResults = [...this.data.memberSearchResults]
+        while (memberSearchResults.length <= index) {
+            memberSearchResults.push([])
+        }
+        
+        this.setData({ memberSearchResults })
+
+        if (memberName) {
+            this.setData({ memberSearchResults })
+            if (memberSearchResults[index].length === 0) {
+                this.searchAlumni(memberName, index)
+            }
+        }
+    },
+
+    async searchAlumni(keyword, index) {
+        if (!keyword) return
+        try {
+            const res = await alumniApi.queryAlumniList({
+                current: 1,
+                pageSize: 10,
+                name: keyword.trim()
+            })
+            if (res.data && res.data.code === 200) {
+                const memberSearchResults = [...this.data.memberSearchResults]
+                while (memberSearchResults.length <= index) {
+                    memberSearchResults.push([])
+                }
+                memberSearchResults[index] = res.data.data.records || []
+                this.setData({
+                    memberSearchResults
+                })
+            }
+        } catch (e) {
+            console.error('搜索校友失败', e)
+        }
+    },
+
+    selectMember(e) {
+        const { index, userIndex } = e.currentTarget.dataset
+        const memberSearchResults = this.data.memberSearchResults
+        const selectedAlumni = memberSearchResults[index][userIndex]
+        
+        if (selectedAlumni) {
+            const members = this.data.members
+            members[index].name = selectedAlumni.name
+            
+            // 清空搜索结果，关闭下拉框
+            memberSearchResults[index] = []
+            
+            this.setData({ 
+                members,
+                memberSearchResults
+            })
+        }
+    },
+
+    // --- 校友会logo上传处理 ---
+
+    async chooseLogo() {
+        try {
+            // 选择图片
+            const chooseRes = await new Promise((resolve, reject) => {
+                wx.chooseMedia({
+                    count: 1,
+                    mediaType: ['image'],
+                    success: resolve,
+                    fail: reject
+                })
+            })
+
+            const tempFilePath = chooseRes.tempFiles?.[0]?.tempFilePath
+            if (!tempFilePath) {
+                return
+            }
+
+            // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
+            const fileSize = chooseRes.tempFiles?.[0]?.size || 0
+            const maxSize = 10 * 1024 * 1024 // 10MB
+            if (fileSize > maxSize) {
+                wx.showToast({
+                    title: '图片大小不能超过10MB',
+                    icon: 'none'
+                })
+                return
+            }
+
+            // 显示上传中提示
+            wx.showLoading({
+                title: '上传中...',
+                mask: true
+            })
+
+            // 获取原始文件名（如果有）
+            const originalName = chooseRes.tempFiles?.[0]?.name || 'logo.jpg'
+
+            // 直接调用公共的文件上传方法
+            const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+
+            if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+                // 获取返回的图片URL
+                const rawImageUrl = uploadRes.data.fileUrl || ''
+                if (rawImageUrl) {
+                    // 使用 config.getImageUrl 处理图片URL，确保是完整的URL
+                    const config = require('../../../utils/config.js')
+                    const imageUrl = config.getImageUrl(rawImageUrl)
+                    // 更新表单中的logo URL
+                    this.setData({ 'formData.logo': imageUrl })
+                    wx.showToast({
+                        title: '上传成功',
+                        icon: 'success'
+                    })
+                } else {
+                    wx.showToast({
+                        title: '上传失败，未获取到图片地址',
+                        icon: 'none'
+                    })
+                }
+            } else {
+                wx.showToast({
+                    title: uploadRes?.msg || '上传失败',
+                    icon: 'none'
+                })
+            }
+        } catch (error) {
+            // 显示具体的错误信息
+            const errorMsg = error?.msg || error?.message || '上传失败，请重试'
+            wx.showToast({
+                title: errorMsg,
+                icon: 'none',
+                duration: 2000
+            })
+        } finally {
+            wx.hideLoading()
+        }
+    },
+
+    // --- 申请材料上传处理 ---
+
+    async chooseAttachment() {
+        try {
+            // 选择文件（与校友会logo上传保持一致，使用wx.chooseMedia）
+            const chooseRes = await new Promise((resolve, reject) => {
+                wx.chooseMedia({
+                    count: 5,
+                    mediaType: ['image', 'video', 'audio'],
+                    success: resolve,
+                    fail: reject
+                })
+            })
+
+            const tempFiles = chooseRes.tempFiles
+            if (!tempFiles || tempFiles.length === 0) {
+                return
+            }
+
+            // 显示上传中提示
+            wx.showLoading({
+                title: '上传中...',
+                mask: true
+            })
+
+            const attachments = [...this.data.attachments]
+
+            // 逐个上传文件
+            for (const file of tempFiles) {
+                const tempFilePath = file.tempFilePath
+                const originalName = file.name || 'attachment'
+
+                // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
+                const fileSize = file.size || 0
+                const maxSize = 10 * 1024 * 1024 // 10MB
+                if (fileSize > maxSize) {
+                    wx.showToast({
+                        title: `${originalName} 大小不能超过10MB`,
+                        icon: 'none'
+                    })
+                    continue
+                }
+
+                // 上传文件（与校友会logo上传使用相同的方法）
+                const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+
+                console.log('上传文件结果:', uploadRes)
+
+                if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+                    // 获取返回的文件信息，确保获取到fileId
+                    const fileId = uploadRes.data.fileId || uploadRes.data.id || uploadRes.data.file_id || uploadRes.data.id || ''
+                    console.log('获取到的fileId:', fileId)
+                    
+                    if (fileId) {
+                        attachments.push({
+                            id: fileId,
+                            name: originalName
+                        })
+                    } else {
+                        wx.showToast({
+                            title: `${originalName} 上传成功但未获取到文件ID`,
+                            icon: 'none'
+                        })
+                    }
+                } else {
+                    wx.showToast({
+                        title: `${originalName} 上传失败: ${uploadRes?.msg || '未知错误'}`,
+                        icon: 'none'
+                    })
+                }
+            }
+
+            if (attachments.length > this.data.attachments.length) {
+                this.setData({ attachments })
+                wx.showToast({
+                    title: '上传成功',
+                    icon: 'success'
+                })
+            } else {
+                wx.showToast({
+                    title: '上传失败',
+                    icon: 'none'
+                })
+            }
+        } catch (error) {
+            // 显示具体的错误信息
+            const errorMsg = error?.msg || error?.message || '上传失败，请重试'
+            wx.showToast({
+                title: errorMsg,
+                icon: 'none',
+                duration: 2000
+            })
+        } finally {
+            wx.hideLoading()
+        }
+    },
+
+    deleteAttachment(e) {
+        const { index } = e.currentTarget.dataset
+        const attachments = [...this.data.attachments]
+        attachments.splice(index, 1)
+        this.setData({ attachments })
+    },
+
     async submitForm() {
         if (this.data.submitting) return
 
@@ -263,25 +551,53 @@ Page({
             wx.showToast({ title: '请选择并点击相关地区', icon: 'none' })
             return
         }
+        if (!formData.chargeName) {
+            wx.showToast({ title: '请输入负责人姓名', icon: 'none' })
+            return
+        }
+        if (!formData.contactInfo) {
+            wx.showToast({ title: '请输入负责人电话', icon: 'none' })
+            return
+        }
+
+        // 确保presidentWxId不为空
+        if (!formData.presidentWxId) {
+            wx.showToast({ title: '提交者的wx_id不能为空', icon: 'none' })
+            return
+        }
+
+        console.log('准备提交的用户ID:', formData.presidentWxId)
+        console.log('用户ID类型:', typeof formData.presidentWxId)
+
+        // 提取申请材料的ID，使用字符串类型
+        const attachmentIds = this.data.attachments.map(a => {
+            const id = a.id || ''
+            console.log('原始文件ID:', id, '类型:', typeof id)
+            console.log('使用字符串类型文件ID:', id)
+            return id
+        })
+        console.log('最终attachmentIds:', attachmentIds)
 
         const submitData = {
             associationName: formData.associationName,
-            schoolId: formData.schoolId,
-            platformId: formData.platformId,
-            presidentWxId: formData.presidentWxId,
-            presidentName: formData.contactName,
-            contactInfo: formData.contactPhone,
+            schoolId: formData.schoolId || '',
+            platformId: formData.platformId || '',
+            chargeWxId: formData.presidentWxId,
+            chargeName: formData.chargeName,
+            chargeRole: '成员',
+            contactInfo: formData.contactInfo,
             location: formData.location || formData.platformName,
+            logo: formData.logo,
             applicationReason: formData.applicationReason,
-            attachmentIds: [],
+            attachmentIds: attachmentIds,
             initialMembers: members.map(m => ({
+                wxId: 0,
                 name: m.name,
-                roleId: 0,
-                roleName: m.role
+                role: m.role
             }))
         }
-
-        console.log('提交申请数据:', submitData)
+        
+        console.log('最终提交数据:', submitData)
 
         this.setData({ submitting: true })
 

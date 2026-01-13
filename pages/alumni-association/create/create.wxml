@@ -4,7 +4,7 @@
 
     <view class="form-item">
       <text class="label">校友会名称 *</text>
-      <input class="input" placeholder="请输入校友会名称" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
+      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
     </view>
     
     <view class="form-item search-group" style="z-index: 20;" catchtap="preventBubble">
@@ -30,13 +30,35 @@
     </view>
 
     <view class="form-item">
-      <text class="label">负责人姓名</text>
-      <input class="input disabled" value="{{formData.contactName}}" disabled />
+      <text class="label">负责人姓名 *</text>
+      <input class="input" placeholder="请输入负责人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
     </view>
 
     <view class="form-item">
-      <text class="label">负责人电话</text>
-      <input class="input disabled" value="{{formData.contactPhone}}" disabled />
+      <text class="label">负责人电话 *</text>
+      <input class="input" placeholder="请输入负责人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">校友会logo</text>
+      <view class="upload-container">
+        <input class="input" placeholder="请输入校友会logo" value="{{formData.logo}}" data-field="logo" bindinput="handleInput" style="display: none;" />
+        <button class="upload-btn" bindtap="chooseLogo">选择图片</button>
+        <image wx:if="{{formData.logo}}" src="{{formData.logo}}" class="uploaded-image" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">申请材料</text>
+      <view class="upload-container">
+        <button class="upload-btn" bindtap="chooseAttachment">选择文件</button>
+        <view wx:if="{{attachments.length > 0}}" class="attachments-list">
+          <view wx:for="{{attachments}}" wx:key="index" class="attachment-item">
+            <text class="attachment-name">{{item.name}}</text>
+            <text class="attachment-delete" bindtap="deleteAttachment" data-index="{{index}}">删除</text>
+          </view>
+        </view>
+      </view>
     </view>
     
 
@@ -60,7 +82,15 @@
           <text class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
         </view>
         <view class="form-row">
-          <input class="input member-input" placeholder="姓名" value="{{item.name}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="name" />
+          <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble">
+            <input class="input member-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="handleMemberNameInput" bindfocus="handleMemberNameFocus" />
+            <scroll-view scroll-y class="search-results" wx:if="{{memberSearchResults[index] && memberSearchResults[index].length > 0}}">
+              <view wx:if="{{memberSearchResults[index].length === 0}}" class="search-placeholder">未找到相关人员</view>
+              <view wx:for="{{memberSearchResults[index]}}" wx:key="userId" wx:for-index="userIndex" class="search-item" bindtap="selectMember" data-index="{{index}}" data-user-index="{{userIndex}}">
+                {{item.name}}
+              </view>
+            </scroll-view>
+          </view>
           <input class="input member-input" placeholder="角色 (如:副会长)" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
         </view>
       </view>
