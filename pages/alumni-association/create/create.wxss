@@ -1,0 +1,159 @@
+/* 复用通用表单样式 */
+page {
+  background-color: #f5f5f5;
+  padding-bottom: 60rpx;
+}
+
+.container {
+  padding: 30rpx;
+  box-sizing: border-box;
+}
+
+.form-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+}
+
+.form-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 30rpx;
+  color: #333;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.add-btn {
+  font-size: 26rpx;
+  color: #ff6b9d;
+  border: 1rpx solid #ff6b9d;
+  padding: 6rpx 20rpx;
+  border-radius: 30rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.input {
+  border: 1rpx solid #eee;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  height: 80rpx;
+  box-sizing: border-box;
+}
+
+.input.disabled {
+  background-color: #f9f9f9;
+  color: #999;
+}
+
+.picker {
+  /* color: #999; Removed placeholder color for picker */
+  padding: 0 20rpx;
+}
+
+/* 搜索结果下拉列表 */
+.search-group {
+  position: relative;
+  z-index: 10;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  max-height: 400rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+  z-index: 100;
+  margin-top: 8rpx;
+}
+
+.search-item {
+  padding: 24rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.search-item:active {
+  background-color: #f9f9f9;
+}
+
+.search-placeholder {
+  padding: 24rpx;
+  text-align: center;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.member-item {
+  background-color: #f9f9f9;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.member-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.member-index {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.delete-btn {
+  font-size: 26rpx;
+  color: #ff4d4f;
+}
+
+.form-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.member-input {
+  flex: 1;
+  background-color: #fff;
+}
+
+.empty-tip {
+  text-align: center;
+  color: #999;
+  font-size: 26rpx;
+  padding: 30rpx 0;
+}
+
+.submit-btn {
+  background-color: #ff6b9d;
+  color: #fff;
+  margin-top: 60rpx;
+  border-radius: 40rpx;
+  font-weight: 500;
+}

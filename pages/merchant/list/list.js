@@ -193,7 +193,7 @@ Page({
 
   viewDetail(e) {
     wx.navigateTo({
-      url: `/pages/merchant/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/shop/detail/detail?id=${e.currentTarget.dataset.id}`
     })
   }
 })

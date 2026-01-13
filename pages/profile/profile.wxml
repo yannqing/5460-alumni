@@ -54,23 +54,6 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="goToCertification">
-      <view class="menu-left">
-        <text class="menu-icon">🎓</text>
-        <text class="menu-name">校友认证</text>
-        <text class="cert-status-badge" wx:if="{{certificationStatus === 'verified'}}">已认证</text>
-        <text class="cert-status-badge unverified" wx:else>未认证</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <!-- 我的文章 - 仅管理者可见 -->
-    <view class="menu-item" wx:if="{{hasManagementPermission}}" bindtap="navigateTo" data-url="/pages/article/my-list/my-list">
-      <view class="menu-left">
-        <text class="menu-icon">📝</text>
-        <text class="menu-name">我的文章</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
       <view class="menu-left">
         <text class="menu-icon">🎫</text>
@@ -79,10 +62,10 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="applyMerchant">
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/cooperation/cooperation">
       <view class="menu-left">
-        <text class="menu-icon">🏪</text>
-        <text class="menu-name">我是商家</text>
+        <text class="menu-icon">🤝</text>
+        <text class="menu-name">商务合作</text>
       </view>
       <text class="menu-arrow">›</text>
     </view>

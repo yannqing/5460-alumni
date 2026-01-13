@@ -1,5 +1,5 @@
 {
-    "navigationBarTitleText": "校处会",
+    "navigationBarTitleText": "城市",
     "enablePullDownRefresh": true,
     "usingComponents": {
         "message-notification": "/components/message-notification/message-notification"

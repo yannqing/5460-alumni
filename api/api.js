@@ -47,6 +47,8 @@ const associationApi = {
   getMyPresidentAssociations: (params) => post('/AlumniAssociation/my-president/page', params),
   // 申请加入校友会（普通用户）
   applyToJoinAssociation: (data) => post('/AlumniAssociationApplication/apply', data),
+  // 申请创建校友会
+  applyCreateAssociation: (data) => post('/AlumniAssociationApplication/apply', data),
   // 查看用户自己的校友会申请详情
   getApplicationDetail: (alumniAssociationId) => get(`/AlumniAssociationApplication/detail/${alumniAssociationId}`),
   // 撤销校友会申请

@@ -1,0 +1,73 @@
+<view class="container" bindtap="closeAllDropdowns">
+  <view class="form-card">
+    <view class="form-title">基本信息</view>
+
+    <view class="form-item">
+      <text class="label">校友会名称 *</text>
+      <input class="input" placeholder="请输入校友会名称" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
+    </view>
+    
+    <view class="form-item search-group" style="z-index: 20;" catchtap="preventBubble">
+      <text class="label">申请学校 *</text>
+      <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
+      <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
+        <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
+        <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
+          {{item.schoolName}}
+        </view>
+      </scroll-view>
+    </view>
+    
+    <view class="form-item search-group" style="z-index: 10;" catchtap="preventBubble">
+      <text class="label">相关地区 *</text>
+      <input class="input" placeholder="请输入并选择相关地区(校处会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
+      <scroll-view scroll-y class="search-results" wx:if="{{showPlatformResults}}">
+        <view wx:if="{{platformList.length === 0}}" class="search-placeholder">未找到相关地区</view>
+        <view wx:for="{{platformList}}" wx:key="platformId" class="search-item" bindtap="selectPlatform" data-index="{{index}}">
+          {{item.city || item.platformName}}
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">负责人姓名</text>
+      <input class="input disabled" value="{{formData.contactName}}" disabled />
+    </view>
+
+    <view class="form-item">
+      <text class="label">负责人电话</text>
+      <input class="input disabled" value="{{formData.contactPhone}}" disabled />
+    </view>
+    
+
+
+    <view class="form-item">
+      <text class="label">申请理由</text>
+      <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
+    </view>
+  </view>
+
+  <view class="form-card" style="margin-top: 20rpx;">
+    <view class="form-header">
+      <view class="form-title">其余人员信息</view>
+      <view class="add-btn" bindtap="addMember">+ 添加成员</view>
+    </view>
+
+    <block wx:for="{{members}}" wx:key="index">
+      <view class="member-item">
+        <view class="member-header">
+          <text class="member-index">成员 {{index + 1}}</text>
+          <text class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
+        </view>
+        <view class="form-row">
+          <input class="input member-input" placeholder="姓名" value="{{item.name}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="name" />
+          <input class="input member-input" placeholder="角色 (如:副会长)" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
+        </view>
+      </view>
+    </block>
+    
+    <view wx:if="{{members.length === 0}}" class="empty-tip">暂无其他成员，请点击上方按钮添加</view>
+  </view>
+
+  <button class="submit-btn" bindtap="submitForm">提交申请</button>
+</view>

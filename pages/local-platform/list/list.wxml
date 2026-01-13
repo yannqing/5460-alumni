@@ -37,8 +37,8 @@
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.platformName}}</text>
-            <view wx:if="{{item.status === 1}}" class="status-badge active">活跃</view>
-            <view wx:else class="status-badge inactive">未激活</view>
+            <!-- <view wx:if="{{item.status === 1}}" class="status-badge active">活跃</view>
+            <view wx:else class="status-badge inactive">未激活</view> -->
           </view>
 
           <!-- 城市信息 -->
