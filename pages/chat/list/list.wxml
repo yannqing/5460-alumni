@@ -52,7 +52,7 @@
       <!-- 内容区域 -->
       <view class="chat-content-wrapper" bindtap="openChat" data-id="{{item.id}}" data-peerid="{{item.peerId}}" data-type="{{item.type || 'chat'}}">
         <view class="chat-avatar-wrapper">
-          <image class="chat-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+          <image class="chat-avatar {{item.isSystemNotification ? 'system-notification-avatar' : ''}}" src="{{item.avatar}}" mode="aspectFill"></image>
           <view class="online-status" wx:if="{{item.isOnline}}"></view>
           <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
         </view>

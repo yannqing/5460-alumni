@@ -2,10 +2,12 @@
 import lib from './utils/lib.js'
 import auth from './utils/auth'
 const { socketManager } = require('./utils/socketManager.js')
+const api = require('./api/api.js')
 
 App({
   // 全局数据
   kVersionNum: '1.0',
+  api,
 
   async onLaunch(opt) {
     this.globalData.urlOpt = opt

@@ -250,7 +250,7 @@ Page({
           // 判断头像：如果是系统通知使用默认图标，否则使用用户头像
           let avatar = ''
           if (isSystemNotification) {
-            avatar = config.getIconUrl('sys_noti.png')
+            avatar = 'https://cni-alumni.yannqing.com/upload/images/2026/01/14/message.png'
           } else {
             avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : '')
           }
@@ -272,6 +272,7 @@ Page({
             isMuted: chat.isMuted || false,
             isPinned: chat.isPinned || false, // 添加置顶状态
             isOnline: this.isUserOnline(chat.userId || chat.targetId),
+            isSystemNotification: isSystemNotification, // 添加系统通知标志
             isTouchMove: false // 初始不显示滑动菜单
           }
         })

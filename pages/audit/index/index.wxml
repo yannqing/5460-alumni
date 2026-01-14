@@ -22,6 +22,32 @@
   </view>
 
   <view class="audit-content">
+    <view class="audit-title">校处会</view>
+    <view class="audit-grid">
+      <view
+        class="audit-item"
+        wx:for="{{schoolOfficeFunctions}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="onFunctionTap"
+      >
+        <view class="audit-icon-wrapper">
+          <view class="audit-icon alumni-icon">
+            <block wx:if="{{item.iconType === 'image'}}">
+              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="audit-icon-text">{{item.icon}}</text>
+            </block>
+          </view>
+          <view class="audit-icon-base alumni-icon-base"></view>
+        </view>
+        <view class="audit-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="audit-content">
     <view class="audit-title">校友会</view>
     <view class="audit-grid">
       <view

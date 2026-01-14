@@ -36,6 +36,58 @@ Page({
         url: '/pages/article/audit-list/audit-list'
       }
     ],
+    // 校处会功能列表
+    schoolOfficeFunctions: [
+      {
+        id: 1,
+        name: '校友会审核',
+        icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/14/review-1.png',
+        iconType: 'image',
+        url: '/pages/audit/schooloffice/list/list'
+      },
+      {
+        id: 2,
+        name: '会员管理',
+        icon: '👥',
+        url: ''
+      },
+      {
+        id: 3,
+        name: '通知公告',
+        icon: '📢',
+        url: ''
+      },
+      {
+        id: 4,
+        name: '资料库',
+        icon: '📚',
+        url: ''
+      },
+      {
+        id: 5,
+        name: '校处风采',
+        icon: '🌟',
+        url: ''
+      },
+      {
+        id: 6,
+        name: '捐赠记录',
+        icon: '💝',
+        url: ''
+      },
+      {
+        id: 7,
+        name: '联系我们',
+        icon: '📞',
+        url: ''
+      },
+      {
+        id: 8,
+        name: '数据统计',
+        icon: '📊',
+        url: ''
+      }
+    ],
     // 校友会功能列表
     alumniFunctions: [
       {

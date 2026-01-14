@@ -1,0 +1,43 @@
+<!--pages/audit/schooloffice/list/list.wxml-->
+<view class="schooloffice-audit-list-page">
+  <!-- 标题 -->
+  <view class="page-title">校处会审核</view>
+
+  <!-- 校处会审核列表 -->
+  <view class="schooloffice-list">
+    <view 
+      class="schooloffice-item"
+      wx:for="{{applicationList}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="viewDetail"
+    >
+      <view class="schooloffice-header">
+        <view class="schooloffice-name">{{item.associationName}}</view>
+        <view class="schooloffice-status {{getStatusClass(item.applicationStatus)}}">{{getStatusText(item.applicationStatus)}}</view>
+      </view>
+      <view class="schooloffice-info">
+        <text class="info-label">负责人：</text>
+        <text class="info-value">{{item.chargeName}}</text>
+      </view>
+      <view class="schooloffice-info">
+        <text class="info-label">常驻地点：</text>
+        <text class="info-value">{{item.location}}</text>
+      </view>
+      <view class="schooloffice-info">
+        <text class="info-label">提交时间：</text>
+        <text class="info-value">{{item.createTime}}</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && applicationList.length === 0}}">
+      <text class="empty-text">暂无校处会审核数据</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+</view>

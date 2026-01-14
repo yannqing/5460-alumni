@@ -1,0 +1,103 @@
+/* pages/audit/schooloffice/list/list.wxss */
+.schooloffice-audit-list-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 页面标题 */
+.page-title {
+  background-color: #fff;
+  padding: 30rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1rpx solid #f0f0f0;
+  text-align: center;
+}
+
+/* 校处会列表 */
+.schooloffice-list {
+  padding: 20rpx;
+}
+
+.schooloffice-item {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.schooloffice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.schooloffice-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.schooloffice-status {
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.schooloffice-status.pending {
+  background-color: #ff9800;
+}
+
+.schooloffice-status.approved {
+  background-color: #52c41a;
+}
+
+.schooloffice-status.rejected {
+  background-color: #f5222d;
+}
+
+.schooloffice-status.withdrawn {
+  background-color: #999;
+}
+
+.schooloffice-info {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.info-label {
+  color: #999;
+}
+
+.info-value {
+  color: #333;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 100rpx 0;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 加载中 */
+.loading-state {
+  padding: 100rpx 0;
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}

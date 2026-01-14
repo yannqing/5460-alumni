@@ -61,6 +61,11 @@
   line-height: 1;
 }
 
+.audit-icon-image {
+  width: 80rpx;
+  height: 80rpx;
+}
+
 .audit-icon-base {
   width: 80rpx;
   height: 14rpx;

@@ -176,6 +176,11 @@
   background-color: #f0f0f0;
 }
 
+.system-notification-avatar {
+  width: 65rpx;
+  height: 65rpx;
+}
+
 .online-status {
   position: absolute;
   right: -4rpx;

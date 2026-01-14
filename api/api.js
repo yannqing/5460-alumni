@@ -69,6 +69,14 @@ const localPlatformApi = {
   getLocalPlatformPage: (params) => post('/localPlatform/page', params),
   // 根据id查询校处会详情
   getLocalPlatformDetail: (id) => get(`/localPlatform/${id}`),
+  // 分页查询校处会审核列表
+  queryAssociationApplicationPage: (params) => post('/localPlatformManagement/queryAssociationApplicationPage', params),
+  // 获取校处会审核详情
+  getAssociationApplicationDetail: (id) => get(`/localPlatformManagement/getAssociationApplication/${id}`),
+  // 批准校处会审核
+  approveAssociationApplication: (id) => post(`/localPlatformManagement/approveAssociationApplication/${id}`),
+  // 拒绝校处会审核
+  rejectAssociationApplication: (id) => post(`/localPlatformManagement/rejectAssociationApplication/${id}`),
 }
 
 
