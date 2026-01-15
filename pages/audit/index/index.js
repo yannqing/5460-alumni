@@ -92,9 +92,9 @@ Page({
     alumniFunctions: [
       {
         id: 1,
-        name: '活动管理',
+        name: '组织架构管理',
         icon: '🎉',
-        url: ''
+        url: '/pages/alumni-association/organization/organization'
       },
       {
         id: 2,

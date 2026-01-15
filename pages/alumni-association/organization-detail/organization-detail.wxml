@@ -1,0 +1,32 @@
+<!--pages/alumni-association/organization-detail/organization-detail.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="title">组织结构</view>
+  </view>
+
+  <!-- 角色列表 -->
+  <view class="role-list-section">
+    <view class="section-title">组织架构</view>
+    
+    <!-- 空状态 -->
+    <view wx:if="{{roleList.length === 0}}" class="empty-container">
+      <text class="empty-text">暂无角色数据</text>
+    </view>
+    
+    <!-- 角色列表 -->
+    <view wx:else class="role-list">
+      <view wx:for="{{roleList}}" wx:key="id" class="role-item">
+        <view class="role-header">
+          <text class="role-name">{{item.roleName || '未知角色'}}</text>
+          <text class="role-count">{{item.userCount || 0}}人</text>
+        </view>
+        <view class="role-description" wx:if="{{item.description}}">
+          {{item.description}}
+        </view>
+        <view class="role-meta">
+          <text class="role-id">ID: {{item.id || '未知'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

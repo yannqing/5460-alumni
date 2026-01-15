@@ -57,6 +57,18 @@
         <view wx:if="{{associationInfo.contactInfo}}" class="text-secondary mt-10">联系信息：{{associationInfo.contactInfo}}</view>
       </view>
 
+ <!-- 组织结构 -->
+      <view class="card mt-20 dashboard-card">
+        <view class="section-header">
+          <view class="section-title">
+            <view class="text-bold">组织结构</view>
+            <view class="section-subtitle">组织架构展示</view>
+          </view>
+          <view class="text-placeholder" bindtap="viewOrganizationStructure">查看更多</view>
+        </view>
+      </view>
+
+
       <!-- 通知列表 -->
       <view class="card mt-20 dashboard-card">
         <view class="section-header">
