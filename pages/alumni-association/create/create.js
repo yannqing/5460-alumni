@@ -339,6 +339,7 @@ Page({
         if (selectedAlumni) {
             const members = this.data.members
             members[index].name = selectedAlumni.name
+            members[index].wxId = selectedAlumni.wxId || selectedAlumni.id || selectedAlumni.userId || selectedAlumni.user_id || selectedAlumni.wx_id || 0
             
             // 清空搜索结果，关闭下拉框
             memberSearchResults[index] = []
@@ -566,6 +567,15 @@ Page({
             return
         }
 
+        // 确保所有成员都有有效的 wxId
+        for (let i = 0; i < members.length; i++) {
+            const member = members[i];
+            if (!member.wxId || member.wxId === 0 || member.wxId === '0') {
+                wx.showToast({ title: `请通过搜索选择第 ${i + 1} 位成员，确保选择有效用户`, icon: 'none' });
+                return;
+            }
+        }
+
         console.log('准备提交的用户ID:', formData.presidentWxId)
         console.log('用户ID类型:', typeof formData.presidentWxId)
 
@@ -591,7 +601,7 @@ Page({
             applicationReason: formData.applicationReason,
             attachmentIds: attachmentIds,
             initialMembers: members.map(m => ({
-                wxId: 0,
+                wxId: m.wxId,
                 name: m.name,
                 role: m.role
             }))

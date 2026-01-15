@@ -77,6 +77,8 @@ const localPlatformApi = {
   approveAssociationApplication: (id) => post(`/localPlatformManagement/approveAssociationApplication/${id}`),
   // 拒绝校处会审核
   rejectAssociationApplication: (id) => post(`/localPlatformManagement/rejectAssociationApplication/${id}`),
+  // 审核校处会申请（新接口）
+  reviewAssociationApplication: (data) => post('/localPlatformManagement/reviewAssociationApplication', data),
 }
 
 

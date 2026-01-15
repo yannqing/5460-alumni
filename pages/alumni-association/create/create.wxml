@@ -86,8 +86,13 @@
             <input class="input member-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="handleMemberNameInput" bindfocus="handleMemberNameFocus" />
             <scroll-view scroll-y class="search-results" wx:if="{{memberSearchResults[index] && memberSearchResults[index].length > 0}}">
               <view wx:if="{{memberSearchResults[index].length === 0}}" class="search-placeholder">未找到相关人员</view>
-              <view wx:for="{{memberSearchResults[index]}}" wx:key="userId" wx:for-index="userIndex" class="search-item" bindtap="selectMember" data-index="{{index}}" data-user-index="{{userIndex}}">
-                {{item.name}}
+              <view wx:for="{{memberSearchResults[index]}}" wx:key="userId" wx:for-index="userIndex" class="search-item member-search-item" bindtap="selectMember" data-index="{{index}}" data-user-index="{{userIndex}}">
+                <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" />
+                <image wx:else src="/images/default-avatar.png" class="member-avatar" />
+                <view class="member-info">
+                  <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
+                  <text class="member-school">{{item.school || '暂无学校信息'}}</text>
+                </view>
               </view>
             </scroll-view>
           </view>

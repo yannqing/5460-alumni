@@ -1,43 +1,100 @@
 <!--pages/audit/schooloffice/list/list.wxml-->
-<view class="schooloffice-audit-list-page">
-  <!-- 标题 -->
-  <view class="page-title">校处会审核</view>
+<view class="container">
+  <view class="form-card">
+    <view class="form-title">校友会审核</view>
 
-  <!-- 校处会审核列表 -->
-  <view class="schooloffice-list">
+    <!-- 选择校处会 -->
+    <view class="form-item">
+      <text class="label">选择校处会</text>
+      <view class="platform-selector" bindtap="showPlatformSelector">
+        <text class="selector-label">{{selectedPlatformName || '请选择校处会'}}</text>
+        <text class="selector-arrow">▼</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 标签栏 -->
+  <view class="tabs-container">
     <view 
-      class="schooloffice-item"
-      wx:for="{{applicationList}}"
-      wx:key="id"
-      data-id="{{item.id}}"
-      bindtap="viewDetail"
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      wx:for-index="index"
+      data-index="{{index}}"
+      bindtap="switchTab"
     >
-      <view class="schooloffice-header">
-        <view class="schooloffice-name">{{item.associationName}}</view>
-        <view class="schooloffice-status {{getStatusClass(item.applicationStatus)}}">{{getStatusText(item.applicationStatus)}}</view>
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 校处会选择器弹窗 -->
+  <view class="platform-picker" wx:if="{{showPlatformPicker}}">
+    <view class="picker-overlay" bindtap="cancelPlatformSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校处会</text>
+        <text class="picker-cancel" bindtap="cancelPlatformSelect">取消</text>
       </view>
-      <view class="schooloffice-info">
-        <text class="info-label">负责人：</text>
-        <text class="info-value">{{item.chargeName}}</text>
-      </view>
-      <view class="schooloffice-info">
-        <text class="info-label">常驻地点：</text>
-        <text class="info-value">{{item.location}}</text>
-      </view>
-      <view class="schooloffice-info">
-        <text class="info-label">提交时间：</text>
-        <text class="info-value">{{item.createTime}}</text>
+      <view class="picker-list">
+        <view 
+          class="picker-item"
+          wx:for="{{platformList}}"
+          wx:key="id"
+          data-platform-id="{{item.id}}"
+          data-platform-name="{{item.platformName}}"
+          bindtap="selectPlatform"
+        >
+          <text class="item-name">{{item.platformName}}</text>
+          <text class="item-check" wx:if="{{selectedPlatformId == item.id}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{platformList.length === 0}}">
+          <text>暂无校处会数据</text>
+        </view>
       </view>
     </view>
+  </view>
 
-    <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && applicationList.length === 0}}">
-      <text class="empty-text">暂无校处会审核数据</text>
-    </view>
+  <!-- 校友会审核列表 -->
+  <view class="form-card" style="margin-top: 20rpx;">
+    <view class="form-title">审核列表</view>
+    
+    <view class="association-list">
+      <view class="association-item"
+        wx:for="{{applicationList}}"
+        wx:key="applicationId"
+      >
+        <view class="association-header">
+          <view class="association-logo" wx:if="{{item.logo}}">
+            <image src="{{item.logo}}" mode="aspectFit"></image>
+          </view>
+          <view class="association-name">{{item.associationName}}</view>
+          <view class="association-status {{getStatusClass(item.applicationStatus)}}">
+            {{item.applicationStatus === 0 ? '待审核' : item.applicationStatus === 1 ? '已通过' : item.applicationStatus === 2 ? '已拒绝' : item.applicationStatus === 3 ? '已撤销' : '未知'}}
+          </view>
+        </view>
+        <view class="association-info">
+          <text class="info-label">申请人：</text>
+          <text class="info-value">{{item.chargeName}}</text>
+        </view>
+        <view class="association-info">
+          <text class="info-label">提交时间：</text>
+          <text class="info-value">{{item.applyTime}}</text>
+        </view>
+        <view class="association-actions" wx:if="{{item.applicationStatus === 0}}">
+          <button class="action-btn approve-btn" catchtap="approveApplication" data-id="{{item.applicationId}}">通过</button>
+          <button class="action-btn reject-btn" catchtap="rejectApplication" data-id="{{item.applicationId}}">拒绝</button>
+        </view>
+      </view>
 
-    <!-- 加载中 -->
-    <view class="loading-state" wx:if="{{loading}}">
-      <text class="loading-text">加载中...</text>
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{!loading && applicationList.length === 0}}">
+        <text class="empty-text">暂无校友会审核数据</text>
+      </view>
+
+      <!-- 加载中 -->
+      <view class="loading-state" wx:if="{{loading}}">
+        <text class="loading-text">加载中...</text>
+      </view>
     </view>
   </view>
 </view>
