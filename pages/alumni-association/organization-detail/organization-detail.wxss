@@ -111,21 +111,47 @@
 .role-list {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 12rpx;
 }
 
 .role-item {
-  background-color: #f9fafb;
+  background-color: #ffffff;
   border-radius: 8rpx;
-  padding: 20rpx;
+  padding: 24rpx;
   border: 1rpx solid #e5e7eb;
+  box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.role-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4rpx;
+  background-color: #3b82f6;
+  border-radius: 4rpx 0 0 4rpx;
 }
 
 .role-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
+  cursor: pointer;
+}
+
+.role-name-container {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.expand-icon {
+  font-size: 20rpx;
+  color: #6b7280;
+  transition: transform 0.2s ease;
 }
 
 .role-name {
@@ -146,12 +172,13 @@
   font-size: 22rpx;
   color: #4b5563;
   line-height: 32rpx;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
 }
 
 .role-meta {
   font-size: 20rpx;
   color: #9ca3af;
+  margin-bottom: 16rpx;
 }
 
 .role-id {
@@ -221,4 +248,182 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* 成员列表样式 */
+.members-list {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #e5e7eb;
+}
+
+.members-title {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 12rpx;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120rpx, 1fr));
+  gap: 16rpx;
+}
+
+.members-scroll-container {
+  max-height: 400rpx;
+  overflow-y: auto;
+  padding-right: 8rpx;
+  margin-top: 8rpx;
+}
+
+.members-scroll-container::-webkit-scrollbar {
+  width: 6rpx;
+}
+
+.members-scroll-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3rpx;
+}
+
+.members-scroll-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3rpx;
+}
+
+.members-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+.member-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.member-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.member-name {
+  font-size: 18rpx;
+  color: #4b5563;
+  text-align: center;
+  line-height: 24rpx;
+}
+
+.member-gender {
+  font-size: 16rpx;
+  color: #9ca3af;
+}
+
+/* 子角色列表样式 */
+.children-list {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding-left: 40rpx;
+  position: relative;
+}
+
+.children-list::before {
+  content: '';
+  position: absolute;
+  left: 12rpx;
+  top: 0;
+  bottom: 0;
+  width: 1rpx;
+  background-color: #e5e7eb;
+}
+
+.child-role-item {
+  background-color: #f9fafb;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  border: 1rpx solid #e5e7eb;
+  position: relative;
+  box-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.03);
+}
+
+.child-role-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4rpx;
+  background-color: #10b981;
+  border-radius: 4rpx 0 0 4rpx;
+}
+
+.child-role-item::after {
+  content: '';
+  position: absolute;
+  left: -30rpx;
+  top: 24rpx;
+  width: 26rpx;
+  height: 1rpx;
+  background-color: #e5e7eb;
+}
+
+/* 孙角色列表样式 */
+.grandchildren-list {
+  margin-top: 12rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  padding-left: 40rpx;
+  position: relative;
+}
+
+.grandchildren-list::before {
+  content: '';
+  position: absolute;
+  left: 12rpx;
+  top: 0;
+  bottom: 0;
+  width: 1rpx;
+  background-color: #e5e7eb;
+}
+
+.grandchild-role-item {
+  background-color: #f3f4f6;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  border: 1rpx solid #e5e7eb;
+  position: relative;
+  box-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.03);
+}
+
+.grandchild-role-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4rpx;
+  background-color: #f59e0b;
+  border-radius: 4rpx 0 0 4rpx;
+}
+
+.grandchild-role-item::after {
+  content: '';
+  position: absolute;
+  left: -30rpx;
+  top: 20rpx;
+  width: 26rpx;
+  height: 1rpx;
+  background-color: #e5e7eb;
 }
