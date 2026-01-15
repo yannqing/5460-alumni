@@ -36,7 +36,7 @@
       </view>
       <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list">
         <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
-        <text class="nav-text">商铺</text>
+        <text class="nav-text">商户</text>
       </view>
       <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
         <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
