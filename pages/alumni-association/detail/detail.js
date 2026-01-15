@@ -179,13 +179,19 @@ Page({
             avatarUrl = config.defaultAvatar
           }
 
+          // 获取组织架构角色信息
+          const organizeArchiRole = item.organizeArchiRole || {}
+          const roleOrName = organizeArchiRole.roleOrName || '成员'
+          // 获取signature字段（与avatarUrl同级）
+          const signature = item.signature || '暂无公司信息'
+
           return {
             id: item.userId || item.id,
-            avatarUrl: avatarUrl,
+            avatar: avatarUrl,
             nickname: item.nickname || '',
             name: item.name || item.realName || '未知用户',
-            role: item.role || '成员',
-            company: item.company || item.workUnit || '暂无公司信息'
+            role: roleOrName,
+            company: signature
           }
         })
 
