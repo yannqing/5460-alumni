@@ -18,6 +18,7 @@
     "pages/alumni-association/create/create",
     "pages/alumni-association/organization/organization",
     "pages/alumni-association/organization-detail/organization-detail",
+    "pages/alumni-association/member/member",
     "pages/alumni/list/list",
     "pages/alumni/detail/detail",
     "pages/coupon/list/list",
