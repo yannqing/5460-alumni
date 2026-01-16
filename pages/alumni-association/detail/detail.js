@@ -13,7 +13,7 @@ Page({
     associationId: '',
     associationInfo: null,
     activeTab: 0,
-    tabs: ['基本信息', '成员列表', '关系图谱'],
+    tabs: ['基本信息', '成员列表', '组织结构'],//, '关系图谱'],
     members: [],
     // 图谱数据（预留后端接口）
     graphData: null,
@@ -39,7 +39,11 @@ Page({
 
     // 统计卡片
     selectedNode: null,
-    showNodeCard: false
+    showNodeCard: false,
+    
+    // 组织结构数据
+    roleList: [], // 存储角色列表
+    organizationLoading: false // 组织结构加载状态
   },
 
   async onLoad(options) {
@@ -227,8 +231,15 @@ Page({
         this.loadMembers()
       }
     }
-    // 切换到图谱标签时
+    // 切换到组织结构标签时，加载组织结构数据
     else if (index === 2) {
+      // 如果还没加载过组织结构数据，则加载
+      if (this.data.roleList.length === 0) {
+        this.loadOrganizationTree()
+      }
+    }
+    /* // 切换到图谱标签时
+    else if (index === 3) {
       // 如果还没加载过数据，则加载
       if (!this.data.graphData) {
         this.loadGraphData()
@@ -247,7 +258,7 @@ Page({
       if (this.graphContext) {
         this.graphContext.stopAnimation()
       }
-    }
+    } */
   },
 
   viewMemberDetail(e) {
@@ -915,7 +926,7 @@ Page({
 
   // 页面卸载时清理动画
   onUnload() {
-    if (this.graphContext) {
+    /* if (this.graphContext) {
       this.graphContext.stopAnimation()
     }
     if (this.graphCanvas) {
@@ -924,7 +935,7 @@ Page({
       } catch (e) {
         // 忽略错误
       }
-    }
+    } */
   },
 
   // 点击加入/退出按钮
@@ -1162,45 +1173,82 @@ Page({
 
   // 查看组织架构
   viewOrganizationStructure() {
-    console.log('=== 开始执行组织架构跳转 ===')
-    console.log('associationId:', this.data.associationId)
+    // 不再跳转，改为加载组织结构数据
+    this.loadOrganizationTree()
+  },
 
-    // 检查 associationId 是否存在
-    if (!this.data.associationId) {
-      console.error('=== 跳转失败：associationId 为空 ===')
+  // 加载组织架构树
+  loadOrganizationTree() {
+    this.setData({
+      organizationLoading: true
+    })
+    
+    // 调用API获取组织架构树
+    const { post } = require('../../../utils/request.js')
+    post('/AlumniAssociation/organizationTree', {
+      alumniAssociationId: this.data.associationId
+    }).then(res => {
+      if (res.data && res.data.code === 200) {
+        // 添加展开状态
+        const dataWithExpandedState = this.addExpandedState(res.data.data || [])
+        
+        this.setData({
+          roleList: dataWithExpandedState
+        })
+      } else {
+        wx.showToast({
+          title: res.data.msg || '加载失败',
+          icon: 'none'
+        })
+      }
+    }).catch(err => {
       wx.showToast({
-        title: '获取校友会信息失败，请重试',
-        icon: 'none',
-        duration: 2000
+        title: '网络错误',
+        icon: 'none'
       })
-      return
-    }
-
-    const url = `/pages/alumni-association/organization-detail/organization-detail?associationId=${this.data.associationId}`
-    console.log('跳转路径:', url)
-
-    try {
-      wx.navigateTo({
-        url: url,
-        success: function (res) {
-          console.log('=== 跳转成功 ===', res)
-        },
-        fail: function (err) {
-          console.error('=== 跳转失败 ===', err)
-          wx.showToast({
-            title: '跳转失败: ' + err.errMsg,
-            icon: 'none',
-            duration: 3000
-          })
+      console.error('加载组织架构树失败:', err)
+    }).finally(() => {
+      this.setData({
+        organizationLoading: false
+      })
+    })
+  },
+  
+  // 添加展开状态
+  addExpandedState(data) {
+    return data.map(item => {
+      return {
+        ...item,
+        expanded: false, // 默认折叠
+        children: item.children ? this.addExpandedState(item.children) : []
+      }
+    })
+  },
+  
+  // 切换展开状态
+  toggleExpand(e) {
+    const { id } = e.currentTarget.dataset
+    const newRoleList = this.toggleExpandRecursive([...this.data.roleList], id)
+    this.setData({
+      roleList: newRoleList
+    })
+  },
+  
+  // 递归切换展开状态
+  toggleExpandRecursive(list, id) {
+    return list.map(item => {
+      if (item.roleOrId === id) {
+        return {
+          ...item,
+          expanded: !item.expanded
         }
-      })
-    } catch (error) {
-      console.error('=== 跳转异常 ===', error)
-      wx.showToast({
-        title: '跳转异常: ' + error.message,
-        icon: 'none',
-        duration: 3000
-      })
-    }
+      } else if (item.children && item.children.length > 0) {
+        return {
+          ...item,
+          children: this.toggleExpandRecursive(item.children, id)
+        }
+      }
+      return item
+    })
   }
 })
