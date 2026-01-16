@@ -12,6 +12,20 @@ Page({
     tabs: ['全部', '母校', '校友会', '校友', '商铺'],
     hotSearchList: ['南京大学', '上海校友会', '计算机', '优惠券'],
     searchHistory: [],
+    searchHistory: [],
+    // 搜索榜单数据 (Mock)
+    searchRankingList: [
+      { rank: 1, keyword: '南京大学', hot: true },
+      { rank: 2, keyword: '校友企业', hot: true },
+      { rank: 3, keyword: '互联网协会', hot: true },
+      { rank: 4, keyword: '足球俱乐部', hot: false },
+      { rank: 5, keyword: '张三', hot: false },
+      { rank: 6, keyword: '创业路演', hot: false },
+      { rank: 7, keyword: '周杰伦', hot: false },
+      { rank: 8, keyword: '人工智能', hot: false },
+      { rank: 9, keyword: '区块链', hot: false },
+      { rank: 10, keyword: '元宇宙', hot: false }
+    ],
     searchResult: {
       schools: [],
       associations: [],
@@ -29,6 +43,13 @@ Page({
   onLoad() {
     const history = wx.getStorageSync('searchHistory') || []
     this.setData({ searchHistory: history })
+  },
+
+  // 点击榜单项
+  onRankingTap(e) {
+    const keyword = e.currentTarget.dataset.keyword
+    this.setData({ keyword })
+    this.onSearch()
   },
 
   onSearchInput(e) {
@@ -73,7 +94,7 @@ Page({
       }
 
       const { activeTab, pageNum, pageSize } = this.data
-      
+
       // 根据当前tab确定搜索类型
       // 后端SearchType枚举：ALUMNI(校友), ASSOCIATION(校友会), MERCHANT(商户), SCHOOL(母校), ALL(全部)
       let types = []
@@ -125,7 +146,7 @@ Page({
 
       // 调用统一搜索接口
       const res = await searchApi.unifiedSearch(requestParams)
-      
+
       if (!isLoadMore) {
         wx.hideLoading()
       }
@@ -148,7 +169,7 @@ Page({
             type = type.code || type.name || type
           }
           type = String(type).toUpperCase()
-          
+
           const extra = item.extra || {}
 
           if (type === 'ALUMNI') {
@@ -158,7 +179,7 @@ Page({
               const parts = [extra.curProvince, extra.curCity].filter(Boolean);
               location = parts.join('');
             }
-            
+
             alumni.push({
               id: item.id,
               name: item.title || '',
@@ -201,7 +222,7 @@ Page({
                 const parts = [extra.curProvince, extra.curCity].filter(Boolean);
                 location = parts.join('');
               }
-              
+
               alumni.push({
                 id: item.id,
                 name: item.title || '',
@@ -300,7 +321,7 @@ Page({
   switchTab(e) {
     const index = e.currentTarget.dataset.index
     this.setData({ activeTab: index })
-    
+
     // 如果已经搜索过，切换tab后重新搜索
     if (this.data.showResult && this.data.keyword.trim()) {
       this.performSearch(this.data.keyword, false)
@@ -412,7 +433,7 @@ Page({
     if (e && e.stopPropagation) {
       e.stopPropagation()
     }
-    
+
     const pages = getCurrentPages()
     if (pages.length > 1) {
       // 如果有上一页，则返回

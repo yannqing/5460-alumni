@@ -20,7 +20,6 @@ Page({
     navTabs: [
       { id: 'coupon', label: '附近优惠', icon: '🎟️' },
       { id: 'venue', label: '附近场所', icon: '🏌️' },
-      { id: 'alumni', label: '附近校友', icon: '🎓' },
       { id: 'activity', label: '附近活动', icon: '🏃' }
     ],
     sortOptions: [
@@ -50,7 +49,7 @@ Page({
   initMyLocation() {
     const app = getApp()
     const location = app.globalData.location
-    
+
     if (location && location.latitude && location.longitude) {
       this.setData({
         myLocation: {
@@ -72,7 +71,7 @@ Page({
   async onPullDownRefresh() {
     console.log('[Discover] 下拉刷新触发')
     this.setData({ refreshing: true })
-    
+
     try {
       await this.loadDiscoverData()
     } catch (error) {
@@ -109,14 +108,14 @@ Page({
 
   async loadDiscoverData() {
     this.setData({ loading: true, currentPage: 1, hasMore: true })
-    
+
     // 根据选中的tab调用统一接口
     const tabToQueryType = {
       'coupon': 1,  // 商铺
       'venue': 2,   // 企业/场所
       'alumni': 3   // 校友
     }
-    
+
     const queryType = tabToQueryType[this.data.selectedTab]
     if (queryType) {
       // 如果有搜索关键词，传递关键词；否则传递空字符串
@@ -140,7 +139,7 @@ Page({
       // 从全局数据获取位置信息
       const app = getApp()
       const location = app.globalData.location
-      
+
       // 如果全局数据中没有位置信息，显示失败
       if (!location) {
         const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
@@ -158,7 +157,7 @@ Page({
 
       // 计算当前页码
       const currentPage = reset ? 1 : this.data.currentPage + 1
-      
+
       const requestData = {
         queryType: queryType,
         latitude: location.latitude,
@@ -177,13 +176,13 @@ Page({
       console.log('[Discover] 请求附近数据参数:', requestData)
 
       const res = await nearbyApi.getNearby(requestData)
-      
+
       // 调试日志：输出响应数据
       console.log('[Discover] 附近数据响应:', res)
       console.log('[Discover] 响应code:', res.data?.code)
       console.log('[Discover] 响应data:', res.data?.data)
       console.log('[Discover] 响应msg:', res.data?.msg)
-      
+
       // 检查响应是否成功
       if (!res || !res.data) {
         console.error('[Discover] 响应数据格式错误:', res)
@@ -199,7 +198,7 @@ Page({
         })
         return
       }
-      
+
       // 检查业务错误码
       if (res.data.code !== 200) {
         console.error('[Discover] 接口返回错误:', res.data.code, res.data.msg)
@@ -216,17 +215,17 @@ Page({
         })
         return
       }
-      
+
       if (res.data.data) {
         const data = res.data.data
         const records = data.records || data.items || data.list || []
         const total = data.total || 0
-        
+
         // 调试日志：输出解析后的列表
         console.log('[Discover] 解析后的数据列表:', records)
         console.log('[Discover] 数据数量:', records.length)
         console.log('[Discover] 总数量:', total)
-        
+
         // 如果没有数据
         if (records.length === 0) {
           const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
@@ -281,7 +280,7 @@ Page({
                     discount = '礼品券'
                   }
                 }
-                
+
                 let type = '优惠券'
                 if (coupon.couponType === 1) {
                   type = '折扣券'
@@ -290,14 +289,14 @@ Page({
                 } else if (coupon.couponType === 3) {
                   type = '礼品券'
                 }
-                
+
                 const title = coupon.couponName || discount || ''
                 let expireDate = '有效期至长期有效'
                 if (coupon.validEndTime) {
                   const dateStr = coupon.validEndTime.split('T')[0] || coupon.validEndTime.split(' ')[0]
                   expireDate = '有效期至' + dateStr
                 }
-                
+
                 return {
                   discount: discount,
                   type: type,
@@ -323,7 +322,7 @@ Page({
 
           const currentList = reset ? couponList : this.data.couponList.concat(couponList)
           const hasMore = currentList.length < total && records.length > 0
-          
+
           this.setData({
             couponList: currentList,
             currentPage: currentPage,
@@ -415,7 +414,7 @@ Page({
 
           const currentList = reset ? venueList : this.data.venueList.concat(venueList)
           const hasMore = currentList.length < total && records.length > 0
-          
+
           this.setData({
             venueList: currentList,
             currentPage: currentPage,
@@ -473,7 +472,7 @@ Page({
 
           const currentList = reset ? alumniList : this.data.alumniList.concat(alumniList)
           const hasMore = currentList.length < total && records.length > 0
-          
+
           this.setData({
             alumniList: currentList,
             currentPage: currentPage,
@@ -564,7 +563,7 @@ Page({
           signedCount: 22
         }
       ]
-      
+
       this.setData({
         couponList: [],
         venueList: [],
@@ -589,7 +588,7 @@ Page({
     this.setData({
       searchKeyword: searchValue.trim()
     })
-    
+
     // 使用当前选中的tab进行搜索，直接加载数据
     const tabToQueryType = {
       'coupon': 1,  // 商铺
@@ -597,7 +596,7 @@ Page({
       'alumni': 3   // 校友
     }
     const queryType = tabToQueryType[selectedTab]
-    
+
     if (queryType) {
       // 直接在当前页面加载搜索结果，传递 queryType 和 keyword
       this.loadNearbyData(queryType, true, searchValue.trim())
@@ -675,7 +674,7 @@ Page({
       this.getLocation()
       return
     }
-    
+
     // 更新地图中心到自己的位置
     this.setData({
       mapCenter: {
@@ -684,7 +683,7 @@ Page({
       },
       mapScale: 15 // 重置缩放级别
     })
-    
+
     wx.showToast({
       title: '已定位到当前位置',
       icon: 'success',
@@ -724,7 +723,7 @@ Page({
     this.setData({
       viewMode: mode
     })
-    
+
     if (mode === 'map') {
       // 延迟更新标记，确保数据已加载
       setTimeout(() => {
@@ -742,26 +741,26 @@ Page({
       const canvasId = 'roundAvatarCanvas'
       const ctx = wx.createCanvasContext(canvasId, this)
       const radius = size / 2
-      
+
       // 先绘制白色圆形背景（作为边框）
       ctx.beginPath()
       ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
       ctx.setFillStyle('#fff')
       ctx.fill()
-      
+
       // 绘制圆形头像
       ctx.save()
       ctx.beginPath()
       ctx.arc(radius, radius, radius - 2, 0, 2 * Math.PI)
       ctx.clip()
-      
+
       // 加载并绘制图片
       wx.getImageInfo({
         src: imageUrl,
         success: (res) => {
           ctx.drawImage(res.path, 0, 0, size, size)
           ctx.restore()
-          
+
           ctx.draw(false, () => {
             // 导出为临时文件
             wx.canvasToTempFilePath({
@@ -792,15 +791,15 @@ Page({
   async updateMapMarkers() {
     const markers = []
     let markerId = 1 // 从1开始，确保id是数字
-    
+
     console.log('[Discover] 更新地图标记，当前标签:', this.data.selectedTab)
     console.log('[Discover] 优惠列表数量:', this.data.couponList.length)
-    
+
     // 先添加自己的位置标记（如果有位置信息）
     if (this.data.myLocation && this.data.myLocation.latitude && this.data.myLocation.longitude) {
       const myLat = Number(this.data.myLocation.latitude)
       const myLng = Number(this.data.myLocation.longitude)
-      
+
       if (!isNaN(myLat) && !isNaN(myLng) && myLat !== 0 && myLng !== 0) {
         markers.push({
           id: 0, // 自己的位置使用固定ID 0
@@ -823,7 +822,7 @@ Page({
         console.log('[Discover] 添加自己的位置标记:', myLat, myLng)
       }
     }
-    
+
     // 附近优惠标记（只标记带有优惠券的店铺）
     if (this.data.selectedTab === 'coupon' && this.data.couponList.length > 0) {
       for (const item of this.data.couponList) {
@@ -831,17 +830,17 @@ Page({
         if (item.latitude && item.longitude && item.coupons && Array.isArray(item.coupons) && item.coupons.length > 0) {
           // 使用店铺头像作为标记图标，如果没有则使用默认图标
           const originalIconPath = item.image || config.defaultAvatar
-          
+
           // 确保经纬度是数字类型
           const latitude = Number(item.latitude)
           const longitude = Number(item.longitude)
-          
+
           // 验证经纬度是否有效
           if (isNaN(latitude) || isNaN(longitude) || latitude === 0 || longitude === 0) {
             console.warn('[Discover] 无效的经纬度:', item.name, latitude, longitude)
             continue
           }
-          
+
           // 创建圆形头像
           let iconPath = originalIconPath
           try {
@@ -850,7 +849,7 @@ Page({
             console.warn('[Discover] 创建圆形头像失败，使用原图:', error)
             iconPath = originalIconPath
           }
-          
+
           markers.push({
             id: markerId++,
             latitude: latitude,
@@ -869,12 +868,12 @@ Page({
               display: 'BYCLICK'
             }
           })
-          
+
           console.log('[Discover] 添加标记:', item.name, latitude, longitude, iconPath)
         }
       }
     }
-    
+
     // 附近场所标记
     if (this.data.selectedTab === 'venue' && this.data.venueList.length > 0) {
       for (const item of this.data.venueList) {
@@ -882,11 +881,11 @@ Page({
           const originalIconPath = item.image || config.defaultAvatar
           const latitude = Number(item.latitude)
           const longitude = Number(item.longitude)
-          
+
           if (isNaN(latitude) || isNaN(longitude) || latitude === 0 || longitude === 0) {
             continue
           }
-          
+
           // 创建圆形头像
           let iconPath = originalIconPath
           try {
@@ -895,7 +894,7 @@ Page({
             console.warn('[Discover] 创建圆形头像失败，使用原图:', error)
             iconPath = originalIconPath
           }
-          
+
           markers.push({
             id: markerId++,
             latitude: latitude,
@@ -917,7 +916,7 @@ Page({
         }
       }
     }
-    
+
     // 附近校友标记
     if (this.data.selectedTab === 'alumni' && this.data.alumniList.length > 0) {
       for (const item of this.data.alumniList) {
@@ -925,11 +924,11 @@ Page({
           const originalIconPath = item.avatar || config.defaultAvatar
           const latitude = Number(item.latitude)
           const longitude = Number(item.longitude)
-          
+
           if (isNaN(latitude) || isNaN(longitude) || latitude === 0 || longitude === 0) {
             continue
           }
-          
+
           // 创建圆形头像
           let iconPath = originalIconPath
           try {
@@ -938,7 +937,7 @@ Page({
             console.warn('[Discover] 创建圆形头像失败，使用原图:', error)
             iconPath = originalIconPath
           }
-          
+
           markers.push({
             id: markerId++,
             latitude: latitude,
@@ -960,7 +959,7 @@ Page({
         }
       }
     }
-    
+
     // 附近活动标记
     if (this.data.selectedTab === 'activity' && this.data.activityList.length > 0) {
       this.data.activityList.forEach((item, index) => {
@@ -984,10 +983,10 @@ Page({
         }
       })
     }
-    
+
     console.log('[Discover] 最终标记数量:', markers.length)
     console.log('[Discover] 标记数据:', markers)
-    
+
     this.setData({
       mapMarkers: markers
     }, () => {

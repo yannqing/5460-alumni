@@ -44,6 +44,22 @@
         </view>
       </view>
     </view>
+
+
+
+    <!-- 搜索榜单 -->
+    <view class="section card">
+      <view class="section-title-small">搜索榜单</view>
+      <view class="ranking-list">
+        <view class="ranking-item" wx:for="{{searchRankingList}}" wx:key="rank" bindtap="onRankingTap" data-keyword="{{item.keyword}}">
+          <view class="rank-number {{item.rank <= 3 ? 'top-rank' : ''}}">{{item.rank}}</view>
+          <view class="rank-content">
+            <text class="rank-keyword">{{item.keyword}}</text>
+            <text class="rank-icon" wx:if="{{item.hot}}">🔥</text>
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 
   <!-- 搜索结果 -->

@@ -164,8 +164,8 @@
       <view class="no-more" wx:if="{{!hasMore && venueList.length > 0 && !loading}}">没有更多了</view>
     </view>
 
-    <!-- 附近校友列表 -->
-    <view class="content-list" wx:if="{{selectedTab === 'alumni'}}">
+    <!-- 附近校友列表 (已隐藏) -->
+    <!-- <view class="content-list" wx:if="{{selectedTab === 'alumni'}}">
       <view class="content-card" wx:for="{{alumniList}}" wx:key="id">
         <view class="card-avatar">
           <image class="avatar-img" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
@@ -183,7 +183,7 @@
           </view>
         </view>
       </view>
-    </view>
+    </view> -->
 
     <!-- 附近活动列表 -->
     <view class="content-list" wx:if="{{selectedTab === 'activity'}}">

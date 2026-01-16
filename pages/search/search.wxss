@@ -259,10 +259,67 @@
   color: #999;
   margin-top: 8rpx;
   line-height: 1.5;
-  /* 限制签名显示行数，超出显示省略号 */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 搜索榜单样式 */
+.ranking-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10rpx 0;
+}
+
+.ranking-item {
+  width: 50%; /* 两列显示 */
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  box-sizing: border-box;
+}
+
+.rank-number {
+  width: 36rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #999;
+  font-style: italic;
+  margin-right: 16rpx;
+  text-align: center;
+}
+
+.rank-number.top-rank {
+  color: #ff6b9d; /* 前三名颜色 */
+}
+
+/* 如果需要前三名分别不同颜色 */
+.ranking-item:nth-child(1) .rank-number {
+  color: #ff4d4f;
+}
+.ranking-item:nth-child(2) .rank-number {
+  color: #ff7a45;
+}
+.ranking-item:nth-child(3) .rank-number {
+  color: #ffa940;
+}
+
+.rank-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding-right: 20rpx;
+}
+
+.rank-keyword {
+  font-size: 28rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-icon {
+  font-size: 24rpx;
+  margin-left: 8rpx;
 }
