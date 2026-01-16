@@ -40,7 +40,7 @@ Page({
     // 统计卡片
     selectedNode: null,
     showNodeCard: false,
-    
+
     // 组织结构数据
     roleList: [], // 存储角色列表
     organizationLoading: false // 组织结构加载状态
@@ -172,6 +172,16 @@ Page({
       if (res.data && res.data.code === 200) {
         const memberData = res.data.data || {}
         const records = memberData.records || []
+
+        // 根据职务排序：pid 为 null 的排在最前面（如会长）
+        records.sort((a, b) => {
+          const aPid = a.organizeArchiRole ? a.organizeArchiRole.pid : undefined
+          const bPid = b.organizeArchiRole ? b.organizeArchiRole.pid : undefined
+
+          if (aPid === null && bPid !== null) return -1
+          if (aPid !== null && bPid === null) return 1
+          return 0
+        })
 
         // 数据映射
         const mappedMembers = records.map(item => {
@@ -1182,7 +1192,7 @@ Page({
     this.setData({
       organizationLoading: true
     })
-    
+
     // 调用API获取组织架构树
     const { post } = require('../../../utils/request.js')
     post('/AlumniAssociation/organizationTree', {
@@ -1191,7 +1201,7 @@ Page({
       if (res.data && res.data.code === 200) {
         // 添加展开状态
         const dataWithExpandedState = this.addExpandedState(res.data.data || [])
-        
+
         this.setData({
           roleList: dataWithExpandedState
         })
@@ -1213,18 +1223,37 @@ Page({
       })
     })
   },
-  
+
   // 添加展开状态
-  addExpandedState(data) {
-    return data.map(item => {
+  addExpandedState(data, prefix = 'role') {
+    return data.map((item, index) => {
+      const uId = `${prefix}_${index}`
+
+      // 处理该角色下的成员头像
+      let members = item.members || []
+      members = members.map(m => {
+        let avatarUrl = m.avatarUrl || m.avatar || ''
+        if (avatarUrl) {
+          avatarUrl = config.getImageUrl(avatarUrl)
+        } else {
+          avatarUrl = config.defaultAvatar
+        }
+        return {
+          ...m,
+          avatarUrl: avatarUrl
+        }
+      })
+
       return {
         ...item,
-        expanded: false, // 默认折叠
-        children: item.children ? this.addExpandedState(item.children) : []
+        uniqueId: uId,
+        members: members,
+        expanded: true, // 默认展开
+        children: item.children ? this.addExpandedState(item.children, uId) : []
       }
     })
   },
-  
+
   // 切换展开状态
   toggleExpand(e) {
     const { id } = e.currentTarget.dataset
@@ -1233,11 +1262,11 @@ Page({
       roleList: newRoleList
     })
   },
-  
+
   // 递归切换展开状态
   toggleExpandRecursive(list, id) {
     return list.map(item => {
-      if (item.roleOrId === id) {
+      if (item.uniqueId === id) {
         return {
           ...item,
           expanded: !item.expanded
