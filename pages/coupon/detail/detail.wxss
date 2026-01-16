@@ -10,7 +10,7 @@
   margin: 30rpx;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  background: linear-gradient(135deg, #40B2E6, #6BC5ED);
   border-radius: 24rpx;
   overflow: hidden;
   box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.4);
@@ -103,7 +103,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  background: linear-gradient(135deg, #40B2E6, #6BC5ED);
   color: #fff;
   box-shadow: 0 4rpx 16rpx rgba(255, 107, 157, 0.4);
 }
@@ -168,7 +168,7 @@
 
 .rule-dot {
   flex-shrink: 0;
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 600;
 }
 
@@ -203,5 +203,5 @@
 }
 
 .link-text {
-  color: #ff6b9d;
+  color: #40B2E6;
 }

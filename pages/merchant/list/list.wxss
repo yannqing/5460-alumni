@@ -86,7 +86,7 @@
 }
 
 .option-item.active {
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 600;
 }
 
@@ -153,7 +153,7 @@
 }
 
 .tier-badge.tier-4 {
-  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
 }
 
 /* 校友认证徽章 */
@@ -199,7 +199,7 @@
 }
 
 .rating-score {
-  color: #ff6b9d;
+  color: #F5C348;
   font-weight: 600;
   font-size: 26rpx;
 }

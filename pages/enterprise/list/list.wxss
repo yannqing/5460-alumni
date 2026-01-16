@@ -65,7 +65,7 @@
 }
 
 .tab.active {
-  background-color: #ff6b9d;
+  background-color: #40B2E6;
   color: #fff;
 }
 

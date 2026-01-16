@@ -45,6 +45,14 @@ Page({
     this.initMyLocation()
   },
 
+  onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 1
+      });
+    }
+  },
+
   // 初始化自己的位置信息
   initMyLocation() {
     const app = getApp()

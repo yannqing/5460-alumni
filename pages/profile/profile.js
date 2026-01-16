@@ -41,6 +41,12 @@ Page({
   },
 
   onShow() {
+    // 设置自定义 tabBar 选中状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 4
+      });
+    }
     // 每次显示页面时都重新加载用户信息，确保数据实时更新
     this.loadUserInfo()
     this.loadUserData()

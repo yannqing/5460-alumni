@@ -45,6 +45,14 @@ Page({
     this.setData({ searchHistory: history })
   },
 
+  onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 3
+      });
+    }
+  },
+
   // 点击榜单项
   onRankingTap(e) {
     const keyword = e.currentTarget.dataset.keyword

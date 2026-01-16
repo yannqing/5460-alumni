@@ -7,12 +7,12 @@
 
 /* 个人信息卡片 */
 .user-card {
-  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
   padding: 40rpx 30rpx 30rpx;
   margin: 20rpx;
   border-radius: 24rpx;
   color: #ffffff;
-  box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.3);
+  box-shadow: 0 8rpx 24rpx rgba(64, 178, 230, 0.3);
 }
 
 .user-info {
@@ -229,7 +229,7 @@
 .menu-badge {
   margin-left: 12rpx;
   padding: 2rpx 10rpx;
-  background-color: #ff6b9d;
+  background-color: #40B2E6;
   color: #fff;
   border-radius: 20rpx;
   font-size: 20rpx;

@@ -21,7 +21,7 @@
 
 .benefit-detail-discount {
   font-size: 28rpx;
-  color: #ff6b9d;
+  color: #F5C348;
   font-weight: 600;
   margin-bottom: 8rpx;
 }
@@ -55,7 +55,7 @@
 }
 
 .link-text {
-  color: #ff6b9d;
+  color: #40B2E6;
   text-decoration: underline;
 }
 

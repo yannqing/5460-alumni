@@ -64,7 +64,7 @@
   font-size: 30rpx;
   font-weight: 600;
   margin-bottom: 20rpx;
-  color: #ff6b9d;
+  color: #40B2E6;
 }
 
 .tip-list {
@@ -136,7 +136,7 @@
 
 .location-icon {
   font-size: 32rpx;
-  color: #ff6b9d;
+  color: #40B2E6;
 }
 
 .picker-value {
@@ -213,7 +213,7 @@
 
 .upload-area:active {
   background: #f0f0f0;
-  border-color: #ff6b9d;
+  border-color: #40B2E6;
 }
 
 .logo-area {
@@ -286,7 +286,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
   color: #fff;
   border: none;
 }

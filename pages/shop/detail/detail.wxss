@@ -80,7 +80,7 @@
 }
 
 .icon-text.favorited {
-  color: #ff6b9d;
+  color: #40B2E6;
 }
 
 .shop-header {
@@ -200,14 +200,14 @@
 }
 
 .link-text {
-  color: #ff6b9d;
+  color: #40B2E6;
 }
 
 .nav-text {
   font-size: 26rpx;
-  color: #ff6b9d;
+  color: #40B2E6;
   padding: 8rpx 20rpx;
-  border: 1rpx solid #ff6b9d;
+  border: 1rpx solid #40B2E6;
   border-radius: 20rpx;
 }
 
@@ -225,10 +225,10 @@
 .coupon-card {
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  background: linear-gradient(135deg, #40B2E6, #6BC5ED);
   border-radius: 16rpx;
   overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.3);
+  box-shadow: 0 2rpx 8rpx rgba(64, 178, 230, 0.3);
   min-height: 160rpx;
   position: relative;
   cursor: pointer;

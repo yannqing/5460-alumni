@@ -19,9 +19,9 @@
 }
 
 .tab-item.active {
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 600;
-  border-bottom: 4rpx solid #ff6b9d;
+  border-bottom: 4rpx solid #40B2E6;
 }
 
 .join-button {
@@ -29,11 +29,11 @@
   text-align: center;
   padding: 24rpx 0;
   border-radius: 40rpx;
-  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(90deg, #40B2E6 0%, #6BC5ED 100%);
   color: #ffffff;
   font-size: 30rpx;
   font-weight: 600;
-  box-shadow: 0 10rpx 20rpx rgba(255, 107, 157, 0.25);
+  box-shadow: 0 10rpx 20rpx rgba(64, 178, 230, 0.25);
   transition: all 0.3s ease;
 }
 
@@ -159,7 +159,7 @@
 }
 
 .join-modal-btn.submit {
-  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(90deg, #40B2E6 0%, #6BC5ED 100%);
   color: #ffffff;
 }
 
@@ -230,11 +230,11 @@
 
 .school-tag {
   padding: 6rpx 20rpx;
-  border: 1rpx solid #ff6b9d;
-  color: #ff6b9d;
+  border: 1rpx solid #40B2E6;
+  color: #40B2E6;
   border-radius: 999rpx;
   font-size: 24rpx;
-  background-color: rgba(255, 107, 157, 0.1);
+  background-color: rgba(64, 178, 230, 0.1);
 }
 
 .cert-tag-wrap {
@@ -572,12 +572,12 @@
   border-radius: 999rpx;
   font-size: 22rpx;
   color: #fff;
-  background: linear-gradient(135deg, #ff6b9d, #ff9470);
+  background: linear-gradient(135deg, #40B2E6, #6BC5ED);
 }
 
 .item-chip.ghost {
-  background: rgba(255, 107, 157, 0.12);
-  color: #ff6b9d;
+  background: rgba(64, 178, 230, 0.12);
+  color: #40B2E6;
 }
 
 .chevron {

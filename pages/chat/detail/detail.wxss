@@ -84,10 +84,10 @@
 }
 
 .message-bubble-right {
-  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  background: linear-gradient(135deg, #40B2E6, #6BC5ED);
   color: #fff;
   border-top-right-radius: 4rpx;
-  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.2);
+  box-shadow: 0 2rpx 8rpx rgba(64, 178, 230, 0.2);
 }
 
 .message-text {
@@ -173,7 +173,7 @@
 
 .action-icon.send-btn {
   font-size: 28rpx;
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 500;
   padding: 0 8rpx;
 }

@@ -105,7 +105,7 @@
 
 .action-icon {
   font-size: 40rpx;
-  color: #ff6b9d;
+  color: #40B2E6;
 }
 
 .action-text {
@@ -130,7 +130,7 @@
 }
 
 .tab-item.active {
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 600;
 }
 
@@ -142,7 +142,7 @@
   transform: translateX(-50%);
   width: 60rpx;
   height: 4rpx;
-  background-color: #ff6b9d;
+  background-color: #40B2E6;
   border-radius: 2rpx;
 }
 
@@ -253,13 +253,13 @@
 
 .join-btn {
   padding: 12rpx 32rpx;
-  background: linear-gradient(90deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(90deg, #40B2E6 0%, #6BC5ED 100%);
   color: #ffffff;
   font-size: 26rpx;
   border-radius: 40rpx;
   text-align: center;
   white-space: nowrap;
-  box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.3);
+  box-shadow: 0 4rpx 12rpx rgba(64, 178, 230, 0.3);
   transition: all 0.3s;
 }
 
@@ -311,7 +311,7 @@
 }
 
 .link-text {
-  color: #ff6b9d;
+  color: #40B2E6;
   text-decoration: underline;
 }
 
@@ -471,7 +471,7 @@
   align-items: center;
   gap: 8rpx;
   padding: 20rpx;
-  background-color: #fff0f5;
+  background-color: #e6f7ff;
   border-radius: 8rpx;
 }
 
@@ -481,5 +481,5 @@
 
 .tip-text {
   font-size: 24rpx;
-  color: #ff6b9d;
+  color: #40B2E6;
 }

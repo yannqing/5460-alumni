@@ -10,11 +10,11 @@ Page({
    */
   data: {
     // 导航图标 - 请替换为实际的云存储图片地址或本地图片
-    iconSchool: 'https://img.icons8.com/ios-filled/100/4a90e2/organization.png',
-    iconAssociation: 'https://img.icons8.com/ios-filled/100/4a90e2/conference-call.png',
-    iconAlumni: 'https://img.icons8.com/ios-filled/100/4a90e2/student-male.png',
-    iconCircle: 'https://img.icons8.com/ios-filled/100/4a90e2/shop.png',
-    iconActivity: 'https://img.icons8.com/ios-filled/100/4a90e2/city.png',
+    iconSchool: 'https://img.icons8.com/ios-filled/100/40B2E6/organization.png',
+    iconAssociation: 'https://img.icons8.com/ios-filled/100/40B2E6/conference-call.png',
+    iconAlumni: 'https://img.icons8.com/ios-filled/100/40B2E6/student-male.png',
+    iconCircle: 'https://img.icons8.com/ios-filled/100/40B2E6/shop.png',
+    iconActivity: 'https://img.icons8.com/ios-filled/100/40B2E6/city.png',
 
     articleList: [],
     loading: false,
@@ -40,6 +40,17 @@ Page({
    */
   onLoad: function (options) {
     this.getArticleList(true);
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 0
+      });
+    }
   },
 
   /**

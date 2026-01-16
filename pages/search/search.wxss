@@ -131,9 +131,9 @@
 }
 
 .tab-item.active {
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 600;
-  border-bottom: 4rpx solid #ff6b9d;
+  border-bottom: 4rpx solid #40B2E6;
 }
 
 .result-section {
@@ -289,7 +289,7 @@
 }
 
 .rank-number.top-rank {
-  color: #ff6b9d; /* 前三名颜色 */
+  color: #F5C348; /* 前三名颜色 - 重点色 */
 }
 
 /* 如果需要前三名分别不同颜色 */

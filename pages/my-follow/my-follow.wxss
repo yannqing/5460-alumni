@@ -23,7 +23,7 @@
 }
 
 .tab-item.active {
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 600;
 }
 
@@ -35,7 +35,7 @@
   transform: translateX(-50%);
   width: 60rpx;
   height: 6rpx;
-  background-color: #ff6b9d;
+  background-color: #40B2E6;
   border-radius: 3rpx;
 }
 
@@ -64,7 +64,7 @@
 
 .type-tab.active {
   color: #fff;
-  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
 }
 
 /* 列表区域 */
@@ -152,11 +152,11 @@
 
 .status-text {
   font-size: 24rpx;
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 500;
   white-space: nowrap;
   padding: 8rpx 16rpx;
-  background-color: rgba(255, 107, 157, 0.1);
+  background-color: rgba(64, 178, 230, 0.1);
   border-radius: 20rpx;
   cursor: pointer;
 }

@@ -271,11 +271,11 @@
 
 .city-item.active,
 .sort-item.active {
-  color: #ff6b9d;
+  color: #40B2E6;
 }
 
 .check-icon {
-  color: #ff6b9d;
+  color: #40B2E6;
   font-size: 32rpx;
   font-weight: 600;
 }

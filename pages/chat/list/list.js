@@ -37,6 +37,12 @@ Page({
   },
 
   onShow() {
+    // 设置自定义 tabBar 选中状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 2
+      });
+    }
     // 每次显示页面时刷新列表
     this.loadChatList()
     this.loadUnreadTotal()

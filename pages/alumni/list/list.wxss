@@ -86,7 +86,7 @@
 }
 
 .option-item.active {
-  color: #ff6b9d;
+  color: #40B2E6;
   font-weight: 600;
 }
 
@@ -192,8 +192,8 @@
 
 .mini-tag {
   padding: 6rpx 16rpx;
-  background-color: #fff0f5;
-  color: #ff6b9d;
+  background-color: #e6f7ff;
+  color: #40B2E6;
   font-size: 22rpx;
   border-radius: 6rpx;
 }
@@ -237,7 +237,7 @@
 
 .follow-btn {
   padding: 10rpx 24rpx;
-  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fb5 100%);
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
   color: #ffffff;
   font-size: 22rpx;
   border-radius: 50rpx;
@@ -247,8 +247,8 @@
 
 .follow-btn.followed {
   background: transparent;
-  border: 2rpx solid #ff6b9d;
-  color: #ff6b9d;
+  border: 2rpx solid #40B2E6;
+  color: #40B2E6;
 }
 
 /* 加载状态 */

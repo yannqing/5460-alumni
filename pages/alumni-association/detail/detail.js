@@ -954,7 +954,7 @@ Page({
           title: '退出校友会',
           content: '确定要退出该校友会吗？',
           confirmText: '确定退出',
-          confirmColor: '#ff6b9d',
+          confirmColor: '#40B2E6',
           success: (res) => {
             if (res.confirm) {
               // TODO: 调用退出校友会接口
@@ -976,7 +976,7 @@ Page({
           title: '申请被拒绝',
           content: '您的申请已被拒绝，是否重新申请？',
           confirmText: '重新申请',
-          confirmColor: '#ff6b9d',
+          confirmColor: '#40B2E6',
           success: (res) => {
             if (res.confirm) {
               this.goToApplyPage()

@@ -10,7 +10,7 @@
 /* 顶部 Banner */
 .header-banner {
   height: 450rpx;
-  background: linear-gradient(180deg, #5b7fff 0%, #7a9bff 100%);
+  background: linear-gradient(180deg, #40B2E6 0%, #6BC5ED 100%);
   position: fixed;
   top: 0;
   left: 0;
@@ -83,7 +83,7 @@
 }
 
 .nav-title-tag {
-  background-color: #6ed4d6; /* 浅青色 */
+  background-color: #38C7D4; /* 青蓝色，与主题色协调 */
   color: #fff;
   font-size: 24rpx;
   padding: 8rpx 24rpx;

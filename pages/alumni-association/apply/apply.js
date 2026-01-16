@@ -443,7 +443,7 @@ Page({
       title: '撤销申请',
       content: '确定要撤销申请吗？',
       confirmText: '确定撤销',
-      confirmColor: '#ff6b9d',
+      confirmColor: '#40B2E6',
       success: async (res) => {
         if (res.confirm) {
           try {
