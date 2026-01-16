@@ -384,15 +384,16 @@ App({
         const total = res.data.data || 0
         console.log('[App] 未读消息总数:', total)
 
-        // 更新底部 TabBar 未读角标（"5460消息"在第 3 个 tab，索引 2）
-        if (typeof wx.setTabBarBadge === 'function') {
-          if (total > 0) {
-            wx.setTabBarBadge({
-              index: 2,
-              text: String(total > 99 ? '99+' : total)
-            })
-          } else {
-            wx.removeTabBarBadge({ index: 2 })
+        // 更新自定义 TabBar 未读角标
+        // 获取当前页面栈，找到当前页面的自定义 tabBar 实例
+        const pages = getCurrentPages()
+        if (pages.length > 0) {
+          const currentPage = pages[pages.length - 1]
+          if (typeof currentPage.getTabBar === 'function') {
+            const tabBar = currentPage.getTabBar()
+            if (tabBar && typeof tabBar.setUnreadCount === 'function') {
+              tabBar.setUnreadCount(total)
+            }
           }
         }
 
