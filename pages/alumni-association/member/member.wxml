@@ -30,7 +30,7 @@
       <!-- 成员列表项 -->
       <view class="member-item" wx:for="{{memberList}}" wx:key="wxId">
         <view class="member-avatar">
-          <image class="avatar-img" src="{{item.avatarUrl || 'https://via.placeholder.com/100'}}"></image>
+          <image class="avatar-img" src="{{item.avatarUrl || 'https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png'}}"></image>
         </view>
         <view class="member-info">
           <view class="member-name-row">
@@ -103,7 +103,7 @@
           <scroll-view scroll-y class="search-results" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
             <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="search-item" bindtap="selectAlumni" data-index="{{index}}">
               <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" mode="aspectFill" />
-              <image wx:else src="https://via.placeholder.com/100" class="member-avatar" mode="aspectFill" />
+              <image wx:else src="https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png" class="member-avatar" mode="aspectFill" />
               <view class="member-info">
                 <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
                 <text class="member-school">{{item.school || '暂无学校信息'}}</text>
@@ -143,7 +143,7 @@
         <view class="form-item">
           <text class="label">成员姓名</text>
           <view class="member-info-display">
-            <image class="avatar-small" src="{{editingMember.avatarUrl || 'https://via.placeholder.com/100'}}"></image>
+            <image class="avatar-small" src="{{editingMember.avatarUrl || 'https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png'}}"></image>
             <text class="member-name-display">{{editingMember.name || editingMember.nickname || '未命名'}}</text>
           </view>
         </view>
