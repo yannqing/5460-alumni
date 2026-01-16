@@ -1,4 +1,4 @@
-﻿// utils/auth.js
+// utils/auth.js
 const { authApi } = require('../api/api.js')
 
 // 判断时间是否过期
@@ -335,17 +335,16 @@ function getUserRoleNames() {
 
 /**
  * 检查用户是否有管理权限（文章管理和审核管理）
- * 允许的角色：ORGANIZE_ALUMNI_BOSS, SYSTEM_SUPER_ADMIN, ORGANIZE_LOCAL_BOSS, ORGANIZE_ALUMNI_ADM, ORGANIZE_LOCAL_ADMII
+ * 允许的角色：SYSTEM_SUPER_ADMIN, ORGANIZE_LOCAL_ADMIN, ORGANIZE_ALUMNI_ADMIN, ORGANIZE_MERCHANT_ADMIN
  * @returns {boolean} 是否有管理权限
  */
 function hasManagementPermission() {
   // 允许的角色代码列表
   const allowedRoleCodes = [
-    'ORGANIZE_ALUMNI_BOSS',      // 校友会会长
-    'SYSTEM_SUPER_ADMIN',        // 系统管理员
-    'ORGANIZE_LOCAL_BOSS',       // 校处会会长
-    'ORGANIZE_ALUMNI_ADM',       // 校友会管理员
-    'ORGANIZE_LOCAL_ADMII'       // 校处会管理员
+    'SYSTEM_SUPER_ADMIN',          // 系统管理员
+    'ORGANIZE_LOCAL_ADMIN',        // 校处会管理员
+    'ORGANIZE_ALUMNI_ADMIN',       // 校友会管理员
+    'ORGANIZE_MERCHANT_ADMIN'      // 商户管理员
   ]
   
   // 优先从缓存读取角色列表

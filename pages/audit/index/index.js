@@ -198,6 +198,74 @@ Page({
 
   onLoad(options) {
     // 页面加载
+    this.checkPermissions()
+  },
+
+  // 检查用户权限并控制功能模块显示
+  checkPermissions() {
+    const app = getApp()
+    const userConfig = app.globalData.userConfig || {}
+    const roles = userConfig.roles || {}
+    
+    // 获取用户的原始角色列表（从缓存中读取）
+    const originalRoles = wx.getStorageSync('roles') || []
+    
+    // 默认不显示任何功能模块
+    let showAuditFunctions = false
+    let showSchoolOfficeFunctions = false
+    let showAlumniFunctions = false
+    let showMerchantFunctions = false
+    
+    // 检查用户角色（同时支持对象格式和数组格式）
+    let hasSuperAdmin = false
+    let hasLocalAdmin = false
+    let hasAlumniAdmin = false
+    let hasMerchantAdmin = false
+    
+    // 方法1：检查对象格式的角色（userConfig.roles）
+    if (typeof roles === 'object' && roles !== null) {
+      hasSuperAdmin = roles['SYSTEM_SUPER_ADMIN']
+      hasLocalAdmin = roles['ORGANIZE_LOCAL_ADMIN']
+      hasAlumniAdmin = roles['ORGANIZE_ALUMNI_ADMIN']
+      hasMerchantAdmin = roles['ORGANIZE_MERCHANT_ADMIN']
+    }
+    
+    // 方法2：如果对象格式检查失败，使用数组格式检查（originalRoles）
+    if (!hasSuperAdmin && !hasLocalAdmin && !hasAlumniAdmin && !hasMerchantAdmin) {
+      hasSuperAdmin = originalRoles.some(role => role.roleCode === 'SYSTEM_SUPER_ADMIN')
+      hasLocalAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_LOCAL_ADMIN')
+      hasAlumniAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_ALUMNI_ADMIN')
+      hasMerchantAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_MERCHANT_ADMIN')
+    }
+    
+    // 根据角色设置显示权限
+    if (hasSuperAdmin) {
+      // 超级管理员：显示所有功能
+      showAuditFunctions = true
+      showSchoolOfficeFunctions = true
+      showAlumniFunctions = true
+      showMerchantFunctions = true
+    } else if (hasLocalAdmin) {
+      // 校处会管理员：显示校处会、校友会和商户功能
+      showSchoolOfficeFunctions = true
+      showAlumniFunctions = true
+      showMerchantFunctions = true
+    } else if (hasAlumniAdmin) {
+      // 校友会管理员：显示校友会和商户功能
+      showAlumniFunctions = true
+      showMerchantFunctions = true
+    } else if (hasMerchantAdmin) {
+      // 商户管理员：只显示商户功能
+      showMerchantFunctions = true
+    }
+    
+    // 更新数据，根据权限过滤功能列表
+    this.setData({
+      auditFunctions: showAuditFunctions ? this.data.auditFunctions : [],
+      schoolOfficeFunctions: showSchoolOfficeFunctions ? this.data.schoolOfficeFunctions : [],
+      alumniFunctions: showAlumniFunctions ? this.data.alumniFunctions : [],
+      merchantFunctions: showMerchantFunctions ? this.data.merchantFunctions : []
+    })
   },
 
   // 点击功能按钮

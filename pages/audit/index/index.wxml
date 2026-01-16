@@ -1,6 +1,7 @@
 <!--pages/audit/index/index.wxml-->
 <view class="audit-index-page">
-  <view class="audit-content">
+  <!-- 管理功能 -->
+  <view class="audit-content" wx:if="{{auditFunctions.length > 0}}">
     <view class="audit-title">管理功能</view>
     <view class="audit-grid">
       <view
@@ -21,7 +22,8 @@
     </view>
   </view>
 
-  <view class="audit-content">
+  <!-- 校处会 -->
+  <view class="audit-content" wx:if="{{schoolOfficeFunctions.length > 0}}">
     <view class="audit-title">校处会</view>
     <view class="audit-grid">
       <view
@@ -47,7 +49,8 @@
     </view>
   </view>
 
-  <view class="audit-content">
+  <!-- 校友会 -->
+  <view class="audit-content" wx:if="{{alumniFunctions.length > 0}}">
     <view class="audit-title">校友会</view>
     <view class="audit-grid">
       <view
@@ -73,7 +76,8 @@
     </view>
   </view>
 
-  <view class="audit-content">
+  <!-- 商户 -->
+  <view class="audit-content" wx:if="{{merchantFunctions.length > 0}}">
     <view class="audit-title">商户</view>
     <view class="audit-grid">
       <view
