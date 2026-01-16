@@ -229,7 +229,7 @@
 
     <view wx:if="{{activeTab === 1}}">
       <view class="member-list">
-        <view class="member-item" wx:for="{{members}}" wx:key="id">
+        <view class="member-item" wx:for="{{members}}" wx:key="id" bindtap="viewMemberDetail" data-id="{{item.id}}">
           <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
           <view class="member-info">
             <view class="member-name-row">

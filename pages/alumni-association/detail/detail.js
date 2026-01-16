@@ -250,6 +250,15 @@ Page({
     }
   },
 
+  viewMemberDetail(e) {
+    const id = e.currentTarget.dataset.id
+    if (id) {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${id}`
+      })
+    }
+  },
+
   // 加载图谱数据（预留后端接口）
   async loadGraphData() {
     // TODO: 对接后端接口获取图谱数据
@@ -1155,7 +1164,7 @@ Page({
   viewOrganizationStructure() {
     console.log('=== 开始执行组织架构跳转 ===')
     console.log('associationId:', this.data.associationId)
-    
+
     // 检查 associationId 是否存在
     if (!this.data.associationId) {
       console.error('=== 跳转失败：associationId 为空 ===')
@@ -1166,17 +1175,17 @@ Page({
       })
       return
     }
-    
+
     const url = `/pages/alumni-association/organization-detail/organization-detail?associationId=${this.data.associationId}`
     console.log('跳转路径:', url)
-    
+
     try {
       wx.navigateTo({
         url: url,
-        success: function(res) {
+        success: function (res) {
           console.log('=== 跳转成功 ===', res)
         },
-        fail: function(err) {
+        fail: function (err) {
           console.error('=== 跳转失败 ===', err)
           wx.showToast({
             title: '跳转失败: ' + err.errMsg,
