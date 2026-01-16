@@ -56,63 +56,73 @@ Page({
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
       
-      // 查找校处会管理员角色
-      const schoolOfficeAdminRole = roles.find(role => role.remark === '校处会管理员')
-      console.log('[Debug] 找到的校处会管理员角色:', schoolOfficeAdminRole)
+      // 查找所有校处会管理员角色
+      const schoolOfficeAdminRoles = roles.filter(role => role.remark === '校处会管理员')
+      console.log('[Debug] 找到的校处会管理员角色:', schoolOfficeAdminRoles)
       
-      if (schoolOfficeAdminRole) {
-        console.log('[Debug] 校处会管理员角色存在，检查organization:', schoolOfficeAdminRole.organization)
+      if (schoolOfficeAdminRoles.length > 0) {
+        // 收集所有有效的organizeId
+        const organizeIds = schoolOfficeAdminRoles
+          .filter(role => role.organization && role.organization.organizeId)
+          .map(role => role.organization.organizeId)
         
-        if (schoolOfficeAdminRole.organization && schoolOfficeAdminRole.organization.organizeId) {
-          const organizeId = schoolOfficeAdminRole.organization.organizeId
-          console.log('[Debug] 获取到的organizeId:', organizeId)
+        console.log('[Debug] 获取到的organizeIds:', organizeIds)
+        
+        if (organizeIds.length > 0) {
+          // 去重，确保每个organizeId只处理一次
+          const uniqueOrganizeIds = [...new Set(organizeIds)]
+          console.log('[Debug] 去重后的organizeIds:', uniqueOrganizeIds)
           
+          // 先创建基本的校处会列表
+          const basicPlatformList = uniqueOrganizeIds.map(organizeId => ({
+            id: organizeId,
+            platformId: organizeId,
+            platformName: `校处会 (ID: ${organizeId})`
+          }))
+          
+          this.setData({
+            platformList: basicPlatformList
+          })
+          console.log('[Debug] 直接使用organizeIds创建校处会列表:', basicPlatformList)
+          
+          // 尝试调用接口获取更详细的信息（可选）
           try {
-            // 直接使用organizeId创建一个基本的校处会对象，避免接口调用失败
-            const basicPlatformData = {
-              id: organizeId,
-              platformId: organizeId,
-              platformName: `校处会 (ID: ${organizeId})`
-            }
-            
-            this.setData({
-              platformList: [basicPlatformData]
-            })
-            console.log('[Debug] 直接使用organizeId创建校处会列表:', [basicPlatformData])
-            
-            // 尝试调用接口获取更详细的信息（可选）
-            try {
-              // 使用正确的API方法
-              const res = await app.api.localPlatformApi.getLocalPlatformDetail(organizeId)
-              console.log('[Debug] 使用getLocalPlatformDetail方法调用成功')
-              
-              if (res.data && res.data.code === 200 && res.data.data) {
-                console.log('[Debug] 接口调用成功，获取到的校处会信息:', res.data.data)
-                
-                const platformData = {
-                  ...res.data.data,
-                  id: res.data.data.platformId || res.data.data.id || organizeId,
-                  platformName: res.data.data.platformName || res.data.data.name || `校处会 (ID: ${organizeId})`
-                }
-                
-                this.setData({
-                  platformList: [platformData]
+            // 并行调用所有校处会的详情接口
+            const detailPromises = uniqueOrganizeIds.map(organizeId => 
+              app.api.localPlatformApi.getLocalPlatformDetail(organizeId)
+                .catch(error => {
+                  console.log(`[Debug] 获取校处会 ${organizeId} 详情失败，使用基本数据:`, error)
+                  return null // 接口失败时返回null，后续过滤
                 })
-                console.log('[Debug] 已更新校处会列表:', [platformData])
+            )
+            
+            const detailResults = await Promise.all(detailPromises)
+            
+            // 处理接口返回结果，更新校处会列表
+            const updatedPlatformList = basicPlatformList.map((platform, index) => {
+              const result = detailResults[index]
+              if (result && result.data && result.data.code === 200 && result.data.data) {
+                const detailData = result.data.data
+                return {
+                  ...detailData,
+                  id: detailData.platformId || detailData.id || platform.platformId,
+                  platformName: detailData.platformName || detailData.name || platform.platformName
+                }
               }
-            } catch (apiError) {
-              console.log('[Debug] 接口调用失败，继续使用基本数据:', apiError)
-              // 继续使用之前创建的基本数据
-            }
-          } catch (error) {
-            console.error('[Debug] 创建校处会数据失败:', error)
-            this.setData({
-              platformList: []
+              return platform // 接口失败时使用基本数据
             })
+            
+            this.setData({
+              platformList: updatedPlatformList
+            })
+            console.log('[Debug] 已更新校处会列表:', updatedPlatformList)
+          } catch (apiError) {
+            console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
+            // 继续使用之前创建的基本数据
           }
         } else {
-          // 没有找到organizeId，设置为空数组
-          console.warn('[Debug] 校处会管理员角色没有organization或organizeId')
+          // 没有找到有效的organizeId，设置为空数组
+          console.warn('[Debug] 校处会管理员角色没有有效的organization或organizeId')
           this.setData({
             platformList: []
           })

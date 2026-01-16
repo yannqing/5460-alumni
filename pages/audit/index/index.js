@@ -94,13 +94,15 @@ Page({
       {
         id: 1,
         name: '架构管理',
-        icon: '🎉',
+        icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/album.png',
+        iconType: 'image',
         url: '/pages/alumni-association/organization/organization'
       },
       {
         id: 2,
         name: '成员管理',
-        icon: '👥',
+        icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/app-window.png',
+        iconType: 'image',
         url: '/pages/alumni-association/member/member'
       }
       // 以下功能暂时注释

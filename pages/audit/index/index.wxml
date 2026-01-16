@@ -59,7 +59,12 @@
       >
         <view class="audit-icon-wrapper">
           <view class="audit-icon alumni-icon">
-            <text class="audit-icon-text">{{item.icon}}</text>
+            <block wx:if="{{item.iconType === 'image'}}">
+              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="audit-icon-text">{{item.icon}}</text>
+            </block>
           </view>
           <view class="audit-icon-base alumni-icon-base"></view>
         </view>
