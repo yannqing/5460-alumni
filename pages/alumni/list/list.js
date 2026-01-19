@@ -185,10 +185,13 @@ Page({
 
   // 数据映射：将后端数据映射为前端所需格式
   mapAlumniItem(item) {
-    // 处理头像 - 使用后端返回的 avatarUrl 字段
+    // 处理头像 - 使用后端返回的 avatarUrl 字段，如果为空则使用默认头像
     let avatarUrl = item.avatarUrl || ''
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
+    } else {
+      // 使用本地默认头像，与校友会列表页保持一致
+      avatarUrl = '/assets/avatar/default_avatar.jpeg'
     }
 
     // 构建位置信息 - 优先使用完整的位置组合

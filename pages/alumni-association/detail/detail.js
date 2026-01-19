@@ -113,7 +113,8 @@ Page({
           // 平台 ID 后端当前未直接返回，这里预留字段，兼容后续扩展
           platformId: platformInfo.platformId || platformInfo.id || null,
           presidentUserId: item.presidentUserId,
-          icon: DEFAULT_ALUMNI_AVATAR, // 后端暂无图标字段，使用默认
+          // 优先使用后端返回的 logo 字段，如果没有则使用默认头像，与列表页保持一致
+          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/compressed-avatar.jpg',
           cover: DEFAULT_COVER, // 后端暂无封面字段，使用默认
           location: item.location || '',
           memberCount: item.memberCount || 0,

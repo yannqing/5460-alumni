@@ -10,7 +10,7 @@
       <view class="header-overlay"></view>
       <view class="profile-left-section">
         <view class="avatar-nickname-row">
-          <image class="avatar-circle" src="{{alumniInfo.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <image class="avatar-circle" src="{{alumniInfo.avatarUrl || '/assets/avatar/default_avatar.jpeg'}}" mode="aspectFill"></image>
           <view class="nickname-text">{{alumniInfo.nickname}}</view>
         </view>
         <view class="avatar-info-row">

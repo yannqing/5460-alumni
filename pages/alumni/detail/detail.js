@@ -50,7 +50,8 @@ Page({
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
-      avatarUrl = config.defaultAvatar
+      // 使用本地默认头像
+      avatarUrl = '/assets/avatar/default_avatar.jpeg'
     }
 
     // 处理性别
