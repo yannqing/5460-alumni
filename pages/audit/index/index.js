@@ -37,21 +37,20 @@ Page({
       }
     ],
     // 校处会功能列表
-    schoolOfficeFunctions: [
-      {
-        id: 1,
-        name: '校友会审核',
-        icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/14/review-1.png',
-        iconType: 'image',
-        url: '/pages/audit/schooloffice/list/list'
-      }
-      // 以下功能暂时注释
-      // {
-      //   id: 2,
-      //   name: '会员管理',
-      //   icon: '👥',
-      //   url: ''
-      // },
+  schoolOfficeFunctions: [
+    {
+      id: 1,
+      name: '校友会审核',
+      icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/14/review-1.png',
+      iconType: 'image',
+      url: '/pages/audit/schooloffice/list/list'
+    },
+    {
+      id: 2,
+      name: '架构管理',
+      icon: '👥',
+      url: '/pages/audit/schooloffice/organization/organization'
+    },
       // {
       //   id: 3,
       //   name: '通知公告',

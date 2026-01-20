@@ -1,13 +1,13 @@
-// pages/alumni-association/organization/organization.js
+// pages/audit/schooloffice/organization/organization.js
 const app = getApp()
 
 Page({
   data: {
-    alumniAssociationList: [],
+    schoolOfficeList: [],
     loading: false,
-    selectedAlumniAssociationId: 0,
-    selectedAlumniAssociationName: '',
-    showAlumniAssociationPicker: false,
+    selectedSchoolOfficeId: 0,
+    selectedSchoolOfficeName: '',
+    showSchoolOfficePicker: false,
     roleList: [], // 存储角色列表
     roleLoading: false, // 角色加载状态
     selectedOrganizeId: 0, // 存储选中的organizeId
@@ -43,225 +43,177 @@ Page({
 
   // 初始化页面数据
   async initPage() {
-    await this.loadAlumniAssociationList()
+    await this.loadSchoolOfficeList()
   },
 
-  // 加载校友会列表（从缓存中获取校友会管理员的alumniAssociationId，然后调用接口）
-  async loadAlumniAssociationList() {
+  // 加载校处会列表（从缓存中获取校处会管理员的organizeId，然后调用接口）
+  async loadSchoolOfficeList() {
     try {
-      console.log('[Debug] 开始加载校友会列表')
-
+      console.log('[Debug] 开始加载校处会列表')
+      
       // 从 storage 中获取角色列表
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
-
-      // 查找所有校友会管理员角色（根据roleName或remark）
-      const alumniAdminRoles = roles.filter(role => 
-        role.roleName === '校友会管理员' || role.remark === '校友会管理员'
-      )
-      console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
-
-      if (alumniAdminRoles.length > 0) {
-        console.log('[Debug] 存在校友会管理员角色，开始处理每个角色')
+      
+      // 查找所有校处会管理员角色
+      const schoolOfficeAdminRoles = roles.filter(role => role.remark === '校处会管理员')
+      console.log('[Debug] 找到的校处会管理员角色:', schoolOfficeAdminRoles)
+      
+      if (schoolOfficeAdminRoles.length > 0) {
+        // 收集所有有效的organizeId
+        const organizeIds = schoolOfficeAdminRoles
+          .filter(role => role.organization && role.organization.organizeId)
+          .map(role => role.organization.organizeId)
         
-        // 存储所有校友会数据
-        const alumniAssociationList = []
+        console.log('[Debug] 获取到的organizeIds:', organizeIds)
         
-        // 遍历所有校友会管理员角色，创建校友会数据
-        for (const alumniAdminRole of alumniAdminRoles) {
-          console.log('[Debug] 处理校友会管理员角色:', alumniAdminRole)
+        if (organizeIds.length > 0) {
+          // 去重，确保每个organizeId只处理一次
+          const uniqueOrganizeIds = [...new Set(organizeIds)]
+          console.log('[Debug] 去重后的organizeIds:', uniqueOrganizeIds)
           
-          // 尝试从不同可能的位置获取ID
-          let alumniAssociationId = null
-
-          // 检查直接字段
-          if (alumniAdminRole.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.alumniAssociationId
-            console.log('[Debug] 从直接字段获取到alumniAssociationId:', alumniAssociationId)
-          }
-          // 检查嵌套的organization字段
-          else if (alumniAdminRole.organization && alumniAdminRole.organization.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.organization.alumniAssociationId
-            console.log('[Debug] 从organization字段获取到alumniAssociationId:', alumniAssociationId)
-          }
-          // 检查organizeId字段（作为备用）
-          else if (alumniAdminRole.organizeId) {
-            alumniAssociationId = alumniAdminRole.organizeId
-            console.log('[Debug] 从organizeId字段获取到ID:', alumniAssociationId)
-          }
-          // 检查嵌套的organization.organizeId字段
-          else if (alumniAdminRole.organization && alumniAdminRole.organization.organizeId) {
-            alumniAssociationId = alumniAdminRole.organization.organizeId
-            console.log('[Debug] 从organization.organizeId字段获取到ID:', alumniAssociationId)
-          }
-
-          console.log('[Debug] 最终获取到的alumniAssociationId:', alumniAssociationId)
-
-          if (alumniAssociationId) {
-            // 获取协会名称（如果直接提供）
-            let associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
-            
-            // 创建基本的校友会对象
-            const basicAlumniData = {
-              id: alumniAssociationId,
-              alumniAssociationId: alumniAssociationId,
-              alumniAssociationName: `${associationName} (ID: ${alumniAssociationId})`,
-              organizeId: alumniAdminRole.organizeId || alumniAssociationId // 存储organizeId
-            }
-            
-            // 检查是否已经存在相同ID的校友会
-            const existingIndex = alumniAssociationList.findIndex(item => 
-              item.alumniAssociationId === alumniAssociationId
+          // 先创建基本的校处会列表
+          const basicSchoolOfficeList = uniqueOrganizeIds.map(organizeId => ({
+            id: organizeId,
+            schoolOfficeId: organizeId,
+            schoolOfficeName: `校处会 (ID: ${organizeId})`
+          }))
+          
+          this.setData({
+            schoolOfficeList: basicSchoolOfficeList
+          })
+          console.log('[Debug] 直接使用organizeIds创建校处会列表:', basicSchoolOfficeList)
+          
+          // 尝试调用接口获取更详细的信息（可选）
+          try {
+            // 并行调用所有校处会的详情接口
+            const detailPromises = uniqueOrganizeIds.map(organizeId => 
+              app.api.localPlatformApi.getLocalPlatformDetail(organizeId)
+                .catch(error => {
+                  console.log(`[Debug] 获取校处会 ${organizeId} 详情失败，使用基本数据:`, error)
+                  return null // 接口失败时返回null，后续过滤
+                })
             )
             
-            // 如果不存在，则添加到列表
-            if (existingIndex === -1) {
-              alumniAssociationList.push(basicAlumniData)
-              console.log('[Debug] 添加校友会到列表:', basicAlumniData)
-            } else {
-              console.log('[Debug] 校友会已存在，跳过:', alumniAssociationId)
-            }
-          }
-        }
-        
-        // 设置校友会列表
-        this.setData({
-          alumniAssociationList: alumniAssociationList
-        })
-        console.log('[Debug] 最终校友会列表:', alumniAssociationList)
-        
-        // 如果列表不为空，自动选择第一个校友会并加载角色列表
-        if (alumniAssociationList.length > 0) {
-          this.setData({
-            selectedAlumniAssociationId: alumniAssociationList[0].alumniAssociationId,
-            selectedAlumniAssociationName: alumniAssociationList[0].alumniAssociationName,
-            selectedOrganizeId: alumniAssociationList[0].alumniAssociationId
-          })
-          
-          // 立即加载角色列表（针对第一个校友会）
-          await this.loadRoleList(alumniAssociationList[0].alumniAssociationId)
-          
-          // 尝试为所有校友会调用接口获取更详细的信息
-          try {
-            // 创建一个新的列表来存储更新后的校友会数据
-            const updatedList = [...alumniAssociationList]
+            const detailResults = await Promise.all(detailPromises)
             
-            // 使用Promise.all并行获取所有校友会的详细信息
-            const detailPromises = updatedList.map(async (alumni, index) => {
-              try {
-                const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
-                if (res.data && res.data.code === 200 && res.data.data) {
-                  console.log(`[Debug] 获取校友会 ${index + 1} 详细信息成功:`, res.data.data)
-                  
-                  // 更新校友会的详细信息
-                  return {
-                    ...res.data.data,
-                    id: res.data.data.alumniAssociationId || res.data.data.id || alumni.alumniAssociationId,
-                    alumniAssociationId: res.data.data.alumniAssociationId || alumni.alumniAssociationId,
-                    alumniAssociationName: res.data.data.associationName || res.data.data.name || alumni.alumniAssociationName,
-                    organizeId: res.data.data.organizeId || alumni.alumniAssociationId // 确保有organizeId
-                  }
+            // 处理接口返回结果，更新校处会列表
+            const updatedSchoolOfficeList = basicSchoolOfficeList.map((platform, index) => {
+              const result = detailResults[index]
+              if (result && result.data && result.data.code === 200 && result.data.data) {
+                const detailData = result.data.data
+                return {
+                  ...detailData,
+                  id: detailData.platformId || detailData.id || platform.schoolOfficeId,
+                  schoolOfficeId: detailData.platformId || platform.schoolOfficeId,
+                  schoolOfficeName: detailData.platformName || detailData.name || platform.schoolOfficeName
                 }
-                return alumni // 如果接口调用失败，返回原始数据
-              } catch (error) {
-                console.log(`[Debug] 获取校友会 ${index + 1} 详细信息失败:`, error)
-                return alumni // 如果发生错误，返回原始数据
               }
+              return platform // 接口失败时使用基本数据
             })
             
-            // 等待所有请求完成
-            const detailedAlumniList = await Promise.all(detailPromises)
-            
-            // 更新校友会列表
             this.setData({
-              alumniAssociationList: detailedAlumniList,
-              selectedAlumniAssociationName: detailedAlumniList[0].alumniAssociationName
+              schoolOfficeList: updatedSchoolOfficeList
             })
-            console.log('[Debug] 已更新所有校友会详细信息:', detailedAlumniList)
+            console.log('[Debug] 已更新校处会列表:', updatedSchoolOfficeList)
           } catch (apiError) {
-            console.log('[Debug] 获取校友会详细信息失败:', apiError)
+            console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
             // 继续使用之前创建的基本数据
           }
+        } else {
+          // 没有找到有效的organizeId，设置为空数组
+          console.warn('[Debug] 校处会管理员角色没有有效的organization或organizeId')
+          this.setData({
+            schoolOfficeList: []
+          })
         }
       } else {
-        // 没有找到校友会管理员角色，设置为空数组
-        console.warn('[Debug] 没有找到校友会管理员角色')
+        // 没有找到校处会管理员角色，设置为空数组
+        console.warn('[Debug] 没有找到校处会管理员角色')
         this.setData({
-          alumniAssociationList: []
+          schoolOfficeList: []
         })
       }
     } catch (error) {
-      console.error('[Debug] 加载校友会列表失败:', error)
+      console.error('[Debug] 加载校处会列表失败:', error)
       // 发生错误时，设置为空数组
       this.setData({
-        alumniAssociationList: []
+        schoolOfficeList: []
       })
     }
   },
 
-  // 显示校友会选择器
-  showAlumniAssociationSelector() {
-    this.setData({ showAlumniAssociationPicker: false })
-    this.setData({ showAlumniAssociationPicker: true })
+  // 显示校处会选择器
+  showSchoolOfficeSelector() {
+    this.setData({ showSchoolOfficePicker: false })
+    this.setData({ showSchoolOfficePicker: true })
   },
 
-  // 选择校友会
-  async selectAlumniAssociation(e) {
+  // 选择校处会
+  async selectSchoolOffice(e) {
     // 正确获取数据集属性
-    const alumniAssociationId = e.currentTarget.dataset.alumniAssociationId
-    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName
-    console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
+    const schoolOfficeId = e.currentTarget.dataset.schoolOfficeId
+    const schoolOfficeName = e.currentTarget.dataset.schoolOfficeName
+    console.log('[Debug] 选择的校处会:', { schoolOfficeId, schoolOfficeName })
 
-    // 获取对应的校友会对象
-    const selectedAlumni = this.data.alumniAssociationList.find(item => item.alumniAssociationId === alumniAssociationId)
-    console.log('[Debug] 找到的校友会对象:', selectedAlumni)
+    // 获取对应的校处会对象
+    const selectedSchoolOffice = this.data.schoolOfficeList.find(item => item.schoolOfficeId === schoolOfficeId)
+    console.log('[Debug] 找到的校处会对象:', selectedSchoolOffice)
 
     this.setData({
-      selectedAlumniAssociationId: alumniAssociationId,
-      selectedAlumniAssociationName: alumniAssociationName,
-      showAlumniAssociationPicker: false,
-      selectedOrganizeId: alumniAssociationId // 确保使用校友会ID
+      selectedSchoolOfficeId: schoolOfficeId,
+      selectedSchoolOfficeName: schoolOfficeName,
+      showSchoolOfficePicker: false,
+      selectedOrganizeId: schoolOfficeId // 确保使用校处会ID
     })
 
     try {
-      // 调用 /AlumniAssociation/{id} 接口，入参为 alumniAssociationId
-      console.log('[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:', alumniAssociationId)
+      // 调用 /localPlatform/{id} 接口，入参为 schoolOfficeId
+      console.log('[Debug] 准备调用 /localPlatform/{id} 接口，schoolOfficeId:', schoolOfficeId)
 
-      const res = await this.getAlumniAssociationDetail(alumniAssociationId)
+      const res = await this.getSchoolOfficeDetail(schoolOfficeId)
 
       console.log('[Debug] 接口调用结果:', res)
 
       if (res.data && res.data.code === 200 && res.data.data) {
-        console.log('[Debug] 接口调用成功，获取到的校友会信息:', res.data.data)
+        console.log('[Debug] 接口调用成功，获取到的校处会信息:', res.data.data)
+        
+        // 更新selectedSchoolOfficeId为正确的platformId
+        const correctPlatformId = res.data.data.platformId || schoolOfficeId;
+        this.setData({
+          selectedSchoolOfficeId: correctPlatformId,
+          selectedOrganizeId: correctPlatformId
+        });
+        console.log('[Debug] 更新selectedSchoolOfficeId为:', correctPlatformId);
 
-        // 调用角色列表接口 - 使用校友会ID作为organizeId
-        await this.loadRoleList(alumniAssociationId)
+        // 调用角色列表接口 - 使用正确的platformId
+        await this.loadRoleList(correctPlatformId)
       } else {
         console.error('[Debug] 接口调用失败，返回数据:', res)
 
-        // 即使校友会详情接口失败，也尝试调用角色列表接口 - 使用校友会ID作为organizeId
-        await this.loadRoleList(alumniAssociationId)
+        // 即使校处会详情接口失败，也尝试调用角色列表接口 - 使用校处会ID
+        await this.loadRoleList(schoolOfficeId)
       }
     } catch (apiError) {
-      console.error('[Debug] 调用 /AlumniAssociation/{id} 接口失败:', apiError)
+      console.error('[Debug] 调用 /localPlatform/{id} 接口失败:', apiError)
 
-      // 即使出错，也尝试调用角色列表接口 - 使用校友会ID作为organizeId
-      await this.loadRoleList(alumniAssociationId)
+      // 即使出错，也尝试调用角色列表接口 - 使用校处会ID
+      await this.loadRoleList(schoolOfficeId)
     }
   },
 
   // 加载角色列表
-  async loadRoleList(alumniAssociationId) {
+  async loadRoleList(schoolOfficeId) {
     try {
-      console.log('[Debug] 开始加载角色列表，alumniAssociationId:', alumniAssociationId, '类型:', typeof alumniAssociationId)
+      console.log('[Debug] 开始加载角色列表，schoolOfficeId:', schoolOfficeId, '类型:', typeof schoolOfficeId)
 
-      // 保持alumniAssociationId为字符串形式，避免数字精度丢失
-      const organizeId = alumniAssociationId
+      // 保持schoolOfficeId为字符串形式，避免数字精度丢失
+      const organizeId = schoolOfficeId
       console.log('[Debug] 保持字符串形式的organizeId:', organizeId, '类型:', typeof organizeId)
 
       this.setData({ roleLoading: true })
 
-      // 调用 /alumniAssociationManagement/role/list 接口 - 使用校友会ID
+      // 调用 /localPlatformManagement/role/list 接口 - 使用校处会ID
       const res = await this.getRoleList(organizeId)
 
       console.log('[Debug] 角色列表接口调用结果:', res)
@@ -316,9 +268,12 @@ Page({
       }
 
       wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/list`,
+        url: `${app.globalData.baseUrl}/localPlatformManagement/role/list`,
         method: 'POST',
-        data: { organizeId: organizeId }, // 保持字符串形式，避免数字精度丢失
+        data: { 
+          organizeId: organizeId, // 保持字符串形式，避免数字精度丢失
+          organizeType: 1 // 校处会类型为1
+        },
         header: headers,
         success: resolve,
         fail: reject
@@ -326,9 +281,9 @@ Page({
     })
   },
 
-  // 取消选择校友会
-  cancelAlumniAssociationSelect() {
-    this.setData({ showAlumniAssociationPicker: false })
+  // 取消选择校处会
+  cancelSchoolOfficeSelect() {
+    this.setData({ showSchoolOfficePicker: false })
   },
 
   // 初始化展开状态（默认全部展开）
@@ -404,7 +359,7 @@ Page({
 
   // 提交编辑
   async submitEdit() {
-    const { editingRole, editForm, selectedAlumniAssociationId } = this.data
+    const { editingRole, editForm, selectedOrganizeId } = this.data
 
     // 校验必填项
     if (!editForm.roleOrName.trim()) {
@@ -419,7 +374,7 @@ Page({
       wx.showLoading({ title: '保存中...' })
 
       const res = await this.callUpdateRoleApi({
-        organizeId: selectedAlumniAssociationId,
+        organizeId: selectedOrganizeId,
         roleOrId: editingRole.roleOrId,
         pid: editingRole.pid,
         roleOrName: editForm.roleOrName.trim(),
@@ -437,7 +392,7 @@ Page({
         })
         this.closeEditModal()
         // 重新加载角色列表
-        await this.loadRoleList(selectedAlumniAssociationId)
+        await this.loadRoleList(selectedOrganizeId)
       } else {
         const errorMsg = (res.data && res.data.msg) || '保存失败'
         wx.showModal({
@@ -514,7 +469,7 @@ Page({
   },
 
   // 获取某个角色的所有子孙节点ID
-  getDescendantIds(role) {
+  getDescendantIds(movingRole) {
     const ids = []
     const traverse = (children) => {
       if (!children) return
@@ -525,7 +480,7 @@ Page({
         }
       })
     }
-    traverse(role.children)
+    traverse(movingRole.children)
     return ids
   },
 
@@ -541,7 +496,7 @@ Page({
   // 选择新的父级
   async selectNewParent(e) {
     const { parentId } = e.currentTarget.dataset
-    const { movingRole, selectedAlumniAssociationId } = this.data
+    const { movingRole, selectedSchoolOfficeId } = this.data
 
     console.log('[Debug] 选择新父级:', parentId, '移动角色:', movingRole)
 
@@ -560,7 +515,7 @@ Page({
 
       // 调用更新接口，只更新 pid
       const res = await this.callUpdateRoleApi({
-        organizeId: selectedAlumniAssociationId,
+        organizeId: this.data.selectedOrganizeId,
         roleOrId: movingRole.roleOrId,
         pid: parentId === '0' ? null : parentId, // 0 表示顶级，传 null
         roleOrName: movingRole.roleOrName,
@@ -578,7 +533,7 @@ Page({
         })
         this.closeMoveModal()
         // 重新加载角色列表
-        await this.loadRoleList(selectedAlumniAssociationId)
+        await this.loadRoleList(this.data.selectedOrganizeId)
       } else {
         const errorMsg = (res.data && res.data.msg) || '移动失败'
         wx.showModal({
@@ -602,9 +557,9 @@ Page({
 
   // 打开新增角色弹窗
   openAddModal() {
-    if (!this.data.selectedAlumniAssociationId) {
+    if (!this.data.selectedSchoolOfficeId) {
       wx.showToast({
-        title: '请先选择校友会',
+        title: '请先选择校处会',
         icon: 'none'
       })
       return
@@ -699,7 +654,7 @@ Page({
 
   // 提交新增角色
   async submitAdd() {
-    const { addForm, selectedAlumniAssociationId } = this.data
+    const { addForm, selectedOrganizeId } = this.data
 
     // 校验必填项
     if (!addForm.roleOrName.trim()) {
@@ -721,10 +676,11 @@ Page({
     try {
       wx.showLoading({ title: '添加中...' })
 
+      // 调用新增角色接口，使用和list接口一样的selectedOrganizeId
       const res = await this.callAddRoleApi({
-        organizeId: selectedAlumniAssociationId,
-        organizeType: 0, // 默认类型
-        pid: addForm.pid === '0' ? '0' : addForm.pid,
+        organizeId: selectedOrganizeId, // 使用和list接口一样的selectedOrganizeId
+        organizeType: 1, // 校处会类型为1
+        pid: addForm.pid, // 保持字符串形式，与校友会页面保持一致
         roleOrName: addForm.roleOrName.trim(),
         roleOrCode: addForm.roleOrCode.trim(),
         remark: addForm.remark.trim()
@@ -738,8 +694,8 @@ Page({
           icon: 'success'
         })
         this.closeAddModal()
-        // 重新加载角色列表
-        await this.loadRoleList(selectedAlumniAssociationId)
+        // 重新加载角色列表，传递原始字符串形式的organizeId
+        await this.loadRoleList(selectedOrganizeId)
       } else {
         const errorMsg = (res.data && res.data.msg) || '添加失败'
         wx.showModal({
@@ -763,14 +719,14 @@ Page({
 
   // 调用新增角色接口
   callAddRoleApi(data) {
-    // 保持字符串格式，避免数字精度丢失
+    // 按接口规范转换参数类型，organizeId保持字符串格式，避免数字精度丢失
     const requestData = {
-      organizeId: String(data.organizeId),
-      organizeType: data.organizeType,
-      pid: String(data.pid),
-      roleOrName: data.roleOrName,
-      roleOrCode: data.roleOrCode,
-      remark: data.remark
+      organizeId: String(data.organizeId), // 转换为字符串形式，与校友会页面保持一致
+      organizeType: data.organizeType, // 已经是数字类型
+      pid: String(data.pid), // 转换为字符串形式，与校友会页面保持一致
+      roleOrName: data.roleOrName, // 角色名，字符串类型
+      roleOrCode: data.roleOrCode, // 角色唯一代码，字符串类型
+      remark: data.remark // 角色含义，字符串类型
     }
 
     console.log('[Debug] 调用新增角色接口，请求数据:', requestData)
@@ -792,7 +748,7 @@ Page({
       }
 
       wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/add`,
+        url: `${app.globalData.baseUrl}/localPlatformManagement/role/add`,
         method: 'POST',
         data: requestData,
         header: headers,
@@ -837,7 +793,7 @@ Page({
       }
 
       wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/update`,
+        url: `${app.globalData.baseUrl}/localPlatformManagement/role/update`,
         method: 'PUT',
         data: requestData,
         header: headers,
@@ -847,8 +803,8 @@ Page({
     })
   },
 
-  // 调用校友会详情接口
-  getAlumniAssociationDetail(alumniAssociationId) {
+  // 调用校处会详情接口
+  getSchoolOfficeDetail(schoolOfficeId) {
     return new Promise((resolve, reject) => {
       // 获取 token
       let token = wx.getStorageSync('token')
@@ -867,7 +823,7 @@ Page({
       }
 
       wx.request({
-        url: `${app.globalData.baseUrl}/AlumniAssociation/${alumniAssociationId}`,
+        url: `${app.globalData.baseUrl}/localPlatform/${schoolOfficeId}`,
         method: 'GET',
         header: headers,
         success: resolve,
@@ -881,8 +837,8 @@ Page({
     const roleOrId = e.currentTarget.dataset.roleOrId
     console.log('[Debug] 准备删除角色，roleOrId:', roleOrId, '类型:', typeof roleOrId)
 
-    // 获取当前选中的校友会ID
-    const organizeId = this.data.selectedAlumniAssociationId
+    // 获取当前选中的校处会ID
+    const organizeId = this.data.selectedOrganizeId
     console.log('[Debug] 删除角色时的organizeId:', organizeId, '类型:', typeof organizeId)
 
     // 显示确认对话框
@@ -934,6 +890,12 @@ Page({
     const strOrganizeId = String(organizeId)
     console.log('[Debug] 调用删除角色接口，roleOrId:', strRoleOrId, '类型:', typeof strRoleOrId)
     console.log('[Debug] organizeId:', strOrganizeId, '类型:', typeof strOrganizeId)
+    
+    const requestData = {
+      roleOrId: strRoleOrId, // 保持字符串格式，避免数字精度丢失
+      organizeId: strOrganizeId // 保持字符串格式，避免数字精度丢失
+    }
+    console.log('[Debug] 调用删除角色接口，请求数据:', requestData)
 
     return new Promise((resolve, reject) => {
       // 获取 token
@@ -953,12 +915,9 @@ Page({
       }
 
       wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/delete`,
+        url: `${app.globalData.baseUrl}/localPlatformManagement/role/delete`,
         method: 'DELETE',
-        data: {
-          roleOrId: strRoleOrId, // 保持字符串格式，避免精度丢失
-          organizeId: strOrganizeId // 保持字符串格式，避免精度丢失
-        },
+        data: requestData,
         header: headers,
         success: resolve,
         fail: reject
