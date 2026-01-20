@@ -1,5 +1,7 @@
 {
-  "navigationBarTitleText": "校处会"
+  "navigationBarTitleText": "校处会",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50
 }
 
 

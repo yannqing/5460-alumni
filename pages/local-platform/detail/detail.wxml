@@ -47,28 +47,46 @@
           所在城市：{{platformInfo.city}}
         </view>
         <view class="text-secondary mt-10" wx:if="{{platformInfo.memberCount}}">
-          成员：{{platformInfo.memberCount}}人
+          会员：{{platformInfo.memberCount}}人
         </view>
       </view>
     </view>
 
-    <!-- Tab 内容：成员列表 -->
+    <!-- Tab 内容：会员列表 -->
     <view wx:if="{{activeTab === 1}}" class="tab-content">
       <view class="card">
-        <view class="text-bold mb-20">成员列表</view>
-        <view wx:if="{{!members.length}}" class="text-placeholder">暂无成员</view>
-        <view wx:else class="member-list">
-          <view class="member-item" wx:for="{{members}}" wx:key="id">
-            <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="text-bold mb-20">会员列表</view>
+        <!-- 骨架屏 -->
+        <view wx:if="{{associationLoading && associations.length === 0}}" class="member-list skeleton-list">
+          <view class="member-item skeleton-item" wx:for="[1,2,3,4,5]" wx:key="*this">
+            <view class="member-avatar skeleton-avatar"></view>
             <view class="member-info">
               <view class="member-name-row">
-                <text class="member-name">{{item.name}}</text>
-                <view class="member-tag">{{item.role}}</view>
+                <view class="skeleton-name"></view>
               </view>
-              <view class="member-company">{{item.company}}</view>
+              <view class="skeleton-text"></view>
+              <view class="skeleton-text"></view>
             </view>
           </view>
         </view>
+        <!-- 空状态 -->
+        <view wx:elif="{{!associations.length}}" class="text-placeholder">暂无校友会</view>
+        <!-- 实际数据 -->
+        <view wx:else class="member-list">
+          <view class="member-item" wx:for="{{associations}}" wx:key="associationId">
+            <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
+            <view class="member-info">
+              <view class="member-name-row">
+                <text class="member-name">{{item.associationName}}</text>
+              </view>
+              <view class="member-company">会员人数：{{item.memberCount}}人</view>
+              <view class="member-company">所在地：{{item.location || '暂无'}}</view>
+            </view>
+          </view>
+        </view>
+        <!-- 加载更多 -->
+        <view wx:if="{{associationLoading && associations.length > 0}}" class="loading-more">加载中...</view>
+        <view wx:elif="{{!hasMore && associations.length}}" class="no-more">没有更多了</view>
       </view>
     </view>
   </view>

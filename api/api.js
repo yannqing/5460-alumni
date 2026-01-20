@@ -81,6 +81,8 @@ const localPlatformApi = {
   rejectAssociationApplication: (id) => post(`/localPlatformManagement/rejectAssociationApplication/${id}`),
   // 审核校处会申请（新接口）
   reviewAssociationApplication: (data) => post('/localPlatformManagement/reviewAssociationApplication', data),
+  // 获取校处会下的校友会列表
+  getPlatformAssociations: (params) => post('/localPlatform/alumniAssociations/page', params),
 }
 
 

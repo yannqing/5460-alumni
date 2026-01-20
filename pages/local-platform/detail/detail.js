@@ -9,11 +9,16 @@ Page({
     platformId: '',
     platformInfo: null,
     loading: true,
-    // 成员列表（后端暂未提供，预留字段）
-    members: [],
+    // 校友会列表
+    associations: [],
     // 顶部标签：与校友会主页保持一致
     activeTab: 0,
-    tabs: ['基本信息', '成员列表']
+    tabs: ['基本信息', '会员列表'],
+    // 分页参数
+    current: 1,
+    pageSize: 10,
+    hasMore: true,
+    associationLoading: false
   },
 
   onLoad(options) {
@@ -36,6 +41,27 @@ Page({
     return {
       title: this.data.platformInfo?.platformName || '校处会',
       path: `/pages/local-platform/detail/detail?id=${this.data.platformId}`
+    }
+  },
+  
+  // 下拉刷新
+  onPullDownRefresh() {
+    // 如果当前是会员列表标签页，刷新校友会列表
+    if (this.data.activeTab === 1) {
+      this.loadAssociations(true).finally(() => {
+        wx.stopPullDownRefresh()
+      })
+    } else {
+      // 不是会员列表时，直接停止下拉刷新
+      wx.stopPullDownRefresh()
+    }
+  },
+  
+  // 上拉加载更多
+  onReachBottom() {
+    // 如果当前是会员列表标签页且有更多数据，加载更多
+    if (this.data.activeTab === 1 && this.data.hasMore) {
+      this.loadAssociations()
     }
   },
 
@@ -113,7 +139,88 @@ Page({
 
   // 顶部 Tab 切换
   switchTab(e) {
-    this.setData({ activeTab: e.currentTarget.dataset.index })
+    const index = e.currentTarget.dataset.index
+    this.setData({ activeTab: index })
+    
+    // 切换到会员列表时加载数据
+    if (index === 1) {
+      this.loadAssociations()
+    }
+  },
+  
+  // 加载校友会列表
+  async loadAssociations(refresh = false) {
+    // 如果已经没有更多数据且不是刷新，直接返回
+    if (!this.data.hasMore && !refresh) {
+      return
+    }
+    
+    // 如果正在加载，直接返回
+    if (this.data.associationLoading) {
+      return
+    }
+    
+    try {
+      this.setData({ associationLoading: true })
+      
+      // 准备请求参数
+      const params = {
+        current: refresh ? 1 : this.data.current,
+        pageSize: this.data.pageSize,
+        platformId: this.data.platformId, // 直接使用字符串类型，避免数字精度丢失
+        sortField: 'memberCount', // 默认按会员数量排序
+        sortOrder: 'descend' // 默认降序
+      }
+      
+      // 调用接口
+      const res = await localPlatformApi.getPlatformAssociations(params)
+      
+      if (res.data && res.data.code === 200) {
+        const data = res.data.data || {}
+        let associationList = data.records || []
+        
+        // 处理校友会列表数据，添加头像处理逻辑
+        associationList = associationList.map(item => {
+          // 优先使用logo作为头像，如果没有logo则使用默认头像
+          let avatar = ''
+          if (item.logo) {
+            if (item.logo.startsWith('http://') || item.logo.startsWith('https://')) {
+              avatar = item.logo
+            } else {
+              avatar = config.getImageUrl(item.logo)
+            }
+          } else {
+            // 使用默认头像，与校友会列表页面保持一致
+            avatar = '/assets/avatar/compressed-avatar.jpg'
+          }
+          
+          return {
+            ...item,
+            avatar: avatar
+          }
+        })
+        
+        // 更新数据
+        this.setData({
+          associations: refresh ? associationList : [...this.data.associations, ...associationList],
+          current: refresh ? 2 : this.data.current + 1,
+          hasMore: associationList.length >= this.data.pageSize
+        })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('加载校友会列表失败:', error)
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ associationLoading: false })
+    }
   },
 
   // 复制联系信息
