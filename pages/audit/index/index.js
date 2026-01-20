@@ -51,12 +51,12 @@ Page({
       icon: '👥',
       url: '/pages/audit/schooloffice/organization/organization'
     },
-      // {
-      //   id: 3,
-      //   name: '通知公告',
-      //   icon: '📢',
-      //   url: ''
-      // },
+    {
+      id: 3,
+      name: '成员管理',
+      icon: '�',
+      url: '/pages/audit/schooloffice/member/member'
+    },
       // {
       //   id: 4,
       //   name: '资料库',
