@@ -31,22 +31,38 @@
   <!-- 校处会列表 -->
   <view class="platform-list">
     <view class="platform-card" wx:for="{{platformList}}" wx:key="platformId" bindtap="viewDetail" data-id="{{item.platformId}}">
-      <!-- 头部：头像、名称 -->
-      <view class="card-header">
+      <!-- 背景图片 -->
+      <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
+        <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
+        <!-- 头像 -->
+        <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" />
+        <!-- 名称和城市 -->
+        <view class="info-on-bg">
+          <text class="card-title-on-bg">{{item.platformName}}</text>
+          <view class="card-subtitle-on-bg">
+            <image class="subtitle-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
+            <text>{{item.city}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 无背景图片时的布局 -->
+      <view wx:else class="no-bg-header">
         <image class="platform-avatar" src="{{item.avatar}}" mode="aspectFill" />
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.platformName}}</text>
-            <!-- <view wx:if="{{item.status === 1}}" class="status-badge active">活跃</view>
-            <view wx:else class="status-badge inactive">未激活</view> -->
           </view>
-
-          <!-- 城市信息 -->
           <view class="card-subtitle">
             <image class="subtitle-icon" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{item.city}}</text>
           </view>
-
+        </view>
+      </view>
+      
+      <!-- 头部：范围和联系方式 -->
+      <view class="card-header">
+        <view class="card-info">
           <!-- 范围信息 -->
           <view class="card-scope" wx:if="{{item.scope}}">
             <image class="scope-icon" src="{{iconScope}}" mode="aspectFit" />
@@ -60,9 +76,6 @@
           </view>
         </view>
       </view>
-      
-      <!-- 背景图片 -->
-      <image wx:if="{{item.bgImg}}" class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
     </view>
 
     <!-- 加载状态 -->

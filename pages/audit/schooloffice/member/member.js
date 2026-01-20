@@ -1,5 +1,19 @@
 // pages/audit/schooloffice/member/member.js
+const { alumniApi } = require('../../../../api/api.js')
 const app = getApp()
+
+// 防抖函数
+function debounce(fn, delay) {
+    let timer = null
+    return function () {
+        const context = this
+        const args = arguments
+        clearTimeout(timer)
+        timer = setTimeout(function () {
+            fn.apply(context, args)
+        }, delay)
+    }
+}
 
 Page({
   data: {
@@ -8,10 +22,29 @@ Page({
     selectedSchoolOfficeId: 0,
     selectedSchoolOfficeName: '',
     showSchoolOfficePicker: false,
-    selectedOrganizeId: 0 // 存储选中的organizeId
+    selectedOrganizeId: 0, // 存储选中的organizeId
+    // 成员列表相关
+    memberList: [],
+    memberLoading: false, // 成员加载状态
+    // 邀请成员相关
+    showInviteModal: false,
+    inviteForm: {
+      name: '',
+      wxId: '',
+      roleOrId: ''
+    },
+    // 校友搜索结果
+    alumniSearchResults: [],
+    showAlumniSearchResults: false,
+    // 编辑成员相关
+    showEditModal: false,
+    editingMember: {},
+    roleList: []
   },
 
   onLoad(options) {
+    // 创建搜索防抖函数
+    this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
     this.initPage()
   },
 
@@ -87,27 +120,51 @@ Page({
             })
             
             this.setData({
-              schoolOfficeList: updatedSchoolOfficeList
-            })
-            console.log('[Debug] 已更新校处会列表:', updatedSchoolOfficeList)
-          } catch (apiError) {
-            console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
-            // 继续使用之前创建的基本数据
-          }
-        } else {
-          // 没有找到有效的organizeId，设置为空数组
-          console.warn('[Debug] 校处会管理员角色没有有效的organization或organizeId')
-          this.setData({
-            schoolOfficeList: []
+            schoolOfficeList: updatedSchoolOfficeList
           })
+          console.log('[Debug] 已更新校处会列表:', updatedSchoolOfficeList)
+          
+          // 如果列表不为空，自动选择第一个校处会并加载其成员列表
+          if (updatedSchoolOfficeList.length > 0) {
+            this.setData({
+              selectedSchoolOfficeId: updatedSchoolOfficeList[0].schoolOfficeId,
+              selectedSchoolOfficeName: updatedSchoolOfficeList[0].schoolOfficeName,
+              selectedOrganizeId: updatedSchoolOfficeList[0].schoolOfficeId
+            })
+            
+            // 加载第一个校处会的成员列表
+            await this.loadMemberList(updatedSchoolOfficeList[0].schoolOfficeId)
+          }
+        } catch (apiError) {
+          console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
+          // 继续使用之前创建的基本数据
+          
+          // 如果列表不为空，自动选择第一个校处会并加载其成员列表
+          if (basicSchoolOfficeList.length > 0) {
+            this.setData({
+              selectedSchoolOfficeId: basicSchoolOfficeList[0].schoolOfficeId,
+              selectedSchoolOfficeName: basicSchoolOfficeList[0].schoolOfficeName,
+              selectedOrganizeId: basicSchoolOfficeList[0].schoolOfficeId
+            })
+            
+            // 加载第一个校处会的成员列表
+            await this.loadMemberList(basicSchoolOfficeList[0].schoolOfficeId)
+          }
         }
       } else {
-        // 没有找到校处会管理员角色，设置为空数组
-        console.warn('[Debug] 没有找到校处会管理员角色')
+        // 没有找到有效的organizeId，设置为空数组
+        console.warn('[Debug] 校处会管理员角色没有有效的organization或organizeId')
         this.setData({
           schoolOfficeList: []
         })
       }
+    } else {
+      // 没有找到校处会管理员角色，设置为空数组
+      console.warn('[Debug] 没有找到校处会管理员角色')
+      this.setData({
+        schoolOfficeList: []
+      })
+    }
     } catch (error) {
       console.error('[Debug] 加载校处会列表失败:', error)
       // 发生错误时，设置为空数组
@@ -162,14 +219,92 @@ Page({
       } else {
         console.error('[Debug] 接口调用失败，返回数据:', res)
       }
+      
+      // 加载该校处会的成员列表
+      await this.loadMemberList(this.data.selectedSchoolOfficeId)
     } catch (apiError) {
       console.error('[Debug] 调用 /localPlatform/{id} 接口失败:', apiError)
     }
   },
+  
+  // 加载成员列表
+  async loadMemberList(localPlatformId) {
+    try {
+      this.setData({ memberLoading: true })
+      console.log('[Debug] 开始加载成员列表，localPlatformId:', localPlatformId)
+      
+      // 调用成员列表接口
+      const res = await this.queryMemberList(localPlatformId)
+      
+      if (res.data && res.data.code === 200) {
+        // 获取原始成员列表
+        let memberList = (res.data.data && res.data.data.records) || []
+        
+        // 排序成员列表：pid=0的排在前面，然后按角色名称排序
+        memberList.sort((a, b) => {
+          // 首先比较pid，pid=0的排在前面
+          const pidA = a.organizeArchiRole ? a.organizeArchiRole.pid : null
+          const pidB = b.organizeArchiRole ? b.organizeArchiRole.pid : null
+          
+          if (pidA === '0' && pidB !== '0') return -1
+          if (pidA !== '0' && pidB === '0') return 1
+          
+          // 如果pid相同，按角色名称排序
+          const roleNameA = a.organizeArchiRole ? a.organizeArchiRole.roleOrName : ''
+          const roleNameB = b.organizeArchiRole ? b.organizeArchiRole.roleOrName : ''
+          
+          return roleNameA.localeCompare(roleNameB)
+        })
+        
+        this.setData({
+          memberList: memberList,
+          memberLoading: false
+        })
+        console.log('[Debug] 成员列表加载完成:', memberList)
+      } else {
+        this.setData({
+          memberList: [],
+          memberLoading: false
+        })
+        console.error('[Debug] 成员列表接口调用失败，返回数据:', res)
+      }
+    } catch (error) {
+      console.error('[Debug] 加载成员列表失败:', error)
+      this.setData({
+        memberList: [],
+        memberLoading: false
+      })
+    }
+  },
+  
+  // 调用查询成员列表接口
+  queryMemberList(localPlatformId) {
+    return new Promise((resolve, reject) => {
+      // 获取 token
+      let token = wx.getStorageSync('token')
+      if (!token) {
+        const userInfo = wx.getStorageSync('userInfo') || {}
+        token = userInfo.token || ''
+      }
 
-  // 取消选择校处会
-  cancelSchoolOfficeSelect() {
-    this.setData({ showSchoolOfficePicker: false })
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      if (token) {
+        headers.token = token
+        headers['x-token'] = token
+      }
+
+      wx.request({
+        url: `${app.globalData.baseUrl}/localPlatform/members/page`,
+        method: 'POST',
+        data: { localPlatformId: localPlatformId },
+        header: headers,
+        success: resolve,
+        fail: reject
+      })
+    })
   },
 
   // 调用校处会详情接口
@@ -194,6 +329,468 @@ Page({
       wx.request({
         url: `${app.globalData.baseUrl}/localPlatform/${schoolOfficeId}`,
         method: 'GET',
+        header: headers,
+        success: resolve,
+        fail: reject
+      })
+    })
+  },
+  
+  // 取消选择校处会
+  cancelSchoolOfficeSelect() {
+    this.setData({ showSchoolOfficePicker: false })
+  },
+  
+  // 显示邀请成员弹窗
+  async showInviteModal() {
+    this.setData({
+      showInviteModal: true,
+      inviteForm: {
+        name: '',
+        wxId: '',
+        roleOrId: '',
+        roleOrName: '',
+        roleIndex: 0
+      },
+      alumniSearchResults: [],
+      showAlumniSearchResults: false,
+      roleList: []
+    })
+    
+    // 获取角色列表
+    await this.loadRoleList()
+  },
+  
+  // 邀请成员时角色选择变化
+  onRoleChange(e) {
+    const index = e.detail.value
+    const selectedRole = this.data.roleList[index]
+    if (selectedRole) {
+      this.setData({
+        'inviteForm.roleOrId': selectedRole.roleOrId,
+        'inviteForm.roleOrName': selectedRole.roleOrName,
+        'inviteForm.roleIndex': index
+      })
+    }
+  },
+  
+  // 隐藏邀请成员弹窗
+  hideInviteModal() {
+    this.setData({
+      showInviteModal: false,
+      alumniSearchResults: [],
+      showAlumniSearchResults: false
+    })
+  },
+  
+  // 阻止冒泡
+  preventBubble() {
+    // 阻止冒泡，防止点击搜索结果时关闭弹窗
+  },
+  
+  // 处理校友姓名输入
+  onMemberNameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.name': value,
+      showAlumniSearchResults: true
+    })
+
+    if (value.trim()) {
+      this.searchAlumniDebounced(value)
+    } else {
+      this.setData({ alumniSearchResults: [] })
+    }
+  },
+  
+  // 处理校友姓名输入框聚焦
+  onMemberNameFocus() {
+    if (this.data.inviteForm.name) {
+      this.setData({ showAlumniSearchResults: true })
+      if (this.data.alumniSearchResults.length === 0) {
+        this.searchAlumni(this.data.inviteForm.name)
+      }
+    }
+  },
+  
+  // 搜索校友
+  async searchAlumni(keyword) {
+    if (!keyword) return
+    try {
+      const res = await alumniApi.queryAlumniList({
+        current: 1,
+        pageSize: 10,
+        name: keyword.trim()
+      })
+      if (res.data && res.data.code === 200) {
+        this.setData({
+          alumniSearchResults: res.data.data.records || []
+        })
+      }
+    } catch (e) {
+      console.error('搜索校友失败', e)
+    }
+  },
+  
+  // 选择校友
+  selectAlumni(e) {
+    const { index } = e.currentTarget.dataset
+    const selectedAlumni = this.data.alumniSearchResults[index]
+    
+    if (selectedAlumni) {
+      // 从selectedAlumni中获取wxId，尝试所有可能的字段名，保留字符串形式
+      const wxId = selectedAlumni.wxId || selectedAlumni.id || selectedAlumni.userId || selectedAlumni.user_id || selectedAlumni.wx_id || '0'
+      
+      this.setData({
+        'inviteForm.name': selectedAlumni.name || selectedAlumni.nickname || selectedAlumni.realName,
+        'inviteForm.wxId': wxId,
+        alumniSearchResults: [],
+        showAlumniSearchResults: false
+      })
+    }
+  },
+  
+
+  
+  // 提交邀请
+  async submitInvite() {
+    try {
+      const { wxId, roleOrId } = this.data.inviteForm
+      const localPlatformId = this.data.selectedSchoolOfficeId
+
+      // 验证必填参数
+      if (!wxId || wxId === 0 || !roleOrId || !localPlatformId) {
+        wx.showToast({
+          title: '请通过搜索选择校友并选择身份',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 调用邀请成员接口，直接传递字符串形式的wxId和roleOrId，避免大整数精度丢失
+      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId)
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '邀请成功',
+          icon: 'success'
+        })
+        this.hideInviteModal()
+        // 刷新成员列表
+        await this.loadMemberList(localPlatformId)
+      } else {
+        wx.showToast({
+          title: (res.data && res.data.msg) || '邀请失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 邀请成员失败:', error)
+      wx.showToast({
+        title: '邀请失败',
+        icon: 'none'
+      })
+    }
+  },
+  
+  // 加载角色列表
+  async loadRoleList() {
+    try {
+      const localPlatformId = this.data.selectedSchoolOfficeId
+      if (!localPlatformId) {
+        console.error('[Debug] 加载角色列表失败：缺少localPlatformId')
+        return
+      }
+      
+      const res = await this.getRoleList(localPlatformId)
+      if (res.data && res.data.code === 200) {
+        // 将树形结构的角色数据扁平化为一维数组
+        const flattenedRoles = this.flattenRoleTree(res.data.data || [])
+        this.setData({
+          roleList: flattenedRoles
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 加载角色列表失败:', error)
+    }
+  },
+  
+  // 将树形结构的角色数据扁平化为一维数组
+  flattenRoleTree(roleTree) {
+    const result = []
+    
+    function traverse(node) {
+      // 添加当前节点，不保留层级信息
+      result.push(node)
+      
+      // 递归处理子节点
+      if (node.children && node.children.length > 0) {
+        node.children.forEach(child => traverse(child))
+      }
+    }
+    
+    // 遍历所有根节点
+    roleTree.forEach(root => traverse(root))
+    
+    return result
+  },
+  
+  // 调用获取角色列表接口
+  getRoleList(organizeId) {
+    return new Promise((resolve, reject) => {
+      // 获取 token
+      let token = wx.getStorageSync('token')
+      if (!token) {
+        const userInfo = wx.getStorageSync('userInfo') || {}
+        token = userInfo.token || ''
+      }
+
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      if (token) {
+        headers.token = token
+        headers['x-token'] = token
+      }
+
+      wx.request({
+        url: `${app.globalData.baseUrl}/localPlatformManagement/role/list`,
+        method: 'POST',
+        data: {
+          organizeId: organizeId,
+          organizeType: 1 // 1-校处会
+        },
+        header: headers,
+        success: resolve,
+        fail: reject
+      })
+    })
+  },
+  
+  // 调用邀请成员接口
+  inviteMemberAPI(localPlatformId, wxId, roleOrId) {
+    return new Promise((resolve, reject) => {
+      // 获取 token
+      let token = wx.getStorageSync('token')
+      if (!token) {
+        const userInfo = wx.getStorageSync('userInfo') || {}
+        token = userInfo.token || ''
+      }
+
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      if (token) {
+        headers.token = token
+        headers['x-token'] = token
+      }
+
+      wx.request({
+        url: `${app.globalData.baseUrl}/localPlatformManagement/inviteMember`,
+        method: 'POST',
+        data: {
+          localPlatformId,
+          wxId,
+          roleOrId
+        },
+        header: headers,
+        success: resolve,
+        fail: reject
+      })
+    })
+  },
+  
+  // 打开编辑成员弹窗
+  async openEditModal(e) {
+    const member = e.currentTarget.dataset.member
+    this.setData({
+      editingMember: {
+        ...member,
+        newRoleId: (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || '',
+        newRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
+        roleIndex: 0
+      },
+      showEditModal: true
+    })
+    
+    // 加载角色列表
+    await this.loadRoleList()
+    
+    // 设置默认角色索引
+    const roleId = (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || ''
+    const roleIndex = this.data.roleList.findIndex(role => role.roleOrId === roleId)
+    if (roleIndex !== -1) {
+      this.setData({
+        'editingMember.roleIndex': roleIndex
+      })
+    }
+  },
+  
+  // 编辑成员时角色选择变化
+  onEditRoleChange(e) {
+    const index = e.detail.value
+    const selectedRole = this.data.roleList[index]
+    if (selectedRole) {
+      this.setData({
+        'editingMember.newRoleId': selectedRole.roleOrId,
+        'editingMember.newRoleName': selectedRole.roleOrName,
+        'editingMember.roleIndex': index
+      })
+    }
+  },
+  
+  // 关闭编辑成员弹窗
+  hideEditModal() {
+    this.setData({
+      showEditModal: false
+    })
+  },
+  
+  // 提交编辑成员角色
+  async submitEdit() {
+    try {
+      const { editingMember } = this.data
+      const { newRoleId, wxId } = editingMember
+      const localPlatformId = this.data.selectedSchoolOfficeId
+
+      // 验证必填参数
+      if (!newRoleId || !wxId || !localPlatformId) {
+        wx.showToast({
+          title: '请选择新角色',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 调用更新成员角色接口
+      const res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId)
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '修改成功',
+          icon: 'success'
+        })
+        this.hideEditModal()
+        // 刷新成员列表
+        await this.loadMemberList(localPlatformId)
+      } else {
+        wx.showToast({
+          title: (res.data && res.data.msg) || '修改失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 修改成员角色失败:', error)
+      wx.showToast({
+        title: '修改失败',
+        icon: 'none'
+      })
+    }
+  },
+  
+  // 删除成员
+  async deleteMember(e) {
+    const member = e.currentTarget.dataset.member
+    const { wxId } = member
+    const localPlatformId = this.data.selectedSchoolOfficeId
+
+    // 确认删除
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要删除成员 "${member.name || member.nickname || '未命名'}" 吗？`,
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            // 调用删除成员接口
+            const result = await this.deleteMemberAPI(localPlatformId, wxId)
+            
+            if (result.data && result.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+              // 刷新成员列表
+              await this.loadMemberList(localPlatformId)
+            } else {
+              wx.showToast({
+                title: (result.data && result.data.msg) || '删除失败',
+                icon: 'none'
+              })
+            }
+          } catch (error) {
+            console.error('[Debug] 删除成员失败:', error)
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          }
+        }
+      }
+    })
+  },
+
+  // 调用删除成员接口
+  deleteMemberAPI(localPlatformId, wxId) {
+    return new Promise((resolve, reject) => {
+      // 获取 token
+      let token = wx.getStorageSync('token')
+      if (!token) {
+        const userInfo = wx.getStorageSync('userInfo') || {}
+        token = userInfo.token || ''
+      }
+
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      if (token) {
+        headers.token = token
+        headers['x-token'] = token
+      }
+
+      wx.request({
+        url: `${app.globalData.baseUrl}/localPlatformManagement/deleteMember`,
+        method: 'DELETE',
+        data: {
+          localPlatformId,
+          wxId
+        },
+        header: headers,
+        success: resolve,
+        fail: reject
+      })
+    })
+  },
+
+  // 调用更新成员角色接口
+  updateMemberRoleAPI(localPlatformId, wxId, roleOrId) {
+    return new Promise((resolve, reject) => {
+      // 获取 token
+      let token = wx.getStorageSync('token')
+      if (!token) {
+        const userInfo = wx.getStorageSync('userInfo') || {}
+        token = userInfo.token || ''
+      }
+
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      if (token) {
+        headers.token = token
+        headers['x-token'] = token
+      }
+
+      wx.request({
+        url: `${app.globalData.baseUrl}/localPlatformManagement/updateMemberRole`,
+        method: 'PUT',
+        data: {
+          localPlatformId,
+          wxId,
+          roleOrId
+        },
         header: headers,
         success: resolve,
         fail: reject

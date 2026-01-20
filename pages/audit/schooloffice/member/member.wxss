@@ -160,3 +160,395 @@
   color: #999;
   font-size: 28rpx;
 }
+
+/* 成员列表标题行 */
+.form-title-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 30rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-title-row .form-title {
+  margin-bottom: 0;
+  flex-shrink: 0;
+  margin-right: auto;
+}
+
+/* 成员列表 */
+.member-list {
+  margin-top: 20rpx;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.member-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-role {
+  font-size: 24rpx;
+  color: #1890ff;
+  background-color: #e6f7ff;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.member-gender {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.gender-text {
+  margin-left: 4rpx;
+}
+
+/* 邀请按钮样式 */
+.invite-btn {
+  background-color: #1890ff;
+  color: #fff;
+  border: none;
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* 确保邀请按钮靠在最右边 */
+.form-title-row .invite-btn {
+  flex-shrink: 0;
+  margin-right: -20rpx;
+}
+
+/* 成员操作按钮 */
+.member-actions {
+  display: flex;
+  align-items: center;
+}
+
+.edit-btn {
+  font-size: 24rpx;
+  color: #1890ff;
+  background-color: #e6f7ff;
+  padding: 8rpx 20rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #91d5ff;
+  cursor: pointer;
+  margin-left: 20rpx;
+}
+
+.edit-btn:hover {
+  background-color: #bae7ff;
+}
+
+.delete-btn {
+  font-size: 24rpx;
+  color: #ff4d4f;
+  background-color: #fff1f0;
+  padding: 8rpx 20rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #ffccc7;
+  cursor: pointer;
+  margin-left: 20rpx;
+}
+
+.delete-btn:hover {
+  background-color: #ffe8e6;
+}
+
+/* 搜索相关样式 */
+.search-group {
+  position: relative;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 400rpx;
+  overflow: hidden;
+}
+
+.search-results-content {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  cursor: pointer;
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.search-item:active {
+  background-color: #f5f5f5;
+}
+
+.member-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.search-item .member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-item .member-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 4rpx;
+  display: block;
+}
+
+.search-item .member-school {
+  font-size: 24rpx;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* 角色选择器样式 */
+.role-selector {
+  border: 1rpx solid #eee;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  height: 80rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.selector-text {
+  color: #333;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selector-arrow {
+  color: #999;
+  font-size: 20rpx;
+}
+
+.role-name {
+  font-size: 28rpx;
+  color: #333;
+  display: block;
+}
+
+/* 邀请弹窗样式 */
+.invite-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 20rpx;
+  width: 80%;
+  max-width: 600rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999;
+  cursor: pointer;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  text-align: center;
+}
+
+.modal-body {
+  padding: 30rpx;
+}
+
+.modal-body .form-item {
+  margin-bottom: 30rpx;
+}
+
+.modal-body .label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.modal-body .input {
+  border: 1rpx solid #eee;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+  height: 80rpx;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  gap: 20rpx;
+}
+
+.modal-footer .btn {
+  padding: 0 30rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-footer .btn-cancel {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.modal-footer .btn-confirm {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+/* 编辑弹窗样式 */
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+}
+
+.member-info-display {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #fafafa;
+  border-radius: 8rpx;
+  border: 1rpx solid #eee;
+}
+
+.avatar-small {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  object-fit: cover;
+}
+
+.member-name-display {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 600;
+}

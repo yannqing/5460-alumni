@@ -39,9 +39,7 @@ Page({
     // 编辑成员相关
     showEditModal: false,
     editingMember: {},
-    showEditRoleSelector: false,
-    roleList: [],
-    showRoleSelector: false
+    roleList: []
   },
 
   onLoad(options) {
@@ -356,16 +354,29 @@ Page({
         name: '',
         wxId: '',
         roleOrId: '',
-        roleOrName: ''
+        roleOrName: '',
+        roleIndex: 0
       },
       alumniSearchResults: [],
       showAlumniSearchResults: false,
-      roleList: [],
-      showRoleSelector: false
+      roleList: []
     })
     
     // 获取角色列表
     await this.loadRoleList()
+  },
+  
+  // 邀请成员时角色选择变化
+  onRoleChange(e) {
+    const index = e.detail.value
+    const selectedRole = this.data.roleList[index]
+    if (selectedRole) {
+      this.setData({
+        'inviteForm.roleOrId': selectedRole.roleOrId,
+        'inviteForm.roleOrName': selectedRole.roleOrName,
+        'inviteForm.roleIndex': index
+      })
+    }
   },
 
   // 隐藏邀请成员弹窗
@@ -444,27 +455,7 @@ Page({
     }
   },
 
-  // 切换角色选择器显示状态
-  toggleRoleSelector() {
-    this.setData({
-      showRoleSelector: !this.data.showRoleSelector,
-      showAlumniSearchResults: false // 关闭校友搜索结果
-    })
-  },
 
-  // 选择角色
-  selectRole(e) {
-    const { index } = e.currentTarget.dataset
-    const selectedRole = this.data.roleList[index]
-    
-    if (selectedRole) {
-      this.setData({
-        'inviteForm.roleOrId': selectedRole.roleOrId, // 保留字符串形式，避免大整数精度丢失
-        'inviteForm.roleOrName': selectedRole.roleOrName,
-        showRoleSelector: false
-      })
-    }
-  },
 
   // 提交邀请
   async submitInvite() {
@@ -620,42 +611,43 @@ Page({
       editingMember: {
         ...member,
         newRoleId: (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || '',
-        newRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || ''
+        newRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
+        roleIndex: 0
       },
       showEditModal: true
     })
     
     // 加载角色列表
     await this.loadRoleList()
+    
+    // 设置默认角色索引
+    const roleId = (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || ''
+    const roleIndex = this.data.roleList.findIndex(role => role.roleOrId === roleId)
+    if (roleIndex !== -1) {
+      this.setData({
+        'editingMember.roleIndex': roleIndex
+      })
+    }
+  },
+  
+  // 编辑成员时角色选择变化
+  onEditRoleChange(e) {
+    const index = e.detail.value
+    const selectedRole = this.data.roleList[index]
+    if (selectedRole) {
+      this.setData({
+        'editingMember.newRoleId': selectedRole.roleOrId,
+        'editingMember.newRoleName': selectedRole.roleOrName,
+        'editingMember.roleIndex': index
+      })
+    }
   },
 
   // 关闭编辑成员弹窗
   hideEditModal() {
     this.setData({
-      showEditModal: false,
-      showEditRoleSelector: false
+      showEditModal: false
     })
-  },
-
-  // 切换编辑角色选择器显示状态
-  toggleEditRoleSelector() {
-    this.setData({
-      showEditRoleSelector: !this.data.showEditRoleSelector
-    })
-  },
-
-  // 选择编辑角色
-  selectEditRole(e) {
-    const { index } = e.currentTarget.dataset
-    const selectedRole = this.data.roleList[index]
-    
-    if (selectedRole) {
-      this.setData({
-        'editingMember.newRoleId': selectedRole.roleOrId,
-        'editingMember.newRoleName': selectedRole.roleOrName,
-        showEditRoleSelector: false
-      })
-    }
   },
 
   // 提交编辑成员角色

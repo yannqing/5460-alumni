@@ -22,7 +22,7 @@ Page({
     activeFilterIndex: -1,
     associationList: [],
     current: 1,
-    pageSize: 10,
+    pageSize: 50, // 增大每页大小，一次加载更多数据
     hasMore: true,
     loading: false,
 
@@ -198,21 +198,27 @@ Page({
   },
 
   // 加载校友会列表
-  async loadAssociationList(reset = false) {
-    if (this.data.loading) return
-
-    this.setData({ loading: true })
-
+  async loadAssociationList(refresh = false) {
+    // 如果已经没有更多数据且不是刷新，直接返回
+    if (!this.data.hasMore && !refresh) {
+      return
+    }
+    
+    // 如果正在加载，直接返回
+    if (this.data.loading) {
+      return
+    }
+    
     try {
+      this.setData({ loading: true })
+      
       const { keyword, filters, current, pageSize } = this.data
       const [typeFilter, cityFilter, sortFilter, followFilter] = filters
       
-      // 构建请求参数（与后端接口定义一致）
-      // 如果只选择了省份（城市是"全部"），不传 location 参数，在前端过滤
-      // 如果选择了具体城市，传 location 参数
+      // 准备请求参数
       const params = {
-        current: reset ? 1 : current + 1, // 加载更多时请求下一页
-        pageSize: pageSize,
+        current: refresh ? 1 : this.data.current,
+        pageSize: this.data.pageSize,
         // 搜索关键词：校友会名称
         associationName: keyword || undefined,
         // 地区筛选：如果选择了具体城市，传 location；如果只选了省份，不传（在前端过滤）
@@ -220,7 +226,6 @@ Page({
         // 会长名称（暂不使用）
         presidentUsername: undefined,
         // 排序字段：根据筛选选择
-        // 默认排序不传参数，让后端按数据库默认排序（alumniAssociationId升序）
         sortField: sortFilter.selected === 1 ? 'createTime' : (sortFilter.selected === 2 ? 'memberCount' : undefined),
         // 排序顺序
         sortOrder: sortFilter.selected > 0 ? 'descend' : undefined
@@ -233,27 +238,14 @@ Page({
         }
       })
 
+      // 调用接口
       const res = await associationApi.getAssociationList(params)
       
       if (res.data && res.data.code === 200) {
-        const responseData = res.data.data || {}
-        const list = responseData.records || responseData.list || []
-        const total = responseData.total || 0
-        const currentPage = responseData.current || 1
-        const totalPages = responseData.pages || Math.ceil(total / pageSize)
-
+        const data = res.data.data || {}
+        let list = data.records || data.list || []
+        
         // 数据映射（与后端字段保持同步）
-        // 后端字段示例（AlumniAssociationListVo）：
-        // {
-        //   "alumniAssociationId": 123,          // 当前接口返回的校友会ID字段
-        //   "associationName": "清华大学北京校友会",
-        //   "schoolId": 456,
-        //   "platformId": 789,
-        //   "presidentUserId": 101,
-        //   "contactInfo": "JSON格式",
-        //   "location": "北京市朝阳区xxx",
-        //   "memberCount": 1000
-        // }
         const mappedList = list.map(item => ({
           // ===== 与后端 VO 完全一致的字段（AlumniAssociationListVo）=====
           alumniAssociationId: item.alumniAssociationId,   // 校友会ID
@@ -308,12 +300,13 @@ Page({
         })
 
         // 如果只选择了省份（城市是"全部"），在前端根据省份过滤数据
+        let finalList = mappedList
         if (this.data.selectedProvince && (!this.data.selectedCity || this.data.selectedCity === '全部')) {
           const { provinceCityMap } = this.data
           const provinceCities = provinceCityMap[this.data.selectedProvince] || []
           
           // 过滤：location 字段包含该省份下的任何城市名称，或包含省份名称
-          const filteredList = mappedList.filter(item => {
+          finalList = mappedList.filter(item => {
             if (!item.location) return false
             
             const location = item.location
@@ -327,49 +320,19 @@ Page({
             // 检查是否包含该省份下的任何城市名称
             return provinceCities.some(city => location.includes(city))
           })
-          
-          // 更新分页信息（前端过滤后，总数需要重新计算）
-          const filteredTotal = filteredList.length
-          const filteredPages = Math.ceil(filteredTotal / pageSize)
-          
-          if (reset) {
-            this.setData({
-              associationList: filteredList,
-              current: 1,
-              hasMore: false, // 前端过滤后，不再支持分页加载更多
-              loading: false,
-              refreshing: false
-            })
-          } else {
-            this.setData({
-              associationList: [...this.data.associationList, ...filteredList],
-              current: currentPage,
-              hasMore: false, // 前端过滤后，不再支持分页加载更多
-              loading: false
-            })
-          }
-          return
         }
 
         // 更新列表数据
-        const finalList = reset ? mappedList : [...this.data.associationList, ...mappedList]
+        const updatedList = refresh ? finalList : [...this.data.associationList, ...finalList]
 
-        if (reset) {
-          this.setData({
-            associationList: finalList,
-            current: 1, // 重置为第1页
-            hasMore: currentPage < totalPages,
-            loading: false,
-            refreshing: false
-          })
-        } else {
-          this.setData({
-            associationList: finalList,
-            current: currentPage, // 更新为当前已加载的页码
-            hasMore: currentPage < totalPages,
-            loading: false
-          })
-        }
+        // 更新数据
+        this.setData({
+          associationList: updatedList,
+          current: refresh ? 2 : this.data.current + 1,
+          hasMore: list.length >= this.data.pageSize,
+          loading: false,
+          refreshing: false
+        })
 
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'associationList', FollowTargetType.ASSOCIATION)

@@ -108,10 +108,25 @@
 /* 卡片头部 */
 .card-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  padding: 80rpx 30rpx 30rpx 30rpx;
   gap: 20rpx;
 }
 
+.card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 无背景图片时的头部布局 */
+.no-bg-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  padding: 30rpx;
+}
+
+/* 默认头像样式 */
 .platform-avatar {
   width: 120rpx;
   height: 120rpx;
@@ -120,11 +135,6 @@
   border: 3rpx solid #e0e0e0;
   background-color: #ffffff;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-}
-
-.card-info {
-  flex: 1;
-  min-width: 0;
 }
 
 .card-title-row {
@@ -203,13 +213,76 @@
   flex-shrink: 0;
 }
 
+/* 背景图片容器 */
+.platform-bgImg-container {
+  position: relative;
+  width: 100%;
+  height: 400rpx;
+  margin-top: 20rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
 /* 背景图片 */
 .platform-bgImg {
   width: 100%;
-  height: 200rpx;
-  margin-top: 20rpx;
-  border-radius: 12rpx;
-  background-color: #f5f5f5;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 背景图片上的头像 */
+.platform-avatar-on-bg {
+  position: absolute;
+  bottom: 0rpx;
+  left: 30rpx;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid #ffffff;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+/* 背景图片上的信息容器 */
+.info-on-bg {
+  position: absolute;
+  bottom: 20rpx;
+  left: 170rpx;
+  z-index: 2;
+  color: #000000;
+}
+
+/* 背景图片上的标题 */
+.card-title-on-bg {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+  display: block;
+  color: #000000;
+}
+
+/* 背景图片上的城市信息 */
+.card-subtitle-on-bg {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #000000;
+}
+
+/* 背景图片上的城市文字 */
+.card-subtitle-on-bg text {
+  color: #000000;
+}
+
+/* 背景图片上的位置图标 */
+.subtitle-icon-on-bg {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
 }
 
 /* 加载状态 */
