@@ -60,6 +60,9 @@
           </view>
         </view>
       </view>
+      
+      <!-- 背景图片 -->
+      <image wx:if="{{item.bgImg}}" class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
     </view>
 
     <!-- 加载状态 -->

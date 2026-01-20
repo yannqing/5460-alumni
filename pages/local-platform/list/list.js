@@ -140,11 +140,23 @@ Page({
             // 使用默认头像
             avatar = config.getIconUrl('default-avatar.png')
         }
+        
+        // 处理背景图片
+        let bgImg = item.bgImg || ''
+        if (bgImg) {
+            // 如果背景图片已经是完整的 URL（以 http 或 https 开头），直接使用
+            if (bgImg.startsWith('http://') || bgImg.startsWith('https://')) {
+                bgImg = item.bgImg
+            } else {
+                bgImg = config.getImageUrl(bgImg)
+            }
+        }
 
         return {
             platformId: item.platformId,
             platformName: item.platformName || '未命名校处会',
             avatar: avatar,
+            bgImg: bgImg,
             city: item.city || '未知城市',
             scope: item.scope || '',
             contactInfo: item.contactInfo || '',

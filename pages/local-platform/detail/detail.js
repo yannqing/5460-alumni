@@ -50,6 +50,31 @@ Page({
         const data = res.data.data || {}
 
         // 将后端返回的数据映射到前端需要的格式，补充前端展示所需字段
+        
+        // 处理头像
+        let icon = data.avatar || ''
+        if (icon) {
+          if (icon.startsWith('http://') || icon.startsWith('https://')) {
+            icon = data.avatar
+          } else {
+            icon = config.getImageUrl(icon)
+          }
+        } else {
+          icon = config.defaultAlumniAvatar
+        }
+        
+        // 处理背景图片
+        let cover = data.bgImg || ''
+        if (cover) {
+          if (cover.startsWith('http://') || cover.startsWith('https://')) {
+            cover = data.bgImg
+          } else {
+            cover = config.getImageUrl(cover)
+          }
+        } else {
+          cover = config.defaultCover
+        }
+        
         const platformInfo = {
           platformId: this.data.platformId,
           platformName: data.platformName || '',
@@ -57,9 +82,9 @@ Page({
           scope: data.scope || '',
           adminUserId: data.adminUserId || null,
           contactInfo: data.contactInfo || '',
-          // 以下为前端展示补充字段（后端暂无则给默认值）
-          icon: config.defaultAlumniAvatar,
-          cover: config.defaultCover,
+          // 以下为前端展示补充字段
+          icon: icon,
+          cover: cover,
           location: data.city || '',
           description: data.scope || '',
           memberCount: data.memberCount || 0
