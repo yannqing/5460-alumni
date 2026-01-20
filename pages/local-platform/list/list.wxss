@@ -109,7 +109,7 @@
 .card-header {
   display: flex;
   align-items: center;
-  padding: 80rpx 30rpx 30rpx 30rpx;
+  padding: 0rpx 30rpx 30rpx 30rpx;
   gap: 20rpx;
 }
 
@@ -216,12 +216,18 @@
 /* 背景图片容器 */
 .platform-bgImg-container {
   position: relative;
-  width: 100%;
-  height: 400rpx;
-  margin-top: 20rpx;
-  border-radius: 12rpx;
+  width: calc(100% + 60rpx);
+  height: 360rpx;
+  margin-top: -30rpx;
+  margin-left: -30rpx;
+  margin-right: -30rpx;
+  margin-bottom: -80rpx;
+  border-radius: 16rpx;
   overflow: hidden;
   background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 背景图片 */
@@ -229,17 +235,30 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+}
+
+/* 渐变遮罩 */
+.platform-bgImg-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 240rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  z-index: 1;
 }
 
 /* 背景图片上的头像 */
 .platform-avatar-on-bg {
   position: absolute;
-  bottom: 0rpx;
-  left: 30rpx;
-  width: 120rpx;
-  height: 120rpx;
+  bottom: 24rpx;
+  left: 24rpx;
+  width: 80rpx;
+  height: 80rpx;
   border-radius: 50%;
-  border: 4rpx solid #ffffff;
+  border: 3rpx solid #ffffff;
   background-color: #ffffff;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.15);
   z-index: 2;
@@ -248,41 +267,46 @@
 /* 背景图片上的信息容器 */
 .info-on-bg {
   position: absolute;
-  bottom: 20rpx;
-  left: 170rpx;
+  bottom: 24rpx;
+  left: 130rpx;
   z-index: 2;
-  color: #000000;
+  color: #ffffff;
+  text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 /* 背景图片上的标题 */
 .card-title-on-bg {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 700;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
   display: block;
-  color: #000000;
+  color: #ffffff;
 }
 
 /* 背景图片上的城市信息 */
 .card-subtitle-on-bg {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  font-size: 26rpx;
+  gap: 6rpx;
+  font-size: 24rpx;
   font-weight: 500;
-  color: #000000;
+  color: #ffffff;
 }
 
 /* 背景图片上的城市文字 */
 .card-subtitle-on-bg text {
-  color: #000000;
+  color: #ffffff;
 }
 
 /* 背景图片上的位置图标 */
 .subtitle-icon-on-bg {
-  width: 24rpx;
-  height: 24rpx;
+  width: 20rpx;
+  height: 20rpx;
   flex-shrink: 0;
+  filter: brightness(0) invert(1);
 }
 
 /* 加载状态 */
