@@ -52,8 +52,130 @@
       </view>
     </view>
 
-    <!-- Tab 内容：会员列表 -->
+    <!-- Tab 内容：组织结构 -->
     <view wx:if="{{activeTab === 1}}" class="tab-content">
+      <view class="card dashboard-card">
+        <view class="section-header">
+          <view class="section-title">
+            <view class="text-bold">组织结构</view>
+            <view class="section-subtitle">组织架构展示</view>
+          </view>
+        </view>
+        
+        <view class="role-list-section">
+          <!-- 骨架屏 -->
+          <view wx:if="{{organizationLoading}}" class="skeleton-role-list">
+            <view class="role-item skeleton-item" wx:for="[1,2,3]" wx:key="*this">
+              <view class="role-header">
+                <view class="role-name-container">
+                  <text class="expand-icon">▶</text>
+                  <view class="skeleton-role-name"></view>
+                </view>
+                <view class="skeleton-role-count"></view>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 空状态 -->
+          <view wx:elif="{{roleList.length === 0}}" class="empty-container">
+            <text class="empty-text">暂无角色数据</text>
+          </view>
+          
+          <view wx:else class="org-tree">
+            <!-- 一级节点 -->
+            <view wx:for="{{roleList}}" wx:key="uniqueId" wx:for-item="node1" class="tree-node level-1">
+              <view class="node-header" bindtap="toggleExpand" data-id="{{node1.uniqueId}}">
+                <view class="node-title">
+                  <text class="expand-icon {{node1.expanded ? 'expanded' : ''}}">▶</text>
+                  <text class="role-name">{{node1.roleOrName}}</text>
+                </view>
+                <view class="node-meta">
+                  <text class="member-count">{{node1.members.length}}人</text>
+                </view>
+              </view>
+              
+              <view class="node-content" wx:if="{{node1.expanded}}">
+                <!-- 一级节点成员 -->
+                <view class="node-members" wx:if="{{node1.members.length > 0}}">
+                  <view class="org-member-grid">
+                    <view class="org-member-item" wx:for="{{node1.members}}" wx:key="wxId" wx:for-item="member">
+                      <image class="org-member-avatar" src="{{member.avatarUrl}}" mode="aspectFill"></image>
+                      <view class="org-member-info">
+                        <text class="org-member-name">{{member.name || member.nickname}}</text>
+                        <text class="org-member-role">{{node1.roleOrName}}</text>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+                
+                <!-- 二级节点 -->
+                <view class="children-nodes" wx:if="{{node1.children && node1.children.length > 0}}">
+                  <view wx:for="{{node1.children}}" wx:key="uniqueId" wx:for-item="node2" class="tree-node level-2">
+                    <view class="node-header" bindtap="toggleExpand" data-id="{{node2.uniqueId}}">
+                      <view class="node-title">
+                        <text class="expand-icon {{node2.expanded ? 'expanded' : ''}}">▶</text>
+                        <text class="role-name">{{node2.roleOrName}}</text>
+                      </view>
+                      <view class="node-meta">
+                        <text class="member-count">{{node2.members.length}}人</text>
+                      </view>
+                    </view>
+                    
+                    <view class="node-content" wx:if="{{node2.expanded}}">
+                      <!-- 二级节点成员 -->
+                       <view class="node-members" wx:if="{{node2.members.length > 0}}">
+                        <view class="org-member-grid">
+                          <view class="org-member-item" wx:for="{{node2.members}}" wx:key="wxId" wx:for-item="member">
+                            <image class="org-member-avatar" src="{{member.avatarUrl}}" mode="aspectFill"></image>
+                            <view class="org-member-info">
+                              <text class="org-member-name">{{member.name || member.nickname}}</text>
+                              <text class="org-member-role">{{node2.roleOrName}}</text>
+                            </view>
+                          </view>
+                        </view>
+                      </view>
+                      
+                      <!-- 三级节点 -->
+                      <view class="children-nodes" wx:if="{{node2.children && node2.children.length > 0}}">
+                        <view wx:for="{{node2.children}}" wx:key="uniqueId" wx:for-item="node3" class="tree-node level-3">
+                          <view class="node-header" bindtap="toggleExpand" data-id="{{node3.uniqueId}}">
+                            <view class="node-title">
+                              <text class="expand-icon {{node3.expanded ? 'expanded' : ''}}">▶</text>
+                              <text class="role-name">{{node3.roleOrName}}</text>
+                            </view>
+                            <view class="node-meta">
+                              <text class="member-count">{{node3.members.length}}人</text>
+                            </view>
+                          </view>
+                          
+                          <view class="node-content" wx:if="{{node3.expanded}}">
+                            <!-- 三级节点成员 -->
+                             <view class="node-members" wx:if="{{node3.members.length > 0}}">
+                              <view class="org-member-grid">
+                                <view class="org-member-item" wx:for="{{node3.members}}" wx:key="wxId" wx:for-item="member">
+                                  <image class="org-member-avatar" src="{{member.avatarUrl}}" mode="aspectFill"></image>
+                                  <view class="org-member-info">
+                                    <text class="org-member-name">{{member.name || member.nickname}}</text>
+                                    <text class="org-member-role">{{node3.roleOrName}}</text>
+                                  </view>
+                                </view>
+                              </view>
+                            </view>
+                          </view>
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Tab 内容：会员列表 -->
+    <view wx:if="{{activeTab === 2}}" class="tab-content">
       <view class="card">
         <view class="text-bold mb-20">会员列表</view>
         <!-- 骨架屏 -->

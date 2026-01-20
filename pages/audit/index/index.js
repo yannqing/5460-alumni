@@ -48,13 +48,15 @@ Page({
     {
       id: 2,
       name: '架构管理',
-      icon: '👥',
+      icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/app-window-mac.png',
+      iconType: 'image',
       url: '/pages/audit/schooloffice/organization/organization'
     },
     {
       id: 3,
       name: '成员管理',
-      icon: '�',
+      icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/archive.png',
+      iconType: 'image',
       url: '/pages/audit/schooloffice/member/member'
     },
       // {

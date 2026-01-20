@@ -11,9 +11,12 @@ Page({
     loading: true,
     // 校友会列表
     associations: [],
-    // 顶部标签：与校友会主页保持一致
+    // 顶部标签：基本信息 / 组织结构 / 会员列表
     activeTab: 0,
-    tabs: ['基本信息', '会员列表'],
+    tabs: ['基本信息', '组织结构', '会员列表'],
+    // 组织结构数据
+    roleList: [], // 存储角色列表
+    organizationLoading: false, // 组织结构加载状态
     // 分页参数
     current: 1,
     pageSize: 10,
@@ -47,7 +50,7 @@ Page({
   // 下拉刷新
   onPullDownRefresh() {
     // 如果当前是会员列表标签页，刷新校友会列表
-    if (this.data.activeTab === 1) {
+    if (this.data.activeTab === 2) {
       this.loadAssociations(true).finally(() => {
         wx.stopPullDownRefresh()
       })
@@ -60,7 +63,7 @@ Page({
   // 上拉加载更多
   onReachBottom() {
     // 如果当前是会员列表标签页且有更多数据，加载更多
-    if (this.data.activeTab === 1 && this.data.hasMore) {
+    if (this.data.activeTab === 2 && this.data.hasMore) {
       this.loadAssociations()
     }
   },
@@ -142,10 +145,111 @@ Page({
     const index = e.currentTarget.dataset.index
     this.setData({ activeTab: index })
     
-    // 切换到会员列表时加载数据
+    // 切换到组织结构标签时，加载组织结构数据
     if (index === 1) {
+      // 如果还没加载过组织结构数据，则加载
+      if (this.data.roleList.length === 0) {
+        this.loadOrganizationTree()
+      }
+    }
+    // 切换到会员列表时加载数据
+    else if (index === 2) {
       this.loadAssociations()
     }
+  },
+  
+  // 加载组织架构树
+  loadOrganizationTree() {
+    this.setData({
+      organizationLoading: true
+    })
+    
+    // 调用API获取组织架构树
+    const { post } = require('../../../utils/request.js')
+    post('/localPlatform/organizationTree', {
+      localPlatformId: this.data.platformId
+    }).then(res => {
+      if (res.data && res.data.code === 200) {
+        // 添加展开状态
+        const dataWithExpandedState = this.addExpandedState(res.data.data || [])
+        
+        this.setData({
+          roleList: dataWithExpandedState
+        })
+      } else {
+        wx.showToast({
+          title: res.data.msg || '加载失败',
+          icon: 'none'
+        })
+      }
+    }).catch(err => {
+      wx.showToast({
+        title: '网络错误',
+        icon: 'none'
+      })
+      console.error('加载组织架构树失败:', err)
+    }).finally(() => {
+      this.setData({
+        organizationLoading: false
+      })
+    })
+  },
+  
+  // 添加展开状态
+  addExpandedState(data, prefix = 'role') {
+    return data.map((item, index) => {
+      const uId = `${prefix}_${index}`
+      
+      // 处理该角色下的成员头像
+      let members = item.members || []
+      members = members.map(m => {
+        let avatarUrl = m.avatarUrl || m.avatar || ''
+        if (avatarUrl) {
+          avatarUrl = config.getImageUrl(avatarUrl)
+        } else {
+          avatarUrl = config.defaultAvatar
+        }
+        return {
+          ...m,
+          avatarUrl: avatarUrl
+        }
+      })
+      
+      return {
+        ...item,
+        uniqueId: uId,
+        members: members,
+        expanded: true, // 默认展开
+        children: item.children ? this.addExpandedState(item.children, uId) : []
+      }
+    })
+  },
+  
+  // 切换展开状态
+  toggleExpand(e) {
+    const { id } = e.currentTarget.dataset
+    const newRoleList = this.toggleExpandRecursive([...this.data.roleList], id)
+    this.setData({
+      roleList: newRoleList
+    })
+  },
+  
+  // 递归切换展开状态
+  toggleExpandRecursive(list, id) {
+    return list.map(item => {
+      if (item.uniqueId === id) {
+        return {
+          ...item,
+          expanded: !item.expanded
+        }
+      } else if (item.children && item.children.length > 0) {
+        return {
+          ...item,
+          children: this.toggleExpandRecursive(item.children, id)
+        }
+      }
+      return item
+    })
   },
   
   // 加载校友会列表
