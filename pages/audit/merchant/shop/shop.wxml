@@ -4,4 +4,109 @@
   <view class="page-content">
     <text class="placeholder">店铺管理功能页面</text>
   </view>
+  
+  <!-- 悬浮+号按钮 -->
+  <view class="add-shop-btn" bindtap="showCreateShopModal">
+    +
+  </view>
+</view>
+
+<!-- 创建店铺弹窗 -->
+<view class="modal-overlay" wx:if="{{showModal}}" bindtap="hideCreateShopModal"></view>
+<view class="modal-container" wx:if="{{showModal}}">
+  <view class="modal-header">
+    <text class="modal-title">创建店铺</text>
+    <view class="modal-close" bindtap="hideCreateShopModal">×</view>
+  </view>
+  <view class="modal-content">
+    <form bindsubmit="submitCreateShop">
+      <!-- 所属商户ID -->
+      <view class="form-item">
+        <text class="form-label">所属商户ID <text class="required">*</text></text>
+        <input class="form-input" name="merchantId" type="number" placeholder="请输入商户ID" value="{{formData.merchantId}}" bindinput="onInputChange" data-field="merchantId" />
+      </view>
+      
+      <!-- 店铺名称 -->
+      <view class="form-item">
+        <text class="form-label">店铺名称 <text class="required">*</text></text>
+        <input class="form-input" name="shopName" placeholder="请输入店铺名称" value="{{formData.shopName}}" bindinput="onInputChange" data-field="shopName" />
+      </view>
+      
+      <!-- 店铺类型 -->
+      <view class="form-item">
+        <text class="form-label">店铺类型 <text class="required">*</text></text>
+        <view class="radio-group">
+          <label class="radio-item">
+            <radio value="1" checked="{{formData.shopType === 1}}" bindtap="onRadioChange" data-field="shopType" data-value="1" />总店
+          </label>
+          <label class="radio-item">
+            <radio value="2" checked="{{formData.shopType === 2}}" bindtap="onRadioChange" data-field="shopType" data-value="2" />分店
+          </label>
+        </view>
+      </view>
+      
+      <!-- 省份 -->
+      <view class="form-item">
+        <text class="form-label">省份 <text class="required">*</text></text>
+        <input class="form-input" name="province" placeholder="请输入省份" value="{{formData.province}}" bindinput="onInputChange" data-field="province" />
+      </view>
+      
+      <!-- 城市 -->
+      <view class="form-item">
+        <text class="form-label">城市 <text class="required">*</text></text>
+        <input class="form-input" name="city" placeholder="请输入城市" value="{{formData.city}}" bindinput="onInputChange" data-field="city" />
+      </view>
+      
+      <!-- 区县 -->
+      <view class="form-item">
+        <text class="form-label">区县 <text class="required">*</text></text>
+        <input class="form-input" name="district" placeholder="请输入区县" value="{{formData.district}}" bindinput="onInputChange" data-field="district" />
+      </view>
+      
+      <!-- 详细地址 -->
+      <view class="form-item">
+        <text class="form-label">详细地址 <text class="required">*</text></text>
+        <input class="form-input" name="address" placeholder="请输入详细地址" value="{{formData.address}}" bindinput="onInputChange" data-field="address" />
+      </view>
+      
+      <!-- 位置选择 -->
+      <view class="form-item">
+        <text class="form-label">店铺位置 <text class="required">*</text></text>
+        <view class="location-selector">
+          <input class="form-input location-input" placeholder="请选择店铺位置" value="{{formData.locationName}}" disabled />
+          <button class="select-location-btn" bindtap="selectLocation">选择位置</button>
+        </view>
+      </view>
+      
+      <!-- 店铺电话 -->
+      <view class="form-item">
+        <text class="form-label">店铺电话</text>
+        <input class="form-input" name="phone" type="number" placeholder="请输入店铺电话" value="{{formData.phone}}" bindinput="onInputChange" data-field="phone" />
+      </view>
+      
+      <!-- 营业时间 -->
+      <view class="form-item">
+        <text class="form-label">营业时间</text>
+        <input class="form-input" name="businessHours" placeholder="请输入营业时间" value="{{formData.businessHours}}" bindinput="onInputChange" data-field="businessHours" />
+      </view>
+      
+      <!-- 店铺图片 -->
+      <view class="form-item">
+        <text class="form-label">店铺图片URL数组</text>
+        <textarea class="form-textarea" name="shopImages" placeholder="请输入JSON格式的图片URL数组" value="{{formData.shopImages}}" bindinput="onInputChange" data-field="shopImages" />
+      </view>
+      
+      <!-- 店铺简介 -->
+      <view class="form-item">
+        <text class="form-label">店铺简介</text>
+        <textarea class="form-textarea" name="description" placeholder="请输入店铺简介" value="{{formData.description}}" bindinput="onInputChange" data-field="description" />
+      </view>
+      
+      <!-- 提交按钮 -->
+      <view class="form-actions">
+        <button class="btn-cancel" bindtap="hideCreateShopModal">取消</button>
+        <button class="btn-submit" form-type="submit" loading="{{submitting}}">提交</button>
+      </view>
+    </form>
+  </view>
 </view>
