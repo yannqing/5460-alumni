@@ -40,7 +40,6 @@
     <view wx:if="{{activeTab === 0}}" class="tab-content">
       <view class="card">
         <view class="text-bold mb-20">基本信息</view>
-        <view wx:if="{{platformInfo.description}}" class="text-secondary">简介: {{platformInfo.description}}</view>
         <view class="divider"></view>
         <view class="text-secondary">联系信息：{{platformInfo.contactInfo || '暂无'}}</view>
         <view class="text-secondary mt-10" wx:if="{{platformInfo.city}}">
@@ -51,6 +50,9 @@
         </view>
         <view class="text-secondary mt-10" wx:if="{{platformInfo.memberCount}}">
           会员：{{platformInfo.memberCount}}人
+        </view>
+        <view class="text-secondary mt-10" wx:if="{{platformInfo.description}}">
+          简介: {{platformInfo.description}}
         </view>
       </view>
     </view>
@@ -198,7 +200,7 @@
         <view wx:elif="{{!associations.length}}" class="text-placeholder">暂无校友会</view>
         <!-- 实际数据 -->
         <view wx:else class="member-list">
-          <view class="member-item" wx:for="{{associations}}" wx:key="associationId" bindtap="viewAssociationDetail" data-id="{{item.associationId}}">
+          <view class="member-item" wx:for="{{associations}}" wx:key="alumniAssociationId" bindtap="viewAssociationDetail" data-id="{{item.alumniAssociationId}}">
             <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
             <view class="member-info">
               <view class="member-name-row">
@@ -221,5 +223,3 @@
     <text>暂无校处会信息</text>
   </view>
 </view>
-
-
