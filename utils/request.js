@@ -45,6 +45,9 @@ const request = (params) => {
     let requestData = data
     if (data && data.isAllUrl) {
       requestData = undefined
+    } else {
+      // 过滤请求数据，移除 undefined、null 和空字符串
+      requestData = filterParams(requestData)
     }
 
     // 添加签名（根据文档要求）
@@ -160,12 +163,27 @@ const get = (url, data = {}) => {
   })
 }
 
+// 参数过滤函数：移除 undefined、null 和空字符串
+const filterParams = (data) => {
+  const result = {}
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      const value = data[key]
+      // 只保留非 undefined、非 null、非空字符串的值
+      if (value !== undefined && value !== null && value !== '') {
+        result[key] = value
+      }
+    }
+  }
+  return result
+}
+
 // POST 请求
 const post = (url, data = {}) => {
   return request({
     url,
     method: 'POST',
-    data
+    data: filterParams(data)
   })
 }
 
@@ -174,7 +192,7 @@ const put = (url, data = {}) => {
   return request({
     url,
     method: 'PUT',
-    data
+    data: filterParams(data)
   })
 }
 
@@ -183,7 +201,7 @@ const del = (url, data = {}) => {
   return request({
     url,
     method: 'DELETE',
-    data
+    data: filterParams(data)
   })
 }
 

@@ -195,7 +195,7 @@
         <view wx:elif="{{!associations.length}}" class="text-placeholder">暂无校友会</view>
         <!-- 实际数据 -->
         <view wx:else class="member-list">
-          <view class="member-item" wx:for="{{associations}}" wx:key="associationId">
+          <view class="member-item" wx:for="{{associations}}" wx:key="associationId" bindtap="viewAssociationDetail" data-id="{{item.associationId}}">
             <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
             <view class="member-info">
               <view class="member-name-row">

@@ -6,7 +6,7 @@
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="搜索校处会名称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <input class="search-input" type="text" placeholder="输入关键字进行搜索" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
       <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
     </view>
   </view>
@@ -35,21 +35,21 @@
       <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
         <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
         <!-- 头像 -->
-        <!-- <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" /> -->
+        <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" />
         <!-- 名称和城市 -->
-        <!-- <view class="info-on-bg">
+        <view class="info-on-bg">
           <text class="card-title-on-bg">{{item.platformName}}</text>
           <view class="card-subtitle-on-bg">
             <image class="subtitle-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{item.city}}</text>
           </view>
-        </view> -->
+        </view>
       </view>
       
       <!-- 无背景图片时的布局 -->
       <view wx:else class="no-bg-header">
-        <!-- <image class="platform-avatar" src="{{item.avatar}}" mode="aspectFill" /> -->
-        <!-- <view class="card-info">
+        <image class="platform-avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.platformName}}</text>
           </view>
@@ -57,7 +57,7 @@
             <image class="subtitle-icon" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{item.city}}</text>
           </view>
-        </view> -->
+        </view>
       </view>
       
       <!-- 头部：范围和联系方式 -->

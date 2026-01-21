@@ -341,6 +341,14 @@ Page({
         }
       })
     }
+  },
+  
+  // 查看校友会详情
+  viewAssociationDetail(e) {
+    const associationId = e.currentTarget.dataset.id
+    wx.navigateTo({
+      url: `/pages/alumni-association/detail/detail?id=${associationId}`
+    })
   }
 })
 
