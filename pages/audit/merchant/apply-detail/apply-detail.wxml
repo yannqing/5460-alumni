@@ -1,0 +1,98 @@
+<!--pages/audit/merchant/apply-detail/apply-detail.wxml-->
+<view class="apply-detail-page">
+  <view class="detail-section" wx:if="{{loading}}">
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <view class="detail-content" wx:else>
+    <!-- 基本信息 -->
+    <view class="detail-section">
+      <view class="section-title">基本信息</view>
+      <view class="detail-item">
+        <text class="detail-label">商户名称：</text>
+        <text class="detail-value">{{applyInfo.merchantName}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">商户类型：</text>
+        <text class="detail-value">{{applyInfo.merchantType}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">申请人：</text>
+        <text class="detail-value">{{applyInfo.applicantName}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">联系电话：</text>
+        <text class="detail-value">{{applyInfo.contactPhone}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">申请时间：</text>
+        <text class="detail-value">{{applyInfo.submitTime}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">审核状态：</text>
+        <text class="detail-value status-{{applyInfo.status}}">{{applyInfo.statusText}}</text>
+      </view>
+    </view>
+
+    <!-- 营业执照信息 -->
+    <view class="detail-section">
+      <view class="section-title">营业执照信息</view>
+      <view class="detail-item">
+        <text class="detail-label">统一社会信用代码：</text>
+        <text class="detail-value">{{applyInfo.businessLicenseCode}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">营业执照名称：</text>
+        <text class="detail-value">{{applyInfo.businessLicenseName}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">法定代表人：</text>
+        <text class="detail-value">{{applyInfo.legalRepresentative}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">经营地址：</text>
+        <text class="detail-value">{{applyInfo.businessAddress}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">经营范围：</text>
+        <text class="detail-value">{{applyInfo.businessScope}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">注册日期：</text>
+        <text class="detail-value">{{applyInfo.registrationDate}}</text>
+      </view>
+    </view>
+
+    <!-- 审核意见 -->
+    <view class="detail-section">
+      <view class="section-title">审核意见</view>
+      <view class="detail-item">
+        <text class="detail-label">审核人：</text>
+        <text class="detail-value">{{applyInfo.auditorName || '-'}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">审核时间：</text>
+        <text class="detail-value">{{applyInfo.auditTime || '-'}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">审核备注：</text>
+        <text class="detail-value">{{applyInfo.remark || '-'}}</text>
+      </view>
+    </view>
+
+    <!-- 审核操作区域 -->
+    <view class="audit-actions" wx:if="{{applyInfo.status === 'pending'}}">
+      <textarea 
+        class="remark-input" 
+        placeholder="请输入审核备注（可选）" 
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+        maxlength="200"
+      />
+      <view class="action-buttons">
+        <view class="action-btn reject" bindtap="handleReject">拒绝</view>
+        <view class="action-btn approve" bindtap="handleApprove">通过</view>
+      </view>
+    </view>
+  </view>
+</view>

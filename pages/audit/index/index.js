@@ -107,14 +107,14 @@ Page({
         icon: config.getIconUrl('xyhcygl@3x.png'),
         iconType: 'image',
         url: '/pages/alumni-association/member/member'
-      }
-      // 以下功能暂时注释
-      // {
-      //   id: 3,
-      //   name: '通知公告',
-      //   icon: '📢',
-      //   url: ''
-      // },
+      },
+      {
+        id: 3,
+        name: '商户管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/apply/apply'
+      },
       // {
       //   id: 4,
       //   name: '资料库',

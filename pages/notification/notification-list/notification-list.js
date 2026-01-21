@@ -252,11 +252,28 @@ Page({
     }
 
     // 其他类型的通知保持原有逻辑（显示详情）
-    wx.showModal({
-      title: item.title || '通知详情',
-      content: item.content || '暂无内容',
-      showCancel: false
-    })
+    // 如果是商户入驻申请未通过，显示查看详情按钮
+    if (item.title === '商户入驻申请未通过') {
+      wx.showModal({
+        title: item.title || '通知详情',
+        content: item.content || '暂无内容',
+        showCancel: true,
+        cancelText: '确定',
+        confirmText: '查看详情',
+        success: (res) => {
+          if (res.confirm) {
+            // 查看详情按钮点击事件，暂时不做功能处理
+            console.log('查看详情按钮被点击')
+          }
+        }
+      })
+    } else {
+      wx.showModal({
+        title: item.title || '通知详情',
+        content: item.content || '暂无内容',
+        showCancel: false
+      })
+    }
   },
 
   // 标记单条通知为已读

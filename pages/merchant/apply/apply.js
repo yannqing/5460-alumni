@@ -21,8 +21,7 @@ Page({
     },
     submitting: false,
     merchantTypeOptions: [
-      { label: '校友商铺', value: 1 },
-      { label: '普通商铺', value: 2 }
+      { label: '校友商铺', value: 1 }
     ],
     merchantTypeIndex: 0,
     uploadType: 'license',
@@ -320,14 +319,6 @@ Page({
     if (this.data.merchantStatus === 'approved') {
       wx.showToast({
         title: '您已是认证商家',
-        icon: 'none'
-      })
-      return
-    }
-    
-    if (this.data.merchantStatus === 'pending') {
-      wx.showToast({
-        title: '申请审核中，请耐心等待',
         icon: 'none'
       })
       return

@@ -56,6 +56,8 @@
     "pages/audit/merchant/member/member",
     "pages/audit/merchant/coupon/coupon",
     "pages/audit/schooloffice/list/list",
+    "pages/audit/merchant/apply/apply",
+    "pages/audit/merchant/apply-detail/apply-detail",
     "pages/audit/schooloffice/detail/detail",
     "pages/audit/schooloffice/organization/organization",
     "pages/audit/schooloffice/member/member",

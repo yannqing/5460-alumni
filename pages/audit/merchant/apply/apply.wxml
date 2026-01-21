@@ -1,0 +1,71 @@
+<!--pages/audit/merchant/apply/apply.wxml-->
+<view class="apply-page">
+  <!-- 标签栏 -->
+  <view class="tabs-container">
+    <view 
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      data-index="{{index}}"
+      bindtap="switchTab"
+    >
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 商户申请列表 -->
+  <view class="apply-list">
+    <view 
+      class="apply-item"
+      wx:for="{{applyList}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="viewDetail"
+    >
+      <view class="apply-header">
+        <view class="apply-name">{{item.merchantName}}</view>
+        <view class="apply-status {{item.status}}">{{item.statusText}}</view>
+      </view>
+      
+      <view class="apply-info">
+        <text class="apply-label">申请人：</text>
+        <text class="apply-value">{{item.applicantName}}</text>
+      </view>
+      
+      <view class="apply-info">
+        <text class="apply-label">联系电话：</text>
+        <text class="apply-value">{{item.contactPhone}}</text>
+      </view>
+      
+      <view class="apply-info">
+        <text class="apply-label">申请时间：</text>
+        <text class="apply-value">{{item.submitTime}}</text>
+      </view>
+      
+      <view class="apply-info" wx:if="{{item.businessLicense}}">
+        <text class="apply-label">营业执照：</text>
+        <text class="apply-value">{{item.businessLicense}}</text>
+      </view>
+      
+      <view class="apply-actions" wx:if="{{item.status === 'pending'}}">
+        <view class="action-btn reject" data-id="{{item.id}}" data-status="rejected" catchtap="handleAudit">拒绝</view>
+        <view class="action-btn approve" data-id="{{item.id}}" data-status="approved" catchtap="handleAudit">通过</view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && applyList.length === 0}}">
+      <text class="empty-text">暂无商户申请数据</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && !loading && applyList.length > 0}}">
+    <text>加载更多</text>
+  </view>
+</view>

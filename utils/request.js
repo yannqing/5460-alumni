@@ -71,7 +71,9 @@ const request = (params) => {
       data: requestData,
       header: finalHeaders,
       success: async function (res) {
-        let { code, msg } = res.data || {}
+        // 无论状态码如何，都尝试解析响应数据
+        let responseData = res.data || {}
+        let { code, msg } = responseData
 
         // 后端约定的 token 相关错误码：
         // 401                 - 兼容 HTTP 风格
@@ -132,11 +134,13 @@ const request = (params) => {
         }
       },
       fail: function (res) {
+        console.error('请求失败:', res)
+        // 显示错误信息
         wx.showToast({
           icon: 'none',
           title: '网络错误'
         })
-        reject();
+        reject(res);
       }
     })
   })

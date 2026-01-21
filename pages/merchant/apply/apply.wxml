@@ -166,7 +166,7 @@
   </scroll-view>
 
   <!-- 提交按钮 -->
-  <view class="bottom-action" wx:if="{{merchantStatus === 'none' || merchantStatus === 'rejected'}}">
+  <view class="bottom-action">
     <button class="btn btn-primary" loading="{{submitting}}" bindtap="submitApply">提交申请</button>
   </view>
 </view>
