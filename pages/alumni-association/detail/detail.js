@@ -1200,11 +1200,8 @@ Page({
       alumniAssociationId: this.data.associationId
     }).then(res => {
       if (res.data && res.data.code === 200) {
-        // 添加展开状态
-        const dataWithExpandedState = this.addExpandedState(res.data.data || [])
-
         this.setData({
-          roleList: dataWithExpandedState
+          roleList: res.data.data || []
         })
       } else {
         wx.showToast({
@@ -1222,63 +1219,6 @@ Page({
       this.setData({
         organizationLoading: false
       })
-    })
-  },
-
-  // 添加展开状态
-  addExpandedState(data, prefix = 'role') {
-    return data.map((item, index) => {
-      const uId = `${prefix}_${index}`
-
-      // 处理该角色下的成员头像
-      let members = item.members || []
-      members = members.map(m => {
-        let avatarUrl = m.avatarUrl || m.avatar || ''
-        if (avatarUrl) {
-          avatarUrl = config.getImageUrl(avatarUrl)
-        } else {
-          avatarUrl = config.defaultAvatar
-        }
-        return {
-          ...m,
-          avatarUrl: avatarUrl
-        }
-      })
-
-      return {
-        ...item,
-        uniqueId: uId,
-        members: members,
-        expanded: true, // 默认展开
-        children: item.children ? this.addExpandedState(item.children, uId) : []
-      }
-    })
-  },
-
-  // 切换展开状态
-  toggleExpand(e) {
-    const { id } = e.currentTarget.dataset
-    const newRoleList = this.toggleExpandRecursive([...this.data.roleList], id)
-    this.setData({
-      roleList: newRoleList
-    })
-  },
-
-  // 递归切换展开状态
-  toggleExpandRecursive(list, id) {
-    return list.map(item => {
-      if (item.uniqueId === id) {
-        return {
-          ...item,
-          expanded: !item.expanded
-        }
-      } else if (item.children && item.children.length > 0) {
-        return {
-          ...item,
-          children: this.toggleExpandRecursive(item.children, id)
-        }
-      }
-      return item
     })
   }
 })

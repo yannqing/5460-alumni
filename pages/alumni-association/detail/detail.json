@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "校友会详情",
   "usingComponents": {
-    "message-notification": "/components/message-notification/message-notification"
+    "message-notification": "/components/message-notification/message-notification",
+    "org-structure": "/components/org-structure/org-structure"
   }
 }
