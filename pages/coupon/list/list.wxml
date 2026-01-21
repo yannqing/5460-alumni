@@ -40,8 +40,7 @@
     </view>
 
     <view wx:if="{{couponList.length === 0}}" class="empty-state">
-      <view class="empty-placeholder">暂无券包</view>
-      <text>暂无优惠券</text>
+      <view class="empty-placeholder">暂无优惠券</view>
     </view>
   </view>
 </view>

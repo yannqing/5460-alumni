@@ -4,80 +4,73 @@ const { couponApi } = require('../../../api/api.js')
 Page({
   data: {
     activeTab: 0,
-    tabs: ['全部', '抢购', '我的'],
+    tabs: ['全部', '抢购'],
     couponList: [],
     loading: false
   },
 
   onLoad(options) {
-    if (options.type === 'my') {
-      this.setData({ activeTab: 2 })
-    }
     this.loadCouponList()
   },
 
-  loadCouponList() {
-    const mockData = [
-      {
-        id: 1,
-        title: '星巴克校友专属优惠券',
-        merchant: '星巴克咖啡',
-        originalPrice: 100,
-        discountPrice: 59,
-        discount: '8折',
-        image: 'https://via.placeholder.com/300x200/ff6b9d/ffffff?text=Starbucks',
-        stock: 50,
-        totalStock: 100,
-        startTime: '2025-11-13 10:00:00',
-        endTime: '2025-12-31 23:59:59',
-        type: 'rush',
-        status: 'available'
-      },
-      {
-        id: 2,
-        title: '海底捞200元代金券',
-        merchant: '海底捞火锅',
-        originalPrice: 200,
-        discountPrice: 200,
-        discount: '满200减50',
-        image: 'https://via.placeholder.com/300x200/ff8fb5/ffffff?text=Haidilao',
-        stock: 200,
-        totalStock: 200,
-        endTime: '2025-12-25 23:59:59',
-        type: 'normal',
-        status: 'available'
-      },
-      {
-        id: 3,
-        title: '肯德基50元优惠券',
-        merchant: '肯德基',
-        originalPrice: 50,
-        discountPrice: 29,
-        discount: '7折',
-        image: 'https://via.placeholder.com/300x200/ffb6d4/ffffff?text=KFC',
-        stock: 80,
-        totalStock: 100,
-        endTime: '2025-12-20 23:59:59',
-        type: 'rush',
-        status: 'available'
-      },
-      {
-        id: 4,
-        title: 'IMAX 影城观影券',
-        merchant: '华影国际影城',
-        originalPrice: 80,
-        discountPrice: 56,
-        discount: '7折',
-        image: 'https://via.placeholder.com/300x200/ffcce0/ffffff?text=CIN',
-        stock: 120,
-        totalStock: 200,
-        endTime: '2025-12-31 23:59:59',
-        type: 'normal',
-        status: 'available'
-      }
-    ]
+  async loadCouponList() {
+    this.setData({ loading: true })
 
-    this.setData({ couponList: mockData })
+    try {
+      // 分页参数：这里只拉取第一页，可根据需要扩展
+      const params = {
+        current: 1,
+        size: 20
+      }
+      const res = await couponApi.getMyCoupons(params)
+
+      if (res.data && res.data.code === 200) {
+        const pageData = res.data.data || {}
+        const records = pageData.records || []
+
+        const list = records.map(item => {
+          const statusTextMap = {
+            1: '未使用',
+            2: '已使用',
+            3: '已过期',
+            4: '已作废'
+          }
+
+          return {
+            // 使用 couponId 作为详情/抢购用的主键
+            id: item.couponId || item.userCouponId,
+            title: item.couponName || '',
+            merchant: item.merchantName || item.shopName || '',
+            discountPrice: item.discountValue || 0,
+            discount: statusTextMap[item.status] || '优惠券',
+            endTime: item.validEndTime || '',
+            // 个人券没有库存概念，这里固定为 1/1，进度条展示为满
+            stock: 1,
+            totalStock: 1,
+            // 根据状态简单区分是否可用
+            type: item.status === 1 ? 'normal' : 'disabled',
+            rawStatus: item.status
+          }
+        })
+
+        this.setData({ couponList: list })
+      } else {
+        wx.showToast({
+          title: (res.data && res.data.msg) || '加载失败',
+          icon: 'none'
+        })
+        this.setData({ couponList: [] })
+      }
+    } catch (err) {
+      console.error('[CouponList] 获取我的优惠券失败:', err)
+      wx.showToast({
+        title: '网络错误',
+        icon: 'none'
+      })
+      this.setData({ couponList: [] })
+    } finally {
+      this.setData({ loading: false })
+    }
   },
 
   switchTab(e) {

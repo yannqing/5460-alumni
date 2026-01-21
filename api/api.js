@@ -114,7 +114,7 @@ const couponApi = {
   // 抢购优惠券
   rushCoupon: (id) => post(`/coupons/${id}/rush`),
   // 获取我的优惠券
-  getMyCoupons: (params) => get('/coupons/my-coupons', params),
+  getMyCoupons: (params) => get('/coupon/my-coupons', params),
   // 获取抢购列表
   getRushList: (params) => get('/coupons/rush-list', params),
   // 新的领取优惠券接口
