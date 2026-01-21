@@ -7,7 +7,9 @@
   <view class="header-section">
     <view class="header-section-inner">
       <view class="header-top-row">
-        <view class="logo-placeholder">logo</view>
+        <view class="logo-placeholder">
+          <image class="logo-icon" src="{{icon5460}}" mode="aspectFit"></image>
+        </view>
       </view>
       <view class="search-container">
         <text class="search-icon">🔍</text>
@@ -35,7 +37,7 @@
         data-id="{{item.id}}"
         bindtap="handleTabChange"
       >
-        <text class="tab-icon">{{item.icon}}</text>
+        <image class="tab-icon-img" src="{{item.icon}}" mode="aspectFit"></image>
         <text class="tab-text">{{item.label}}</text>
       </view>
     </view>

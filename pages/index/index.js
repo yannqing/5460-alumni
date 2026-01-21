@@ -9,12 +9,14 @@ Page({
    * 页面的初始数据
    */
   data: {
-    // 导航图标 - 请替换为实际的云存储图片地址或本地图片
-    iconSchool: 'https://img.icons8.com/ios-filled/100/40B2E6/organization.png',
-    iconAssociation: 'https://img.icons8.com/ios-filled/100/40B2E6/conference-call.png',
-    iconAlumni: 'https://img.icons8.com/ios-filled/100/40B2E6/student-male.png',
-    iconCircle: 'https://img.icons8.com/ios-filled/100/40B2E6/shop.png',
-    iconActivity: 'https://img.icons8.com/ios-filled/100/40B2E6/city.png',
+    // 顶部 5460 标志图
+    icon5460: config.getIconUrl('5460@3x.png'),
+    // 导航图标（使用 config.getIconUrl 拼接服务器图标路径）
+    iconSchool: config.getIconUrl('school@3x.png'),
+    iconAssociation: config.getIconUrl('alumni_association@3x.png'),
+    iconAlumni: config.getIconUrl('alumni@3x.png'),
+    iconCircle: config.getIconUrl('circle@3x.png'),
+    iconActivity: config.getIconUrl('city@3x.png'),
 
     articleList: [],
     loading: false,

@@ -42,6 +42,13 @@ page {
   text-align: center;
 }
 
+.menu-icon-img {
+  width: 60rpx;
+  height: 60rpx;
+  flex-shrink: 0;
+  display: block;
+}
+
 .menu-name {
   font-size: 28rpx;
   color: #333;

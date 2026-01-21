@@ -51,17 +51,19 @@
 }
 
 .logo-placeholder {
-  width: 120rpx;
-  height: 70rpx;
-  background-color: rgba(255, 255, 255, 0.25);
-  border-radius: 10rpx;
+  width: 130rpx;
+  height: 60rpx;
+  border-radius: 30rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 26rpx;
   flex-shrink: 0;
-  font-weight: 500;
+}
+
+.logo-icon {
+  width: 130rpx;
+  height: 60rpx;
+  display: block;
 }
 
 .search-container {
@@ -138,6 +140,12 @@
 .tab-icon {
   font-size: 32rpx;
   color: #333;
+}
+
+.tab-icon-img {
+  width: 60rpx;
+  height: 60rpx;
+  display: block;
 }
 
 .nav-tab.active .tab-icon {

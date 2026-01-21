@@ -5,7 +5,9 @@
 <view class="container">
   <!-- 顶部 Banner 区域 -->
   <view class="header-banner">
-    <view class="platform-tag">5460-校友服务平台</view>
+    <view class="platform-tag">
+      <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
+    </view>
     
     <view class="slogan-container">
       <text class="slogan-side">相遇</text>

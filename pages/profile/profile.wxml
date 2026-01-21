@@ -49,14 +49,14 @@
     <!-- 管理入口 - 仅管理者可见 -->
     <view class="menu-item" wx:if="{{hasManagementPermission}}" bindtap="navigateTo" data-url="/pages/audit/index/index">
       <view class="menu-left">
-        <text class="menu-icon">⚙️</text>
+        <image class="menu-icon-img" src="{{iconGlrk}}" mode="aspectFit"></image>
         <text class="menu-name">管理入口</text>
       </view>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
       <view class="menu-left">
-        <text class="menu-icon">🎫</text>
+        <image class="menu-icon-img" src="{{iconWdjb}}" mode="aspectFit"></image>
         <text class="menu-name">我的券包</text>
         <text class="menu-badge" wx:if="{{couponStats.unused > 0}}">{{couponStats.unused}}</text>
       </view>
@@ -64,21 +64,21 @@
     </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/cooperation/cooperation">
       <view class="menu-left">
-        <text class="menu-icon">🤝</text>
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
         <text class="menu-name">商务合作</text>
       </view>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-favorites/my-favorites">
       <view class="menu-left">
-        <text class="menu-icon">⭐</text>
+        <image class="menu-icon-img" src="{{iconWdsc}}" mode="aspectFit"></image>
         <text class="menu-name">我的收藏</text>
       </view>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/privacy/privacy">
       <view class="menu-left">
-        <text class="menu-icon">🔐</text>
+        <image class="menu-icon-img" src="{{iconGrys}}" mode="aspectFit"></image>
         <text class="menu-name">个人隐私</text>
       </view>
       <text class="menu-arrow">›</text>

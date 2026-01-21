@@ -1,6 +1,7 @@
 // pages/profile/profile.js
 const app = getApp()
 const { userApi, followApi } = require('../../api/api.js')
+const config = require('../../utils/config.js')
 const { hasManagementPermission } = require('../../utils/auth.js')
 
 Page({
@@ -32,7 +33,13 @@ Page({
       fansCount: 0
     },
     // 是否有管理权限（控制"管理入口"和"我的文章"按钮显示）
-    hasManagementPermission: false
+    hasManagementPermission: false,
+    // 功能菜单图标
+    iconGlrk: config.getIconUrl('glrk@3x.png'),
+    iconWdjb: config.getIconUrl('wdjb@3x.png'),
+    iconSwhz: config.getIconUrl('swhz@3x.png'),
+    iconWdsc: config.getIconUrl('wdsc@3x.png'),
+    iconGrys: config.getIconUrl('grys@3x.png')
   },
 
   onLoad() {

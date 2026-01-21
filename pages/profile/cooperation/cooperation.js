@@ -1,5 +1,9 @@
+const config = require('../../../utils/config.js')
+
 Page({
     data: {
+        iconWssj: config.getIconUrl('wssj@3x.png'),
+        iconSqxyh: config.getIconUrl('sqxyh@3x.png')
     },
 
     onLoad(options) {

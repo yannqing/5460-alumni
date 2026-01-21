@@ -11,6 +11,7 @@ Page({
     loading: false,
     viewMode: 'list', // list: 列表模式, map: 地图模式
     defaultAvatar: config.defaultAvatar,
+    icon5460: config.getIconUrl('5460@3x.png'),
     mapCenter: {
       latitude: 31.2304, // 默认上海坐标
       longitude: 121.4737
@@ -18,9 +19,9 @@ Page({
     mapScale: 15,
     mapMarkers: [],
     navTabs: [
-      { id: 'coupon', label: '附近优惠', icon: '🎟️' },
-      { id: 'venue', label: '附近场所', icon: '🏌️' },
-      { id: 'activity', label: '附近活动', icon: '🏃' }
+      { id: 'coupon', label: '附近优惠', icon: config.getIconUrl('fjyh@3x.png') },
+      { id: 'venue', label: '附近场所', icon: config.getIconUrl('fjcs@3x.png') },
+      { id: 'activity', label: '附近活动', icon: config.getIconUrl('fjhd@3x.png') }
     ],
     sortOptions: [
       { id: 'distance', label: '距离最近' },

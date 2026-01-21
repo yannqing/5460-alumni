@@ -8,20 +8,20 @@ Component({
       {
         pagePath: "/pages/index/index",
         text: "首页",
-        iconPath: "/assets/icons/home.png",
-        selectedIconPath: "/assets/icons/home.png"
+        iconPath: "/assets/icons/home@3x.png",
+        selectedIconPath: "/assets/icons/home_hover2@3x.png"
       },
       {
         pagePath: "/pages/discover/discover",
         text: "发现",
-        iconPath: "/assets/icons/find.png",
-        selectedIconPath: "/assets/icons/find.png"
+        iconPath: "/assets/icons/discover@3x.png",
+        selectedIconPath: "/assets/icons/discover_hover@3x.png"
       },
       {
         pagePath: "/pages/chat/list/list",
         text: "5460",
-        iconPath: "/assets/icons/chat.png",
-        selectedIconPath: "/assets/icons/chat.png"
+        iconPath: "/assets/icons/tab_5460@3x.png",
+        selectedIconPath: "/assets/icons/tab_5460@3x.png"
       },
       {
         pagePath: "/pages/search/search",
@@ -32,8 +32,8 @@ Component({
       {
         pagePath: "/pages/profile/profile",
         text: "我的",
-        iconPath: "/assets/icons/own.png",
-        selectedIconPath: "/assets/icons/own.png"
+        iconPath: "/assets/icons/own@3x.png",
+        selectedIconPath: "/assets/icons/own_hover@3x.png"
       }
     ]
   },

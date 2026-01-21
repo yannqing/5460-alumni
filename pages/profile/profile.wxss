@@ -221,6 +221,13 @@
   text-align: center;
 }
 
+.menu-icon-img {
+  width: 50rpx;
+  height: 50rpx;
+  flex-shrink: 0;
+  display: block;
+}
+
 .menu-name {
   font-size: 28rpx;
   color: #333;

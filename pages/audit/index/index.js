@@ -1,5 +1,6 @@
 // pages/audit/index/index.js
 const app = getApp()
+const config = require('../../../utils/config.js')
 
 Page({
   data: {
@@ -14,7 +15,8 @@ Page({
       {
         id: 2,
         name: '文章管理',
-        icon: '👤',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
         url: '/pages/audit/user/list/list'
       }
       // {
@@ -41,21 +43,21 @@ Page({
     {
       id: 1,
       name: '校友会审核',
-      icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/14/review-1.png',
+      icon: config.getIconUrl('xyhsh@3x.png'),
       iconType: 'image',
       url: '/pages/audit/schooloffice/list/list'
     },
     {
       id: 2,
       name: '架构管理',
-      icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/app-window-mac.png',
+      icon: config.getIconUrl('jggl@3x.png'),
       iconType: 'image',
       url: '/pages/audit/schooloffice/organization/organization'
     },
     {
       id: 3,
       name: '成员管理',
-      icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/archive.png',
+      icon: config.getIconUrl('xchcygl@3x.png'),
       iconType: 'image',
       url: '/pages/audit/schooloffice/member/member'
     },
@@ -95,14 +97,14 @@ Page({
       {
         id: 1,
         name: '架构管理',
-        icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/album.png',
+        icon: config.getIconUrl('jggl@3x.png'),
         iconType: 'image',
         url: '/pages/alumni-association/organization/organization'
       },
       {
         id: 2,
         name: '成员管理',
-        icon: 'https://cni-alumni.yannqing.com/upload/images/2026/01/16/app-window.png',
+        icon: config.getIconUrl('xyhcygl@3x.png'),
         iconType: 'image',
         url: '/pages/alumni-association/member/member'
       }
@@ -149,25 +151,29 @@ Page({
       {
         id: 1,
         name: '店铺管理',
-        icon: '🏬',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
         url: '/pages/audit/merchant/shop/shop'
       },
       {
         id: 2,
         name: '架构管理',
-        icon: '📦',
+        icon: config.getIconUrl('jggl@3x.png'),
+        iconType: 'image',
         url: '/pages/audit/merchant/architecture/architecture'
       },
       {
         id: 3,
         name: '成员管理',
-        icon: '📋',
+        icon: config.getIconUrl('shcygl@3x.png'),
+        iconType: 'image',
         url: '/pages/audit/merchant/member/member'
       },
       {
         id: 4,
         name: '优惠券',
-        icon: '🎫',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
         url: '/pages/audit/merchant/coupon/coupon'
       }
       // 以下功能暂时注释
