@@ -1,0 +1,7 @@
+<!-- pages/audit/merchant/shop/shop.wxml -->
+<view class="shop-management-page">
+  <view class="page-title">店铺管理</view>
+  <view class="page-content">
+    <text class="placeholder">店铺管理功能页面</text>
+  </view>
+</view>

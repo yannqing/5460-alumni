@@ -1,0 +1,7 @@
+<!-- pages/audit/merchant/coupon/coupon.wxml -->
+<view class="coupon-management-page">
+  <view class="page-title">优惠券管理</view>
+  <view class="page-content">
+    <text class="placeholder">优惠券管理功能页面</text>
+  </view>
+</view>

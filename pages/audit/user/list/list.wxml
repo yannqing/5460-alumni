@@ -1,5 +1,5 @@
 <!--pages/audit/user/list/list.wxml-->
-<view class="user-audit-list-page">
+<view class="article-audit-list-page">
   <!-- 标签栏 -->
   <view class="tabs-container">
     <view 
@@ -14,37 +14,33 @@
     </view>
   </view>
 
-  <!-- 用户列表 -->
-  <view class="user-list">
+  <!-- 文章列表 -->
+  <view class="article-list">
     <view 
-      class="user-item"
-      wx:for="{{userList}}"
+      class="article-item"
+      wx:for="{{articleList}}"
       wx:key="id"
       data-id="{{item.id}}"
       bindtap="viewDetail"
     >
-      <view class="user-header">
-        <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
-        <view class="user-avatar-placeholder" wx:else></view>
-        <view class="user-info">
-          <view class="user-name">{{item.nickname}}</view>
-          <view class="user-phone">{{item.phone}}</view>
+      <view class="article-header">
+        <image class="article-cover" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+        <view class="article-cover-placeholder" wx:else></view>
+        <view class="article-info">
+          <view class="article-title">{{item.nickname}}</view>
+          <view class="article-meta">{{item.school}}</view>
         </view>
-        <view class="user-status {{item.status}}">{{item.statusText}}</view>
+        <view class="article-status {{item.status}}">{{item.statusText}}</view>
       </view>
-      <view class="user-detail">
-        <text class="detail-label">学校：</text>
-        <text class="detail-value">{{item.school}}</text>
-      </view>
-      <view class="user-detail">
+      <view class="article-detail">
         <text class="detail-label">提交时间：</text>
         <text class="detail-value">{{item.submitTime}}</text>
       </view>
     </view>
 
     <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && userList.length === 0}}">
-      <text class="empty-text">暂无用户审核数据</text>
+    <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
+      <text class="empty-text">暂无文章审核数据</text>
     </view>
 
     <!-- 加载中 -->

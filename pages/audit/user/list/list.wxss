@@ -1,5 +1,5 @@
 /* pages/audit/user/list/list.wxss */
-.user-audit-list-page {
+.article-audit-list-page {
   min-height: 100vh;
   background-color: #f5f5f5;
 }
@@ -37,12 +37,12 @@
   border-radius: 2rpx;
 }
 
-/* 用户列表 */
-.user-list {
+/* 文章列表 */
+.article-list {
   padding: 20rpx;
 }
 
-.user-item {
+.article-item {
   background-color: #fff;
   border-radius: 16rpx;
   padding: 30rpx;
@@ -50,45 +50,49 @@
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-.user-header {
+.article-header {
   display: flex;
   align-items: center;
   gap: 20rpx;
   margin-bottom: 20rpx;
 }
 
-.user-avatar {
-  width: 80rpx;
+.article-cover {
+  width: 120rpx;
   height: 80rpx;
-  border-radius: 50%;
+  border-radius: 8rpx;
   flex-shrink: 0;
 }
 
-.user-avatar-placeholder {
-  width: 80rpx;
+.article-cover-placeholder {
+  width: 120rpx;
   height: 80rpx;
-  border-radius: 50%;
+  border-radius: 8rpx;
   background-color: #f0f0f0;
   flex-shrink: 0;
 }
 
-.user-info {
+.article-info {
   flex: 1;
 }
 
-.user-name {
+.article-title {
   font-size: 32rpx;
   font-weight: 600;
   color: #333;
   margin-bottom: 8rpx;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
 }
 
-.user-phone {
+.article-meta {
   font-size: 24rpx;
   color: #999;
 }
 
-.user-status {
+.article-status {
   padding: 6rpx 16rpx;
   border-radius: 20rpx;
   font-size: 22rpx;
@@ -96,19 +100,19 @@
   flex-shrink: 0;
 }
 
-.user-status.pending {
+.article-status.pending {
   background-color: #ff9800;
 }
 
-.user-status.approved {
+.article-status.approved {
   background-color: #52c41a;
 }
 
-.user-status.rejected {
+.article-status.rejected {
   background-color: #f5222d;
 }
 
-.user-detail {
+.article-detail {
   font-size: 26rpx;
   color: #666;
   margin-bottom: 12rpx;

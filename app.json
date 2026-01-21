@@ -51,6 +51,10 @@
     "pages/audit/user/list/list",
     "pages/audit/content/list/list",
     "pages/audit/merchant/list/list",
+    "pages/audit/merchant/shop/shop",
+    "pages/audit/merchant/architecture/architecture",
+    "pages/audit/merchant/member/member",
+    "pages/audit/merchant/coupon/coupon",
     "pages/audit/schooloffice/list/list",
     "pages/audit/schooloffice/detail/detail",
     "pages/audit/schooloffice/organization/organization",
@@ -58,7 +62,8 @@
     "pages/article/detail/detail",
     "pages/article/form/form",
     "pages/article/audit-list/audit-list",
-    "pages/article/web-view/web-view"
+    "pages/article/web-view/web-view",
+    "pages/article-publish/index/index"
   ],
   "window": {
     "backgroundTextStyle": "light",

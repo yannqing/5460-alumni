@@ -1,0 +1,7 @@
+<!-- pages/audit/merchant/member/member.wxml -->
+<view class="member-management-page">
+  <view class="page-title">成员管理</view>
+  <view class="page-content">
+    <text class="placeholder">成员管理功能页面</text>
+  </view>
+</view>

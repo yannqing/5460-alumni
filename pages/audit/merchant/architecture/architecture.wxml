@@ -1,0 +1,7 @@
+<!-- pages/audit/merchant/architecture/architecture.wxml -->
+<view class="architecture-management-page">
+  <view class="page-title">架构管理</view>
+  <view class="page-content">
+    <text class="placeholder">架构管理功能页面</text>
+  </view>
+</view>

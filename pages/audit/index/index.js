@@ -7,34 +7,34 @@ Page({
     auditFunctions: [
       {
         id: 1,
-        name: '审核管理',
+        name: '文章发布',
         icon: '🔍',
-        url: '/pages/audit/list/list'
+        url: '/pages/article-publish/index/index'
       },
       {
         id: 2,
-        name: '用户审核',
+        name: '文章审核',
         icon: '👤',
         url: '/pages/audit/user/list/list'
-      },
-      {
-        id: 3,
-        name: '内容审核',
-        icon: '📝',
-        url: '/pages/audit/content/list/list'
-      },
-      {
-        id: 4,
-        name: '商家审核',
-        icon: '🏪',
-        url: '/pages/audit/merchant/list/list'
-      },
-      {
-        id: 5,
-        name: '文章审核',
-        icon: '📄',
-        url: '/pages/article/audit-list/audit-list'
       }
+      // {
+      //   id: 3,
+      //   name: '内容审核',
+      //   icon: '📝',
+      //   url: '/pages/audit/content/list/list'
+      // },
+      // {
+      //   id: 4,
+      //   name: '商家审核',
+      //   icon: '🏪',
+      //   url: '/pages/audit/merchant/list/list'
+      // },
+      // {
+      //   id: 5,
+      //   name: '文章审核',
+      //   icon: '📄',
+      //   url: '/pages/article/audit-list/audit-list'
+      // }
     ],
     // 校处会功能列表
   schoolOfficeFunctions: [
@@ -150,50 +150,51 @@ Page({
         id: 1,
         name: '店铺管理',
         icon: '🏬',
-        url: ''
+        url: '/pages/audit/merchant/shop/shop'
       },
       {
         id: 2,
-        name: '商品管理',
+        name: '架构管理',
         icon: '📦',
-        url: ''
+        url: '/pages/audit/merchant/architecture/architecture'
       },
       {
         id: 3,
-        name: '订单管理',
+        name: '成员管理',
         icon: '📋',
-        url: ''
+        url: '/pages/audit/merchant/member/member'
       },
       {
         id: 4,
         name: '优惠券',
         icon: '🎫',
-        url: ''
-      },
-      {
-        id: 5,
-        name: '营销推广',
-        icon: '📱',
-        url: ''
-      },
-      {
-        id: 6,
-        name: '财务管理',
-        icon: '💰',
-        url: ''
-      },
-      {
-        id: 7,
-        name: '客服中心',
-        icon: '💬',
-        url: ''
-      },
-      {
-        id: 8,
-        name: '数据分析',
-        icon: '📈',
-        url: ''
+        url: '/pages/audit/merchant/coupon/coupon'
       }
+      // 以下功能暂时注释
+      // {
+      //   id: 5,
+      //   name: '营销推广',
+      //   icon: '📱',
+      //   url: ''
+      // },
+      // {
+      //   id: 6,
+      //   name: '财务管理',
+      //   icon: '💰',
+      //   url: ''
+      // },
+      // {
+      //   id: 7,
+      //   name: '客服中心',
+      //   icon: '💬',
+      //   url: ''
+      // },
+      // {
+      //   id: 8,
+      //   name: '数据分析',
+      //   icon: '📈',
+      //   url: ''
+      // }
     ]
   },
 
