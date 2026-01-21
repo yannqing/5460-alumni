@@ -1,6 +1,6 @@
 // pages/merchant/apply/apply.js
 const app = getApp()
-const { associationApi, fileApi } = require('../../../api/api.js')
+const { associationApi, fileApi, merchantApi } = require('../../../api/api.js')
 const { post } = require('../../../utils/request.js')
 
 Page({
@@ -35,9 +35,17 @@ Page({
     associationLoading: false
   },
 
-  onLoad() {
+  onLoad(options) {
     this.loadMerchantStatus()
     this.loadUserData()
+    
+    // 如果有merchantId参数，获取待审核商家详情
+    if (options.merchantId) {
+      this.setData({
+        merchantId: options.merchantId
+      })
+      this.loadPendingMerchantDetail(options.merchantId)
+    }
   },
 
   loadUserData() {
@@ -67,6 +75,96 @@ Page({
     // 假设后端返回 merchantStatus 字段
     const status = userData.merchantStatus || 'none'
     this.setData({ merchantStatus: status })
+  },
+
+  // 加载待审核商家详情
+  loadPendingMerchantDetail(merchantId) {
+    wx.showLoading({ title: '加载中...' })
+    
+    merchantApi.getPendingMerchantDetail(merchantId).then((res) => {
+      wx.hideLoading()
+      
+      const { code, data, msg } = res.data || {}
+      
+      if (code === 200 && data) {
+        // 预填充表单数据
+        this.setData({
+          form: {
+            merchantName: data.merchantName || '',
+            merchantType: data.merchantType || 1,
+            businessLicense: data.businessLicense || '',
+            unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
+            legalPerson: data.legalPerson || '',
+            legalPersonId: '', // 敏感信息不返回
+            contactPhone: data.contactPhone || '',
+            contactEmail: data.contactEmail || '',
+            businessScope: data.businessScope || '',
+            businessCategory: data.businessCategory || '',
+            alumniAssociationId: data.alumniAssociationId || '',
+            selectedAlumniAssociation: null // 需要重新关联校友会
+          },
+          merchantTypeIndex: data.merchantType === 1 ? 0 : 0,
+          merchantStatus: this.getMerchantStatusText(data.reviewStatus) // 设置审核状态
+        })
+        
+        // 如果有关联校友会，加载校友会信息
+        if (data.alumniAssociationId) {
+          this.loadAssociationDetail(data.alumniAssociationId)
+        }
+      } else {
+        wx.showToast({
+          title: msg || '加载失败，请稍后重试',
+          icon: 'none'
+        })
+      }
+    }).catch((err) => {
+      wx.hideLoading()
+      console.error('加载待审核商家详情失败:', err)
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none'
+      })
+    })
+  },
+
+  // 获取商家状态文本
+  getMerchantStatusText(reviewStatus) {
+    switch (reviewStatus) {
+      case 0: // 待审核
+        return 'pending'
+      case 1: // 已通过
+        return 'approved'
+      case 2: // 已拒绝
+        return 'rejected'
+      default:
+        return 'none'
+    }
+  },
+
+  // 加载校友会详情
+  loadAssociationDetail(alumniAssociationId) {
+    associationApi.getAssociationDetail(alumniAssociationId).then((res) => {
+      const { code, data, msg } = res.data || {}
+      
+      if (code === 200 && data) {
+        // 设置选中的校友会
+        this.setData({
+          'form.selectedAlumniAssociation': {
+            alumniAssociationId: data.alumniAssociationId,
+            associationName: data.associationName,
+            schoolId: data.schoolId,
+            platformId: data.platformId,
+            contactInfo: data.contactInfo,
+            location: data.location,
+            memberCount: data.memberCount,
+            logo: data.logo
+          },
+          'form.alumniAssociationId': data.alumniAssociationId
+        })
+      }
+    }).catch((err) => {
+      console.error('加载校友会详情失败:', err)
+    })
   },
 
   handleInput(e) {

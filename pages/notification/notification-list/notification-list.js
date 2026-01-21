@@ -252,8 +252,8 @@ Page({
     }
 
     // 其他类型的通知保持原有逻辑（显示详情）
-    // 如果是商户入驻申请未通过，显示查看详情按钮
-    if (item.title === '商户入驻申请未通过') {
+    // 如果是商户入驻申请相关通知，显示查看详情按钮
+    if (item.title === '商户入驻申请未通过' && relatedId) {
       wx.showModal({
         title: item.title || '通知详情',
         content: item.content || '暂无内容',
@@ -262,8 +262,17 @@ Page({
         confirmText: '查看详情',
         success: (res) => {
           if (res.confirm) {
-            // 查看详情按钮点击事件，暂时不做功能处理
-            console.log('查看详情按钮被点击')
+            // 跳转到商家申请页面，并携带merchantId参数
+            wx.navigateTo({
+              url: `/pages/merchant/apply/apply?merchantId=${relatedId}`,
+              fail: (err) => {
+                console.error('[Notification] 跳转商家申请页面失败:', err)
+                wx.showToast({
+                  title: '跳转失败',
+                  icon: 'none'
+                })
+              }
+            })
           }
         }
       })

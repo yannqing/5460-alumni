@@ -147,6 +147,8 @@ const merchantApi = {
   getMerchantList: (params) => get('/merchants', params),
   // 获取商家详情
   getMerchantDetail: (id) => get(`/merchants/${id}`),
+  // 获取待审核商家详情
+  getPendingMerchantDetail: (merchantId) => get(`/merchant/pending/${merchantId}`),
   // 关注商家
   followMerchant: (id) => post(`/merchants/${id}/follow`),
   // 取消关注商家
