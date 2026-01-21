@@ -60,19 +60,20 @@ Page({
       const page = reset ? 1 : current + 1
       const params = { current: page, size: pageSize }
 
-      let res
+      // 根据不同标签设置审核状态
       if (currentTab === 0) {
         // 待审核列表
-        res = await articleApplyApi.getPendingList(params)
+        params.applyStatus = 0
       } else if (currentTab === 1) {
-        // 已审核列表（已通过）
+        // 已通过列表
         params.applyStatus = 1
-        res = await articleApplyApi.getApprovedList(params)
       } else if (currentTab === 2) {
         // 已拒绝列表
         params.applyStatus = 2
-        res = await articleApplyApi.getApprovedList(params)
       }
+
+      // 使用统一的审核列表API
+      const res = await articleApplyApi.getApplyPage(params)
 
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}

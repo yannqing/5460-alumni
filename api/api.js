@@ -478,6 +478,8 @@ const articleApplyApi = {
   getApprovedList: (params) => post('/home-page-article-apply/approved/page', params),
   // 审核文章
   approveArticle: (data) => post('/home-page-article-apply/approve', data),
+  // 获取审核记录列表（分页）
+  getApplyPage: (params) => post('/home-page-article-apply/page', params),
 }
 
 
