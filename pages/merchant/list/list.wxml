@@ -61,10 +61,7 @@
               <text class="stat-label">门店：</text>
               <text class="stat-value">{{item.shopCount}}家</text>
             </view>
-            <view class="stat-item">
-              <text class="stat-label">优惠券：</text>
-              <text class="stat-value">{{item.totalCouponIssued}}张</text>
-            </view>
+            
           </view>
         </view>
       </view>

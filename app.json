@@ -44,6 +44,7 @@
     "pages/enterprise/detail/detail",
     "pages/shop/list/list",
     "pages/shop/detail/detail",
+    "pages/shop/shop-detail/shop-detail",
     "pages/chat/detail/detail",
     "pages/my-favorites/my-favorites",
     "pages/audit/index/index",

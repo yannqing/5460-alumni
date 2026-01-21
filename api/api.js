@@ -117,6 +117,8 @@ const couponApi = {
   getMyCoupons: (params) => get('/coupons/my-coupons', params),
   // 获取抢购列表
   getRushList: (params) => get('/coupons/rush-list', params),
+  // 新的领取优惠券接口
+  claimCoupon: (data) => post('/coupon/claim', data),
 }
 
 
@@ -147,12 +149,16 @@ const merchantApi = {
   getMerchantList: (params) => get('/merchants', params),
   // 获取商家详情
   getMerchantDetail: (id) => get(`/merchants/${id}`),
+  // 新商家详情接口
+  getMerchantInfo: (id) => get(`/merchant/${id}`),
   // 获取待审核商家详情
   getPendingMerchantDetail: (merchantId) => get(`/merchant/pending/${merchantId}`),
   // 关注商家
   followMerchant: (id) => post(`/merchants/${id}/follow`),
   // 取消关注商家
   unfollowMerchant: (id) => del(`/merchants/${id}/follow`),
+  // 获取店铺详情
+  getShopDetail: (shopId) => get(`/merchant/shop/${shopId}`),
 }
 
 

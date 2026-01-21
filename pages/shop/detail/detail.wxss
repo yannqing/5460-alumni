@@ -449,14 +449,270 @@
   color: #666;
 }
 
-/* 商铺简介 */
-.description-card {
+
+
+/* 商家详情信息 */
+.merchant-info-card {
   margin-top: 20rpx;
 }
 
-.description-text {
+.merchant-basic-info,
+.merchant-member-info,
+.merchant-review-info,
+.merchant-status-info,
+.merchant-rating-info {
+  margin-bottom: 32rpx;
+}
+
+.merchant-basic-info:last-child,
+.merchant-member-info:last-child,
+.merchant-review-info:last-child,
+.merchant-status-info:last-child,
+.merchant-rating-info:last-child {
+  margin-bottom: 0;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #999;
+  width: 200rpx;
+}
+
+.info-value {
+  flex: 1;
   font-size: 28rpx;
+  color: #333;
+  text-align: right;
+  word-break: break-all;
+}
+
+/* 会员等级标签 */
+.member-tier-tag {
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #fff;
+}
+
+.member-tier-tag.tier-1 {
+  background-color: #40B2E6;
+}
+
+.member-tier-tag.tier-2 {
+  background-color: #6BC5ED;
+}
+
+.member-tier-tag.tier-3 {
+  background-color: #FFB347;
+}
+
+.member-tier-tag.tier-4 {
+  background-color: #FF8A00;
+}
+
+.member-tier-tag.tier-5 {
+  background-color: #FF6B6B;
+}
+
+/* 审核状态标签 */
+.review-status-tag {
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.review-status-tag.status-0 {
+  background-color: #FFB347;
+  color: #fff;
+}
+
+.review-status-tag.status-1 {
+  background-color: #52C41A;
+  color: #fff;
+}
+
+.review-status-tag.status-2 {
+  background-color: #FF4D4F;
+  color: #fff;
+}
+
+/* 状态标签 */
+.status-tag {
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.status-tag.status-0 {
+  background-color: #FF4D4F;
+  color: #fff;
+}
+
+.status-tag.status-1 {
+  background-color: #52C41A;
+  color: #fff;
+}
+
+.status-tag.status-2 {
+  background-color: #FFB347;
+  color: #fff;
+}
+
+/* 认证标签 */
+.certification-tag {
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.certification-tag.certified {
+  background-color: #52C41A;
+  color: #fff;
+}
+
+.certification-tag.not-certified {
+  background-color: #FF4D4F;
+  color: #fff;
+}
+
+
+
+/* 门店列表 */
+.shops-list-card {
+  margin-top: 20rpx;
+}
+
+/* 表头容器 */
+.section-title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+/* 门店数量标签 */
+.shop-count-tag {
+  font-size: 24rpx;
+  color: #40B2E6;
+  font-weight: 500;
+  background-color: rgba(64, 178, 230, 0.1);
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.shops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.shop-item {
+  padding: 24rpx;
+  background-color: #f9f9f9;
+  border-radius: 16rpx;
+  border: 1rpx solid #f0f0f0;
+}
+
+.shop-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.shop-item-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.shop-item-type {
+  font-size: 24rpx;
+  color: #40B2E6;
+  padding: 4rpx 16rpx;
+  border: 1rpx solid #40B2E6;
+  border-radius: 12rpx;
+}
+
+.shop-item-address {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 26rpx;
   color: #666;
-  line-height: 1.8;
+  margin-bottom: 16rpx;
+}
+
+.shop-item-contact {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 16rpx;
+}
+
+.shop-item-status {
+  display: flex;
+  gap: 16rpx;
+  justify-content: flex-end;
+}
+
+.shop-status-tag,
+.shop-review-tag {
+  padding: 6rpx 20rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.shop-status-tag.status-0,
+.shop-review-tag.status-2 {
+  background-color: #FF4D4F;
+  color: #fff;
+}
+
+.shop-status-tag.status-1,
+.shop-review-tag.status-1 {
+  background-color: #52C41A;
+  color: #fff;
+}
+
+.shop-status-tag.status-2 {
+  background-color: #FFB347;
+  color: #fff;
+}
+
+.shop-review-tag.status-0 {
+  background-color: #FFB347;
+  color: #fff;
+}
+
+/* 小图标 */
+.info-icon-small {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
+.divider-small {
+  color: #ddd;
+  margin: 0 8rpx;
 }
 

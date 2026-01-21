@@ -1,5 +1,5 @@
 // pages/shop/detail/detail.js
-const { nearbyApi } = require('../../../api/api.js')
+const { nearbyApi, merchantApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
 const DEFAULT_AVATAR = config.defaultAvatar
@@ -25,121 +25,95 @@ Page({
   async loadShopDetail() {
     try {
       wx.showLoading({ title: '加载中...' })
-      const res = await nearbyApi.getShopDetail({ shopId: this.data.shopId })
+      // 使用原来的商家详情接口获取商家信息，包含门店列表
+      const res = await merchantApi.getMerchantInfo(this.data.shopId)
       wx.hideLoading()
 
-      console.log('[ShopDetail] 商铺详情响应:', res)
+      console.log('[ShopDetail] 商家详情响应:', res)
 
       if (res.data && res.data.code === 200 && res.data.data) {
-        const shopData = res.data.data
+        const merchantData = res.data.data
         
-        // 处理图片
+        // 处理图片 - 从第一个门店获取图片
         let avatar = config.defaultAvatar
         let gallery = []
-        if (shopData.shopImages) {
-          if (Array.isArray(shopData.shopImages) && shopData.shopImages.length > 0) {
-            avatar = config.getImageUrl(shopData.shopImages[0])
-            gallery = shopData.shopImages.map(img => config.getImageUrl(img))
-          } else if (typeof shopData.shopImages === 'string') {
-            avatar = config.getImageUrl(shopData.shopImages)
-            gallery = [avatar]
+        if (merchantData.shops && merchantData.shops.length > 0) {
+          const firstShop = merchantData.shops[0]
+          if (firstShop.shopImages) {
+            if (Array.isArray(firstShop.shopImages) && firstShop.shopImages.length > 0) {
+              avatar = config.getImageUrl(firstShop.shopImages[0])
+              gallery = firstShop.shopImages.map(img => config.getImageUrl(img))
+            } else if (typeof firstShop.shopImages === 'string') {
+              avatar = config.getImageUrl(firstShop.shopImages)
+              gallery = [avatar]
+            }
           }
         }
         if (gallery.length === 0) {
           gallery = [avatar]
         }
 
-        // 处理距离
-        let distanceText = '0m'
-        if (shopData.distance !== undefined && shopData.distance !== null) {
-          if (shopData.distance < 1) {
-            distanceText = Math.round(shopData.distance * 1000) + 'm'
-          } else {
-            let kmValue = shopData.distance.toFixed(1)
-            if (kmValue.endsWith('.0')) {
-              distanceText = Math.round(shopData.distance) + 'km'
-            } else {
-              distanceText = kmValue + 'km'
-            }
-          }
-        }
-
-        // 处理优惠券列表
-        let coupons = []
-        if (shopData.coupons && Array.isArray(shopData.coupons) && shopData.coupons.length > 0) {
-          coupons = shopData.coupons.map(coupon => {
-            let discount = '优惠'
-            if (coupon.discountValue !== undefined && coupon.discountValue !== null) {
-              if (coupon.couponType === 1) {
-                discount = Math.round(coupon.discountValue * 10) + '折'
-              } else if (coupon.couponType === 2) {
-                discount = '满' + (coupon.minSpend || 0) + '减' + coupon.discountValue
-              } else if (coupon.couponType === 3) {
-                discount = '礼品券'
-              }
-            }
-            
-            let type = '优惠券'
-            if (coupon.couponType === 1) {
-              type = '折扣券'
-            } else if (coupon.couponType === 2) {
-              type = '满减券'
-            } else if (coupon.couponType === 3) {
-              type = '礼品券'
-            }
-
-            const title = coupon.couponName || discount || ''
-            let expireDate = '有效期至长期有效'
-            if (coupon.validEndTime) {
-              const dateStr = coupon.validEndTime.split('T')[0] || coupon.validEndTime.split(' ')[0]
-              expireDate = '有效期至' + dateStr
-            }
-
-            return {
-              id: coupon.couponId || coupon.id,
-              discount: discount,
-              type: type,
-              title: title,
-              description: coupon.description || '',
-              expireDate: expireDate,
-              status: coupon.status || 'available' // available, claimed, alumni-only
-            }
-          })
-        }
-
-        // 处理地址信息
+        // 处理地址信息 - 从第一个门店获取地址
         let location = ''
-        if (shopData.address) {
-          location = shopData.address
-        } else if (shopData.province || shopData.city || shopData.district) {
-          location = [shopData.province, shopData.city, shopData.district].filter(Boolean).join('')
+        let latitude = null
+        let longitude = null
+        let phone = ''
+        let businessHours = ''
+        if (merchantData.shops && merchantData.shops.length > 0) {
+          const firstShop = merchantData.shops[0]
+          if (firstShop.address) {
+            location = firstShop.address
+          } else if (firstShop.province || firstShop.city || firstShop.district) {
+            location = [firstShop.province, firstShop.city, firstShop.district].filter(Boolean).join('')
+          }
+          latitude = firstShop.latitude
+          longitude = firstShop.longitude
+          phone = firstShop.phone || merchantData.contactPhone || ''
+          businessHours = firstShop.businessHours || ''
         }
 
         // 构建商铺信息对象
         const shopInfo = {
-          id: shopData.shopId || shopData.id || this.data.shopId,
-          name: shopData.shopName || shopData.name || '未知商铺',
+          id: this.data.shopId,
+          name: merchantData.merchantName || '未知商户',
           avatar: avatar,
-          category: shopData.shopType || shopData.category || '其他',
+          category: merchantData.businessCategory || '其他',
           location: location,
-          distance: distanceText,
-          latitude: shopData.latitude,
-          longitude: shopData.longitude,
-          rating: shopData.ratingScore || shopData.rating || 0,
-          phone: shopData.phone || '',
-          wechat: shopData.wechat || '',
-          businessHours: shopData.businessHours || '',
-          description: shopData.description || '',
-          isFavorited: shopData.isFavorited || false,
-          certifiedAssociation: shopData.associations && shopData.associations.length > 0 ? {
-            id: shopData.associations[0].id,
-            name: shopData.associations[0].name || shopData.associations[0]
+          distance: '0m', // 新接口未提供距离信息
+          latitude: latitude,
+          longitude: longitude,
+          rating: merchantData.ratingScore || 0,
+          phone: phone,
+          wechat: '', // 新接口未提供微信信息
+          businessHours: businessHours,
+          description: merchantData.businessScope || '',
+          isFavorited: false, // 新接口未提供关注状态
+          certifiedAssociation: merchantData.alumniAssociation ? {
+            id: merchantData.alumniAssociation.alumniAssociationId,
+            name: merchantData.alumniAssociation.associationName
           } : null,
-          ownerId: shopData.merchantId || shopData.ownerId,
+          ownerId: merchantData.merchantId,
           gallery: gallery,
-          coupons: coupons,
-          recentAlumni: shopData.recentAlumni || [],
-          dynamics: shopData.dynamics || []
+          coupons: [], // 新接口未提供优惠券信息
+          recentAlumni: [], // 新接口未提供校友足迹
+          dynamics: [], // 新接口未提供店铺动态
+          // 新增商家信息
+          merchantInfo: {
+            contactPhone: merchantData.contactPhone,
+            businessScope: merchantData.businessScope,
+            businessCategory: merchantData.businessCategory,
+            reviewStatus: merchantData.reviewStatus,
+            reviewReason: merchantData.reviewReason,
+            reviewTime: merchantData.reviewTime,
+            memberTier: merchantData.memberTier,
+            tierExpireTime: merchantData.tierExpireTime,
+            status: merchantData.status,
+            shopCount: merchantData.shopCount,
+            shops: merchantData.shops || [],
+            ratingCount: merchantData.ratingCount,
+            isAlumniCertified: merchantData.isAlumniCertified,
+            alumniAssociation: merchantData.alumniAssociation
+          }
         }
 
         this.setData({
@@ -156,7 +130,7 @@ Page({
       }
     } catch (error) {
       wx.hideLoading()
-      console.error('[ShopDetail] 获取商铺详情失败:', error)
+      console.error('[ShopDetail] 获取商家详情失败:', error)
       this.setData({ loading: false })
       wx.showToast({
         title: '加载失败',
@@ -441,6 +415,15 @@ Page({
           })
         }
       }
+    })
+  },
+
+  // 查看门店详情
+  viewShopDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/shop/shop-detail/shop-detail?id=${id}`
     })
   }
 })

@@ -72,34 +72,110 @@
       </view>
     </view>
 
-    <!-- 商铺简介 -->
-    <view class="card description-card">
-      <view class="section-title">商铺简介</view>
-      <view class="description-text">{{shopInfo.description}}</view>
-    </view>
-
-    <!-- 优惠券专区 -->
-    <view class="card coupon-section">
-      <view class="section-title">优惠券专区</view>
-      <view class="coupon-list">
-        <view class="coupon-card" wx:for="{{shopInfo.coupons}}" wx:key="id" bindtap="viewCouponDetail" data-id="{{item.id}}">
-          <view class="coupon-left">
-            <view class="coupon-discount">{{item.discount}}</view>
-            <view class="coupon-label">优惠券</view>
-          </view>
-          <view class="coupon-divider"></view>
-          <view class="coupon-right">
-            <view class="coupon-title">{{item.title}}</view>
-            <view class="coupon-desc">{{item.description}}</view>
-            <view class="coupon-expire">有效期至 {{item.expireDate}}</view>
-          </view>
-          <view class="coupon-action" catchtap="handleCoupon" data-id="{{item.id}}" data-status="{{item.status}}">
-            <view 
-              class="coupon-btn {{item.status === 'claimed' ? 'claimed' : item.status === 'alumni-only' ? 'disabled' : ''}}"
-            >
-              {{item.status === 'claimed' ? '已领取去使用' : item.status === 'alumni-only' ? '仅限校友' : '领取'}}
+    <!-- 商家详情信息 -->
+    <view class="card merchant-info-card">
+      <view class="section-title">商家详情</view>
+      
+      <!-- 基本信息 -->
+      <view class="merchant-basic-info">
+        
+        
+        <view class="info-row">
+          <view class="info-label">经营范围</view>
+          <view class="info-value">{{shopInfo.merchantInfo.businessScope}}</view>
+        </view>
+        <view class="info-row">
+          <view class="info-label">经营类目</view>
+          <view class="info-value">{{shopInfo.merchantInfo.businessCategory}}</view>
+        </view>
+      </view>
+      
+      <!-- 会员信息 -->
+      <view class="merchant-member-info" wx:if="{{shopInfo.merchantInfo.memberTier}}">
+        <view class="info-row">
+          <view class="info-label">会员等级</view>
+          <view class="info-value">
+            <view class="member-tier-tag tier-{{shopInfo.merchantInfo.memberTier}}">
+              等级 {{shopInfo.merchantInfo.memberTier}}
             </view>
           </view>
+        </view>
+        <view class="info-row" wx:if="{{shopInfo.merchantInfo.tierExpireTime}}">
+          <view class="info-label">等级到期时间</view>
+          <view class="info-value">{{shopInfo.merchantInfo.tierExpireTime}}</view>
+        </view>
+      </view>
+      
+      <!-- 审核信息 -->
+      <view class="merchant-review-info">
+        <view class="info-row">
+          <view class="info-label">审核状态</view>
+          <view class="info-value">
+            <view class="review-status-tag status-{{shopInfo.merchantInfo.reviewStatus}}">
+              {{shopInfo.merchantInfo.reviewStatus === 0 ? '待审核' : shopInfo.merchantInfo.reviewStatus === 1 ? '审核通过' : '审核失败'}}
+            </view>
+          </view>
+        </view>
+        <view class="info-row" wx:if="{{shopInfo.merchantInfo.reviewReason}}">
+          <view class="info-label">审核原因</view>
+          <view class="info-value">{{shopInfo.merchantInfo.reviewReason}}</view>
+        </view>
+        
+      </view>
+      
+      <!-- 状态信息 -->
+      <view class="merchant-status-info">
+        <view class="info-row">
+          <view class="info-label">商家状态</view>
+          <view class="info-value">
+            <view class="status-tag status-{{shopInfo.merchantInfo.status}}">
+              {{shopInfo.merchantInfo.status === 0 ? '停业' : shopInfo.merchantInfo.status === 1 ? '营业中' : '装修中'}}
+            </view>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-label">校友认证</view>
+          <view class="info-value">
+            <view class="certification-tag {{shopInfo.merchantInfo.isAlumniCertified ? 'certified' : 'not-certified'}}">
+              {{shopInfo.merchantInfo.isAlumniCertified ? '已认证' : '未认证'}}
+            </view>
+          </view>
+        </view>
+        
+      </view>
+    </view>
+
+    <!-- 门店列表 -->
+    <view class="card shops-list-card" wx:if="{{shopInfo.merchantInfo.shops && shopInfo.merchantInfo.shops.length}}">
+      <view class="section-title-container">
+        <view class="section-title">门店列表</view>
+        <view class="shop-count-tag">{{shopInfo.merchantInfo.shopCount || 0}}家门店</view>
+      </view>
+      <view class="shops-list">
+        <view class="shop-item" wx:for="{{shopInfo.merchantInfo.shops}}" wx:key="shopId" bindtap="viewShopDetail" data-id="{{item.shopId}}">
+          <view class="shop-item-header">
+            <text class="shop-item-name">{{item.shopName}}</text>
+            <!-- <text class="shop-item-type">{{item.shopType === 1 ? '总店' : '分店'}}</text> -->
+          </view>
+          <view class="shop-item-address">
+            <image class="info-icon-small" src="{{iconLocation}}" mode="aspectFit"></image>
+            <text>{{item.address || [item.province, item.city, item.district].filter(Boolean).join('')}}</text>
+          </view>
+          <!-- <view class="shop-item-contact">
+            <image class="info-icon-small" src="{{iconPhone}}" mode="aspectFit"></image>
+            <text>{{item.phone}}</text>
+            <text class="divider-small">·</text>
+            <image class="info-icon-small" src="{{iconTime}}" mode="aspectFit"></image>
+            <text>{{item.businessHours}}</text>
+          </view>
+          <view class="shop-item-status">
+            <view class="shop-status-tag status-{{item.status}}">
+              {{item.status === 0 ? '停业' : item.status === 1 ? '营业中' : '装修中'}}
+            </view>
+            <view class="shop-review-tag status-{{item.reviewStatus}}">
+              {{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '审核通过' : '审核失败'}}
+            </view>
+          </view> -->
         </view>
       </view>
     </view>
