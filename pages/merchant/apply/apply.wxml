@@ -31,72 +31,111 @@
       </view>
     </view>
 
-    <!-- 店铺信息 -->
+    <!-- 商户信息 -->
     <view class="section-card card">
-      <view class="section-title">店铺信息</view>
+      <view class="section-title">商户信息</view>
       
-      <!-- 店铺Logo -->
-      <view class="upload-section">
-        <view class="upload-label">
-          <text class="label-text">店铺Logo</text>
-        </view>
-        <view class="upload-hint">建议尺寸 200x200 像素，支持 JPG/PNG 格式</view>
-        <view class="upload-area logo-area" wx:if="{{!form.shopLogo}}" bindtap="chooseLogo">
-          <view class="upload-icon">📷</view>
-          <view class="upload-text">点击上传Logo</view>
-        </view>
-        <view class="image-preview logo-preview" wx:else>
-          <image class="preview-image" src="{{form.shopLogo}}" mode="aspectFill" />
-          <view class="remove-btn" bindtap="removeImage" data-field="shopLogo">✕</view>
-        </view>
+      <view class="form-item">
+        <view class="label">商户名称 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入商户名称" value="{{form.merchantName}}" data-field="merchantName" bindinput="handleInput" />
       </view>
       
       <view class="form-item">
-        <view class="label">店铺名称</view>
-        <input class="input" placeholder="请输入店铺名称" value="{{form.shopName}}" data-field="shopName" bindinput="handleInput" />
-      </view>
-      <view class="form-item">
-        <view class="label">店铺类型</view>
-        <picker mode="selector" range="{{shopTypeOptions}}" value="{{shopTypeIndex}}" bindchange="handleShopTypeChange">
-          <view class="picker-value">{{shopTypeOptions[shopTypeIndex] || '请选择'}}</view>
+        <view class="label">商户类型 <text class="required">*</text></view>
+        <picker mode="selector" range="{{merchantTypeOptions}}" range-key="label" value="{{merchantTypeIndex}}" bindchange="handleMerchantTypeChange">
+          <view class="picker-value">{{merchantTypeOptions[merchantTypeIndex].label}}</view>
         </picker>
       </view>
+      
       <view class="form-item">
-        <view class="label">店铺地址</view>
-        <view class="input-wrapper" bindtap="chooseLocation">
-          <text class="input" wx:if="{{form.shopAddress}}">{{form.shopAddress}}</text>
-          <text class="input placeholder" wx:else>请选择店铺地址</text>
-          <text class="location-icon">📍</text>
+        <view class="label">统一社会信用代码 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入统一社会信用代码" value="{{form.unifiedSocialCreditCode}}" data-field="unifiedSocialCreditCode" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">经营范围</view>
+        <input class="input" placeholder="请输入经营范围" value="{{form.businessScope}}" data-field="businessScope" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">经营类目</view>
+        <input class="input" placeholder="请输入经营类目" value="{{form.businessCategory}}" data-field="businessCategory" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item" wx:if="{{form.merchantType === 1}}">
+        <view class="label">关联校友会 <text class="required">*</text></view>
+        <view class="association-selector" bindtap="showAssociationSearch">
+          <text class="input" wx:if="{{form.selectedAlumniAssociation}}">{{form.selectedAlumniAssociation.associationName}}</text>
+          <text class="input placeholder" wx:else>请搜索并选择校友会</text>
+          <text class="select-icon">▼</text>
         </view>
       </view>
-      <view class="form-item textarea-item">
-        <view class="label">店铺简介</view>
-        <textarea
-          class="textarea"
-          placeholder="请简要介绍您的店铺特色、主营业务等（至少10个字符）"
-          value="{{form.shopDescription}}"
-          data-field="shopDescription"
-          bindinput="handleInput"
-          maxlength="500"
-        ></textarea>
+      
+      <!-- 校友会搜索弹窗 -->
+      <view class="search-popup" wx:if="{{showAssociationSearch}}">
+        <view class="popup-overlay" bindtap="hideAssociationSearch"></view>
+        <view class="popup-content">
+          <view class="popup-header">
+            <view class="header-title">选择校友会</view>
+            <view class="close-btn" bindtap="hideAssociationSearch">✕</view>
+          </view>
+          
+          <!-- 搜索框 -->
+          <view class="search-input-wrapper">
+            <input 
+              class="search-input" 
+              placeholder="请输入校友会名称搜索" 
+              value="{{associationSearchText}}" 
+              bindinput="onAssociationSearchInput" 
+              bindconfirm="searchAssociations" 
+            />
+            <button class="search-btn" bindtap="searchAssociations" loading="{{associationLoading}}">搜索</button>
+          </view>
+          
+          <!-- 搜索结果 -->
+          <scroll-view scroll-y class="association-list" style="height: 400rpx;">
+            <view class="list-empty" wx:if="{{associationList.length === 0 && !associationLoading}}">
+              <text>暂无搜索结果</text>
+            </view>
+            <view class="association-item" wx:for="{{associationList}}" wx:key="alumniAssociationId" bindtap="selectAssociation" data-item="{{item}}">
+              <view class="association-info">
+                <view class="association-name">{{item.associationName}}</view>
+                <view class="association-location">{{item.location}}</view>
+              </view>
+              <view class="member-count">会员数：{{item.memberCount}}</view>
+            </view>
+          </scroll-view>
+        </view>
       </view>
-      <view class="textarea-count">{{form.shopDescription.length}}/500</view>
+    </view>
+
+    <!-- 法人信息 -->
+    <view class="section-card card">
+      <view class="section-title">法人信息</view>
+      
+      <view class="form-item">
+        <view class="label">法人姓名 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入法人姓名" value="{{form.legalPerson}}" data-field="legalPerson" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">法人身份证号 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入法人身份证号" value="{{form.legalPersonId}}" data-field="legalPersonId" bindinput="handleInput" />
+      </view>
     </view>
 
     <!-- 联系信息 -->
     <view class="section-card card">
       <view class="section-title">联系信息</view>
+      
       <view class="form-item">
-        <view class="label">联系人</view>
-        <input class="input" placeholder="请输入联系人姓名" value="{{form.contactName}}" data-field="contactName" bindinput="handleInput" />
+        <view class="label">联系电话 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入联系电话" value="{{form.contactPhone}}" data-field="contactPhone" bindinput="handleInput" />
       </view>
-      <view class="form-item">
-        <view class="label">联系电话</view>
-        <input class="input" type="number" maxlength="11" placeholder="请输入手机号" value="{{form.contactPhone}}" data-field="contactPhone" bindinput="handleInput" />
-      </view>
+      
       <view class="form-item">
         <view class="label">联系邮箱</view>
-        <input class="input" placeholder="选填，用于接收通知" value="{{form.contactEmail}}" data-field="contactEmail" bindinput="handleInput" />
+        <input class="input" placeholder="请输入联系邮箱" value="{{form.contactEmail}}" data-field="contactEmail" bindinput="handleInput" />
       </view>
     </view>
 
@@ -111,7 +150,7 @@
           <text class="required">*</text>
         </view>
         <view class="upload-hint">请上传清晰的营业执照照片，确保信息完整可见</view>
-        <view class="upload-area" wx:if="{{!form.businessLicense}}" bindtap="chooseLicense">
+        <view class="upload-area" wx:if="{{!form.businessLicense}}" bindtap="chooseImage">
           <view class="upload-icon">📷</view>
           <view class="upload-text">点击上传营业执照</view>
         </view>

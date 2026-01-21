@@ -295,5 +295,148 @@
   opacity: 0.8;
 }
 
+/* 校友会选择器样式 */
+.association-selector {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8rpx;
+}
+
+.select-icon {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 校友会搜索弹窗样式 */
+.search-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+  position: relative;
+  width: 90%;
+  max-width: 600rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 20rpx 40rpx rgba(0, 0, 0, 0.15);
+  padding: 0;
+  overflow: hidden;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.header-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-btn {
+  font-size: 36rpx;
+  color: #999;
+  padding: 8rpx;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.search-input {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  background: #fafafa;
+}
+
+.search-btn {
+  height: 72rpx;
+  padding: 0 32rpx;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  line-height: 72rpx;
+  background: #40B2E6;
+  color: #fff;
+  border: none;
+}
+
+.association-list {
+  padding: 20rpx 0;
+}
+
+.association-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  transition: background 0.2s;
+}
+
+.association-item:active {
+  background: #fafafa;
+}
+
+.association-info {
+  flex: 1;
+}
+
+.association-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.association-location {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.member-count {
+  font-size: 24rpx;
+  color: #40B2E6;
+}
+
+.list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
 
 

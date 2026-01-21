@@ -1,24 +1,39 @@
 // pages/merchant/apply/apply.js
 const app = getApp()
+const { associationApi, fileApi } = require('../../../api/api.js')
+const { post } = require('../../../utils/request.js')
 
 Page({
   data: {
     form: {
-      shopName: '',
-      shopType: '',
-      contactName: '',
+      merchantName: '',
+      merchantType: 1,
+      businessLicense: '',
+      unifiedSocialCreditCode: '',
+      legalPerson: '',
+      legalPersonId: '',
       contactPhone: '',
       contactEmail: '',
-      businessLicense: '',
-      shopAddress: '',
-      shopDescription: '',
-      shopLogo: ''
+      businessScope: '',
+      businessCategory: '',
+      alumniAssociationId: '',
+      selectedAlumniAssociation: null
     },
     submitting: false,
-    shopTypeOptions: ['餐饮', '零售', '服务', '教育', '娱乐', '其他'],
-    shopTypeIndex: 0,
-    uploadType: '', // 'license' or 'logo'
-    merchantStatus: 'none' // none, pending, approved, rejected
+    merchantTypeOptions: [
+      { label: '校友商铺', value: 1 },
+      { label: '普通商铺', value: 2 }
+    ],
+    merchantTypeIndex: 0,
+    uploadType: 'license',
+    merchantStatus: 'none', // none, pending, approved, rejected
+    // 校友会搜索相关
+    showAssociationSearch: false,
+    associationSearchText: '',
+    associationList: [],
+    associationPage: 1,
+    associationTotal: 0,
+    associationLoading: false
   },
 
   onLoad() {
@@ -31,15 +46,18 @@ Page({
     const userInfo = app.globalData.userInfo || {}
     
     const formData = {
-      shopName: '',
-      shopType: '',
-      contactName: userInfo.nickName || userData.nickName || userData.name || '',
+      merchantName: '',
+      merchantType: 1,
+      businessLicense: '',
+      unifiedSocialCreditCode: '',
+      legalPerson: userInfo.nickName || userData.nickName || userData.name || '',
+      legalPersonId: '',
       contactPhone: userInfo.mobile || userData.mobile || userData.phone || '',
       contactEmail: userInfo.email || userData.email || '',
-      businessLicense: '',
-      shopAddress: '',
-      shopDescription: '',
-      shopLogo: ''
+      businessScope: '',
+      businessCategory: '',
+      alumniAssociationId: '',
+      selectedAlumniAssociation: null
     }
     
     this.setData({ form: formData })
@@ -59,35 +77,102 @@ Page({
     })
   },
 
-  handleShopTypeChange(e) {
+  handleMerchantTypeChange(e) {
     const index = Number(e.detail.value)
     this.setData({
-      shopTypeIndex: index,
-      'form.shopType': this.data.shopTypeOptions[index]
+      merchantTypeIndex: index,
+      'form.merchantType': this.data.merchantTypeOptions[index].value,
+      'form.alumniAssociationId': '',
+      'form.selectedAlumniAssociation': null
     })
   },
-
-  chooseLocation() {
-    wx.chooseLocation({
-      success: (res) => {
+  
+  // 校友会搜索相关方法
+  showAssociationSearch() {
+    this.setData({
+      showAssociationSearch: true,
+      associationSearchText: '',
+      associationList: [],
+      associationPage: 1,
+      associationTotal: 0
+    })
+  },
+  
+  hideAssociationSearch() {
+    this.setData({
+      showAssociationSearch: false
+    })
+  },
+  
+  onAssociationSearchInput(e) {
+    this.setData({
+      associationSearchText: e.detail.value
+    })
+  },
+  
+  searchAssociations() {
+    const { associationSearchText } = this.data
+    
+    this.setData({
+      associationLoading: true,
+      associationPage: 1
+    })
+    
+    associationApi.getAssociationList({
+      current: 1,
+      pageSize: 10,
+      associationName: associationSearchText
+    }).then((res) => {
+      const { code, data, msg } = res.data || {}
+      
+      if (code === 200 && data) {
+        let list = data.records || data.list || []
+        
+        // 数据映射，与list.js保持一致
+        const mappedList = list.map(item => ({
+          // 与后端VO完全一致的字段
+          alumniAssociationId: item.alumniAssociationId,   // 校友会ID
+          associationName: item.associationName,           // 校友会名称
+          schoolId: item.schoolId,                         // 所属母校ID
+          platformId: item.platformId,                     // 所属校处会ID
+          contactInfo: item.contactInfo,                   // 联系信息
+          location: item.location,                         // 常驻地点
+          memberCount: item.memberCount,                   // 会员数量
+          logo: item.logo                                  // 校友会logo
+        }))
+        
         this.setData({
-          'form.shopAddress': res.address || res.name
+          associationList: mappedList,
+          associationTotal: data.total || 0,
+          associationPage: 1
         })
-      },
-      fail: (err) => {
-        console.error('选择位置失败:', err)
+      } else {
+        wx.showToast({
+          title: msg || '搜索失败，请稍后重试',
+          icon: 'none'
+        })
       }
+    }).catch((err) => {
+      console.error('搜索校友会失败:', err)
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none'
+      })
+    }).finally(() => {
+      this.setData({
+        associationLoading: false
+      })
     })
   },
-
-  chooseLogo() {
-    this.setData({ uploadType: 'logo' })
-    this.chooseImage()
-  },
-
-  chooseLicense() {
-    this.setData({ uploadType: 'license' })
-    this.chooseImage()
+  
+  selectAssociation(e) {
+    const selectedItem = e.currentTarget.dataset.item
+    
+    this.setData({
+      'form.selectedAlumniAssociation': selectedItem,
+      'form.alumniAssociationId': selectedItem.alumniAssociationId,
+      showAssociationSearch: false
+    })
   },
 
   chooseImage() {
@@ -109,15 +194,43 @@ Page({
   },
 
   uploadImage(filePath, field) {
-    // TODO: 实现图片上传到服务器
     wx.showLoading({ title: '上传中...' })
-    setTimeout(() => {
+    
+    fileApi.uploadImage(filePath).then((res) => {
+      wx.hideLoading()
+      
+      if (res.code === 200 && res.data && res.data.fileUrl) {
+        // 上传成功，保存文件URL到表单字段
+        this.setData({
+          [`form.${field}`]: res.data.fileUrl
+        })
+        
+        wx.showToast({
+          title: '上传成功',
+          icon: 'success'
+        })
+      } else {
+        // 上传失败
+        wx.showToast({
+          title: res.msg || '上传失败',
+          icon: 'none'
+        })
+        // 清除本地临时文件路径
+        this.setData({
+          [`form.${field}`]: ''
+        })
+      }
+    }).catch((err) => {
       wx.hideLoading()
       wx.showToast({
-        title: '上传成功',
-        icon: 'success'
+        title: err.msg || '上传失败，请稍后重试',
+        icon: 'none'
       })
-    }, 1000)
+      // 清除本地临时文件路径
+      this.setData({
+        [`form.${field}`]: ''
+      })
+    })
   },
 
   removeImage(e) {
@@ -128,35 +241,20 @@ Page({
   },
 
   validateForm() {
-    const { shopName, shopType, contactName, contactPhone, contactEmail, businessLicense, shopAddress, shopDescription } = this.data.form
+    const { merchantName, merchantType, businessLicense, unifiedSocialCreditCode, legalPerson, legalPersonId, contactPhone, contactEmail, alumniAssociationId, selectedAlumniAssociation } = this.data.form
     
-    if (!shopName || !shopName.trim()) {
-      wx.showToast({ title: '请输入店铺名称', icon: 'none' })
+    if (!merchantName || !merchantName.trim()) {
+      wx.showToast({ title: '请输入商户名称', icon: 'none' })
       return false
     }
     
-    if (!shopType) {
-      wx.showToast({ title: '请选择店铺类型', icon: 'none' })
+    if (merchantName.length > 100) {
+      wx.showToast({ title: '商户名称不能超过100个字符', icon: 'none' })
       return false
     }
     
-    if (!contactName || !contactName.trim()) {
-      wx.showToast({ title: '请输入联系人姓名', icon: 'none' })
-      return false
-    }
-    
-    if (!contactPhone || !contactPhone.trim()) {
-      wx.showToast({ title: '请输入联系电话', icon: 'none' })
-      return false
-    }
-    
-    if (!/^1[3-9]\d{9}$/.test(contactPhone)) {
-      wx.showToast({ title: '手机号格式不正确', icon: 'none' })
-      return false
-    }
-    
-    if (contactEmail && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(contactEmail)) {
-      wx.showToast({ title: '邮箱格式不正确', icon: 'none' })
+    if (!merchantType || ![1, 2].includes(merchantType)) {
+      wx.showToast({ title: '请选择正确的商户类型', icon: 'none' })
       return false
     }
     
@@ -165,18 +263,53 @@ Page({
       return false
     }
     
-    if (!shopAddress || !shopAddress.trim()) {
-      wx.showToast({ title: '请选择店铺地址', icon: 'none' })
+    if (!unifiedSocialCreditCode || !unifiedSocialCreditCode.trim()) {
+      wx.showToast({ title: '请输入统一社会信用代码', icon: 'none' })
       return false
     }
     
-    if (!shopDescription || !shopDescription.trim()) {
-      wx.showToast({ title: '请输入店铺简介', icon: 'none' })
+    if (unifiedSocialCreditCode.length > 18) {
+      wx.showToast({ title: '统一社会信用代码不能超过18个字符', icon: 'none' })
       return false
     }
     
-    if (shopDescription.length < 10) {
-      wx.showToast({ title: '店铺简介至少10个字符', icon: 'none' })
+    if (!legalPerson || !legalPerson.trim()) {
+      wx.showToast({ title: '请输入法人姓名', icon: 'none' })
+      return false
+    }
+    
+    if (legalPerson.length > 50) {
+      wx.showToast({ title: '法人姓名不能超过50个字符', icon: 'none' })
+      return false
+    }
+    
+    if (!legalPersonId || !legalPersonId.trim()) {
+      wx.showToast({ title: '请输入法人身份证号', icon: 'none' })
+      return false
+    }
+    
+    if (legalPersonId.length > 18) {
+      wx.showToast({ title: '法人身份证号不能超过18个字符', icon: 'none' })
+      return false
+    }
+    
+    if (!contactPhone || !contactPhone.trim()) {
+      wx.showToast({ title: '请输入联系电话', icon: 'none' })
+      return false
+    }
+    
+    if (contactPhone.length > 20) {
+      wx.showToast({ title: '联系电话不能超过20个字符', icon: 'none' })
+      return false
+    }
+    
+    if (contactEmail && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(contactEmail)) {
+      wx.showToast({ title: '邮箱格式不正确', icon: 'none' })
+      return false
+    }
+    
+    if (merchantType === 1 && !selectedAlumniAssociation) {
+      wx.showToast({ title: '校友商铺请搜索并选择关联校友会', icon: 'none' })
       return false
     }
     
@@ -204,26 +337,57 @@ Page({
     
     this.setData({ submitting: true })
     
-    // TODO: 调用后端接口提交商家申请
-    setTimeout(() => {
-      wx.showToast({
-        title: '提交成功，等待审核',
-        icon: 'success'
-      })
-      this.setData({
-        submitting: false,
-        merchantStatus: 'pending'
-      })
+    // 调用后端接口提交商家申请
+    const { form } = this.data
+    
+    post('/merchant/apply', {
+      merchantName: form.merchantName,
+      merchantType: form.merchantType,
+      businessLicense: form.businessLicense,
+      unifiedSocialCreditCode: form.unifiedSocialCreditCode,
+      legalPerson: form.legalPerson,
+      legalPersonId: form.legalPersonId,
+      contactPhone: form.contactPhone,
+      contactEmail: form.contactEmail,
+      businessScope: form.businessScope,
+      businessCategory: form.businessCategory,
+      alumniAssociationId: form.selectedAlumniAssociation ? form.selectedAlumniAssociation.alumniAssociationId : 0
+    }).then((res) => {
+      const { code, data, msg } = res.data || {}
       
-      // 更新全局数据
-      if (app.globalData.userData) {
-        app.globalData.userData.merchantStatus = 'pending'
+      if (code === 200 && data) {
+        wx.showToast({
+          title: msg || '提交成功，等待审核',
+          icon: 'success'
+        })
+        this.setData({
+          submitting: false,
+          merchantStatus: 'pending'
+        })
+        
+        // 更新全局数据
+        if (app.globalData.userData) {
+          app.globalData.userData.merchantStatus = 'pending'
+        }
+        
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      } else {
+        wx.showToast({
+          title: msg || '提交失败，请稍后重试',
+          icon: 'none'
+        })
+        this.setData({ submitting: false })
       }
-      
-      setTimeout(() => {
-        wx.navigateBack()
-      }, 1500)
-    }, 1000)
+    }).catch((err) => {
+      console.error('提交申请失败:', err)
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none'
+      })
+      this.setData({ submitting: false })
+    })
   }
 })
 
