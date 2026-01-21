@@ -74,9 +74,17 @@
   margin-left: 0;
 }
 
-.level-2 .node-header,
-.level-3 .node-header {
+/* 二级节点头部缩进一格 */
+.level-2 .node-header {
   margin-left: 30rpx;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  border: 1rpx solid #f2f2f2;
+}
+
+/* 三级节点再多缩进一格，层级更明显 */
+.level-3 .node-header {
+  margin-left: 60rpx;
   background-color: #ffffff;
   border-radius: 12rpx;
   border: 1rpx solid #f2f2f2;

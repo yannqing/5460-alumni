@@ -14,6 +14,7 @@
   <view class="coupon-list">
     <view class="coupon-item" wx:for="{{couponList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
       <view class="coupon-card">
+        <text class="coupon-status-tag status-{{item.rawStatus}}" wx:if="{{item.statusText}}">{{item.statusText}}</text>
         <view class="coupon-left-section">
           <view class="coupon-discount-big">
             <text wx:if="{{item.discountPrice > 0}}">¥{{item.discountPrice}}</text>
@@ -32,9 +33,6 @@
           <view class="coupon-stock-bar">
             <view class="stock-progress-bar" style="width: {{item.stock/item.totalStock*100}}%"></view>
           </view>
-        </view>
-        <view class="coupon-action-btn" catchtap="handleCoupon" data-id="{{item.id}}" data-type="{{item.type}}">
-          {{item.type === 'rush' ? '立即抢购' : '立即领取'}}
         </view>
       </view>
     </view>

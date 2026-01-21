@@ -113,6 +113,35 @@
   margin-left: 16rpx;
 }
 
+/* 状态标签：优惠券卡片右上角 */
+.coupon-status-tag {
+  position: absolute;
+  right: 20rpx;
+  top: 20rpx;
+  padding: 6rpx 16rpx;
+  color: #ffffff;
+  font-size: 22rpx;
+  border-radius: 20rpx;
+  z-index: 10;
+}
+
+/* 不同状态不同颜色：1-未使用 2-已使用 3-已过期 4-已作废 */
+.coupon-status-tag.status-1 {
+  background-color: #19be6b;
+}
+
+.coupon-status-tag.status-2 {
+  background-color: #999999;
+}
+
+.coupon-status-tag.status-3 {
+  background-color: #ff694a;
+}
+
+.coupon-status-tag.status-4 {
+  background-color: #c0c0c0;
+}
+
 .coupon-stock-bar {
   width: 100%;
   height: 8rpx;

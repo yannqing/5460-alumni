@@ -4,7 +4,9 @@ const { couponApi } = require('../../../api/api.js')
 Page({
   data: {
     activeTab: 0,
-    tabs: ['全部', '抢购'],
+    // 0: 全部  1: 折扣券  2: 满减券  3: 礼品券
+    tabs: ['全部', '折扣券', '满减券', '礼品券'],
+    allCoupons: [],
     couponList: [],
     loading: false
   },
@@ -28,13 +30,20 @@ Page({
         const pageData = res.data.data || {}
         const records = pageData.records || []
 
+        const statusTextMap = {
+          1: '未使用',
+          2: '已使用',
+          3: '已过期',
+          4: '已作废'
+        }
+
+        const couponTypeLabelMap = {
+          1: '折扣券',
+          2: '满减券',
+          3: '礼品券'
+        }
+
         const list = records.map(item => {
-          const statusTextMap = {
-            1: '未使用',
-            2: '已使用',
-            3: '已过期',
-            4: '已作废'
-          }
 
           return {
             // 使用 couponId 作为详情/抢购用的主键
@@ -42,24 +51,29 @@ Page({
             title: item.couponName || '',
             merchant: item.merchantName || item.shopName || '',
             discountPrice: item.discountValue || 0,
-            discount: statusTextMap[item.status] || '优惠券',
+            // 左侧金额区备用文案（当没有金额时显示券类型）
+            discount: couponTypeLabelMap[item.couponType] || '优惠券',
             endTime: item.validEndTime || '',
             // 个人券没有库存概念，这里固定为 1/1，进度条展示为满
             stock: 1,
             totalStock: 1,
             // 根据状态简单区分是否可用
             type: item.status === 1 ? 'normal' : 'disabled',
-            rawStatus: item.status
+            rawStatus: item.status,
+            statusText: statusTextMap[item.status] || '',
+            couponType: item.couponType || 0
           }
         })
 
-        this.setData({ couponList: list })
+        this.setData({ allCoupons: list }, () => {
+          this.applyFilter()
+        })
       } else {
         wx.showToast({
           title: (res.data && res.data.msg) || '加载失败',
           icon: 'none'
         })
-        this.setData({ couponList: [] })
+        this.setData({ allCoupons: [], couponList: [] })
       }
     } catch (err) {
       console.error('[CouponList] 获取我的优惠券失败:', err)
@@ -67,7 +81,7 @@ Page({
         title: '网络错误',
         icon: 'none'
       })
-      this.setData({ couponList: [] })
+      this.setData({ allCoupons: [], couponList: [] })
     } finally {
       this.setData({ loading: false })
     }
@@ -76,7 +90,28 @@ Page({
   switchTab(e) {
     const { index } = e.currentTarget.dataset
     this.setData({ activeTab: index })
-    this.loadCouponList()
+    this.applyFilter()
+  },
+
+  // 根据当前 tab 过滤优惠券
+  applyFilter() {
+    const { activeTab, allCoupons } = this.data
+
+    if (!allCoupons || allCoupons.length === 0) {
+      this.setData({ couponList: [] })
+      return
+    }
+
+    let filtered = allCoupons
+    if (activeTab === 1) {
+      filtered = allCoupons.filter(item => item.couponType === 1)
+    } else if (activeTab === 2) {
+      filtered = allCoupons.filter(item => item.couponType === 2)
+    } else if (activeTab === 3) {
+      filtered = allCoupons.filter(item => item.couponType === 3)
+    }
+
+    this.setData({ couponList: filtered })
   },
 
   viewDetail(e) {
