@@ -345,10 +345,11 @@ Page({
     }
   },
 
-  // 发布文章（仅布局，无功能）
+  // 发布文章
   onPublishTap() {
-    // TODO: 实现发布文章功能
-    console.log('发布文章按钮被点击')
+    wx.navigateTo({
+      url: '/pages/article-publish/index/index'
+    })
   },
 
   // 点击编辑按钮

@@ -5,12 +5,12 @@ Page({
   data: {
     // 管理功能列表
     auditFunctions: [
-      {
-        id: 1,
-        name: '文章发布',
-        icon: '🔍',
-        url: '/pages/article-publish/index/index'
-      },
+      // {
+      //   id: 1,
+      //   name: '文章发布',
+      //   icon: '🔍',
+      //   url: '/pages/article-publish/index/index'
+      // },
       {
         id: 2,
         name: '文章管理',
