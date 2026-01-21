@@ -28,16 +28,124 @@
 
   <!-- 内容输入 -->
   <view class="form-item">
-    <view class="section-title">文章内容</view>
+    <view class="section-title">文章描述</view>
     <textarea 
       class="content-textarea" 
-      placeholder="请输入文章内容" 
+      placeholder="请输入文章描述" 
       placeholder-class="placeholder" 
       value="{{content}}"
       bindinput="onContentInput"
       maxlength="5000"
       auto-height
     ></textarea>
+  </view>
+
+  <!-- 文章链接输入 -->
+  <view class="form-item">
+    <view class="section-title">文章链接</view>
+    <input 
+      class="link-input" 
+      placeholder="请输入文章链接（必填）" 
+      placeholder-class="placeholder" 
+      value="{{articleLink}}"
+      bindinput="onArticleLinkInput"
+      maxlength="500"
+      type="text"
+    />
+  </view>
+
+
+
+  <!-- 发布者类型选择 -->
+  <view class="form-item">
+    <view class="section-title">发布者类型</view>
+    <radio-group class="radio-group" bindchange="onPublishTypeChange">
+      <label class="radio-item" wx:for="{{publishTypes}}" wx:key="value">
+        <radio value="{{item.value}}" checked="{{publishType === item.value}}" />
+        <text class="radio-label">{{item.label}}</text>
+      </label>
+    </radio-group>
+  </view>
+
+  <!-- 发布者选择 -->
+  <view class="form-item">
+    <view class="section-title">选择发布者</view>
+    <view class="publisher-selector" bindtap="showPublisherSelector">
+      <text class="selector-label">{{selectedPublisherName || '请选择发布者'}}</text>
+      <text class="selector-arrow">▼</text>
+    </view>
+  </view>
+
+  <!-- 发布者选择器弹窗 -->
+  <view class="publisher-picker" wx:if="{{showPublisherPicker}}">
+    <view class="picker-overlay" bindtap="cancelPublisherSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择发布者</text>
+        <text class="picker-cancel" bindtap="cancelPublisherSelect">取消</text>
+      </view>
+      
+      <!-- 搜索框 -->
+      <view class="search-group">
+        <input 
+          class="search-input" 
+          placeholder="请输入关键词搜索" 
+          placeholder-class="search-placeholder"
+          bindinput="onPublisherSearchInput"
+          bindfocus="onPublisherSearchFocus"
+          value="{{publisherSearchKeyword}}"
+        />
+      </view>
+      
+      <!-- 搜索结果 -->
+      <scroll-view scroll-y class="picker-list">
+        <!-- 遍历所有发布者 -->
+        <block wx:for="{{publisherList}}" wx:key="id">
+          <!-- 根据发布者类型显示不同的结果 -->
+          <view 
+            class="picker-item {{publishType === 'ALUMNI' ? 'alumni-item' : ''}}" 
+            data-publisher-id="{{item.id}}"
+            data-publisher-name="{{item.name}}"
+            bindtap="selectPublisher"
+          >
+            <!-- 校友类型显示头像和学校 -->
+            <block wx:if="{{publishType === 'ALUMNI'}}">
+              <image 
+                wx:if="{{item.avatarUrl}}" 
+                src="{{item.avatarUrl}}" 
+                class="alumni-avatar" 
+                mode="aspectFill" 
+              />
+              <image 
+                wx:else 
+                src="https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png" 
+                class="alumni-avatar" 
+                mode="aspectFill" 
+              />
+              <view class="alumni-info">
+                <text class="alumni-name">{{item.name}}</text>
+                <text class="alumni-school">{{item.school || '暂无学校信息'}}</text>
+              </view>
+            </block>
+            
+            <!-- 其他类型只显示名称 -->
+            <block wx:else>
+              <text class="item-name">{{item.name}}</text>
+            </block>
+            
+            <!-- 选中状态 -->
+            <text class="item-check" wx:if="{{selectedPublisherId == item.id}}">✓</text>
+          </view>
+        </block>
+        
+        <view class="picker-empty" wx:if="{{publisherList.length === 0 && publisherSearchKeyword}}">
+          <text>暂无匹配的发布者数据</text>
+        </view>
+        <view class="picker-empty" wx:if="{{publisherList.length === 0 && !publisherSearchKeyword}}">
+          <text>请输入关键词搜索</text>
+        </view>
+      </scroll-view>
+    </view>
   </view>
 
   <!-- 发布按钮 -->

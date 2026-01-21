@@ -457,7 +457,7 @@ const chatApi = {
 // ==================== 首页文章相关接口 ====================
 const homeArticleApi = {
   // 分页查询首页文章列表
-  getPage: (params) => post('/home-page-article/page', params),
+  getPage: (params) => post('/home/articles', params),
   // 分页查询本人创建的文章列表
   getMyArticlePage: (params) => post('/home-page-article/my-page', params),
   // 新增首页文章

@@ -31,12 +31,12 @@ Page({
     this.loadArticleList()
   },
 
-  // 加载文章审核列表
+  // 加载文章管理列表
   async loadArticleList() {
     this.setData({ loading: true })
     
     try {
-      // TODO: 调用后端接口获取文章审核列表
+      // TODO: 调用后端接口获取文章管理列表
       // const res = await auditApi.getArticleAuditList({ status: this.data.currentTab })
       
       // 模拟数据
@@ -60,6 +60,66 @@ Page({
           submitTime: '2024-01-14 15:20:00',
           status: 'approved',
           statusText: '已通过'
+        },
+        {
+          id: 3,
+          articleId: 2003,
+          nickname: '浙江大学2024届毕业生就业情况报告',
+          avatar: '',
+          school: '浙江大学',
+          submitTime: '2024-01-13 09:15:00',
+          status: 'rejected',
+          statusText: '已拒绝'
+        },
+        {
+          id: 4,
+          articleId: 2004,
+          nickname: '北京大学2024年科研成果发布会',
+          avatar: '',
+          school: '北京大学',
+          submitTime: '2024-01-12 14:45:00',
+          status: 'pending',
+          statusText: '待审核'
+        },
+        {
+          id: 5,
+          articleId: 2005,
+          nickname: '清华大学百年校庆筹备工作启动',
+          avatar: '',
+          school: '清华大学',
+          submitTime: '2024-01-11 11:20:00',
+          status: 'approved',
+          statusText: '已通过'
+        },
+        {
+          id: 6,
+          articleId: 2006,
+          nickname: '复旦大学2024年国际交流项目介绍',
+          avatar: '',
+          school: '复旦大学',
+          submitTime: '2024-01-10 16:30:00',
+          status: 'rejected',
+          statusText: '已拒绝'
+        },
+        {
+          id: 7,
+          articleId: 2007,
+          nickname: '上海交通大学2024年招生政策解读',
+          avatar: '',
+          school: '上海交通大学',
+          submitTime: '2024-01-09 10:00:00',
+          status: 'pending',
+          statusText: '待审核'
+        },
+        {
+          id: 8,
+          articleId: 2008,
+          nickname: '中国科学技术大学2024年夏令营报名通知',
+          avatar: '',
+          school: '中国科学技术大学',
+          submitTime: '2024-01-08 13:50:00',
+          status: 'approved',
+          statusText: '已通过'
         }
       ]
       
@@ -78,7 +138,7 @@ Page({
         loading: false
       })
     } catch (error) {
-      console.error('加载文章审核列表失败:', error)
+      console.error('加载文章管理列表失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'

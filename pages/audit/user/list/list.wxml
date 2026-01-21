@@ -1,5 +1,5 @@
 <!--pages/audit/user/list/list.wxml-->
-<view class="article-audit-list-page">
+<view class="article-management-list-page">
   <!-- 标签栏 -->
   <view class="tabs-container">
     <view 
@@ -40,7 +40,7 @@
 
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
-      <text class="empty-text">暂无文章审核数据</text>
+      <text class="empty-text">暂无文章管理数据</text>
     </view>
 
     <!-- 加载中 -->

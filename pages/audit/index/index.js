@@ -13,7 +13,7 @@ Page({
       },
       {
         id: 2,
-        name: '文章审核',
+        name: '文章管理',
         icon: '👤',
         url: '/pages/audit/user/list/list'
       }
