@@ -137,7 +137,7 @@ Page({
 
     return {
       merchantId: item.merchantId,
-      merchantName: item.merchantName || '未命名商铺',
+      merchantName: item.merchantName || '未命名商户',
       merchantType: item.merchantType || 0,
       businessCategory: item.businessCategory || '',
       memberTier: item.memberTier || 0,

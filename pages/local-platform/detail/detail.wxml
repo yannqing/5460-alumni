@@ -40,11 +40,14 @@
     <view wx:if="{{activeTab === 0}}" class="tab-content">
       <view class="card">
         <view class="text-bold mb-20">基本信息</view>
-        <view wx:if="{{platformInfo.description}}" class="text-secondary">{{platformInfo.description}}</view>
+        <view wx:if="{{platformInfo.description}}" class="text-secondary">简介: {{platformInfo.description}}</view>
         <view class="divider"></view>
         <view class="text-secondary">联系信息：{{platformInfo.contactInfo || '暂无'}}</view>
         <view class="text-secondary mt-10" wx:if="{{platformInfo.city}}">
           所在城市：{{platformInfo.city}}
+        </view>
+        <view class="text-secondary mt-10" wx:if="{{platformInfo.associationCount}}">
+          关联校友会数量：{{platformInfo.associationCount}}个
         </view>
         <view class="text-secondary mt-10" wx:if="{{platformInfo.memberCount}}">
           会员：{{platformInfo.memberCount}}人

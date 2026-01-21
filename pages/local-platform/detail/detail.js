@@ -115,13 +115,18 @@ Page({
           icon: icon,
           cover: cover,
           location: data.city || '',
-          description: data.scope || '',
+          description: data.description || '',
           memberCount: data.memberCount || 0
         }
 
         this.setData({
           platformInfo,
           loading: false
+        })
+        
+        // 设置导航栏标题为校处会的city字段
+        wx.setNavigationBarTitle({
+          title: platformInfo.city || '校处会'
         })
       } else {
         wx.showToast({
