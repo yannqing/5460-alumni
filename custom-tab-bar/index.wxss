@@ -41,6 +41,12 @@
   margin-bottom: 8rpx;
 }
 
+.tab-bar-icon-5460 {
+  width: 150rpx;
+  height: 75rpx;
+  filter: brightness(1.1) contrast(1);
+}
+
 .tab-bar-badge {
   position: absolute;
   top: -8rpx;

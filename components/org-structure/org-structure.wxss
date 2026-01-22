@@ -196,3 +196,89 @@
   color: #999;
 }
 
+/* 编辑功能样式 */
+.edit-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+}
+
+.edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  background-color: #40B2E6;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.edit-btn.cancel-btn {
+  background-color: #999;
+}
+
+.edit-icon {
+  font-size: 28rpx;
+}
+
+.edit-text {
+  font-size: 26rpx;
+}
+
+.member-edit-input {
+  width: 100%;
+}
+
+.member-input {
+  width: 100%;
+  padding: 8rpx 12rpx;
+  border: 2rpx solid #40B2E6;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  background-color: #fff;
+}
+
+.org-member-name.edit-clickable {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #40B2E6;
+}
+
+.add-member-section {
+  margin-top: 20rpx;
+  padding: 0 28rpx;
+}
+
+.add-member-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.add-member-input {
+  flex: 1;
+  padding: 12rpx 16rpx;
+  border: 2rpx dashed #d9d9d9;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  background-color: #fafafa;
+}
+
+.add-member-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #40B2E6;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.add-icon {
+  font-size: 40rpx;
+  font-weight: 300;
+  line-height: 1;
+}
