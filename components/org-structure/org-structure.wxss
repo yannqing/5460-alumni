@@ -169,31 +169,55 @@
 .org-member-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10rpx 2rpx;
+  gap: 10rpx 15rpx;
+  justify-content: flex-start;
 }
 
 .org-member-item {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-width: 180rpx;
+  width: calc(50% - 10rpx);
+  flex: 0 0 calc(50% - 10rpx);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .org-member-info {
   display: flex;
-  flex-direction: column;
-  gap: 4rpx;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.member-bullet {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #40B2E6;
+  flex-shrink: 0;
+}
+
+.member-name-role {
+  display: flex;
+  align-items: center;
+  gap: 1rpx;
 }
 
 .org-member-name {
   font-size: 26rpx;
   color: #333;
   font-weight: 500;
+  line-height: 1.5;
+  min-width: 110rpx;
+  flex-shrink: 0;
 }
 
 .org-member-role {
-  font-size: 22rpx;
-  color: #999;
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
+  line-height: 1.5;
+  flex: 1;
 }
 
 /* 编辑功能样式 */
@@ -225,6 +249,19 @@
 
 .edit-text {
   font-size: 26rpx;
+}
+
+.member-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  width: 100%;
+}
+
+.member-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
 }
 
 .member-edit-wrapper {

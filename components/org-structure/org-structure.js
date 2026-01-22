@@ -34,7 +34,9 @@ Component({
     newMemberRoleId: null, // 正在添加新成员的角色ID
     canEdit: false, // 是否有编辑权限
     inputWidths: {}, // 存储每个输入框的宽度
-    inputValues: {} // 存储每个输入框的值，确保输入正常
+    inputValues: {}, // 存储每个输入框的值，确保输入正常
+    roleNameValues: {}, // 存储每个成员职位的输入值
+    roleNameWidths: {} // 存储每个职位输入框的宽度
   },
 
   attached() {
@@ -131,7 +133,11 @@ Component({
         isEditMode: false,
         editingMemberId: null,
         newMemberRoleId: null,
-        displayList: newList
+        displayList: newList,
+        inputValues: {},
+        inputWidths: {},
+        roleNameValues: {},
+        roleNameWidths: {}
       })
     },
 
@@ -172,13 +178,34 @@ Component({
         initialWidth = Math.max(minWidth, charWidth + 24) // 确保不小于最小宽度
       }
       
+      // 计算职位初始宽度和值
+      let roleNameInitialWidth = minWidth
+      let roleNameInitialValue = ''
+      if (member && member.roleName) {
+        roleNameInitialValue = member.roleName
+        let charWidth = 0
+        for (let i = 0; i < member.roleName.length; i++) {
+          const char = member.roleName.charAt(i)
+          if (/[\u4e00-\u9fa5]/.test(char)) {
+            charWidth += 28
+          } else {
+            charWidth += 10
+          }
+        }
+        roleNameInitialWidth = Math.max(minWidth, charWidth + 24)
+      }
+      
       const inputWidths = { ...this.data.inputWidths, [editingId]: initialWidth }
       const inputValues = { ...this.data.inputValues, [editingId]: initialValue }
+      const roleNameWidths = { ...this.data.roleNameWidths, [editingId]: roleNameInitialWidth }
+      const roleNameValues = { ...this.data.roleNameValues, [editingId]: roleNameInitialValue }
       
       this.setData({ 
-        editingMemberId: editingId,
+        editingMemberId: member ? member._editId : editingId,
         inputWidths: inputWidths,
-        inputValues: inputValues
+        inputValues: inputValues,
+        roleNameWidths: roleNameWidths,
+        roleNameValues: roleNameValues
       })
     },
 
@@ -231,6 +258,37 @@ Component({
         displayList: newList,
         inputWidths: inputWidths,
         inputValues: inputValues
+      })
+    },
+
+    // 成员职位输入
+    onMemberRoleNameInput(e) {
+      const { roleid, memberid } = e.currentTarget.dataset
+      const value = e.detail.value || ''
+      const editId = `${String(roleid)}_${String(memberid)}`
+      
+      // 找到对应的成员，获取 member._editId（与输入框绑定的 key 一致）
+      const member = this.findMemberInList(this.data.displayList, roleid, memberid)
+      const keyToUse = member && member._editId ? member._editId : editId
+      
+      // 计算输入框宽度
+      const minWidth = 28 * 5 + 24 // 五个中文字符宽度 + 内边距 = 164rpx
+      let charWidth = 0
+      for (let i = 0; i < value.length; i++) {
+        const char = value.charAt(i)
+        if (/[\u4e00-\u9fa5]/.test(char)) {
+          charWidth += 28
+        } else {
+          charWidth += 10
+        }
+      }
+      const width = Math.max(minWidth, charWidth + 24)
+      const roleNameWidths = { ...this.data.roleNameWidths, [keyToUse]: width }
+      const roleNameValues = { ...this.data.roleNameValues, [keyToUse]: value }
+      
+      this.setData({ 
+        roleNameWidths: roleNameWidths,
+        roleNameValues: roleNameValues
       })
     },
 
@@ -299,6 +357,16 @@ Component({
         return
       }
 
+      // 获取职位值
+      let rolename = ''
+      if (member._editId && this.data.roleNameValues[member._editId] !== undefined && this.data.roleNameValues[member._editId] !== null) {
+        rolename = String(this.data.roleNameValues[member._editId] || '')
+      } else if (this.data.roleNameValues[editId] !== undefined && this.data.roleNameValues[editId] !== null) {
+        rolename = String(this.data.roleNameValues[editId] || '')
+      } else {
+        rolename = member.roleName || ''
+      }
+
       try {
         // 获取成员的id字段（优先使用id，如果没有则使用wxId或userId）
         const memberId = member.id || member.wxId || member.userId || memberid
@@ -308,7 +376,8 @@ Component({
           localPlatformId: this.data.localPlatformId,
           roleOrId: roleid,
           id: memberId,
-          username: username.trim()
+          username: username.trim(),
+          rolename: rolename.trim()
         })
 
         if (res.data && res.data.code === 200) {
@@ -318,10 +387,13 @@ Component({
           })
           // 清除编辑状态和输入值
           const inputValues = { ...this.data.inputValues }
-          delete inputValues[editId]
+          const roleNameValues = { ...this.data.roleNameValues }
+          delete inputValues[member._editId || editId]
+          delete roleNameValues[member._editId || editId]
           this.setData({ 
             editingMemberId: null,
-            inputValues: inputValues
+            inputValues: inputValues,
+            roleNameValues: roleNameValues
           })
           // 触发父组件刷新数据
           this.triggerEvent('refresh')
@@ -367,7 +439,9 @@ Component({
       this.setData({ 
         newMemberRoleId: roleid,
         inputValues: { ...this.data.inputValues, [editId]: '' },
-        inputWidths: { ...this.data.inputWidths, [editId]: 164 }
+        inputWidths: { ...this.data.inputWidths, [editId]: 164 },
+        roleNameValues: { ...this.data.roleNameValues, [editId]: '' },
+        roleNameWidths: { ...this.data.roleNameWidths, [editId]: 164 }
       })
       console.log('设置 newMemberRoleId:', roleid)
     },
@@ -399,6 +473,33 @@ Component({
       this.setData({ 
         inputValues: inputValues,
         inputWidths: inputWidths
+      })
+    },
+
+    // 新成员职位输入
+    onNewMemberRoleNameInput(e) {
+      const { roleid } = e.currentTarget.dataset
+      const value = e.detail.value
+      const editId = `new_${String(roleid)}`
+      
+      // 计算输入框宽度
+      const minWidth = 28 * 5 + 24
+      let charWidth = 0
+      for (let i = 0; i < value.length; i++) {
+        const char = value.charAt(i)
+        if (/[\u4e00-\u9fa5]/.test(char)) {
+          charWidth += 28
+        } else {
+          charWidth += 10
+        }
+      }
+      const width = Math.max(minWidth, charWidth + 24)
+      
+      const roleNameValues = { ...this.data.roleNameValues, [editId]: value }
+      const roleNameWidths = { ...this.data.roleNameWidths, [editId]: width }
+      this.setData({ 
+        roleNameValues: roleNameValues,
+        roleNameWidths: roleNameWidths
       })
     },
 
@@ -469,13 +570,20 @@ Component({
         return
       }
 
+      // 获取职位值
+      let rolename = ''
+      if (this.data.roleNameValues[editId] !== undefined && this.data.roleNameValues[editId] !== null) {
+        rolename = String(this.data.roleNameValues[editId] || '')
+      }
+
       try {
         const { localPlatformApi } = require('../../api/api.js')
-        // 添加新成员时不传id字段，只传roleOrId和username
+        // 添加新成员时不传id字段，只传roleOrId、username和rolename
         const res = await localPlatformApi.updateMemberRole({
           localPlatformId: this.data.localPlatformId,
           roleOrId: roleid,
-          username: username.trim()
+          username: username.trim(),
+          rolename: rolename.trim()
         })
 
         if (res.data && res.data.code === 200) {
@@ -486,12 +594,18 @@ Component({
           // 清除编辑状态和输入值
           const inputValues = { ...this.data.inputValues }
           const inputWidths = { ...this.data.inputWidths }
+          const roleNameValues = { ...this.data.roleNameValues }
+          const roleNameWidths = { ...this.data.roleNameWidths }
           delete inputValues[editId]
           delete inputWidths[editId]
+          delete roleNameValues[editId]
+          delete roleNameWidths[editId]
           this.setData({ 
             newMemberRoleId: null,
             inputValues: inputValues,
-            inputWidths: inputWidths
+            inputWidths: inputWidths,
+            roleNameValues: roleNameValues,
+            roleNameWidths: roleNameWidths
           })
           // 触发父组件刷新数据
           this.triggerEvent('refresh')

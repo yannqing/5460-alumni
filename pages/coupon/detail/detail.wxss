@@ -18,48 +18,31 @@
   color: #999;
 }
 
-/* 优惠券大卡片 */
-.coupon-card-large {
+/* 二维码卡片 - 只显示二维码，居中 */
+.qr-code-card {
   margin: 30rpx;
-  display: flex;
-  align-items: center;
+  padding: 40rpx 30rpx;
   background: linear-gradient(135deg, #40B2E6, #6BC5ED);
   border-radius: 24rpx;
-  overflow: hidden;
-  box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.4);
-  min-height: 240rpx;
-}
-
-.coupon-card-left {
-  flex-shrink: 0;
-  width: 240rpx;
-  padding: 40rpx 30rpx;
-  text-align: center;
-  color: #fff;
-}
-
-/* 二维码容器 */
-.qr-code-container {
-  flex-shrink: 0;
-  width: 240rpx;
-  padding: 20rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(64, 178, 230, 0.3);
 }
 
 .qr-code-wrapper {
-  width: 200rpx;
-  height: 200rpx;
+  width: 300rpx;
+  height: 300rpx;
   background-color: #fff;
-  border-radius: 12rpx;
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16rpx;
-  padding: 10rpx;
+  margin-bottom: 40rpx;
+  padding: 16rpx;
   box-sizing: border-box;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 }
 
 .qr-code-image {
@@ -77,7 +60,7 @@
 }
 
 .placeholder-text {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #999;
 }
 
@@ -92,115 +75,117 @@
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  padding: 12rpx 24rpx;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 20rpx;
+  padding: 14rpx 32rpx;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 24rpx;
   color: #fff;
-  font-size: 24rpx;
+  font-size: 26rpx;
+  transition: all 0.3s;
+}
+
+.refresh-btn:active {
+  background-color: rgba(255, 255, 255, 0.35);
 }
 
 .refresh-icon {
-  font-size: 24rpx;
+  font-size: 26rpx;
 }
 
 .refresh-text {
-  font-size: 24rpx;
+  font-size: 26rpx;
 }
 
-.coupon-discount-large {
-  font-size: 64rpx;
-  font-weight: 700;
-  margin-bottom: 16rpx;
-  line-height: 1.2;
-}
-
-.coupon-label-large {
-  font-size: 28rpx;
-  opacity: 0.9;
-  margin-bottom: 16rpx;
-}
-
-.coupon-original-price {
-  font-size: 24rpx;
-  opacity: 0.8;
-  text-decoration: line-through;
-}
-
-.coupon-card-divider {
-  width: 2rpx;
-  height: 160rpx;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 8rpx,
-    rgba(255, 255, 255, 0.5) 8rpx,
-    rgba(255, 255, 255, 0.5) 16rpx
-  );
-  flex-shrink: 0;
-}
-
-.coupon-card-right {
-  flex: 1;
-  padding: 40rpx 30rpx;
-  color: #fff;
-  min-width: 0;
+/* 优惠券基本信息卡片 */
+.coupon-info-card {
+  margin-top: 0;
+  position: relative;
 }
 
 .coupon-title-detail {
   font-size: 36rpx;
   font-weight: 600;
-  margin-bottom: 16rpx;
-  line-height: 1.4;
+  color: #333;
+  margin-bottom: 24rpx;
+  line-height: 1.5;
 }
 
 .coupon-code-display {
-  font-size: 26rpx;
-  opacity: 0.9;
-  margin-bottom: 16rpx;
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .code-label {
-  opacity: 0.9;
+  color: #666;
+  margin-right: 8rpx;
 }
 
 .code-value {
   font-weight: 600;
+  color: #333;
   word-break: break-all;
+  font-size: 30rpx;
 }
 
-.coupon-validity {
+.coupon-validity-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.validity-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.validity-value {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 状态标签 - 重新定义，放在基本信息卡片右上角 */
+.coupon-status-badge {
+  position: absolute;
+  top: 10rpx;
+  right: 20rpx;
+  z-index: 10;
+}
+
+.status-badge-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
   font-size: 24rpx;
-  opacity: 0.9;
-  margin-bottom: 12rpx;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  box-sizing: border-box;
+  min-height: 5rpx;
 }
 
-.coupon-status {
-  font-size: 24rpx;
-  opacity: 0.9;
-}
-
-.status-text {
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.status-1 {
+.status-badge-text.status-1 {
+  background-color: #e8f5e9;
   color: #4caf50;
 }
 
-.status-2 {
+.status-badge-text.status-2 {
+  background-color: #f5f5f5;
   color: #999;
 }
 
-.status-3 {
+.status-badge-text.status-3 {
+  background-color: #fff3e0;
   color: #ff9800;
 }
 
-.status-4 {
+.status-badge-text.status-4 {
+  background-color: #ffebee;
   color: #f44336;
 }
 
@@ -295,9 +280,10 @@
 /* 信息行 */
 .info-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   padding: 16rpx 0;
   border-bottom: 1rpx solid #f5f5f5;
+  min-height: 48rpx;
 }
 
 .info-row:last-child {
@@ -309,6 +295,7 @@
   font-size: 28rpx;
   color: #999;
   flex-shrink: 0;
+  line-height: 1.5;
 }
 
 .info-value {
@@ -316,6 +303,8 @@
   font-size: 28rpx;
   color: #333;
   word-break: break-all;
+  line-height: 1.5;
+  display: inline-block;
 }
 
 .link-text {

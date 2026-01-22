@@ -1,5 +1,37 @@
 <!--pages/audit/merchant/coupon/verify/verify.wxml-->
 <view class="verify-coupon-page">
+  <!-- 门店选择 -->
+  <view class="shop-selector-container">
+    <view class="shop-selector-header" bindtap="toggleShopSelector">
+      <view class="shop-selector-label">选择门店</view>
+      <view class="shop-selector-value">
+        <text wx:if="{{selectedShop}}">{{selectedShop.shopName || '未选择'}}</text>
+        <text wx:else class="placeholder-text">请选择门店</text>
+      </view>
+      <view class="shop-selector-arrow">{{showShopSelector ? '▲' : '▼'}}</view>
+    </view>
+    
+    <!-- 门店列表 -->
+    <view wx:if="{{showShopSelector}}" class="shop-list-dropdown">
+      <view 
+        class="shop-item {{selectedShop && selectedShop.shopId === item.shopId ? 'selected' : ''}}"
+        wx:for="{{shopList}}" 
+        wx:key="shopId"
+        bindtap="onSelectShop"
+        data-shopid="{{item.shopId}}"
+      >
+        <view class="shop-item-info">
+          <view class="shop-item-name">{{item.shopName || '未命名门店'}}</view>
+          <view class="shop-item-address" wx:if="{{item.address}}">{{item.address}}</view>
+        </view>
+        <view wx:if="{{selectedShop && selectedShop.shopId === item.shopId}}" class="shop-item-check">✓</view>
+      </view>
+      <view wx:if="{{shopList.length === 0 && !loadingShops}}" class="shop-empty">
+        <text>暂无可用门店</text>
+      </view>
+    </view>
+  </view>
+
   <view class="search-container">
     <view class="search-box">
       <input 
