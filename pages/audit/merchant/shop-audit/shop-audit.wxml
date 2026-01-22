@@ -1,0 +1,162 @@
+<!-- pages/audit/merchant/shop-audit/shop-audit.wxml -->
+<view class="shop-audit-page">
+  <!-- 页面标题 -->
+  <view class="page-title">店铺审核</view>
+  
+  <!-- 选择商家 -->
+  <view class="form-card">
+    <view class="form-item">
+      <text class="form-label">选择商家</text>
+      <view class="merchant-selector" bindtap="showMerchantSelector">
+        <text class="selector-label">{{selectedMerchantName || '请选择商家'}}</text>
+        <text class="selector-arrow">▼</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 店铺审核列表 -->
+  <view class="form-card" style="margin-top: 20rpx;">
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{shopLoading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:elif="{{approvalList.length === 0}}">
+      <text class="empty-text">暂无待审核店铺</text>
+    </view>
+    
+    <!-- 审核列表 -->
+    <view class="shop-item" wx:for="{{approvalList}}" wx:key="shopId">
+      <view class="shop-header">
+        <view class="shop-name">{{item.shopName}}</view>
+        <view class="shop-type">{{item.shopType === 1 ? '总店' : '分店'}}</view>
+      </view>
+      
+      <view class="shop-info">
+        <view class="info-item">
+          <text class="info-label">所属商家：</text>
+          <text class="info-value">{{item.merchantName}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">店铺地址：</text>
+          <text class="info-value">{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系电话：</text>
+          <text class="info-value">{{item.phone}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">营业时间：</text>
+          <text class="info-value">{{item.businessHours || '未设置'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">审核状态：</text>
+          <text class="info-value status-text">
+            {{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '已通过' : '已拒绝'}}
+          </text>
+        </view>
+        <view class="info-item" wx:if="{{item.reviewStatus !== 0}}">
+          <text class="info-label">审核时间：</text>
+          <text class="info-value">{{item.reviewTime || 'N/A'}}</text>
+        </view>
+        <view class="info-item" wx:if="{{item.reviewStatus === 2}}">
+          <text class="info-label">审核原因：</text>
+          <text class="info-value reject-reason">{{item.reviewReason || '未填写'}}</text>
+        </view>
+      </view>
+      
+      <!-- 审核操作按钮 -->
+      <view class="audit-actions" wx:if="{{item.reviewStatus === 0}}">
+        <button class="approve-btn" bindtap="showAuditModal" data-shop-id="{{item.shopId}}">通过</button>
+        <button class="reject-btn" bindtap="showAuditModal" data-shop-id="{{item.shopId}}">拒绝</button>
+      </view>
+      <view class="audit-result" wx:else>
+        <text class="result-text">{{item.reviewStatus === 1 ? '已通过审核' : '已拒绝审核'}}</text>
+      </view>
+    </view>
+    
+    <!-- 分页组件 -->
+    <view class="pagination" wx:if="{{total > 0}}">
+      <view class="pagination-info">共 {{total}} 条记录，第 {{current}}/{{pages}} 页</view>
+      <view class="pagination-controls">
+        <button class="page-btn" disabled="{{!hasPrevious}}" bindtap="previousPage">上一页</button>
+        <view class="page-input">
+          <input class="page-number" type="number" value="{{current}}" bindconfirm="goToPage" placeholder="页码" />
+        </view>
+        <button class="page-btn" disabled="{{!hasNext}}" bindtap="nextPage">下一页</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 审核弹窗 -->
+  <view class="modal-overlay" wx:if="{{showAuditModal}}" bindtap="hideAuditModal"></view>
+  <view class="modal-container" wx:if="{{showAuditModal}}">
+    <view class="modal-header">
+      <text class="modal-title">店铺审核</text>
+      <view class="modal-close" bindtap="hideAuditModal">×</view>
+    </view>
+    <view class="modal-content">
+      <!-- 店铺名称 -->
+      <view class="audit-shop-name" wx:if="{{currentAuditShop}}">{{currentAuditShop.shopName}}</view>
+      
+      <!-- 审核状态选择 -->
+      <view class="form-item">
+        <text class="form-label">审核结果</text>
+        <view class="radio-group">
+          <label class="radio-item">
+            <radio checked="{{auditStatus === 1}}" bindtap="onAuditStatusChange" data-status="1" />通过
+          </label>
+          <label class="radio-item">
+            <radio checked="{{auditStatus === 2}}" bindtap="onAuditStatusChange" data-status="2" />拒绝
+          </label>
+        </view>
+      </view>
+      
+      <!-- 审核备注 -->
+      <view class="form-item">
+        <text class="form-label">审核备注</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入审核备注" 
+          value="{{auditRemark}}" 
+          bindinput="onRemarkInput"
+          maxlength="200"
+        ></textarea>
+      </view>
+      
+      <!-- 提交按钮 -->
+      <view class="form-actions">
+        <button class="btn-cancel" bindtap="hideAuditModal">取消</button>
+        <button class="btn-submit" bindtap="submitAudit" loading="{{loading}}">提交审核</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 商户选择器弹窗 -->
+  <view class="merchant-picker" wx:if="{{showMerchantPicker}}">
+    <view class="picker-overlay" bindtap="cancelMerchantSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择商户</text>
+        <text class="picker-cancel" bindtap="cancelMerchantSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view 
+          class="picker-item" 
+          wx:for="{{merchantList}}" 
+          wx:key="merchantId"
+          data-merchant-id="{{item.merchantId + ''}}"
+          data-merchant-name="{{item.merchantName}}"
+          bindtap="selectMerchant"
+        >
+          <text class="item-name">{{item.merchantName}}</text>
+          <text class="item-check" wx:if="{{selectedMerchantId == item.merchantId}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{merchantList.length === 0}}">
+          <text>暂无商户数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

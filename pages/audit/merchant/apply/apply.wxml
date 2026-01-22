@@ -20,7 +20,6 @@
       wx:for="{{applyList}}"
       wx:key="id"
       data-id="{{item.id}}"
-      bindtap="viewDetail"
     >
       <view class="apply-header">
         <view class="apply-name">{{item.merchantName}}</view>
