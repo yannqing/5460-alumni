@@ -58,6 +58,7 @@
     "pages/audit/merchant/coupon/coupon",
     "pages/audit/merchant/coupon/verify/verify",
     "pages/audit/merchant/topic/topic",
+    "pages/audit/merchant/topic/publish/publish",
     "pages/audit/schooloffice/list/list",
     "pages/audit/merchant/apply/apply",
     "pages/audit/merchant/apply-detail/apply-detail",

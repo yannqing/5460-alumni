@@ -1,102 +1,171 @@
 // pages/activity/detail/detail.js
-const MOCK_DETAIL = {
-  id: 1,
-  title: '2025年度校友联谊会',
-  cover: 'https://cdn.example.com/activity/detail-hero.png',
-  organizer: '南京大学校友总会',
-  location: '南京国际会议中心',
-  address: '南京市建邺区江东中路 300 号',
-  startTime: '2025-12-15 14:00',
-  endTime: '2025-12-15 18:00',
-  participantCount: 156,
-  maxParticipant: 200,
-  description: '欢迎各地校友参加年度联谊会，现场将发布校友年度成果、设立产业对接专区以及校友之夜。',
-  isJoined: false,
-  agenda: [
-    { time: '13:30', title: '签到入场' },
-    { time: '14:00', title: '开幕致辞 & 年度发布' },
-    { time: '15:30', title: '圆桌论坛：共建校友产业生态' },
-    { time: '17:00', title: '自由交流 & 校友之夜' }
-  ],
-  contact: {
-    name: '李秘书',
-    phone: '13800000000',
-    wechat: 'alumni-secretary'
-  },
-  reminder: '活动支持电子签到，请提前准备校友码，正装出席'
-}
+const { activityApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 
 Page({
   data: {
     activityId: '',
-    activityInfo: {},
+    activityInfo: null,
     loading: true,
-    buttonLoading: false
+    buttonLoading: false,
+    activityImages: [],
+    iconLocation: config.getIconUrl('position.png'),
+    iconPhone: config.getIconUrl('电话.png')
   },
 
   onLoad(options) {
-    this.setData({ activityId: options.id || '' }, () => {
-      this.loadDetail()
-    })
+    const { id } = options
+    this.setData({ activityId: id })
+    this.loadActivityDetail()
   },
 
-  loadDetail() {
-    this.setData({ loading: true })
-    setTimeout(() => {
-      this.setData({
-        activityInfo: MOCK_DETAIL,
-        loading: false
+  async loadActivityDetail() {
+    try {
+      const { activityId } = this.data
+      
+      // 检查activityId是否存在
+      if (!activityId || activityId === 'undefined') {
+        this.setData({ loading: false })
+        wx.showToast({
+          title: '活动ID无效',
+          icon: 'none'
+        })
+        return
+      }
+      
+      this.setData({ loading: true })
+      wx.showLoading({ title: '加载中...' })
+      
+      // 调用活动详情接口 /activity/{activityId}
+      const res = await activityApi.getActivityDetail(activityId)
+      wx.hideLoading()
+
+      console.log('[ActivityDetail] 活动详情响应:', res)
+
+      if (res.data && (res.data.code === 0 || res.data.code === 200) && res.data.data) {
+        const activityData = res.data.data
+        
+        // 处理活动图片
+        let activityImages = []
+        if (activityData.activityImages) {
+          let imagesArray = []
+          
+          // 处理字符串类型的activityImages
+          if (typeof activityData.activityImages === 'string') {
+            // 去除反引号和空格
+            const cleanStr = activityData.activityImages.replace(/[`\s]/g, '')
+            
+            // 检查是否是JSON数组格式
+            if (cleanStr.startsWith('[') && cleanStr.endsWith(']')) {
+              try {
+                // 尝试解析为JSON数组
+                imagesArray = JSON.parse(cleanStr)
+              } catch (e) {
+                // 解析失败，作为单个URL处理
+                imagesArray = [cleanStr]
+              }
+            } else {
+              // 不是数组格式，作为单个URL处理
+              imagesArray = [cleanStr]
+            }
+          } else if (Array.isArray(activityData.activityImages)) {
+            // 已经是数组，直接使用
+            imagesArray = activityData.activityImages
+          }
+          
+          // 处理图片URL数组
+          if (imagesArray.length > 0) {
+            // 去除图片URL中的反引号和空格
+            const cleanedImages = imagesArray.map(img => {
+              return typeof img === 'string' ? img.replace(/[`\s]/g, '') : img
+            })
+            
+            // 过滤掉与封面图重复的图片
+            const coverImage = activityData.coverImage ? activityData.coverImage.replace(/[`\s]/g, '') : ''
+            activityImages = cleanedImages.filter(img => img !== coverImage)
+          }
+        }
+
+        this.setData({
+          activityInfo: activityData,
+          activityImages: activityImages,
+          loading: false
+        })
+      } else {
+        console.error('[ActivityDetail] 接口返回错误:', res.data?.code, res.data?.msg)
+        this.setData({ loading: false })
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('[ActivityDetail] 获取活动详情失败:', error)
+      this.setData({ loading: false })
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
       })
-    }, 300)
+    }
   },
 
   joinActivity() {
-    const { activityInfo, buttonLoading } = this.data
-    if (activityInfo.isJoined || buttonLoading) return
-    this.setData({ buttonLoading: true })
-    setTimeout(() => {
-      this.setData({
-        activityInfo: {
-          ...activityInfo,
-          isJoined: true,
-          participantCount: activityInfo.participantCount + 1
-        },
-        buttonLoading: false
-      })
-      wx.showToast({
-        title: '报名成功',
-        icon: 'success'
-      })
-    }, 400)
-  },
-
-  handleCall() {
-    const { phone } = this.data.activityInfo.contact || {}
-    if (!phone) return
-    wx.makePhoneCall({ phoneNumber: phone })
-  },
-
-  handleCopyWechat() {
-    const { wechat } = this.data.activityInfo.contact || {}
-    if (!wechat) return
-    wx.setClipboardData({ data: wechat })
-  },
-
-  openMap() {
-    const { location, address } = this.data.activityInfo
-    wx.openLocation({
-      latitude: 32.0104,
-      longitude: 118.7353,
-      name: location,
-      address
+    // 这里可以实现报名功能
+    wx.showToast({
+      title: '报名功能开发中',
+      icon: 'none'
     })
   },
 
+  // 一键导航
+  openLocation() {
+    const { activityInfo } = this.data
+    if (!activityInfo) {
+      wx.showToast({
+        title: '地址信息不完整',
+        icon: 'none'
+      })
+      return
+    }
+
+    wx.openLocation({
+      latitude: activityInfo.latitude || 0,
+      longitude: activityInfo.longitude || 0,
+      name: activityInfo.activityTitle,
+      address: activityInfo.address || '',
+      success: () => {
+        console.log('打开地图成功')
+      },
+      fail: () => {
+        wx.showToast({
+          title: '打开地图失败',
+          icon: 'none'
+        })
+      }
+    })
+  },
+
+  // 拨打电话
+  makeCall() {
+    const { activityInfo } = this.data
+    if (activityInfo.contactPhone) {
+      wx.makePhoneCall({
+        phoneNumber: activityInfo.contactPhone
+      })
+    } else {
+      wx.showToast({
+        title: '暂无联系电话',
+        icon: 'none'
+      })
+    }
+  },
+
   onShareAppMessage() {
-    const { title, id } = this.data.activityInfo
+    const { activityInfo } = this.data
     return {
-      title: `我报名了：${title}`,
-      path: `/pages/activity/detail/detail?id=${id}`
+      title: activityInfo?.activityTitle || '活动详情',
+      path: `/pages/activity/detail/detail?id=${this.data.activityId}`
     }
   }
 })
