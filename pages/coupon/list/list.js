@@ -48,6 +48,8 @@ Page({
           return {
             // 使用 couponId 作为详情/抢购用的主键
             id: item.couponId || item.userCouponId,
+            // 保存 userCouponId 用于详情页查询，确保有值
+            userCouponId: item.userCouponId || '',
             title: item.couponName || '',
             merchant: item.merchantName || item.shopName || '',
             discountPrice: item.discountValue || 0,
@@ -115,9 +117,26 @@ Page({
   },
 
   viewDetail(e) {
-    const { id } = e.currentTarget.dataset
+    const { userCouponId, index } = e.currentTarget.dataset
+    // 如果从 dataset 获取不到，尝试从 couponList 中获取
+    let finalUserCouponId = userCouponId
+    if (!finalUserCouponId && (index !== undefined && index !== null)) {
+      const item = this.data.couponList[index]
+      if (item && item.userCouponId) {
+        finalUserCouponId = item.userCouponId
+      }
+    }
+    // 检查 userCouponId 是否有效（不能为空字符串、null、undefined）
+    if (!finalUserCouponId || finalUserCouponId === 'null' || finalUserCouponId === 'undefined') {
+      console.error('[CouponList] userCouponId 无效:', { userCouponId, finalUserCouponId, index, item: index !== undefined ? this.data.couponList[index] : null })
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
+      })
+      return
+    }
     wx.navigateTo({
-      url: `/pages/coupon/detail/detail?id=${id}`
+      url: `/pages/coupon/detail/detail?userCouponId=${finalUserCouponId}`
     })
   },
 

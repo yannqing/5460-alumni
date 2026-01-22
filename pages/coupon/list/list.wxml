@@ -12,7 +12,7 @@
 
   <!-- 优惠券列表 -->
   <view class="coupon-list">
-    <view class="coupon-item" wx:for="{{couponList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+    <view class="coupon-item" wx:for="{{couponList}}" wx:key="id" wx:for-index="idx" bindtap="viewDetail" data-userCouponId="{{item.userCouponId}}" data-index="{{idx}}">
       <view class="coupon-card">
         <text class="coupon-status-tag status-{{item.rawStatus}}" wx:if="{{item.statusText}}">{{item.statusText}}</text>
         <view class="coupon-left-section">

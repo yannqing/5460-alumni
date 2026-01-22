@@ -1,70 +1,109 @@
 // pages/coupon/detail/detail.js
+const { couponApi } = require('../../../api/api.js')
+
 Page({
   data: {
-    couponId: '',
-    couponInfo: null
+    userCouponId: '',
+    couponInfo: null,
+    loading: true,
+    qrCodeImage: '' // 二维码图片（base64解码后）
   },
 
   onLoad(options) {
-    this.setData({ couponId: options.id })
+    // 从URL参数获取userCouponId
+    const userCouponId = options.id || options.userCouponId
+    if (!userCouponId) {
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
+      })
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 1500)
+      return
+    }
+    this.setData({ userCouponId })
     this.loadCouponDetail()
   },
 
-  loadCouponDetail() {
-    const mockData = {
-      id: this.data.couponId,
-      title: '星巴克校友专属优惠券',
-      merchant: '星巴克咖啡',
-      originalPrice: 100,
-      discountPrice: 59,
-      discount: '8折',
-      image: 'https://via.placeholder.com/750x400/ff6b9d/ffffff?text=Starbucks',
-      stock: 50,
-      totalStock: 100,
-      startTime: '2025-11-13 10:00:00',
-      endTime: '2025-12-31 23:59:59',
-      type: 'rush',
-      description: '全场通用，无门槛使用。凭校友身份可享受专属优惠，支持微信/小程序核销。',
-      rules: [
-        '本券仅限线下门店使用',
-        '不可与其他优惠同享',
-        '不找零不兑现',
-        '逾期作废',
-        '每人限领一张'
-      ],
-      merchantAddress: '上海市浦东新区世纪大道XXX号',
-      merchantPhone: '021-12345678'
+  // 加载优惠券详情
+  async loadCouponDetail() {
+    try {
+      this.setData({ loading: true })
+      const res = await couponApi.getUserCouponDetail(this.data.userCouponId)
+      
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const data = res.data.data
+        // 处理base64二维码图片，后端返回的base64CodeImg已经是完整的data URI格式
+        let qrCodeImage = data.base64CodeImg || ''
+        
+        this.setData({
+          couponInfo: data,
+          qrCodeImage: qrCodeImage,
+          loading: false
+        })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '加载失败',
+          icon: 'none'
+        })
+        this.setData({ loading: false })
+      }
+    } catch (error) {
+      console.error('加载优惠券详情失败:', error)
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
+      this.setData({ loading: false })
     }
-
-    this.setData({ couponInfo: mockData })
   },
 
-  handleCoupon() {
-    const { couponInfo } = this.data
-
-    if (couponInfo.type === 'rush') {
-      wx.navigateTo({
-        url: `/pages/coupon/rush/rush?id=${couponInfo.id}`
-      })
-    } else {
-      wx.showModal({
-        title: '提示',
-        content: '确认领取该优惠券吗？',
-        success: (res) => {
-          if (res.confirm) {
-            wx.showToast({
-              title: '领取成功',
-              icon: 'success'
-            })
-          }
-        }
+  // 刷新核销码
+  async refreshCode() {
+    try {
+      wx.showLoading({ title: '刷新中...' })
+      const res = await couponApi.refreshCouponCode(this.data.userCouponId)
+      
+      wx.hideLoading()
+      
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const data = res.data.data
+        // 处理base64二维码图片，后端返回的base64CodeImg已经是完整的data URI格式
+        let qrCodeImage = data.base64CodeImg || ''
+        
+        this.setData({
+          couponInfo: data,
+          qrCodeImage: qrCodeImage
+        })
+        
+        wx.showToast({
+          title: '刷新成功',
+          icon: 'success'
+        })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '刷新失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('刷新核销码失败:', error)
+      wx.showToast({
+        title: '刷新失败，请重试',
+        icon: 'none'
       })
     }
   },
 
   callMerchant() {
-    wx.makePhoneCall({
-      phoneNumber: this.data.couponInfo.merchantPhone
-    })
+    // 如果优惠券信息中有商家电话，可以调用
+    const phone = this.data.couponInfo?.merchantPhone
+    if (phone) {
+      wx.makePhoneCall({
+        phoneNumber: phone
+      })
+    }
   }
 })

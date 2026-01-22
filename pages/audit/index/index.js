@@ -189,6 +189,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/coupon/coupon'
+      },
+      {
+        id: 5,
+        name: '核销优惠券',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/coupon/verify/verify'
       }
       // 以下功能暂时注释
       // {

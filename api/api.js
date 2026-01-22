@@ -121,6 +121,14 @@ const couponApi = {
   getRushList: (params) => get('/coupons/rush-list', params),
   // 新的领取优惠券接口
   claimCoupon: (data) => post('/coupon/claim', data),
+  // 根据优惠券码查询优惠券信息（用于核销）
+  getCouponByCode: (code) => get(`/coupon/verify/${code}`),
+  // 核销优惠券
+  verifyCoupon: (data) => post('/coupon/verify', data),
+  // 获取用户券详情（含核销码生成）
+  getUserCouponDetail: (userCouponId) => get(`/coupon/user-coupon/${userCouponId}`),
+  // 刷新优惠券核销码
+  refreshCouponCode: (userCouponId) => post(`/coupon/user-coupon/refresh-code/${userCouponId}`),
 }
 
 
