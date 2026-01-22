@@ -196,6 +196,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/coupon/verify/verify'
+      },
+      {
+        id: 6,
+        name: '话题管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/topic/topic'
       }
       // 以下功能暂时注释
       // {

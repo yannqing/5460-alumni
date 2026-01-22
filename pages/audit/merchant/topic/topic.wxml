@@ -1,0 +1,83 @@
+<!-- pages/audit/merchant/topic/topic.wxml -->
+<view class="topic-management-page">
+  <view class="page-header">
+    <view class="page-title">话题管理</view>
+    <view class="add-btn" bindtap="onAddTopic">
+      <text class="add-icon">+</text>
+      <text class="add-text">新增话题</text>
+    </view>
+  </view>
+
+  <view class="tab-container">
+    <scroll-view class="tab-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="tab-list">
+        <view 
+          class="tab-item {{currentTab === item.id ? 'active' : ''}}" 
+          wx:for="{{tabs}}" 
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onTabChange"
+        >
+          <text class="tab-name">{{item.name}}</text>
+          <text class="tab-count">{{item.count}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="topic-list">
+    <view 
+      class="topic-card" 
+      wx:for="{{topicList}}" 
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onTopicTap"
+    >
+      <view class="topic-cover">
+        <image class="cover-image" src="{{item.coverImage}}" mode="aspectFill"></image>
+        <view class="status-tag {{item.status}}">
+          <text>{{item.status === 'published' ? '已发布' : (item.status === 'pending' ? '待审核' : (item.status === 'draft' ? '草稿' : '已下架'))}}</text>
+        </view>
+      </view>
+      
+      <view class="topic-content">
+        <view class="topic-title">{{item.title}}</view>
+        <view class="topic-description">{{item.description}}</view>
+        
+        <view class="topic-meta">
+          <view class="author-info">
+            <image class="author-avatar" src="{{item.author.avatar}}" mode="aspectFill"></image>
+            <text class="author-name">{{item.author.name}}</text>
+            <text class="author-association">{{item.author.association}}</text>
+          </view>
+          <text class="create-time">{{item.createTime}}</text>
+        </view>
+        
+        <view class="topic-stats">
+          <view class="stat-item">
+            <text class="stat-icon">👁</text>
+            <text class="stat-value">{{item.viewCount}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-icon">💬</text>
+            <text class="stat-value">{{item.commentCount}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-icon">👍</text>
+            <text class="stat-value">{{item.likeCount}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{topicList.length === 0 && !loading}}">
+      <text class="empty-icon">📝</text>
+      <text class="empty-text">暂无话题</text>
+    </view>
+  </view>
+
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>

@@ -332,6 +332,235 @@
   opacity: 0.6;
 }
 
+/* 活动列表样式 */
+.activity-section {
+  margin-top: 20rpx;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.activity-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.activity-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 1rpx 6rpx rgba(0, 0, 0, 0.06);
+}
+
+.activity-card-inner {
+  display: flex;
+  gap: 20rpx;
+  padding: 20rpx;
+}
+
+.activity-left {
+  flex-shrink: 0;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.08);
+}
+
+.activity-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.activity-card:active .activity-image {
+  transform: scale(1.05);
+}
+
+.activity-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  min-width: 0;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.activity-title {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.activity-organizer-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.organizer-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #f0f0f0;
+}
+
+.organizer-name {
+  font-size: 24rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.activity-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.detail-icon {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.detail-text {
+  flex: 1;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-stats {
+  display: flex;
+  gap: 32rpx;
+  padding-top: 8rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.stat-label {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.stat-value {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #40B2E6;
+}
+
+/* 活动状态标签优化 */
+.status-tag {
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  min-width: 80rpx;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* 活动状态颜色优化 */
+.status-tag.status-0 {
+  background-color: #f5f5f5;
+  color: #999;
+  border: 1rpx solid #e0e0e0;
+}
+
+.status-tag.status-1 {
+  background-color: #e6f7ff;
+  color: #40B2E6;
+  border: 1rpx solid #bae7ff;
+}
+
+.status-tag.status-2 {
+  background-color: #fffbe6;
+  color: #faad14;
+  border: 1rpx solid #fff1b8;
+}
+
+.status-tag.status-3 {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1rpx solid #d9f7be;
+}
+
+.status-tag.status-4 {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  border: 1rpx solid #ffccc7;
+}
+
+.status-tag.status-5 {
+  background-color: #f5f5f5;
+  color: #999;
+  border: 1rpx solid #e0e0e0;
+}
+
+/* 暂无活动样式 */
+.no-activities {
+  text-align: center;
+  padding: 60rpx 20rpx;
+  background-color: #f9f9f9;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.no-activities-icon {
+  font-size: 80rpx;
+  margin-bottom: 8rpx;
+}
+
+.no-activities-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.no-activities-subtext {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.4;
+}
+
 /* 店铺统计信息 */
 .stats-info-card {
   margin-top: 20rpx;
