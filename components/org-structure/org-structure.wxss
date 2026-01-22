@@ -227,17 +227,47 @@
   font-size: 26rpx;
 }
 
+.member-edit-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
 .member-edit-input {
-  width: 100%;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .member-input {
-  width: 100%;
+  display: inline-block;
   padding: 8rpx 12rpx;
   border: 2rpx solid #40B2E6;
   border-radius: 8rpx;
   font-size: 26rpx;
   background-color: #fff;
+  box-sizing: border-box;
+  height: 56rpx;
+  line-height: 40rpx;
+  vertical-align: middle;
+  z-index: 10;
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx;
+  height: 48rpx;
+  background-color: #40B2E6;
+  border-radius: 50%;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.save-icon {
+  font-size: 32rpx;
+  font-weight: bold;
+  line-height: 1;
 }
 
 .org-member-name.edit-clickable {
@@ -278,6 +308,29 @@
 }
 
 .add-icon {
+  font-size: 40rpx;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* 编辑按钮包装器 */
+.add-member-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10rpx 0;
+  margin-top: 10rpx;
+}
+
+/* 添加成员按钮（圆形加号） */
+.add-member-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #40B2E6;
+  border-radius: 50%;
+  color: #fff;
   font-size: 40rpx;
   font-weight: 300;
   line-height: 1;

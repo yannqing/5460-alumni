@@ -21,7 +21,10 @@ Page({
     current: 1,
     pageSize: 10,
     hasMore: true,
-    associationLoading: false
+    associationLoading: false,
+    // 组织结构编辑相关
+    canEditOrg: false, // 是否有编辑权限
+    isEditOrgMode: false // 是否处于编辑模式
   },
 
   onLoad(options) {
@@ -37,7 +40,35 @@ Page({
       return
     }
     this.setData({ platformId: id })
+    this.checkEditPermission()
     this.loadPlatformDetail()
+  },
+
+  // 检查编辑权限
+  checkEditPermission() {
+    const { checkHasRoles } = require('../../../utils/auth.js')
+    const hasPermission = checkHasRoles(['SYSTEM_SUPER_ADMIN', 'ORGANIZE_LOCAL_ADMIN'])
+    this.setData({ canEditOrg: hasPermission })
+  },
+
+  // 进入编辑模式
+  onEditOrgClick() {
+    this.setData({ isEditOrgMode: true })
+    // 通过选择器获取组件实例并调用方法
+    const orgStructure = this.selectComponent('#org-structure')
+    if (orgStructure) {
+      orgStructure.onEditClick()
+    }
+  },
+
+  // 取消编辑
+  onCancelOrgEdit() {
+    this.setData({ isEditOrgMode: false })
+    // 通过选择器获取组件实例并调用方法
+    const orgStructure = this.selectComponent('#org-structure')
+    if (orgStructure) {
+      orgStructure.onCancelEdit()
+    }
   },
 
   onShareAppMessage() {
@@ -294,6 +325,12 @@ Page({
     wx.navigateTo({
       url: `/pages/alumni-association/detail/detail?id=${associationId}`
     })
+  },
+
+  // 组织架构刷新事件
+  onOrgStructureRefresh() {
+    // 重新加载组织架构数据
+    this.loadOrganizationTree()
   }
 })
 

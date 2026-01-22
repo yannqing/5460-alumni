@@ -83,6 +83,8 @@ const localPlatformApi = {
   reviewAssociationApplication: (data) => post('/localPlatformManagement/reviewAssociationApplication', data),
   // 获取校处会下的校友会列表
   getPlatformAssociations: (params) => post('/localPlatform/alumniAssociations/page', params),
+  // 更新校处会成员角色
+  updateMemberRole: (data) => put('/localPlatformManagement/updateMemberRole/v2', data),
 }
 
 

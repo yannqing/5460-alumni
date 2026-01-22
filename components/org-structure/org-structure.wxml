@@ -19,6 +19,7 @@
 
   <!-- 组织树 -->
   <view wx:else class="org-tree">
+
     <!-- 一级节点 -->
     <view wx:for="{{displayList}}" wx:key="uniqueId" wx:for-item="node1" class="tree-node level-1">
       <view class="node-header" bindtap="onToggleExpand" data-id="{{node1.uniqueId}}">
@@ -33,13 +34,72 @@
 
       <view class="node-content" wx:if="{{node1.expanded}}">
         <!-- 一级节点成员 -->
-        <view class="node-members" wx:if="{{node1.members.length > 0}}">
+        <view class="node-members" wx:if="{{node1.members.length > 0 || (isEditMode && isLocalPlatform && canEdit)}}">
           <view class="org-member-grid">
             <view class="org-member-item" wx:for="{{node1.members}}" wx:key="wxId" wx:for-item="member">
               <view class="org-member-info">
-                <text class="org-member-name">{{member.username || '匿名用户'}}</text>
+                <!-- 编辑模式：显示输入框 -->
+                <view wx:if="{{isEditMode && isLocalPlatform && canEdit && editingMemberId == member._editId}}" class="member-edit-wrapper">
+                  <view class="member-edit-input">
+                    <input 
+                      class="member-input" 
+                      type="text"
+                      value="{{inputValues[member._editId] !== undefined ? inputValues[member._editId] : (member.username || '')}}" 
+                      placeholder="请输入名称"
+                      data-roleid="{{node1.roleOrId || node1.roleId || node1.id}}"
+                      data-memberid="{{member.wxId || member.id || member.userId}}"
+                      bindinput="onMemberNameInput"
+                      bindfocus="onMemberInputFocus"
+                      adjust-position="{{true}}"
+                      style="width: {{inputWidths[member._editId] || 164}}rpx;"
+                    />
+                  </view>
+                  <view class="save-btn" bindtap="onSaveMemberName" data-roleid="{{node1.roleOrId || node1.roleId || node1.id}}" data-memberid="{{member.wxId || member.id || member.userId}}">
+                    <text class="save-icon">✓</text>
+                  </view>
+                </view>
+                <!-- 非编辑模式或非编辑状态：显示文本 -->
+                <view wx:else>
+                  <text 
+                    wx:if="{{isEditMode && isLocalPlatform && canEdit && !member.isTemp}}" 
+                    class="org-member-name edit-clickable" 
+                    bindtap="onStartEditMember"
+                    data-roleid="{{node1.roleOrId || node1.roleId || node1.id}}"
+                    data-memberid="{{member.wxId || member.id || member.userId}}"
+                  >{{member.username || '匿名用户'}}</text>
+                  <text wx:else class="org-member-name">{{member.username || '匿名用户'}}</text>
+                </view>
                 <text class="org-member-role">{{node1.roleOrName}}</text>
               </view>
+            </view>
+            <!-- 新成员占位（编辑模式且正在添加） -->
+            <view wx:if="{{isEditMode && isLocalPlatform && canEdit && newMemberRoleId === (node1.roleOrId || node1.roleId || node1.id)}}" class="org-member-item">
+              <view class="org-member-info">
+                <view class="member-edit-wrapper">
+                  <view class="member-edit-input">
+                    <input 
+                      class="member-input" 
+                      placeholder="请输入名称"
+                      value="{{inputValues['new_' + (node1.roleOrId || node1.roleId || node1.id)] || ''}}"
+                      data-roleid="{{node1.roleOrId || node1.roleId || node1.id}}"
+                      bindinput="onNewMemberNameInput"
+                      bindfocus="onMemberInputFocus"
+                      focus="{{true}}"
+                      style="width: {{inputWidths['new_' + (node1.roleOrId || node1.roleId || node1.id)] || 164}}rpx;"
+                    />
+                  </view>
+                  <view class="save-btn" bindtap="onSaveNewMember" data-roleid="{{node1.roleOrId || node1.roleId || node1.id}}">
+                    <text class="save-icon">✓</text>
+                  </view>
+                </view>
+                <text class="org-member-role">{{node1.roleOrName}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 添加成员按钮（编辑模式下显示在成员列表右侧） -->
+          <view wx:if="{{isEditMode && isLocalPlatform && canEdit}}" class="add-member-btn-wrapper">
+            <view class="add-member-btn" bindtap="onAddMemberClick" data-roleid="{{node1.roleOrId || node1.roleId || node1.id}}">
+              <text class="add-icon">+</text>
             </view>
           </view>
         </view>
@@ -59,13 +119,72 @@
 
             <view class="node-content" wx:if="{{node2.expanded}}">
               <!-- 二级节点成员 -->
-              <view class="node-members" wx:if="{{node2.members.length > 0}}">
+              <view class="node-members" wx:if="{{node2.members.length > 0 || (isEditMode && isLocalPlatform && canEdit)}}">
                 <view class="org-member-grid">
                   <view class="org-member-item" wx:for="{{node2.members}}" wx:key="wxId" wx:for-item="member">
                     <view class="org-member-info">
-                      <text class="org-member-name">{{member.username || '匿名用户'}}</text>
+                      <!-- 编辑模式：显示输入框 -->
+                      <view wx:if="{{isEditMode && isLocalPlatform && canEdit && editingMemberId == member._editId}}" class="member-edit-wrapper">
+                        <view class="member-edit-input">
+                          <input 
+                            class="member-input" 
+                            type="text"
+                            value="{{inputValues[member._editId] !== undefined ? inputValues[member._editId] : (member.username || '')}}" 
+                            placeholder="请输入名称"
+                            data-roleid="{{node2.roleOrId || node2.roleId || node2.id}}"
+                            data-memberid="{{member.wxId || member.id || member.userId}}"
+                            bindinput="onMemberNameInput"
+                            bindfocus="onMemberInputFocus"
+                            adjust-position="{{true}}"
+                            style="width: {{inputWidths[member._editId] || 164}}rpx;"
+                          />
+                        </view>
+                        <view class="save-btn" bindtap="onSaveMemberName" data-roleid="{{node2.roleOrId || node2.roleId || node2.id}}" data-memberid="{{member.wxId || member.id || member.userId}}">
+                          <text class="save-icon">✓</text>
+                        </view>
+                      </view>
+                      <!-- 非编辑模式或非编辑状态：显示文本 -->
+                      <view wx:else>
+                        <text 
+                          wx:if="{{isEditMode && isLocalPlatform && canEdit && !member.isTemp}}" 
+                          class="org-member-name edit-clickable" 
+                          bindtap="onStartEditMember"
+                    data-roleid="{{node2.roleOrId || node2.roleId || node2.id}}"
+                    data-memberid="{{member.wxId || member.id || member.userId}}"
+                        >{{member.username || '匿名用户'}}</text>
+                        <text wx:else class="org-member-name">{{member.username || '匿名用户'}}</text>
+                      </view>
                       <text class="org-member-role">{{node2.roleOrName}}</text>
                     </view>
+                  </view>
+                  <!-- 新成员占位（编辑模式且正在添加） -->
+                  <view wx:if="{{isEditMode && isLocalPlatform && canEdit && newMemberRoleId === (node2.roleOrId || node2.roleId || node2.id)}}" class="org-member-item">
+                    <view class="org-member-info">
+                      <view class="member-edit-wrapper">
+                        <view class="member-edit-input">
+                            <input 
+                              class="member-input" 
+                              placeholder="请输入名称"
+                              value="{{inputValues['new_' + (node2.roleOrId || node2.roleId || node2.id)] || ''}}"
+                              data-roleid="{{node2.roleOrId || node2.roleId || node2.id}}"
+                              bindinput="onNewMemberNameInput"
+                              bindfocus="onMemberInputFocus"
+                              focus="{{true}}"
+                              style="width: {{inputWidths['new_' + (node2.roleOrId || node2.roleId || node2.id)] || 164}}rpx;"
+                            />
+                        </view>
+                        <view class="save-btn" bindtap="onSaveNewMember" data-roleid="{{node2.roleOrId || node2.roleId || node2.id}}">
+                          <text class="save-icon">✓</text>
+                        </view>
+                      </view>
+                      <text class="org-member-role">{{node2.roleOrName}}</text>
+                    </view>
+                  </view>
+                </view>
+                <!-- 添加成员按钮（编辑模式下显示在成员列表右侧） -->
+                <view wx:if="{{isEditMode && isLocalPlatform && canEdit}}" class="add-member-btn-wrapper">
+                  <view class="add-member-btn" bindtap="onAddMemberClick" data-roleid="{{node2.roleOrId || node2.roleId || node2.id}}">
+                    <text class="add-icon">+</text>
                   </view>
                 </view>
               </view>
@@ -85,13 +204,72 @@
 
                   <view class="node-content" wx:if="{{node3.expanded}}">
                     <!-- 三级节点成员 -->
-                    <view class="node-members" wx:if="{{node3.members.length > 0}}">
+                    <view class="node-members" wx:if="{{node3.members.length > 0 || (isEditMode && isLocalPlatform && canEdit)}}">
                       <view class="org-member-grid">
                         <view class="org-member-item" wx:for="{{node3.members}}" wx:key="wxId" wx:for-item="member">
                           <view class="org-member-info">
-                            <text class="org-member-name">{{member.username || '匿名用户'}}</text>
+                            <!-- 编辑模式：显示输入框 -->
+                            <view wx:if="{{isEditMode && isLocalPlatform && canEdit && editingMemberId == member._editId}}" class="member-edit-wrapper">
+                              <view class="member-edit-input">
+                                <input 
+                                  class="member-input" 
+                                  type="text"
+                                  value="{{inputValues[member._editId] !== undefined ? inputValues[member._editId] : (member.username || '')}}" 
+                                  placeholder="请输入名称"
+                                  data-roleid="{{node3.roleOrId || node3.roleId || node3.id}}"
+                                  data-memberid="{{member.wxId || member.id || member.userId}}"
+                                  bindinput="onMemberNameInput"
+                                  bindfocus="onMemberInputFocus"
+                                  adjust-position="{{true}}"
+                                  style="width: {{inputWidths[member._editId] || 164}}rpx;"
+                                />
+                              </view>
+                              <view class="save-btn" bindtap="onSaveMemberName" data-roleid="{{node3.roleOrId || node3.roleId || node3.id}}" data-memberid="{{member.wxId || member.id || member.userId}}">
+                                <text class="save-icon">✓</text>
+                              </view>
+                            </view>
+                            <!-- 非编辑模式或非编辑状态：显示文本 -->
+                            <view wx:else>
+                              <text 
+                                wx:if="{{isEditMode && isLocalPlatform && canEdit && !member.isTemp}}" 
+                                class="org-member-name edit-clickable" 
+                                bindtap="onStartEditMember"
+                    data-roleid="{{node3.roleOrId || node3.roleId || node3.id}}"
+                    data-memberid="{{member.wxId || member.id || member.userId}}"
+                              >{{member.username || '匿名用户'}}</text>
+                              <text wx:else class="org-member-name">{{member.username || '匿名用户'}}</text>
+                            </view>
                             <text class="org-member-role">{{node3.roleOrName}}</text>
                           </view>
+                        </view>
+                        <!-- 新成员占位（编辑模式且正在添加） -->
+                        <view wx:if="{{isEditMode && isLocalPlatform && canEdit && newMemberRoleId === (node3.roleOrId || node3.roleId || node3.id)}}" class="org-member-item">
+                          <view class="org-member-info">
+                            <view class="member-edit-wrapper">
+                              <view class="member-edit-input">
+                                  <input 
+                                    class="member-input" 
+                                    placeholder="请输入名称"
+                                    value="{{inputValues['new_' + (node3.roleOrId || node3.roleId || node3.id)] || ''}}"
+                                    data-roleid="{{node3.roleOrId || node3.roleId || node3.id}}"
+                                    bindinput="onNewMemberNameInput"
+                                    bindfocus="onMemberInputFocus"
+                                    focus="{{true}}"
+                                    style="width: {{inputWidths['new_' + (node3.roleOrId || node3.roleId || node3.id)] || 164}}rpx;"
+                                  />
+                              </view>
+                              <view class="save-btn" bindtap="onSaveNewMember" data-roleid="{{node3.roleOrId || node3.roleId || node3.id}}">
+                                <text class="save-icon">✓</text>
+                              </view>
+                            </view>
+                            <text class="org-member-role">{{node3.roleOrName}}</text>
+                          </view>
+                        </view>
+                      </view>
+                      <!-- 添加成员按钮（编辑模式下显示在成员列表右侧） -->
+                      <view wx:if="{{isEditMode && isLocalPlatform && canEdit}}" class="add-member-btn-wrapper">
+                        <view class="add-member-btn" bindtap="onAddMemberClick" data-roleid="{{node3.roleOrId || node3.roleId || node3.id}}">
+                          <text class="add-icon">+</text>
                         </view>
                       </view>
                     </view>

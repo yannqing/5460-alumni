@@ -65,9 +65,26 @@
             <view class="text-bold">组织结构</view>
             <view class="section-subtitle">组织架构展示</view>
           </view>
+          <view wx:if="{{canEditOrg}}" class="section-edit-btn">
+            <view wx:if="{{!isEditOrgMode}}" class="edit-btn" bindtap="onEditOrgClick">
+              <text class="edit-icon">✎</text>
+              <text class="edit-text">编辑</text>
+            </view>
+            <view wx:else class="edit-btn cancel-btn" bindtap="onCancelOrgEdit">
+              <text class="edit-text">取消</text>
+            </view>
+          </view>
         </view>
         
-        <org-structure list="{{roleList}}" loading="{{organizationLoading}}" empty-text="暂无角色数据" />
+        <org-structure 
+          id="org-structure"
+          list="{{roleList}}" 
+          loading="{{organizationLoading}}" 
+          empty-text="暂无角色数据"
+          isLocalPlatform="{{true}}"
+          localPlatformId="{{platformId}}"
+          bind:refresh="onOrgStructureRefresh"
+        />
       </view>
     </view>
 
