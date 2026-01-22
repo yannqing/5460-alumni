@@ -6,7 +6,10 @@ Page({
     userCouponId: '',
     couponInfo: null,
     loading: true,
-    qrCodeImage: '' // 二维码图片（base64解码后）
+    qrCodeImage: '', // 二维码图片（base64解码后）
+    formattedValidStartTime: '',
+    formattedValidEndTime: '',
+    formattedVerificationExpireTime: ''
   },
 
   onLoad(options) {
@@ -37,9 +40,17 @@ Page({
         // 处理base64二维码图片，后端返回的base64CodeImg已经是完整的data URI格式
         let qrCodeImage = data.base64CodeImg || ''
         
+        // 格式化时间，去掉T
+        const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ') : ''
+        const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ') : ''
+        const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ') : ''
+        
         this.setData({
           couponInfo: data,
           qrCodeImage: qrCodeImage,
+          formattedValidStartTime: formattedValidStartTime,
+          formattedValidEndTime: formattedValidEndTime,
+          formattedVerificationExpireTime: formattedVerificationExpireTime,
           loading: false
         })
       } else {
@@ -72,21 +83,29 @@ Page({
         // 处理base64二维码图片，后端返回的base64CodeImg已经是完整的data URI格式
         let qrCodeImage = data.base64CodeImg || ''
         
+        // 格式化时间，去掉T
+        const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ') : ''
+        const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ') : ''
+        const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ') : ''
+        
         this.setData({
           couponInfo: data,
-          qrCodeImage: qrCodeImage
+          qrCodeImage: qrCodeImage,
+          formattedValidStartTime: formattedValidStartTime,
+          formattedValidEndTime: formattedValidEndTime,
+          formattedVerificationExpireTime: formattedVerificationExpireTime
         })
         
         wx.showToast({
           title: '刷新成功',
           icon: 'success'
-        })
-      } else {
-        wx.showToast({
+      })
+    } else {
+            wx.showToast({
           title: res.data?.msg || '刷新失败',
           icon: 'none'
-        })
-      }
+            })
+          }
     } catch (error) {
       wx.hideLoading()
       console.error('刷新核销码失败:', error)
@@ -101,9 +120,9 @@ Page({
     // 如果优惠券信息中有商家电话，可以调用
     const phone = this.data.couponInfo?.merchantPhone
     if (phone) {
-      wx.makePhoneCall({
+    wx.makePhoneCall({
         phoneNumber: phone
-      })
+    })
     }
   }
 })

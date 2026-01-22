@@ -1,6 +1,6 @@
 // pages/audit/merchant/coupon/verify/verify.js
 const config = require('../../../../../utils/config.js')
-const { couponApi } = require('../../../../../api/api.js')
+const { couponApi, shopApi } = require('../../../../../api/api.js')
 
 Page({
   data: {
@@ -10,6 +10,10 @@ Page({
     loading: false,
     orderAmount: '', // 订单金额
     shopId: null, // 店铺ID
+    shopList: [], // 门店列表
+    selectedShop: null, // 选中的门店
+    showShopSelector: false, // 是否显示门店选择器
+    loadingShops: false, // 加载门店列表状态
     verificationMethod: 2, // 核销方式：1-扫码 2-输入卡号，默认为输入
     isFromScan: false // 是否来自扫码
   },
@@ -25,40 +29,72 @@ Page({
       })
       this.searchCoupon(code)
     }
-    // 加载商户店铺信息
-    this.loadShopInfo()
+    
+    // 加载门店列表
+    this.loadShopList()
   },
 
-  // 加载店铺信息
-  async loadShopInfo() {
+  // 加载门店列表
+  async loadShopList() {
     try {
-      const { get } = require('../../../../../utils/request.js')
-      // 获取当前用户的商户列表
-      const merchantRes = await get('/merchant-management/my-merchants', {
-        current: 1,
-        size: 1
-      })
+      this.setData({ loadingShops: true })
+      const res = await shopApi.getAvailableShops()
       
-      if (merchantRes.data && merchantRes.data.code === 200) {
-        const merchantList = merchantRes.data.data?.records || []
-        if (merchantList.length > 0) {
-          const merchantId = merchantList[0].merchantId
-          // 获取该商户的店铺列表
-          const shopRes = await get(`/shop/list/${merchantId}`)
-          
-          if (shopRes.data && shopRes.data.code === 200) {
-            const shopList = shopRes.data.data?.records || shopRes.data.data || []
-            if (shopList.length > 0) {
-              this.setData({ shopId: shopList[0].shopId })
-            }
-          }
+      if (res.data && res.data.code === 200) {
+        const shopList = res.data.data || []
+        this.setData({
+          shopList: shopList,
+          loadingShops: false
+        })
+        
+        // 如果有门店列表，默认选择第一个
+        if (shopList.length > 0) {
+          this.setData({
+            selectedShop: shopList[0],
+            shopId: shopList[0].shopId
+          })
         }
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '加载门店列表失败',
+          icon: 'none'
+        })
+        this.setData({ loadingShops: false })
       }
     } catch (error) {
-      console.error('加载店铺信息失败:', error)
-      // 如果加载失败，不影响核销功能，shopId可以为空，由后端处理
+      console.error('加载门店列表失败:', error)
+      wx.showToast({
+        title: '加载门店列表失败，请重试',
+        icon: 'none'
+      })
+      this.setData({ loadingShops: false })
     }
   },
+
+  // 显示/隐藏门店选择器
+  toggleShopSelector() {
+    this.setData({
+      showShopSelector: !this.data.showShopSelector
+    })
+  },
+
+  // 选择门店
+  onSelectShop(e) {
+    const { shopid } = e.currentTarget.dataset
+    if (!shopid) {
+      return
+    }
+    
+    const shop = this.data.shopList.find(item => item.shopId === shopid)
+    if (shop) {
+      this.setData({
+        selectedShop: shop,
+        shopId: shop.shopId,
+        showShopSelector: false
+      })
+    }
+  },
+
 
   // 订单金额输入
   onAmountInput(e) {

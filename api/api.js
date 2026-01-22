@@ -179,6 +179,8 @@ const shopApi = {
   followShop: (id) => post(`/shops/${id}/follow`),
   // 取消关注商铺
   unfollowShop: (id) => del(`/shops/${id}/follow`),
+  // 获取本人可用的门店列表
+  getAvailableShops: () => get('/shop/my/available'),
 }
 
 // ==================== 附近权益相关接口 ====================

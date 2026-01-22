@@ -3,56 +3,55 @@
   <!-- 加载中 -->
   <view wx:if="{{loading}}" class="loading-container">
     <text class="loading-text">加载中...</text>
-  </view>
+        </view>
 
   <view wx:elif="{{couponInfo}}">
-    <!-- 核销二维码卡片 -->
-    <view class="coupon-card-large">
-      <view class="qr-code-container">
-        <view class="qr-code-wrapper">
-          <image 
-            wx:if="{{qrCodeImage}}" 
-            class="qr-code-image" 
-            src="{{qrCodeImage}}" 
-            mode="aspectFit"
-          ></image>
-          <view wx:else class="qr-code-placeholder">
-            <text class="placeholder-text">二维码加载中...</text>
-          </view>
-        </view>
-        <view class="refresh-btn-wrapper">
-          <view class="refresh-btn" bindtap="refreshCode">
-            <text class="refresh-icon">🔄</text>
-            <text class="refresh-text">刷新</text>
-          </view>
+    <!-- 核销二维码卡片 - 只显示二维码，居中 -->
+    <view class="qr-code-card">
+      <view class="qr-code-wrapper">
+        <image 
+          wx:if="{{qrCodeImage}}" 
+          class="qr-code-image" 
+          src="{{qrCodeImage}}" 
+          mode="aspectFit"
+        ></image>
+        <view wx:else class="qr-code-placeholder">
+          <text class="placeholder-text">二维码加载中...</text>
         </view>
       </view>
-      <view class="coupon-card-divider"></view>
-      <view class="coupon-card-right">
-        <view class="coupon-title-detail">{{couponInfo.couponName}}</view>
-        <view class="coupon-code-display">
-          <text class="code-label">核销码：</text>
-          <text class="code-value">{{couponInfo.verificationCode || '暂无'}}</text>
-        </view>
-        <view class="coupon-validity">
-          <text>有效期至 {{couponInfo.validEndTime}}</text>
-        </view>
-        <view class="coupon-status" wx:if="{{couponInfo.status}}">
-          <text class="status-text status-{{couponInfo.status}}">
-            {{couponInfo.status === 1 ? '未使用' : couponInfo.status === 2 ? '已使用' : couponInfo.status === 3 ? '已过期' : '已作废'}}
-          </text>
+      <view class="refresh-btn-wrapper">
+        <view class="refresh-btn" bindtap="refreshCode">
+          <text class="refresh-icon">🔄</text>
+          <text class="refresh-text">刷新</text>
         </view>
       </view>
     </view>
 
-    <view class="card">
+    <!-- 优惠券基本信息卡片 -->
+    <view class="card coupon-info-card">
+      <view class="coupon-status-badge" wx:if="{{couponInfo.status}}">
+        <view class="status-badge-text status-{{couponInfo.status}}">
+          {{couponInfo.status === 1 ? '未使用' : couponInfo.status === 2 ? '已使用' : couponInfo.status === 3 ? '已过期' : '已作废'}}
+        </view>
+      </view>
+      <view class="coupon-title-detail">{{couponInfo.couponName}}</view>
+      <view class="coupon-code-display">
+        <text class="code-label">核销码：</text>
+        <text class="code-value">{{couponInfo.verificationCode || '暂无'}}</text>
+      </view>
+      <view class="coupon-validity-row">
+        <text class="validity-label">有效期至</text>
+        <text class="validity-value">{{formattedValidEndTime}}</text>
+      </view>
+    </view>
+
+    <!-- 优惠券详细信息卡片 -->
+    <view class="card detail-info-card">
       <view class="text-bold mb-20">优惠券信息</view>
       <view class="info-row">
         <text class="info-label">优惠券类型：</text>
-        <text class="info-value">
-          {{couponInfo.couponType === 1 ? '折扣券' : couponInfo.couponType === 2 ? '满减券' : couponInfo.couponType === 3 ? '礼品券' : '未知'}}
-        </text>
-      </view>
+        <text class="info-value">{{couponInfo.couponType === 1 ? '折扣券' : couponInfo.couponType === 2 ? '满减券' : couponInfo.couponType === 3 ? '礼品券' : '未知'}}</text>
+        </view>
       <view class="info-row" wx:if="{{couponInfo.discountValue}}">
         <text class="info-label">优惠值：</text>
         <text class="info-value">{{couponInfo.discountValue}}</text>
@@ -61,14 +60,13 @@
         <text class="info-label">最低消费：</text>
         <text class="info-value">¥{{couponInfo.minSpend}}</text>
       </view>
-      <view class="divider"></view>
-      <view class="text-bold mb-20">有效期</view>
-      <view class="text-secondary">
-        {{couponInfo.validStartTime}} 至 {{couponInfo.validEndTime}}
+      <view class="info-row">
+        <text class="info-label">有效期：</text>
+        <text class="info-value">{{formattedValidStartTime}} 至 {{formattedValidEndTime}}</text>
       </view>
       <view class="info-row" wx:if="{{couponInfo.verificationExpireTime}}">
         <text class="info-label">核销码过期时间：</text>
-        <text class="info-value">{{couponInfo.verificationExpireTime}}</text>
+        <text class="info-value">{{formattedVerificationExpireTime}}</text>
       </view>
     </view>
   </view>

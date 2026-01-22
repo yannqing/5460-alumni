@@ -5,6 +5,98 @@
   padding: 20rpx;
 }
 
+/* 门店选择器 */
+.shop-selector-container {
+  margin-bottom: 20rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.shop-selector-header {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.shop-selector-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.shop-selector-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+  min-width: 0;
+}
+
+.shop-selector-value .placeholder-text {
+  color: #999;
+}
+
+.shop-selector-arrow {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 20rpx;
+  flex-shrink: 0;
+}
+
+.shop-list-dropdown {
+  max-height: 600rpx;
+  overflow-y: auto;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.shop-item:last-child {
+  border-bottom: none;
+}
+
+.shop-item.selected {
+  background-color: #f5f9ff;
+}
+
+.shop-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-item-name {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.shop-item-address {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.shop-item-check {
+  font-size: 32rpx;
+  color: #40B2E6;
+  margin-left: 20rpx;
+  flex-shrink: 0;
+}
+
+.shop-empty {
+  padding: 40rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #999;
+}
+
 .search-container {
   background-color: #fff;
   border-radius: 16rpx;
