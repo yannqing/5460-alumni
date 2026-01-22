@@ -7,7 +7,14 @@
 
   <view wx:elif="{{couponInfo}}">
     <!-- 核销二维码卡片 - 只显示二维码，居中 -->
-    <view class="qr-code-card">
+    <!-- 已使用状态：显示已消费提示 -->
+    <view wx:if="{{couponInfo.status === 2}}" class="qr-code-card">
+      <view class="consumed-tip">
+        <text class="consumed-text">已消费</text>
+      </view>
+    </view>
+    <!-- 其他状态：显示二维码和刷新按钮 -->
+    <view wx:else class="qr-code-card">
       <view class="qr-code-wrapper">
         <image 
           wx:if="{{qrCodeImage}}" 
