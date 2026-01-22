@@ -1,9 +1,11 @@
 {
   "navigationBarTitleText": "校处会",
+  "navigationStyle": "custom",
   "enablePullDownRefresh": true,
   "onReachBottomDistance": 50,
   "usingComponents": {
-    "org-structure": "/components/org-structure/org-structure"
+    "org-structure": "/components/org-structure/org-structure",
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
   }
 }
 

@@ -1,4 +1,7 @@
 <!-- pages/promotion/detail/detail.wxml -->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="地方校促会" showBack="{{true}}"></custom-nav-bar>
+
 <view class="promotion-container">
   <view wx:if="{{loading}}" class="loading-wrap">
     <view class="loading">加载中...</view>

@@ -1,4 +1,7 @@
 <!--pages/audit/schooloffice/organization/organization.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校处会组织架构" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view class="form-card">
     <view class="form-title">校处会组织</view>

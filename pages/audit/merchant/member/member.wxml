@@ -1,4 +1,7 @@
 <!-- pages/audit/merchant/member/member.wxml -->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="成员管理" showBack="{{true}}"></custom-nav-bar>
+
 <view class="member-management-page">
   <view class="page-title">成员管理</view>
   <view class="page-content">

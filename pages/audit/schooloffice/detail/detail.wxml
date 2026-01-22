@@ -1,4 +1,7 @@
 <!--pages/audit/schooloffice/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校处会审核详情" showBack="{{true}}"></custom-nav-bar>
+
 <view class="schooloffice-audit-detail-page">
   <view class="detail-header">
     <view class="detail-title">校处会审核详情</view>

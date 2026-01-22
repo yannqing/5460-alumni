@@ -1,4 +1,7 @@
 <!--pages/coupon/rush/rush.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="限时抢购" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view wx:if="{{couponInfo}}">
     <image class="cover-image" src="{{couponInfo.image}}" mode="aspectFill" />

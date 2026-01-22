@@ -1,4 +1,7 @@
 <!--pages/enterprise/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校友企业" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container enterprise-page">
   <view class="enterprise-hero card">
     <view class="hero-header">

@@ -1,0 +1,55 @@
+/* components/custom-nav-bar/custom-nav-bar.wxss */
+.custom-nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: #fff;
+}
+
+.status-bar {
+  width: 100%;
+}
+
+.nav-bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 30rpx;
+  position: relative;
+}
+
+.nav-back-btn {
+  position: absolute;
+  left: 10rpx;
+  width: 120rpx;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.back-icon {
+  width: 120rpx;
+  height: 44rpx;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: 500;
+  text-align: center;
+  flex: 1;
+}
+
+.nav-right-placeholder {
+  width: 64rpx;
+  height: 44px;
+  position: absolute;
+  right: 30rpx;
+}
+
+.nav-bar-placeholder {
+  width: 100%;
+}

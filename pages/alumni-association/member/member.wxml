@@ -1,4 +1,7 @@
 <!--pages/alumni-association/member/member.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="成员管理" showBack="{{true}}"></custom-nav-bar>
+
 <view class="member-page">
   <view class="form-card">
     <view class="form-title">校友会成员管理</view>

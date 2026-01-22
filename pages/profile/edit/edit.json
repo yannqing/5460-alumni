@@ -1,7 +1,9 @@
 {
   "navigationBarTitleText": "编辑资料",
+  "navigationStyle": "custom",
   "usingComponents": {
-    "message-notification": "/components/message-notification/message-notification"
+    "message-notification": "/components/message-notification/message-notification",
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
   }
 }
 

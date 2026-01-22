@@ -1,4 +1,7 @@
 <!--pages/alumni-association/organization/organization.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="组织架构" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view class="form-card">
     <view class="form-title">校友会组织</view>

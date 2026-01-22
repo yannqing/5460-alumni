@@ -1,4 +1,8 @@
 {
-  "navigationBarTitleText": "企业详情"
+  "navigationBarTitleText": "企业详情",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
 }
 

@@ -1,4 +1,7 @@
 <!--pages/circle/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="圈子" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view class="circle-list">
     <view class="card" wx:for="{{circleList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">

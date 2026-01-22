@@ -1,4 +1,7 @@
 <!--pages/alumni-union/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校友总会" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view wx:if="{{loading}}" class="loading-wrap">
     <view class="loading">加载中...</view>

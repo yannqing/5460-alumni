@@ -1,4 +1,7 @@
 <!--pages/audit/schooloffice/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校处会审核" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view class="form-card">
     <view class="form-title">校友会审核</view>

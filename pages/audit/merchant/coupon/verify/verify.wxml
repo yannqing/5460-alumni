@@ -1,4 +1,7 @@
 <!--pages/audit/merchant/coupon/verify/verify.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="核销优惠券" showBack="{{true}}"></custom-nav-bar>
+
 <view class="verify-coupon-page">
   <!-- 门店选择 -->
   <view class="shop-selector-container">

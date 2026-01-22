@@ -1,4 +1,7 @@
 <!--pages/benefit/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="附近权益" showBack="{{true}}"></custom-nav-bar>
+
 <view class="benefit-page">
   <view class="hero-card">
     <view class="hero-top">
