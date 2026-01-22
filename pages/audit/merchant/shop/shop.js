@@ -55,9 +55,10 @@ Page({
   async loadMerchants() {
     try {
       this.setData({ loading: true })
-      const res = await app.api.merchantApi.getMerchantPage({
+      const { get } = require('../../../../utils/request.js')
+      const res = await get('/merchant-management/my-merchants', {
         current: 1,
-        pageSize: 100 // 加载足够多的商户数据
+        size: 100 // 加载足够多的商户数据
       })
       
       if (res.data && res.data.code === 200) {
