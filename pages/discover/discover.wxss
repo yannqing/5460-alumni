@@ -969,9 +969,9 @@
 .map-view {
   flex: 1;
   height: 0;
-  margin-top: calc(env(safe-area-inset-top) + 345rpx + 120rpx + 80rpx);
+  margin-top: calc(env(safe-area-inset-top) + 345rpx + 180rpx + 60rpx);
   position: relative;
-  z-index: 20;
+  z-index: 10;
   background-color: #f5f5f5;
 }
 
