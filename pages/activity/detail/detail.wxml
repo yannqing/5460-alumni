@@ -7,89 +7,139 @@
     <view class="loading">加载中...</view>
   </view>
 
-  <view wx:else>
-  <image class="cover-image" src="{{activityInfo.cover}}" mode="aspectFill" />
+  <view wx:elif="{{activityInfo}}">
+    <!-- 活动封面图 -->
+    <image class="cover-image" src="{{activityInfo.coverImage}}" mode="aspectFill"></image>
 
-    <view class="card hero-card">
-    <view class="activity-title-large">{{activityInfo.title}}</view>
-    <view class="activity-organizer">主办方：{{activityInfo.organizer}}</view>
-      <view class="stat-row">
-        <view class="stat-block">
-          <text class="stat-number">{{activityInfo.participantCount}}</text>
-          <text class="stat-label">已报名</text>
+    <!-- 活动标题卡片 -->
+    <view class="card title-card">
+      <view class="activity-title-large">{{activityInfo.activityTitle}}</view>
+      <view class="activity-tags">
+        <view class="tag status-tag status-{{activityInfo.status}}">
+          {{activityInfo.status === 0 ? '草稿' : activityInfo.status === 1 ? '报名中' : activityInfo.status === 2 ? '报名结束' : activityInfo.status === 3 ? '进行中' : activityInfo.status === 4 ? '已结束' : '已取消'}}
         </view>
-        <view class="stat-block">
-          <text class="stat-number">{{activityInfo.maxParticipant}}</text>
-          <text class="stat-label">人数上限</text>
-        </view>
-        <view class="stat-block">
-          <text class="stat-number">4h</text>
-          <text class="stat-label">活动时长</text>
-        </view>
-      </view>
-      <view class="reminder" wx:if="{{activityInfo.reminder}}">
-        {{activityInfo.reminder}}
-      </view>
-      <view class="hero-actions">
-        <button
-          class="btn btn-primary"
-          loading="{{buttonLoading}}"
-          bindtap="joinActivity"
-          disabled="{{activityInfo.isJoined}}"
-        >
-          {{activityInfo.isJoined ? '已报名' : '立即报名'}}
-        </button>
-        <button class="btn btn-plain" bindtap="openMap">导航</button>
+        <view class="tag" wx:if="{{activityInfo.isRecommended === 1}}">推荐</view>
+        <view class="tag" wx:if="{{activityInfo.isNeedReview === 1}}">需审核</view>
       </view>
     </view>
 
-    <view class="card info-card">
-    <view class="info-row">
-      <text class="info-icon">📍</text>
-      <view class="info-content">
-        <view class="info-label">活动地点</view>
-        <view class="info-value">{{activityInfo.location}}</view>
-        <view class="info-detail">{{activityInfo.address}}</view>
-      </view>
-    </view>
-
-    <view class="info-row">
-      <text class="info-icon">🕐</text>
-      <view class="info-content">
-        <view class="info-label">活动时间</view>
-        <view class="info-value">{{activityInfo.startTime}} - {{activityInfo.endTime}}</view>
+    <!-- 活动基本信息 -->
+    <view class="card basic-info-card">
+      <view class="section-title">活动信息</view>
+      <view class="info-item">
+        <text class="info-label">主办方：</text>
+        <view class="organizer-info">
+          <image class="organizer-avatar" src="{{activityInfo.organizerAvatar}}" mode="aspectFill"></image>
+          <text class="organizer-name">{{activityInfo.organizerName}}</text>
         </view>
       </view>
-    </view>
-
-    <view class="card">
-      <view class="section-title">活动流程</view>
-      <view class="timeline">
-        <view class="timeline-item" wx:for="{{activityInfo.agenda}}" wx:key="*this">
-          <view class="timeline-time">{{item.time}}</view>
-          <view class="timeline-title">{{item.title}}</view>
-        </view>
+      <view class="info-item">
+        <text class="info-label">活动分类：</text>
+        <text class="info-value">{{activityInfo.activityCategory || '暂无分类'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">活动时间：</text>
+        <text class="info-value">{{activityInfo.startTime}} 至 {{activityInfo.endTime}}</text>
+      </view>
+      <view class="info-item" wx:if="{{activityInfo.isSignup === 1}}">
+        <text class="info-label">报名时间：</text>
+        <text class="info-value">{{activityInfo.registrationStartTime}} 至 {{activityInfo.registrationEndTime}}</text>
       </view>
     </view>
 
-    <view class="card">
+    <!-- 参与信息 -->
+    <view class="card participants-card">
+      <view class="section-title">参与信息</view>
+      <view class="participants-row">
+        <view class="participant-item">
+          <text class="participant-label">当前报名</text>
+          <text class="participant-value">{{activityInfo.currentParticipants || 0}}</text>
+        </view>
+        <view class="participant-item">
+          <text class="participant-label">最大人数</text>
+          <text class="participant-value">{{activityInfo.maxParticipants || 0}}</text>
+        </view>
+      </view>
+      <view class="info-item" wx:if="{{activityInfo.isNeedReview === 1}}">
+        <text class="info-label">审核要求：</text>
+        <text class="info-value">需要审核</text>
+      </view>
+      <view class="info-item" wx:if="{{activityInfo.isSignup === 1}}">
+        <text class="info-label">报名要求：</text>
+        <text class="info-value">需要报名</text>
+      </view>
+    </view>
+
+    <!-- 活动地点 -->
+    <view class="card location-card">
+      <view class="section-title">活动地点</view>
+      <view class="location-info" bindtap="openLocation">
+        <image class="location-icon" src="{{iconLocation}}" mode="aspectFit"></image>
+        <view class="location-text">
+          <text class="address">{{activityInfo.address || '暂无详细地址'}}</text>
+        </view>
+        <text class="nav-text">导航</text>
+      </view>
+    </view>
+
+    <!-- 活动详情描述 -->
+    <view class="card description-card">
       <view class="section-title">活动详情</view>
-      <view class="text-secondary">{{activityInfo.description}}</view>
+      <view class="activity-description">{{activityInfo.description}}</view>
     </view>
 
-    <view class="card">
-      <view class="section-title">联络方式</view>
-      <view class="contact-card">
-        <view class="contact-name">{{activityInfo.contact.name}}</view>
-        <view class="contact-row">
-          <text>电话 {{activityInfo.contact.phone}}</text>
-          <button class="contact-btn" size="mini" bindtap="handleCall">拨打</button>
-        </view>
-        <view class="contact-row">
-          <text>微信 {{activityInfo.contact.wechat}}</text>
-          <button class="contact-btn" size="mini" bindtap="handleCopyWechat">复制</button>
-        </view>
+    <!-- 联系方式 -->
+    <view class="card contact-card">
+      <view class="section-title">联系方式</view>
+      <view class="info-item" wx:if="{{activityInfo.contactPerson}}">
+        <text class="info-label">联系人：</text>
+        <text class="info-value">{{activityInfo.contactPerson}}</text>
+      </view>
+      <view class="info-item" wx:if="{{activityInfo.contactPhone}}">
+        <text class="info-label">联系电话：</text>
+        <text class="info-value link-text" bindtap="makeCall">{{activityInfo.contactPhone}}</text>
+      </view>
+      <view class="info-item" wx:if="{{activityInfo.contactEmail}}">
+        <text class="info-label">联系邮箱：</text>
+        <text class="info-value link-text">{{activityInfo.contactEmail}}</text>
       </view>
     </view>
+
+    <!-- 活动图片 -->
+    <view class="card images-card" wx:if="{{activityImages.length > 0}}">
+      <view class="section-title">活动图片</view>
+      <view class="images-grid">
+        <image class="grid-image" wx:for="{{activityImages}}" wx:key="*this" src="{{item}}" mode="aspectFill"></image>
+      </view>
+    </view>
+
+    <!-- 审核状态 -->
+    <view class="card review-card" wx:if="{{activityInfo.reviewStatus !== undefined}}">
+      <view class="section-title">审核信息</view>
+      <view class="info-item">
+        <text class="info-label">审核状态：</text>
+        <text class="info-value">{{activityInfo.reviewStatus === 0 ? '待审核' : activityInfo.reviewStatus === 1 ? '审核通过' : '审核失败'}}</text>
+      </view>
+      <view class="info-item" wx:if="{{activityInfo.reviewReason}}">
+        <text class="info-label">审核原因：</text>
+        <text class="info-value">{{activityInfo.reviewReason}}</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons" wx:if="{{activityInfo.status === 1}}">
+      <button
+        class="btn btn-primary"
+        loading="{{buttonLoading}}"
+        bindtap="joinActivity"
+      >
+        立即报名
+      </button>
+    </view>
+  </view>
+
+  <view wx:else class="empty-state">
+    <text class="empty-text">活动信息加载失败或不存在</text>
+    <button class="retry-btn" bindtap="onLoad">重新加载</button>
   </view>
 </view>

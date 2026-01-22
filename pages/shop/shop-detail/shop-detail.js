@@ -199,9 +199,9 @@ Page({
       const { id } = e.currentTarget.dataset
       console.log('[ShopDetail] 点击活动:', id)
       
-      // 跳转到活动详情页，假设活动详情页路径为 /pages/activity/activity-detail
+      // 跳转到活动详情页
       wx.navigateTo({
-        url: `/pages/activity/activity-detail?id=${id}`
+        url: `/pages/activity/detail/detail?id=${id}`
       })
     } catch (error) {
       console.error('[ShopDetail] 处理活动点击失败:', error)

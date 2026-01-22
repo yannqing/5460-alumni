@@ -199,7 +199,7 @@ const activityApi = {
   // 获取活动列表
   getActivityList: (params) => get('/activities', params),
   // 获取活动详情
-  getActivityDetail: (id) => get(`/activities/${id}`),
+  getActivityDetail: (id) => get(`/activity/${id}`),
   // 报名活动
   joinActivity: (id, data) => post(`/activities/${id}/join`, data),
   // 取消报名

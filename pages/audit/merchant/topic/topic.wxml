@@ -1,86 +1,40 @@
-<!-- pages/audit/merchant/topic/topic.wxml -->
-<!-- 自定义导航栏 -->
+
 <custom-nav-bar title="话题管理" showBack="{{true}}"></custom-nav-bar>
 
 <view class="topic-management-page">
-  <view class="page-header">
-    <view class="page-title">话题管理</view>
-    <view class="add-btn" bindtap="onAddTopic">
-      <text class="add-icon">+</text>
-      <text class="add-text">新增话题</text>
+  <view class="container">
+    <view class="section-title">选择店铺</view>
+    
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
     </view>
-  </view>
-
-  <view class="tab-container">
-    <scroll-view class="tab-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
-      <view class="tab-list">
-        <view 
-          class="tab-item {{currentTab === item.id ? 'active' : ''}}" 
-          wx:for="{{tabs}}" 
-          wx:key="id"
-          data-id="{{item.id}}"
-          bindtap="onTabChange"
-        >
-          <text class="tab-name">{{item.name}}</text>
-          <text class="tab-count">{{item.count}}</text>
+    
+    <!-- 选择框 -->
+    <view class="picker-container" wx:else>
+      <picker 
+        bindchange="onShopChange" 
+        value="{{selectedShopIndex}}" 
+        range="{{shops}}" 
+        range-key="shopName" 
+        disabled="{{shops.length === 0}}"
+      >
+        <view class="picker">
+          <text class="picker-label">店铺：</text>
+          <text class="picker-value">{{selectedShopIndex >= 0 ? shops[selectedShopIndex].shopName : '请选择店铺'}}</text>
+          <text class="picker-arrow">▼</text>
         </view>
-      </view>
-    </scroll-view>
-  </view>
-
-  <view class="topic-list">
-    <view 
-      class="topic-card" 
-      wx:for="{{topicList}}" 
-      wx:key="id"
-      data-id="{{item.id}}"
-      bindtap="onTopicTap"
-    >
-      <view class="topic-cover">
-        <image class="cover-image" src="{{item.coverImage}}" mode="aspectFill"></image>
-        <view class="status-tag {{item.status}}">
-          <text>{{item.status === 'published' ? '已发布' : (item.status === 'pending' ? '待审核' : (item.status === 'draft' ? '草稿' : '已下架'))}}</text>
-        </view>
+      </picker>
+      
+      <!-- 空数据提示 -->
+      <view class="empty-container" wx:if="{{shops.length === 0}}">
+        <text class="empty-text">暂无店铺数据</text>
       </view>
       
-      <view class="topic-content">
-        <view class="topic-title">{{item.title}}</view>
-        <view class="topic-description">{{item.description}}</view>
-        
-        <view class="topic-meta">
-          <view class="author-info">
-            <image class="author-avatar" src="{{item.author.avatar}}" mode="aspectFill"></image>
-            <text class="author-name">{{item.author.name}}</text>
-            <text class="author-association">{{item.author.association}}</text>
-          </view>
-          <text class="create-time">{{item.createTime}}</text>
-        </view>
-        
-        <view class="topic-stats">
-          <view class="stat-item">
-            <text class="stat-icon">👁</text>
-            <text class="stat-value">{{item.viewCount}}</text>
-          </view>
-          <view class="stat-item">
-            <text class="stat-icon">💬</text>
-            <text class="stat-value">{{item.commentCount}}</text>
-          </view>
-          <view class="stat-item">
-            <text class="stat-icon">👍</text>
-            <text class="stat-value">{{item.likeCount}}</text>
-          </view>
-        </view>
+      <!-- 发布话题按钮 -->
+      <view class="publish-btn-container" wx:if="{{selectedShopIndex >= 0}}">
+        <button class="publish-btn" bindtap="onNavigateToPublish">发布话题</button>
       </view>
     </view>
-
-    <view class="empty-state" wx:if="{{topicList.length === 0 && !loading}}">
-      <text class="empty-icon">📝</text>
-      <text class="empty-text">暂无话题</text>
-    </view>
-  </view>
-
-  <view class="loading-container" wx:if="{{loading}}">
-    <view class="loading-spinner"></view>
-    <text class="loading-text">加载中...</text>
   </view>
 </view>
