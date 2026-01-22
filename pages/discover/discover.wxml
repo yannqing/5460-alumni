@@ -93,25 +93,62 @@
       <view class="empty-tip" wx:if="{{couponList.length === 0 && !loading}}">暂无附近优惠</view>
 
       <view class="shop-card" wx:for="{{couponList}}" wx:key="id" bindtap="handleShopTap" data-id="{{item.id}}">
+        <!-- 商铺头部信息 -->
         <view class="shop-main">
           <image class="shop-image" src="{{item.image}}" mode="aspectFill"></image>
           <view class="shop-info">
-            <text class="shop-name">{{item.name}}</text>
-            <text class="shop-distance">{{item.distance}}</text>
+            <view class="shop-name-row">
+              <text class="shop-name">{{item.name}}</text>
+              <view class="recommend-tag" wx:if="{{item.isRecommended === 1}}">推荐</view>
+            </view>
+            <view class="shop-meta">
+              <text class="shop-distance">{{item.distance}}</text>
+              <view class="shop-rating" wx:if="{{item.ratingScore > 0}}">
+                <text class="rating-star">⭐</text>
+                <text class="rating-score">{{item.ratingScore}}分</text>
+                <text class="rating-count">({{item.ratingCount}})</text>
+              </view>
+              <text class="shop-view-count" wx:if="{{item.viewCount > 0}}">{{item.viewCount}}人浏览</text>
+            </view>
             <view class="shop-tags" wx:if="{{item.associations && item.associations.length > 0}}">
               <text class="tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">{{assoc}}</text>
             </view>
           </view>
         </view>
 
+        <!-- 商铺详情信息 -->
+        <view class="shop-details" wx:if="{{item.phone || item.businessHours}}">
+          <view class="shop-contact" wx:if="{{item.phone}}">
+            <text class="contact-icon">📞</text>
+            <text class="contact-text">{{item.phone}}</text>
+          </view>
+          <view class="shop-hours" wx:if="{{item.businessHours}}">
+            <text class="hours-icon">⏰</text>
+            <text class="hours-text">{{item.businessHours}}</text>
+          </view>
+        </view>
+
+        <!-- 优惠券列表 -->
         <view class="coupons" wx:if="{{item.coupons && item.coupons.length > 0}}">
-          <view class="coupon" wx:for="{{item.coupons}}" wx:key="*this" wx:for-item="coupon">
+          <view class="coupon" wx:for="{{item.coupons}}" wx:key="couponId" wx:for-item="coupon">
+            <!-- 优惠券左侧 -->
             <view class="coupon-left">
               <text class="coupon-value">{{coupon.discount}}</text>
               <text class="coupon-type">{{coupon.type}}</text>
+              <view class="coupon-alumni-tag" wx:if="{{coupon.isAlumniOnly === 1}}">校友专享</view>
             </view>
-            <view class="coupon-right">
+            <!-- 优惠券中间 -->
+            <view class="coupon-middle">
               <text class="coupon-title">{{coupon.title}}</text>
+              <text class="coupon-expire">{{coupon.expireDate}}</text>
+            </view>
+            <!-- 优惠券右侧 -->
+            <view class="coupon-right">
+              <text class="coupon-remain" wx:if="{{coupon.remainQuantity > 0}}">剩余{{coupon.remainQuantity}}张</text>
+              <text class="coupon-remain coupon-remain-low" wx:if="{{coupon.remainQuantity <= 10 && coupon.remainQuantity > 0}}">仅剩{{coupon.remainQuantity}}张</text>
+              <text class="coupon-remain coupon-remain-empty" wx:if="{{coupon.remainQuantity === 0}}">已抢光</text>
+              <view class="coupon-btn" catchtap="handleClaimCoupon" data-coupon-id="{{coupon.couponId}}" data-shop-id="{{item.id}}" wx:if="{{coupon.remainQuantity > 0}}">立即领取</view>
+              <view class="coupon-btn coupon-btn-disabled" wx:if="{{coupon.remainQuantity === 0}}">已抢光</view>
             </view>
           </view>
         </view>

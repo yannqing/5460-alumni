@@ -1,6 +1,6 @@
 // pages/discover/discover.js
 const config = require('../../utils/config.js')
-const { shopApi, nearbyApi } = require('../../api/api.js')
+const { shopApi, nearbyApi, couponApi } = require('../../api/api.js')
 const { FollowTargetType, handleListItemFollow } = require('../../utils/followHelper.js')
 
 Page({
@@ -52,6 +52,10 @@ Page({
         selected: 1
       });
     }
+    // 如果当前是地图模式，确保地图定位到用户位置
+    if (this.data.viewMode === 'map') {
+      this.getLocation();
+    }
   },
 
   // 初始化自己的位置信息
@@ -60,11 +64,13 @@ Page({
     const location = app.globalData.location
 
     if (location && location.latitude && location.longitude) {
+      const currentLocation = {
+        latitude: location.latitude,
+        longitude: location.longitude
+      }
       this.setData({
-        myLocation: {
-          latitude: location.latitude,
-          longitude: location.longitude
-        }
+        myLocation: currentLocation,
+        mapCenter: currentLocation
       })
       // 如果当前是地图模式，更新标记
       if (this.data.viewMode === 'map') {
@@ -256,7 +262,16 @@ Page({
               if (Array.isArray(shop.shopImages) && shop.shopImages.length > 0) {
                 image = config.getImageUrl(shop.shopImages[0])
               } else if (typeof shop.shopImages === 'string') {
-                image = config.getImageUrl(shop.shopImages)
+                try {
+                  const imageArray = JSON.parse(shop.shopImages)
+                  if (Array.isArray(imageArray) && imageArray.length > 0) {
+                    image = config.getImageUrl(imageArray[0])
+                  } else {
+                    image = config.getImageUrl(shop.shopImages)
+                  }
+                } catch (e) {
+                  image = config.getImageUrl(shop.shopImages)
+                }
               }
             }
 
@@ -310,7 +325,11 @@ Page({
                   discount: discount,
                   type: type,
                   title: title,
-                  expireDate: expireDate
+                  expireDate: expireDate,
+                  couponId: coupon.couponId,
+                  remainQuantity: coupon.remainQuantity || 0,
+                  minSpend: coupon.minSpend || 0,
+                  isAlumniOnly: coupon.isAlumniOnly || 0
                 }
               })
             }
@@ -325,7 +344,18 @@ Page({
               associations: associations,
               coupons: coupons,
               latitude: shop.latitude,
-              longitude: shop.longitude
+              longitude: shop.longitude,
+              ratingScore: parseFloat(shop.ratingScore) || 0,
+              ratingCount: parseInt(shop.ratingCount) || 0,
+              viewCount: parseInt(shop.viewCount) || 0,
+              clickCount: parseInt(shop.clickCount) || 0,
+              couponReceivedCount: parseInt(shop.couponReceivedCount) || 0,
+              couponVerifiedCount: parseInt(shop.couponVerifiedCount) || 0,
+              isRecommended: parseInt(shop.isRecommended) || 0,
+              status: shop.status || 1,
+              phone: shop.phone || '',
+              businessHours: shop.businessHours || '',
+              description: shop.description || ''
             }
           })
 
@@ -1023,8 +1053,66 @@ Page({
       return
     }
     wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${id}`
+      url: `/pages/shop/shop-detail/shop-detail?id=${id}`
     })
+  },
+
+  // 领取优惠券
+  async handleClaimCoupon(e) {
+    const { couponId, shopId } = e.currentTarget.dataset
+    
+    if (!couponId || !shopId) {
+      console.error('[Discover] 优惠券ID或商铺ID不存在')
+      return
+    }
+    
+    wx.showLoading({ title: '领取中...' })
+    
+    try {
+      // 调用领取优惠券接口
+      const res = await couponApi.claimCoupon({
+        couponId: parseInt(couponId),
+        receiveChannel: 'discover_page',
+        receiveSource: 'shop_id_' + shopId
+      })
+      
+      wx.hideLoading()
+      
+      if (res.data && res.data.code === 200 && res.data.data) {
+        wx.showToast({
+          title: '领取成功',
+          icon: 'success'
+        })
+        
+        // 更新优惠券剩余数量
+        const updatedCouponList = [...this.data.couponList]
+        for (let i = 0; i < updatedCouponList.length; i++) {
+          if (updatedCouponList[i].id === shopId && updatedCouponList[i].coupons) {
+            updatedCouponList[i].coupons = updatedCouponList[i].coupons.map(coupon => {
+              if (coupon.couponId === couponId && coupon.remainQuantity > 0) {
+                return { ...coupon, remainQuantity: coupon.remainQuantity - 1 }
+              }
+              return coupon
+            })
+            break
+          }
+        }
+        
+        this.setData({ couponList: updatedCouponList })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '领取失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('[Discover] 领取优惠券失败:', error)
+      wx.showToast({
+        title: '领取失败，请稍后重试',
+        icon: 'none'
+      })
+    }
   },
 
   handleExpand(e) {
