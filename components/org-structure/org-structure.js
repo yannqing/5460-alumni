@@ -37,16 +37,20 @@ Component({
     inputValues: {}, // 存储每个输入框的值，确保输入正常
     roleNameValues: {}, // 存储每个成员职位的输入值
     roleNameWidths: {}, // 存储每个职位输入框的宽度
-    iconIndent: '' // 缩进图标路径
+    iconIndent: '', // 缩进图标路径
+    iconArrowRight: '', // 向右箭头图标路径
+    iconArrowDown: '' // 向下箭头图标路径
   },
 
   attached() {
     // 检查编辑权限
     this.checkEditPermission()
-    // 加载缩进图标
+    // 加载图标
     const config = require('../../utils/config.js')
     this.setData({
-      iconIndent: config.getIconUrl('sxsj@3x.png')
+      iconIndent: config.getIconUrl('sxsj@3x.png'),
+      iconArrowRight: config.getIconUrl('right@3x.png'),
+      iconArrowDown: config.getIconUrl('under@3x.png')
     })
   },
 

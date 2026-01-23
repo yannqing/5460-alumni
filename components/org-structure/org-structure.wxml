@@ -28,7 +28,11 @@
           <text class="member-count-inline">{{node1.expanded && node1.remark ? node1.remark : (node1.members.length + '人')}}</text>
         </view>
         <view class="node-meta">
-          <text class="arrow-icon {{node1.expanded ? 'expanded' : ''}}">›</text>
+          <image 
+            class="arrow-icon" 
+            src="{{node1.expanded ? iconArrowDown : iconArrowRight}}" 
+            mode="aspectFit"
+          ></image>
         </view>
       </view>
 
@@ -148,7 +152,11 @@
                 <text class="member-count-inline">{{node2.expanded && node2.remark ? node2.remark : (node2.members.length + '人')}}</text>
               </view>
               <view class="node-meta">
-                <text class="arrow-icon {{node2.expanded ? 'expanded' : ''}}">›</text>
+                <image 
+                  class="arrow-icon" 
+                  src="{{node2.expanded ? iconArrowDown : iconArrowRight}}" 
+                  mode="aspectFit"
+                ></image>
               </view>
             </view>
 
@@ -268,7 +276,11 @@
                       <text class="member-count-inline">{{node3.expanded && node3.remark ? node3.remark : (node3.members.length + '人')}}</text>
                     </view>
                     <view class="node-meta">
-                      <text class="arrow-icon {{node3.expanded ? 'expanded' : ''}}">›</text>
+                      <image 
+                        class="arrow-icon" 
+                        src="{{node3.expanded ? iconArrowDown : iconArrowRight}}" 
+                        mode="aspectFit"
+                      ></image>
                     </view>
                   </view>
 

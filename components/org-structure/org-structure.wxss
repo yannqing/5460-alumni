@@ -201,9 +201,10 @@
 .member-count-inline {
   height: 36rpx;
   font-family: PingFangSC, PingFang SC;
-  font-weight: 300;
+  font-weight: 500;
   font-size: 25rpx;
   color: #1F1F1F;
+  opacity: 0.35;
   line-height: 36rpx;
   text-align: left;
   font-style: normal;
@@ -216,9 +217,10 @@
 .level-3 .member-count-inline {
   height: 36rpx;
   font-family: PingFangSC, PingFang SC;
-  font-weight: 300;
+  font-weight: 500;
   font-size: 25rpx;
   color: #1F1F1F;
+  opacity: 0.35;
   line-height: 36rpx;
   text-align: left;
   font-style: normal;
@@ -233,13 +235,11 @@
 }
 
 .arrow-icon {
-  font-size: 60rpx;
-  color: #c0c0c0;
-}
-
-/* 展开状态：同一字符，通过旋转实现向下效果，保持同系列样式 */
-.arrow-icon.expanded {
-  transform: rotate(90deg);
+  width: 40rpx;
+  height: 30rpx;
+  opacity: 1;
+  display: block;
+  border: 2rpx;
 }
 
 .node-content {
@@ -247,7 +247,7 @@
 
 .node-members {
   /* 成员区域左右内边距固定，不随层级变化；与上方卡片留更大间距 */
-  padding: 32rpx 28rpx 30rpx 28rpx;
+  padding: 26rpx 28rpx 30rpx 28rpx;
 }
 
 .org-member-grid {
@@ -295,6 +295,7 @@
   font-weight: 500;
   font-size: 29rpx;
   color: #1F1F1F;
+  opacity: 0.8;
   line-height: 40rpx;
   text-align: right;
   font-style: normal;
@@ -305,9 +306,10 @@
 .org-member-role {
   height: 36rpx;
   font-family: PingFangSC, PingFang SC;
-  font-weight: 300;
+  font-weight: 500;
   font-size: 25rpx;
   color: #1F1F1F;
+  opacity: 0.5;
   line-height: 36rpx;
   text-align: left;
   font-style: normal;
