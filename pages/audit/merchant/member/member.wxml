@@ -3,8 +3,127 @@
 <custom-nav-bar title="成员管理" showBack="{{true}}"></custom-nav-bar>
 
 <view class="member-management-page">
-  <view class="page-title">成员管理</view>
-  <view class="page-content">
-    <text class="placeholder">成员管理功能页面</text>
+  <!-- 选择商家 -->
+  <view class="form-card">
+    <view class="form-title">成员管理</view>
+
+    <!-- 选择商家 -->
+    <view class="form-item">
+      <text class="form-label">选择商家</text>
+      <view class="merchant-selector" bindtap="showMerchantSelector">
+        <text class="selector-label">{{selectedMerchantName || '请选择商家'}}</text>
+        <text class="selector-arrow">▼</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 成员列表 -->
+  <view class="form-card" style="margin-top: 20rpx;">
+    <view class="form-title-bar">
+      <view class="form-title">成员列表</view>
+      <button class="add-member-btn" bindtap="showAddMemberModal">新增成员</button>
+    </view>
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:elif="{{memberList && memberList.length === 0}}">
+      <text class="empty-text">暂无成员数据</text>
+    </view>
+    
+    <!-- 成员列表 -->
+    <view class="member-item" wx:for="{{memberList}}" wx:key="id">
+      <view class="member-header">
+        <image class="member-avatar" src="{{item.avatarUrl || '../../../../assets/avatar/default_avatar.jpeg'}}" mode="aspectFill"></image>
+        <view class="member-info">
+          <view class="member-name-row">
+            <text class="member-name">{{item.nickname || item.name || '未知'}}</text>
+            <text class="member-real-name">({{item.name || '未设置'}})</text>
+          </view>
+          <view class="member-role">{{item.roleName || '普通成员'}}</view>
+        </view>
+      </view>
+      <view class="member-details">
+        <view class="member-detail-item">
+          <text class="detail-label">店铺：</text>
+          <text class="detail-value">{{item.shopName || '未分配'}}</text>
+        </view>
+        <view class="member-detail-item">
+          <text class="detail-label">加入时间：</text>
+          <text class="detail-value">{{item.joinTime ? item.joinTime.split('T')[0] : '未知'}}</text>
+        </view>
+        <view class="member-detail-item">
+          <text class="detail-label">状态：</text>
+          <text class="detail-value status-{{item.status === 1 ? 'active' : 'inactive'}}">
+            {{item.status === 1 ? '正常' : '禁用'}}
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+<!-- 新增成员弹窗 -->
+<view class="modal-overlay" wx:if="{{showAddModal}}" bindtap="hideAddMemberModal"></view>
+<view class="modal-container" wx:if="{{showAddModal}}">
+  <view class="modal-header">
+    <text class="modal-title">新增成员</text>
+    <view class="modal-close" bindtap="hideAddMemberModal">×</view>
+  </view>
+  <view class="modal-content">
+    <form bindsubmit="submitAddMember">
+      <!-- 校友用户ID -->
+      <view class="form-item">
+        <text class="form-label">校友用户ID <text class="required">*</text></text>
+        <input class="form-input" name="wxId" placeholder="请输入校友用户ID" value="{{addForm.wxId}}" bindinput="onAddFormInput" data-field="wxId" type="number" />
+      </view>
+      
+      <!-- 店铺ID -->
+      <view class="form-item">
+        <text class="form-label">店铺ID</text>
+        <input class="form-input" name="shopId" placeholder="请输入店铺ID（可选）" value="{{addForm.shopId}}" bindinput="onAddFormInput" data-field="shopId" type="number" />
+      </view>
+      
+      <!-- 角色ID -->
+      <view class="form-item">
+        <text class="form-label">角色ID <text class="required">*</text></text>
+        <input class="form-input" name="roleOrId" placeholder="请输入角色ID" value="{{addForm.roleOrId}}" bindinput="onAddFormInput" data-field="roleOrId" type="number" />
+      </view>
+      
+      <!-- 提交按钮 -->
+      <view class="form-actions">
+        <button class="btn-cancel" bindtap="hideAddMemberModal">取消</button>
+        <button class="btn-submit" form-type="submit" loading="{{submitting}}">提交</button>
+      </view>
+    </form>
+  </view>
+</view>
+</view>
+
+<!-- 商户选择器弹窗 -->
+<view class="merchant-picker" wx:if="{{showMerchantPicker}}">
+  <view class="picker-overlay" bindtap="cancelMerchantSelect"></view>
+  <view class="picker-content">
+    <view class="picker-header">
+      <text class="picker-title">选择商户</text>
+      <text class="picker-cancel" bindtap="cancelMerchantSelect">取消</text>
+    </view>
+    <view class="picker-list">
+      <view 
+        class="picker-item" 
+        wx:for="{{merchantList}}" 
+        wx:key="merchantId"
+        data-merchant-id="{{item.merchantId + ''}}"
+        data-merchant-name="{{item.merchantName}}"
+        bindtap="selectMerchant"
+      >
+        <text class="item-name">{{item.merchantName}}</text>
+        <text class="item-check" wx:if="{{selectedMerchantId == item.merchantId}}">✓</text>
+      </view>
+      <view class="picker-empty" wx:if="{{merchantList.length === 0}}">
+        <text>暂无商户数据</text>
+      </view>
+    </view>
   </view>
 </view>
