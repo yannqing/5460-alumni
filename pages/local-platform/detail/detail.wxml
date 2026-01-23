@@ -1,6 +1,6 @@
 <!--pages/local-platform/detail/detail.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="校处会" showBack="{{true}}"></custom-nav-bar>
+<custom-nav-bar title="{{platformInfo.city}}" showBack="{{true}}"></custom-nav-bar>
 
 <view class="container">
   <view wx:if="{{loading}}" class="loading-wrap">

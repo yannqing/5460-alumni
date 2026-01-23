@@ -45,6 +45,19 @@ Page({
         const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ') : ''
         const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ') : ''
         
+        // 从 coupon 对象中提取 couponDesc 到顶层（如果存在）
+        if (data.coupon && data.coupon.couponDesc) {
+          data.couponDesc = data.coupon.couponDesc;
+        }
+        // 兼容驼峰和下划线命名
+        if (data.couponDesc === undefined && data.coupon_desc !== undefined) {
+          data.couponDesc = data.coupon_desc;
+        }
+        // 如果 coupon 对象中有 coupon_desc
+        if (data.couponDesc === undefined && data.coupon && data.coupon.coupon_desc) {
+          data.couponDesc = data.coupon.coupon_desc;
+        }
+        
         this.setData({
           couponInfo: data,
           qrCodeImage: qrCodeImage,
@@ -87,6 +100,19 @@ Page({
         const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ') : ''
         const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ') : ''
         const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ') : ''
+        
+        // 从 coupon 对象中提取 couponDesc 到顶层（如果存在）
+        if (data.coupon && data.coupon.couponDesc) {
+          data.couponDesc = data.coupon.couponDesc;
+        }
+        // 兼容驼峰和下划线命名
+        if (data.couponDesc === undefined && data.coupon_desc !== undefined) {
+          data.couponDesc = data.coupon_desc;
+        }
+        // 如果 coupon 对象中有 coupon_desc
+        if (data.couponDesc === undefined && data.coupon && data.coupon.coupon_desc) {
+          data.couponDesc = data.coupon.coupon_desc;
+        }
         
         this.setData({
           couponInfo: data,
