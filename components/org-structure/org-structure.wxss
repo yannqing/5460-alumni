@@ -201,7 +201,7 @@
 .member-count-inline {
   height: 36rpx;
   font-family: PingFangSC, PingFang SC;
-  font-weight: 500;
+  font-weight: 300;
   font-size: 25rpx;
   color: #1F1F1F;
   line-height: 36rpx;
@@ -216,7 +216,7 @@
 .level-3 .member-count-inline {
   height: 36rpx;
   font-family: PingFangSC, PingFang SC;
-  font-weight: 500;
+  font-weight: 300;
   font-size: 25rpx;
   color: #1F1F1F;
   line-height: 36rpx;
@@ -305,7 +305,7 @@
 .org-member-role {
   height: 36rpx;
   font-family: PingFangSC, PingFang SC;
-  font-weight: 500;
+  font-weight: 300;
   font-size: 25rpx;
   color: #1F1F1F;
   line-height: 36rpx;
