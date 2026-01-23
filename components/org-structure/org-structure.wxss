@@ -128,7 +128,7 @@
 
 .node-title {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 12rpx;
   flex-wrap: nowrap;
   flex: 1;
