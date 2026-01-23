@@ -24,7 +24,7 @@ Page({
         name: '轮播图管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
-        url: ''
+        url: '/pages/audit/carousel/carousel'
       }
       // {
       //   id: 3,

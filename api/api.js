@@ -503,6 +503,19 @@ const articleApplyApi = {
 }
 
 
+// ==================== 轮播图相关接口 ====================
+const bannerApi = {
+  // 分页查询轮播图列表
+  getBannerPage: (params) => post('/banner-management/page', params),
+  // 新增轮播图
+  createBanner: (data) => post('/banner-management/create', data),
+  // 更新轮播图
+  updateBanner: (data) => put('/banner-management/update', data),
+  // 删除轮播图
+  deleteBanner: (id) => del(`/banner-management/${id}`),
+}
+
+
 module.exports = {
   schoolApi,
   associationApi,
@@ -523,4 +536,5 @@ module.exports = {
   chatApi,
   homeArticleApi,
   articleApplyApi,
+  bannerApi,
 }
