@@ -32,7 +32,7 @@
 
   <!-- 校处会 -->
   <view class="audit-content" wx:if="{{schoolOfficeFunctions.length > 0}}">
-    <view class="audit-title">校处会</view>
+    <view class="audit-title">城市</view>
     <view class="audit-grid">
       <view
         class="audit-item"
