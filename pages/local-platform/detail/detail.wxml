@@ -70,7 +70,6 @@
           </view>
           <view wx:if="{{canEditOrg}}" class="section-edit-btn">
             <view wx:if="{{!isEditOrgMode}}" class="edit-btn" bindtap="onEditOrgClick">
-              <text class="edit-icon">✎</text>
               <text class="edit-text">编辑</text>
             </view>
             <view wx:else class="edit-btn cancel-btn" bindtap="onCancelOrgEdit">

@@ -142,6 +142,7 @@
         <view class="children-nodes" wx:if="{{node1.children && node1.children.length > 0}}">
           <view wx:for="{{node1.children}}" wx:key="uniqueId" wx:for-item="node2" class="tree-node level-2">
             <view class="node-header" bindtap="onToggleExpand" data-id="{{node2.uniqueId}}">
+              <image class="indent-icon" src="{{iconIndent}}" mode="aspectFit"></image>
               <view class="node-title">
                 <text class="role-name">{{node2.roleOrName}}</text>
                 <text class="member-count-inline">{{node2.expanded && node2.remark ? node2.remark : (node2.members.length + '人')}}</text>
@@ -261,6 +262,7 @@
               <view class="children-nodes" wx:if="{{node2.children && node2.children.length > 0}}">
                 <view wx:for="{{node2.children}}" wx:key="uniqueId" wx:for-item="node3" class="tree-node level-3">
                   <view class="node-header" bindtap="onToggleExpand" data-id="{{node3.uniqueId}}">
+                    <image class="indent-icon" src="{{iconIndent}}" mode="aspectFit"></image>
                     <view class="node-title">
                       <text class="role-name">{{node3.roleOrName}}</text>
                       <text class="member-count-inline">{{node3.expanded && node3.remark ? node3.remark : (node3.members.length + '人')}}</text>
