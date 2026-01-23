@@ -17,10 +17,10 @@ Page({
     // 组织结构数据
     roleList: [], // 存储角色列表
     organizationLoading: false, // 组织结构加载状态
-    // 分页参数
+    // 分页参数：设置为极大值，一次性加载所有数据
     current: 1,
-    pageSize: 10,
-    hasMore: true,
+    pageSize: 99999999,
+    hasMore: false,
     associationLoading: false,
     // 组织结构编辑相关
     canEditOrg: false, // 是否有编辑权限
@@ -190,7 +190,10 @@ Page({
     }
     // 切换到会员列表时加载数据
     else if (index === 2) {
-      this.loadAssociations()
+      // 如果是首次切换到会员列表，重新加载数据
+      if (this.data.associations.length === 0) {
+        this.loadAssociations(true)
+      }
     }
   },
   
@@ -230,11 +233,6 @@ Page({
   
   // 加载校友会列表
   async loadAssociations(refresh = false) {
-    // 如果已经没有更多数据且不是刷新，直接返回
-    if (!this.data.hasMore && !refresh) {
-      return
-    }
-    
     // 如果正在加载，直接返回
     if (this.data.associationLoading) {
       return
@@ -243,9 +241,9 @@ Page({
     try {
       this.setData({ associationLoading: true })
       
-      // 准备请求参数
+      // 准备请求参数：使用极大pageSize，一次性加载所有数据
       const params = {
-        current: refresh ? 1 : this.data.current,
+        current: 1,
         pageSize: this.data.pageSize,
         platformId: this.data.platformId, // 直接使用字符串类型，避免数字精度丢失
         sortField: 'memberCount', // 默认按会员数量排序
@@ -280,11 +278,11 @@ Page({
           }
         })
         
-        // 更新数据
+        // 更新数据：直接替换原有数据，无需分页
         this.setData({
-          associations: refresh ? associationList : [...this.data.associations, ...associationList],
-          current: refresh ? 2 : this.data.current + 1,
-          hasMore: associationList.length >= this.data.pageSize
+          associations: associationList,
+          // 已经加载所有数据，无需分页
+          hasMore: false
         })
       } else {
         wx.showToast({
