@@ -1,0 +1,327 @@
+<!-- 页面头部 -->
+<view class="page-header">
+  <view class="header-left" bindtap="onBack">
+    <text class="back-icon">←</text>
+  </view>
+  <text class="header-title">编辑活动</text>
+  <view class="header-right"></view>
+</view>
+
+<view class="activity-edit-page">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+  
+  <!-- 表单内容 -->
+  <view class="form-container" wx:else>
+    <!-- 标题 -->
+    <view class="form-item">
+      <text class="form-label required">活动标题</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入活动标题" 
+        value="{{formData.activityTitle}}" 
+        data-field="activityTitle"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 主办方名称 -->
+    <view class="form-item">
+      <text class="form-label required">主办方名称</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入主办方名称" 
+        value="{{formData.organizerName}}" 
+        data-field="organizerName"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 主办方头像 -->
+    <view class="form-item">
+      <text class="form-label">主办方头像</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入主办方头像URL" 
+        value="{{formData.organizerAvatar}}" 
+        data-field="organizerAvatar"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 活动封面图 -->
+    <view class="form-item">
+      <text class="form-label required">活动封面图</text>
+      <view class="upload-container">
+        <view class="image-list">
+          <view class="image-item" wx:for="{{coverImageList}}" wx:key="index">
+            <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
+            <view class="image-delete-btn" data-type="cover" data-index="{{index}}" bindtap="onDeleteImage">
+              <text class="delete-icon">×</text>
+            </view>
+          </view>
+          <view class="upload-btn" wx:if="{{coverImageList.length < 1}}" bindtap="onCoverImageUpload">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">上传封面图</text>
+          </view>
+        </view>
+        <text class="image-count">最多上传1张图片</text>
+      </view>
+    </view>
+    
+    <!-- 活动图片 -->
+    <view class="form-item">
+      <text class="form-label">活动图片</text>
+      <view class="upload-container">
+        <view class="image-list">
+          <view class="image-item" wx:for="{{activityImageList}}" wx:key="index">
+            <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
+            <view class="image-delete-btn" data-type="activity" data-index="{{index}}" bindtap="onDeleteImage">
+              <text class="delete-icon">×</text>
+            </view>
+          </view>
+          <view class="upload-btn" wx:if="{{activityImageList.length < 9}}" bindtap="onActivityImageUpload">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">上传活动图片</text>
+          </view>
+        </view>
+        <text class="image-count">最多上传9张图片</text>
+      </view>
+    </view>
+    
+    <!-- 活动详情描述 -->
+    <view class="form-item">
+      <text class="form-label required">活动详情描述</text>
+      <textarea 
+        class="form-textarea" 
+        placeholder="请输入活动详情描述" 
+        value="{{formData.description}}" 
+        data-field="description"
+        bindinput="onInput"
+        rows="5"
+      />
+    </view>
+    
+    <!-- 活动开始时间 -->
+    <view class="form-item">
+      <text class="form-label required">活动开始时间</text>
+      <picker 
+        mode="datetime" 
+        value="{{formData.startTime}}" 
+        data-field="startTime"
+        bindchange="onTimeChange"
+      >
+        <view class="form-picker">
+          <text>{{formData.startTime || '请选择活动开始时间'}}</text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 活动结束时间 -->
+    <view class="form-item">
+      <text class="form-label required">活动结束时间</text>
+      <picker 
+        mode="datetime" 
+        value="{{formData.endTime}}" 
+        data-field="endTime"
+        bindchange="onTimeChange"
+      >
+        <view class="form-picker">
+          <text>{{formData.endTime || '请选择活动结束时间'}}</text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 是否需要报名 -->
+    <view class="form-item">
+      <text class="form-label required">是否需要报名</text>
+      <radio-group class="radio-group" data-field="isSignup" bindchange="onIsSignupChange">
+        <label class="radio-item">
+          <radio value="0" checked="{{formData.isSignup === 0}}" />
+          <text>否</text>
+        </label>
+        <label class="radio-item">
+          <radio value="1" checked="{{formData.isSignup === 1}}" />
+          <text>是</text>
+        </label>
+      </radio-group>
+    </view>
+    
+    <!-- 报名开始时间 -->
+    <view class="form-item" wx:if="{{formData.isSignup === 1}}">
+      <text class="form-label required">报名开始时间</text>
+      <picker 
+        mode="datetime" 
+        value="{{formData.registrationStartTime}}" 
+        data-field="registrationStartTime"
+        bindchange="onTimeChange"
+      >
+        <view class="form-picker">
+          <text>{{formData.registrationStartTime || '请选择报名开始时间'}}</text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 报名截止时间 -->
+    <view class="form-item" wx:if="{{formData.isSignup === 1}}">
+      <text class="form-label required">报名截止时间</text>
+      <picker 
+        mode="datetime" 
+        value="{{formData.registrationEndTime}}" 
+        data-field="registrationEndTime"
+        bindchange="onTimeChange"
+      >
+        <view class="form-picker">
+          <text>{{formData.registrationEndTime || '请选择报名截止时间'}}</text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 省份 -->
+    <view class="form-item">
+      <text class="form-label">省份</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入省份" 
+        value="{{formData.province}}" 
+        data-field="province"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 城市 -->
+    <view class="form-item">
+      <text class="form-label">城市</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入城市" 
+        value="{{formData.city}}" 
+        data-field="city"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 区县 -->
+    <view class="form-item">
+      <text class="form-label">区县</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入区县" 
+        value="{{formData.district}}" 
+        data-field="district"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 详细地址 -->
+    <view class="form-item">
+      <text class="form-label">详细地址</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入详细地址" 
+        value="{{formData.address}}" 
+        data-field="address"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 纬度 -->
+    <view class="form-item">
+      <text class="form-label">纬度</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入纬度" 
+        value="{{formData.latitude}}" 
+        data-field="latitude"
+        bindinput="onInput"
+        type="digit"
+      />
+    </view>
+    
+    <!-- 经度 -->
+    <view class="form-item">
+      <text class="form-label">经度</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入经度" 
+        value="{{formData.longitude}}" 
+        data-field="longitude"
+        bindinput="onInput"
+        type="digit"
+      />
+    </view>
+    
+    <!-- 最大参与人数 -->
+    <view class="form-item">
+      <text class="form-label">最大参与人数</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入最大参与人数（留空表示不限）" 
+        value="{{formData.maxParticipants}}" 
+        data-field="maxParticipants"
+        bindinput="onInput"
+        type="number"
+      />
+    </view>
+    
+    <!-- 是否需要审核 -->
+    <view class="form-item">
+      <text class="form-label required">是否需要审核</text>
+      <radio-group class="radio-group" data-field="isNeedReview" bindchange="onIsNeedReviewChange">
+        <label class="radio-item">
+          <radio value="0" checked="{{formData.isNeedReview === 0}}" />
+          <text>无需审核</text>
+        </label>
+        <label class="radio-item">
+          <radio value="1" checked="{{formData.isNeedReview === 1}}" />
+          <text>需要审核</text>
+        </label>
+      </radio-group>
+    </view>
+    
+    <!-- 联系人 -->
+    <view class="form-item">
+      <text class="form-label">联系人</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入联系人" 
+        value="{{formData.contactPerson}}" 
+        data-field="contactPerson"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 联系电话 -->
+    <view class="form-item">
+      <text class="form-label">联系电话</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入联系电话" 
+        value="{{formData.contactPhone}}" 
+        data-field="contactPhone"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 联系邮箱 -->
+    <view class="form-item">
+      <text class="form-label">联系邮箱</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入联系邮箱" 
+        value="{{formData.contactEmail}}" 
+        data-field="contactEmail"
+        bindinput="onInput"
+      />
+    </view>
+    
+    <!-- 提交按钮 -->
+    <view class="submit-btn-container">
+      <button class="submit-btn" disabled="{{submitting || uploading}}" bindtap="onSubmit">
+        {{submitting ? '提交中...' : '保存修改'}}
+      </button>
+    </view>
+  </view>
+</view>

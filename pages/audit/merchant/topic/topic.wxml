@@ -33,5 +33,117 @@
         <button class="publish-btn" bindtap="onNavigateToPublish">发布话题</button>
       </view>
     </view>
+    
+    <!-- 活动列表区域 -->
+    <view class="activity-section" wx:if="{{selectedShopIndex >= 0}}">
+      <view class="section-title">活动列表</view>
+      
+      <!-- 筛选条件 -->
+      <view class="filter-container">
+        <view class="filter-item">
+          <text class="filter-label">活动标题：</text>
+          <input 
+            class="filter-input" 
+            placeholder="请输入活动标题" 
+            value="{{activityTitle}}" 
+            bindinput="onActivityTitleInput"
+          />
+        </view>
+        
+        <view class="filter-btn-row">
+          <button class="filter-btn search-btn" bindtap="onSearchActivity">搜索</button>
+          <button class="filter-btn reset-btn" bindtap="onResetSearch">重置</button>
+        </view>
+      </view>
+      
+      <!-- 活动列表 -->
+      <view class="activity-list-container">
+        <!-- 加载状态 -->
+        <view class="loading-container" wx:if="{{activityLoading}}">
+          <text class="loading-text">加载中...</text>
+        </view>
+        
+        <!-- 空数据提示 -->
+        <view class="empty-container" wx:elif="{{activityList.length === 0 && !activityLoading}}">
+          <text class="empty-text">暂无活动数据</text>
+        </view>
+        
+        <!-- 列表 -->
+        <view class="activity-list" wx:else>
+          <view class="activity-item" wx:for="{{activityList}}" wx:key="activityId">
+            <view class="activity-header">
+              <text class="activity-title">{{item.activityTitle}}</text>
+              <text class="activity-time">{{item.createTime}}</text>
+            </view>
+            
+            <view class="activity-info">
+              <view class="info-item">
+                <text class="info-label">主办方：</text>
+                <text class="info-value">{{item.organizerName}}</text>
+              </view>
+              <view class="info-item">
+                <text class="info-label">活动分类：</text>
+                <text class="info-value">{{item.activityCategory}}</text>
+              </view>
+              <view class="info-item">
+                <text class="info-label">活动时间：</text>
+                <text class="info-value">{{item.startTime}} 至 {{item.endTime}}</text>
+              </view>
+              <view class="info-item">
+                <text class="info-label">活动地点：</text>
+                <text class="info-value">{{item.address}}</text>
+              </view>
+              <view class="info-item">
+                <text class="info-label">参与人数：</text>
+                <text class="info-value">{{item.currentParticipants}}/{{item.maxParticipants}}</text>
+              </view>
+              <view class="info-item">
+                <text class="info-label">是否需要报名：</text>
+                <text class="info-value">{{item.isSignup === 0 ? '否' : '是'}}</text>
+              </view>
+              <view class="info-item">
+                <text class="info-label">浏览次数：</text>
+                <text class="info-value">{{item.viewCount}}</text>
+              </view>
+            </view>
+            
+            <view class="activity-footer">
+              <view class="status-tag" wx:if="{{item.reviewStatus === 0}}">待审核</view>
+              <view class="status-tag pass" wx:elif="{{item.reviewStatus === 1}}">审核通过</view>
+              <view class="status-tag fail" wx:else>审核失败</view>
+              
+              <view class="status-tag" wx:if="{{item.status === 0}}">草稿</view>
+              <view class="status-tag" wx:elif="{{item.status === 1}}">报名中</view>
+              <view class="status-tag" wx:elif="{{item.status === 2}}">报名结束</view>
+              <view class="status-tag" wx:elif="{{item.status === 3}}">进行中</view>
+              <view class="status-tag" wx:elif="{{item.status === 4}}">已结束</view>
+              <view class="status-tag" wx:else>已取消</view>
+              
+              <!-- 编辑按钮 -->
+              <button class="edit-btn" bindtap="onEditActivity" data-activity-id="{{item.activityId}}">编辑</button>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 分页 -->
+        <view class="pagination-container" wx:if="{{total > 0 && !activityLoading}}">
+          <text class="pagination-info">共 {{total}} 条记录，第 {{current}}/{{Math.ceil(total/pageSize)}} 页</text>
+          <view class="pagination-buttons">
+            <button 
+              class="page-btn" 
+              bindtap="onPageChange" 
+              data-current="{{current - 1}}" 
+              disabled="{{current <= 1}}"
+            >上一页</button>
+            <button 
+              class="page-btn" 
+              bindtap="onPageChange" 
+              data-current="{{current + 1}}" 
+              disabled="{{current >= Math.ceil(total/pageSize)}}"
+            >下一页</button>
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 </view>
