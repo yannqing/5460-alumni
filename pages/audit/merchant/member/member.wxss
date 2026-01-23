@@ -18,6 +18,7 @@
   font-weight: bold;
   color: #333;
   margin-bottom: 20rpx;
+  flex-shrink: 0;
 }
 
 .form-item {
@@ -164,9 +165,17 @@
 /* 表单标题栏 */
 .form-title-bar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 标题容器 */
+.form-title-bar .form-title {
+  margin-bottom: 0;
+  flex-shrink: 0;
 }
 
 /* 新增成员按钮 */
@@ -182,11 +191,15 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .add-member-btn:active {
   background-color: #179B16;
-  transform: scale(0.98);
+  transform: translateY(-50%) scale(0.98);
 }
 
 /* 去除按钮默认样式 */

@@ -19,13 +19,13 @@ Page({
         iconType: 'image',
         url: '/pages/audit/user/list/list'
       },
-      // {
-      //   id: 3,
-      //   name: '轮播图管理',
-      //   icon: config.getIconUrl('xyhsh@3x.png'),
-      //   iconType: 'image',
-      //   url: ''
-      // }
+      {
+        id: 3,
+        name: '轮播图管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: ''
+      }
       // {
       //   id: 3,
       //   name: '内容审核',
@@ -169,27 +169,27 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/shop/shop'
       },
-      // {
-      //   id: 2,
-      //   name: '架构管理',
-      //   icon: config.getIconUrl('jggl@3x.png'),
-      //   iconType: 'image',
-      //   url: '/pages/audit/merchant/architecture/architecture'
-      // },
-      // {
-      //   id: 3,
-      //   name: '成员管理',
-      //   icon: config.getIconUrl('shcygl@3x.png'),
-      //   iconType: 'image',
-      //   url: '/pages/audit/merchant/member/member'
-      // },
-      // {
-      //   id: 4,
-      //   name: '优惠券',
-      //   icon: config.getIconUrl('xyhsh@3x.png'),
-      //   iconType: 'image',
-      //   url: '/pages/audit/merchant/coupon/coupon'
-      // },
+      {
+        id: 2,
+        name: '架构管理',
+        icon: config.getIconUrl('jggl@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/architecture/architecture'
+      },
+      {
+        id: 3,
+        name: '成员管理',
+        icon: config.getIconUrl('shcygl@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/member/member'
+      },
+      {
+        id: 4,
+        name: '优惠券',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/coupon/coupon'
+      },
       {
         id: 5,
         name: '核销优惠券',
