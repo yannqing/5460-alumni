@@ -5,17 +5,30 @@
 <view class="container">
   <!-- 顶部 Banner 区域 -->
   <view class="header-banner">
-    <view class="platform-tag">
-      <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
-    </view>
+    <!-- 轮播图背景 -->
+    <swiper 
+      wx:if="{{bannerList.length > 0}}"
+      class="banner-swiper" 
+      indicator-dots="{{bannerList.length > 1}}"
+      autoplay="{{bannerList.length > 1}}"
+      interval="3000"
+      duration="500"
+      circular="{{bannerList.length > 1}}"
+      bindchange="onBannerChange"
+    >
+      <swiper-item wx:for="{{bannerList}}" wx:key="bannerId" wx:for-item="banner">
+        <image class="banner-image" src="{{banner.imageUrl}}" mode="aspectFill"></image>
+      </swiper-item>
+    </swiper>
+    <!-- 如果没有轮播图，显示默认背景 -->
+    <view wx:else class="banner-default-bg"></view>
     
-    <view class="slogan-container">
-      <text class="slogan-side">相遇</text>
-      <text class="slogan-main">我思念你</text>
-      <text class="slogan-side">搞定</text>
+    <!-- 内容层（文字等） -->
+    <view class="banner-content">
+      <view class="platform-tag">
+        <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
+      </view>
     </view>
-    
-    <view class="sub-slogan">5460-校友服务平台</view>
   </view>
 
   <!-- 导航菜单区域 -->

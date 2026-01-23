@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { homeArticleApi, associationApi } = require('../../api/api');
+const { homeArticleApi, associationApi, bannerApi } = require('../../api/api');
 const config = require('../../utils/config.js');
 const app = getApp();
 
@@ -34,13 +34,17 @@ Page({
       senderName: '',
       senderAvatar: '',
       messageContent: ''
-    }
+    },
+    // 轮播图列表
+    bannerList: [],
+    currentBannerIndex: 0
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    this.getBannerList();
     this.getArticleList(true);
   },
 
@@ -552,5 +556,78 @@ Page({
         })
       }
     }
+  },
+
+  /**
+   * 获取轮播图列表
+   */
+  async getBannerList() {
+    try {
+      const res = await bannerApi.getBannerList();
+
+      const result = res.data || res;
+
+      if (result.code === 200) {
+        // 新接口可能直接返回数组，或者包装在 data 中
+        const records = Array.isArray(result.data) ? result.data : (result.data?.records || result.data?.list || []);
+
+        // 处理轮播图数据，获取图片URL
+        const bannerList = records.map(item => {
+          let imageUrl = '';
+          
+          // 优先处理 bannerImage 字段（后端返回的字段名）
+          if (item.bannerImage) {
+            if (typeof item.bannerImage === 'object') {
+              // 如果是对象，提取 fileId 或 fileUrl
+              const fileId = item.bannerImage.fileId;
+              if (fileId) {
+                imageUrl = config.getImageUrl(`/file/download/${fileId}`);
+              } else {
+                imageUrl = item.bannerImage.fileUrl || item.bannerImage.thumbnailUrl || item.bannerImage.url || '';
+                if (imageUrl) {
+                  imageUrl = config.getImageUrl(imageUrl);
+                }
+              }
+            } else {
+              // 如果是字符串或数字，当作 fileId 处理
+              imageUrl = config.getImageUrl(`/file/download/${item.bannerImage}`);
+            }
+          } else if (item.imageUrl) {
+            // 兼容 imageUrl 字段
+            if (typeof item.imageUrl === 'object') {
+              imageUrl = item.imageUrl.fileUrl || item.imageUrl.thumbnailUrl || item.imageUrl.url || '';
+            } else {
+              imageUrl = item.imageUrl;
+            }
+            if (imageUrl) {
+              imageUrl = config.getImageUrl(imageUrl);
+            }
+          } else if (item.imageId) {
+            // 兼容 imageId 字段
+            imageUrl = config.getImageUrl(`/file/download/${item.imageId}`);
+          }
+
+          return {
+            ...item,
+            imageUrl: imageUrl
+          };
+        });
+
+        this.setData({
+          bannerList: bannerList
+        });
+      }
+    } catch (error) {
+      console.error('获取轮播图列表失败', error);
+    }
+  },
+
+  /**
+   * 轮播图切换事件
+   */
+  onBannerChange(e) {
+    this.setData({
+      currentBannerIndex: e.detail.current
+    });
   }
 });
