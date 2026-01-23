@@ -2,6 +2,7 @@
 const app = getApp()
 const { get, post } = require('../../../../../utils/request.js')
 const fileUploadUtil = require('../../../../../utils/fileUpload.js')
+const merchantApi = require('../../../../../api/api.js')
 
 Page({
   data: {
@@ -18,6 +19,9 @@ Page({
       startTime: '', // 活动开始时间（字符串格式）
       endTime: '', // 活动结束时间（字符串格式）
       isSignup: 0, // 是否需要报名：0-否 1-是
+      registrationStartTime: '', // 报名开始时间
+      registrationEndTime: '', // 报名截止时间
+      maxParticipants: '', // 最大参与人数（NULL表示不限）
       isNeedReview: 0, // 是否需要审核：0-无需审核 1-需要审核
       // 地理位置相关
       province: '', // 省份
@@ -38,10 +42,14 @@ Page({
     // 时间显示相关
     startTimeDisplay: '', // 活动开始时间（用于前端展示）
     endTimeDisplay: '', // 活动结束时间（用于前端展示）
+    registrationStartTimeDisplay: '', // 报名开始时间（用于前端展示）
+    registrationEndTimeDisplay: '', // 报名截止时间（用于前端展示）
     
     // 时间滑动选择器相关配置
     startTimePickerValue: [], // 开始时间选择器的滚动值
     endTimePickerValue: [], // 结束时间选择器的滚动值
+    registrationStartTimePickerValue: [], // 报名开始时间选择器的滚动值
+    registrationEndTimePickerValue: [], // 报名截止时间选择器的滚动值
     yearList: [], // 年列表
     monthList: [], // 月列表
     dayList: [], // 日列表
@@ -55,7 +63,10 @@ Page({
       this.setData({
         'publishForm.organizerId': options.shopId,
         'publishForm.organizerName': options.shopName
-      })
+      });
+      
+      // 获取店铺详情以获取主办方头像
+      this.getShopDetail(options.shopId);
     }
 
     // 初始化时间选择器的列数据
@@ -72,12 +83,64 @@ Page({
     this.setData({
       'publishForm.startTime': this.formatDateToPicker(now),
       'publishForm.endTime': this.formatDateToPicker(endDate),
+      'publishForm.registrationStartTime': this.formatDateToPicker(now),
+      'publishForm.registrationEndTime': this.formatDateToPicker(endDate),
       startTimeDisplay: nowDisplay,
       endTimeDisplay: endDisplay,
+      registrationStartTimeDisplay: nowDisplay,
+      registrationEndTimeDisplay: endDisplay,
       // 初始化滚动值
       startTimePickerValue: this.getPickerValueFromDate(now),
-      endTimePickerValue: this.getPickerValueFromDate(endDate)
+      endTimePickerValue: this.getPickerValueFromDate(endDate),
+      registrationStartTimePickerValue: this.getPickerValueFromDate(now),
+      registrationEndTimePickerValue: this.getPickerValueFromDate(endDate)
     });
+  },
+  
+  // 获取店铺详情
+  getShopDetail(shopId) {
+    get(`/merchant/shop/${shopId}`)
+      .then(res => {
+        if (res.data.code === 200 && res.data.data) {
+          const shopData = res.data.data;
+          const updates = {};
+          
+          // 从shopImages中提取第一个图片作为主办方头像
+          if (shopData.shopImages) {
+            try {
+              const shopImages = JSON.parse(shopData.shopImages);
+              if (Array.isArray(shopImages) && shopImages.length > 0) {
+                updates.organizerAvatarUrl = shopImages[0];
+                updates['publishForm.organizerAvatar'] = shopImages[0];
+              }
+            } catch (e) {
+              console.error('解析店铺图片失败:', e);
+            }
+          }
+          
+          // 填充地址信息
+          if (shopData.province) {
+            updates['publishForm.province'] = shopData.province;
+          }
+          if (shopData.city) {
+            updates['publishForm.city'] = shopData.city;
+          }
+          if (shopData.district) {
+            updates['publishForm.district'] = shopData.district;
+          }
+          if (shopData.address) {
+            updates['publishForm.address'] = shopData.address;
+          }
+          
+          // 一次性更新所有数据
+          if (Object.keys(updates).length > 0) {
+            this.setData(updates);
+          }
+        }
+      })
+      .catch(err => {
+        console.error('获取店铺详情失败:', err);
+      });
   },
 
   // 返回上一页
@@ -182,6 +245,44 @@ Page({
     this.setData({ 'publishForm.endTime': isoTimeStr, endTimeDisplay: displayTimeStr });
   },
 
+  // 报名开始时间滑动选择事件
+  onRegistrationStartTimePickerChange(e) {
+    const val = e.detail.value;
+    this.setData({ registrationStartTimePickerValue: val });
+
+    // 解析选择的时间
+    const year = 2020 + val[0];
+    const month = val[1] + 1;
+    const day = val[2] + 1;
+    const hour = val[3];
+    const minute = val[4];
+
+    // 格式化时间字符串（用于前端展示）
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    // 格式化时间字符串（ISO格式，用于后端提交）
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+    this.setData({ 'publishForm.registrationStartTime': isoTimeStr, registrationStartTimeDisplay: displayTimeStr });
+  },
+
+  // 报名截止时间滑动选择事件
+  onRegistrationEndTimePickerChange(e) {
+    const val = e.detail.value;
+    this.setData({ registrationEndTimePickerValue: val });
+
+    // 解析选择的时间
+    const year = 2020 + val[0];
+    const month = val[1] + 1;
+    const day = val[2] + 1;
+    const hour = val[3];
+    const minute = val[4];
+
+    // 格式化时间字符串（用于前端展示）
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    // 格式化时间字符串（ISO格式，用于后端提交）
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+    this.setData({ 'publishForm.registrationEndTime': isoTimeStr, registrationEndTimeDisplay: displayTimeStr });
+  },
+
   // 格式化日期为picker支持的格式（ISO格式，用于后端提交）
   formatDateToPicker(date) {
     const year = date.getFullYear()
@@ -219,7 +320,65 @@ Page({
   onUploadCover() {
     // 选择图片
     wx.chooseImage({
-      count: 9, // 最多可选择9张图片
+      count: 1, // 只允许选择1张图片作为封面
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFilePaths[0]
+        
+        // 显示加载状态
+        wx.showLoading({
+          title: '上传中...',
+          mask: true
+        })
+        
+        // 上传图片
+        fileUploadUtil.uploadImage(tempFilePath, '/file/upload/images')
+          .then(res => {
+            if (res.code === 200 && res.data && res.data.fileUrl) {
+              // 更新封面图
+              this.setData({
+                [`publishForm.coverImage`]: res.data.fileUrl
+              })
+              
+              wx.showToast({
+                title: '封面图上传成功',
+                icon: 'success'
+              })
+            } else {
+              wx.showToast({
+                title: res.msg || '上传失败',
+                icon: 'none'
+              })
+            }
+          })
+          .catch(err => {
+            wx.showToast({
+              title: err.msg || '上传失败',
+              icon: 'none'
+            })
+            console.error('上传封面图失败:', err)
+          })
+          .finally(() => {
+            wx.hideLoading()
+          })
+      },
+      fail: (err) => {
+        console.error('选择图片失败:', err)
+      }
+    })
+  },
+
+  // 更换封面图
+  onChangeCover() {
+    this.onUploadCover()
+  },
+
+  // 上传活动图片
+  onUploadActivityImage() {
+    // 选择图片
+    wx.chooseImage({
+      count: 9 - this.data.imageUrls.length, // 最多可选择的图片数量，不超过9张
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success: (res) => {
@@ -246,8 +405,7 @@ Page({
             if (uploadedUrls.length > 0) {
               // 更新图片URL数组
               this.setData({
-                imageUrls: [...this.data.imageUrls, ...uploadedUrls],
-                [`publishForm.coverImage`]: uploadedUrls[0] // 使用第一张作为封面图
+                imageUrls: [...this.data.imageUrls, ...uploadedUrls]
               })
               
               wx.showToast({
@@ -266,7 +424,7 @@ Page({
               title: err.msg || '上传失败',
               icon: 'none'
             })
-            console.error('上传图片失败:', err)
+            console.error('上传活动图片失败:', err)
           })
           .finally(() => {
             wx.hideLoading()
@@ -362,9 +520,26 @@ Page({
     const imageUrls = this.data.imageUrls
     imageUrls.splice(index, 1)
     this.setData({
-      imageUrls: imageUrls,
-      // 如果删除的是封面图，重新设置封面图
-      [`publishForm.coverImage`]: imageUrls.length > 0 ? imageUrls[0] : ''
+      imageUrls: imageUrls
+    })
+  },
+
+  // 删除活动封面图
+  onDeleteCover() {
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除活动封面图吗？',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            [`publishForm.coverImage`]: ''
+          })
+          wx.showToast({
+            title: '封面图已删除',
+            icon: 'success'
+          })
+        }
+      }
     })
   },
 
@@ -436,6 +611,15 @@ Page({
       return
     }
     
+    // 验证活动封面图
+    if (!publishForm.coverImage) {
+      wx.showToast({
+        title: '请上传活动封面图',
+        icon: 'none'
+      })
+      return
+    }
+    
     if (!publishForm.description.trim()) {
       wx.showToast({
         title: '请输入活动详情描述',
@@ -444,11 +628,20 @@ Page({
       return
     }
     
-    // 将图片URL数组转换为JSON字符串
-    const finalForm = {
+    // 处理表单数据
+    const formData = {
       ...publishForm,
       activityImages: JSON.stringify(imageUrls) // 活动图片URL数组（JSON格式）
+    };
+    
+    // 处理最大参与人数，空值表示不限
+    if (formData.maxParticipants === '') {
+      formData.maxParticipants = null;
+    } else {
+      formData.maxParticipants = parseInt(formData.maxParticipants);
     }
+    
+    const finalForm = formData;
     
     this.setData({ loading: true })
     

@@ -1,10 +1,10 @@
 <!-- 页面头部 -->
-<view class="page-header">
-  <view class="header-left" bindtap="onBack">
-    <text class="back-icon">←</text>
+<view class="nav-bar">
+  <view class="nav-left" bindtap="onBack">
+    <text class="nav-icon">←</text>
   </view>
-  <text class="header-title">编辑活动</text>
-  <view class="header-right"></view>
+  <text class="nav-title">编辑活动</text>
+  <view class="nav-right"></view>
 </view>
 
 <view class="activity-edit-page">
@@ -42,13 +42,29 @@
     <!-- 主办方头像 -->
     <view class="form-item">
       <text class="form-label">主办方头像</text>
-      <input 
-        class="form-input" 
-        placeholder="请输入主办方头像URL" 
-        value="{{formData.organizerAvatar}}" 
-        data-field="organizerAvatar"
-        bindinput="onInput"
-      />
+      <view class="upload-container">
+        <!-- 图片列表 -->
+        <view class="image-list">
+          <!-- 已上传的头像 -->
+          <view class="image-item" wx:if="{{organizerAvatarUrl}}">
+            <image class="list-image" src="{{organizerAvatarUrl}}" mode="aspectFill"></image>
+            <!-- 删除按钮 -->
+            <view class="image-delete-btn" bindtap="onDeleteOrganizerAvatar">
+              <text class="delete-icon">×</text>
+            </view>
+            <!-- 上传中状态 -->
+            <view class="image-loading" wx:if="{{uploadingOrganizerAvatar}}">
+              <text class="loading-text">上传中...</text>
+            </view>
+          </view>
+          
+          <!-- 上传按钮 -->
+          <view class="upload-btn" bindtap="onUploadOrganizerAvatar" wx:if="{{!organizerAvatarUrl}}">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">点击上传头像</text>
+          </view>
+        </view>
+      </view>
     </view>
     
     <!-- 活动封面图 -->
@@ -107,31 +123,59 @@
     <!-- 活动开始时间 -->
     <view class="form-item">
       <text class="form-label required">活动开始时间</text>
-      <picker 
-        mode="datetime" 
-        value="{{formData.startTime}}" 
-        data-field="startTime"
-        bindchange="onTimeChange"
+      <picker-view 
+        class="form-picker-view" 
+        value="{{startTimePickerValue}}" 
+        bindchange="onStartTimePickerChange"
+        indicator-style="height: 50rpx;"
+        style="width: 100%; height: 300rpx;"
       >
-        <view class="form-picker">
-          <text>{{formData.startTime || '请选择活动开始时间'}}</text>
-        </view>
-      </picker>
+        <picker-view-column>
+          <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+      </picker-view>
+      <text class="form-hint">{{startTimeDisplay || '请选择开始时间'}}</text>
     </view>
     
     <!-- 活动结束时间 -->
     <view class="form-item">
       <text class="form-label required">活动结束时间</text>
-      <picker 
-        mode="datetime" 
-        value="{{formData.endTime}}" 
-        data-field="endTime"
-        bindchange="onTimeChange"
+      <picker-view 
+        class="form-picker-view" 
+        value="{{endTimePickerValue}}" 
+        bindchange="onEndTimePickerChange"
+        indicator-style="height: 50rpx;"
+        style="width: 100%; height: 300rpx;"
       >
-        <view class="form-picker">
-          <text>{{formData.endTime || '请选择活动结束时间'}}</text>
-        </view>
-      </picker>
+        <picker-view-column>
+          <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+      </picker-view>
+      <text class="form-hint">{{endTimeDisplay || '请选择结束时间'}}</text>
     </view>
     
     <!-- 是否需要报名 -->
@@ -152,31 +196,59 @@
     <!-- 报名开始时间 -->
     <view class="form-item" wx:if="{{formData.isSignup === 1}}">
       <text class="form-label required">报名开始时间</text>
-      <picker 
-        mode="datetime" 
-        value="{{formData.registrationStartTime}}" 
-        data-field="registrationStartTime"
-        bindchange="onTimeChange"
+      <picker-view 
+        class="form-picker-view" 
+        value="{{registrationStartTimePickerValue}}" 
+        bindchange="onRegistrationStartTimePickerChange"
+        indicator-style="height: 50rpx;"
+        style="width: 100%; height: 300rpx;"
       >
-        <view class="form-picker">
-          <text>{{formData.registrationStartTime || '请选择报名开始时间'}}</text>
-        </view>
-      </picker>
+        <picker-view-column>
+          <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+      </picker-view>
+      <text class="form-hint">{{registrationStartTimeDisplay || '请选择报名开始时间'}}</text>
     </view>
     
     <!-- 报名截止时间 -->
     <view class="form-item" wx:if="{{formData.isSignup === 1}}">
       <text class="form-label required">报名截止时间</text>
-      <picker 
-        mode="datetime" 
-        value="{{formData.registrationEndTime}}" 
-        data-field="registrationEndTime"
-        bindchange="onTimeChange"
+      <picker-view 
+        class="form-picker-view" 
+        value="{{registrationEndTimePickerValue}}" 
+        bindchange="onRegistrationEndTimePickerChange"
+        indicator-style="height: 50rpx;"
+        style="width: 100%; height: 300rpx;"
       >
-        <view class="form-picker">
-          <text>{{formData.registrationEndTime || '请选择报名截止时间'}}</text>
-        </view>
-      </picker>
+        <picker-view-column>
+          <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+        </picker-view-column>
+      </picker-view>
+      <text class="form-hint">{{registrationEndTimeDisplay || '请选择报名截止时间'}}</text>
     </view>
     
     <!-- 省份 -->

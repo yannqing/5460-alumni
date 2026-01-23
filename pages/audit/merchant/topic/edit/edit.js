@@ -1,5 +1,6 @@
 const app = getApp()
 const { get, post } = require('../../../../../utils/request.js')
+const fileUploadUtil = require('../../../../../utils/fileUpload.js')
 
 Page({
   data: {
@@ -37,7 +38,26 @@ Page({
     // 图片上传相关
     coverImageList: [], // 封面图列表
     activityImageList: [], // 活动图片列表
-    uploading: false // 上传状态
+    organizerAvatarUrl: '', // 主办方头像URL
+    uploading: false, // 上传状态
+    uploadingOrganizerAvatar: false, // 主办方头像上传状态
+    
+    // 时间显示相关
+    startTimeDisplay: '', // 活动开始时间（用于前端展示）
+    endTimeDisplay: '', // 活动结束时间（用于前端展示）
+    registrationStartTimeDisplay: '', // 报名开始时间（用于前端展示）
+    registrationEndTimeDisplay: '', // 报名截止时间（用于前端展示）
+    
+    // 时间滑动选择器相关配置
+    startTimePickerValue: [], // 开始时间选择器的滚动值
+    endTimePickerValue: [], // 结束时间选择器的滚动值
+    registrationStartTimePickerValue: [], // 报名开始时间选择器的滚动值
+    registrationEndTimePickerValue: [], // 报名截止时间选择器的滚动值
+    yearList: [], // 年列表
+    monthList: [], // 月列表
+    dayList: [], // 日列表
+    hourList: [], // 时列表
+    minuteList: [] // 分列表
   },
 
   onLoad(options) {
@@ -45,6 +65,11 @@ Page({
       this.setData({
         activityId: options.activityId
       });
+      
+      // 初始化时间选择器的列数据
+      this.initTimePickerData();
+      
+      // 获取活动详情
       this.getActivityDetail();
     }
   },
@@ -54,6 +79,85 @@ Page({
     wx.navigateBack();
   },
 
+  // 初始化时间选择器的列数据
+  initTimePickerData() {
+    // 生成年列表（2020-2030）
+    const yearList = [];
+    for (let i = 2020; i <= 2030; i++) {
+      yearList.push(i + '年');
+    }
+
+    // 生成月列表（1-12）
+    const monthList = [];
+    for (let i = 1; i <= 12; i++) {
+      monthList.push(i + '月');
+    }
+
+    // 生成日列表（1-31）
+    const dayList = [];
+    for (let i = 1; i <= 31; i++) {
+      dayList.push(i + '日');
+    }
+
+    // 生成时列表（0-23）
+    const hourList = [];
+    for (let i = 0; i <= 23; i++) {
+      hourList.push(i.toString().padStart(2, '0') + '时');
+    }
+
+    // 生成分列表（0-59）
+    const minuteList = [];
+    for (let i = 0; i <= 59; i++) {
+      minuteList.push(i.toString().padStart(2, '0') + '分');
+    }
+
+    this.setData({
+      yearList,
+      monthList,
+      dayList,
+      hourList,
+      minuteList
+    });
+  },
+
+  // 将日期转换为picker-view的滚动值
+  getPickerValueFromDate(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+
+    // 计算各列的索引
+    const yearIndex = year - 2020;
+    const monthIndex = month - 1;
+    const dayIndex = day - 1;
+    const hourIndex = hour;
+    const minuteIndex = minute;
+
+    return [yearIndex, monthIndex, dayIndex, hourIndex, minuteIndex];
+  },
+
+  // 格式化日期为picker支持的格式（ISO格式，用于后端提交）
+  formatDateToPicker(date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hours}:${minutes}:00`
+  },
+
+  // 格式化日期为显示格式（用于前端展示）
+  formatDateToDisplay(date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day} ${hours}:${minutes}`
+  },
+
   // 获取活动详情
   getActivityDetail() {
     this.setData({ loading: true });
@@ -61,6 +165,13 @@ Page({
       .then(res => {
         if (res.data.code === 200) {
           const activityInfo = res.data.data || {};
+          
+          // 处理时间数据
+          const startTime = activityInfo.startTime ? new Date(activityInfo.startTime) : new Date();
+          const endTime = activityInfo.endTime ? new Date(activityInfo.endTime) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+          const registrationStartTime = activityInfo.registrationStartTime ? new Date(activityInfo.registrationStartTime) : new Date();
+          const registrationEndTime = activityInfo.registrationEndTime ? new Date(activityInfo.registrationEndTime) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+          
           this.setData({
             activityInfo: activityInfo,
             formData: {
@@ -70,11 +181,11 @@ Page({
               coverImage: activityInfo.coverImage || '',
               activityImages: activityInfo.activityImages || '',
               description: activityInfo.description || '',
-              startTime: activityInfo.startTime || '',
-              endTime: activityInfo.endTime || '',
+              startTime: activityInfo.startTime || this.formatDateToPicker(startTime),
+              endTime: activityInfo.endTime || this.formatDateToPicker(endTime),
               isSignup: activityInfo.isSignup || 0,
-              registrationStartTime: activityInfo.registrationStartTime || '',
-              registrationEndTime: activityInfo.registrationEndTime || '',
+              registrationStartTime: activityInfo.registrationStartTime || this.formatDateToPicker(registrationStartTime),
+              registrationEndTime: activityInfo.registrationEndTime || this.formatDateToPicker(registrationEndTime),
               province: activityInfo.province || '',
               city: activityInfo.city || '',
               district: activityInfo.district || '',
@@ -87,8 +198,21 @@ Page({
               contactPhone: activityInfo.contactPhone || '',
               contactEmail: activityInfo.contactEmail || ''
             },
+            organizerAvatarUrl: activityInfo.organizerAvatar || '',
             coverImageList: activityInfo.coverImage ? [{ url: activityInfo.coverImage }] : [],
-            activityImageList: activityInfo.activityImages ? JSON.parse(activityInfo.activityImages).map(url => ({ url })) : []
+            activityImageList: activityInfo.activityImages ? JSON.parse(activityInfo.activityImages).map(url => ({ url })) : [],
+            
+            // 设置时间显示
+            startTimeDisplay: this.formatDateToDisplay(startTime),
+            endTimeDisplay: this.formatDateToDisplay(endTime),
+            registrationStartTimeDisplay: this.formatDateToDisplay(registrationStartTime),
+            registrationEndTimeDisplay: this.formatDateToDisplay(registrationEndTime),
+            
+            // 设置时间选择器的滚动值
+            startTimePickerValue: this.getPickerValueFromDate(startTime),
+            endTimePickerValue: this.getPickerValueFromDate(endTime),
+            registrationStartTimePickerValue: this.getPickerValueFromDate(registrationStartTime),
+            registrationEndTimePickerValue: this.getPickerValueFromDate(registrationEndTime)
           });
         }
       })
@@ -117,23 +241,91 @@ Page({
   // 选择是否需要报名
   onIsSignupChange(e) {
     this.setData({
-      [`formData.isSignup`]: e.detail.value
+      [`formData.isSignup`]: parseInt(e.detail.value)
     });
   },
 
   // 选择是否需要审核
   onIsNeedReviewChange(e) {
     this.setData({
-      [`formData.isNeedReview`]: e.detail.value
+      [`formData.isNeedReview`]: parseInt(e.detail.value)
     });
   },
 
-  // 选择时间
-  onTimeChange(e) {
-    const { field } = e.currentTarget.dataset;
-    this.setData({
-      [`formData.${field}`]: e.detail.value
-    });
+  // 开始时间滑动选择事件
+  onStartTimePickerChange(e) {
+    const val = e.detail.value;
+    this.setData({ startTimePickerValue: val });
+
+    // 解析选择的时间
+    const year = 2020 + val[0];
+    const month = val[1] + 1;
+    const day = val[2] + 1;
+    const hour = val[3];
+    const minute = val[4];
+
+    // 格式化时间字符串（用于前端展示）
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    // 格式化时间字符串（ISO格式，用于后端提交）
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+    this.setData({ 'formData.startTime': isoTimeStr, startTimeDisplay: displayTimeStr });
+  },
+
+  // 结束时间滑动选择事件
+  onEndTimePickerChange(e) {
+    const val = e.detail.value;
+    this.setData({ endTimePickerValue: val });
+
+    // 解析选择的时间
+    const year = 2020 + val[0];
+    const month = val[1] + 1;
+    const day = val[2] + 1;
+    const hour = val[3];
+    const minute = val[4];
+
+    // 格式化时间字符串（用于前端展示）
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    // 格式化时间字符串（ISO格式，用于后端提交）
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+    this.setData({ 'formData.endTime': isoTimeStr, endTimeDisplay: displayTimeStr });
+  },
+
+  // 报名开始时间滑动选择事件
+  onRegistrationStartTimePickerChange(e) {
+    const val = e.detail.value;
+    this.setData({ registrationStartTimePickerValue: val });
+
+    // 解析选择的时间
+    const year = 2020 + val[0];
+    const month = val[1] + 1;
+    const day = val[2] + 1;
+    const hour = val[3];
+    const minute = val[4];
+
+    // 格式化时间字符串（用于前端展示）
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    // 格式化时间字符串（ISO格式，用于后端提交）
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+    this.setData({ 'formData.registrationStartTime': isoTimeStr, registrationStartTimeDisplay: displayTimeStr });
+  },
+
+  // 报名截止时间滑动选择事件
+  onRegistrationEndTimePickerChange(e) {
+    const val = e.detail.value;
+    this.setData({ registrationEndTimePickerValue: val });
+
+    // 解析选择的时间
+    const year = 2020 + val[0];
+    const month = val[1] + 1;
+    const day = val[2] + 1;
+    const hour = val[3];
+    const minute = val[4];
+
+    // 格式化时间字符串（用于前端展示）
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    // 格式化时间字符串（ISO格式，用于后端提交）
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+    this.setData({ 'formData.registrationEndTime': isoTimeStr, registrationEndTimeDisplay: displayTimeStr });
   },
 
   // 上传封面图
@@ -201,6 +393,84 @@ Page({
         [`formData.activityImages`]: JSON.stringify(activityImageList.map(item => item.url))
       });
     }
+  },
+
+  // 上传主办方头像
+  onUploadOrganizerAvatar() {
+    // 选择图片
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFilePaths[0]
+        
+        // 显示加载状态
+        wx.showLoading({
+          title: '上传中...',
+          mask: true
+        })
+        
+        // 设置上传中状态
+        this.setData({
+          uploadingOrganizerAvatar: true
+        })
+        
+        // 上传图片到服务器
+        fileUploadUtil.uploadImage(tempFilePath, '/file/upload/images')
+          .then(res => {
+            if (res.code === 200 && res.data && res.data.fileUrl) {
+              // 上传成功，更新表单数据
+              this.setData({
+                organizerAvatarUrl: res.data.fileUrl,
+                [`formData.organizerAvatar`]: res.data.fileUrl
+              })
+              wx.showToast({
+                title: '上传成功',
+                icon: 'success'
+              })
+            } else {
+              wx.showToast({
+                title: res.msg || '上传失败',
+                icon: 'none'
+              })
+            }
+          })
+          .catch(err => {
+            wx.showToast({
+              title: err.msg || '上传失败',
+              icon: 'none'
+            })
+            console.error('上传主办方头像失败:', err)
+          })
+          .finally(() => {
+            // 清除上传中状态
+            this.setData({
+              uploadingOrganizerAvatar: false
+            })
+            wx.hideLoading()
+          })
+      },
+      fail: (err) => {
+        console.error('选择图片失败:', err)
+      }
+    })
+  },
+
+  // 删除主办方头像
+  onDeleteOrganizerAvatar() {
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除主办方头像吗？',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            organizerAvatarUrl: '',
+            [`formData.organizerAvatar`]: ''
+          })
+        }
+      }
+    })
   },
 
   // 表单验证

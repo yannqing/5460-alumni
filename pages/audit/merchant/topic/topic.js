@@ -1,5 +1,5 @@
 const app = getApp()
-const { get, post } = require('../../../../utils/request.js')
+const { get, post, del } = require('../../../../utils/request.js')
 
 Page({
   data: {
@@ -161,5 +161,52 @@ Page({
         url: `/pages/audit/merchant/topic/edit/edit?activityId=${activityId}`
       });
     }
+  },
+
+  // 删除活动
+  onDeleteActivity(e) {
+    const activityId = e.currentTarget.dataset.activityId;
+    if (!activityId) {
+      return;
+    }
+
+    // 弹出确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这个活动吗？',
+      success: (res) => {
+        if (res.confirm) {
+          // 用户确认删除，调用API
+          this.setData({ activityLoading: true });
+          
+          del(`/activity/${activityId}`)
+            .then(res => {
+              if (res.data.code === 200) {
+                wx.showToast({
+                  title: '删除成功',
+                  icon: 'success'
+                });
+                // 重新获取活动列表
+                this.getActivityList();
+              } else {
+                wx.showToast({
+                  title: res.data.msg || '删除失败',
+                  icon: 'none'
+                });
+              }
+            })
+            .catch(err => {
+              console.error('删除活动失败:', err);
+              wx.showToast({
+                title: '网络错误',
+                icon: 'none'
+              });
+            })
+            .finally(() => {
+              this.setData({ activityLoading: false });
+            });
+        }
+      }
+    });
   }
 });

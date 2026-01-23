@@ -742,12 +742,28 @@
   background-color: #667eea;
   color: #fff;
   border: none;
-  margin-left: auto;
+  margin-left: 10rpx;
   transition: all 0.3s ease;
 }
 
 .edit-btn:active {
   background-color: #5a6fd8;
+  transform: scale(0.98);
+}
+
+.delete-btn {
+  padding: 6rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  margin-left: 10rpx;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:active {
+  background-color: #cf1322;
   transform: scale(0.98);
 }
 

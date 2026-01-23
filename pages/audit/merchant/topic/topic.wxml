@@ -124,6 +124,8 @@
               
               <!-- 编辑按钮 -->
               <button class="edit-btn" bindtap="onEditActivity" data-activity-id="{{item.activityId}}">编辑</button>
+              <!-- 删除按钮 -->
+              <button class="delete-btn" bindtap="onDeleteActivity" data-activity-id="{{item.activityId}}">删除</button>
             </view>
           </view>
         </view>

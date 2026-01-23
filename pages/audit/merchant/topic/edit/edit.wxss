@@ -2,13 +2,13 @@
 .activity-edit-page {
   min-height: 100vh;
   background-color: #f5f5f5;
-  padding-top: 100rpx; /* 留顶部导航栏的高度 */
+  padding-top: 160rpx; /* 导航栏再次下移后，继续增加padding-top值 */
 }
 
 /* 顶部导航栏 */
 .nav-bar {
   position: fixed;
-  top: 0;
+  top: 60rpx;
   left: 0;
   right: 0;
   height: 100rpx;
@@ -96,56 +96,59 @@
 /* 表单输入框 */
 .form-input {
   width: 100%;
-  height: 80rpx;
-  border: 1rpx solid #eee;
-  border-radius: 8rpx;
-  padding: 0 20rpx;
+  padding: 32rpx 24rpx;
   font-size: 28rpx;
+  color: #333;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 10rpx;
+  background-color: #fafafa;
   box-sizing: border-box;
-  background-color: #f9f9f9;
   transition: all 0.3s ease;
+  letter-spacing: 0.5rpx;
 }
 
 .form-input:focus {
-  background-color: #fff;
   border-color: #667eea;
-  box-shadow: 0 0 0 2rpx rgba(102, 126, 234, 0.2);
+  background-color: #fff;
 }
 
 /* 表单文本域 */
 .form-textarea {
   width: 100%;
   min-height: 200rpx;
-  border: 1rpx solid #eee;
-  border-radius: 8rpx;
-  padding: 20rpx;
+  padding: 32rpx 24rpx;
   font-size: 28rpx;
+  color: #333;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 10rpx;
+  background-color: #fafafa;
   box-sizing: border-box;
-  background-color: #f9f9f9;
   resize: vertical;
   transition: all 0.3s ease;
+  line-height: 1.6;
+  letter-spacing: 0.5rpx;
 }
 
 .form-textarea:focus {
-  background-color: #fff;
   border-color: #667eea;
-  box-shadow: 0 0 0 2rpx rgba(102, 126, 234, 0.2);
+  background-color: #fff;
 }
 
 /* 表单选择器 */
 .form-picker {
   width: 100%;
-  height: 80rpx;
-  border: 1rpx solid #eee;
-  border-radius: 8rpx;
-  padding: 0 20rpx;
+  padding: 32rpx 24rpx;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 10rpx;
   font-size: 28rpx;
+  color: #333;
   box-sizing: border-box;
-  background-color: #f9f9f9;
+  background-color: #fafafa;
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: all 0.3s ease;
+  letter-spacing: 0.5rpx;
 }
 
 .form-picker:active {
@@ -260,6 +263,25 @@
   transition: all 0.3s ease;
 }
 
+/* 图片上传中状态 */
+.image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10rpx;
+}
+
+.image-loading .loading-text {
+  color: #fff;
+  font-size: 24rpx;
+}
+
 .image-delete-btn:active {
   transform: scale(0.9);
   background-color: rgba(255, 69, 69, 1);
@@ -278,6 +300,33 @@
   font-size: 24rpx;
   color: #999;
   display: block;
+}
+
+/* 时间选择器样式 */
+.form-picker-view {
+  width: 100%;
+  height: 300rpx;
+  background-color: #fff;
+  border: 1rpx solid #eee;
+  border-radius: 10rpx;
+  margin-bottom: 16rpx;
+}
+
+.picker-view-item {
+  font-size: 28rpx;
+  color: #333;
+  height: 50rpx;
+  line-height: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 表单提示文字 */
+.form-hint {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
 }
 
 /* 提交按钮容器 */
