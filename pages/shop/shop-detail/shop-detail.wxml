@@ -124,10 +124,10 @@
     </view>
 
     <!-- 活动列表 -->
-    <view class="card activity-section">
+    <view class="card activity-section" wx:if="{{shopInfo.activities && shopInfo.activities.length > 0}}">
       <view class="section-title">店铺活动</view>
       <view class="activity-list">
-        <view class="activity-card" wx:for="{{shopInfo.activities || []}}" wx:key="activityId" catchtap="handleActivityTap" data-id="{{item.activityId}}">
+        <view class="activity-card" wx:for="{{shopInfo.activities}}" wx:key="activityId" catchtap="handleActivityTap" data-id="{{item.activityId}}">
           <view class="activity-card-inner">
             <view class="activity-left">
               <image class="activity-image" src="{{item.coverImage || ''}}" mode="aspectFill"></image>
@@ -148,28 +148,12 @@
                   <image class="detail-icon" src="{{iconTime}}" mode="aspectFit"></image>
                   <view class="detail-text">{{item.startTime || ''}} - {{item.endTime || ''}}</view>
                 </view>
-                <view class="detail-item">
-                  <image class="detail-icon" src="{{iconLocation}}" mode="aspectFit"></image>
+                <view class="detail-item category-item">
                   <view class="detail-text">{{item.activityCategory || '暂无分类'}}</view>
-                </view>
-              </view>
-              <view class="activity-stats">
-                <view class="stat-item">
-                  <text class="stat-label">浏览</text>
-                  <text class="stat-value">{{item.viewCount || 0}}</text>
-                </view>
-                <view class="stat-item">
-                  <text class="stat-label">报名</text>
-                  <text class="stat-value">{{item.currentParticipants || 0}}/{{item.maxParticipants || 0}}</text>
                 </view>
               </view>
             </view>
           </view>
-        </view>
-        <view wx:if="{{!shopInfo.activities || shopInfo.activities.length === 0}}" class="no-activities">
-          <view class="no-activities-icon">🎯</view>
-          <view class="no-activities-text">暂无活动</view>
-          <view class="no-activities-subtext">敬请期待更多精彩活动</view>
         </view>
       </view>
     </view>
