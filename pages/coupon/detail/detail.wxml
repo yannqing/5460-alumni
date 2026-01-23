@@ -49,6 +49,10 @@
         <text class="code-label">核销码：</text>
         <text class="code-value">{{couponInfo.verificationCode || '暂无'}}</text>
       </view>
+      <view class="coupon-desc-display" wx:if="{{couponInfo.couponDesc || couponInfo.coupon_desc || (couponInfo.coupon && (couponInfo.coupon.couponDesc || couponInfo.coupon.coupon_desc))}}">
+        <text class="desc-label">优惠券描述：</text>
+        <text class="desc-value">{{couponInfo.couponDesc || couponInfo.coupon_desc || (couponInfo.coupon && (couponInfo.coupon.couponDesc || couponInfo.coupon.coupon_desc)) || '暂无'}}</text>
+      </view>
       <view class="coupon-validity-row">
         <text class="validity-label">有效期至</text>
         <text class="validity-value">{{formattedValidEndTime}}</text>

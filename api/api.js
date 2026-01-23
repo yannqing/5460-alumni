@@ -502,6 +502,12 @@ const articleApplyApi = {
   getApplyPage: (params) => post('/home-page-article-apply/page', params),
 }
 
+// ==================== 轮播图相关接口 ====================
+const bannerApi = {
+  // 获取首页轮播图列表
+  getBannerList: () => get('/home/banners'),
+}
+
 
 // ==================== 轮播图相关接口 ====================
 const bannerApi = {
