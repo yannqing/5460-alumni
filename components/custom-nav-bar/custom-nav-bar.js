@@ -24,7 +24,8 @@ Component({
   data: {
     statusBarHeight: 0,
     navBarHeight: 0,
-    iconBack: ''
+    iconBack: '',
+    backgroundImage: ''
   },
 
   attached() {
@@ -36,13 +37,14 @@ Component({
     // 获取返回按钮图标
     const iconBack = config.getIconUrl('back@3x.png')
     
-    // 调试：输出图标路径
-    console.log('[CustomNavBar] 返回按钮图标路径:', iconBack)
+    // 获取导航栏背景图片
+    const backgroundImage = config.getIconUrl('tljb@3x.png')
     
     this.setData({
       statusBarHeight: statusBarHeight,
       navBarHeight: navBarHeight,
-      iconBack: iconBack
+      iconBack: iconBack,
+      backgroundImage: backgroundImage
     })
   },
 

@@ -1,5 +1,8 @@
 <!--components/custom-nav-bar/custom-nav-bar.wxml-->
-<view class="custom-nav-bar" style="height: {{statusBarHeight + navBarHeight}}px; background-color: {{backgroundColor}};">
+<view class="custom-nav-bar" style="height: {{statusBarHeight + navBarHeight}}px;">
+  <!-- 背景图片 -->
+  <image wx:if="{{backgroundImage}}" class="nav-bar-bg" src="{{backgroundImage}}" mode="aspectFill"></image>
+  
   <!-- 状态栏占位 -->
   <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
   
