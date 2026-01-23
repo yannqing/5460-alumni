@@ -1,4 +1,8 @@
 {
-  "navigationBarTitleText": "附近权益"
+  "navigationBarTitleText": "附近权益",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
 }
 

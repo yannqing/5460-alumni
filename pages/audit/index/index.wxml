@@ -1,4 +1,7 @@
 <!--pages/audit/index/index.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="管理入口" showBack="{{true}}"></custom-nav-bar>
+
 <view class="audit-index-page">
   <!-- 管理功能 -->
   <view class="audit-content" wx:if="{{auditFunctions.length > 0}}">

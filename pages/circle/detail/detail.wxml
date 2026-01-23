@@ -1,4 +1,7 @@
 <!--pages/circle/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="圈子详情" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <image class="cover-image" src="{{circleInfo.cover}}" mode="aspectFill" />
 

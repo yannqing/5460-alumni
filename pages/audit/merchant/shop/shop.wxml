@@ -1,4 +1,7 @@
 <!-- pages/audit/merchant/shop/shop.wxml -->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="店铺管理" showBack="{{true}}"></custom-nav-bar>
+
 <view class="shop-management-page">
   <!-- 选择商家 -->
   <view class="form-card">

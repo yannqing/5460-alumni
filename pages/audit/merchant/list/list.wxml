@@ -1,4 +1,7 @@
 <!--pages/audit/merchant/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="商家审核" showBack="{{true}}"></custom-nav-bar>
+
 <view class="merchant-audit-list-page">
   <!-- 标签栏 -->
   <view class="tabs-container">

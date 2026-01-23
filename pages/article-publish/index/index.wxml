@@ -1,4 +1,7 @@
 <!--pages/article-publish/index/index.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="发布文章" showBack="{{true}}"></custom-nav-bar>
+
 <view class="article-publish-page">
   <!-- 标题输入 -->
   <view class="form-item">

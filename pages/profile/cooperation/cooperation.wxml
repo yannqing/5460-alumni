@@ -1,3 +1,6 @@
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="商务合作" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view class="card menu-card">
     <view class="menu-item" bindtap="applyMerchant">

@@ -1,4 +1,7 @@
 <!--pages/profile/privacy/privacy.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="个人隐私" showBack="{{true}}"></custom-nav-bar>
+
 <!-- 消息通知组件 -->
 <message-notification />
 

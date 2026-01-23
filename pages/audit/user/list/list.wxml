@@ -1,4 +1,7 @@
 <!--pages/audit/user/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="文章审核" showBack="{{true}}"></custom-nav-bar>
+
 <view class="article-management-list-page">
   <!-- 标签栏 -->
   <view class="tabs-container">

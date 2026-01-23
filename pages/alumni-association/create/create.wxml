@@ -1,3 +1,6 @@
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="申请创建校友会" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container" bindtap="closeAllDropdowns">
   <view class="form-card">
     <view class="form-title">基本信息</view>

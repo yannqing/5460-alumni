@@ -1,4 +1,7 @@
 <!--pages/alumni-association/apply/apply.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="申请加入校友会" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view class="form-container">
     <view class="form-header">

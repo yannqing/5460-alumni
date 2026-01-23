@@ -26,8 +26,8 @@ Component({
       {
         pagePath: "/pages/search/search",
         text: "搜索",
-        iconPath: "/assets/icons/search.png",
-        selectedIconPath: "/assets/icons/search.png"
+        iconPath: "/assets/icons/find_nor@3x.png",
+        selectedIconPath: "/assets/icons/find_on@3x.png"
       },
       {
         pagePath: "/pages/profile/profile",

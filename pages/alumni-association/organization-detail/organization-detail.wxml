@@ -1,4 +1,7 @@
 <!--pages/alumni-association/organization-detail/organization-detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="组织结构" showBack="{{true}}"></custom-nav-bar>
+
 <view class="container">
   <view class="header">
     <view class="title">组织结构</view>

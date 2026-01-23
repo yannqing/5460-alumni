@@ -1,4 +1,7 @@
 <!-- pages/audit/merchant/shop-audit/shop-audit.wxml -->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="店铺审核" showBack="{{true}}"></custom-nav-bar>
+
 <view class="shop-audit-page">
   <!-- 页面标题 -->
   <view class="page-title">店铺审核</view>

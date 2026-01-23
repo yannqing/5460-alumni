@@ -1,4 +1,7 @@
 <!--pages/article/web-view/web-view.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="{{title || '加载中...'}}" showBack="{{true}}"></custom-nav-bar>
+
 <view class="web-view-container">
   <!-- web-view区域 -->
   <web-view 

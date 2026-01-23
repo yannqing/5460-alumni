@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "组织结构",
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
 }

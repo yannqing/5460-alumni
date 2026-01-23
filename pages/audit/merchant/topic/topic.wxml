@@ -1,3 +1,6 @@
+
+<custom-nav-bar title="话题管理" showBack="{{true}}"></custom-nav-bar>
+
 <view class="topic-management-page">
   <view class="container">
     <view class="section-title">选择店铺</view>

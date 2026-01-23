@@ -1,4 +1,7 @@
 <!--pages/audit/merchant/apply-detail/apply-detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="商户申请详情" showBack="{{true}}"></custom-nav-bar>
+
 <view class="apply-detail-page">
   <view class="detail-section" wx:if="{{loading}}">
     <view class="loading-text">加载中...</view>

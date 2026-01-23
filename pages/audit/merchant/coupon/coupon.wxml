@@ -1,4 +1,7 @@
 <!-- pages/audit/merchant/coupon/coupon.wxml -->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="优惠券管理" showBack="{{true}}"></custom-nav-bar>
+
 <view class="coupon-management-page">
   <view class="page-title">优惠券管理</view>
   <view class="page-content">

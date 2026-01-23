@@ -1,4 +1,7 @@
 <!--pages/coupon/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="优惠券详情" showBack="{{true}}"></custom-nav-bar>
+
 <view class="coupon-detail-page">
   <!-- 加载中 -->
   <view wx:if="{{loading}}" class="loading-container">

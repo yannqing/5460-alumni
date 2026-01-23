@@ -1,4 +1,7 @@
 <!--pages/notification/notification-list/notification-list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="系统通知" showBack="{{true}}"></custom-nav-bar>
+
 <view class="page">
   <!-- 顶部操作栏 -->
   <view class="header">

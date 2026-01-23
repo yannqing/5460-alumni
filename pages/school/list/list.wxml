@@ -1,4 +1,7 @@
 <!--pages/school/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校友总会" showBack="{{true}}"></custom-nav-bar>
+
 <!-- 消息通知组件 -->
 <message-notification />
 
