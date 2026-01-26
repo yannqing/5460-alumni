@@ -4,7 +4,7 @@
 
 <view class="verify-coupon-page">
   <!-- 门店选择 -->
-  <view class="shop-selector-container">
+  <view class="shop-selector-container" wx:if="{{shopList.length > 1}}">
     <view class="shop-selector-header" bindtap="toggleShopSelector">
       <view class="shop-selector-label">选择门店</view>
       <view class="shop-selector-value">

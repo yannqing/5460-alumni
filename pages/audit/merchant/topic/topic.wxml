@@ -3,42 +3,45 @@
 
 <view class="topic-management-page">
   <view class="container">
-    <view class="section-title">选择店铺</view>
-    
-    <!-- 加载状态 -->
-    <view class="loading-container" wx:if="{{loading}}">
-      <text class="loading-text">加载中...</text>
+    <!-- 选择店铺 -->
+    <view wx:if="{{shops.length > 1}}">
+      <view class="section-title">选择店铺</view>
+      
+      <!-- 加载状态 -->
+      <view class="loading-container" wx:if="{{loading}}">
+        <text class="loading-text">加载中...</text>
+      </view>
+      
+      <!-- 选择框 -->
+      <view class="picker-container" wx:else>
+        <picker 
+          bindchange="onShopChange" 
+          value="{{selectedShopIndex}}" 
+          range="{{shops}}" 
+          range-key="shopName" 
+          disabled="{{shops.length === 0}}"
+        >
+          <view class="picker">
+            <text class="picker-label">店铺：</text>
+            <text class="picker-value">{{selectedShopIndex >= 0 ? shops[selectedShopIndex].shopName : '请选择店铺'}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+        
+        <!-- 空数据提示 -->
+        <view class="empty-container" wx:if="{{shops.length === 0}}">
+          <text class="empty-text">暂无店铺数据</text>
+        </view>
+      </view>
     </view>
     
-    <!-- 选择框 -->
-    <view class="picker-container" wx:else>
-      <picker 
-        bindchange="onShopChange" 
-        value="{{selectedShopIndex}}" 
-        range="{{shops}}" 
-        range-key="shopName" 
-        disabled="{{shops.length === 0}}"
-      >
-        <view class="picker">
-          <text class="picker-label">店铺：</text>
-          <text class="picker-value">{{selectedShopIndex >= 0 ? shops[selectedShopIndex].shopName : '请选择店铺'}}</text>
-          <text class="picker-arrow">▼</text>
-        </view>
-      </picker>
-      
-      <!-- 空数据提示 -->
-      <view class="empty-container" wx:if="{{shops.length === 0}}">
-        <text class="empty-text">暂无店铺数据</text>
-      </view>
-      
-      <!-- 发布话题按钮 -->
-      <view class="publish-btn-container" wx:if="{{selectedShopIndex >= 0}}">
-        <button class="publish-btn" bindtap="onNavigateToPublish">发布话题</button>
-      </view>
+    <!-- 发布话题按钮 -->
+    <view class="publish-btn-container" wx:if="{{shops.length > 0}}">
+      <button class="publish-btn" bindtap="onNavigateToPublish">发布话题</button>
     </view>
     
     <!-- 活动列表区域 -->
-    <view class="activity-section" wx:if="{{selectedShopIndex >= 0}}">
+    <view class="activity-section" wx:if="{{shops.length > 0}}">
       <view class="section-title">活动列表</view>
       
       <!-- 筛选条件 -->

@@ -28,13 +28,26 @@ Page({
     get('/shop/my/available')
       .then(res => {
         if (res.data.code === 200) {
+          const shops = res.data.data || [];
+          let selectedShopIndex = -1;
+          
+          // 如果只有一个店铺，自动选择
+          if (shops.length === 1) {
+            selectedShopIndex = 0;
+          }
+          
           this.setData({
-            shops: res.data.data || [],
-            selectedShopIndex: -1, // 重置选择
+            shops: shops,
+            selectedShopIndex: selectedShopIndex,
             activityList: [], // 重置活动列表
             total: 0, // 重置总数
             current: 1 // 重置页码
           });
+          
+          // 如果自动选择了店铺，获取活动列表
+          if (selectedShopIndex >= 0) {
+            this.getActivityList();
+          }
         }
       })
       .catch(err => {

@@ -4,7 +4,7 @@
 
 <view class="shop-management-page">
   <!-- 选择商家 -->
-  <view class="form-card">
+  <view class="form-card" wx:if="{{merchantList.length > 1}}">
     <view class="form-title">店铺管理</view>
 
     <!-- 选择商家 -->
