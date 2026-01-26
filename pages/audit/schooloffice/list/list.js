@@ -15,7 +15,8 @@ Page({
       current: 1,
       pageSize: 10,
       platformId: 0
-    }
+    },
+    hasSinglePlatform: false // 是否只有一个校处会权限
   },
 
   onLoad(options) {
@@ -116,9 +117,13 @@ Page({
               platformList: updatedPlatformList
             })
             console.log('[Debug] 已更新校处会列表:', updatedPlatformList)
+            
+            // 判断权限数量，处理自动选择逻辑
+            this.handlePlatformSelection(updatedPlatformList)
           } catch (apiError) {
             console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
             // 继续使用之前创建的基本数据
+            this.handlePlatformSelection(basicPlatformList)
           }
         } else {
           // 没有找到有效的organizeId，设置为空数组
@@ -140,6 +145,29 @@ Page({
       this.setData({
         platformList: []
       })
+    }
+  },
+
+  // 处理校处会选择逻辑
+  handlePlatformSelection(platformList) {
+    if (platformList.length === 1) {
+      // 只有一个校处会权限，自动选择并禁用选择器
+      const singlePlatform = platformList[0]
+      this.setData({
+        selectedPlatformId: singlePlatform.platformId,
+        selectedPlatformName: singlePlatform.platformName,
+        hasSinglePlatform: true,
+        'pageParams.platformId': singlePlatform.platformId
+      })
+      console.log('[Debug] 只有一个校处会权限，自动选择:', singlePlatform)
+      // 加载数据
+      this.loadApplicationList()
+    } else {
+      // 多个校处会权限，正常显示选择器
+      this.setData({
+        hasSinglePlatform: false
+      })
+      console.log('[Debug] 有多个校处会权限，正常显示选择器')
     }
   },
 

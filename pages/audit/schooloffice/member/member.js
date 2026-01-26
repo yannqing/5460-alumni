@@ -23,6 +23,7 @@ Page({
     selectedSchoolOfficeName: '',
     showSchoolOfficePicker: false,
     selectedOrganizeId: 0, // 存储选中的organizeId
+    hasSingleSchoolOffice: false, // 是否只有一个校处会权限
     // 成员列表相关
     memberList: [],
     memberLoading: false, // 成员加载状态
@@ -120,57 +121,66 @@ Page({
             })
             
             this.setData({
-            schoolOfficeList: updatedSchoolOfficeList
+              schoolOfficeList: updatedSchoolOfficeList
+            })
+            console.log('[Debug] 已更新校处会列表:', updatedSchoolOfficeList)
+            
+            // 判断权限数量，处理自动选择逻辑
+            this.handleSchoolOfficeSelection(updatedSchoolOfficeList)
+          } catch (apiError) {
+            console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
+            // 继续使用之前创建的基本数据
+            this.handleSchoolOfficeSelection(basicSchoolOfficeList)
+          }
+        } else {
+          // 没有找到有效的organizeId，设置为空数组
+          console.warn('[Debug] 校处会管理员角色没有有效的organization或organizeId')
+          this.setData({
+            schoolOfficeList: []
           })
-          console.log('[Debug] 已更新校处会列表:', updatedSchoolOfficeList)
-          
-          // 如果列表不为空，自动选择第一个校处会并加载其成员列表
-          if (updatedSchoolOfficeList.length > 0) {
-            this.setData({
-              selectedSchoolOfficeId: updatedSchoolOfficeList[0].schoolOfficeId,
-              selectedSchoolOfficeName: updatedSchoolOfficeList[0].schoolOfficeName,
-              selectedOrganizeId: updatedSchoolOfficeList[0].schoolOfficeId
-            })
-            
-            // 加载第一个校处会的成员列表
-            await this.loadMemberList(updatedSchoolOfficeList[0].schoolOfficeId)
-          }
-        } catch (apiError) {
-          console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
-          // 继续使用之前创建的基本数据
-          
-          // 如果列表不为空，自动选择第一个校处会并加载其成员列表
-          if (basicSchoolOfficeList.length > 0) {
-            this.setData({
-              selectedSchoolOfficeId: basicSchoolOfficeList[0].schoolOfficeId,
-              selectedSchoolOfficeName: basicSchoolOfficeList[0].schoolOfficeName,
-              selectedOrganizeId: basicSchoolOfficeList[0].schoolOfficeId
-            })
-            
-            // 加载第一个校处会的成员列表
-            await this.loadMemberList(basicSchoolOfficeList[0].schoolOfficeId)
-          }
         }
       } else {
-        // 没有找到有效的organizeId，设置为空数组
-        console.warn('[Debug] 校处会管理员角色没有有效的organization或organizeId')
+        // 没有找到校处会管理员角色，设置为空数组
+        console.warn('[Debug] 没有找到校处会管理员角色')
         this.setData({
           schoolOfficeList: []
         })
       }
-    } else {
-      // 没有找到校处会管理员角色，设置为空数组
-      console.warn('[Debug] 没有找到校处会管理员角色')
-      this.setData({
-        schoolOfficeList: []
-      })
-    }
     } catch (error) {
       console.error('[Debug] 加载校处会列表失败:', error)
       // 发生错误时，设置为空数组
       this.setData({
         schoolOfficeList: []
       })
+    }
+  },
+
+  // 处理校处会选择逻辑
+  async handleSchoolOfficeSelection(schoolOfficeList) {
+    if (schoolOfficeList.length === 1) {
+      // 只有一个校处会权限，自动选择并禁用选择器
+      const singleSchoolOffice = schoolOfficeList[0]
+      this.setData({
+        selectedSchoolOfficeId: singleSchoolOffice.schoolOfficeId,
+        selectedSchoolOfficeName: singleSchoolOffice.schoolOfficeName,
+        selectedOrganizeId: singleSchoolOffice.schoolOfficeId,
+        hasSingleSchoolOffice: true
+      })
+      console.log('[Debug] 只有一个校处会权限，自动选择:', singleSchoolOffice)
+      // 加载成员列表
+      await this.loadMemberList(singleSchoolOffice.schoolOfficeId)
+    } else if (schoolOfficeList.length > 1) {
+      // 多个校处会权限，正常显示选择器
+      this.setData({
+        hasSingleSchoolOffice: false
+      })
+      console.log('[Debug] 有多个校处会权限，正常显示选择器')
+    } else {
+      // 没有校处会权限
+      this.setData({
+        hasSingleSchoolOffice: false
+      })
+      console.log('[Debug] 没有校处会权限')
     }
   },
 

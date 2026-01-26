@@ -9,9 +9,9 @@
     <!-- 选择校处会 -->
     <view class="form-item">
       <text class="label">选择校处会</text>
-      <view class="platform-selector" bindtap="showPlatformSelector">
+      <view class="platform-selector" bindtap="{{hasSinglePlatform ? '' : 'showPlatformSelector'}}" style="{{hasSinglePlatform ? 'pointer-events: none; opacity: 0.7;' : ''}}">
         <text class="selector-label">{{selectedPlatformName || '请选择校处会'}}</text>
-        <text class="selector-arrow">▼</text>
+        <text class="selector-arrow" style="{{hasSinglePlatform ? 'display: none;' : ''}}">▼</text>
       </view>
     </view>
   </view>

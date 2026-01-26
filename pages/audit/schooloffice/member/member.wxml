@@ -9,9 +9,9 @@
     <!-- 选择校处会 -->
     <view class="form-item">
       <text class="label">选择校处会</text>
-      <view class="school-office-selector" bindtap="showSchoolOfficeSelector">
+      <view class="school-office-selector" bindtap="{{hasSingleSchoolOffice ? '' : 'showSchoolOfficeSelector'}}">
         <text class="selector-label">{{selectedSchoolOfficeName || '请选择校处会'}}</text>
-        <text class="selector-arrow">▼</text>
+        <text class="selector-arrow" style="{{hasSingleSchoolOffice ? 'display: none;' : ''}}">▼</text>
       </view>
     </view>
   </view>

@@ -12,6 +12,7 @@ Page({
     roleLoading: false, // 角色加载状态
     selectedOrganizeId: 0, // 存储选中的organizeId
     expandedRoles: {}, // 存储展开状态的角色ID
+    hasSingleSchoolOffice: false, // 是否只有一个校处会权限
     // 编辑弹窗相关
     showEditModal: false,
     editingRole: null, // 当前正在编辑的角色
@@ -116,9 +117,13 @@ Page({
               schoolOfficeList: updatedSchoolOfficeList
             })
             console.log('[Debug] 已更新校处会列表:', updatedSchoolOfficeList)
+            
+            // 判断权限数量，处理自动选择逻辑
+            this.handleSchoolOfficeSelection(updatedSchoolOfficeList)
           } catch (apiError) {
             console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
             // 继续使用之前创建的基本数据
+            this.handleSchoolOfficeSelection(basicSchoolOfficeList)
           }
         } else {
           // 没有找到有效的organizeId，设置为空数组
@@ -140,6 +145,29 @@ Page({
       this.setData({
         schoolOfficeList: []
       })
+    }
+  },
+
+  // 处理校处会选择逻辑
+  async handleSchoolOfficeSelection(schoolOfficeList) {
+    if (schoolOfficeList.length === 1) {
+      // 只有一个校处会权限，自动选择并禁用选择器
+      const singleSchoolOffice = schoolOfficeList[0]
+      this.setData({
+        selectedSchoolOfficeId: singleSchoolOffice.schoolOfficeId,
+        selectedSchoolOfficeName: singleSchoolOffice.schoolOfficeName,
+        selectedOrganizeId: singleSchoolOffice.schoolOfficeId,
+        hasSingleSchoolOffice: true
+      })
+      console.log('[Debug] 只有一个校处会权限，自动选择:', singleSchoolOffice)
+      // 加载角色列表
+      await this.loadRoleList(singleSchoolOffice.schoolOfficeId)
+    } else {
+      // 多个校处会权限，正常显示选择器
+      this.setData({
+        hasSingleSchoolOffice: false
+      })
+      console.log('[Debug] 有多个校处会权限，正常显示选择器')
     }
   },
 
