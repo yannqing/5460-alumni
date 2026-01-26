@@ -344,7 +344,8 @@ function hasManagementPermission() {
     'SYSTEM_SUPER_ADMIN',          // 系统管理员
     'ORGANIZE_LOCAL_ADMIN',        // 校处会管理员
     'ORGANIZE_ALUMNI_ADMIN',       // 校友会管理员
-    'ORGANIZE_MERCHANT_ADMIN'      // 商户管理员
+    'ORGANIZE_MERCHANT_ADMIN',     // 商户管理员
+    'ORGANIZE_SHOP_ADMIN'          // 门店管理员
   ]
   
   // 优先从缓存读取角色列表

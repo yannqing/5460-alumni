@@ -143,6 +143,13 @@ Page({
         iconType: 'image',
         url: '/pages/audit/join-audit/index'
       },
+      {
+        id: 6,
+        name: '活动管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/activity/activity'
+      },
       // {
       //   id: 4,
       //   name: '资料库',
@@ -199,7 +206,7 @@ Page({
       },
       {
         id: 4,
-        name: '优惠券',
+        name: '优惠券管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/coupon/coupon'
@@ -251,6 +258,35 @@ Page({
     this.checkPermissions()
   },
 
+  // 检查用户是否有特定权限
+  hasPermission(permissionCode) {
+    // 获取用户的原始角色列表（从缓存中读取）
+    const originalRoles = wx.getStorageSync('roles') || []
+    
+    // 遍历所有角色
+    for (const role of originalRoles) {
+      // 检查角色是否有permissions数组
+      if (role.permissions && Array.isArray(role.permissions)) {
+        // 遍历角色的所有权限
+        for (const permission of role.permissions) {
+          // 检查当前权限是否有code属性且匹配
+          if (permission.code === permissionCode) {
+            return true
+          }
+          // 检查子权限
+          if (permission.children && Array.isArray(permission.children)) {
+            for (const childPermission of permission.children) {
+              if (childPermission.code === permissionCode) {
+                return true
+              }
+            }
+          }
+        }
+      }
+    }
+    return false
+  },
+
   // 检查用户权限并控制功能模块显示
   checkPermissions() {
     const app = getApp()
@@ -261,7 +297,6 @@ Page({
     const originalRoles = wx.getStorageSync('roles') || []
     
     // 默认不显示任何功能模块
-    let showAuditFunctions = false
     let showSchoolOfficeFunctions = false
     let showAlumniFunctions = false
     let showMerchantFunctions = false
@@ -271,6 +306,7 @@ Page({
     let hasLocalAdmin = false
     let hasAlumniAdmin = false
     let hasMerchantAdmin = false
+    let hasShopAdmin = false
     
     // 方法1：检查对象格式的角色（userConfig.roles）
     if (typeof roles === 'object' && roles !== null) {
@@ -278,43 +314,115 @@ Page({
       hasLocalAdmin = roles['ORGANIZE_LOCAL_ADMIN']
       hasAlumniAdmin = roles['ORGANIZE_ALUMNI_ADMIN']
       hasMerchantAdmin = roles['ORGANIZE_MERCHANT_ADMIN']
+      hasShopAdmin = roles['ORGANIZE_SHOP_ADMIN']
     }
     
     // 方法2：如果对象格式检查失败，使用数组格式检查（originalRoles）
-    if (!hasSuperAdmin && !hasLocalAdmin && !hasAlumniAdmin && !hasMerchantAdmin) {
+    if (!hasSuperAdmin && !hasLocalAdmin && !hasAlumniAdmin && !hasMerchantAdmin && !hasShopAdmin) {
       hasSuperAdmin = originalRoles.some(role => role.roleCode === 'SYSTEM_SUPER_ADMIN')
       hasLocalAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_LOCAL_ADMIN')
       hasAlumniAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_ALUMNI_ADMIN')
       hasMerchantAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_MERCHANT_ADMIN')
+      hasShopAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_SHOP_ADMIN')
     }
     
-    // 根据角色设置显示权限
-    if (hasSuperAdmin) {
-      // 超级管理员：显示所有功能
-      showAuditFunctions = true
+    // 过滤系统管理功能（auditFunctions）
+    const filteredAuditFunctions = this.data.auditFunctions.filter(item => {
+      // 超级管理员显示所有功能
+      if (hasSuperAdmin) {
+        return true
+      }
+      // 根据功能名称检查对应权限
+      if (item.name === '文章审核') {
+        return this.hasPermission('HOME_PAGE_ARTICLE_REVIEW')
+      } else if (item.name === '文章管理') {
+        return this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
+      } else if (item.name === '轮播图管理') {
+        return this.hasPermission('HOME_PAGE_BANNER_MANAGEMENT')
+      }
+      return false
+    })
+    
+    // 过滤校处会管理功能（schoolOfficeFunctions）
+    const filteredSchoolOfficeFunctions = this.data.schoolOfficeFunctions.filter(item => {
+      // 超级管理员显示所有功能
+      if (hasSuperAdmin) {
+        return true
+      }
+      // 根据功能名称检查对应权限
+      if (item.name === '校友会审核') {
+        return this.hasPermission('LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION')
+      } else if (item.name === '成员管理') {
+        return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
+      } else if (item.name === '架构管理') {
+        return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
+      }
+      return false
+    })
+    
+    // 过滤校友会管理功能（alumniFunctions）
+    const filteredAlumniFunctions = this.data.alumniFunctions.filter(item => {
+      // 超级管理员显示所有功能
+      if (hasSuperAdmin) {
+        return true
+      }
+      // 根据功能名称检查对应权限
+      if (item.name === '架构管理') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
+      } else if (item.name === '成员管理') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT')
+      } else if (item.name === '商户管理') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT')
+      } else if (item.name === '店铺审核') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_SHOP_REVIEW')
+      } else if (item.name === '加入审核') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_JOIN_REVIEW')
+      } else if (item.name === '活动管理') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT')
+      }
+      return false
+    })
+    
+    // 过滤商家管理功能（merchantFunctions）
+    const filteredMerchantFunctions = this.data.merchantFunctions.filter(item => {
+      // 超级管理员显示所有功能
+      if (hasSuperAdmin) {
+        return true
+      }
+      // 根据功能名称检查对应权限
+      if (item.name === '店铺管理') {
+        return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
+      } else if (item.name === '成员管理') {
+        return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
+      } else if (item.name === '架构管理') {
+        return this.hasPermission('MERCHANT_ARCHIVE_MANAGEMENT')
+      } else if (item.name === '优惠券管理') {
+        return this.hasPermission('MERCHANT_COUPON_MANAGEMENT')
+      } else if (item.name === '核销优惠券') {
+        return this.hasPermission('MERCHANT_DEAL_COUPON')
+      } else if (item.name === '话题管理') {
+        return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT')
+      }
+      return false
+    })
+    
+    // 根据角色设置其他功能模块显示权限
+    if (hasSuperAdmin || hasLocalAdmin) {
       showSchoolOfficeFunctions = true
+    }
+    if (hasSuperAdmin || hasLocalAdmin || hasAlumniAdmin) {
       showAlumniFunctions = true
-      showMerchantFunctions = true
-    } else if (hasLocalAdmin) {
-      // 校处会管理员：显示校处会、校友会和商户功能
-      showSchoolOfficeFunctions = true
-      showAlumniFunctions = true
-      showMerchantFunctions = true
-    } else if (hasAlumniAdmin) {
-      // 校友会管理员：显示校友会和商户功能
-      showAlumniFunctions = true
-      showMerchantFunctions = true
-    } else if (hasMerchantAdmin) {
-      // 商户管理员：只显示商户功能
+    }
+    if (hasSuperAdmin || hasLocalAdmin || hasAlumniAdmin || hasMerchantAdmin || hasShopAdmin) {
       showMerchantFunctions = true
     }
     
     // 更新数据，根据权限过滤功能列表
     this.setData({
-      auditFunctions: showAuditFunctions ? this.data.auditFunctions : [],
-      schoolOfficeFunctions: showSchoolOfficeFunctions ? this.data.schoolOfficeFunctions : [],
-      alumniFunctions: showAlumniFunctions ? this.data.alumniFunctions : [],
-      merchantFunctions: showMerchantFunctions ? this.data.merchantFunctions : []
+      auditFunctions: filteredAuditFunctions,
+      schoolOfficeFunctions: showSchoolOfficeFunctions ? filteredSchoolOfficeFunctions : [],
+      alumniFunctions: showAlumniFunctions ? filteredAlumniFunctions : [],
+      merchantFunctions: showMerchantFunctions ? filteredMerchantFunctions : []
     })
   },
 
