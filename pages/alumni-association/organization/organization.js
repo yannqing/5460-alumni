@@ -12,6 +12,7 @@ Page({
     roleLoading: false, // 角色加载状态
     selectedOrganizeId: 0, // 存储选中的organizeId
     expandedRoles: {}, // 存储展开状态的角色ID
+    hasSingleAlumniAssociation: false, // 是否只有一个校友会权限
     // 编辑弹窗相关
     showEditModal: false,
     editingRole: null, // 当前正在编辑的角色
@@ -130,58 +131,49 @@ Page({
         })
         console.log('[Debug] 最终校友会列表:', alumniAssociationList)
         
-        // 如果列表不为空，自动选择第一个校友会并加载角色列表
-        if (alumniAssociationList.length > 0) {
-          this.setData({
-            selectedAlumniAssociationId: alumniAssociationList[0].alumniAssociationId,
-            selectedAlumniAssociationName: alumniAssociationList[0].alumniAssociationName,
-            selectedOrganizeId: alumniAssociationList[0].alumniAssociationId
+        // 尝试为所有校友会调用接口获取更详细的信息
+        try {
+          // 创建一个新的列表来存储更新后的校友会数据
+          const updatedList = [...alumniAssociationList]
+          
+          // 使用Promise.all并行获取所有校友会的详细信息
+          const detailPromises = updatedList.map(async (alumni, index) => {
+            try {
+              const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
+              if (res.data && res.data.code === 200 && res.data.data) {
+                console.log(`[Debug] 获取校友会 ${index + 1} 详细信息成功:`, res.data.data)
+                
+                // 更新校友会的详细信息
+                return {
+                  ...res.data.data,
+                  id: res.data.data.alumniAssociationId || res.data.data.id || alumni.alumniAssociationId,
+                  alumniAssociationId: res.data.data.alumniAssociationId || alumni.alumniAssociationId,
+                  alumniAssociationName: res.data.data.associationName || res.data.data.name || alumni.alumniAssociationName,
+                  organizeId: res.data.data.organizeId || alumni.alumniAssociationId // 确保有organizeId
+                }
+              }
+              return alumni // 如果接口调用失败，返回原始数据
+            } catch (error) {
+              console.log(`[Debug] 获取校友会 ${index + 1} 详细信息失败:`, error)
+              return alumni // 如果发生错误，返回原始数据
+            }
           })
           
-          // 立即加载角色列表（针对第一个校友会）
-          await this.loadRoleList(alumniAssociationList[0].alumniAssociationId)
+          // 等待所有请求完成
+          const detailedAlumniList = await Promise.all(detailPromises)
           
-          // 尝试为所有校友会调用接口获取更详细的信息
-          try {
-            // 创建一个新的列表来存储更新后的校友会数据
-            const updatedList = [...alumniAssociationList]
-            
-            // 使用Promise.all并行获取所有校友会的详细信息
-            const detailPromises = updatedList.map(async (alumni, index) => {
-              try {
-                const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
-                if (res.data && res.data.code === 200 && res.data.data) {
-                  console.log(`[Debug] 获取校友会 ${index + 1} 详细信息成功:`, res.data.data)
-                  
-                  // 更新校友会的详细信息
-                  return {
-                    ...res.data.data,
-                    id: res.data.data.alumniAssociationId || res.data.data.id || alumni.alumniAssociationId,
-                    alumniAssociationId: res.data.data.alumniAssociationId || alumni.alumniAssociationId,
-                    alumniAssociationName: res.data.data.associationName || res.data.data.name || alumni.alumniAssociationName,
-                    organizeId: res.data.data.organizeId || alumni.alumniAssociationId // 确保有organizeId
-                  }
-                }
-                return alumni // 如果接口调用失败，返回原始数据
-              } catch (error) {
-                console.log(`[Debug] 获取校友会 ${index + 1} 详细信息失败:`, error)
-                return alumni // 如果发生错误，返回原始数据
-              }
-            })
-            
-            // 等待所有请求完成
-            const detailedAlumniList = await Promise.all(detailPromises)
-            
-            // 更新校友会列表
-            this.setData({
-              alumniAssociationList: detailedAlumniList,
-              selectedAlumniAssociationName: detailedAlumniList[0].alumniAssociationName
-            })
-            console.log('[Debug] 已更新所有校友会详细信息:', detailedAlumniList)
-          } catch (apiError) {
-            console.log('[Debug] 获取校友会详细信息失败:', apiError)
-            // 继续使用之前创建的基本数据
-          }
+          // 更新校友会列表
+          this.setData({
+            alumniAssociationList: detailedAlumniList
+          })
+          console.log('[Debug] 已更新所有校友会详细信息:', detailedAlumniList)
+          
+          // 判断权限数量，处理自动选择逻辑
+          this.handleAlumniAssociationSelection(detailedAlumniList)
+        } catch (apiError) {
+          console.log('[Debug] 获取校友会详细信息失败:', apiError)
+          // 继续使用之前创建的基本数据
+          this.handleAlumniAssociationSelection(alumniAssociationList)
         }
       } else {
         // 没有找到校友会管理员角色，设置为空数组
@@ -196,6 +188,35 @@ Page({
       this.setData({
         alumniAssociationList: []
       })
+    }
+  },
+
+  // 处理校友会选择逻辑
+  async handleAlumniAssociationSelection(alumniAssociationList) {
+    if (alumniAssociationList.length === 1) {
+      // 只有一个校友会权限，自动选择并禁用选择器
+      const singleAlumni = alumniAssociationList[0]
+      this.setData({
+        selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
+        selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
+        selectedOrganizeId: singleAlumni.alumniAssociationId,
+        hasSingleAlumniAssociation: true
+      })
+      console.log('[Debug] 只有一个校友会权限，自动选择:', singleAlumni)
+      // 加载角色列表
+      await this.loadRoleList(singleAlumni.alumniAssociationId)
+    } else if (alumniAssociationList.length > 1) {
+      // 多个校友会权限，正常显示选择器
+      this.setData({
+        hasSingleAlumniAssociation: false
+      })
+      console.log('[Debug] 有多个校友会权限，正常显示选择器')
+    } else {
+      // 没有校友会权限
+      this.setData({
+        hasSingleAlumniAssociation: false
+      })
+      console.log('[Debug] 没有校友会权限')
     }
   },
 
