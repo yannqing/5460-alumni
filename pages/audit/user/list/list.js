@@ -7,7 +7,7 @@ Page({
     articleList: [],
     loading: false,
     currentTab: 0,
-    tabs: ['全部', '待审核', '已审核', '我的上传'],
+    tabs: ['全部', '待审核', '已审核'],
     // 编辑弹框相关
     isEditModalVisible: false,
     currentArticle: null,
@@ -67,174 +67,100 @@ Page({
       
       let articleList = []
       
-      // 如果是"我的上传"标签页，调用真实API
-      if (this.data.currentTab === 3) {
-        // 1. 获取本人创建的所有文章
-        const articlePageParams = {
-          current: 1, // 当前页码，后续可以添加分页功能
-          size: 10, // 每页大小
-          publishWxId: currentUserId // 发布者ID，使用当前用户ID
+      // 其他标签页使用文章审核API
+      let applyStatus = undefined
+      
+      // 根据当前标签设置审核状态
+      if (this.data.currentTab === 1) {
+        // 待审核
+        applyStatus = 0
+      } else if (this.data.currentTab === 2) {
+        // 已审核 - 注意：根据需求，这里应该调用一次API获取所有已审核数据
+        // 但为了兼容现有逻辑，我们仍然使用两次请求并合并结果
+      }
+      // 全部标签：不设置applyStatus，显示所有
+      
+      // 构建请求参数
+      const requestParams = {
+        current: 1,
+        size: 10
+      }
+      
+      // 只有当applyStatus有值时才添加到请求参数中
+      if (applyStatus !== undefined) {
+        requestParams.applyStatus = applyStatus
+      }
+      
+      let allRecords = []
+      
+      if (this.data.currentTab === 2) {
+        // 已审核 - 需要分别获取已通过和已拒绝的数据
+        const approvedParams = {
+          current: 1,
+          size: 10,
+          applyStatus: 1
+        }
+        const rejectedParams = {
+          current: 1,
+          size: 10,
+          applyStatus: 2
         }
         
-        // 调用API获取本人首页文章列表
-        const articleRes = await homeArticleApi.getMyArticlePage(articlePageParams)
+        // 并行请求已通过和已拒绝的数据
+        const [approvedRes, rejectedRes] = await Promise.all([
+          articleApplyApi.getApplyPage(approvedParams),
+          articleApplyApi.getApplyPage(rejectedParams)
+        ])
         
-        if (articleRes.data && articleRes.data.code === 200) {
-          const articleRecords = articleRes.data.data?.records || []
-          
-          // 2. 获取所有文章的审核记录
-          const applyPageParams = {
-            current: 1,
-            size: 100, // 获取足够多的审核记录，确保能匹配上所有文章
-            // 不传递applyStatus，获取所有状态的审核记录
-          }
-          
-          const applyRes = await articleApplyApi.getApplyPage(applyPageParams)
-          const applyRecords = applyRes.data && applyRes.data.code === 200 ? applyRes.data.data?.records || [] : []
-          
-          // 3. 创建审核记录映射表，key为homeArticleId
-          const applyMap = new Map()
-          applyRecords.forEach(apply => {
-            applyMap.set(apply.articleInfo?.homeArticleId, apply)
-          })
-          
-          // 4. 将API返回的数据转换为页面需要的格式
-          articleList = articleRecords.map(item => {
-            // 获取对应的审核记录
-            const applyRecord = applyMap.get(item.homeArticleId)
-            
-            // 根据审核记录确定状态
-            let status = 'pending'
-            let statusText = '待审核'
-            
-            if (applyRecord) {
-              // 有审核记录，使用审核记录的状态
-              if (applyRecord.applyStatus === 1) {
-                status = 'approved'
-                statusText = '已通过'
-              } else if (applyRecord.applyStatus === 2) {
-                status = 'rejected'
-                statusText = '已拒绝'
-              } else {
-                status = 'pending'
-                statusText = '待审核'
-              }
-            } else {
-              // 没有审核记录，默认显示待审核
-              status = 'pending'
-              statusText = '待审核'
-            }
-            
-            return {
-              id: item.homeArticleId,
-              articleId: item.homeArticleId,
-              nickname: item.articleTitle,
-              avatar: item.publisherAvatar,
-              school: '', // API返回中没有school字段，暂时为空
-              submitTime: item.createTime,
-              status: status,
-              statusText: statusText,
-              userId: currentUserId,
-              coverImg: item.coverImg?.fileUrl?.replace(/`/g, '') || '' // 使用coverImg对象中的fileUrl字段，并移除可能存在的反引号
-            }
-          })
+        if (approvedRes.data && approvedRes.data.code === 200) {
+          allRecords = allRecords.concat(approvedRes.data.data?.records || [])
+        }
+        
+        if (rejectedRes.data && rejectedRes.data.code === 200) {
+          allRecords = allRecords.concat(rejectedRes.data.data?.records || [])
         }
       } else {
-        // 其他标签页使用文章审核API
-        let applyStatus = undefined
+        // 全部或待审核标签
+        const res = await articleApplyApi.getApplyPage(requestParams)
         
-        // 根据当前标签设置审核状态
-        if (this.data.currentTab === 1) {
-          // 待审核
-          applyStatus = 0
-        } else if (this.data.currentTab === 2) {
-          // 已审核 - 注意：根据需求，这里应该调用一次API获取所有已审核数据
-          // 但为了兼容现有逻辑，我们仍然使用两次请求并合并结果
+        if (res.data && res.data.code === 200) {
+          allRecords = res.data.data?.records || []
         }
-        // 全部标签：不设置applyStatus，显示所有
-        
-        // 构建请求参数
-        const requestParams = {
-          current: 1,
-          size: 10
-        }
-        
-        // 只有当applyStatus有值时才添加到请求参数中
-        if (applyStatus !== undefined) {
-          requestParams.applyStatus = applyStatus
-        }
-        
-        let allRecords = []
-        
-        if (this.data.currentTab === 2) {
-          // 已审核 - 需要分别获取已通过和已拒绝的数据
-          const approvedParams = {
-            current: 1,
-            size: 10,
-            applyStatus: 1
-          }
-          const rejectedParams = {
-            current: 1,
-            size: 10,
-            applyStatus: 2
-          }
-          
-          // 并行请求已通过和已拒绝的数据
-          const [approvedRes, rejectedRes] = await Promise.all([
-            articleApplyApi.getApplyPage(approvedParams),
-            articleApplyApi.getApplyPage(rejectedParams)
-          ])
-          
-          if (approvedRes.data && approvedRes.data.code === 200) {
-            allRecords = allRecords.concat(approvedRes.data.data?.records || [])
-          }
-          
-          if (rejectedRes.data && rejectedRes.data.code === 200) {
-            allRecords = allRecords.concat(rejectedRes.data.data?.records || [])
-          }
-        } else {
-          // 全部或待审核标签
-          const res = await articleApplyApi.getApplyPage(requestParams)
-          
-          if (res.data && res.data.code === 200) {
-            allRecords = res.data.data?.records || []
-          }
-        }
-        
-        // 将API返回的数据转换为页面需要的格式
-        articleList = allRecords.map(item => {
-          // 将API返回的applyStatus转换为页面需要的status和statusText
-          let status = 'pending'
-          let statusText = '待审核'
-          if (item.applyStatus === 1) {
-            status = 'approved'
-            statusText = '已通过'
-          } else if (item.applyStatus === 2) {
-            status = 'rejected'
-            statusText = '已拒绝'
-          }
-          
-          // 从articleInfo中获取文章标题和封面图
-          const articleTitle = item.articleInfo?.articleTitle || ''
-          const coverImgUrl = item.articleInfo?.coverImg?.fileUrl?.replace(/`/g, '') || ''
-          
-          // 从appliedUserInfo中获取用户昵称
-          const userNickname = item.appliedUserInfo?.nickname || item.appliedName || ''
-          
-          return {
-            id: item.homeArticleApplyId,
-            articleId: item.homeArticleId,
-            nickname: articleTitle, // 使用文章标题作为昵称显示
-            avatar: item.appliedUserInfo?.avatarUrl || '', // 使用用户头像
-            school: '', // API返回中没有school字段，暂时为空
-            submitTime: item.createTime,
-            status: status,
-            statusText: statusText,
-            userId: item.appliedWxId,
-            coverImg: coverImgUrl // 使用文章封面图
-          }
-        })
       }
+      
+      // 将API返回的数据转换为页面需要的格式
+      articleList = allRecords.map(item => {
+        // 将API返回的applyStatus转换为页面需要的status和statusText
+        let status = 'pending'
+        let statusText = '待审核'
+        if (item.applyStatus === 1) {
+          status = 'approved'
+          statusText = '已通过'
+        } else if (item.applyStatus === 2) {
+          status = 'rejected'
+          statusText = '已拒绝'
+        }
+        
+        // 从articleInfo中获取文章标题和封面图
+        const articleTitle = item.articleInfo?.articleTitle || ''
+        const coverImgUrl = item.articleInfo?.coverImg?.fileUrl?.replace(/`/g, '') || ''
+        
+        // 从appliedUserInfo中获取用户昵称
+        const userNickname = item.appliedUserInfo?.nickname || item.appliedName || ''
+        
+        return {
+          id: item.homeArticleApplyId,
+          articleId: item.homeArticleId,
+          nickname: articleTitle, // 使用文章标题作为昵称显示
+          avatar: item.appliedUserInfo?.avatarUrl || '', // 使用用户头像
+          school: '', // API返回中没有school字段，暂时为空
+          submitTime: item.createTime,
+          status: status,
+          statusText: statusText,
+          userId: item.appliedWxId,
+          coverImg: coverImgUrl // 使用文章封面图
+        }
+      })
       
       this.setData({
         articleList: articleList,
@@ -346,11 +272,11 @@ Page({
   },
 
   // 发布文章
-  onPublishTap() {
-    wx.navigateTo({
-      url: '/pages/article-publish/index/index'
-    })
-  },
+  // onPublishTap() {
+  //   wx.navigateTo({
+  //     url: '/pages/article-publish/index/index'
+  //   })
+  // },
 
   // 点击编辑按钮
   async onEditTap(e) {

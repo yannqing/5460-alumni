@@ -58,10 +58,7 @@
     </view>
   </view>
 
-  <!-- 发布文章按钮 -->
-  <view class="publish-btn-container">
-    <button class="publish-btn" bindtap="onPublishTap">发布文章</button>
-  </view>
+  
 
   <!-- 编辑弹框 -->
   <view class="modal-overlay" wx:if="{{isEditModalVisible}}" bindtap="hideEditModal"></view>
