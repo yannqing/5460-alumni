@@ -3,15 +3,15 @@
 <custom-nav-bar title="加入审核" showBack="{{true}}"></custom-nav-bar>
 
 <view class="container">
-  <view class="form-card">
+  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation}}">
     <view class="form-title">加入审核</view>
 
       <!-- 选择校友会 -->
     <view class="form-item">
       <text class="label">选择校友会</text>
-      <view class="alumni-association-selector" bindtap="{{hasSingleAlumniAssociation ? '' : 'showAlumniAssociationSelector'}}" style="{{hasSingleAlumniAssociation ? 'pointer-events: none; opacity: 0.7;' : ''}}">
+      <view class="alumni-association-selector" bindtap="showAlumniAssociationSelector">
         <text class="selector-label">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
-        <text class="selector-arrow" style="{{hasSingleAlumniAssociation ? 'display: none;' : ''}}">▼</text>
+        <text class="selector-arrow">▼</text>
       </view>
     </view>
   </view>
@@ -56,8 +56,8 @@
               <text class="apply-time">申请时间：{{item.applyTime}}</text>
             </view>
           </view>
-          <view class="status-tag" style="background-color: {{item.applicationStatus === 0 ? '#ffd591' : item.applicationStatus === 1 ? '#b7eb8f' : item.applicationStatus === 2 ? '#ffccc7' : '#d9d9d9'}};">
-            {{item.applicationStatusText || (item.applicationStatus === 0 ? '待审核' : item.applicationStatus === 1 ? '已通过' : item.applicationStatus === 2 ? '已拒绝' : '已撤销')}}"
+          <view class="status-tag" style="background-color: {{item.applicationStatus === 0 ? '#ffd591' : item.applicationStatus === 1 ? '#b7eb8f' : item.applicationStatus === 2 ? '#ffccc7' : '#d9d9d9'}}">
+            {{item.applicationStatusText || (item.applicationStatus === 0 ? '待审核' : item.applicationStatus === 1 ? '已通过' : item.applicationStatus === 2 ? '已拒绝' : '已撤销')}}
           </view>
         </view>
         <view class="application-body">
