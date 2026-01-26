@@ -129,6 +129,13 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/shop-audit/shop-audit'
       },
+      {
+        id: 5,
+        name: '加入审核',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/join-audit/index'
+      },
       // {
       //   id: 4,
       //   name: '资料库',

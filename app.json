@@ -70,6 +70,7 @@
     "pages/audit/schooloffice/detail/detail",
     "pages/audit/schooloffice/organization/organization",
     "pages/audit/schooloffice/member/member",
+    "pages/audit/join-audit/index",
     "pages/article/detail/detail",
     "pages/article/form/form",
     "pages/article/audit-list/audit-list",

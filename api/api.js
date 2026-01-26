@@ -46,7 +46,7 @@ const associationApi = {
   // 分页查询本人是会长的校友会列表（超级管理员可查看所有）
   getMyPresidentAssociations: (params) => post('/AlumniAssociation/my-president/page', params),
   // 申请加入校友会（普通用户）
-  applyToJoinAssociation: (data) => post('/AlumniAssociationApplication/apply', data),
+  applyToJoinAssociation: (data) => post('/AlumniAssociationJoinApplication/apply', data),
   // 申请创建校友会
   applyCreateAssociation: (data) => post('/AlumniAssociationApplication/apply', data),
   // 查看用户自己的校友会申请详情
