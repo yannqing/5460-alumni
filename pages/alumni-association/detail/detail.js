@@ -1196,7 +1196,7 @@ Page({
 
     // 调用API获取组织架构树
     const { post } = require('../../../utils/request.js')
-    post('/AlumniAssociation/organizationTree', {
+    post('/AlumniAssociation/organizationTree/v2', {
       alumniAssociationId: this.data.associationId
     }).then(res => {
       if (res.data && res.data.code === 200) {

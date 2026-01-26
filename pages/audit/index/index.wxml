@@ -86,7 +86,7 @@
 
   <!-- 商户 -->
   <view class="audit-content" wx:if="{{merchantFunctions.length > 0}}">
-    <view class="audit-title">商户</view>
+    <view class="audit-title">商家</view>
     <view class="audit-grid">
       <view
         class="audit-item"

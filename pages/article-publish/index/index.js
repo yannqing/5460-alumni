@@ -323,6 +323,14 @@ Page({
       return
     }
     
+    if (!coverImgId || coverImgId === '0') {
+      wx.showToast({
+        title: '请上传封面图',
+        icon: 'none'
+      })
+      return
+    }
+    
     wx.showLoading({
       title: '发布中...'
     })
