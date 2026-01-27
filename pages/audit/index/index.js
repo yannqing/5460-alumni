@@ -191,18 +191,18 @@ Page({
         url: '/pages/audit/merchant/shop/shop'
       },
       {
-        id: 2,
-        name: '架构管理',
-        icon: config.getIconUrl('jggl@3x.png'),
-        iconType: 'image',
-        url: '/pages/audit/merchant/architecture/architecture'
-      },
-      {
         id: 3,
         name: '成员管理',
         icon: config.getIconUrl('shcygl@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/member/member'
+      },
+      {
+        id: 2,
+        name: '架构管理',
+        icon: config.getIconUrl('jggl@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/architecture/architecture'
       },
       {
         id: 4,
