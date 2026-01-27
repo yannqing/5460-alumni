@@ -13,18 +13,18 @@ Page({
       //   url: '/pages/article-publish/index/index'
       // },
       {
-        id: 2,
-        name: '文章审核',
-        icon: config.getIconUrl('xyhsh@3x.png'),
-        iconType: 'image',
-        url: '/pages/audit/user/list/list'
-      },
-      {
         id: 3,
         name: '文章管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/article/manage/manage'
+      },
+      {
+        id: 2,
+        name: '文章审核',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/user/list/list'
       },
       {
         id: 4,

@@ -5,10 +5,7 @@
 <view class="article-management-list-page">
   <!-- 文章列表 -->
   <view class="article-list">
-    <!-- 列表标题 -->
-    <view class="list-header">
-      <text class="list-title">我的上传</text>
-    </view>
+
     <view 
       class="article-item"
       wx:for="{{articleList}}"
@@ -34,7 +31,7 @@
 
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
-      <text class="empty-text">暂无我的上传数据</text>
+      <text class="empty-text">暂无数据</text>
     </view>
 
     <!-- 没有更多数据 -->
