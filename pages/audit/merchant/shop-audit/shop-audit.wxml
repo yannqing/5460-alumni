@@ -3,9 +3,6 @@
 <custom-nav-bar title="店铺审核" showBack="{{true}}"></custom-nav-bar>
 
 <view class="shop-audit-page">
-  <!-- 页面标题 -->
-  <view class="page-title">店铺审核</view>
-  
   <!-- 选择商家 -->
   <view class="form-card">
     <view class="form-item">
