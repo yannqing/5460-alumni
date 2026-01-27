@@ -17,7 +17,9 @@ Page({
     merchantList: [],
     showMerchantPicker: false,
     selectedMerchantId: '',
-    selectedMerchantName: ''
+    selectedMerchantName: '',
+    // 是否显示商户选择器
+    showMerchantSelector: true
   },
 
   onLoad(options) {
@@ -41,8 +43,13 @@ Page({
       
       if (res.data && res.data.code === 200) {
         const merchantList = res.data.data.records || []
+        
+        // 根据商户列表长度控制是否显示选择器
+        const showMerchantSelector = merchantList.length > 1
+        
         this.setData({
-          merchantList: merchantList
+          merchantList: merchantList,
+          showMerchantSelector: showMerchantSelector
         })
         
         // 如果没有选中的商户且列表不为空，自动选择第一个商户

@@ -4,12 +4,11 @@
 
 <view class="member-management-page">
   <!-- 选择商家 -->
-  <view class="form-card">
-    <view class="form-title">成员管理</view>
-
-    <!-- 选择商家 -->
+  <view class="form-card" wx:if="{{showMerchantSelector}}">
+    <view class="form-title-bar">
+      <view class="form-title">选择商家</view>
+    </view>
     <view class="form-item">
-      <text class="form-label">选择商家</text>
       <view class="merchant-selector" bindtap="showMerchantSelector">
         <text class="selector-label">{{selectedMerchantName || '请选择商家'}}</text>
         <text class="selector-arrow">▼</text>
