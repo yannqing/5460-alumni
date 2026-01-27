@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "轮播图管理",
+  "navigationStyle": "custom",
   "usingComponents": {
     "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
   }

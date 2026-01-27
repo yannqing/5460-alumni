@@ -3,6 +3,20 @@
 <custom-nav-bar title="轮播图管理" showBack="{{true}}"></custom-nav-bar>
 
 <view class="carousel-management-page">
+  <!-- 标签栏 -->
+  <view class="tabs-container">
+    <view 
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      wx:for-index="index"
+      data-index="{{index}}"
+      bindtap="switchTab"
+    >
+      {{item}}
+    </view>
+  </view>
+
   <!-- 页面内容区域 -->
   <view class="content-container">
     <!-- 顶部操作栏 -->
@@ -22,12 +36,7 @@
           <view class="search-btn" bindtap="onSearch">搜索</view>
         </view>
       </view>
-      <!-- 新增按钮 -->
-      <view class="add-btn" bindtap="onAddBanner">新增轮播图</view>
-    </view>
-
-    <!-- 筛选条件 -->
-    <view class="filter-section">
+      <!-- 类型筛选 -->
       <view class="filter-item">
         <text class="filter-label">类型：</text>
         <picker 
@@ -40,6 +49,8 @@
           <view class="picker-text">{{typeOptions[selectedTypeIndex].label}}</view>
         </picker>
       </view>
+      <!-- 新增按钮 -->
+      <view class="add-btn" bindtap="onAddBanner">新增轮播图</view>
     </view>
 
     <!-- 轮播图列表 -->

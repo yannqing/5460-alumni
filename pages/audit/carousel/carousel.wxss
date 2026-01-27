@@ -16,13 +16,16 @@
 /* 顶部操作栏样式 */
 .top-bar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   margin-bottom: 24rpx;
+  flex-wrap: wrap;
+  gap: 16rpx;
 }
 
 /* 搜索栏样式 */
 .search-bar {
-  margin-bottom: 16rpx;
+  flex: 1;
+  min-width: 400rpx;
 }
 
 .search-input-wrapper {
@@ -57,31 +60,12 @@
   background-color: rgba(25, 137, 250, 0.1);
 }
 
-/* 新增按钮样式 */
-.add-btn {
-  align-self: flex-end;
-  font-size: 28rpx;
-  color: white;
-  background-color: #1989fa;
-  padding: 12rpx 32rpx;
-  border-radius: 6rpx;
-  margin-bottom: 16rpx;
-}
-
-/* 筛选条件样式 */
-.filter-section {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 32rpx;
-  padding-bottom: 24rpx;
-  border-bottom: 1rpx solid #eee;
-}
-
+/* 类型筛选样式 */
 .filter-item {
   display: flex;
   align-items: center;
-  margin-right: 40rpx;
-  margin-bottom: 16rpx;
+  margin-right: 0;
+  margin-bottom: 0;
 }
 
 .filter-label {
@@ -98,6 +82,18 @@
   padding: 12rpx 20rpx;
   min-width: 160rpx;
   background-color: #fafafa;
+}
+
+/* 新增按钮样式 */
+.add-btn {
+  font-size: 28rpx;
+  color: white;
+  background-color: #1989fa;
+  padding: 12rpx 32rpx;
+  border-radius: 6rpx;
+  margin-bottom: 0;
+  white-space: nowrap;
+  margin-left: auto;
 }
 
 .picker-text {
