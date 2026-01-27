@@ -62,18 +62,18 @@ Page({
       url: '/pages/audit/schooloffice/list/list'
     },
     {
-      id: 2,
-      name: '架构管理',
-      icon: config.getIconUrl('jggl@3x.png'),
-      iconType: 'image',
-      url: '/pages/audit/schooloffice/organization/organization'
-    },
-    {
       id: 3,
       name: '成员管理',
       icon: config.getIconUrl('xchcygl@3x.png'),
       iconType: 'image',
       url: '/pages/audit/schooloffice/member/member'
+    },
+    {
+      id: 2,
+      name: '架构管理',
+      icon: config.getIconUrl('jggl@3x.png'),
+      iconType: 'image',
+      url: '/pages/audit/schooloffice/organization/organization'
     },
       // {
       //   id: 4,
@@ -109,11 +109,11 @@ Page({
     // 校友会功能列表
     alumniFunctions: [
       {
-        id: 1,
-        name: '架构管理',
-        icon: config.getIconUrl('jggl@3x.png'),
+        id: 5,
+        name: '加入审核',
+        icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
-        url: '/pages/alumni-association/organization/organization'
+        url: '/pages/audit/join-audit/index'
       },
       {
         id: 2,
@@ -121,6 +121,13 @@ Page({
         icon: config.getIconUrl('xyhcygl@3x.png'),
         iconType: 'image',
         url: '/pages/alumni-association/member/member'
+      },
+      {
+        id: 1,
+        name: '架构管理',
+        icon: config.getIconUrl('jggl@3x.png'),
+        iconType: 'image',
+        url: '/pages/alumni-association/organization/organization'
       },
       {
         id: 3,
@@ -135,13 +142,6 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/shop-audit/shop-audit'
-      },
-      {
-        id: 5,
-        name: '加入审核',
-        icon: config.getIconUrl('xyhsh@3x.png'),
-        iconType: 'image',
-        url: '/pages/audit/join-audit/index'
       },
       {
         id: 6,
