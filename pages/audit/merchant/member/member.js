@@ -19,7 +19,7 @@ Page({
     selectedMerchantId: '',
     selectedMerchantName: '',
     // 是否显示商户选择器
-    showMerchantSelector: true
+    showMerchantSelector: false
   },
 
   onLoad(options) {
