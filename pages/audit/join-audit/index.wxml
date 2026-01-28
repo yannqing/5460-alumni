@@ -3,7 +3,7 @@
 <custom-nav-bar title="加入审核" showBack="{{true}}"></custom-nav-bar>
 
 <view class="container">
-  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation}}">
+  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
     <view class="form-title">加入审核</view>
 
       <!-- 选择校友会 -->

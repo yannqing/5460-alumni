@@ -24,6 +24,7 @@ Page({
     showAlumniAssociationPicker: false,
     selectedOrganizeId: 0, // 存储选中的organizeId
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限
+    hasAlumniAdminPermission: false, // 是否有校友会管理员身份
     // 成员列表相关
     memberList: [],
     memberLoading: false, // 成员加载状态
@@ -68,6 +69,11 @@ Page({
         role.roleName === '校友会管理员' || role.remark === '校友会管理员'
       )
       console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
+
+      // 设置是否有校友会管理员身份
+      this.setData({
+        hasAlumniAdminPermission: alumniAdminRoles.length > 0
+      })
 
       if (alumniAdminRoles.length > 0) {
         console.log('[Debug] 存在校友会管理员角色，开始处理每个角色')

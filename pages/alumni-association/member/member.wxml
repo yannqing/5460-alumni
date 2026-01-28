@@ -3,7 +3,7 @@
 <custom-nav-bar title="成员管理" showBack="{{true}}"></custom-nav-bar>
 
 <view class="member-page">
-  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation}}">
+  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
     <view class="form-title">校友会成员管理</view>
 
     <!-- 选择校友会 -->
