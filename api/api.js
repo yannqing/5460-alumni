@@ -32,7 +32,7 @@ const associationApi = {
   // 退出校友会
   leaveAssociation: (id) => post(`/associations/${id}/leave`),
   // 获取我加入的校友会列表
-  getMyAssociations: (params) => get('/associations/my-joined', params),
+  getMyAssociations: (params) => get('/users/my-associations', params),
   // 获取校友会成员列表
   getAssociationMembers: (id, params) => get(`/associations/${id}/members`, params),
   // 分页查询校友会成员列表
