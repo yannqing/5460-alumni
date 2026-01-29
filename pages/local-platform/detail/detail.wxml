@@ -93,7 +93,12 @@
     <!-- Tab 内容：会员列表 -->
     <view wx:if="{{activeTab === 2}}" class="tab-content">
       <view class="card">
-        <view class="text-bold mb-20">会员列表</view>
+        <view class="flex justify-between items-center mb-20">
+          <view class="text-bold">会员列表</view>
+          <view class="create-btn" bindtap="createAlumniAssociation">
+            <text class="create-btn-text">创建校友会</text>
+          </view>
+        </view>
         <!-- 骨架屏 -->
         <view wx:if="{{associationLoading && associations.length === 0}}" class="member-list skeleton-list">
           <view class="member-item skeleton-item" wx:for="[1,2,3,4,5]" wx:key="*this">

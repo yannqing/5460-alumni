@@ -44,3 +44,31 @@
 .edit-text {
   font-size: 26rpx;
 }
+
+/* Flexbox utility classes */
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+/* 创建校友会按钮样式 */
+.create-btn {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 24rpx;
+  background-color: #40B2E6;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.create-btn-text {
+  font-size: 26rpx;
+}

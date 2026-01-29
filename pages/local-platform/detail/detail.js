@@ -329,6 +329,13 @@ Page({
   onOrgStructureRefresh() {
     // 重新加载组织架构数据
     this.loadOrganizationTree()
+  },
+
+  // 创建校友会
+  createAlumniAssociation() {
+    wx.navigateTo({
+      url: '/pages/alumni-association/create/create'
+    })
   }
 })
 
