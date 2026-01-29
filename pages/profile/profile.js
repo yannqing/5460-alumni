@@ -209,7 +209,8 @@ Page({
       avatarUrl: avatarUrl,
       school: userInfo.school || userInfo.schoolName || userData.school || userData.schoolName || '',
       major: userInfo.major || userData.major || '',
-      graduateYear: userInfo.graduateYear || userInfo.enrollYear || userData.graduateYear || userData.enrollYear || ''
+      graduateYear: userInfo.graduateYear || userInfo.enrollYear || userData.graduateYear || userData.enrollYear || '',
+      isAlumni: userInfo.isAlumni || userData.isAlumni || 0
     }
 
     this.setData({

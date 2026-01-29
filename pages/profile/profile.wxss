@@ -43,10 +43,25 @@
   flex: 1;
 }
 
+.user-name-container {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
 .user-name {
   font-size: 36rpx;
   font-weight: 600;
-  margin-bottom: 12rpx;
+}
+
+.alumni-badge {
+  padding: 4rpx 16rpx;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
 }
 
 .edit-hint {

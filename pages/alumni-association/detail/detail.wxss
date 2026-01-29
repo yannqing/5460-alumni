@@ -472,7 +472,7 @@
 }
 
 .item-leading {
-  width: 80rpx;
+  width: 140rpx;
   margin-right: 24rpx;
   flex-shrink: 0;
   display: flex;
@@ -490,6 +490,18 @@
   font-size: 24rpx;
   font-weight: 600;
   color: #fff;
+}
+
+.item-logo {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 20rpx;
+}
+
+.item-cover {
+  width: 120rpx;
+  height: 90rpx;
+  border-radius: 12rpx;
 }
 
 .notify-icon {
@@ -517,7 +529,7 @@
 }
 
 .enterprise-icon {
-  background: linear-gradient(135deg, #e8f5e9, #4caf50);
+  background: linear-gradient(135deg, #e6f7ff, #40B2E6);
 }
 
 .shop-icon {

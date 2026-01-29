@@ -96,28 +96,23 @@
             <view class="text-bold">活动</view>
             <view class="section-subtitle">近期热点校友活动</view>
           </view>
-          <view class="text-placeholder" bindtap="viewActivityDetail" data-id="all">查看更多</view>
         </view>
-        <view class="dashboard-list activity" wx:for="{{benefitActivities}}" wx:key="id" bindtap="viewActivityDetail" data-id="{{item.id}}">
+        <view class="dashboard-list activity" wx:for="{{activityList}}" wx:key="activityId">
           <view class="dashboard-item">
             <view class="item-leading">
-              <view class="item-icon activity-icon">活</view>
+              <image class="item-cover" src="{{item.coverImage}}" mode="aspectFill" />
             </view>
             <view class="item-content">
-              <view class="item-title">{{item.title}}</view>
+              <view class="item-title">{{item.activityTitle}}</view>
               <view class="item-desc location-row">
                 <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
-                <text>{{item.location}}</text>
+                <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
               </view>
               <view class="item-meta">
-                <text>🕐 {{item.time}}</text>
+                <text>🕐 {{item.startTime}}</text>
                 <text class="meta-divider">·</text>
-                <text>{{item.participantCount}}人报名</text>
+                <text>{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
               </view>
-            </view>
-            <view class="item-extra">
-              <view class="item-chip">报名中</view>
-              <text class="chevron">›</text>
             </view>
           </view>
         </view>
@@ -162,24 +157,23 @@
             <view class="text-bold">校友企业</view>
             <view class="section-subtitle">优秀校友创办的企业</view>
           </view>
-          <view class="text-placeholder" bindtap="viewEnterpriseDetail" data-id="all">查看更多</view>
         </view>
-        <view class="dashboard-list enterprise" wx:for="{{alumniEnterprises}}" wx:key="id" bindtap="viewEnterpriseDetail" data-id="{{item.id}}">
+        <view class="dashboard-list enterprise" wx:for="{{enterpriseList}}" wx:key="placeId">
           <view class="dashboard-item">
             <view class="item-leading">
-              <view class="item-icon enterprise-icon">企</view>
+              <block wx:if="{{item.logo}}">
+                <image class="item-logo" src="{{item.logo}}" mode="aspectFill" />
+              </block>
+              <block wx:else>
+                <view class="item-icon enterprise-icon">企</view>
+              </block>
             </view>
             <view class="item-content">
-              <view class="item-title">{{item.name}}</view>
+              <view class="item-title">{{item.placeName}}</view>
               <view class="item-desc">{{item.description}}</view>
               <view class="item-meta">
-                <text>{{item.industry}}</text>
-                <text class="meta-divider">·</text>
-                <text>{{item.location}}</text>
+                <text>{{item.province}}{{item.city}}{{item.district}}</text>
               </view>
-            </view>
-            <view class="item-extra">
-              <text class="chevron">›</text>
             </view>
           </view>
         </view>
