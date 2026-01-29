@@ -11,7 +11,7 @@
       <view class="user-detail">
         <view class="user-name-container">
           <text class="user-name">{{userInfo.nickname || '用户'}}</text>
-          <text class="alumni-badge" wx:if="{{userInfo.isAlumni === 1}}">校友</text>
+          <image class="alumni-badge" src="/assets/certification/alumni_certification1.png" mode="aspectFit" wx:if="{{userInfo.isAlumni === 1}}" />
         </view>
         <view class="edit-hint" bindtap="editProfile">编辑资料 ›</view>
       </view>

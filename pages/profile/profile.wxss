@@ -56,12 +56,9 @@
 }
 
 .alumni-badge {
-  padding: 4rpx 16rpx;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-  border-radius: 20rpx;
-  font-size: 22rpx;
-  font-weight: 500;
+  width: 82rpx;
+  height: 42rpx;
+  border-radius: 21rpx;
 }
 
 .edit-hint {
