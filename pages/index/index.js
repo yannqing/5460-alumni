@@ -56,6 +56,8 @@ Page({
       this.getTabBar().setData({
         selected: 0
       });
+      // 更新未读消息数
+      this.getTabBar().updateUnreadCount();
     }
   },
 

@@ -52,6 +52,8 @@ Page({
       this.getTabBar().setData({
         selected: 1
       });
+      // 更新未读消息数
+      this.getTabBar().updateUnreadCount();
     }
     // 如果当前是地图模式，确保地图定位到用户位置
     if (this.data.viewMode === 'map') {

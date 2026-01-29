@@ -50,6 +50,8 @@ Page({
       this.getTabBar().setData({
         selected: 3
       });
+      // 更新未读消息数
+      this.getTabBar().updateUnreadCount();
     }
   },
 

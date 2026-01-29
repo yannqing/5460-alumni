@@ -53,6 +53,8 @@ Page({
       this.getTabBar().setData({
         selected: 4
       });
+      // 更新未读消息数
+      this.getTabBar().updateUnreadCount();
     }
     // 每次显示页面时都重新加载用户信息，确保数据实时更新
     this.loadUserInfo()

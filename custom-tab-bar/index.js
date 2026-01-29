@@ -45,10 +45,16 @@ Component({
 
   methods: {
     switchTab(e) {
-      const data = e.currentTarget.dataset;
-      const url = data.path;
-      wx.switchTab({ url });
-    },
+    const data = e.currentTarget.dataset;
+    const url = data.path;
+    wx.switchTab({ 
+      url,
+      success: () => {
+        // 切换页面后更新未读消息数
+        this.updateUnreadCount();
+      }
+    });
+  },
 
     // 更新未读消息数
     updateUnreadCount() {
