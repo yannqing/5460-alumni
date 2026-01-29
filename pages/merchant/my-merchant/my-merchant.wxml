@@ -1,0 +1,48 @@
+<!--pages/merchant/my-merchant/my-merchant.wxml-->
+<view class="my-merchant-page">
+  <view class="page-content">
+    <!-- 加载中状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 无数据状态 -->
+    <view class="empty-state" wx:elif="{{!loading && merchantList.length === 0}}">
+      <text>暂无商户数据</text>
+    </view>
+    
+    <!-- 商户列表 -->
+    <view class="merchant-list" wx:else>
+      <view 
+        class="merchant-item" 
+        wx:for="{{merchantList}}" 
+        wx:key="merchantId"
+      >
+        <view class="certification-badge" wx:if="{{item.isAlumniCertified === 1}}">
+          <text>已认证</text>
+        </view>
+        <view class="certification-badge uncertified" wx:elif="{{item.isAlumniCertified === 0}}">
+          <text>未认证</text>
+        </view>
+        <view class="merchant-info">
+          <view class="merchant-name">{{item.merchantName}}</view>
+          <view class="merchant-details">
+            <text class="shop-count">门店数量：{{item.shopCount}}</text>
+          </view>
+          <view class="merchant-contact">
+            <text class="contact-item">联系电话：{{item.contactPhone}}</text>
+          </view>
+          <view class="merchant-scope">
+            <text class="scope-label">经营范围：</text>
+            <text class="scope-content">{{item.businessScope}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 申请商户按钮 -->
+    <view class="apply-merchant-btn" bindtap="goToApplyMerchant">
+      <text>申请商户</text>
+    </view>
+  </view>
+</view>

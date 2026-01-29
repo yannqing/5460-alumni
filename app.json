@@ -28,6 +28,7 @@
     "pages/circle/detail/detail",
     "pages/merchant/list/list",
     "pages/merchant/detail/detail",
+    "pages/merchant/my-merchant/my-merchant",
     "pages/activity/list/list",
     "pages/activity/detail/detail",
     "pages/notification/list/list",

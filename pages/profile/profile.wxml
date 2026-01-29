@@ -62,6 +62,20 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
+    <view class="menu-item">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
+        <text class="menu-name">我的校友会</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/merchant/my-merchant/my-merchant">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
+        <text class="menu-name">我的商户</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
     <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/cooperation/cooperation">
       <view class="menu-left">
         <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>

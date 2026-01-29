@@ -169,6 +169,8 @@ const merchantApi = {
   unfollowMerchant: (id) => del(`/merchants/${id}/follow`),
   // 获取店铺详情
   getShopDetail: (shopId) => get(`/merchant/shop/${shopId}`),
+  // 获取我的商户列表
+  getMyMerchants: (params) => get('/merchant-management/my-merchants', params),
 }
 
 
