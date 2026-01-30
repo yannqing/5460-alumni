@@ -80,7 +80,8 @@
     "pages/article/audit-list/audit-list",
     "pages/article/web-view/web-view",
     "pages/article-publish/index/index",
-    "pages/activity/publish/publish"
+    "pages/activity/publish/publish",
+    "pages/activity/edit/edit"
   ],
   "window": {
     "backgroundTextStyle": "light",

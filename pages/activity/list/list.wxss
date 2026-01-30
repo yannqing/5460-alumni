@@ -257,43 +257,62 @@
 }
 
 .activity-card {
-  padding: 24rpx;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: #fff;
+  box-shadow: 0 8rpx 32rpx rgba(20, 34, 66, 0.06);
+  margin-bottom: 24rpx;
+  transition: all 0.3s ease;
+}
+
+.activity-card:hover {
+  box-shadow: 0 12rpx 40rpx rgba(20, 34, 66, 0.1);
+  transform: translateY(-2rpx);
 }
 
 .activity-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
 }
 
 .activity-title {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 600;
   color: #1f1f1f;
   flex: 1;
   margin-right: 16rpx;
   line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .status-badge {
-  padding: 4rpx 16rpx;
+  padding: 6rpx 18rpx;
   border-radius: 999rpx;
   font-size: 22rpx;
   color: #fff;
   flex-shrink: 0;
+  font-weight: 500;
 }
 
 .status-badge.upcoming {
   background: #ff7a45;
+  box-shadow: 0 2rpx 8rpx rgba(255, 122, 69, 0.3);
 }
 
 .status-badge.ongoing {
   background: #52c41a;
+  box-shadow: 0 2rpx 8rpx rgba(82, 196, 26, 0.3);
 }
 
 .status-badge.finished {
   background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .activity-meta {
@@ -302,26 +321,28 @@
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
 }
 
 .dot {
   color: #d9d9d9;
+  font-size: 20rpx;
 }
 
 .activity-tags {
   display: flex;
   gap: 12rpx;
   flex-wrap: wrap;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
 }
 
 .tag {
-  padding: 6rpx 18rpx;
-  background: #f5f5f5;
+  padding: 8rpx 20rpx;
+  background: #f5f7fb;
   border-radius: 999rpx;
   font-size: 22rpx;
   color: #666;
+  border: 1rpx solid #e8eaf0;
 }
 
 .activity-location {
@@ -332,14 +353,59 @@
 
 .activity-footer {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   font-size: 24rpx;
   color: #8c8c8c;
-  margin-top: 12rpx;
+  margin-top: 16rpx;
   flex-wrap: wrap;
-  gap: 20rpx;
+  gap: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f2f5;
 }
 
 .activity-footer .time {
-  margin-left: auto;
+  margin-left: 0;
+}
+
+.activity-actions {
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f2f5;
+}
+
+.edit-btn {
+  padding: 10rpx 28rpx;
+  border-radius: 12rpx;
+  background: #f5f7fb;
+  color: #333;
+  font-size: 24rpx;
+  border: 1rpx solid #e8eaf0;
+  margin-right: 0;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.edit-btn:hover {
+  background: #e8eaf0;
+  border-color: #d9dfea;
+}
+
+.delete-btn {
+  padding: 10rpx 28rpx;
+  border-radius: 12rpx;
+  background: #ff4d4f;
+  color: #fff;
+  font-size: 24rpx;
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(255, 77, 79, 0.3);
+}
+
+.delete-btn:hover {
+  background: #ff7875;
+  box-shadow: 0 4rpx 12rpx rgba(255, 77, 79, 0.4);
 }

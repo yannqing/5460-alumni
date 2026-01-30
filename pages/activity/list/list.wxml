@@ -72,6 +72,10 @@
         <text wx:if="{{item.location}}">📍 {{item.location}}</text>
         <text class="time">🕐 {{item.startTime}}</text>
       </view>
+      <view class="activity-actions">
+        <button class="edit-btn" catchtap="editActivity" data-id="{{item.id}}">编辑</button>
+        <button class="delete-btn" catchtap="deleteActivity" data-id="{{item.id}}">删除</button>
+      </view>
     </view>
   </view>
 

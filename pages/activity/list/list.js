@@ -481,5 +481,97 @@ Page({
     wx.navigateTo({
       url: '/pages/activity/publish/publish'
     })
+  },
+
+  editActivity(e) {
+    console.log('编辑按钮被点击:', e)
+    const { id } = e.currentTarget.dataset
+    console.log('活动ID:', id)
+    try {
+      wx.navigateTo({
+        url: `/pages/activity/edit/edit?id=${id}`,
+        success: function(res) {
+          console.log('跳转成功:', res)
+        },
+        fail: function(err) {
+          console.log('跳转失败:', err)
+        }
+      })
+    } catch (error) {
+      console.log('跳转异常:', error)
+    }
+  },
+
+  // 删除活动
+  deleteActivity(e) {
+    const { id } = e.currentTarget.dataset
+    console.log('删除按钮被点击，活动ID:', id)
+
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除此活动吗？删除后不可恢复。',
+      success: async (res) => {
+        if (res.confirm) {
+          console.log('用户确认删除')
+          try {
+            const deleteResult = await this.deleteActivityById(id)
+            console.log('删除操作结果:', deleteResult)
+
+            if (deleteResult.success) {
+              wx.showToast({ title: '删除成功', icon: 'success' })
+              // 重新加载活动列表
+              await this.loadActivityList()
+            } else {
+              wx.showToast({ title: deleteResult.message || '删除失败', icon: 'none' })
+            }
+          } catch (error) {
+            console.error('删除活动异常:', error)
+            wx.showToast({ title: '删除失败，请稍后重试', icon: 'none' })
+          }
+        } else if (res.cancel) {
+          console.log('用户取消删除')
+        }
+      }
+    })
+  },
+
+  // 调用删除活动接口
+  deleteActivityById(activityId) {
+    return new Promise((resolve, reject) => {
+      // 获取 token
+      let token = wx.getStorageSync('token')
+      if (!token) {
+        const userInfo = wx.getStorageSync('userInfo') || {}
+        token = userInfo.token || ''
+      }
+
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      if (token) {
+        headers.token = token
+        headers['x-token'] = token
+      }
+
+      wx.request({
+        url: `${app.globalData.baseUrl}/alumniAssociationManagement/activity/delete/${activityId}`,
+        method: 'DELETE',
+        header: headers,
+        success: (res) => {
+          console.log('删除活动接口返回:', res)
+          if (res.data && res.data.code === 200 && res.data.data === true) {
+            resolve({ success: true, message: '删除成功' })
+          } else {
+            resolve({ success: false, message: res.data && res.data.msg || '删除失败' })
+          }
+        },
+        fail: (err) => {
+          console.error('删除活动接口调用失败:', err)
+          reject(err)
+        }
+      })
+    })
   }
 })
