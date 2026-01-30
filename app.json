@@ -32,6 +32,7 @@
     "pages/merchant/my-merchant/my-merchant",
     "pages/activity/list/list",
     "pages/activity/detail/detail",
+    "pages/activity/detail-new/detail-new",
     "pages/notification/list/list",
     "pages/notification/detail/detail",
     "pages/notification/notification-list/notification-list",

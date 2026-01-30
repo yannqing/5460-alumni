@@ -57,7 +57,7 @@
       <view class="activity-header">
         <view class="activity-title">{{item.title}}</view>
         <view class="status-badge {{item.status}}">
-          {{item.status === 'upcoming' ? '即将开始' : item.status === 'ongoing' ? '进行中' : '已结束'}}
+          {{item.originalStatus === 0 ? '草稿' : item.originalStatus === 1 ? '报名中' : item.originalStatus === 2 ? '报名结束' : item.originalStatus === 3 ? '进行中' : item.originalStatus === 4 ? '已结束' : item.originalStatus === 5 ? '已取消' : '即将开始'}}
         </view>
       </view>
       <view class="activity-meta">

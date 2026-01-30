@@ -1,6 +1,7 @@
 // pages/activity/publish/publish.js
 const app = getApp()
 const fileUploadUtil = require('../../../utils/fileUpload.js')
+const { fileApi } = require('../../../api/api.js')
 
 Page({
   data: {

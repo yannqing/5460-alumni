@@ -334,6 +334,7 @@ Page({
           startTime: this.formatDateTime(item.startTime),
           endTime: this.formatDateTime(item.endTime),
           status: this.getActivityStatus(item.status),
+          originalStatus: item.status,
           tags: [item.activityCategory],
           distance: 0 // 暂时设置为0，后续可以根据实际位置计算
         }))
@@ -415,6 +416,8 @@ Page({
   // 获取活动状态
   getActivityStatus(status) {
     switch (status) {
+      case 0:
+        return 'draft'
       case 1:
       case 2:
         return 'upcoming'
@@ -466,7 +469,7 @@ Page({
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
     wx.navigateTo({
-      url: `/pages/activity/detail/detail?id=${id}`
+      url: `/pages/activity/detail-new/detail-new?id=${id}`
     })
   },
 
