@@ -79,6 +79,13 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/enterprise/my-enterprise/my-enterprise">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
+        <text class="menu-name">我的企业</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
     <!-- 商务合作 - 暂时注释掉 -->
     <!-- <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/cooperation/cooperation">
       <view class="menu-left">

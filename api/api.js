@@ -518,6 +518,16 @@ const bannerApi = {
   deleteBanner: (id) => del(`/banner-management/${id}`),
 }
 
+// ==================== 企业/场所相关接口 ====================
+const placeApi = {
+  // 获取我的企业/场所列表
+  getMyPlaces: () => get('/alumni-place/my-list'),
+  // 获取企业/场所详情
+  getPlaceDetail: (id) => get(`/alumni-place/${id}`),
+  // 申请企业/场所
+  applyForPlace: (params) => post('/alumni-place/apply', params),
+}
+
 
 module.exports = {
   schoolApi,
@@ -540,4 +550,5 @@ module.exports = {
   homeArticleApi,
   articleApplyApi,
   bannerApi,
+  placeApi,
 }
