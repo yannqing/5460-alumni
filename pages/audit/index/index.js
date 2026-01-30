@@ -148,7 +148,7 @@ Page({
         name: '活动管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
-        url: '/pages/audit/activity/activity'
+        url: '/pages/activity/list/list'
       },
       // {
       //   id: 4,

@@ -6,36 +6,26 @@
 <message-notification />
 
 <view class="container activity-page">
+  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <view class="form-title">校友活动</view>
+
+    <!-- 选择校友会 -->
+    <view class="form-item">
+      <text class="label">选择校友会</text>
+      <view class="alumni-association-selector" bindtap="showAlumniAssociationSelector">
+        <text class="selector-label">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+        <text class="selector-arrow">▼</text>
+      </view>
+    </view>
+  </view>
+
   <view class="activity-hero card">
     <view class="hero-header">
       <view>
         <view class="hero-title">校友活动</view>
         <view class="hero-subtitle">一起链接更有能量的同伴</view>
       </view>
-      <button class="hero-btn" size="mini" plain>发布活动</button>
-    </view>
-    <view class="hero-stats">
-      <view class="stat-item">
-        <text class="stat-num">{{stats.total}}</text>
-        <text class="stat-label">全部</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-num">{{stats.upcoming}}</text>
-        <text class="stat-label">即将开始</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-num">{{stats.nearby}}</text>
-        <text class="stat-label">3km内</text>
-      </view>
-    </view>
-    <view class="search-bar">
-      <text class="icon">🔍</text>
-      <input
-        class="search-input"
-        placeholder="搜索活动/主办方/地点"
-        value="{{searchValue}}"
-        bindinput="handleSearchInput"
-      />
+      <button class="hero-btn" size="mini" plain bindtap="goToPublish">发布活动</button>
     </view>
   </view>
 
@@ -53,7 +43,7 @@
 
   <view wx:if="{{!displayList.length}}" class="empty-block card">
     <image src="https://cdn.example.com/empty-activity.png" mode="widthFix"></image>
-    <text>暂无匹配的活动，换个条件试试</text>
+    <text>{{selectedAlumniAssociationId ? '暂无匹配的活动，换个条件试试' : '请先选择校友会'}}</text>
   </view>
 
   <view class="activity-list">
@@ -64,26 +54,49 @@
       bindtap="viewDetail"
       data-id="{{item.id}}"
     >
-      <view class="cover-wrap">
-      <image class="activity-cover" src="{{item.cover}}" mode="aspectFill" />
+      <view class="activity-header">
+        <view class="activity-title">{{item.title}}</view>
         <view class="status-badge {{item.status}}">
           {{item.status === 'upcoming' ? '即将开始' : item.status === 'ongoing' ? '进行中' : '已结束'}}
         </view>
       </view>
-      <view class="activity-info">
-        <view class="activity-title">{{item.title}}</view>
-        <view class="activity-meta">
-          <text>{{item.organizer}}</text>
-          <text class="dot">·</text>
-          <text>{{item.participantCount}}人已报</text>
+      <view class="activity-meta">
+        <text>{{item.organizer}}</text>
+        <text class="dot">·</text>
+        <text>{{item.participantCount}}人已报</text>
+      </view>
+      <view class="activity-tags" wx:if="{{item.tags.length > 0}}">
+        <view class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</view>
+      </view>
+      <view class="activity-footer">
+        <text wx:if="{{item.location}}">📍 {{item.location}}</text>
+        <text class="time">🕐 {{item.startTime}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 校友会选择器弹窗 -->
+  <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
+    <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校友会</text>
+        <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view 
+          class="picker-item"
+          wx:for="{{alumniAssociationList}}"
+          wx:key="alumniAssociationId"
+          data-alumni-association-id="{{item.alumniAssociationId}}"
+          data-alumni-association-name="{{item.alumniAssociationName}}"
+          bindtap="selectAlumniAssociation"
+        >
+          <text class="item-name">{{item.alumniAssociationName}}</text>
+          <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
         </view>
-        <view class="activity-tags">
-          <view class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</view>
-        </view>
-        <view class="activity-location">📍 {{item.location}}</view>
-        <view class="activity-footer">
-          <text>🕐 {{item.startTime}}</text>
-          <text class="distance">{{item.distance}}km</text>
+        <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">
+          <text>暂无校友会数据</text>
         </view>
       </view>
     </view>
