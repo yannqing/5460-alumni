@@ -43,7 +43,7 @@
 /* 头像容器 */
 .user-avatar-container {
   width: 100%;
-  padding-top: 100%;
+  padding-top: 70%;
   position: relative;
   overflow: hidden;
   box-shadow: 0 8rpx 24rpx rgba(64, 178, 230, 0.3);
@@ -80,23 +80,24 @@
 
 /* 用户基本信息（联系方式下面） */
 .user-basic-info {
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
   padding-bottom: 16rpx;
   border-bottom: 1rpx solid #f0f0f0;
   text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
 }
 
 .user-name {
   font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 8rpx;
   color: #333;
 }
 
 .user-nickname {
   font-size: 24rpx;
   opacity: 0.9;
-  margin-bottom: 16rpx;
   color: #666;
 }
 
@@ -145,7 +146,7 @@
 .contact-info {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .contact-item {
@@ -163,7 +164,7 @@
 .contact-label {
   font-size: 24rpx;
   color: #666;
-  width: 100rpx;
+  width: 120rpx;
   flex-shrink: 0;
 }
 
@@ -171,7 +172,9 @@
   font-size: 24rpx;
   color: #333;
   flex: 1;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 教育经历样式 */
@@ -300,7 +303,10 @@
     padding: 24rpx;
   }
   
-  .contact-label,
+  .contact-label {
+    width: 120rpx;
+  }
+  
   .detail-label {
     width: 80rpx;
   }
