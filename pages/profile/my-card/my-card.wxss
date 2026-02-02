@@ -1,0 +1,326 @@
+/* pages/profile/my-card/my-card.wxss */
+/* 全局样式 */
+.my-card-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 20rpx;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 名片内容容器 */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 个人信息卡片 */
+.user-card {
+  background: transparent;
+  border-radius: 20rpx;
+  padding: 0;
+  color: #fff;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: cardSlideIn 0.5s ease-out;
+  width: 100%;
+}
+
+/* 头像容器 */
+.user-avatar-container {
+  width: 100%;
+  padding-top: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(64, 178, 230, 0.3);
+}
+
+.user-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20rpx;
+  border: none;
+}
+
+.user-avatar-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 用户信息 */
+.user-info {
+  display: none;
+}
+
+/* 用户基本信息（联系方式下面） */
+.user-basic-info {
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  text-align: center;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+  color: #333;
+}
+
+.user-nickname {
+  font-size: 24rpx;
+  opacity: 0.9;
+  margin-bottom: 16rpx;
+  color: #666;
+}
+
+/* 用户标签 */
+.user-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag-item {
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  font-weight: 500;
+  opacity: 0.9;
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 区域卡片样式 */
+.section-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding: 30rpx;
+  animation: cardSlideIn 0.5s ease-out;
+  animation-delay: 0.1s;
+  animation-fill-mode: both;
+}
+
+/* 区域标题 */
+.section-header {
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 联系方式样式 */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+  border-radius: 8rpx;
+  transition: background-color 0.2s ease;
+}
+
+.contact-item:hover {
+  background-color: #f9f9f9;
+}
+
+.contact-label {
+  font-size: 24rpx;
+  color: #666;
+  width: 100rpx;
+  flex-shrink: 0;
+}
+
+.contact-value {
+  font-size: 24rpx;
+  color: #333;
+  flex: 1;
+  word-break: break-word;
+}
+
+/* 教育经历样式 */
+.education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.education-item {
+  padding: 20rpx;
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  border-left: 4rpx solid #40B2E6;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 12rpx;
+}
+
+.education-item:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.education-school {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.school-logo {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 8rpx;
+}
+
+.school-name {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.education-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.education-info {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.education-year {
+  font-weight: 500;
+  color: #40B2E6;
+}
+
+.education-department {
+  line-height: 1.4;
+}
+
+.education-class {
+  color: #999;
+}
+
+/* 个人信息详情样式 */
+.detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 8rpx 0;
+  border-radius: 8rpx;
+  transition: background-color 0.2s ease;
+}
+
+.detail-item:hover {
+  background-color: #f9f9f9;
+}
+
+.detail-label {
+  font-size: 24rpx;
+  color: #666;
+  width: 120rpx;
+  flex-shrink: 0;
+  padding-top: 4rpx;
+}
+
+.detail-value {
+  font-size: 24rpx;
+  color: #333;
+  flex: 1;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* 动画效果 */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 375px) {
+  .user-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 20rpx;
+  }
+  
+  .user-avatar-container {
+    order: -1;
+  }
+  
+  .section-card {
+    padding: 24rpx;
+  }
+  
+  .contact-label,
+  .detail-label {
+    width: 80rpx;
+  }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 4rpx;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2rpx;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2rpx;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
