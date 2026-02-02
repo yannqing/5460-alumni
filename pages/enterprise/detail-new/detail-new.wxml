@@ -24,6 +24,8 @@
           <text class="place-name">{{place.placeName}}</text>
           <text class="review-status">{{place.reviewStatus === 1 ? '审核通过' : place.reviewStatus === 2 ? '审核失败' : '待审核'}}</text>
         </view>
+        <!-- 编辑按钮 -->
+        <button bindtap="navigateToEdit" type="primary" size="mini" class="edit-button">编辑</button>
       </view>
     </view>
     

@@ -129,5 +129,23 @@ Page({
       console.error('获取企业详情失败:', error)
       this.setData({ error: '获取企业详情失败', loading: false })
     }
+  },
+
+  /**
+   * 跳转到编辑页面
+   */
+  navigateToEdit() {
+    const { placeId } = this.data
+    if (!placeId) {
+      wx.showToast({
+        title: '缺少企业ID参数',
+        icon: 'none'
+      })
+      return
+    }
+
+    wx.navigateTo({
+      url: `/pages/enterprise/edit/edit?id=${placeId}`
+    })
   }
 })

@@ -1,0 +1,308 @@
+/* pages/enterprise/edit/edit.wxss */
+.container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20rpx;
+}
+
+/* 加载和错误状态 */
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+  text-align: center;
+}
+
+.error-container text {
+  color: #ff4d4f;
+  margin-bottom: 20rpx;
+}
+
+/* 表单内容 */
+.form-content {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 表单区块 */
+.form-section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  padding-left: 10rpx;
+  border-left: 6rpx solid #1890ff;
+}
+
+/* 表单项 */
+.form-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.form-input,
+.form-textarea {
+  border: 2rpx solid #e8e8e8;
+  border-radius: 8rpx;
+  padding: 15rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #fafafa;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #1890ff;
+  background-color: #fff;
+}
+
+.form-textarea {
+  resize: none;
+}
+
+/* 静态文本样式 */
+.form-static {
+  border: 2rpx solid #e8e8e8;
+  border-radius: 8rpx;
+  padding: 15rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #fafafa;
+}
+
+/* 选择器样式 */
+.form-picker {
+  border: 2rpx solid #e8e8e8;
+  border-radius: 8rpx;
+  padding: 15rpx;
+  background-color: #fafafa;
+  display: flex;
+  align-items: center;
+  min-height: 40rpx;
+}
+
+.picker-display {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 提交按钮 */
+.form-submit {
+  margin-top: 40rpx;
+  margin-bottom: 20rpx;
+}
+
+.submit-button {
+  width: 100%;
+  height: 80rpx;
+  font-size: 32rpx;
+  border-radius: 8rpx;
+}
+
+/* 图片上传容器 */
+.upload-container {
+  margin-top: 10rpx;
+}
+
+/* 图片列表 */
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10rpx;
+}
+
+/* 图片项 */
+.image-item {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  margin-right: 20rpx;
+  margin-bottom: 20rpx;
+  border-radius: 8rpx;
+  overflow: hidden;
+  border: 1rpx solid #eee;
+}
+
+/* 列表图片 */
+.list-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 上传按钮 */
+.upload-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
+  border: 2rpx dashed #ddd;
+  border-radius: 8rpx;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:active {
+  transform: scale(0.98);
+}
+
+/* 上传图标 */
+.upload-icon {
+  font-size: 48rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+/* 上传文本 */
+.upload-text {
+  font-size: 22rpx;
+  color: #666;
+}
+
+/* 图片删除按钮 */
+.image-delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50rpx;
+  height: 50rpx;
+  background-color: rgba(255, 69, 69, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 10rpx rgba(255, 69, 69, 0.3);
+  transition: all 0.3s ease;
+}
+
+.image-delete-btn:active {
+  transform: scale(0.9);
+  background-color: rgba(255, 69, 69, 1);
+}
+
+/* 删除图标 */
+.delete-icon {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* 图片数量提示 */
+.image-count {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+}
+
+/* 位置选择器 */
+.location-selector {
+  display: flex;
+  align-items: center;
+  margin-top: 10rpx;
+}
+
+.location-input {
+  flex: 1;
+  margin-right: 15rpx;
+}
+
+.select-location-btn {
+  width: 180rpx;
+  height: 70rpx;
+  font-size: 24rpx;
+  background-color: #1890ff;
+  color: #fff;
+  border-radius: 8rpx;
+  border: none;
+}
+
+.select-location-btn:active {
+  background-color: #40a9ff;
+}
+
+.picker-container {
+  width: 100%;
+}
+
+.picker-display {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 响应式调整 */
+@media (max-width: 375px) {
+  .container {
+    padding: 15rpx;
+  }
+  
+  .form-content {
+    padding: 15rpx;
+  }
+  
+  .section-title {
+    font-size: 28rpx;
+  }
+  
+  .form-label,
+  .form-input,
+  .form-textarea,
+  .picker-display {
+    font-size: 26rpx;
+  }
+  
+  .submit-button {
+    height: 70rpx;
+    font-size: 28rpx;
+  }
+  
+  .image-item,
+  .upload-btn {
+    width: 140rpx;
+    height: 140rpx;
+  }
+  
+  .upload-icon {
+    font-size: 40rpx;
+  }
+  
+  .upload-text {
+    font-size: 20rpx;
+  }
+  
+  .picker-title {
+    font-size: 28rpx;
+  }
+  
+  .picker-cancel {
+    font-size: 24rpx;
+  }
+  
+  .picker-item {
+    padding: 20rpx 25rpx;
+  }
+  
+  .item-name {
+    font-size: 26rpx;
+  }
+}
+

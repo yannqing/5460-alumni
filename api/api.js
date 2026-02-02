@@ -526,6 +526,8 @@ const placeApi = {
   getPlaceDetail: (id) => get(`/alumni-place/${id}`),
   // 申请企业/场所
   applyForPlace: (params) => post('/alumni-place/apply', params),
+  // 更新企业/场所信息
+  updatePlace: (params) => post('/alumni-place/management/update', params),
 }
 
 

@@ -48,6 +48,7 @@
     "pages/enterprise/my-enterprise/my-enterprise",
     "pages/enterprise/apply-enterprise/apply-enterprise",
     "pages/enterprise/detail-new/detail-new",
+    "pages/enterprise/edit/edit",
     "pages/shop/list/list",
     "pages/shop/detail/detail",
     "pages/shop/shop-detail/shop-detail",
