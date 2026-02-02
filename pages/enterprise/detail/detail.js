@@ -1,5 +1,5 @@
 // pages/enterprise/detail/detail.js
-const config = require('../../../utils/config.js')
+const app = getApp()
 
 Page({
   data: {
@@ -15,49 +15,33 @@ Page({
   },
 
   loadEnterpriseDetail() {
-    // TODO: 对接后端接口
-    // wx.request({
-    //   url: `${app.globalData.apiBase}/enterprise/detail`,
-    //   data: { id: this.data.enterpriseId },
-    //   success: (res) => {
-    //     this.setData({ enterpriseInfo: res.data, loading: false })
-    //   }
-    // })
-
-    // 模拟数据
-    const mockData = {
-      id: this.data.enterpriseId,
-      name: '腾讯科技',
-      logo: config.defaultAvatar,
-      industry: '互联网科技',
-      founder: '张三',
-      description: '腾讯科技是一家专注于互联网科技的公司，致力于为用户提供优质的产品和服务。公司成立于2000年，经过多年的发展，已经成为行业内的领先企业。',
-      location: '深圳市南山区科技园',
-      scale: '1000-5000人',
-      website: 'https://www.tencent.com',
-      phone: '0755-86013388',
-      email: 'contact@tencent.com'
-    }
-
-    this.setData({
-      enterpriseInfo: mockData,
-      loading: false
-    })
-  },
-
-  copyWebsite() {
-    const { enterpriseInfo } = this.data
-    if (enterpriseInfo && enterpriseInfo.website) {
-      wx.setClipboardData({
-        data: enterpriseInfo.website,
-        success: () => {
-          wx.showToast({
-            title: '已复制',
-            icon: 'success'
+    const token = wx.getStorageSync('token') || (wx.getStorageSync('userInfo') || {}).token || ''
+    
+    wx.request({
+      url: `${app.globalData.baseUrl}/alumni-place/management/${this.data.enterpriseId}`,
+      method: 'GET',
+      header: {
+        'Content-Type': 'application/json',
+        ...(token ? { token, 'x-token': token } : {})
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 200 && res.data.data) {
+          this.setData({ 
+            enterpriseInfo: res.data.data,
+            loading: false 
           })
+        } else {
+          console.error('获取企业详情失败:', res.data && res.data.msg || '接口调用失败')
+          this.setData({ loading: false })
+          wx.showToast({ title: '获取企业详情失败', icon: 'none' })
         }
-      })
-    }
+      },
+      fail: (error) => {
+        console.error('获取企业详情异常:', error)
+        this.setData({ loading: false })
+        wx.showToast({ title: '网络错误，请稍后重试', icon: 'none' })
+      }
+    })
   },
 
   makeCall(e) {
