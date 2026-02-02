@@ -365,3 +365,39 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* 位置选择器样式 */
+.location-selector {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.location-input {
+  flex: 1;
+  background-color: white;
+  color: #666;
+}
+
+.select-location-btn {
+  width: 200rpx;
+  height: 80rpx;
+  background-color: #1AAD19;
+  color: white;
+  font-size: 28rpx;
+  border: none;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.select-location-btn:active {
+  background-color: #179B16;
+}
+
+/* 去除按钮默认样式 */
+.select-location-btn::after {
+  border: none;
+}

@@ -26,6 +26,7 @@ Page({
       city: '',
       district: '',
       address: '',
+      locationName: '',
       latitude: '',
       longitude: '',
       maxParticipants: '',
@@ -190,6 +191,7 @@ Page({
               city: activityInfo.city || '',
               district: activityInfo.district || '',
               address: activityInfo.address || '',
+              locationName: activityInfo.locationName || '',
               latitude: activityInfo.latitude || '',
               longitude: activityInfo.longitude || '',
               maxParticipants: activityInfo.maxParticipants || '',
@@ -473,6 +475,35 @@ Page({
     })
   },
 
+  // 选择位置
+  selectLocation() {
+    // 使用微信地图选择API获取位置信息
+    wx.chooseLocation({
+      success: (res) => {
+        this.setData({
+          [`formData.locationName`]: res.name,
+          [`formData.latitude`]: res.latitude.toString(),
+          [`formData.longitude`]: res.longitude.toString()
+        })
+        
+        wx.showToast({
+          title: '位置选择成功',
+          icon: 'success'
+        })
+      },
+      fail: (err) => {
+        console.error('位置选择失败:', err)
+        // 如果用户取消选择，不显示错误提示
+        if (err.errMsg !== 'chooseLocation:fail cancel') {
+          wx.showToast({
+            title: '位置选择失败，请重试',
+            icon: 'none'
+          })
+        }
+      }
+    })
+  },
+
   // 表单验证
   validateForm() {
     const { formData } = this.data;
@@ -557,6 +588,14 @@ Page({
         });
         return false;
       }
+    }
+    
+    if (!formData.latitude || !formData.longitude) {
+      wx.showToast({
+        title: '请选择活动位置',
+        icon: 'none'
+      });
+      return false;
     }
     
     return true;

@@ -587,18 +587,18 @@ Page({
                 console.log('上传背景图结果:', uploadRes)
 
                 if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
-                    // 获取返回的文件信息，确保获取到fileId
-                    const fileId = uploadRes.data.fileId || uploadRes.data.id || uploadRes.data.file_id || uploadRes.data.id || ''
-                    console.log('获取到的fileId:', fileId)
+                    // 获取返回的文件信息，确保获取到fileUrl
+                    const fileUrl = uploadRes.data.fileUrl || ''
+                    console.log('获取到的fileUrl:', fileUrl)
                     
-                    if (fileId) {
+                    if (fileUrl) {
                         bgImages.push({
-                            id: fileId,
+                            url: fileUrl,
                             name: originalName
                         })
                     } else {
                         wx.showToast({
-                            title: `${originalName} 上传成功但未获取到文件ID`,
+                            title: `${originalName} 上传成功但未获取到文件URL`,
                             icon: 'none'
                         })
                     }
@@ -655,16 +655,17 @@ Page({
             wx.showToast({ title: '请选择并点击学校', icon: 'none' })
             return
         }
-        if (!formData.platformId) {
-            wx.showToast({ title: '请选择并点击相关地区', icon: 'none' })
-            return
-        }
+        // platformId is optional per API specs
         if (!formData.chargeName) {
             wx.showToast({ title: '请输入负责人姓名', icon: 'none' })
             return
         }
         if (!formData.contactInfo) {
             wx.showToast({ title: '请输入负责人电话', icon: 'none' })
+            return
+        }
+        if (!formData.applicationReason) {
+            wx.showToast({ title: '请输入申请理由', icon: 'none' })
             return
         }
 
@@ -695,36 +696,36 @@ Page({
         })
         console.log('最终attachmentIds:', attachmentIds)
 
-        // 提取背景图的ID，转换为JSON字符串形式
+        // 提取背景图的URL，转换为JSON字符串形式
         const bgImgArray = this.data.bgImages.map(a => {
-            const id = a.id || ''
-            return id
+            const url = a.url || ''
+            return url
         })
         const bgImg = bgImgArray.length > 0 ? JSON.stringify(bgImgArray) : undefined
         console.log('最终bgImg:', bgImg)
 
         const submitData = {
             associationName: formData.associationName,
-            schoolId: formData.schoolId || '',
-            platformId: formData.platformId || '',
-            chargeWxId: formData.presidentWxId,
+            schoolId: parseInt(formData.schoolId) || 0,
+            platformId: formData.platformId ? parseInt(formData.platformId) : undefined,
+            chargeWxId: parseInt(formData.presidentWxId) || 0,
             chargeName: formData.chargeName,
             chargeRole: '成员',
-            contactInfo: formData.contactInfo,
-            location: formData.location || formData.platformName,
-            logo: formData.logo,
+            contactInfo: formData.contactInfo || undefined,
+            location: formData.location || formData.platformName || undefined,
+            logo: formData.logo || undefined,
             applicationReason: formData.applicationReason,
-            attachmentIds: attachmentIds,
-            initialMembers: members.map(m => ({
-                wxId: m.wxId,
-                name: m.name,
-                role: m.role
-            }))
+            attachmentIds: attachmentIds.length > 0 ? attachmentIds.map(id => parseInt(id)) : undefined,
+            initialMembers: members.length > 0 ? members.map(m => ({
+                wxId: m.wxId ? parseInt(m.wxId) : undefined,
+                name: m.name || undefined,
+                role: m.role || undefined
+            })) : undefined
         }
 
         // 只有当bgImg存在时才添加到提交数据中
         if (bgImg !== undefined) {
-            submitData.bg_img = bgImg
+            submitData.bgImg = bgImg
         }
         
         console.log('最终提交数据:', submitData)

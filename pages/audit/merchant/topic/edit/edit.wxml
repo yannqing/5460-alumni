@@ -299,30 +299,13 @@
       />
     </view>
     
-    <!-- 纬度 -->
+    <!-- 位置选择 -->
     <view class="form-item">
-      <text class="form-label">纬度</text>
-      <input 
-        class="form-input" 
-        placeholder="请输入纬度" 
-        value="{{formData.latitude}}" 
-        data-field="latitude"
-        bindinput="onInput"
-        type="digit"
-      />
-    </view>
-    
-    <!-- 经度 -->
-    <view class="form-item">
-      <text class="form-label">经度</text>
-      <input 
-        class="form-input" 
-        placeholder="请输入经度" 
-        value="{{formData.longitude}}" 
-        data-field="longitude"
-        bindinput="onInput"
-        type="digit"
-      />
+      <text class="form-label">活动位置</text>
+      <view class="location-selector">
+        <input class="form-input location-input" placeholder="请选择活动位置" value="{{formData.locationName}}" disabled />
+        <button class="select-location-btn" bindtap="selectLocation">选择位置</button>
+      </view>
     </view>
     
     <!-- 最大参与人数 -->
