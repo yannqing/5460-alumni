@@ -87,7 +87,9 @@
     "pages/article/web-view/web-view",
     "pages/article-publish/index/index",
     "pages/activity/publish/publish",
-    "pages/activity/edit/edit"
+    "pages/activity/edit/edit",
+    "pages/info-maintenance/index/index",
+    "pages/info-maintenance/edit/edit"
   ],
   "window": {
     "backgroundTextStyle": "light",

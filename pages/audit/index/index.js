@@ -157,6 +157,13 @@ Page({
         iconType: 'image',
         url: '/pages/audit/enterprise/index'
       },
+      {
+        id: 8,
+        name: '信息维护',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/info-maintenance/index/index'
+      },
       // {
       //   id: 4,
       //   name: '资料库',
@@ -387,6 +394,8 @@ Page({
       } else if (item.name === '活动管理') {
         return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT')
       } else if (item.name === '企业管理') {
+        return true
+      } else if (item.name === '信息维护') {
         return true
       }
       return false
