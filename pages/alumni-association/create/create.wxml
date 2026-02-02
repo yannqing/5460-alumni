@@ -52,6 +52,19 @@
     </view>
 
     <view class="form-item">
+      <text class="label">背景图</text>
+      <view class="upload-container">
+        <button class="upload-btn" bindtap="chooseBgImage">选择图片</button>
+        <view wx:if="{{bgImages.length > 0}}" class="attachments-list">
+          <view wx:for="{{bgImages}}" wx:key="index" class="attachment-item">
+            <text class="attachment-name">{{item.name}}</text>
+            <text class="attachment-delete" bindtap="deleteBgImage" data-index="{{index}}">删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
       <text class="label">申请材料</text>
       <view class="upload-container">
         <button class="upload-btn" bindtap="chooseAttachment">选择文件</button>

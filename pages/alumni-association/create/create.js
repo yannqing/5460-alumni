@@ -47,6 +47,9 @@ Page({
         
         // 申请材料
         attachments: [],
+        
+        // 背景图
+        bgImages: [],
 
         loading: false,
         submitting: false
@@ -529,10 +532,114 @@ Page({
     },
 
     deleteAttachment(e) {
-        const { index } = e.currentTarget.dataset
+        const index = e.currentTarget.dataset.index
         const attachments = [...this.data.attachments]
         attachments.splice(index, 1)
         this.setData({ attachments })
+    },
+
+    // --- 背景图上传处理 ---
+
+    async chooseBgImage() {
+        try {
+            // 选择图片
+            const chooseRes = await new Promise((resolve, reject) => {
+                wx.chooseMedia({
+                    count: 5,
+                    mediaType: ['image'],
+                    success: resolve,
+                    fail: reject
+                })
+            })
+
+            const tempFiles = chooseRes.tempFiles
+            if (!tempFiles || tempFiles.length === 0) {
+                return
+            }
+
+            // 显示上传中提示
+            wx.showLoading({
+                title: '上传中...',
+                mask: true
+            })
+
+            const bgImages = [...this.data.bgImages]
+
+            // 逐个上传文件
+            for (const file of tempFiles) {
+                const tempFilePath = file.tempFilePath
+                const originalName = file.name || 'bg-image'
+
+                // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
+                const fileSize = file.size || 0
+                const maxSize = 10 * 1024 * 1024 // 10MB
+                if (fileSize > maxSize) {
+                    wx.showToast({
+                        title: `${originalName} 大小不能超过10MB`,
+                        icon: 'none'
+                    })
+                    continue
+                }
+
+                // 上传文件（与校友会logo上传使用相同的方法）
+                const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+
+                console.log('上传背景图结果:', uploadRes)
+
+                if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+                    // 获取返回的文件信息，确保获取到fileId
+                    const fileId = uploadRes.data.fileId || uploadRes.data.id || uploadRes.data.file_id || uploadRes.data.id || ''
+                    console.log('获取到的fileId:', fileId)
+                    
+                    if (fileId) {
+                        bgImages.push({
+                            id: fileId,
+                            name: originalName
+                        })
+                    } else {
+                        wx.showToast({
+                            title: `${originalName} 上传成功但未获取到文件ID`,
+                            icon: 'none'
+                        })
+                    }
+                } else {
+                    wx.showToast({
+                        title: `${originalName} 上传失败: ${uploadRes?.msg || '未知错误'}`,
+                        icon: 'none'
+                    })
+                }
+            }
+
+            if (bgImages.length > this.data.bgImages.length) {
+                this.setData({ bgImages })
+                wx.showToast({
+                    title: '上传成功',
+                    icon: 'success'
+                })
+            } else {
+                wx.showToast({
+                    title: '上传失败',
+                    icon: 'none'
+                })
+            }
+        } catch (error) {
+            // 显示具体的错误信息
+            const errorMsg = error?.msg || error?.message || '上传失败，请重试'
+            wx.showToast({
+                title: errorMsg,
+                icon: 'none',
+                duration: 2000
+            })
+        } finally {
+            wx.hideLoading()
+        }
+    },
+
+    deleteBgImage(e) {
+        const index = e.currentTarget.dataset.index
+        const bgImages = [...this.data.bgImages]
+        bgImages.splice(index, 1)
+        this.setData({ bgImages })
     },
 
     async submitForm() {
@@ -588,6 +695,14 @@ Page({
         })
         console.log('最终attachmentIds:', attachmentIds)
 
+        // 提取背景图的ID，转换为JSON字符串形式
+        const bgImgArray = this.data.bgImages.map(a => {
+            const id = a.id || ''
+            return id
+        })
+        const bgImg = bgImgArray.length > 0 ? JSON.stringify(bgImgArray) : undefined
+        console.log('最终bgImg:', bgImg)
+
         const submitData = {
             associationName: formData.associationName,
             schoolId: formData.schoolId || '',
@@ -605,6 +720,11 @@ Page({
                 name: m.name,
                 role: m.role
             }))
+        }
+
+        // 只有当bgImg存在时才添加到提交数据中
+        if (bgImg !== undefined) {
+            submitData.bg_img = bgImg
         }
         
         console.log('最终提交数据:', submitData)
