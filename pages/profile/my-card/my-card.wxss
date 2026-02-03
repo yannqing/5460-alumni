@@ -43,7 +43,7 @@
 /* 头像容器 */
 .user-avatar-container {
   width: 100%;
-  padding-top: 70%;
+  padding-top: 100%;
   position: relative;
   overflow: hidden;
   box-shadow: 0 8rpx 24rpx rgba(64, 178, 230, 0.3);
@@ -99,6 +99,12 @@
   font-size: 24rpx;
   opacity: 0.9;
   color: #666;
+}
+
+.alumni-badge {
+  width: 40rpx;
+  height: 40rpx;
+  margin-left: 8rpx;
 }
 
 /* 用户标签 */
@@ -164,7 +170,7 @@
 .contact-label {
   font-size: 24rpx;
   color: #666;
-  width: 120rpx;
+  width: 100rpx;
   flex-shrink: 0;
 }
 
@@ -200,8 +206,34 @@
 
 .education-school {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8rpx;
+}
+
+.school-header {
+  display: flex;
   align-items: center;
   gap: 12rpx;
+  width: 100%;
+}
+
+.education-details {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16rpx;
+  width: 100%;
+  margin-top: 8rpx;
+  padding-top: 8rpx;
+  border-top: 1rpx solid #f0f0f0;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.education-detail {
+  font-size: 22rpx;
+  color: #666;
+  line-height: 1.4;
 }
 
 .school-logo {
@@ -214,30 +246,6 @@
   font-size: 26rpx;
   font-weight: bold;
   color: #333;
-}
-
-.education-details {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-
-.education-info {
-  font-size: 22rpx;
-  color: #666;
-}
-
-.education-year {
-  font-weight: 500;
-  color: #40B2E6;
-}
-
-.education-department {
-  line-height: 1.4;
-}
-
-.education-class {
-  color: #999;
 }
 
 /* 个人信息详情样式 */
@@ -304,7 +312,7 @@
   }
   
   .contact-label {
-    width: 120rpx;
+    width: 114rpx;
   }
   
   .detail-label {

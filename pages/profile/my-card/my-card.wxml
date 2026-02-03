@@ -14,32 +14,90 @@
         <view class="user-avatar-container">
           <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" wx:if="{{userInfo.avatarUrl}}"></image>
           <view class="user-avatar-placeholder" wx:else></view>
+          <view style="position: absolute; top: 30rpx; left: 30rpx; width: 70rpx; height: 70rpx; border-radius: 50%; background-color: rgba(150, 150, 150, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1;">
+            <image src="/assets/edit/like.png" mode="aspectFit" style="width: 46rpx; height: 46rpx;" />
+          </view>
+          <view style="position: absolute; top: 30rpx; right: 30rpx; width: 70rpx; height: 70rpx; border-radius: 50%; background-color: rgba(150, 150, 150, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1;" bindtap="chooseAvatar">
+            <image src="/assets/edit/camera.png" mode="aspectFit" style="width: 46rpx; height: 46rpx;" />
+          </view>
         </view>
       </view>
       
       <!-- 联系方式区域 -->
       <view class="section-card" style="background-color: #0055bb;">
-        <view class="user-basic-info" style="border-bottom: none; text-align: left;">
-          <view style="display: flex; align-items: center; gap: 16rpx; margin-bottom: 8rpx;">
-            <view class="user-name" style="color: white;">{{userInfo.name || userInfo.nickname || '未设置'}}</view>
-            <view class="user-nickname" style="color: white;">{{userInfo.nickname}}</view>
+        <view class="user-basic-info" style="border-bottom: none;">
+          <view style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8rpx; width: 100%;">
+            <view style="display: flex; align-items: center; gap: 16rpx;">
+              <view class="user-name" style="color: white; font-size: 44rpx;">{{userInfo.name || userInfo.nickname || '未设置'}}</view>
+              <view style="display: flex; align-items: center;">
+                <view class="user-nickname" style="color: white; font-size: 32rpx;">{{userInfo.nickname}}</view>
+                <image class="alumni-badge" src="/assets/certification/alumni_certification2.png" mode="aspectFit" style="width: 48rpx; height: 48rpx;" wx:if="{{userInfo.isAlumni === 1}}" />
+              </view>
+            </view>
+            <view style="display: flex; align-items: center; gap: 8rpx; background-color: #003377; padding: 8rpx 16rpx; border-radius: 40rpx;" bindtap="editProfile">
+              <image src="/assets/edit/edit.png" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
+              <text style="color: white; font-size: 32rpx;">编辑资料</text>
+            </view>
           </view>
 
         </view>
        
+          <view class="contact-item">
+            <text class="contact-label" style="color: white;">公司</text>
+  
+          </view>
+          <view class="contact-item">
+            <text class="contact-label" style="color: white;">职务</text>
+      
+          </view>
           <view class="contact-item" wx:if="{{userInfo.phone}}">
-            <text class="contact-label" style="color: white;">手机：</text>
+            <text class="contact-label" style="color: white;">电话：</text>
             <text class="contact-value" style="color: white;">{{userInfo.phone}}</text>
           </view>
-          <view class="contact-item" wx:if="{{userInfo.originProvince}}">
-            <text class="contact-label" style="color: white;">籍贯：</text>
-            <text class="contact-value" style="color: white;">{{userInfo.originProvince}}</text>
+          <view class="contact-item">
+            <text class="contact-label" style="color: white;">所在地：</text>
+            <text class="contact-value" style="color: white;">{{userInfo ? (userInfo.curProvince || userInfo.curCity || userInfo.curCounty ? (userInfo.curProvince ? userInfo.curProvince : '') + (userInfo.curCity ? (userInfo.curProvince ? '-' : '') + userInfo.curCity : '') + (userInfo.curCounty ? (userInfo.curProvince || userInfo.curCity ? '-' : '') + userInfo.curCounty : '') : '未设置') : '未设置'}}</text>
           </view>
-           <view class="contact-info">
-          <view class="contact-item" wx:if="{{userInfo.signature}}">
-            <text class="contact-label" style="color: white;">个性签名：</text>
-            <text class="contact-value" style="color: white;">{{userInfo.signature}}</text>
-          </view>
+
+      </view>
+    </view>
+    
+    <!-- 名片夹区域 -->
+    <view class="section-card">
+      <view class="section-header">
+        <text class="section-title">名片夹</text>
+      </view>
+      <view style="padding: 20rpx; display: flex; flex-wrap: wrap; gap: 40rpx;">
+        <view style="display: flex; flex-direction: column; align-items: center; width: 120rpx;">
+          <image src="/assets/edit/arrow.png" mode="aspectFit" style="width: 60rpx; height: 60rpx; margin-bottom: 10rpx;" />
+          <text style="color: #666; font-size: 28rpx;">已交换</text>
+        </view>
+        <view style="display: flex; flex-direction: column; align-items: center; width: 120rpx;">
+          <image src="/assets/edit/time.png" mode="aspectFit" style="width: 60rpx; height: 60rpx; margin-bottom: 10rpx;" />
+          <text style="color: #666; font-size: 28rpx;">待回递</text>
+        </view>
+        <view style="display: flex; flex-direction: column; align-items: center; width: 120rpx;">
+          <image src="/assets/edit/send.png" mode="aspectFit" style="width: 60rpx; height: 60rpx; margin-bottom: 10rpx;" />
+          <text style="color: #666; font-size: 28rpx;">已发送</text>
+        </view>
+        <view style="display: flex; flex-direction: column; align-items: center; width: 120rpx;" bindtap="goToMyFollow">
+          <image src="/assets/edit/heart.png" mode="aspectFit" style="width: 60rpx; height: 60rpx; margin-bottom: 10rpx;" />
+          <text style="color: #666; font-size: 28rpx;">我的关注</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 自我介绍 -->
+    <view class="section-card">
+      <view class="section-header">
+        <text class="section-title">自我介绍</text>
+      </view>
+      <view class="detail-info">
+        <view class="detail-item" wx:if="{{userInfo.description}}">
+          <text class="detail-value">{{userInfo.description}}</text>
+        </view>
+        <view class="detail-item" wx:else>
+          <text class="detail-value" style="color: #999;">暂无自我介绍</text>
         </view>
       </view>
     </view>
@@ -52,23 +110,22 @@
       <view class="education-list">
         <view class="education-item" wx:for="{{userInfo.alumniEducationList}}" wx:key="index">
           <view class="education-school" wx:if="{{item.schoolInfo}}">
-            <image class="school-logo" src="{{item.schoolInfo.logo}}" mode="aspectFit" wx:if="{{item.schoolInfo.logo}}"></image>
-            <text class="school-name">{{item.schoolInfo.schoolName}}</text>
+            <view class="school-header">
+              <image class="school-logo" src="{{item.schoolInfo.logo}}" mode="aspectFit" wx:if="{{item.schoolInfo.logo}}"></image>
+              <text class="school-name">{{item.schoolInfo.schoolName}}</text>
+            </view>
+            <view class="education-details" wx:if="{{item.enrollmentYear || item.graduationYear || item.department || item.major || item.className}}">
+              <text class="education-detail" wx:if="{{item.enrollmentYear}}">{{item.enrollmentYear}}</text>
+              <text class="education-detail" wx:if="{{item.graduationYear}}">- {{item.graduationYear}}</text>
+              <text class="education-detail" wx:if="{{item.department}}">{{item.department}}</text>
+              <text class="education-detail" wx:if="{{item.major}}">{{item.major}}</text>
+              <text class="education-detail" wx:if="{{item.className}}">{{item.className}}</text>
+            </view>
           </view>
         </view>
       </view>
     </view>
     
-    <!-- 个人简介 -->
-    <view class="section-card">
-      <view class="section-header">
-        <text class="section-title">个人简介</text>
-      </view>
-      <view class="detail-info">
-        <view class="detail-item" wx:if="{{userInfo.description}}">
-          <text class="detail-value">{{userInfo.description}}</text>
-        </view>
-      </view>
-    </view>
+
   </view>
 </view>
