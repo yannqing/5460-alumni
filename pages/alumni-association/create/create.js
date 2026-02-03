@@ -696,28 +696,28 @@ Page({
         })
         console.log('最终attachmentIds:', attachmentIds)
 
-        // 提取背景图的URL，转换为JSON字符串形式
+        // 提取背景图的URL，直接使用数组形式
         const bgImgArray = this.data.bgImages.map(a => {
             const url = a.url || ''
             return url
         })
-        const bgImg = bgImgArray.length > 0 ? JSON.stringify(bgImgArray) : undefined
+        const bgImg = bgImgArray.length > 0 ? bgImgArray : undefined
         console.log('最终bgImg:', bgImg)
 
         const submitData = {
             associationName: formData.associationName,
-            schoolId: parseInt(formData.schoolId) || 0,
-            platformId: formData.platformId ? parseInt(formData.platformId) : undefined,
-            chargeWxId: parseInt(formData.presidentWxId) || 0,
+            schoolId: formData.schoolId,
+            platformId: formData.platformId,
+            chargeWxId: formData.presidentWxId,
             chargeName: formData.chargeName,
             chargeRole: '成员',
             contactInfo: formData.contactInfo || undefined,
             location: formData.location || formData.platformName || undefined,
             logo: formData.logo || undefined,
             applicationReason: formData.applicationReason,
-            attachmentIds: attachmentIds.length > 0 ? attachmentIds.map(id => parseInt(id)) : undefined,
+            attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
             initialMembers: members.length > 0 ? members.map(m => ({
-                wxId: m.wxId ? parseInt(m.wxId) : undefined,
+                wxId: m.wxId,
                 name: m.name || undefined,
                 role: m.role || undefined
             })) : undefined
