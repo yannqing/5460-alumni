@@ -1,52 +1,122 @@
 /* pages/alumni-association/list/list.wxss */
 
+/* 页面容器 */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* 重置默认样式 */
+page {
+  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
+  padding: 0;
+  margin: 0;
+}
+
+/* 顶部图片 */
+.top-image-container {
+  width: 100%;
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
+}
+
+.top-image {
+  width: 529.49rpx;
+  height: 90.3rpx;
+  border-radius: 12rpx;
+}
+
 /* 搜索栏 */
 .search-bar {
-  background-color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
   padding: 20rpx 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .search-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
+  background-color: #0072B3;
   border-radius: 50rpx;
   padding: 16rpx 30rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
 }
 
 .search-input {
   flex: 1;
   font-size: 28rpx;
+  color: #FFFFFF;
+  font-family: 'PingFang SC', sans-serif;
 }
 
-.search-icon {
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-left-icon {
   width: 32rpx;
   height: 32rpx;
+  margin-right: 32rpx;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.search-button {
+  padding: 10rpx 24rpx;
+  background-color: #43A4F1;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  border-radius: 50rpx;
   margin-left: 16rpx;
   flex-shrink: 0;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+/* 整合筛选区域 */
+.filter-section {
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  border: none;
 }
 
 /* 筛选栏 */
 .filter-bar {
-  background-color: #ffffff;
+  background-color: transparent;
   display: flex;
   align-items: center;
   padding: 24rpx 30rpx;
-  border-top: 1rpx solid #f0f0f0;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.2);
 }
 
 .filter-item {
   flex: 1;
   text-align: center;
-  font-size: 26rpx;
-  color: #666666;
+  font-size: 25.36rpx;
+  color: #111313;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8rpx;
   padding: 0 8rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .filter-text {
@@ -58,13 +128,13 @@
 }
 
 .filter-item.active {
-  color: #333333;
+  color: #111313;
   font-weight: 600;
 }
 
 .filter-arrow {
-  font-size: 20rpx;
-  color: #999999;
+  font-size: 25.36rpx;
+  color: #111313;
 }
 
 .filter-mask {
@@ -101,15 +171,20 @@
 
 /* 校友会列表 */
 .association-list {
-  padding: 20rpx 30rpx;
-  background-color: #f8f8f8;
+  padding: 70rpx 30rpx 20rpx;
+  background-color: #F5F5F5;
+  min-height: 100vh;
+  border-top-left-radius: 30rpx;
+  border-top-right-radius: 30rpx;
+  margin-top: 0;
+  background: #F5F5F5;
 }
 
 .association-card {
-  background-color: #ffffff;
+  background-color: #FCFCFC;
   border-radius: 16rpx;
   padding: 30rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 40rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
@@ -119,6 +194,7 @@
   align-items: flex-start;
   gap: 20rpx;
   margin-bottom: 16rpx;
+  flex-wrap: nowrap;
 }
 
 .association-icon {
@@ -140,13 +216,17 @@
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
 }
 
 .card-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333333;
+  font-family: 'PingFang SC', 'PingFang SC Semibold', sans-serif;
+  color: #111313;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cert-badge {
@@ -164,6 +244,8 @@
   align-items: center;
   gap: 8rpx;
   font-size: 26rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
   color: #666666;
   margin-bottom: 12rpx;
 }
@@ -180,8 +262,10 @@
   align-items: center;
   gap: 8rpx;
   font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
   color: #999999;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .location-icon {
@@ -215,10 +299,62 @@
 }
 
 /* 卡片底部 */
+.school-info-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  margin-top: 8rpx;
+}
+
+.info-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.action-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  align-items: flex-end;
+}
+
+.card-action {
+  width: fit-content;
+}
+
+.card-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
+  color: #666666;
+}
+
+.card-location {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
+  color: #999999;
+  margin-bottom: 16rpx;
+}
+
+.follow-btn {
+  padding: 12rpx 32rpx;
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
+  color: #ffffff;
+  font-size: 24rpx;
+  border-radius: 50rpx;
+  font-weight: 500;
+}
+
 .card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding-top: 20rpx;
   border-top: 1rpx solid #f5f5f5;
 }
@@ -236,19 +372,6 @@
   align-items: center;
 }
 
-.card-action {
-  flex-shrink: 0;
-}
-
-.follow-btn {
-  padding: 12rpx 32rpx;
-  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
-  color: #ffffff;
-  font-size: 24rpx;
-  border-radius: 50rpx;
-  font-weight: 500;
-}
-
 .follow-btn.followed {
   background: transparent;
   border: 2rpx solid #40B2E6;
@@ -259,7 +382,7 @@
 .loading-text {
   text-align: center;
   padding: 40rpx 0;
-  color: #999999;
+  color: #666666;
   font-size: 24rpx;
 }
 
@@ -279,6 +402,6 @@
 }
 
 .empty-state text {
-  color: #999999;
+  color: #666666;
   font-size: 26rpx;
 }
