@@ -34,7 +34,7 @@ page {
 /* 搜索栏 */
 .search-bar {
   position: sticky;
-  top: 0;
+  top: 150rpx;
   z-index: 10;
   padding: 20rpx 30rpx;
   box-shadow: none;
@@ -45,7 +45,7 @@ page {
   display: flex;
   align-items: center;
   background: #0072B4;
-  border-radius: 50rpx;
+  border-radius: 20rpx;
   padding: 16rpx 30rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
 }
