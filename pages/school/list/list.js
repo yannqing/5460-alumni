@@ -602,62 +602,56 @@ Page({
     })
   },
 
-  // 打开筛选选项
-  openFilterOptions(e) {
-    const index = e.currentTarget.dataset.index
-    if (index === 1) return // 城市筛选使用picker，不打开弹窗
-    this.setData({
-      showFilterOptions: true,
-      activeFilterIndex: index
-    })
-  },
-
-  // 关闭筛选选项
-  closeFilterOptions() {
-    this.setData({
-      showFilterOptions: false,
-      activeFilterIndex: -1
-    })
-  },
-
-  // 选择筛选选项
-  selectFilterOption(e) {
-    const optionIndex = e.currentTarget.dataset.optionIndex
-    const { activeFilterIndex, filters } = this.data
-    filters[activeFilterIndex].selected = optionIndex
+  // 类型筛选变更
+  onTypeChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[0].selected = optionIndex
     
     this.setData({ filters })
-    this.closeFilterOptions()
     
     // 根据选择的筛选条件更新数据
-    if (activeFilterIndex === 0) {
-      // 类型筛选
-      const selectedOption = filters[activeFilterIndex].options[optionIndex]
-      let level = '全部'
-      if (selectedOption === '本科') {
-        level = '本科'
-      } else if (selectedOption === '专科') {
-        level = '专科'
-      }
-      this.setData({ selectedLevel: level, current: 1 })
-    } else if (activeFilterIndex === 2) {
-      // 排序筛选
-      const selectedOption = filters[activeFilterIndex].options[optionIndex]
-      let sortType = 'default'
-      if (selectedOption === '校友数量') {
-        sortType = 'alumni'
-      } else if (selectedOption === '校友会数量') {
-        sortType = 'association'
-      } else if (selectedOption === '名称排序') {
-        sortType = 'name'
-      }
-      this.setData({ sortType, current: 1 })
-    } else if (activeFilterIndex === 3) {
-      // 关注筛选
-      // 这里可以根据需要实现关注筛选逻辑
-      this.setData({ current: 1 })
+    const selectedOption = filters[0].options[optionIndex]
+    let level = '全部'
+    if (selectedOption === '本科') {
+      level = '本科'
+    } else if (selectedOption === '专科') {
+      level = '专科'
     }
+    this.setData({ selectedLevel: level, current: 1 })
+    this.loadSchoolList(true)
+  },
+
+  // 排序筛选变更
+  onSortChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[2].selected = optionIndex
     
+    this.setData({ filters })
+    
+    // 根据选择的筛选条件更新数据
+    const selectedOption = filters[2].options[optionIndex]
+    let sortType = 'default'
+    if (selectedOption === '校友数量') {
+      sortType = 'alumni'
+    } else if (selectedOption === '校友会数量') {
+      sortType = 'association'
+    } else if (selectedOption === '名称排序') {
+      sortType = 'name'
+    }
+    this.setData({ sortType, current: 1 })
+    this.loadSchoolList(true)
+  },
+
+  // 关注筛选变更
+  onFollowChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[3].selected = optionIndex
+    
+    this.setData({ filters, current: 1 })
+    // 这里可以根据需要实现关注筛选逻辑
     this.loadSchoolList(true)
   }
 })
