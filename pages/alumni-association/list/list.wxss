@@ -23,7 +23,6 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
 }
 
 .top-image {
@@ -37,16 +36,15 @@ page {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
   padding: 20rpx 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .search-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: #0072B4;
   border-radius: 50rpx;
   padding: 16rpx 30rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
@@ -113,10 +111,11 @@ page {
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  padding: 0 8rpx;
+  padding: 0 16rpx;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .filter-text {
