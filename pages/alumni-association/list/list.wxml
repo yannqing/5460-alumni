@@ -19,26 +19,36 @@
     </view>
   </view>
 
-  <view wx:if="{{showFilterOptions}}">
-    <view class="filter-mask" bindtap="closeFilterOptions"></view>
-    <view class="filter-options-panel">
-      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
-        {{item}}
-      </view>
-    </view>
-  </view>
-
   <!-- 校友会列表 -->
   <view class="association-list">
     <!-- 整合筛选区域 -->
     <view class="filter-section">
-      <view class="filter-item" wx:for="{{filters}}" wx:key="label" wx:for-index="filterIndex" data-index="{{filterIndex}}" bindtap="openFilterOptions">
-        <!-- 城市筛选（索引为1）使用多列选择器 -->
-        <picker wx:if="{{filterIndex === 1}}" mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
-          <text class="{{region && region.length > 0 ? 'theme-color' : ''}}">{{regionDisplayText || '全部城市'}}</text>
+      <!-- 类型筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+          <text>{{filters[0].options[filters[0].selected]}}</text>
         </picker>
-        <!-- 其他筛选显示文本 -->
-        <text wx:else>{{item.options[item.selected]}}</text>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 城市筛选 -->
+      <view class="filter-item">
+        <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+          <text>{{regionDisplayText || '全部城市'}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 排序筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
+          <text>{{filters[2].options[filters[2].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 关注筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onFollowChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
+          <text>{{filters[3].options[filters[3].selected]}}</text>
+        </picker>
         <text class="filter-arrow">▾</text>
       </view>
     </view>

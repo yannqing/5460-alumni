@@ -18,8 +18,6 @@ Page({
       { label: '排序', options: ['默认排序', '最新成立', '成员最多'], selected: 0 },
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
-    showFilterOptions: false,
-    activeFilterIndex: -1,
     associationList: [],
     current: 1,
     pageSize: 50, // 增大每页大小，一次加载更多数据
@@ -379,31 +377,33 @@ Page({
     this.loadAssociationList(true)
   },
 
-  openFilterOptions(e) {
-    const { index } = e.currentTarget.dataset
-    // 城市筛选（索引为1）使用多列选择器，不打开下拉面板
-    if (index === 1) {
-      return
-    }
-    if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-      this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-      return
-    }
-    this.setData({ activeFilterIndex: index, showFilterOptions: true })
+  // 类型筛选变更
+  onTypeChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[0].selected = optionIndex
+    
+    this.setData({ filters, current: 1 })
+    this.loadAssociationList(true)
   },
 
-  selectFilterOption(e) {
-    const { optionIndex } = e.currentTarget.dataset
-    const { activeFilterIndex, filters } = this.data
-    if (activeFilterIndex === -1) return
+  // 排序筛选变更
+  onSortChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[2].selected = optionIndex
     
-    filters[activeFilterIndex].selected = optionIndex
-    this.setData({
-      filters,
-      showFilterOptions: false,
-      activeFilterIndex: -1,
-      current: 1
-    })
+    this.setData({ filters, current: 1 })
+    this.loadAssociationList(true)
+  },
+
+  // 关注筛选变更
+  onFollowChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[3].selected = optionIndex
+    
+    this.setData({ filters, current: 1 })
     this.loadAssociationList(true)
   },
 
@@ -521,9 +521,7 @@ Page({
     this.loadAssociationList(true)
   },
 
-  closeFilterOptions() {
-    this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-  },
+  
 
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
