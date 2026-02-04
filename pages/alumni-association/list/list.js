@@ -536,5 +536,13 @@ Page({
   async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
     await handleListItemFollow(this, 'associationList', id, followed, FollowTargetType.ASSOCIATION)
+  },
+
+  // 加入校友会
+  joinAssociation(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/alumni-association/apply/apply?id=${id}`
+    })
   }
 })

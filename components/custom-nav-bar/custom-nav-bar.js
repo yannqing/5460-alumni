@@ -37,14 +37,11 @@ Component({
     // 获取返回按钮图标
     const iconBack = config.getIconUrl('back@3x.png')
     
-    // 获取导航栏背景图片
-    const backgroundImage = config.getIconUrl('tljb@3x.png')
-    
     this.setData({
       statusBarHeight: statusBarHeight,
       navBarHeight: navBarHeight,
       iconBack: iconBack,
-      backgroundImage: backgroundImage
+      backgroundImage: ''
     })
   },
 
