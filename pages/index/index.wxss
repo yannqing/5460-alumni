@@ -76,7 +76,7 @@
 
 .platform-tag {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 100rpx);
+  top: calc(env(safe-area-inset-top) + 20%);
   left: 30rpx;
   background-color: rgba(255, 255, 255, 0.0);
   border-radius: 30rpx;
@@ -121,7 +121,7 @@
   border-radius: 20rpx;
   padding: 60rpx 20rpx 35rpx;
   position: fixed;
-  top: calc(env(safe-area-inset-top) + 370rpx);
+  top: calc(env(safe-area-inset-top) + 320rpx);
   left: 0;
   right: 0;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
@@ -173,7 +173,7 @@
 .article-list {
   flex: 1;
   height: 0;
-  margin-top: calc(env(safe-area-inset-top) + 420rpx + 200rpx);
+  margin-top: calc(env(safe-area-inset-top) + 370rpx + 200rpx);
   padding: 0 0 20rpx 0;
   background-color: #f8f8f8;
 }
