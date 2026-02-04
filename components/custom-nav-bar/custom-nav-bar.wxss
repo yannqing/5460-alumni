@@ -6,7 +6,6 @@
   right: 0;
   z-index: 9999;
   overflow: hidden;
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
 }
 
 .nav-bar-bg {
@@ -23,7 +22,6 @@
   width: 100%;
   position: relative;
   z-index: 1;
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
 }
 
 .nav-bar-content {
@@ -33,7 +31,6 @@
   padding: 0 30rpx;
   position: relative;
   z-index: 1;
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
 }
 
 .nav-back-btn {
@@ -70,5 +67,4 @@
 
 .nav-bar-placeholder {
   width: 100%;
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
 }
