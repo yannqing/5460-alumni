@@ -49,12 +49,14 @@ page {
 /* 头部容器（包含搜索栏和筛选条件） */
 .header-container {
   position: sticky;
-  top: 210rpx;
+  top: 180rpx;
   z-index: 15;
   background: #0089DF;
   overflow: hidden;
   border-bottom: none;
-  bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  box-sizing: border-box;
 }
 
 /* 搜索栏 */
@@ -125,7 +127,7 @@ page {
 .filter-section {
   display: flex;
   align-items: center;
-  padding: 48rpx 30rpx 20rpx;
+  padding: 0 30rpx 20rpx;
   margin-bottom: 0;
   background: #F5F5F5;
   border-top-left-radius: 30rpx;
@@ -136,6 +138,8 @@ page {
   border-top: none !important;
   position: relative;
   z-index: 1;
+  min-height: 80rpx;
+  justify-content: space-around;
 }
 
 .filter-item {
