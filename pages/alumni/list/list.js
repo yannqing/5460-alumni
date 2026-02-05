@@ -6,7 +6,7 @@ const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = re
 Page({
   data: {
     // 图标路径
-    iconSearch: config.getIconUrl('sslss.png'),
+    iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
     keyword: '',
