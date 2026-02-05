@@ -15,10 +15,12 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 300rpx;
+  height: 350rpx;
   background: #0089DF;
   z-index: 5;
 }
+
+
 
 /* 重置默认样式 */
 page {
@@ -52,6 +54,9 @@ page {
   background: #0089DF;
   padding-bottom: 0;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: -1rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1), inset 0 -20rpx 0 #F5F5F5;
 }
 
 /* 搜索栏 */
@@ -68,6 +73,7 @@ page {
   border-radius: 21.74rpx;
   padding: 16rpx 30rpx;
   height: 74.28rpx;
+  background: #0072B3;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
   box-sizing: border-box;
 }
@@ -110,12 +116,19 @@ page {
 .filter-section {
   display: flex;
   align-items: center;
-  padding: 20rpx 30rpx;
+  padding: 28rpx 30rpx 20rpx;
   margin-bottom: 0;
   background: #F5F5F5;
   border-top-left-radius: 30rpx;
   border-top-right-radius: 30rpx;
   margin-top: 0;
+  position: sticky;
+  top: 303rpx;
+  z-index: 20;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border-bottom: 1rpx solid #E8E8E8;
+  border-top: 1rpx solid #F5F5F5;
 }
 
 .filter-item {
@@ -142,10 +155,10 @@ page {
 
 /* 学校列表 */
 .association-list {
-  padding: 30rpx 30rpx 20rpx;
+  padding: 27rpx 30rpx 20rpx;
   background-color: #F5F5F5;
   min-height: 100vh;
-  margin-top: 0;
+  margin-top: -1rpx;
   background: #F5F5F5;
 }
 
