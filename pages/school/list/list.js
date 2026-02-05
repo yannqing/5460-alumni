@@ -8,7 +8,7 @@ const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
 Page({
   data: {
     // 图标路径
-    iconSearch: config.getIconUrl('sslss.png'),
+    iconSearch: '../../../assets/icons/magnifying glass.png',
     iconLocation: config.getIconUrl('position.png'),
     // 是否为选择模式
     selectMode: false,
