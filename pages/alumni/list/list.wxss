@@ -309,8 +309,8 @@ view, text, picker, input, button, image, navigator {
 }
 
 .alumni-avatar {
-  width: 140rpx;
-  height: 140rpx;
+  width: 150rpx;
+  height: 150rpx;
   border-radius: 50%;
   flex-shrink: 0;
   border: 3rpx solid #e0e0e0;

@@ -116,7 +116,7 @@ Page({
           platformId: platformInfo.platformId || platformInfo.id || null,
           presidentUserId: item.presidentUserId,
           // 优先使用后端返回的 logo 字段，如果没有则使用默认头像，与列表页保持一致
-          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/compressed-avatar.jpg',
+          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/avatar-2.png',
           cover: DEFAULT_COVER, // 后端暂无封面字段，使用默认
           location: item.location || '',
           memberCount: item.memberCount || 0,
