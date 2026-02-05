@@ -3,15 +3,26 @@
 /* 页面容器 */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
+  background: #0089DF;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
 }
 
+/* 固定顶部背景 */
+.fixed-top-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300rpx;
+  background: #0089DF;
+  z-index: 5;
+}
+
 /* 重置默认样式 */
 page {
-  background: linear-gradient(135deg, #0089DF 0%, #009AE3 100%);
+  background: #0089DF;
   padding: 0;
   margin: 0;
 }
@@ -23,6 +34,8 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 8;
+  position: relative;
 }
 
 .top-image {
@@ -31,12 +44,20 @@ page {
   border-radius: 12rpx;
 }
 
-/* 搜索栏 */
-.search-bar {
+/* 头部容器（包含搜索栏和筛选条件） */
+.header-container {
   position: sticky;
   top: 150rpx;
-  z-index: 10;
+  z-index: 15;
+  background: #0089DF;
+  padding-bottom: 0;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 搜索栏 */
+.search-bar {
   padding: 20rpx 26rpx;
+  background: #0089DF;
   box-shadow: none;
 }
 
@@ -44,7 +65,6 @@ page {
   position: relative;
   display: flex;
   align-items: center;
-  background: #0072B4;
   border-radius: 21.74rpx;
   padding: 16rpx 30rpx;
   height: 74.28rpx;
@@ -86,12 +106,16 @@ page {
   justify-content: center;
 }
 
-/* 整合筛选区域 */
+/* 筛选区域 */
 .filter-section {
   display: flex;
   align-items: center;
   padding: 20rpx 30rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 0;
+  background: #F5F5F5;
+  border-top-left-radius: 30rpx;
+  border-top-right-radius: 30rpx;
+  margin-top: 0;
 }
 
 .filter-item {
@@ -121,9 +145,7 @@ page {
   padding: 30rpx 30rpx 20rpx;
   background-color: #F5F5F5;
   min-height: 100vh;
-  border-top-left-radius: 30rpx;
-  border-top-right-radius: 30rpx;
-  margin-top: 20rpx;
+  margin-top: 0;
   background: #F5F5F5;
 }
 

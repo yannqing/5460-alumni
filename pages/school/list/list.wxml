@@ -3,6 +3,8 @@
 <message-notification />
 
 <view class="container">
+  <!-- 固定顶部背景 -->
+  <view class="fixed-top-bg"></view>
   <!-- 自定义导航栏 -->
   <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
   <!-- 顶部图片 -->
@@ -10,18 +12,18 @@
     <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png" mode="aspectFit" />
   </view>
   
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <view class="search-input-wrap">
-      <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
-      <input class="search-input" type="text" placeholder="搜索母校名称、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-      <view class="search-button" bindtap="onSearch">搜索</view>
+  <!-- 头部容器（包含搜索栏和筛选条件） -->
+  <view class="header-container">
+    <!-- 搜索栏 -->
+    <view class="search-bar" style="top: {{searchBarTop}}rpx;">
+      <view class="search-input-wrap">
+        <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
+        <input class="search-input" type="text" placeholder="搜索母校名称、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+        <view class="search-button" bindtap="onSearch">搜索</view>
+      </view>
     </view>
-  </view>
-
-  <!-- 学校列表 -->
-  <view class="association-list">
-    <!-- 整合筛选区域 -->
+    
+    <!-- 筛选区域 -->
     <view class="filter-section">
       <!-- 类型筛选 -->
       <view class="filter-item">
@@ -52,6 +54,10 @@
         <text class="filter-arrow">▾</text>
       </view>
     </view>
+  </view>
+
+  <!-- 学校列表 -->
+  <view class="association-list">
 
     <view class="association-card" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
       <!-- 头部：图标、名称和认证标识 -->

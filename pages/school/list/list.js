@@ -14,6 +14,9 @@ Page({
     selectMode: false,
     // 搜索关键词
     keyword: '',
+    // 导航栏高度
+    statusBarHeight: 0,
+    navBarHeight: 0,
 
     // 筛选条件
     sortType: 'default', // default: 默认, alumni: 校友数, association: 校友会数, name: 名称
@@ -49,6 +52,16 @@ Page({
   },
 
   async onLoad(options) {
+    // 获取系统信息
+    const systemInfo = wx.getSystemInfoSync()
+    const statusBarHeight = systemInfo.statusBarHeight || 0
+    const navBarHeight = 44 // 导航栏高度固定为44px
+    
+    this.setData({
+      statusBarHeight: statusBarHeight,
+      navBarHeight: navBarHeight
+    })
+    
     // 检查是否为选择模式
     this.setData({
       selectMode: options.selectMode === 'true'
