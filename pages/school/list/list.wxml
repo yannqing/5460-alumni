@@ -12,47 +12,47 @@
     <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png" mode="aspectFit" />
   </view>
   
-  <!-- 头部容器（包含搜索栏和筛选条件） -->
+  <!-- 搜索栏容器 -->
   <view class="header-container">
     <!-- 搜索栏 -->
     <view class="search-bar" style="top: {{searchBarTop}}rpx;">
       <view class="search-input-wrap">
         <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
-        <input class="search-input" type="text" placeholder="搜索母校名称、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+        <input class="search-input" type="text" placeholder="搜索母校、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
         <view class="search-button" bindtap="onSearch">搜索</view>
       </view>
     </view>
-    
-    <!-- 筛选区域 -->
-    <view class="filter-section">
-      <!-- 类型筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
-          <text>{{filters[0].options[filters[0].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 城市筛选 -->
-      <view class="filter-item">
-        <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
-          <text>{{regionDisplayText || '全部城市'}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 排序筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
-          <text>{{filters[2].options[filters[2].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 关注筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onFollowChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
-          <text>{{filters[3].options[filters[3].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
+  </view>
+  
+  <!-- 筛选区域 -->
+  <view class="filter-section">
+    <!-- 类型筛选 -->
+    <view class="filter-item">
+      <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+        <text>{{filters[0].options[filters[0].selected]}}</text>
+      </picker>
+      <text class="filter-arrow">▾</text>
+    </view>
+    <!-- 城市筛选 -->
+    <view class="filter-item">
+      <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+        <text>{{regionDisplayText || '全部城市'}}</text>
+      </picker>
+      <text class="filter-arrow">▾</text>
+    </view>
+    <!-- 排序筛选 -->
+    <view class="filter-item">
+      <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
+        <text>{{filters[2].options[filters[2].selected]}}</text>
+      </picker>
+      <text class="filter-arrow">▾</text>
+    </view>
+    <!-- 关注筛选 -->
+    <view class="filter-item">
+      <picker bindchange="onFollowChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
+        <text>{{filters[3].options[filters[3].selected]}}</text>
+      </picker>
+      <text class="filter-arrow">▾</text>
     </view>
   </view>
 
