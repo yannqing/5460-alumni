@@ -269,7 +269,7 @@ Page({
             }
           } else {
             // 使用默认头像，与校友会列表页面保持一致
-            avatar = '/assets/avatar/compressed-avatar.jpg'
+            avatar = '/assets/avatar/avatar-2.png'
           }
           
           return {
