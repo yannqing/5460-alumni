@@ -116,4 +116,9 @@
       <text>暂无数据</text>
     </view>
   </view>
+
+  <!-- 右下角悬浮按钮 -->
+  <view class="floating-button">
+    <image src="../../../assets/icons/establish an alumni association.png" mode="aspectFit" bindtap="createAssociation" />
+  </view>
 </view>
