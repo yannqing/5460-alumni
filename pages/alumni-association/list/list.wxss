@@ -63,7 +63,7 @@ page {
   padding: 20rpx 26rpx;
   box-shadow: none;
   border-bottom: none !important;
-  margin-bottom: 0;
+  margin-bottom: 30rpx;
 }
 
 .search-input-wrap {
@@ -137,7 +137,7 @@ page {
   border-top: none !important;
   position: relative;
   z-index: 1;
-  min-height: 80rpx;
+  min-height: 85rpx;
   justify-content: space-around;
 }
 
@@ -486,7 +486,7 @@ view, text, picker, input, button, image, navigator {
 
 .follow-btn.followed {
   background: transparent;
-  border: 2rpx solid #40B2E6;
+  border: 2rpx solid #40B2E6 !important;
   color: #40B2E6;
 }
 
