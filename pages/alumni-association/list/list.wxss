@@ -273,13 +273,14 @@ view, text, picker, input, button, image, navigator {
   display: flex;
   align-items: flex-start;
   gap: 20rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: 6rpx;
   flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
 .association-icon {
-  width: 120rpx;
-  height: 120rpx;
+  width: 140rpx;
+  height: 140rpx;
   border-radius: 50%;
   flex-shrink: 0;
   border: 3rpx solid #e0e0e0;
@@ -352,6 +353,37 @@ view, text, picker, input, button, image, navigator {
   width: 24rpx;
   height: 24rpx;
   flex-shrink: 0;
+}
+
+/* 学校和地点在一行展示 */
+.school-location-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 12rpx;
+  flex-wrap: wrap;
+}
+
+.school-location-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
+  color: #999999;
+}
+
+/* 关注和加入按钮在城市和地点下面一行展示 */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.card-action {
+  margin-right: 16rpx;
 }
 
 /* 标签 */
