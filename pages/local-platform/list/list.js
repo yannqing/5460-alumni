@@ -5,7 +5,7 @@ const config = require('../../../utils/config.js')
 Page({
     data: {
         // 图标路径
-        iconSearch: config.getIconUrl('sslss.png'),
+        iconSearch: '../../../assets/icons/magnifying glass.png',
         iconLocation: config.getIconUrl('position.png'),
         iconScope: config.getIconUrl('xx.png'),
         iconContact: config.getIconUrl('phone.png'),
