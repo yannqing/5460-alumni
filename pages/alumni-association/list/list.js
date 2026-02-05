@@ -23,6 +23,7 @@ Page({
     pageSize: 50, // 增大每页大小，一次加载更多数据
     hasMore: true,
     loading: false,
+    refreshing: false,
 
     // 地区筛选（与母校列表页一致）- 自定义省市级选择器（只到市）
     region: [], // 地区选择器的值 [省, 市]
@@ -39,6 +40,16 @@ Page({
   },
 
   async onLoad(options) {
+    // 获取系统信息
+    const systemInfo = wx.getSystemInfoSync()
+    const statusBarHeight = systemInfo.statusBarHeight || 0
+    const navBarHeight = 44 // 导航栏高度固定为44px
+    
+    this.setData({
+      statusBarHeight: statusBarHeight,
+      navBarHeight: navBarHeight
+    })
+    
     // 初始化省市级数据
     this.initRegionData()
     
@@ -197,19 +208,11 @@ Page({
 
   // 加载校友会列表
   async loadAssociationList(refresh = false) {
-    // 如果已经没有更多数据且不是刷新，直接返回
-    if (!this.data.hasMore && !refresh) {
-      return
-    }
-    
-    // 如果正在加载，直接返回
-    if (this.data.loading) {
-      return
-    }
-    
+    if (this.data.loading) return
+
+    this.setData({ loading: true })
+
     try {
-      this.setData({ loading: true })
-      
       const { keyword, filters, current, pageSize } = this.data
       const [typeFilter, cityFilter, sortFilter, followFilter] = filters
       
@@ -324,13 +327,22 @@ Page({
         const updatedList = refresh ? finalList : [...this.data.associationList, ...finalList]
 
         // 更新数据
-        this.setData({
-          associationList: updatedList,
-          current: refresh ? 2 : this.data.current + 1,
-          hasMore: list.length >= this.data.pageSize,
-          loading: false,
-          refreshing: false
-        })
+        if (refresh) {
+          this.setData({
+            associationList: updatedList,
+            current: 1,
+            hasMore: list.length >= this.data.pageSize,
+            loading: false,
+            refreshing: false
+          })
+        } else {
+          this.setData({
+            associationList: updatedList,
+            current: this.data.current + 1,
+            hasMore: list.length >= this.data.pageSize,
+            loading: false
+          })
+        }
 
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'associationList', FollowTargetType.ASSOCIATION)
