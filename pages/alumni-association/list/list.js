@@ -554,5 +554,12 @@ Page({
     wx.navigateTo({
       url: `/pages/alumni-association/apply/apply?id=${id}`
     })
+  },
+
+  // 创建校友会
+  createAssociation() {
+    wx.navigateTo({
+      url: `/pages/alumni-association/create/create`
+    })
   }
 })

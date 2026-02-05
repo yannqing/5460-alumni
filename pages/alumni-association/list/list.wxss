@@ -517,3 +517,16 @@ view, text, picker, input, button, image, navigator {
   color: #666666;
   font-size: 26rpx;
 }
+
+/* 右下角悬浮按钮 */
+.floating-button {
+  position: fixed;
+  bottom: 30rpx;
+  right: 30rpx;
+  z-index: 999;
+}
+
+.floating-button image {
+  width: 295.87rpx;
+  height: 146.22rpx;
+}
