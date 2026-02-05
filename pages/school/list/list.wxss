@@ -49,21 +49,20 @@ page {
 /* 头部容器（包含搜索栏和筛选条件） */
 .header-container {
   position: sticky;
-  top: 150rpx;
+  top: 210rpx;
   z-index: 15;
   background: #0089DF;
-  padding-bottom: 0;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  margin-bottom: -1rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1), inset 0 -20rpx 0 #F5F5F5;
+  border-bottom: none;
+  bottom: 0;
 }
 
 /* 搜索栏 */
 .search-bar {
   padding: 20rpx 26rpx;
-  background: #0089DF;
   box-shadow: none;
+  border-bottom: none !important;
+  margin-bottom: 0;
 }
 
 .search-input-wrap {
@@ -76,6 +75,7 @@ page {
   background: #0072B3;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
   box-sizing: border-box;
+  outline: none;
 }
 
 .search-input {
@@ -83,6 +83,15 @@ page {
   font-size: 28rpx;
   color: #FFFFFF;
   font-family: 'PingFang SC', sans-serif;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.search-input:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .search-input::placeholder {
@@ -116,19 +125,17 @@ page {
 .filter-section {
   display: flex;
   align-items: center;
-  padding: 28rpx 30rpx 20rpx;
+  padding: 48rpx 30rpx 20rpx;
   margin-bottom: 0;
   background: #F5F5F5;
   border-top-left-radius: 30rpx;
   border-top-right-radius: 30rpx;
-  margin-top: 0;
-  position: sticky;
-  top: 303rpx;
-  z-index: 20;
   overflow: hidden;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-  border-bottom: 1rpx solid #E8E8E8;
-  border-top: 1rpx solid #F5F5F5;
+  border-bottom: none !important;
+  border-top: none !important;
+  position: relative;
+  z-index: 1;
 }
 
 .filter-item {
@@ -146,6 +153,7 @@ page {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  position: relative;
 }
 
 .filter-arrow {
@@ -153,13 +161,100 @@ page {
   color: #111313;
 }
 
+/* 修复 picker 组件默认下划线问题 - 更全面的选择器 */
+picker {
+  border-bottom: none !important;
+  outline: none !important;
+  background: transparent !important;
+  line-height: normal !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* 确保 picker 内部 text 元素没有下划线 */
+picker text {
+  border-bottom: none !important;
+  outline: none !important;
+  background: transparent !important;
+  line-height: normal !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 修复 picker 组件可能的伪元素下划线 */
+picker::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+picker::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 确保整个筛选区域没有意外的边框或下划线 */
+.filter-section::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+.filter-section::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 确保 header-container 没有边框 */
+.header-container::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+.header-container::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 特别针对可能出现下划线的元素 */
+view, text, picker, input, button, image, navigator {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+/* 特别针对筛选区域的元素 */
+.filter-section view,
+.filter-section text,
+.filter-section picker,
+.filter-section input {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+.filter-item view,
+.filter-item text,
+.filter-item picker {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
 /* 学校列表 */
 .association-list {
-  padding: 27rpx 30rpx 20rpx;
+  padding: 0 30rpx 20rpx;
   background-color: #F5F5F5;
   min-height: 100vh;
-  margin-top: -1rpx;
   background: #F5F5F5;
+  margin-top: -1rpx;
+  position: relative;
+  z-index: 0;
 }
 
 .association-card {
