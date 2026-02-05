@@ -36,7 +36,7 @@ page {
   position: sticky;
   top: 150rpx;
   z-index: 10;
-  padding: 20rpx 30rpx;
+  padding: 20rpx 26rpx;
   box-shadow: none;
 }
 
@@ -47,7 +47,9 @@ page {
   background: #0072B4;
   border-radius: 21.74rpx;
   padding: 16rpx 30rpx;
+  height: 74.28rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
 }
 
 .search-input {
@@ -291,12 +293,18 @@ page {
 }
 
 .follow-btn {
-  padding: 12rpx 32rpx;
+  width: 144.93rpx;
+  height: 47.1rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
   color: #ffffff;
   font-size: 24rpx;
-  border-radius: 50rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  line-height: 30.8rpx;
   font-weight: 500;
+  border-radius: 20.83rpx;
   margin-top: 6rpx;
 }
 
@@ -320,9 +328,19 @@ page {
 }
 
 .follow-btn.followed {
+  width: 144.93rpx;
+  height: 47.1rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 2rpx solid #40B2E6;
   color: #40B2E6;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  line-height: 30.8rpx;
+  font-weight: 500;
+  border-radius: 20.83rpx;
 }
 
 /* 加载状态 */
