@@ -190,8 +190,8 @@ Page({
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
-      // 使用本地默认头像，与校友会列表页保持一致
-      avatarUrl = '/assets/avatar/default_avatar.jpeg'
+      // 使用本地默认头像，直接使用本地路径
+      avatarUrl = '/assets/avatar/avatar-2.png'
     }
 
     // 构建位置信息 - 优先使用完整的位置组合
