@@ -9,7 +9,7 @@
   <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
   <!-- 顶部图片 -->
   <view class="top-image-container">
-    <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png" mode="aspectFit" />
+    <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/06/64fc16d0-fb12-4e63-b7a0-8638b532c45a.png" mode="aspectFit" />
   </view>
   
   <!-- 搜索栏和筛选条件容器 -->
@@ -25,18 +25,33 @@
     
     <!-- 筛选区域 -->
     <view class="filter-section">
-      <view class="filter-item" wx:for="{{filters}}" wx:key="label" data-index="{{index}}" bindtap="openFilterOptions">
-        <text>{{item.options[item.selected]}}</text>
+      <!-- 身份筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onIdentityChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+          <text>{{filters[0].options[filters[0].selected]}}</text>
+        </picker>
         <text class="filter-arrow">▾</text>
       </view>
-    </view>
-  </view>
-
-  <view wx:if="{{showFilterOptions}}">
-    <view class="filter-mask" bindtap="closeFilterOptions"></view>
-    <view class="filter-options-panel">
-      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
-        {{item}}
+      <!-- 城市筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onCityChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+          <text>{{filters[1].options[filters[1].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 排序筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
+          <text>{{filters[2].options[filters[2].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 关注筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onFollowChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
+          <text>{{filters[3].options[filters[3].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
       </view>
     </view>
   </view>

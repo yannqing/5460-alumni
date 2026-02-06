@@ -16,8 +16,6 @@ Page({
       { label: '排序', options: ['默认排序', '最新加入', '人气最高'], selected: 0 },
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
-    showFilterOptions: false,
-    activeFilterIndex: -1,
     alumniList: [],
     page: 1,
     pageSize: 10,
@@ -264,30 +262,36 @@ Page({
     this.loadAlumniList(true)
   },
 
-  openFilterOptions(e) {
-    const { index } = e.currentTarget.dataset
-    if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-      this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-      return
-    }
-    this.setData({ activeFilterIndex: index, showFilterOptions: true })
-  },
-
-  selectFilterOption(e) {
-    const { optionIndex } = e.currentTarget.dataset
-    const { activeFilterIndex, filters } = this.data
-    if (activeFilterIndex === -1) return
-    filters[activeFilterIndex].selected = optionIndex
-    this.setData({
-      filters,
-      showFilterOptions: false,
-      activeFilterIndex: -1
-    })
+  // 身份筛选
+  onIdentityChange(e) {
+    const filters = this.data.filters
+    filters[0].selected = e.detail.value
+    this.setData({ filters })
     this.loadAlumniList(true)
   },
 
-  closeFilterOptions() {
-    this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
+  // 城市筛选
+  onCityChange(e) {
+    const filters = this.data.filters
+    filters[1].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
+  },
+
+  // 排序筛选
+  onSortChange(e) {
+    const filters = this.data.filters
+    filters[2].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
+  },
+
+  // 关注筛选
+  onFollowChange(e) {
+    const filters = this.data.filters
+    filters[3].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
   },
 
   viewDetail(e) {
