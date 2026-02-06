@@ -30,7 +30,7 @@ const config = {
   timeout: 10000,
 
   // 默认个人头像
-  defaultAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png',
+  defaultAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/images/eravarter@2x.png',
 
   // 默认母校头像
   defaultSchoolAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/logo/njdx.jpg',
@@ -53,6 +53,9 @@ const config = {
   // ==================== 图标路径配置 ====================
   // 图标固定路径（assets/icons/ 这个路径不会变）
   iconFixedPath: 'assets/icons',
+  
+  // 图片固定路径（assets/images/ 这个路径不会变）
+  imageFixedPath: 'assets/images',
 
   /**
    * 获取图标完整路径
@@ -90,6 +93,36 @@ const config = {
       return `${baseUrl}/${iconPathPrefix}/${this.iconFixedPath}/${iconName}`
     } else {
       return `${baseUrl}/${this.iconFixedPath}/${iconName}`
+    }
+  },
+
+  /**
+   * 获取 assets/images 文件夹下的图片完整路径
+   * @param {string} imageName - 图片文件名，如 'grjrt@2x.png' 或 'grdbt@2x.png'
+   * @param {string} env - 可选，环境名称，如果不传则从本地存储读取
+   * @returns {string} 完整的图片URL路径
+   * @example
+   * config.getAssetImageUrl('grjrt@2x.png') // 返回: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grjrt@2x.png'
+   */
+  getAssetImageUrl(imageName, env) {
+    if (!imageName) {
+      return ''
+    }
+    
+    // 如果没有传入环境参数，从本地存储读取
+    if (!env) {
+      env = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
+    }
+    
+    const envConfig = this[env] || this.test // 默认使用测试环境
+    const baseUrl = envConfig.baseUrl
+    const iconPathPrefix = envConfig.iconPathPrefix || '' // 获取环境配置的图标路径前缀
+    
+    // 拼接完整路径：baseUrl + iconPathPrefix + imageFixedPath + imageName
+    if (iconPathPrefix) {
+      return `${baseUrl}/${iconPathPrefix}/${this.imageFixedPath}/${imageName}`
+    } else {
+      return `${baseUrl}/${this.imageFixedPath}/${imageName}`
     }
   },
 

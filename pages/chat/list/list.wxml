@@ -2,95 +2,97 @@
 <!-- 消息通知组件 -->
 <message-notification />
 
-<view class="chat-page">
-  <!-- 菜单栏 -->
-  <view class="menu-bar">
-    <view class="menu-btn" bindtap="toggleSidebar">
-      <text class="menu-icon">☰</text>
-      <text class="menu-text">菜单</text>
-    </view>
-  </view>
-
-  <!-- 侧边栏遮罩 -->
-  <view class="sidebar-mask {{showSidebar ? 'show' : ''}}" bindtap="toggleSidebar"></view>
-
-  <!-- 侧边栏 -->
-  <view class="sidebar {{showSidebar ? 'show' : ''}}">
-    <view class="sidebar-header">
-      <text class="sidebar-title">菜单</text>
-      <text class="sidebar-close" bindtap="toggleSidebar">×</text>
-    </view>
-    <view class="sidebar-content">
-      <view class="sidebar-item" bindtap="navigateToMyAssociations">
-        <text class="sidebar-icon">👥</text>
-        <text class="sidebar-text">我加入的校友会</text>
-        <text class="sidebar-arrow">›</text>
+<view class="page">
+  <!-- 顶部自定义导航栏区域 (Fixed) -->
+  <view class="header-section" style="background-image: url({{imageTopBg}}); padding-top: {{statusBarHeight}}px;">
+    <!-- 标题栏 -->
+    <view class="page-title">
+      <text class="title-text">5460</text>
+      <view class="title-icons">
+        <image class="title-icon circle-icon" src="/assets/icons/settings.png" mode="aspectFit"></image>
       </view>
-      <view class="sidebar-item" bindtap="navigateToMyFollows">
-        <text class="sidebar-icon">❤️</text>
-        <text class="sidebar-text">我关注的</text>
-        <text class="sidebar-arrow">›</text>
+    </view>
+
+    <!-- 顶部功能入口 (我的校友会、我的收藏、我的关注) -->
+    <view class="top-functions">
+      <view class="function-item" bindtap="navigateToMyAssociations">
+        <image class="function-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
+        <text class="function-text">我的校友会</text>
       </view>
-      <view class="sidebar-item" bindtap="navigateToMyFavorites">
-        <text class="sidebar-icon">⭐</text>
-        <text class="sidebar-text">我收藏的</text>
-        <text class="sidebar-arrow">›</text>
+      <view class="function-item" bindtap="navigateToMyFavorites">
+        <image class="function-icon" src="{{iconFav}}" mode="aspectFit"></image>
+        <text class="function-text">我的收藏</text>
+      </view>
+      <view class="function-item" bindtap="navigateToMyFollows">
+        <image class="function-icon" src="{{iconFollow}}" mode="aspectFit"></image>
+        <text class="function-text">我的关注</text>
       </view>
     </view>
   </view>
 
-  <!-- 聊天列表 -->
-  <scroll-view class="chat-list" scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+  <!-- Banner 横幅 (固定在顶部) -->
+  <view class="banner-wrapper">
+    <image class="banner-image" src="{{imageBanner}}" mode="widthFix"></image>
+  </view>
+
+  <!-- 滚动内容区域 -->
+  <scroll-view class="content-scroll" scroll-y show-scrollbar="{{false}}" refresher-enabled="{{false}}" enable-back-to-top="{{false}}">
     
-    <view class="chat-item-container {{item.isTouchMove ? 'touch-move-active' : ''}}" 
-          wx:for="{{allChatList}}" 
-          wx:key="id" 
-          bindtouchstart="touchstart" 
-          bindtouchmove="touchmove" 
-          data-index="{{index}}">
-      
-      <!-- 内容区域 -->
-      <view class="chat-content-wrapper" bindtap="openChat" data-id="{{item.id}}" data-peerid="{{item.peerId}}" data-type="{{item.type || 'chat'}}">
-        <view class="chat-avatar-wrapper">
-          <image class="chat-avatar {{item.isSystemNotification ? 'system-notification-avatar' : ''}}" src="{{item.avatar}}" mode="aspectFill"></image>
-          <view class="online-status" wx:if="{{item.isOnline}}"></view>
-          <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
-        </view>
-        
-        <view class="chat-info">
-          <view class="chat-header">
-            <view class="chat-name-wrap">
-              <text class="chat-name">{{item.name}}</text>
-              <text class="chat-tag" wx:if="{{item.isPinned}}">置顶</text>
+    <!-- 聊天列表 -->
+    <view class="chat-list-container">
+      <block wx:for="{{allChatList}}" wx:key="id">
+        <view class="chat-item {{item.isTouchMove ? 'touch-move-active' : ''}}" 
+              bindtouchstart="touchstart" 
+              bindtouchmove="touchmove" 
+              data-index="{{index}}"
+              bindtap="openChat" 
+              data-id="{{item.id}}" 
+              data-peerid="{{item.peerId}}" 
+              data-type="{{item.type || 'chat'}}">
+          
+          <view class="chat-content">
+            <!-- 头像 -->
+            <view class="chat-avatar-wrapper">
+              <image class="chat-avatar {{item.isSystemNotification ? 'system-avatar' : ''}}" src="{{item.avatar}}" mode="aspectFill"></image>
+              <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
             </view>
-            <text class="chat-time">{{item.lastTime}}</text>
+
+            <!-- 文本信息 -->
+            <view class="chat-info">
+              <view class="chat-header">
+                <text class="chat-name">{{item.name}}</text>
+                <text class="chat-time">{{item.lastTime}}</text>
+              </view>
+              <view class="chat-message-row">
+                <text class="chat-message">{{item.lastMessage}}</text>
+              </view>
+            </view>
           </view>
-          <view class="chat-preview">
-            <text class="chat-message">{{item.lastMessage}}</text>
-            <view class="chat-status-icons">
-               <text class="chat-mute" wx:if="{{item.isMuted}}">🔇</text>
+
+          <!-- 滑动操作按钮 -->
+          <view class="action-buttons">
+            <view class="action-btn pin {{item.isPinned ? 'unpin' : ''}}" catchtap="pinConversation" data-index="{{index}}" data-id="{{item.conversationId}}" data-ispinned="{{item.isPinned}}">
+              {{item.isPinned ? '取消' : '置顶'}}
+            </view>
+            <view class="action-btn read" wx:if="{{item.unreadCount > 0}}" catchtap="markRead" data-index="{{index}}" data-peerid="{{item.peerId}}">
+              已读
+            </view>
+            <view class="action-btn delete" catchtap="deleteConversation" data-index="{{index}}" data-id="{{item.conversationId}}">
+              删除
             </view>
           </view>
         </view>
-      </view>
+        <!-- 分割线 -->
+        <view class="list-divider"></view>
+      </block>
 
-      <!-- 滑动操作按钮 -->
-      <view class="action-buttons">
-        <view class="action-btn pin {{item.isPinned ? 'unpin' : ''}}" catchtap="pinConversation" data-index="{{index}}" data-id="{{item.conversationId}}" data-ispinned="{{item.isPinned}}">
-          {{item.isPinned ? '取消置顶' : '置顶'}}
-        </view>
-        <view class="action-btn read" catchtap="markRead" data-index="{{index}}" data-peerid="{{item.peerId || item.userId}}">
-          已读
-        </view>
-        <view class="action-btn delete" catchtap="deleteConversation" data-index="{{index}}" data-id="{{item.conversationId}}">
-          删除
-        </view>
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{allChatList.length === 0 && !loading}}">
+        <text class="empty-text">暂无聊天记录</text>
       </view>
-
     </view>
     
-    <view class="empty-state" wx:if="{{allChatList.length === 0 && !loading}}">
-      <text class="empty-text">暂无聊天记录</text>
-    </view>
+    <!-- 底部垫高，防止被 TabBar 遮挡 -->
+    <view style="height: 120rpx;"></view>
   </scroll-view>
 </view>

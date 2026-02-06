@@ -23,7 +23,13 @@ Page({
       peerNickname : '',
       peerAvatar : '',
       messageContent: ''
-    }
+    },
+    statusBarHeight: 0,
+    imageTopBg: config.getAssetImageUrl('grdbt@2x.png'),
+    imageBanner: config.getAssetImageUrl('chatbanner2@2x.png'), // Reusing the banner from profile for now as placeholder
+    iconAlumni: config.getIconUrl('chatwdxyh@2x.png'), // Using existing icons as placeholders if specific ones aren't known
+    iconFav: config.getIconUrl('chatwdsc@2x.png'),
+    iconFollow: config.getIconUrl('chatwdgz@2x.png')
   },
 
   // WebSocket 事件监听器引用（用于移除监听）
@@ -33,6 +39,10 @@ Page({
   disconnectListener: null,
 
   onLoad() {
+    const systemInfo = wx.getSystemInfoSync()
+    this.setData({
+      statusBarHeight: systemInfo.statusBarHeight
+    })
     this.initWebSocket()
   },
 
@@ -256,7 +266,7 @@ Page({
           // 判断头像：如果是系统通知使用默认图标，否则使用用户头像
           let avatar = ''
           if (isSystemNotification) {
-            avatar = 'https://cni-alumni.yannqing.com/upload/images/2026/01/14/message.png'
+            avatar = config.getAssetImageUrl('xttzavartar@2x.png')
           } else {
             avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : '')
           }
@@ -374,11 +384,8 @@ Page({
   },
 
   navigateToMyAssociations() {
-    // 功能已移除
-    this.toggleSidebar()
-    wx.showToast({
-      title: '功能已移除',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/profile/alumni-association/alumni-association'
     })
   },
 

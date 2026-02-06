@@ -2,123 +2,138 @@
 <!-- 消息通知组件 -->
 <message-notification />
 
-<view class="profile-page">
-  <!-- 个人信息卡片 -->
-  <view class="user-card">
-    <view class="user-info">
-      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="editProfile" wx:if="{{userInfo.avatarUrl}}"></image>
-      <view class="user-avatar-placeholder" bindtap="editProfile" wx:else></view>
-      <view class="user-detail">
-        <view class="user-name-container">
-          <text class="user-name">{{userInfo.nickname || '用户'}}</text>
-          <image class="alumni-badge" src="/assets/certification/alumni_certification1.png" mode="aspectFit" wx:if="{{userInfo.isAlumni === 1}}" />
-        </view>
-        <view class="edit-hint" bindtap="editProfile">编辑资料 ›</view>
-      </view>
-      <!-- 关注和粉丝统计 -->
-      <view class="follow-stats">
-        <view class="follow-stat-item" bindtap="goToMyFans">
-          <view class="follow-stat-value">{{followStats.fansCount || 0}}</view>
-          <view class="follow-stat-label">粉丝</view>
-        </view>
-        <view class="follow-stat-item" bindtap="goToMyFollow">
-          <view class="follow-stat-value">{{followStats.followingCount || 0}}</view>
-          <view class="follow-stat-label">关注</view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 数据栏 -->
-    <view class="stats-section">
-      <view class="stat-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my">
-        <view class="stat-value">{{stats.coupons}}</view>
-        <view class="stat-label">优惠券</view>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item" bindtap="navigateTo" data-url="/pages/shop/list/list?type=followed">
-        <view class="stat-value">{{stats.followedShops}}</view>
-        <view class="stat-label">关注商铺</view>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item" bindtap="navigateTo" data-url="/pages/footprint/footprint">
-        <view class="stat-value">{{stats.footprints}}</view>
-        <view class="stat-label">足迹</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 功能菜单 -->
-  <view class="card menu-card">
-    <!-- 管理入口 - 仅管理者可见 -->
-    <view class="menu-item" wx:if="{{hasManagementPermission}}" bindtap="navigateTo" data-url="/pages/audit/index/index">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconGlrk}}" mode="aspectFit"></image>
-        <text class="menu-name">管理入口</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconWdjb}}" mode="aspectFit"></image>
-        <text class="menu-name">我的券包</text>
-        <text class="menu-badge" wx:if="{{couponStats.unused > 0}}">{{couponStats.unused}}</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/alumni-association/alumni-association">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
-        <text class="menu-name">我的校友会</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/merchant/my-merchant/my-merchant">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
-        <text class="menu-name">我的商户</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/enterprise/my-enterprise/my-enterprise">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
-        <text class="menu-name">我的企业</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-    <!-- 商务合作 - 暂时注释掉 -->
-    <!-- <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/cooperation/cooperation">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
-        <text class="menu-name">商务合作</text>
-      </view>
-      <text class="menu-arrow">›</text>
+<view class="page">
+  <!-- 顶部背景区域 -->
+  <view class="box_6" style="background-image: url({{imageTopBg}}); padding-top: {{statusBarHeight}}px;">
+    <!-- 时间显示 (已移除) -->
+    <!-- <view class="text-wrapper_5">
+      <text lines="1" class="text_3">{{currentTime}}</text>
     </view> -->
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-favorites/my-favorites">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconWdsc}}" mode="aspectFit"></image>
-        <text class="menu-name">我的收藏</text>
-      </view>
-      <text class="menu-arrow">›</text>
+    
+    <!-- 编辑资料按钮 -->
+    <view class="text-wrapper_6" bindtap="editProfile">
+      <text lines="1" decode="true" class="text_4">编辑资料&nbsp;&gt;</text>
     </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/my-card/my-card">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconWdsc}}" mode="aspectFit"></image>
-        <text class="menu-name">我的名片</text>
+
+    <!-- 装饰背景层 section_1 -->
+    <view class="section_1">
+      <view class="image-wrapper_6">
+        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng241651b3653932142a38eb96e9e7ca95f143d918c1810c0b393d0101f14fc69d" class="image_10"></image>
+        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng11bc7d99bbdfea86e20ee2953d750515935919663f81a03b3373d254944151a6" class="image_11"></image>
+        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPnge11d921b8db330afe3803a2311ec3f275c3ca84e05c0bcdb8b01f6c8e5a9098f" class="thumbnail_4"></image>
+        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng74ba3f01da81516698481d9d137f48486e279f7f16e39dc505c8cdc9a236f6aa" class="thumbnail_5"></image>
       </view>
-      <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/privacy/privacy">
-      <view class="menu-left">
-        <image class="menu-icon-img" src="{{iconGrys}}" mode="aspectFit"></image>
-        <text class="menu-name">个人隐私</text>
+
+    <!-- 个人中心标题和用户名 section_2 -->
+    <view class="section_2">
+      <view class="text-wrapper_7">
+        <text lines="1" class="text_5">个人中心</text>
       </view>
-      <text class="menu-arrow">›</text>
+      <view class="text-wrapper_8">
+        <text lines="1" class="text_6">{{userInfo.nickname || '用户名'}}</text>
+      </view>
+    </view>
+
+    <!-- 头像 -->
+    <view class="image-wrapper_7" bindtap="editProfile">
+      <image src="{{userInfo.avatarUrl || '/assets/default-avatar.png'}}" class="image_12"></image>
+    </view>
+
+    <!-- 校友会认证徽章 -->
+    <view class="section_3" wx:if="{{userInfo.isAlumni === 1}}">
+      <text lines="1" class="text_7">校友会认证</text>
+      <view class="group_12"></view>
     </view>
   </view>
 
-  <!-- 底部留白 -->
-  <view class="bottom-space"></view>
+  <!-- 下方内容区域 -->
+  <view class="block_1">
+    <!-- 统计数据 -->
+    <view class="list_4">
+      <view class="text-group_9-0" bindtap="goToMyFollow">
+        <text lines="1" class="text_8-0">{{followStats.followingCount || 0}}</text>
+        <text lines="1" class="text_9-0">关注</text>
+      </view>
+      <view class="text-group_9-1" bindtap="goToMyFans">
+        <text lines="1" class="text_8-1">{{followStats.fansCount || 0}}</text>
+        <text lines="1" class="text_9-1">粉丝</text>
+      </view>
+      <view class="text-group_9-2" bindtap="navigateTo" data-url="/pages/footprint/footprint">
+        <text lines="1" class="text_8-2">{{stats.footprints || 0}}</text>
+        <text lines="1" class="text_9-2">足迹</text>
+      </view>
+      <view class="text-group_9-3" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my">
+        <text lines="1" class="text_8-3">{{stats.coupons || 0}}</text>
+        <text lines="1" class="text_9-3">卡券</text>
+      </view>
+    </view>
+
+    <!-- Banner图片 / 完善信息提示 -->
+    <block wx:if="{{userInfo && userInfo.realName && userInfo.realName !== ''}}">
+      <image src="{{imageBanner}}" class="image_13" mode="widthFix"></image>
+    </block>
+    <view class="complete-profile-banner" wx:else>
+      <view class="complete-profile-text-group">
+        <text class="complete-profile-text-regular">完善个人信息，享受</text>
+        <text class="complete-profile-text-bold">更多权益</text>
+      </view>
+      <view class="complete-profile-btn" bindtap="editProfile">
+        <text class="complete-profile-btn-text">完善个人信息</text>
+      </view>
+    </view>
+
+    <!-- 常用功能 -->
+    <view class="section_4">
+      <text lines="1" class="text_10">常用功能</text>
+      <view class="list_5">
+        <view class="image-text_8-0" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
+          <image src="{{iconWdjb}}" class="label_9-0"></image>
+          <text lines="1" class="text-group_2-0">我的券包</text>
+        </view>
+        <view class="image-text_8-1" bindtap="navigateTo" data-url="/pages/profile/alumni-association/alumni-association">
+          <image src="{{iconSwhz}}" class="label_9-1"></image>
+          <text lines="1" class="text-group_2-1">我的校友会</text>
+        </view>
+        <view class="image-text_8-2" bindtap="navigateTo" data-url="/pages/my-favorites/my-favorites">
+          <image src="{{iconWdsc}}" class="label_9-2"></image>
+          <text lines="1" class="text-group_2-2">我的收藏</text>
+        </view>
+        <view class="image-text_8-3" bindtap="navigateTo" data-url="/pages/profile/my-card/my-card">
+          <image src="{{iconWdsc}}" class="label_9-3"></image>
+          <text lines="1" class="text-group_2-3">我的名片</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他功能 -->
+    <view class="section_5">
+      <text lines="1" class="text_11">其他功能</text>
+      <view class="list_6">
+        <view class="image-text_9-0" wx:if="{{hasManagementPermission}}" bindtap="navigateTo" data-url="/pages/audit/index/index">
+          <image src="{{iconGlrk}}" class="label_10-0"></image>
+          <text lines="1" class="text-group_3-0">管理入口</text>
+        </view>
+        <view class="image-text_9-1" bindtap="navigateTo" data-url="/pages/merchant/my-merchant/my-merchant">
+          <image src="{{iconSwhz}}" class="label_10-1"></image>
+          <text lines="1" class="text-group_3-1">我的商户</text>
+        </view>
+        <view class="image-text_9-2" bindtap="navigateTo" data-url="/pages/enterprise/my-enterprise/my-enterprise">
+          <image src="{{iconSwhz}}" class="label_10-2"></image>
+          <text lines="1" class="text-group_3-2">我的企业</text>
+        </view>
+        <view class="image-text_9-3" bindtap="navigateTo" data-url="/pages/profile/privacy/privacy">
+          <image src="{{iconGrys}}" class="label_10-3"></image>
+          <text lines="1" class="text-group_3-3">个人隐私</text>
+        </view>
+      </view>
+      <view class="image-text_10" wx:if="{{couponStats.unused > 0}}" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
+        <image src="{{iconWdjb}}" class="label_11"></image>
+        <text lines="1" class="text-group_4">券包({{couponStats.unused}})</text>
+      </view>
+    </view>
+    <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng6459f3592ef9f4f71a48c0ab599f18326cd018950fa3e6b5e8b45e8d6db7df03" class="label_12"></image>
+  </view>
 </view>
 
 <!-- 校友卡弹窗 -->
