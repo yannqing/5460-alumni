@@ -15,8 +15,6 @@ Page({
             { label: '状态', options: ['全部状态', '活跃', '未激活'], selected: 0 },
             { label: '排序', options: ['默认排序', '最新创建'], selected: 0 }
         ],
-        showFilterOptions: false,
-        activeFilterIndex: -1,
         platformList: [],
         current: 1,
         pageSize: 10,
@@ -176,30 +174,28 @@ Page({
         this.loadPlatformList(true)
     },
 
-    openFilterOptions(e) {
-        const { index } = e.currentTarget.dataset
-        if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-            this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-            return
-        }
-        this.setData({ activeFilterIndex: index, showFilterOptions: true })
-    },
-
-    selectFilterOption(e) {
-        const { optionIndex } = e.currentTarget.dataset
-        const { activeFilterIndex, filters } = this.data
-        if (activeFilterIndex === -1) return
-        filters[activeFilterIndex].selected = optionIndex
-        this.setData({
-            filters,
-            showFilterOptions: false,
-            activeFilterIndex: -1
-        })
+    // 城市筛选
+    onCityChange(e) {
+        const filters = this.data.filters
+        filters[0].selected = e.detail.value
+        this.setData({ filters })
         this.loadPlatformList(true)
     },
 
-    closeFilterOptions() {
-        this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
+    // 状态筛选
+    onStatusChange(e) {
+        const filters = this.data.filters
+        filters[1].selected = e.detail.value
+        this.setData({ filters })
+        this.loadPlatformList(true)
+    },
+
+    // 排序筛选
+    onSortChange(e) {
+        const filters = this.data.filters
+        filters[2].selected = e.detail.value
+        this.setData({ filters })
+        this.loadPlatformList(true)
     },
 
     viewDetail(e) {
