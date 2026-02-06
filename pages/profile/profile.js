@@ -6,6 +6,7 @@ const { hasManagementPermission } = require('../../utils/auth.js')
 
 Page({
   data: {
+    currentTime: '9:41', // 当前时间显示
     userInfo: null,
     isLogin: false,
     certificationStatus: 'none', // none: 未认证, pending: 认证中, verified: 已认证
@@ -39,10 +40,14 @@ Page({
     iconWdjb: config.getIconUrl('wdjb@3x.png'),
     iconSwhz: config.getIconUrl('swhz@3x.png'),
     iconWdsc: config.getIconUrl('wdsc@3x.png'),
-    iconGrys: config.getIconUrl('grys@3x.png')
+    iconGrys: config.getIconUrl('grys@3x.png'),
+    // 页面装饰图片
+    imageTopBg: config.getAssetImageUrl('grdbt@2x.png'),   // 顶部背景图
+    imageBanner: config.getAssetImageUrl('grjrt@2x.png')   // 中间 Banner 图
   },
 
   onLoad() {
+    this.updateCurrentTime()
     this.loadUserInfo()
     this.checkManagementPermission()
   },
@@ -57,9 +62,20 @@ Page({
       this.getTabBar().updateUnreadCount();
     }
     // 每次显示页面时都重新加载用户信息，确保数据实时更新
+    this.updateCurrentTime()
     this.loadUserInfo()
     this.loadUserData()
     this.checkManagementPermission()
+  },
+
+  // 更新当前时间显示
+  updateCurrentTime() {
+    const now = new Date()
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+    this.setData({
+      currentTime: `${hours}:${minutes}`
+    })
   },
 
   onPullDownRefresh() {
@@ -204,12 +220,16 @@ Page({
     console.log('加载用户信息 - nickname:', userInfo.nickname || userData.nickname)
 
     // 格式化用户信息
+    // 兼容多种真实姓名字段名：name
+    const realName = userInfo.name || userData.name || ''
+    
     const formattedUserInfo = {
       nickname: userInfo.nickname || userData.nickname || '用户',
       avatarUrl: avatarUrl,
       school: userInfo.school || userInfo.schoolName || userData.school || userData.schoolName || '',
       major: userInfo.major || userData.major || '',
       graduateYear: userInfo.graduateYear || userInfo.enrollYear || userData.graduateYear || userData.enrollYear || '',
+      realName: realName,
       isAlumni: userInfo.isAlumni || userData.isAlumni || 0
     }
 
