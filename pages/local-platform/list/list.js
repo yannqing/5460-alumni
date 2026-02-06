@@ -26,15 +26,7 @@ Page({
         this.loadPlatformList(true)
     },
 
-    onPullDownRefresh() {
-        this.loadPlatformList(true)
-    },
-
-    onReachBottom() {
-        if (this.data.hasMore && !this.data.loading) {
-            this.loadPlatformList(false)
-        }
-    },
+    
 
     async loadPlatformList(reset = false) {
         if (this.data.loading) return
@@ -93,22 +85,15 @@ Page({
                 this.setData({
                     platformList: finalList,
                     current: reset ? 2 : current + 1,
-                    hasMore: data.hasNext || false,
+                    hasMore: false,
                     loading: false
                 })
-
-                if (reset) {
-                    wx.stopPullDownRefresh()
-                }
             } else {
                 this.setData({ loading: false })
                 wx.showToast({
                     title: res.data?.msg || '加载失败',
                     icon: 'none'
                 })
-                if (reset) {
-                    wx.stopPullDownRefresh()
-                }
             }
         } catch (error) {
             console.error('加载校处会列表失败:', error)
@@ -117,9 +102,6 @@ Page({
                 title: '加载失败，请重试',
                 icon: 'none'
             })
-            if (reset) {
-                wx.stopPullDownRefresh()
-            }
         }
     },
 

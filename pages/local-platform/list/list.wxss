@@ -2,11 +2,12 @@
 
 /* 页面容器 */
 .container {
-  min-height: 100vh;
+  height: 100vh;
   background: #0089DF;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* 固定顶部背景 */
@@ -46,13 +47,10 @@ page {
 
 /* 头部容器（包含搜索栏和筛选条件） */
 .header-container {
-  position: sticky;
-  top: 180rpx;
+  position: relative;
   z-index: 15;
   background: #0089DF;
-  overflow: hidden;
   border-bottom: none;
-  bottom: 0;
 }
 
 /* 搜索栏 */
@@ -282,11 +280,14 @@ view, text, picker, input, button, image, navigator {
 .platform-list {
   padding: 0 30rpx 20rpx;
   background-color: #F5F5F5;
-  min-height: 100vh;
   background: #F5F5F5;
   margin-top: -1rpx;
   position: relative;
   z-index: 0;
+  height: calc(100vh - 350rpx);
+  padding-bottom: 100rpx;
+  overflow: hidden;
+  touch-action: none;
 }
 
 .platform-card {
