@@ -39,7 +39,16 @@ Page({
     bannerList: [],
     currentBannerIndex: 0,
     // 轮播图 translateY 值
-    bannerTranslateY: 0
+    bannerTranslateY: 0,
+    // 文章列表 scroll-view 高度
+    articleScrollHeight: 0,
+    // 导航菜单是否固定
+    navFixed: false,
+    // 当前页面滚动位置
+    _scrollTop: 0,
+    // 触摸事件相关
+    _touchStartY: 0,
+    _touchCurrentY: 0
   },
 
   /**
@@ -50,15 +59,39 @@ Page({
     this.getArticleList(true);
     // 添加滚动事件监听
     wx.pageScrollTo({ scrollTop: 0, duration: 0 });
-    wx.onPageScroll(this.onPageScroll);
+    // 计算 scroll-view 高度
+    this.calculateScrollViewHeight();
+  },
+
+  /**
+   * 计算 scroll-view 高度
+   */
+  calculateScrollViewHeight: function () {
+    try {
+      const systemInfo = wx.getSystemInfoSync();
+      const screenHeight = systemInfo.windowHeight;
+      // 计算其他元素的高度（轮播图 + 导航菜单）
+      // 轮播图高度：450rpx 转换为 px
+      const bannerHeight = 450 / 2;
+      // 导航菜单高度：考虑负边距和内边距
+      const navHeight = 200;
+      // 计算 scroll-view 可用高度
+      const scrollViewHeight = screenHeight - (bannerHeight + navHeight);
+      this.setData({
+        articleScrollHeight: Math.max(scrollViewHeight, 300) // 确保最小高度为 300px
+      });
+    } catch (error) {
+      console.error('计算 scroll-view 高度失败:', error);
+      this.setData({
+        articleScrollHeight: 500 // 默认高度
+      });
+    }
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    // 移除滚动事件监听
-    wx.offPageScroll(this.onPageScroll);
   },
 
   /**
@@ -66,15 +99,25 @@ Page({
    */
   onPageScroll: function (e) {
     const scrollTop = e.scrollTop;
+    // 保存当前滚动位置
+    this.setData({
+      _scrollTop: scrollTop
+    });
+    
     // 计算轮播图的 translateY 值
     // 当向上滚动时，轮播图跟随向上移动，但有一个最大移动距离
     const maxTranslateY = -180; // 最大向上移动距离（单位：px）
     
     // 当滚动距离超过180时，轮播图停止移动
+    // 这样当校友功能卡片到达顶部固定时，轮播图位置保持不变
     let bannerTranslateY = Math.max(scrollTop * -1, maxTranslateY);
     
-    // 当滚动距离超过一定值时，轮播图保持在最大移动距离位置
+    // 当滚动距离超过校友功能卡片固定点时，轮播图保持在最大移动距离位置
+    // 确保校友功能卡片固定后，轮播图位置不再跟随移动
+    // 这样可以保证在校友功能卡片固定时，轮播图始终显示在其上方
     if (scrollTop > 200) {
+      // 轮播图保持在最大向上移动距离位置
+      // 不再继续向上移动，确保轮播图始终显示在校友功能卡片上方
       bannerTranslateY = maxTranslateY;
     }
     
@@ -82,6 +125,14 @@ Page({
     this.setData({
       bannerTranslateY: bannerTranslateY
     });
+    
+    // 实现导航菜单的固定效果
+    const navFixed = scrollTop > 150;
+    if (navFixed !== this.data.navFixed) {
+      this.setData({
+        navFixed: navFixed
+      });
+    }
   },
 
   /**
@@ -107,6 +158,77 @@ Page({
       // 更新未读消息数
       this.getTabBar().updateUnreadCount();
     }
+    // 重新计算 scroll-view 高度，确保在不同设备上都能正确显示
+    this.calculateScrollViewHeight();
+  },
+
+  /**
+   * 列表下拉刷新处理函数
+   */
+  onListRefresh: function () {
+    console.log('[Index] 列表下拉刷新触发')
+    this.setData({ refreshing: true });
+    this.getArticleList(true);
+  },
+
+  /**
+   * scroll-view 触摸移动事件处理函数
+   * 确保先实现校友功能卡片的滑动极限状态，再进行列表的局部滑动
+   */
+  onScrollViewTouchMove: function (e) {
+    const scrollTop = this.data._scrollTop || 0;
+    const currentY = e.touches[0].pageY;
+    
+    // 初始化触摸起始位置
+    if (!this.data._touchStartY) {
+      this.setData({
+        _touchStartY: currentY
+      });
+    }
+    
+    const deltaY = currentY - this.data._touchStartY;
+    
+    // 如果是向上滑动，且导航区域还没有固定，则阻止 scroll-view 的滚动
+    // 让页面级滚动处理，先实现校友功能卡片的固定
+    if (deltaY < 0 && !this.data.navFixed) {
+      // 阻止 scroll-view 的滚动，让页面滚动
+      return false;
+    }
+    
+    // 如果是向下滑动，且 scroll-view 已经滚动到顶部，且导航区域已经固定
+    // 则允许页面滚动，实现导航区域的解除固定
+    if (deltaY > 0 && this.data.navFixed) {
+      // 允许页面滚动
+      wx.pageScrollTo({ 
+        scrollTop: Math.max(scrollTop - 1, 0), 
+        duration: 0 
+      });
+      return false;
+    }
+    
+    // 保存当前触摸位置
+    this.setData({
+      _touchCurrentY: currentY
+    });
+  },
+
+  /**
+   * 触摸开始事件处理函数
+   */
+  onTouchStart: function (e) {
+    this.setData({
+      _touchStartY: e.touches[0].pageY
+    });
+  },
+
+  /**
+   * 触摸结束事件处理函数
+   */
+  onTouchEnd: function () {
+    this.setData({
+      _touchStartY: 0,
+      _touchCurrentY: 0
+    });
   },
 
   /**
