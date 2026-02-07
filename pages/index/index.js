@@ -37,7 +37,13 @@ Page({
     },
     // 轮播图列表
     bannerList: [],
-    currentBannerIndex: 0
+    currentBannerIndex: 0,
+    // 轮播图 translateY 值
+    bannerTranslateY: 0,
+    // 文章列表 scroll-view 高度
+    articleScrollHeight: 0,
+    // 导航菜单是否固定
+    navFixed: false
   },
 
   /**
@@ -46,6 +52,92 @@ Page({
   onLoad: function (options) {
     this.getBannerList();
     this.getArticleList(true);
+    // 添加滚动事件监听
+    wx.pageScrollTo({ scrollTop: 0, duration: 0 });
+    wx.onPageScroll(this.onPageScroll);
+    // 计算 scroll-view 高度
+    this.calculateScrollViewHeight();
+  },
+
+  /**
+   * 计算 scroll-view 高度
+   */
+  calculateScrollViewHeight: function () {
+    try {
+      const systemInfo = wx.getSystemInfoSync();
+      const screenHeight = systemInfo.windowHeight;
+      // 计算其他元素的高度（轮播图 + 导航菜单）
+      // 轮播图高度：450rpx 转换为 px
+      const bannerHeight = 450 / 2;
+      // 导航菜单高度：考虑负边距和内边距
+      const navHeight = 200;
+      // 计算 scroll-view 可用高度
+      const scrollViewHeight = screenHeight - (bannerHeight + navHeight);
+      this.setData({
+        articleScrollHeight: Math.max(scrollViewHeight, 300) // 确保最小高度为 300px
+      });
+    } catch (error) {
+      console.error('计算 scroll-view 高度失败:', error);
+      this.setData({
+        articleScrollHeight: 500 // 默认高度
+      });
+    }
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+    // 移除滚动事件监听
+    wx.offPageScroll(this.onPageScroll);
+  },
+
+  /**
+   * 页面滚动事件处理函数
+   */
+  onPageScroll: function (e) {
+    const scrollTop = e.scrollTop;
+    // 计算轮播图的 translateY 值
+    // 当向上滚动时，轮播图跟随向上移动，但有一个最大移动距离
+    const maxTranslateY = -180; // 最大向上移动距离（单位：px）
+    
+    // 当滚动距离超过180时，轮播图停止移动
+    // 这样当校友功能卡片到达顶部固定时，轮播图位置保持不变
+    let bannerTranslateY = Math.max(scrollTop * -1, maxTranslateY);
+    
+    // 当滚动距离超过校友功能卡片固定点时，轮播图保持在最大移动距离位置
+    // 确保校友功能卡片固定后，轮播图位置不再跟随移动
+    // 这样可以保证在校友功能卡片固定时，轮播图始终显示在其上方
+    if (scrollTop > 200) {
+      // 轮播图保持在最大向上移动距离位置
+      // 不再继续向上移动，确保轮播图始终显示在校友功能卡片上方
+      bannerTranslateY = maxTranslateY;
+    }
+    
+    // 更新轮播图位置
+    this.setData({
+      bannerTranslateY: bannerTranslateY
+    });
+    
+    // 实现导航菜单的固定效果
+    const navFixed = scrollTop > 150;
+    if (navFixed !== this.data.navFixed) {
+      this.setData({
+        navFixed: navFixed
+      });
+    }
+  },
+
+  /**
+   * 页面下拉刷新事件处理函数
+   */
+  onPullDownRefresh: function () {
+    console.log('[Index] 下拉刷新触发');
+    this.setData({ refreshing: true });
+    this.getArticleList(true).finally(() => {
+      wx.stopPullDownRefresh();
+      this.setData({ refreshing: false });
+    });
   },
 
   /**
@@ -59,6 +151,8 @@ Page({
       // 更新未读消息数
       this.getTabBar().updateUnreadCount();
     }
+    // 重新计算 scroll-view 高度，确保在不同设备上都能正确显示
+    this.calculateScrollViewHeight();
   },
 
   /**
