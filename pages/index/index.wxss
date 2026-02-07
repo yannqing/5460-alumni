@@ -119,24 +119,13 @@
   background-color: #fff;
   border-radius: 20rpx;
   padding: 60rpx 20rpx 35rpx;
-  position: relative;
+  position: sticky;
+  top: 0;
   left: 0;
   right: 0;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
-  z-index: 20;
-  transition: all 0.3s ease;
-}
-
-/* 导航区域固定在顶部的样式 */
-.nav-container.fixed {
-  position: fixed;
-  top: 0;
-  left: 15rpx;
-  right: 15rpx;
-  margin-top: 0;
-  border-radius: 0 0 20rpx 20rpx;
   z-index: 999;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .nav-header {
@@ -186,25 +175,7 @@
   margin-top: 0;
   position: relative;
   z-index: 5;
-  height: calc(100vh - 400rpx);
-  overflow: hidden;
   transition: all 0.3s ease;
-}
-
-/* 文章列表 scroll-view */
-.article-scroll-view {
-  width: 100%;
-  background-color: #f8f8f8;
-  margin-top: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  height: 100%;
-}
-
-/* 滚动条样式 */
-.article-scroll-view::-webkit-scrollbar {
-  width: 0;
-  display: none;
 }
 
 /* 文章列表 */
