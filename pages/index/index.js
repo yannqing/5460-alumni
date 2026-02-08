@@ -104,21 +104,31 @@ Page({
       _scrollTop: scrollTop
     });
     
+    // 实现导航菜单的固定效果
+    const navFixed = scrollTop > 150;
+    
     // 计算轮播图的 translateY 值
-    // 当向上滚动时，轮播图跟随向上移动，但有一个最大移动距离
-    const maxTranslateY = -180; // 最大向上移动距离（单位：px）
+    // 核心思路：轮播图和导航菜单应该保持相对静止
+    // 当导航菜单固定时，轮播图的位置需要相应调整
     
-    // 当滚动距离超过180时，轮播图停止移动
-    // 这样当校友功能卡片到达顶部固定时，轮播图位置保持不变
-    let bannerTranslateY = Math.max(scrollTop * -1, maxTranslateY);
+    // 导航菜单原始 margin-top 是 -120rpx（约 -60px）
+    const navMarginTop = -60; // 导航菜单原始 margin-top（-120rpx 转换为 px）
     
-    // 当滚动距离超过校友功能卡片固定点时，轮播图保持在最大移动距离位置
-    // 确保校友功能卡片固定后，轮播图位置不再跟随移动
-    // 这样可以保证在校友功能卡片固定时，轮播图始终显示在其上方
-    if (scrollTop > 200) {
-      // 轮播图保持在最大向上移动距离位置
-      // 不再继续向上移动，确保轮播图始终显示在校友功能卡片上方
-      bannerTranslateY = maxTranslateY;
+    // 计算轮播图位置
+    // 无论导航菜单是否固定，轮播图都应该与导航菜单保持相对静止
+    // 轮播图的位置 = -scrollTop + (导航菜单固定时的位置补偿)
+    let bannerTranslateY;
+    
+    if (navFixed) {
+      // 导航菜单固定时
+      // 导航菜单固定后，它的顶部位置变为 0
+      // 为了保持轮播图和导航菜单的相对位置不变
+      // 轮播图需要向上移动 navMarginTop 的距离
+      bannerTranslateY = Math.max(scrollTop * -1 + navMarginTop, -240); // 最大移动距离调整为 -240px
+    } else {
+      // 导航菜单未固定时
+      // 轮播图正常跟随页面滚动
+      bannerTranslateY = Math.max(scrollTop * -1, -180); // 最大移动距离保持 -180px
     }
     
     // 更新轮播图位置
@@ -126,8 +136,6 @@ Page({
       bannerTranslateY: bannerTranslateY
     });
     
-    // 实现导航菜单的固定效果
-    const navFixed = scrollTop > 150;
     if (navFixed !== this.data.navFixed) {
       this.setData({
         navFixed: navFixed
@@ -172,44 +180,44 @@ Page({
   },
 
   /**
+   * scroll-view 触摸开始事件处理函数
+   */
+  onScrollViewTouchStart: function (e) {
+    this.setData({
+      _touchStartY: e.touches[0].pageY
+    });
+  },
+
+  /**
    * scroll-view 触摸移动事件处理函数
    * 确保先实现校友功能卡片的滑动极限状态，再进行列表的局部滑动
    */
   onScrollViewTouchMove: function (e) {
-    const scrollTop = this.data._scrollTop || 0;
     const currentY = e.touches[0].pageY;
-    
-    // 初始化触摸起始位置
-    if (!this.data._touchStartY) {
-      this.setData({
-        _touchStartY: currentY
-      });
-    }
-    
     const deltaY = currentY - this.data._touchStartY;
     
-    // 如果是向上滑动，且导航区域还没有固定，则阻止 scroll-view 的滚动
-    // 让页面级滚动处理，先实现校友功能卡片的固定
-    if (deltaY < 0 && !this.data.navFixed) {
-      // 阻止 scroll-view 的滚动，让页面滚动
-      return false;
+    // 无论什么位置滑动，都先检查校友功能卡片的状态
+    // 1. 向上滑动（手指向下移动，deltaY > 0）：
+    //    - 首先让校友功能卡片达到固定状态（极限状态）
+    //    - 只有当校友功能卡片完全固定后，才允许列表向上滚动
+    if (deltaY > 0) {
+      // 如果导航区域还没有固定，说明校友功能卡片还未达到极限状态
+      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的固定
+      if (!this.data.navFixed) {
+        return false;
+      }
     }
     
-    // 如果是向下滑动，且 scroll-view 已经滚动到顶部，且导航区域已经固定
-    // 则允许页面滚动，实现导航区域的解除固定
-    if (deltaY > 0 && this.data.navFixed) {
-      // 允许页面滚动
-      wx.pageScrollTo({ 
-        scrollTop: Math.max(scrollTop - 1, 0), 
-        duration: 0 
-      });
-      return false;
+    // 2. 向下滑动（手指向上移动，deltaY < 0）：
+    //    - 首先让校友功能卡片回到初始状态（解除固定）
+    //    - 只有当校友功能卡片完全回到初始状态后，才允许列表向下滚动
+    if (deltaY < 0) {
+      // 如果导航区域已经固定，说明校友功能卡片还未回到初始状态
+      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的解除固定
+      if (this.data.navFixed) {
+        return false;
+      }
     }
-    
-    // 保存当前触摸位置
-    this.setData({
-      _touchCurrentY: currentY
-    });
   },
 
   /**
