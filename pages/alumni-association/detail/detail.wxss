@@ -45,6 +45,8 @@
   position: relative;
   z-index: 10;
   padding-top: 20rpx;
+  min-height: calc(100vh - 140rpx);
+  padding-bottom: 200rpx;
 }
 
 .top-image {
@@ -346,7 +348,9 @@ page {
 }
 
 .member-list {
-  padding: 0 20rpx 20rpx;
+  padding: 0 20rpx 100rpx;
+  background-color: #ffffff;
+  min-height: 600rpx;
 }
 
 .member-item {
