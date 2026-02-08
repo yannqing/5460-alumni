@@ -221,12 +221,16 @@ Page({
 
     // 返回统一格式（isDefaultAvatar 用于列表页仅对默认头像增大展示尺寸）
     const isDefaultAvatar = !item.avatarUrl
+    
+    // 从新的后端结构中获取学校信息
+    const schoolName = item.primaryEducation?.schoolInfo?.schoolName || '暂无学校信息'
+    
     return {
       id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
       name: displayName,
       avatarUrl: avatarUrl,
       isDefaultAvatar: isDefaultAvatar,
-      school: item.school || '暂无学校信息', // 尝试从后端获取学校信息
+      school: schoolName, // 从 primaryEducation.schoolInfo.schoolName 获取学校信息
       city: item.curCity || '',
       location: location,
       major: item.major || '', // 尝试从后端获取专业信息
