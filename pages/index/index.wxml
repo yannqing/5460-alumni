@@ -73,6 +73,7 @@
       refresher-enabled="false"
       scroll-with-animation="true"
       style="height: {{articleScrollHeight}}px;"
+      bindtouchstart="onScrollViewTouchStart"
       catchtouchmove="onScrollViewTouchMove"
     >
       <view class="article-list">
