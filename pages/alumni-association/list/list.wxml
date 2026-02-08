@@ -87,9 +87,14 @@
                 {{item.isFollowed ? '已关注' : '+ 关注'}}
               </view>
             </view>
-            <view class="card-action" catchtap="joinAssociation" data-id="{{item.id}}">
+            <view class="card-action" catchtap="joinAssociation" data-id="{{item.id}}" wx:if="{{!item.isMember}}">
               <view class="follow-btn">
                 + 加入
+              </view>
+            </view>
+            <view class="card-action" wx:else>
+              <view class="follow-btn followed">
+                已加入
               </view>
             </view>
           </view>

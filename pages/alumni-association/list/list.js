@@ -251,12 +251,14 @@ Page({
           // ===== 与后端 VO 完全一致的字段（AlumniAssociationListVo）=====
           alumniAssociationId: item.alumniAssociationId,   // 校友会ID
           associationName: item.associationName,           // 校友会名称
-          schoolId: item.schoolId,                         // 所属母校ID
+          school: item.school,                             // 所属母校信息
           platformId: item.platformId,                     // 所属校处会ID
-          presidentUserId: item.presidentUserId,           // 会长用户ID
           contactInfo: item.contactInfo,                   // 联系信息
           location: item.location,                         // 常驻地点
           memberCount: item.memberCount,                   // 会员数量
+          role: item.role,                                 // 成员身份：0-会员单位 1-理事单位
+          isMember: item.isMember,                         // 当前登录用户是否已加入该校友会
+          isFollowed: item.isFollowed,                     // 当前登录用户是否已关注该校友会
 
           // ===== 前端内部使用的通用字段（保持原有逻辑不变）=====
           // 注意：前端统一用字符串形式的 id，避免大整数精度丢失
@@ -264,39 +266,19 @@ Page({
           name: item.associationName,
           // 优先使用后端传入的logo字段作为头像，如果logo为空则使用本地默认头像
           icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/avatar-2.png',
-          // 下面这些是前端扩展字段，后端暂时没有
+          // 下面这些是前端扩展字段
           associationCount: 0,
           followCount: 0,
-          isFollowed: false, // 初始值
-          followStatus: 4, // 关注状态：1-正常关注，4-未关注
+          followStatus: item.isFollowed ? 1 : 4, // 关注状态：1-正常关注，4-未关注
           isCertified: false,
-          schoolName: '' // 需要根据 schoolId 查询
+          schoolName: item.school?.schoolName || '' // 从school对象中获取学校名称
         }))
 
-        // 根据 schoolId 批量补齐 schoolName（并行请求优化）
-        const schoolIdSet = new Set(mappedList.map(i => i.schoolId).filter(Boolean))
-        const schoolNameMap = {}
-        
-        // 将所有请求改为并行执行，显著提升加载速度
-        const schoolPromises = Array.from(schoolIdSet).map(sid => 
-          schoolApi.getSchoolDetail(sid)
-            .then(schoolRes => {
-              if (schoolRes.data && schoolRes.data.code === 200 && schoolRes.data.data) {
-                schoolNameMap[sid] = schoolRes.data.data.schoolName || schoolRes.data.data.name || ''
-              }
-            })
-            .catch(e => {
-              // 请求失败时忽略，保持空
-            })
-        )
-        
-        // 等待所有学校信息请求完成
-        await Promise.all(schoolPromises)
-        
-        // 填充学校名称
+        // 学校信息已包含在接口返回的school对象中，无需额外查询
+        // 确保schoolName字段正确设置
         mappedList.forEach(item => {
-          if (item.schoolId && schoolNameMap[item.schoolId]) {
-            item.schoolName = schoolNameMap[item.schoolId]
+          if (item.school && item.school.schoolName) {
+            item.schoolName = item.school.schoolName
           }
         })
 
