@@ -83,6 +83,18 @@ Page({
     }
   },
 
+  // 格式化时间为 月-日 时:分
+  formatTime(dateString) {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${month}-${day} ${hours}:${minutes}`
+  },
+
   // 加载校友会详情
   async loadAssociationDetail() {
     if (this.data.loading) return
@@ -135,9 +147,15 @@ Page({
           applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null
         }
 
+        // 处理活动列表，格式化时间
+        const formattedActivityList = (item.activityList || []).map(activity => ({
+          ...activity,
+          startTime: this.formatTime(activity.startTime)
+        }))
+
         this.setData({
           associationInfo: mappedInfo,
-          activityList: item.activityList || [],
+          activityList: formattedActivityList,
           enterpriseList: item.enterpriseList || [],
           loading: false
         })
