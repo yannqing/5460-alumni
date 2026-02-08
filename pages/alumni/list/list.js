@@ -183,13 +183,13 @@ Page({
 
   // 数据映射：将后端数据映射为前端所需格式
   mapAlumniItem(item) {
-    // 处理头像 - 使用后端返回的 avatarUrl 字段，如果为空则使用默认头像
+    // 处理头像 - 使用后端返回的 avatarUrl 字段，如果为空则使用 config 中的默认头像
     let avatarUrl = item.avatarUrl || ''
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
-      // 使用本地默认头像，直接使用本地路径
-      avatarUrl = '/assets/avatar/avatar-2.png'
+      // 使用 config.js 中配置的默认个人头像
+      avatarUrl = config.defaultAvatar
     }
 
     // 构建位置信息 - 优先使用完整的位置组合
@@ -219,11 +219,13 @@ Page({
     // 显示昵称，如果没有则显示真实姓名
     const displayName = item.nickname || item.name || item.realName || '未知用户'
 
-    // 返回统一格式
+    // 返回统一格式（isDefaultAvatar 用于列表页仅对默认头像增大展示尺寸）
+    const isDefaultAvatar = !item.avatarUrl
     return {
       id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
       name: displayName,
       avatarUrl: avatarUrl,
+      isDefaultAvatar: isDefaultAvatar,
       school: item.school || '暂无学校信息', // 尝试从后端获取学校信息
       city: item.curCity || '',
       location: location,
