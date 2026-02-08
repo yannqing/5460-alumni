@@ -24,11 +24,10 @@
             </view>
           </view>
           <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
-            <image class="school-icon" src="/assets/icons/学校.png" mode="aspectFit" />
             <view class="school-tag">{{associationInfo.schoolName}}</view>
           </view>
           <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
-            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{associationInfo.location}}</text>
           </view>
         </view>
