@@ -28,13 +28,13 @@
   z-index: 8;
   position: relative;
   margin-top: -88rpx;
-  height: 88rpx;
+  height: 120rpx;
   background: #3F61CA;
 }
 
 /* 内容滚动区域 */
 .content-scroll {
-  margin-top: 130rpx;
+  margin-top: 140rpx;
 }
 
 /* 白色背景内容区域 */
