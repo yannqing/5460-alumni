@@ -88,7 +88,7 @@
             </view>
           </view>
         </view>
-        <image class="alumni-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+        <image class="alumni-avatar {{item.isDefaultAvatar ? 'default-avatar' : ''}}" src="{{item.avatarUrl}}" mode="aspectFill" />
       </view>
 
       <!-- 底部：统计数据 -->

@@ -309,26 +309,26 @@ view, text, picker, input, button, image, navigator {
 }
 
 .alumni-avatar {
-  width: 150rpx;
-  height: 150rpx;
+  width:130rpx;
+  height:130rpx;
   border-radius: 50%;
   flex-shrink: 0;
   border: 3rpx solid #e0e0e0;
-  background-color: #ffffff;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  position: relative;
+  display: block;
+  margin: 0;
+  padding:0;
+  /* 新增以下样式确保图片占满容器 */
+  object-fit: cover; /* 关键：强制图片覆盖整个容器 */
+  background-size: cover;
+  background-position: center;
 }
 
-.alumni-avatar image {
-  position: absolute;
-  top: -10rpx;
-  left: -10rpx;
-  right: -10rpx;
-  bottom: -10rpx;
-  width: calc(100% + 20rpx);
-  height: calc(100% + 20rpx);
-  object-fit: cover;
+/* 列表页默认头像：增大 5rpx 以更好占满圆形容器 */
+.alumni-avatar.default-avatar {
+  width: 130rpx;
+  height: 130rpx;
 }
 
 .card-info {
