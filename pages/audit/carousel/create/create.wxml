@@ -29,6 +29,9 @@
           <!-- 已上传图片预览 -->
           <view class="image-preview" wx:if="{{imageFile}}">
             <image src="{{imageFile.fileUrl}}" mode="aspectFill"></image>
+            <view class="delete-btn" bindtap="onDeleteImage">
+              <text class="delete-icon">×</text>
+            </view>
           </view>
         </view>
       </view>
