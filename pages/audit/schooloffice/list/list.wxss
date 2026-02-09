@@ -215,7 +215,16 @@
 .scroll-list {
   flex: 1;
   width: 100%;
-  height: auto;
+  height: 0;
+  min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
 }
 
 .text_20 {
@@ -238,292 +247,136 @@
   padding-bottom: 40rpx;
 }
 
-.block_2 {
-  position: relative;
-  width: 663rpx;
-  height: 228rpx;
-  background-color: #F9F9F9;
-  border-radius: 28.99rpx;
-  flex-direction: row;
-  display: flex;
-  margin-bottom: 9rpx;
-}
-
-.text-wrapper_10 {
-  background-color: rgba(249,249,249,1.000000);
-  height: 51rpx;
+/* 审核列表卡片通用样式 - 按设计图还原 */
+.audit-card {
   display: flex;
   flex-direction: column;
-  width: 308rpx;
-  margin: 47rpx 0 0 109rpx;
-}
-
-.text_21 {
-  width: 230rpx;
-  height: 36rpx;
-  overflow-wrap: break-word;
-  color: rgba(0,0,0,1);
-  font-size: 25rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: left;
-  white-space: nowrap;
-  line-height: 36rpx;
-  margin: -2rpx 0 0 13rpx;
-}
-
-.box_4 {
-  background-color: rgba(249,249,249,1.000000);
-  height: 65rpx;
-  display: flex;
-  flex-direction: column;
-  width: 136rpx;
-  margin: 33rpx 20rpx 0 91rpx;
-}
-
-.text-wrapper_11 {
-  background-color: rgba(80,200,32,1.000000);
-  border-radius: 18rpx;
-  height: 36rpx;
-  display: flex;
-  flex-direction: column;
-  width: 94rpx;
-  margin: 14rpx 0 0 22rpx;
-  align-items: center;
-  justify-content: center;
-}
-
-.text_22 {
-  width: 67rpx;
-  height: 31rpx;
-  overflow-wrap: break-word;
-  color: rgba(255,255,255,1);
-  font-size: 22rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  line-height: 31rpx;
-}
-
-.block_3 {
-  position: relative;
-  width: 663rpx;
-  min-height: 366rpx;
-  background-color: #F9F9F9;
-  border-radius: 28.99rpx;
-  flex-direction: row;
-  display: flex;
-  margin-bottom: 9rpx;
-  padding-bottom: 138rpx;
-  box-sizing: border-box;
-}
-
-.text-wrapper_12 {
-  background-color: rgba(249,249,249,1.000000);
-  height: 51rpx;
-  display: flex;
-  flex-direction: column;
-  width: 308rpx;
-  margin: 49rpx 0 0 109rpx;
-}
-
-.text_23 {
-  width: 230rpx;
-  height: 36rpx;
-  overflow-wrap: break-word;
-  color: rgba(0,0,0,1);
-  font-size: 25rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: left;
-  white-space: nowrap;
-  line-height: 36rpx;
-  margin: -2rpx 0 0 13rpx;
-}
-
-.box_6 {
-  background-color: rgba(249,249,249,1.000000);
-  height: 65rpx;
-  display: flex;
-  flex-direction: column;
-  width: 136rpx;
-  margin: 25rpx 20rpx 0 91rpx;
-}
-
-.text-wrapper_13 {
-  background-color: rgba(250,156,0,1.000000);
-  border-radius: 18rpx;
-  height: 36rpx;
-  display: flex;
-  flex-direction: column;
-  width: 94rpx;
-  margin: 22rpx 0 0 22rpx;
-  align-items: center;
-  justify-content: center;
-}
-
-.text_24 {
-  width: 67rpx;
-  height: 31rpx;
-  overflow-wrap: break-word;
-  color: rgba(255,255,255,1);
-  font-size: 22rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  line-height: 31rpx;
-}
-
-.box_7 {
-  background-color: rgba(249,249,249,1.000000);
-  border-radius: 0 0 28.99rpx 28.99rpx;
-  position: absolute;
-  left: 0;
-  bottom: 0;
+  align-items: stretch;
   width: 100%;
-  height: 138rpx;
-  display: flex;
-  flex-direction: column;
-  padding: 20rpx;
+  min-height: 160rpx;
+  background-color: #FFFFFF;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  padding: 24rpx;
   box-sizing: border-box;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
 }
 
-.box_8 {
+.audit-card-pending {
+  padding-bottom: 24rpx;
+}
+
+/* 第一行：头像 + 名称+状态，名称紧挨头像 */
+.audit-card-top {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   width: 100%;
-  height: 54rpx;
+}
+
+.audit-card-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background-color: #F5F5F5;
+  margin-right: 16rpx;
+}
+
+.audit-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 第二行：申请人、提交时间，占满宽度避免时间戳换行 */
+.audit-card-meta-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 18rpx;
+  gap: 10rpx;
+  width: 100%;
+}
+
+.audit-card-header {
+  display: flex;
   flex-direction: row;
-  display: flex;
-  justify-content: center;
-  gap: 27rpx;
-  margin-top: 27rpx;
-}
-
-.text-wrapper_14 {
-  background-color: rgba(255,255,255,1.000000);
-  border-radius: 18rpx;
-  height: 54rpx;
-  border: 1px solid rgba(67,100,204,1);
-  display: flex;
-  flex-direction: column;
-  width: 145rpx;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
 }
 
-.text_25 {
-  width: 45rpx;
-  height: 29rpx;
-  overflow-wrap: break-word;
-  color: rgba(67,100,204,1);
+.audit-card-name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 12rpx;
+}
+
+.audit-card-status {
+  flex-shrink: 0;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
   font-size: 22rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
   font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  line-height: 29rpx;
+  color: #fff;
 }
 
-.text-wrapper_15 {
-  box-shadow: 0px 2px 11px 0px rgba(194,194,255,0.370000);
-  background-color: rgba(255,255,255,1.000000);
-  border-radius: 18rpx;
-  height: 54rpx;
-  border: 1px solid rgba(176,54,62,1);
-  display: flex;
-  flex-direction: column;
-  width: 145rpx;
-  align-items: center;
-  justify-content: center;
+.status-approved {
+  background-color: #50C820;
 }
 
-.text_26 {
-  width: 45rpx;
-  height: 29rpx;
-  overflow-wrap: break-word;
-  color: rgba(176,54,62,1);
-  font-size: 22rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  line-height: 29rpx;
+.status-pending {
+  background-color: #FA9C00;
 }
 
-.block_4 {
-  width: 663rpx;
-  height: 228rpx;
-  background-color: #F9F9F9;
-  border-radius: 28.99rpx;
-  flex-direction: row;
-  display: flex;
-  margin-bottom: 9rpx;
+.status-rejected {
+  background-color: #9A9A9A;
 }
 
-.text-wrapper_16 {
-  background-color: rgba(249,249,249,1.000000);
-  height: 51rpx;
-  display: flex;
-  flex-direction: column;
-  width: 308rpx;
-  margin: 49rpx 0 0 109rpx;
-}
-
-.text_27 {
-  width: 230rpx;
-  height: 36rpx;
-  overflow-wrap: break-word;
-  color: rgba(0,0,0,1);
-  font-size: 25rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: left;
-  white-space: nowrap;
+.audit-card-meta {
+  font-size: 24rpx;
+  color: #666;
   line-height: 36rpx;
-  margin: -2rpx 0 0 13rpx;
 }
 
-.section_11 {
-  background-color: rgba(249,249,249,1.000000);
-  height: 65rpx;
+.audit-card-actions {
   display: flex;
-  flex-direction: column;
-  width: 136rpx;
-  margin: 34rpx 20rpx 0 91rpx;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 24rpx;
+  padding-top: 20rpx;
+  margin-top: 20rpx;
+  border-top: 1rpx solid #F0F0F0;
 }
 
-.text-wrapper_17 {
-  background-color: rgba(154,154,154,1.000000);
-  border-radius: 18rpx;
-  height: 36rpx;
+.audit-btn {
+  width: 160rpx;
+  height: 64rpx;
   display: flex;
-  flex-direction: column;
-  width: 94rpx;
-  margin: 14rpx 0 0 22rpx;
   align-items: center;
   justify-content: center;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  font-weight: 600;
 }
 
-.text_28 {
-  width: 67rpx;
-  height: 31rpx;
-  overflow-wrap: break-word;
-  color: rgba(255,255,255,1);
-  font-size: 22rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  line-height: 31rpx;
+.audit-btn-approve {
+  background-color: #fff;
+  border: 1px solid #4364CC;
+  color: #4364CC;
+}
+
+.audit-btn-reject {
+  background-color: #fff;
+  border: 1px solid #B0363E;
+  color: #B0363E;
 }
 
 /* 校促会选择器弹窗 */

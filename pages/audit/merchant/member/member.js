@@ -1,5 +1,6 @@
 // pages/audit/merchant/member/member.js
 const app = getApp()
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
@@ -7,6 +8,7 @@ Page({
     memberList: [],
     submitting: false,
     showAddModal: false,
+    defaultAvatar: config.defaultAvatar,
     // 新增成员表单数据
     addForm: {
       wxId: '',

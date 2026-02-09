@@ -1,6 +1,7 @@
 // pages/audit/schooloffice/member/member.js
 const { alumniApi } = require('../../../../api/api.js')
 const app = getApp()
+const config = require('../../../../utils/config.js')
 
 // 防抖函数
 function debounce(fn, delay) {
@@ -40,7 +41,8 @@ Page({
     // 编辑成员相关
     showEditModal: false,
     editingMember: {},
-    roleList: []
+    roleList: [],
+    defaultAvatar: config.defaultAvatar
   },
 
   onLoad(options) {
