@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "校处会成员管理",
+  "navigationBarTitleText": "校促会成员管理",
   "navigationStyle": "custom",
   "usingComponents": {
     "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"

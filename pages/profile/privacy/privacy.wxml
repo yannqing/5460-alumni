@@ -1,7 +1,6 @@
 <!--pages/profile/privacy/privacy.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="个人隐私" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="个人隐私">
 <!-- 消息通知组件 -->
 <message-notification />
 
@@ -33,6 +32,17 @@
     <text>暂无隐私设置项</text>
   </view>
 
-  <!-- 底部留白 -->
-  <view class="bottom-space"></view>
+      <!-- 底部留白 -->
+      <view class="bottom-space"></view>
+    </scroll-view>
+  </view>
 </view>
+</custom-nav-bar>
+
+
+
+
+
+
+
+

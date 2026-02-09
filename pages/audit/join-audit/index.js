@@ -26,7 +26,7 @@ Page({
       { value: 3, label: '已撤销' }
     ],
     // 审核相关
-    reviewing: false
+    reviewing: false,
   },
 
   onLoad(options) {
@@ -331,6 +331,12 @@ Page({
     
     this.setData({ applicationStatus: status })
     await this.loadApplicationList(true)
+  },
+
+  // 滚动触底加载更多
+  loadMore() {
+    if (!this.data.hasMore || this.data.applicationLoading) return
+    this.loadApplicationList()
   },
 
   // 通过申请
