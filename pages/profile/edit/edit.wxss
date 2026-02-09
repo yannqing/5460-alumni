@@ -67,6 +67,51 @@
   margin-bottom: 20rpx;
 }
 
+/* 个人背景编辑 */
+.background-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.background-wrap {
+  position: relative;
+  width: 100%;
+  height: 240rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+  border: 1rpx solid #eee;
+}
+
+.background-img {
+  width: 100%;
+  height: 100%;
+}
+
+.default-bg-gradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #A9C7F7 0%, #C8DAFA 100%);
+  position: relative;
+}
+
+.background-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  backdrop-filter: blur(2px);
+}
+
+.background-wrap:active .background-mask {
+  background: rgba(0, 0, 0, 0.4);
+}
+
 .form-item {
   display: flex;
   align-items: center;
