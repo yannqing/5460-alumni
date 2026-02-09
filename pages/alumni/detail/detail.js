@@ -71,12 +71,8 @@ Page({
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
-<<<<<<< HEAD
       // 使用本地默认头像
       avatarUrl = config.defaultAvatar
-=======
-      avatarUrl = '/assets/avatar/default_avatar.jpeg'
->>>>>>> origin/dev
     }
 
     // 处理性别
