@@ -314,10 +314,17 @@ Page({
     try {
       const activityImages = formData.activityImages.trim() || '[]'
       
+      // 构建提交数据，不需要报名时移除报名时间字段
       const submitData = {
         ...formData,
         activityImages,
         alumniAssociationId
+      }
+      
+      // 如果不需要报名，删除报名时间相关字段
+      if (submitData.isSignup === 0) {
+        delete submitData.registrationStartTime
+        delete submitData.registrationEndTime
       }
       
       const res = await this.publishActivity(submitData)

@@ -1,6 +1,6 @@
 // pages/info-maintenance/edit/edit.js
 const { get, put } = require('../../../utils/request.js')
-const fileUploadUtil = require('../../../utils/fileUpload.js')
+const { fileApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -101,7 +101,7 @@ Page({
         })
         
         // 上传图片到服务器
-        fileUploadUtil.uploadImage(tempFilePath, '/file/upload/images')
+        fileApi.uploadImage(tempFilePath)
           .then(res => {
             if (res.code === 200 && res.data && res.data.fileUrl) {
               // 上传成功，更新表单数据
@@ -173,20 +173,49 @@ Page({
           mask: true
         })
         
-        // 模拟上传成功
-        setTimeout(() => {
-          const bgImageList = [...that.data.bgImageList, ...tempFilePaths.map(path => ({ url: path }))]
-          that.setData({
-            bgImageList: bgImageList,
-            [`formData.bgImg`]: JSON.stringify(bgImageList.map(item => item.url)),
-            uploadingBgImage: false
+        // 上传多张图片
+        const uploadPromises = tempFilePaths.map(filePath => {
+          return fileApi.uploadImage(filePath)
+        })
+        
+        Promise.all(uploadPromises)
+          .then(results => {
+            // 处理上传结果
+            const uploadedUrls = results
+              .filter(res => res.code === 200 && res.data && res.data.fileUrl)
+              .map(res => res.data.fileUrl)
+            
+            if (uploadedUrls.length > 0) {
+              // 更新图片URL数组
+              const bgImageList = [...that.data.bgImageList, ...uploadedUrls.map(url => ({ url }))]
+              that.setData({
+                bgImageList: bgImageList,
+                [`formData.bgImg`]: JSON.stringify(bgImageList.map(item => item.url)),
+                uploadingBgImage: false
+              })
+              wx.showToast({
+                title: `上传成功 ${uploadedUrls.length} 张`,
+                icon: 'success'
+              })
+            } else {
+              wx.showToast({
+                title: '上传失败',
+                icon: 'none'
+              })
+              that.setData({ uploadingBgImage: false })
+            }
           })
-          wx.showToast({
-            title: '上传成功',
-            icon: 'success'
+          .catch(err => {
+            wx.showToast({
+              title: err.msg || '上传失败',
+              icon: 'none'
+            })
+            console.error('上传背景图失败:', err)
+            that.setData({ uploadingBgImage: false })
           })
-          wx.hideLoading()
-        }, 1000)
+          .finally(() => {
+            wx.hideLoading()
+          })
       },
       fail(err) {
         console.error('选择图片失败:', err)
@@ -204,6 +233,10 @@ Page({
     this.setData({
       bgImageList: bgImageList,
       [`formData.bgImg`]: JSON.stringify(bgImageList.map(item => item.url))
+    })
+    wx.showToast({
+      title: '删除成功',
+      icon: 'success'
     })
   },
   
