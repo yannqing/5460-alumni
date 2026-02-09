@@ -109,7 +109,7 @@
           </view>
         </view>
         <view class="dashboard-list activity" wx:for="{{activityList}}" wx:key="activityId">
-          <view class="dashboard-item activity-item">
+          <view class="dashboard-item activity-item" bindtap="viewActivityDetail" data-id="{{item.activityId}}">
             <view class="item-leading">
               <image class="item-cover" src="{{item.coverImage}}" mode="aspectFill" />
             </view>
@@ -174,7 +174,7 @@
           </view>
         </view>
         <view class="dashboard-list enterprise" wx:for="{{enterpriseList}}" wx:key="placeId">
-          <view class="dashboard-item">
+          <view class="dashboard-item" bindtap="viewEnterpriseDetail" data-id="{{item.placeId}}">
             <view class="item-leading">
               <block wx:if="{{item.logo}}">
                 <image class="item-logo" src="{{item.logo}}" mode="aspectFill" />
