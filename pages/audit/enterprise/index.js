@@ -119,7 +119,7 @@ Page({
       
       // 查找所有校友会管理员角色
       const alumniAdminRoles = roles.filter(role => 
-        role.roleName === '校友会管理员' || role.remark === '校友会管理员'
+        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
       );
       
       // 设置是否有校友会管理员身份
