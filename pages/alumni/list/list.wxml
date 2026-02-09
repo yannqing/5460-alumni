@@ -64,7 +64,7 @@
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.name}}</text>
-            <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
+            <view wx:if="{{item.isAlumni}}" class="cert-badge">校友会认证</view>
           </view>
 
           <!-- 学校和地点信息展示 -->
