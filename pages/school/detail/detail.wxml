@@ -83,11 +83,6 @@
                   </view>
                 </view>
               </view>
-              <view class="association-action" catchtap="toggleJoinAssociation" data-id="{{item.id}}">
-                <view class="join-btn {{item.isJoined ? 'joined' : ''}}">
-                  {{item.isJoined ? '已加入' : '加入'}}
-                </view>
-              </view>
             </view>
           </view>
           
