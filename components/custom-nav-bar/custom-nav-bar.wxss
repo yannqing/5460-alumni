@@ -162,13 +162,26 @@
   height: 44px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   z-index: 10;
+  padding-left: 20rpx;
 }
 
 .back-icon {
-  width: 120rpx;
-  height: 44rpx;
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 10rpx;
+}
+
+.back-text {
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 500;
+  font-size: 28rpx;
+  color: #FFFFFF;
+  opacity: 0.8;
+  line-height: 40rpx;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .nav-title {
