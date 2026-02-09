@@ -363,17 +363,10 @@ view, text, picker, input, button, image, navigator {
   text-overflow: ellipsis;
 }
 
-.cert-badge {
-  padding: 4rpx 12rpx;
-  background-color: #FDDA91;
-  color: #B07700;
-  font-size: 20rpx;
-  font-weight: 600;
-  border-radius: 6rpx;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
+.cert-badge-image {
   height: 34rpx;
+  flex-shrink: 0;
+  display: block;
 }
 
 /* 学校和地点信息展示 */

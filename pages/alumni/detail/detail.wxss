@@ -99,35 +99,11 @@
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
 }
 
-.certification-badge {
-  background-color: #FDDA91;
-  padding: 0 12rpx 0 22rpx; /* 增加左边距以适配可能的图标位置 */
-  border-radius: 6rpx;
+.cert-badge-image {
+  height: 38rpx;
   margin-left: 16rpx;
-  display: flex;
-  align-items: center;
-  height: 38rpx;
-  position: relative;
-}
-
-.badge-text {
-  color: #B07700;
-  font-size: 22rpx;
-  font-weight: 600;
-  line-height: 31rpx;
-  white-space: nowrap;
-}
-
-/* 模拟 profile 页面的装饰元素 */
-.certification-badge::before {
-  content: '';
-  position: absolute;
-  left: -10rpx;
-  top: 0;
-  width: 24rpx;
-  height: 38rpx;
-  background: radial-gradient(circle at 50% 50%, #FDDA91 0%, #FDDA91 70%, transparent 70%);
-  display: none; /* 如果不需要复杂装饰则保持简洁 */
+  flex-shrink: 0;
+  display: block;
 }
 
 .signature-text {
