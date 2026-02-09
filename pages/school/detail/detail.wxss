@@ -8,59 +8,27 @@
 }
 
 /* 页面容器 */
-.container {
+.school-detail-page {
   min-height: 100vh;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-/* 顶部固定区域 */
-.top-fixed-area {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  background: #3F61CA;
-}
-
-/* 顶部图片 */
-.top-image-container {
-  width: 100%;
-  padding: 0 30rpx;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 8;
+  margin-top: 0;
   position: relative;
-  margin-top: -88rpx;
-  height: 120rpx;
-  background: #3F61CA;
+  z-index: 1;
 }
 
 /* 内容滚动区域 */
 .content-scroll {
-  margin-top: 140rpx;
+  margin-top: 0;
 }
 
-/* 白色背景内容区域 */
 .white-background {
   background-color: #ffffff;
-  border-radius: 16rpx 16rpx 0 0;
-  margin-top: -15rpx;
+  border-radius: 24rpx 24rpx 0 0;
+  margin-top: -30rpx;
   position: relative;
   z-index: 10;
   padding-top: 20rpx;
-  min-height: calc(100vh - 140rpx);
+  min-height: 800rpx;
   padding-bottom: 200rpx;
-}
-
-.top-image {
-  width: 424.49rpx;
-  height: 55.3rpx;
-  border-radius: 12rpx;
-  vertical-align: middle;
 }
 
 /* 重置默认样式 */
