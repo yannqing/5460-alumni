@@ -74,7 +74,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: this.data.platformInfo?.platformName || '校处会',
+      title: this.data.platformInfo?.platformName || '校促会',
       path: `/pages/local-platform/detail/detail?id=${this.data.platformId}`
     }
   },
@@ -100,7 +100,7 @@ Page({
     }
   },
 
-  // 加载校处会详情
+  // 加载校促会详情
   async loadPlatformDetail() {
     this.setData({ loading: true })
     
@@ -156,9 +156,9 @@ Page({
           loading: false
         })
         
-        // 设置导航栏标题为校处会的city字段
+        // 设置导航栏标题为校促会的city字段
         wx.setNavigationBarTitle({
-          title: platformInfo.city || '校处会'
+          title: platformInfo.city || '校促会'
         })
       } else {
         wx.showToast({
@@ -168,7 +168,7 @@ Page({
         this.setData({ loading: false })
       }
     } catch (error) {
-      console.error('加载校处会详情失败:', error)
+      console.error('加载校促会详情失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'

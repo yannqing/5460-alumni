@@ -65,25 +65,25 @@ const unionApi = {
   getUnionDetail: (id) => get(`/AlumniHeadquarters/${id}`),
 }
 
-// ==================== 校处会相关接口 ====================
+// ==================== 校促会相关接口 ====================
 const localPlatformApi = {
-  // 分页查询校处会列表（使用 POST 请求，参数在 body 中）
+  // 分页查询校促会列表（使用 POST 请求，参数在 body 中）
   getLocalPlatformPage: (params) => post('/localPlatform/page', params),
-  // 根据id查询校处会详情
+  // 根据id查询校促会详情
   getLocalPlatformDetail: (id) => get(`/localPlatform/${id}`),
-  // 分页查询校处会审核列表
+  // 分页查询校促会审核列表
   queryAssociationApplicationPage: (params) => post('/localPlatformManagement/queryAssociationApplicationPage', params),
-  // 获取校处会审核详情
+  // 获取校促会审核详情
   getAssociationApplicationDetail: (id) => get(`/localPlatformManagement/getAssociationApplication/${id}`),
-  // 批准校处会审核
+  // 批准校促会审核
   approveAssociationApplication: (id) => post(`/localPlatformManagement/approveAssociationApplication/${id}`),
-  // 拒绝校处会审核
+  // 拒绝校促会审核
   rejectAssociationApplication: (id) => post(`/localPlatformManagement/rejectAssociationApplication/${id}`),
-  // 审核校处会申请（新接口）
+  // 审核校促会申请（新接口）
   reviewAssociationApplication: (data) => post('/localPlatformManagement/reviewAssociationApplication', data),
-  // 获取校处会下的校友会列表
+  // 获取校促会下的校友会列表
   getPlatformAssociations: (params) => post('/localPlatform/alumniAssociations/page', params),
-  // 更新校处会成员角色
+  // 更新校促会成员角色
   updateMemberRole: (data) => put('/localPlatformManagement/updateMemberRole/v2', data),
 }
 

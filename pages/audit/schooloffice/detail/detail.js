@@ -18,17 +18,17 @@ Page({
     this.loadApplicationDetail(id)
   },
 
-  // 加载校处会审核详情
+  // 加载校促会审核详情
   async loadApplicationDetail(id) {
     try {
-      // 调用后端接口获取校处会审核详情
+      // 调用后端接口获取校促会审核详情
       const res = await app.api.localPlatformApi.getAssociationApplicationDetail(id)
       
       this.setData({
         applicationInfo: res.data
       })
     } catch (error) {
-      console.error('加载校处会审核详情失败:', error)
+      console.error('加载校促会审核详情失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'

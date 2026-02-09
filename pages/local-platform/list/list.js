@@ -70,7 +70,7 @@ Page({
 
         try {
             const res = await localPlatformApi.getLocalPlatformPage(params)
-            console.log('校处会列表接口返回:', res)
+            console.log('校促会列表接口返回:', res)
 
             if (res.data && res.data.code === 200) {
                 const data = res.data.data || {}
@@ -96,7 +96,7 @@ Page({
                 })
             }
         } catch (error) {
-            console.error('加载校处会列表失败:', error)
+            console.error('加载校促会列表失败:', error)
             this.setData({ loading: false })
             wx.showToast({
                 title: '加载失败，请重试',
@@ -134,7 +134,7 @@ Page({
 
         return {
             platformId: item.platformId,
-            platformName: item.platformName || '未命名校处会',
+            platformName: item.platformName || '未命名校促会',
             avatar: avatar,
             bgImg: bgImg,
             city: item.city || '未知城市',

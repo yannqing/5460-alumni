@@ -1,6 +1,6 @@
 <!--pages/audit/content/list/list.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="内容审核" showBack="{{true}}"></custom-nav-bar>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="内容审核"></custom-nav-bar>
 
 <view class="content-audit-list-page">
   <!-- 标签栏 -->

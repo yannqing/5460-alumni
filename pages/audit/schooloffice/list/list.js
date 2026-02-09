@@ -16,7 +16,7 @@ Page({
       pageSize: 10,
       platformId: 0
     },
-    hasSinglePlatform: false // 是否只有一个校处会权限
+    hasSinglePlatform: false // 是否只有一个校促会权限
   },
 
   onLoad(options) {
@@ -43,23 +43,23 @@ Page({
   switchTab(e) {
     const { index } = e.currentTarget.dataset
     this.setData({
-      currentTab: index
+      currentTab: parseInt(index)
     })
     this.loadApplicationList()
   },
 
-  // 加载校处会列表（从缓存中获取校处会管理员的organizeId，然后调用接口）
+  // 加载校促会列表（从缓存中获取校促会管理员的organizeId，然后调用接口）
   async loadPlatformList() {
     try {
-      console.log('[Debug] 开始加载校处会列表')
+      console.log('[Debug] 开始加载校促会列表')
       
       // 从 storage 中获取角色列表
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
       
-      // 查找所有校处会管理员角色
-      const schoolOfficeAdminRoles = roles.filter(role => role.remark === '校处会管理员')
-      console.log('[Debug] 找到的校处会管理员角色:', schoolOfficeAdminRoles)
+      // 查找所有校促会管理员角色
+      const schoolOfficeAdminRoles = roles.filter(role => role.remark === '校促会管理员')
+      console.log('[Debug] 找到的校促会管理员角色:', schoolOfficeAdminRoles)
       
       if (schoolOfficeAdminRoles.length > 0) {
         // 收集所有有效的organizeId
@@ -74,32 +74,32 @@ Page({
           const uniqueOrganizeIds = [...new Set(organizeIds)]
           console.log('[Debug] 去重后的organizeIds:', uniqueOrganizeIds)
           
-          // 先创建基本的校处会列表
+          // 先创建基本的校促会列表
           const basicPlatformList = uniqueOrganizeIds.map(organizeId => ({
             id: organizeId,
             platformId: organizeId,
-            platformName: `校处会 (ID: ${organizeId})`
+            platformName: `校促会 (ID: ${organizeId})`
           }))
           
           this.setData({
             platformList: basicPlatformList
           })
-          console.log('[Debug] 直接使用organizeIds创建校处会列表:', basicPlatformList)
+          console.log('[Debug] 直接使用organizeIds创建校促会列表:', basicPlatformList)
           
           // 尝试调用接口获取更详细的信息（可选）
           try {
-            // 并行调用所有校处会的详情接口
+            // 并行调用所有校促会的详情接口
             const detailPromises = uniqueOrganizeIds.map(organizeId => 
               app.api.localPlatformApi.getLocalPlatformDetail(organizeId)
                 .catch(error => {
-                  console.log(`[Debug] 获取校处会 ${organizeId} 详情失败，使用基本数据:`, error)
+                  console.log(`[Debug] 获取校促会 ${organizeId} 详情失败，使用基本数据:`, error)
                   return null // 接口失败时返回null，后续过滤
                 })
             )
             
             const detailResults = await Promise.all(detailPromises)
             
-            // 处理接口返回结果，更新校处会列表
+            // 处理接口返回结果，更新校促会列表
             const updatedPlatformList = basicPlatformList.map((platform, index) => {
               const result = detailResults[index]
               if (result && result.data && result.data.code === 200 && result.data.data) {
@@ -116,31 +116,31 @@ Page({
             this.setData({
               platformList: updatedPlatformList
             })
-            console.log('[Debug] 已更新校处会列表:', updatedPlatformList)
+            console.log('[Debug] 已更新校促会列表:', updatedPlatformList)
             
             // 判断权限数量，处理自动选择逻辑
             this.handlePlatformSelection(updatedPlatformList)
           } catch (apiError) {
-            console.log('[Debug] 批量获取校处会详情失败，继续使用基本数据:', apiError)
+            console.log('[Debug] 批量获取校促会详情失败，继续使用基本数据:', apiError)
             // 继续使用之前创建的基本数据
             this.handlePlatformSelection(basicPlatformList)
           }
         } else {
           // 没有找到有效的organizeId，设置为空数组
-          console.warn('[Debug] 校处会管理员角色没有有效的organization或organizeId')
+          console.warn('[Debug] 校促会管理员角色没有有效的organization或organizeId')
           this.setData({
             platformList: []
           })
         }
       } else {
-        // 没有找到校处会管理员角色，设置为空数组
-        console.warn('[Debug] 没有找到校处会管理员角色')
+        // 没有找到校促会管理员角色，设置为空数组
+        console.warn('[Debug] 没有找到校促会管理员角色')
         this.setData({
           platformList: []
         })
       }
     } catch (error) {
-      console.error('[Debug] 加载校处会列表失败:', error)
+      console.error('[Debug] 加载校促会列表失败:', error)
       // 发生错误时，设置为空数组
       this.setData({
         platformList: []
@@ -148,10 +148,10 @@ Page({
     }
   },
 
-  // 处理校处会选择逻辑
+  // 处理校促会选择逻辑
   handlePlatformSelection(platformList) {
     if (platformList.length === 1) {
-      // 只有一个校处会权限，自动选择并禁用选择器
+      // 只有一个校促会权限，自动选择并禁用选择器
       const singlePlatform = platformList[0]
       this.setData({
         selectedPlatformId: singlePlatform.platformId,
@@ -159,27 +159,27 @@ Page({
         hasSinglePlatform: true,
         'pageParams.platformId': singlePlatform.platformId
       })
-      console.log('[Debug] 只有一个校处会权限，自动选择:', singlePlatform)
+      console.log('[Debug] 只有一个校促会权限，自动选择:', singlePlatform)
       // 加载数据
       this.loadApplicationList()
     } else {
-      // 多个校处会权限，正常显示选择器
+      // 多个校促会权限，正常显示选择器
       this.setData({
         hasSinglePlatform: false
       })
-      console.log('[Debug] 有多个校处会权限，正常显示选择器')
+      console.log('[Debug] 有多个校促会权限，正常显示选择器')
     }
   },
 
-  // 显示校处会选择器
+  // 显示校促会选择器
   showPlatformSelector() {
     this.setData({ showPlatformPicker: true })
   },
 
-  // 选择校处会
+  // 选择校促会
   async selectPlatform(e) {
     const { platformId, platformName } = e.currentTarget.dataset
-    console.log('[Debug] 选择的校处会:', { platformId, platformName })
+    console.log('[Debug] 选择的校促会:', { platformId, platformName })
     
     this.setData({
       selectedPlatformId: platformId,
@@ -203,7 +203,7 @@ Page({
       console.log('[Debug] 接口调用结果:', res)
       
       if (res.data && res.data.code === 200 && res.data.data) {
-        console.log('[Debug] 接口调用成功，获取到的校处会信息:', res.data.data)
+        console.log('[Debug] 接口调用成功，获取到的校促会信息:', res.data.data)
         // 接口调用成功，可以在这里处理返回的数据
       } else {
         console.error('[Debug] 接口调用失败，返回数据:', res)
@@ -216,19 +216,19 @@ Page({
     this.loadApplicationList()
   },
 
-  // 取消选择校处会
+  // 取消选择校促会
   cancelPlatformSelect() {
     this.setData({ showPlatformPicker: false })
   },
 
-  // 加载校处会审核列表
+  // 加载校促会审核列表
   async loadApplicationList() {
     this.setData({ 
       loading: true 
     })
     
     try {
-      console.log('[Debug] 开始加载校处会审核列表，参数:', this.data.pageParams)
+      console.log('[Debug] 开始加载校促会审核列表，参数:', this.data.pageParams)
       
       // 调用后端API获取审核列表
       const res = await app.api.localPlatformApi.queryAssociationApplicationPage(this.data.pageParams)

@@ -49,7 +49,7 @@
     </view>
   </view>
 
-  <!-- 校处会列表 -->
+  <!-- 校促会列表 -->
   <view class="platform-list">
     <view class="platform-card" wx:for="{{platformList}}" wx:key="platformId" bindtap="viewDetail" data-id="{{item.platformId}}">
       <!-- 背景图片 -->

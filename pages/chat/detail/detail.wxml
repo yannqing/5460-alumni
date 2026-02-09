@@ -1,11 +1,10 @@
 <!--pages/chat/detail/detail.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="聊天" showBack="{{true}}"></custom-nav-bar>
+<custom-nav-bar title="聊天" showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="聊天">
+  <!-- 消息通知组件 -->
+  <message-notification />
 
-<!-- 消息通知组件 -->
-<message-notification />
-
-<view class="chat-detail-page">
+  <view class="chat-detail-page">
   <!-- 消息列表 -->
   <scroll-view 
     class="message-list" 
@@ -158,4 +157,4 @@
     </view>
   </view>
 </view>
-
+</custom-nav-bar>

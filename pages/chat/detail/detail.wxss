@@ -1,15 +1,24 @@
 /* pages/chat/detail/detail.wxss */
 .chat-detail-page {
-  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ededed;
   display: flex;
   flex-direction: column;
+  z-index: 1;
+  border-radius: 14.49rpx 14.49rpx 0rpx 0rpx;
+  overflow: hidden;
 }
 
 .message-list {
   flex: 1;
-  padding: 20rpx 0;
+  padding: 20rpx 0 200rpx 0;
   overflow-y: auto;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .message-item {
@@ -129,8 +138,12 @@
   padding: 16rpx 30rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.05);
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 101;
+  flex-shrink: 0;
 }
 
 .input-wrapper {
@@ -180,8 +193,8 @@
 
 /* 表情选择面板 */
 .emoji-panel {
-  position: fixed;
-  bottom: 0;
+  position: absolute;
+  bottom: 120rpx;
   left: 0;
   right: 0;
   height: 500rpx;

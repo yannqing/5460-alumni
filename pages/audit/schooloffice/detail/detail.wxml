@@ -1,10 +1,8 @@
 <!--pages/audit/schooloffice/detail/detail.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="校处会审核详情" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会详情">
 <view class="schooloffice-audit-detail-page">
   <view class="detail-header">
-    <view class="detail-title">校处会审核详情</view>
+    <view class="detail-title">校促会审核详情</view>
     <view class="detail-status {{getStatusClass(applicationInfo.applicationStatus)}}">{{getStatusText(applicationInfo.applicationStatus)}}</view>
   </view>
 
@@ -38,3 +36,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

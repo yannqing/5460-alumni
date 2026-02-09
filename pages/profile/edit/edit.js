@@ -230,6 +230,14 @@ Page({
     editingWorkIndex: null,
     // 记录个人简介是否正在编辑（用于显示确定按钮）
     editingDescription: false,
+    // 控制教育经历是否全部展开
+    showAllEducation: false,
+    // 默认展示的教育经历索引（主要经历优先）
+    defaultEducationIndex: -1,
+    // 控制工作经历是否全部展开
+    showAllWork: false,
+    // 默认展示的工作经历索引（当前在职优先）
+    defaultWorkIndex: -1,
     // 用于防止 blur 事件干扰的标志
     isSaving: false,
     // blur 定时器，用于延迟隐藏保存按钮
@@ -349,6 +357,10 @@ Page({
         this.setData({
           form: formData
         })
+        // 计算默认展示的教育经历索引
+        this.updateDefaultEducationIndex()
+        // 计算默认展示的工作经历索引
+        this.updateDefaultWorkIndex()
       }
     } catch (error) {
       console.error('加载用户资料失败:', error)
@@ -1049,6 +1061,34 @@ Page({
 
   // ==================== 教育经历相关方法 ====================
 
+  // 切换教育经历展开/折叠状态
+  toggleEducationExpand() {
+    this.setData({
+      showAllEducation: !this.data.showAllEducation
+    })
+  },
+
+  // 获取默认展示的教育经历索引（主要经历优先，否则随机次要经历）
+  getDefaultEducationIndex() {
+    const educationList = this.data.form.educationList || []
+    if (educationList.length === 0) return -1
+
+    // 先找主要经历（type === 1）
+    const primaryIndex = educationList.findIndex(edu => edu.type === 1)
+    if (primaryIndex !== -1) return primaryIndex
+
+    // 没有主要经历，返回第一个次要经历
+    return 0
+  },
+
+  // 更新默认展示的教育经历索引
+  updateDefaultEducationIndex() {
+    const defaultIndex = this.getDefaultEducationIndex()
+    this.setData({
+      defaultEducationIndex: defaultIndex
+    })
+  },
+
   // 添加教育经历
   addEducation() {
     const educationList = this.data.form.educationList || []
@@ -1066,8 +1106,11 @@ Page({
     }
     educationList.push(newItem)
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
+      // 添加教育经历时自动展开所有教育经历
+      showAllEducation: true
     })
+    this.updateDefaultEducationIndex()
   },
 
   // 删除教育经历
@@ -1126,6 +1169,7 @@ Page({
         schoolSearchLoading: newSchoolSearchLoading,
         hasSchoolDropdownVisible: hasVisible
       })
+      this.updateDefaultEducationIndex()
     }
   },
 
@@ -1575,11 +1619,14 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
-    
+
     // 设置当前编辑的教育经历索引，显示确定按钮
     this.setData({
       editingEducationIndex: indexNum
     })
+
+    // 更新默认展示的教育经历索引
+    this.updateDefaultEducationIndex()
   },
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
   // 教育经历年份输入
@@ -1659,6 +1706,34 @@ Page({
 
   // ==================== 工作经历相关方法 ====================
 
+  // 切换工作经历展开/折叠状态
+  toggleWorkExpand() {
+    this.setData({
+      showAllWork: !this.data.showAllWork
+    })
+  },
+
+  // 获取默认展示的工作经历索引（当前在职优先，否则第一个）
+  getDefaultWorkIndex() {
+    const workExperienceList = this.data.form.workExperienceList || []
+    if (workExperienceList.length === 0) return -1
+
+    // 先找当前在职的（isCurrent === 1）
+    const currentIndex = workExperienceList.findIndex(work => work.isCurrent === 1)
+    if (currentIndex !== -1) return currentIndex
+
+    // 没有当前在职的，返回第一个
+    return 0
+  },
+
+  // 更新默认展示的工作经历索引
+  updateDefaultWorkIndex() {
+    const defaultIndex = this.getDefaultWorkIndex()
+    this.setData({
+      defaultWorkIndex: defaultIndex
+    })
+  },
+
   // 添加工作经历
   addWorkExperience() {
     const workExperienceList = this.data.form.workExperienceList || []
@@ -1674,8 +1749,11 @@ Page({
     }
     workExperienceList.push(newItem)
     this.setData({
-      'form.workExperienceList': workExperienceList
+      'form.workExperienceList': workExperienceList,
+      // 添加工作经历时自动展开所有工作经历
+      showAllWork: true
     })
+    this.updateDefaultWorkIndex()
   },
 
   // 删除工作经历
@@ -1692,6 +1770,7 @@ Page({
       this.setData({
         'form.workExperienceList': workExperienceList
       })
+      this.updateDefaultWorkIndex()
     }
   },
 
@@ -1814,7 +1893,7 @@ Page({
     this.setData({
       'form.workExperienceList': workExperienceList
     })
-    
+
     // 选择后，确保确定按钮保持显示
     const indexNum = parseInt(index)
     if (!isNaN(indexNum)) {
@@ -1822,6 +1901,9 @@ Page({
         editingWorkIndex: indexNum
       })
     }
+
+    // 更新默认展示的工作经历索引
+    this.updateDefaultWorkIndex()
   },
 
   // 保存工作经历

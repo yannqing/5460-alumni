@@ -1,7 +1,5 @@
 <!-- pages/audit/carousel/edit/edit.wxml -->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="编辑轮播图" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑轮播图">
 <view class="create-banner-page">
   <!-- 页面内容区域 -->
   <view class="content-container">
@@ -25,7 +23,7 @@
         <text class="form-label required">轮播图图片</text>
         <view class="upload-section">
           <view class="upload-btn" bindtap="uploadImage">
-            <image class="upload-icon" src="/images/icon/upload.png" mode="aspectFit"></image>
+            <text class="upload-icon">+</text>
             <text class="upload-text">上传图片</text>
           </view>
           <!-- 已上传图片预览 -->
@@ -189,3 +187,4 @@
     </form>
   </view>
 </view>
+</custom-nav-bar>

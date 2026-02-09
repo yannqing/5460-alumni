@@ -228,7 +228,7 @@
 }
 
 .picker-list {
-  max-height: 50vh;
+  max-height: calc(50vh + 40px);
   overflow-y: auto;
 }
 

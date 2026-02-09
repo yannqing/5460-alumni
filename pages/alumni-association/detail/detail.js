@@ -112,7 +112,7 @@ Page({
         // 实际返回结构中，ID 信息分散在不同对象中：
         // - 校友会主键：alumni_association_id（后端未在 VO 中显式暴露，前端使用请求时的 id）
         // - 母校 ID：data.schoolInfo.schoolId
-        // - 校处会 ID：目前 VO 中未暴露，前端暂不直接使用
+        // - 校促会 ID：目前 VO 中未暴露，前端暂不直接使用
         const schoolInfo = item.schoolInfo || {}
         const platformInfo = item.platform || {}
 
