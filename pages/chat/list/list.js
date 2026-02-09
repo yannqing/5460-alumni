@@ -457,10 +457,10 @@ Page({
   // ================= 列表操作逻辑 =================
 
   /**
-   * 标记已读
+   * 标记已读/未读
    */
   async markRead(e) {
-    const { peerid, index } = e.currentTarget.dataset
+    const { peerid, index, unreadcount } = e.currentTarget.dataset
     
     if (!peerid) {
       console.error('[ChatList] 标记已读失败：缺少 peerid')
@@ -468,32 +468,46 @@ Page({
       return
     }
     
-    // 乐观更新
     const list = this.data.allChatList
+    const currentUnreadCount = parseInt(unreadcount) || list[index].unreadCount || 0
     const originalUnreadCount = list[index].unreadCount
-    list[index].unreadCount = 0
-    list[index].isTouchMove = false // 关闭滑动菜单
-    this.setData({ allChatList: list })
+    
+    // 如果有未读消息，标记为已读；如果没有未读消息，恢复为未读状态
+    if (currentUnreadCount > 0) {
+      // 标记为已读
+      list[index].unreadCount = 0
+      list[index].isTouchMove = false // 关闭滑动菜单
+      this.setData({ allChatList: list })
 
-    try {
-      // 调用后端接口标记已读
-      const res = await chatApi.markConversationRead(peerid)
-      
-      if (res.data && res.data.code === 200) {
-        // 更新未读总数
-        this.loadUnreadTotal()
-      } else {
+      try {
+        // 调用后端接口标记已读
+        const res = await chatApi.markConversationRead(peerid)
+        
+        if (res.data && res.data.code === 200) {
+          // 更新未读总数
+          this.loadUnreadTotal()
+        } else {
+          // 回滚
+          list[index].unreadCount = originalUnreadCount
+          this.setData({ allChatList: list })
+          wx.showToast({ title: res.data?.msg || '操作失败', icon: 'none' })
+        }
+      } catch (error) {
+        console.error('[ChatList] 标记已读失败:', error)
         // 回滚
         list[index].unreadCount = originalUnreadCount
         this.setData({ allChatList: list })
-        wx.showToast({ title: res.data?.msg || '操作失败', icon: 'none' })
+        wx.showToast({ title: '操作失败', icon: 'none' })
       }
-    } catch (error) {
-      console.error('[ChatList] 标记已读失败:', error)
-      // 回滚
-      list[index].unreadCount = originalUnreadCount
+    } else {
+      // 恢复为未读状态（前端状态，不调用接口）
+      list[index].unreadCount = 1 // 恢复为1条未读
+      list[index].isTouchMove = false // 关闭滑动菜单
       this.setData({ allChatList: list })
-      wx.showToast({ title: '操作失败', icon: 'none' })
+      
+      // 更新未读总数（增加1）
+      const currentTotal = this.data.unreadTotal || 0
+      this.setData({ unreadTotal: currentTotal + 1 })
     }
   },
 

@@ -1,63 +1,54 @@
 <!--pages/audit/merchant/list/list.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="商家审核" showBack="{{true}}"></custom-nav-bar>
-
-<view class="merchant-audit-list-page">
-  <!-- 标签栏 -->
-  <view class="tabs-container">
-    <view 
-      class="tab-item {{currentTab === index ? 'active' : ''}}"
-      wx:for="{{tabs}}"
-      wx:key="index"
-      wx:for-index="index"
-      data-index="{{index}}"
-      bindtap="switchTab"
-    >
-      {{item}}
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商家审核">
+<view class="page">
+  <view class="group_7">
+    <view class="list-header">
+      <text class="text_20">商家审核</text>
     </view>
-  </view>
-
-  <!-- 商家列表 -->
-  <view class="merchant-list">
-    <view 
-      class="merchant-item"
-      wx:for="{{merchantList}}"
-      wx:key="id"
-      data-id="{{item.id}}"
-      bindtap="viewDetail"
-    >
-      <view class="merchant-header">
-        <view class="merchant-name">{{item.name}}</view>
-        <view class="merchant-status {{item.status}}">{{item.statusText}}</view>
-      </view>
-      <view class="merchant-info">
-        <text class="info-label">负责人：</text>
-        <text class="info-value">{{item.owner}}</text>
-      </view>
-      <view class="merchant-info">
-        <text class="info-label">联系电话：</text>
-        <text class="info-value">{{item.phone}}</text>
-      </view>
-      <view class="merchant-info">
-        <text class="info-label">地址：</text>
-        <text class="info-value">{{item.address}}</text>
-      </view>
-      <view class="merchant-info">
-        <text class="info-label">提交时间：</text>
-        <text class="info-value">{{item.submitTime}}</text>
+    <view class="filter-tabs-wrap">
+      <view
+        class="filter-tab {{currentTab === index ? 'active' : ''}}"
+        wx:for="{{tabs}}"
+        wx:key="*this"
+        wx:for-index="index"
+        data-index="{{index}}"
+        bindtap="switchTab"
+      >
+        {{item}}
       </view>
     </view>
-
-    <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && merchantList.length === 0}}">
-      <text class="empty-text">暂无商家审核数据</text>
-    </view>
-
-    <!-- 加载中 -->
-    <view class="loading-state" wx:if="{{loading}}">
-      <text class="loading-text">加载中...</text>
-    </view>
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
+      <view class="loading-state" wx:if="{{loading}}">
+        <text>加载中...</text>
+      </view>
+      <view class="empty-block" wx:elif="{{!loading && merchantList.length === 0}}">
+        <text class="empty-text">暂无商家审核数据</text>
+      </view>
+      <view class="merchant-list" wx:else>
+        <view class="merchant-item" wx:for="{{merchantList}}" wx:key="id" data-id="{{item.id}}" bindtap="viewDetail">
+          <view class="merchant-header">
+            <view class="merchant-name">{{item.name}}</view>
+            <view class="merchant-status {{item.status}}">{{item.statusText}}</view>
+          </view>
+          <view class="merchant-info">
+            <text class="info-label">负责人：</text>
+            <text class="info-value">{{item.owner}}</text>
+          </view>
+          <view class="merchant-info">
+            <text class="info-label">联系电话：</text>
+            <text class="info-value">{{item.phone}}</text>
+          </view>
+          <view class="merchant-info">
+            <text class="info-label">地址：</text>
+            <text class="info-value">{{item.address}}</text>
+          </view>
+          <view class="merchant-info">
+            <text class="info-label">提交时间：</text>
+            <text class="info-value">{{item.submitTime}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 </view>
-
-
+</custom-nav-bar>

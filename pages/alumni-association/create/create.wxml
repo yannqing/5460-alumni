@@ -23,7 +23,7 @@
     
     <view class="form-item search-group" style="z-index: 10;" catchtap="preventBubble">
       <text class="label">相关地区 *</text>
-      <input class="input" placeholder="请输入并选择相关地区(校处会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
+      <input class="input" placeholder="请输入并选择相关地区(校促会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showPlatformResults}}">
         <view wx:if="{{platformList.length === 0}}" class="search-placeholder">未找到相关地区</view>
         <view wx:for="{{platformList}}" wx:key="platformId" class="search-item" bindtap="selectPlatform" data-index="{{index}}">

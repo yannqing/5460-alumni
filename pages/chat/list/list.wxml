@@ -74,8 +74,8 @@
             <view class="action-btn pin {{item.isPinned ? 'unpin' : ''}}" catchtap="pinConversation" data-index="{{index}}" data-id="{{item.conversationId}}" data-ispinned="{{item.isPinned}}">
               {{item.isPinned ? '取消' : '置顶'}}
             </view>
-            <view class="action-btn read" wx:if="{{item.unreadCount > 0}}" catchtap="markRead" data-index="{{index}}" data-peerid="{{item.peerId}}">
-              已读
+            <view class="action-btn read {{item.unreadCount > 0 ? 'has-unread' : 'no-unread'}}" catchtap="markRead" data-index="{{index}}" data-peerid="{{item.peerId}}" data-conversationid="{{item.conversationId}}" data-unreadcount="{{item.unreadCount}}">
+              {{item.unreadCount > 0 ? '已读' : '未读'}}
             </view>
             <view class="action-btn delete" catchtap="deleteConversation" data-index="{{index}}" data-id="{{item.conversationId}}">
               删除

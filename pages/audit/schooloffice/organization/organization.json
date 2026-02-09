@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "校处会组织架构",
+  "navigationBarTitleText": "校促会组织架构",
   "navigationStyle": "custom",
   "usingComponents": {
     "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"

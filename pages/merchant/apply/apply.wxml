@@ -1,9 +1,9 @@
 <!--pages/merchant/apply/apply.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="商户申请" showBack="{{true}}"></custom-nav-bar>
-
-<view class="apply-container">
-  <scroll-view scroll-y class="form-scroll">
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商户申请">
+<view class="page">
+  <view class="group_7">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
     <!-- 申请状态提示 -->
     <view class="status-card card" wx:if="{{merchantStatus === 'pending'}}">
       <view class="status-icon">⏳</view>
@@ -164,15 +164,17 @@
       </view>
     </view>
 
-    <!-- 底部留白 -->
-    <view class="bottom-space"></view>
-  </scroll-view>
-
-  <!-- 提交按钮 -->
-  <view class="bottom-action">
-    <button class="btn btn-primary" loading="{{submitting}}" bindtap="submitApply">提交申请</button>
+      <!-- 底部留白 -->
+      <view class="bottom-space"></view>
+      
+      <!-- 提交按钮 -->
+      <view class="bottom-action">
+        <button class="btn btn-primary" loading="{{submitting}}" bindtap="submitApply">提交申请</button>
+      </view>
+    </scroll-view>
   </view>
 </view>
+</custom-nav-bar>
 
 
 

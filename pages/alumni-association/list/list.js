@@ -251,7 +251,7 @@ Page({
           alumniAssociationId: item.alumniAssociationId,   // 校友会ID
           associationName: item.associationName,           // 校友会名称
           schoolId: item.schoolId,                         // 所属母校ID
-          platformId: item.platformId,                     // 所属校处会ID
+          platformId: item.platformId,                     // 所属校促会ID
           presidentUserId: item.presidentUserId,           // 会长用户ID
           contactInfo: item.contactInfo,                   // 联系信息
           location: item.location,                         // 常驻地点

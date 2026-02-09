@@ -78,8 +78,6 @@
 /* 顶部装饰图区域 section_1 */
 .section_1 {
   height: 248rpx;
-  background: url(https://lanhu-oss-proxy.lanhuapp.com/SketchPng77cdb8209aa19b11c654fdfa907a9d163eeecbc60c7438c0c8767a96e6cc2e40) -43rpx 43rpx no-repeat;
-  background-size: 554rpx 250rpx;
   display: flex;
   flex-direction: column;
   width: 511rpx;
@@ -91,8 +89,6 @@
 /* 装饰图组 */
 .image-wrapper_6 {
   height: 136rpx;
-  background: url(https://lanhu-oss-proxy.lanhuapp.com/SketchPng13cefe5acc616723b123b72717c040baa90e55c2a9d4c415c622b10a4cbfed8c) 100% no-repeat;
-  background-size: 100% 100%;
   display: flex;
   flex-direction: column;
   width: 351rpx;
@@ -133,8 +129,6 @@
 /* 包含 个人中心标题 和 用户名 的区域 */
 .section_2 {
   height: 290rpx;
-  background: url(https://lanhu-oss-proxy.lanhuapp.com/SketchPng2f03bb227b8405b9a1668abcc7c95e5367b323edba3c530ea495d24195e6e7ef) 100% no-repeat;
-  background-size: 100% 100%;
   width: 281rpx;
   position: absolute;
   left: 161rpx;
@@ -198,8 +192,6 @@
 /* 头像外层 */
 .image-wrapper_7 {
   height: 101rpx;
-  background: url(https://lanhu-oss-proxy.lanhuapp.com/SketchPngf314bda6e825226ec0488c1e239cf8870426346c28832d47aaf633264c4b2510) -20rpx -16rpx no-repeat;
-  background-size: 141rpx 141rpx;
   display: flex;
   flex-direction: column;
   width: 101rpx;
@@ -251,8 +243,6 @@
   top: 0rpx;
   width: 36rpx;
   height: 38rpx;
-  background: url(https://lanhu-dds-backend.oss-cn-beijing.aliyuncs.com/merge_image/imgs/09ffbec4386441fd9d96a2943ef7ab81_mergeImage.png) 100% no-repeat;
-  background-size: 100% 100%;
   display: flex;
   flex-direction: column;
 }

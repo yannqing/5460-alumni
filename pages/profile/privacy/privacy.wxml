@@ -1,11 +1,12 @@
 <!--pages/profile/privacy/privacy.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="个人隐私" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="个人隐私">
 <!-- 消息通知组件 -->
 <message-notification />
 
-<view class="privacy-page">
+<view class="page">
+  <view class="group_7">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" enhanced>
   <!-- 基本信息 -->
   <view class="card menu-card">
     <view class="section-title">基本信息</view>
@@ -236,9 +237,12 @@
     </view>
   </view>
 
-  <!-- 底部留白 -->
-  <view class="bottom-space"></view>
+      <!-- 底部留白 -->
+      <view class="bottom-space"></view>
+    </scroll-view>
+  </view>
 </view>
+</custom-nav-bar>
 
 
 
