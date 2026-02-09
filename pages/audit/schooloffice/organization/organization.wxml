@@ -136,6 +136,22 @@
             data-field="roleOrName"
           />
         </view>
+        <!-- 父级角色 -->
+        <view class="edit-form-item">
+          <text class="edit-label">父级角色</text>
+          <picker
+            mode="selector"
+            range="{{editParentOptions}}"
+            range-key="roleOrName"
+            value="{{editSelectedParentIndex}}"
+            bindchange="onEditParentChange"
+          >
+            <view class="add-picker">
+              <text class="add-picker-text">{{editSelectedParentName || '请选择父级'}}</text>
+              <text class="add-picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
         <!-- 角色代码 -->
         <view class="edit-form-item">
           <text class="edit-label">角色代码</text>

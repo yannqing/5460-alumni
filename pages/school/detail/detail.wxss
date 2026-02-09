@@ -88,6 +88,92 @@ page {
   line-height: 0;
 }
 
+/* 顶部背景图容器 */
+.top-background-container {
+  position: relative;
+  width: 100%;
+  height: 400rpx;
+  margin: 0;
+  display: block;
+  overflow: hidden;
+}
+
+/* 渐变遮罩 */
+.bg-gradient-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 240rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  z-index: 1;
+}
+
+/* 背景图上的学校头像 */
+.school-avatar-on-bg {
+  position: absolute;
+  bottom: 34rpx;
+  left: 24rpx;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 3rpx solid #ffffff;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+/* 背景图上的学校信息 */
+.school-info-on-bg {
+  position: absolute;
+  bottom: 37rpx;
+  left: 130rpx;
+  z-index: 2;
+  color: #ffffff;
+  text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* 背景图上的学校名称 */
+.school-name-on-bg {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 6rpx;
+  display: block;
+  color: #ffffff;
+}
+
+/* 背景图上的位置信息行 */
+.location-row-on-bg {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+/* 背景图上的位置图标 */
+.location-icon-on-bg {
+  width: 20rpx;
+  height: 20rpx;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1);
+}
+
+/* 背景图上的认证标签容器 */
+.cert-tag-wrap-on-bg {
+  position: absolute;
+  bottom: 34rpx;
+  right: 24rpx;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
 .location-row {
   display: flex;
   align-items: center;
@@ -176,10 +262,17 @@ page {
   font-size: 24rpx;
 }
 
+/* Basic information items */
+.basic-info-item {
+  color: #666666;
+  font-size: 25rpx;
+  line-height: 58rpx;
+}
+
 .divider {
   height: 1rpx;
   background-color: #f0f0f0;
-  margin: 20rpx 0;
+  margin: 15rpx 0;
 }
 
 /* 校友会列表 */
@@ -265,7 +358,17 @@ page {
 }
 
 .association-members {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   color: #999999;
+  margin-left: 10rpx;
+}
+
+.meta-icon {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
 }
 
 .association-action {

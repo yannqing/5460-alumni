@@ -10,51 +10,52 @@
     
     <!-- 顶部图片（与导航栏同一层级） -->
     <view class="top-image-container">
-      <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png" mode="aspectFit" />
+      <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png" mode="aspectFit" />
     </view>
   </view>
 
   <!-- 内容滚动区域 -->
   <view class="content-scroll">
     <view wx:if="{{schoolInfo}}">
-      <image class="cover-image" src="{{schoolInfo.cover}}" mode="aspectFill" bindtap="previewImage" data-url="{{schoolInfo.cover}}" />
+      <!-- 顶部背景图区域（包含学校信息） -->
+      <view class="top-background-container">
+        <image class="cover-image" src="{{schoolInfo.cover}}" mode="aspectFill" bindtap="previewImage" data-url="{{schoolInfo.cover}}" />
+        <!-- 渐变遮罩 -->
+        <view class="bg-gradient-overlay"></view>
+        <!-- 学校头像 -->
+        <image class="school-avatar-on-bg" src="{{schoolInfo.icon}}" mode="aspectFill" />
+        <!-- 学校信息 -->
+        <view class="school-info-on-bg">
+          <text class="school-name-on-bg">{{schoolInfo.name}}</text>
+          <view wx:if="{{schoolInfo.provinceCity}}" class="location-row-on-bg">
+            <image class="location-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
+            <text>{{schoolInfo.provinceCity}}</text>
+          </view>
+        </view>
+        <!-- 认证标签 -->
+        <view class="cert-tag-wrap-on-bg">
+          <view wx:if="{{schoolInfo.certifiedUnion}}" class="cert-tag" catchtap="viewCertifiedUnion">
+            {{schoolInfo.certifiedUnion.name}}
+          </view>
+        </view>
+      </view>
 
       <!-- 白色背景内容区域 -->
       <view class="white-background">
-        <view class="card">
-          <view class="flex">
-            <image class="avatar avatar-large" src="{{schoolInfo.icon}}" mode="aspectFill" />
-            <view class="flex-1 ml-20">
-              <view class="name-row">
-                <text class="text-primary text-bold">{{schoolInfo.name}}</text>
-                <view class="cert-tag-wrap">
-                  <view wx:if="{{schoolInfo.certifiedUnion}}" class="cert-tag" catchtap="viewCertifiedUnion">
-                    {{schoolInfo.certifiedUnion.name}}
-                  </view>
-                  <view class="cert-tag" catchtap="viewAlumniHeadquarters">
-                    总会测试
-                  </view>
-                </view>
-              </view>
-              <view wx:if="{{schoolInfo.provinceCity}}" class="text-secondary mt-10 location-row">
-                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                <text>{{schoolInfo.provinceCity}}</text>
-              </view>
-            </view>
-          </view>
-        </view>
 
         <!-- 基本信息 -->
         <view class="card">
           <view class="text-bold mb-20">基本信息</view>
           
           <view wx:if="{{schoolInfo.description}}" class="text-secondary">{{schoolInfo.description}}</view>
-          <view class="divider"></view>
-          <view class="text-secondary">学校名称：{{schoolInfo.name}}</view>
-          <view wx:if="{{schoolInfo.previousName}}" class="text-secondary mt-10">曾用名：{{schoolInfo.previousName}}</view>
-          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="text-secondary mt-10">合并院校：{{schoolInfo.mergedInstitutions}}</view>
-          <view wx:if="{{schoolInfo.provinceCity}}" class="text-secondary mt-10">所在地：{{schoolInfo.provinceCity}}</view>
-          <view wx:if="{{schoolInfo.location}}" class="text-secondary mt-10">详细地址：{{schoolInfo.location}}</view>
+          <view class="basic-info-item">学校名称：{{schoolInfo.name}}</view>
+          <view wx:if="{{schoolInfo.previousName}}" class="divider"></view>
+          <view wx:if="{{schoolInfo.previousName}}" class="basic-info-item">曾用名：{{schoolInfo.previousName}}</view>
+          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="divider"></view>
+          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="basic-info-item">合并院校：{{schoolInfo.mergedInstitutions}}</view>
+          <view wx:if="{{schoolInfo.previousName}}" class="divider"></view>
+          <view wx:if="{{schoolInfo.provinceCity}}" class="basic-info-item">所在地：{{schoolInfo.provinceCity}}</view>
+         
         </view>
 
         <!-- 校友会列表 -->
@@ -75,7 +76,10 @@
                       <image class="location-icon-small" src="{{iconLocation}}" mode="aspectFit" />
                       <text>{{item.location}}</text>
                     </view>
-                    <text class="association-members">{{item.memberCount}}人</text>
+                    <view class="association-members">
+                      <image class="meta-icon" src="{{iconPeople}}" mode="aspectFit" />
+                      <text>{{item.memberCount}}人</text>
+                    </view>
                   </view>
                 </view>
               </view>

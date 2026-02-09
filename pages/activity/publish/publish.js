@@ -36,10 +36,6 @@ Page({
     },
     activityImagesList: [],
     uploadingImages: false,
-    isSignupOptions: [
-      { id: 0, name: '否' },
-      { id: 1, name: '是' }
-    ],
     isNeedReviewOptions: [
       { id: 0, name: '无需审核' },
       { id: 1, name: '需要审核' }
@@ -118,10 +114,7 @@ Page({
     let selectedValue = value
     
     // 根据不同字段获取对应的id值
-    if (field === 'isSignup') {
-      const option = this.data.isSignupOptions[value]
-      selectedValue = option ? option.id : value
-    } else if (field === 'isNeedReview') {
+    if (field === 'isNeedReview') {
       const option = this.data.isNeedReviewOptions[value]
       selectedValue = option ? option.id : value
     } else if (field === 'isPublic') {
@@ -319,8 +312,11 @@ Page({
     this.setData({ submitting: true })
     
     try {
+      const activityImages = formData.activityImages.trim() || '[]'
+      
       const submitData = {
         ...formData,
+        activityImages,
         alumniAssociationId
       }
       
