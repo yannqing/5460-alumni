@@ -351,10 +351,6 @@ Page({
     
     // 过滤系统管理功能（auditFunctions）
     const filteredAuditFunctions = this.data.auditFunctions.filter(item => {
-      // 超级管理员显示所有功能
-      if (hasSuperAdmin) {
-        return true
-      }
       // 根据功能名称检查对应权限
       if (item.name === '文章审核') {
         return this.hasPermission('HOME_PAGE_ARTICLE_REVIEW')
@@ -368,10 +364,6 @@ Page({
     
     // 过滤校促会管理功能（schoolOfficeFunctions）
     const filteredSchoolOfficeFunctions = this.data.schoolOfficeFunctions.filter(item => {
-      // 超级管理员显示所有功能
-      if (hasSuperAdmin) {
-        return true
-      }
       // 根据功能名称检查对应权限
       if (item.name === '校友会审核') {
         return this.hasPermission('LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION')
@@ -385,10 +377,6 @@ Page({
     
     // 过滤校友会管理功能（alumniFunctions）
     const filteredAlumniFunctions = this.data.alumniFunctions.filter(item => {
-      // 超级管理员显示所有功能
-      if (hasSuperAdmin) {
-        return true
-      }
       // 根据功能名称检查对应权限
       if (item.name === '架构管理') {
         return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
@@ -403,19 +391,15 @@ Page({
       } else if (item.name === '活动管理') {
         return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT')
       } else if (item.name === '企业管理') {
-        return true
+        return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT')
       } else if (item.name === '信息维护') {
-        return true
+        return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION')
       }
       return false
     })
     
     // 过滤商家管理功能（merchantFunctions）
     const filteredMerchantFunctions = this.data.merchantFunctions.filter(item => {
-      // 超级管理员显示所有功能
-      if (hasSuperAdmin) {
-        return true
-      }
       // 根据功能名称检查对应权限
       if (item.name === '店铺管理') {
         return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
@@ -434,13 +418,13 @@ Page({
     })
     
     // 根据角色设置其他功能模块显示权限
-    if (hasSuperAdmin || hasLocalAdmin) {
+    if (hasLocalAdmin || this.hasPermission('LOCAL_PLATFORM_CONFIG')) {
       showSchoolOfficeFunctions = true
     }
-    if (hasSuperAdmin || hasLocalAdmin || hasAlumniAdmin) {
+    if (hasLocalAdmin || hasAlumniAdmin || this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')) {
       showAlumniFunctions = true
     }
-    if (hasSuperAdmin || hasLocalAdmin || hasAlumniAdmin || hasMerchantAdmin || hasShopAdmin) {
+    if (hasLocalAdmin || hasAlumniAdmin || hasMerchantAdmin || hasShopAdmin || this.hasPermission('MERCHANT_CONFIG')) {
       showMerchantFunctions = true
     }
     
