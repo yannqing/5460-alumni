@@ -1,12 +1,24 @@
 /* pages/alumni-association/list/list.wxss */
 
 /* 页面容器 */
+page {
+  background: #3F61CA;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+view, text, scroll-view, picker, input, button, image {
+  box-sizing: border-box;
+}
+
 .container {
+  width: 100%;
   min-height: 100vh;
   background: #3F61CA;
   padding: 0;
   margin: 0;
-  box-sizing: border-box;
 }
 
 /* 固定顶部背景 */
@@ -53,7 +65,6 @@ page {
   top: 180rpx;
   z-index: 15;
   background: #3F61CA;
-  overflow: hidden;
   border-bottom: none;
   bottom: 0;
 }
@@ -251,11 +262,10 @@ view, text, picker, input, button, image, navigator {
 
 /* 校友会列表 */
 .association-list {
-  padding: 0 30rpx 20rpx;
+  padding: 30rpx 30rpx 20rpx;
   background-color: #F5F5F5;
   min-height: 100vh;
   background: #F5F5F5;
-  margin-top: -1rpx;
   position: relative;
   z-index: 0;
 }
@@ -355,13 +365,40 @@ view, text, picker, input, button, image, navigator {
   flex-shrink: 0;
 }
 
-/* 学校和地点在一行展示 */
-.school-location-row {
+/* 学校和地点信息展示 */
+.meta-row {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: 16rpx;
   margin-bottom: 12rpx;
-  flex-wrap: wrap;
+  width: 100%;
+  overflow: hidden;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
+  color: #999999;
+  min-width: 0;
+}
+
+.school-name-item {
+  flex: 1.2;
+}
+
+.location-item {
+  flex: 0.8;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .school-location-item {
