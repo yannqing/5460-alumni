@@ -243,8 +243,15 @@ Page({
       
       if (res.data && res.data.code === 200 && res.data.data) {
         console.log('[Debug] 获取校友会详情成功:', res.data.data)
+        
+        // 处理logo字段，去除空格和反引号
+        let processedData = res.data.data
+        if (processedData.logo) {
+          processedData.logo = processedData.logo.trim().replace(/[`\s]/g, '')
+        }
+        
         this.setData({
-          currentAlumniDetail: res.data.data
+          currentAlumniDetail: processedData
         })
       } else {
         console.error('[Debug] 获取校友会详情失败:', res)
