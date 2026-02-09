@@ -30,7 +30,7 @@
     </view>
     
     <!-- 报名时间 -->
-    <view class="info-item">
+    <view class="info-item" wx:if="{{activityInfo.registrationStartTime}}">
       <text class="info-label">报名时间</text>
       <text class="info-value">{{activityInfo.registrationStartTime || ''}} - {{activityInfo.registrationEndTime || ''}}</text>
     </view>
