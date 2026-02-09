@@ -1,306 +1,302 @@
 <!--pages/alumni-association/detail/detail.wxml-->
-<!-- 消息通知组件 -->
-<message-notification />
-
-<view class="container">
-  <!-- 顶部固定区域 -->
-  <view class="top-fixed-area">
-    <!-- 自定义导航栏 -->
-    <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
-    
-    <!-- 顶部图片（与导航栏同一层级） -->
-    <view class="top-image-container">
-      <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png" mode="aspectFit" />
-    </view>
-  </view>
-
-  <!-- 内容滚动区域 -->
-  <view class="content-scroll">
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会详情">
+  <message-notification />
+  
+  <view class="association-detail-page">
     <view wx:if="{{associationInfo}}">
-    <image class="cover-image" src="{{associationInfo.cover}}" mode="aspectFill" />
+      <!-- 轮播背景图 -->
+      <swiper class="cover-swiper" 
+              indicator-dots="{{associationInfo.coverList.length > 1}}" 
+              autoplay="{{associationInfo.coverList.length > 1}}" 
+              circular="{{true}}"
+              indicator-color="rgba(255, 255, 255, .3)"
+              indicator-active-color="#ffffff">
+        <swiper-item wx:for="{{associationInfo.coverList}}" wx:key="*this">
+          <image class="cover-image" src="{{item}}" mode="aspectFill" />
+        </swiper-item>
+      </swiper>
 
-    <!-- 白色背景内容区域 -->
-    <view class="white-background">
-    <view class="card">
-      <view class="flex">
-        <image class="avatar avatar-large" src="{{associationInfo.icon}}" mode="aspectFill" />
-        <view class="flex-1 ml-20">
-          <view class="name-row">
-            <text class="text-primary text-bold">{{associationInfo.name}}</text>
-            <view wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" class="cert-tag-wrap">
-              <block wx:for="{{associationInfo.certifications}}" wx:key="id">
-                <view class="cert-tag" data-type="{{item.type}}" data-id="{{item.id}}" catchtap="handleCertificationTap">
-                  {{item.label}}
-                </view>
-              </block>
-            </view>
-          </view>
-          <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
-            <view class="school-tag">{{associationInfo.schoolName}}</view>
-          </view>
-          <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
-            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-            <text>{{associationInfo.location}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="mt-20">
-        <view class="join-button {{associationInfo.applicationStatus === 0 ? 'pending' : ''}} {{associationInfo.applicationStatus === 1 ? 'joined' : ''}} {{associationInfo.applicationStatus === 2 ? 'rejected' : ''}}" bindtap="toggleJoin">
-          <block wx:if="{{associationInfo.applicationStatus === 0}}">审核中</block>
-          <block wx:elif="{{associationInfo.applicationStatus === 1}}">已加入校友会</block>
-          <block wx:elif="{{associationInfo.applicationStatus === 2}}">申请被拒绝</block>
-          <block wx:else>加入校友会</block>
-        </view>
-      </view>
-    </view>
-
-    <view class="tabs">
-      <view class="tab-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
-        {{item}}
-      </view>
-    </view>
-
-    <view wx:if="{{activeTab === 0}}" class="tab-content">
-      <view class="card">
-        <view class="text-bold mb-20">基本信息</view>
-        <view wx:if="{{associationInfo.description}}" class="text-secondary">{{associationInfo.description}}</view>
-        <view class="divider"></view>
-        <view wx:if="{{associationInfo.president}}" class="text-secondary">会长：{{associationInfo.president}}</view>
-        <view class="text-secondary mt-10">成员：{{associationInfo.memberCount || 0}}人</view>
-        <view wx:if="{{associationInfo.establishedYear}}" class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
-        <view wx:if="{{associationInfo.contactInfo}}" class="text-secondary mt-10">联系信息：{{associationInfo.contactInfo}}</view>
-      </view>
-
-      <!-- 通知列表 -->
-      <view class="card mt-20 dashboard-card">
-        <view class="section-header">
-          <view class="section-title">
-            <view class="text-bold">通知</view>
-            <view class="section-subtitle">最新提醒、重要动态</view>
-          </view>
-          <view class="text-placeholder" bindtap="viewNotificationDetail" data-id="all">查看更多</view>
-        </view>
-        <view class="dashboard-list notification" wx:for="{{notifications}}" wx:key="id" bindtap="viewNotificationDetail" data-id="{{item.id}}">
-          <view class="dashboard-item">
-            <view class="item-leading">
-              <view class="item-icon notify-icon">通</view>
-            </view>
-            <view class="item-content">
-              <view class="item-title">{{item.title}}</view>
-              <view class="item-desc">{{item.content}}</view>
-              <view class="item-meta">
-                <text>{{item.time}}</text>
-                <view wx:if="{{!item.isRead}}" class="status-dot"></view>
-              </view>
-            </view>
-            <view class="item-extra">
-              <text class="chevron">›</text>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 活动列表 -->
-      <view class="card mt-20 dashboard-card">
-        <view class="section-header">
-          <view class="section-title">
-            <view class="text-bold">活动</view>
-            <view class="section-subtitle">近期热点校友活动</view>
-          </view>
-        </view>
-        <view class="dashboard-list activity" wx:for="{{activityList}}" wx:key="activityId">
-          <view class="dashboard-item activity-item" bindtap="viewActivityDetail" data-id="{{item.activityId}}">
-            <view class="item-leading">
-              <image class="item-cover" src="{{item.coverImage}}" mode="aspectFill" />
-            </view>
-            <view class="item-content">
-              <view class="activity-header">
-                <view class="item-title">{{item.activityTitle}}</view>
-                <view class="activity-time">{{item.startTime}}</view>
-              </view>
-              <view class="activity-footer">
-                <view class="item-desc location-row">
-                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                  <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
-                </view>
-                <view class="activity-participants">
-                  <image class="participants-icon" src="/assets/icons/people.png" mode="aspectFit" />
-                  <text>{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
+      <!-- 白色内容区域 -->
+      <view class="white-background-content">
+        <view class="card">
+          <view class="flex">
+            <image class="avatar avatar-large" src="{{associationInfo.icon}}" mode="aspectFill" />
+            <view class="flex-1 ml-20">
+              <view class="name-row">
+                <text class="text-primary text-bold">{{associationInfo.name}}</text>
+                <view wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" class="cert-tag-wrap">
+                  <block wx:for="{{associationInfo.certifications}}" wx:key="id">
+                    <view class="cert-tag" data-type="{{item.type}}" data-id="{{item.id}}" catchtap="handleCertificationTap">
+                      {{item.label}}
+                    </view>
+                  </block>
                 </view>
               </view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 附近权益列表 -->
-      <view class="card mt-20 dashboard-card">
-        <view class="section-header">
-          <view class="section-title">
-            <view class="text-bold">附近权益</view>
-            <view class="section-subtitle">优选商户权益随时用</view>
-          </view>
-          <view class="text-placeholder" bindtap="viewBenefitDetail" data-id="all">查看更多</view>
-        </view>
-        <view class="dashboard-list benefit" wx:for="{{nearbyBenefits}}" wx:key="id" bindtap="viewBenefitDetail" data-id="{{item.id}}">
-          <view class="dashboard-item">
-            <view class="item-leading benefit-leading">
-              <view class="benefit-tag">{{item.discount}}</view>
-            </view>
-            <view class="item-content">
-              <view class="item-title">
-                {{item.title}}
-                <view wx:if="{{item.isNew}}" class="new-badge-inline">上新</view>
+              <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
+                <view class="school-tag">{{associationInfo.schoolName}}</view>
               </view>
-              <view class="item-desc">{{item.merchant}}</view>
-              <view class="item-meta">
-                <text>距离{{item.distance}}</text>
-              </view>
-            </view>
-            <view class="item-extra">
-              <view class="item-chip ghost">查看</view>
-              <text class="chevron">›</text>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 校友企业列表 -->
-      <view class="card mt-20 dashboard-card">
-        <view class="section-header">
-          <view class="section-title">
-            <view class="text-bold">校友企业</view>
-            <view class="section-subtitle">优秀校友创办的企业</view>
-          </view>
-        </view>
-        <view class="dashboard-list enterprise" wx:for="{{enterpriseList}}" wx:key="placeId">
-          <view class="dashboard-item" bindtap="viewEnterpriseDetail" data-id="{{item.placeId}}">
-            <view class="item-leading">
-              <block wx:if="{{item.logo}}">
-                <image class="item-logo" src="{{item.logo}}" mode="aspectFill" />
-              </block>
-              <block wx:else>
-                <view class="item-icon enterprise-icon">企</view>
-              </block>
-            </view>
-            <view class="item-content">
-              <view class="item-title">{{item.placeName}}</view>
-              <view class="item-meta location-row">
+              <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
                 <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                <text>{{item.province}}{{item.city}}{{item.district}}</text>
+                <text>{{associationInfo.location}}</text>
               </view>
             </view>
           </view>
+          <view class="mt-20">
+            <view class="join-button {{associationInfo.applicationStatus === 0 ? 'pending' : ''}} {{associationInfo.applicationStatus === 1 ? 'joined' : ''}} {{associationInfo.applicationStatus === 2 ? 'rejected' : ''}}" bindtap="toggleJoin">
+              <block wx:if="{{associationInfo.applicationStatus === 0}}">审核中</block>
+              <block wx:elif="{{associationInfo.applicationStatus === 1}}">已加入校友会</block>
+              <block wx:elif="{{associationInfo.applicationStatus === 2}}">申请被拒绝</block>
+              <block wx:else>加入校友会</block>
+            </view>
+          </view>
         </view>
-      </view>
 
-      <!-- 校友商铺列表 -->
-      <view class="card mt-20 dashboard-card">
-        <view class="section-header">
-          <view class="section-title">
-            <view class="text-bold">校友商铺</view>
-            <view class="section-subtitle">校友经营的优质商铺</view>
-          </view>
-          <view class="text-placeholder" bindtap="viewShopDetail" data-id="all">查看更多</view>
-        </view>
-        <view class="dashboard-list shop" wx:for="{{alumniShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
-          <view class="dashboard-item">
-            <view class="item-leading">
-              <view class="item-icon shop-icon">商</view>
-            </view>
-            <view class="item-content">
-              <view class="item-title">{{item.name}}</view>
-              <view class="item-desc">{{item.description}}</view>
-              <view class="item-meta">
-                <text class="rating-text">⭐ {{item.rating}}</text>
-                <text class="meta-divider">·</text>
-                <text>{{item.category}}</text>
-                <text class="meta-divider">·</text>
-                <text>距离{{item.distance}}</text>
-              </view>
-            </view>
-            <view class="item-extra">
-              <text class="chevron">›</text>
-            </view>
+        <view class="tabs">
+          <view class="tab-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
+            {{item}}
           </view>
         </view>
-      </view>
-    </view>
 
-    <view wx:if="{{activeTab === 1}}">
-      <view class="member-list">
-        <!-- 骨架屏 -->
-        <view wx:if="{{loading && members.length === 0}}" class="skeleton-list">
-          <view class="member-item skeleton-item" wx:for="[1,2,3,4,5]" wx:key="*this">
-            <view class="member-avatar skeleton-avatar"></view>
-            <view class="member-info">
-              <view class="member-name-row">
-                <view class="skeleton-name"></view>
-                <view class="skeleton-tag"></view>
-              </view>
-              <view class="skeleton-text"></view>
-            </view>
+        <view wx:if="{{activeTab === 0}}" class="tab-content">
+          <view class="card">
+            <view class="text-bold mb-20">基本信息</view>
+            <view wx:if="{{associationInfo.description}}" class="text-secondary">{{associationInfo.description}}</view>
+            <view class="divider"></view>
+            <view wx:if="{{associationInfo.president}}" class="text-secondary">会长：{{associationInfo.president}}</view>
+            <view class="text-secondary mt-10">成员：{{associationInfo.memberCount || 0}}人</view>
+            <view wx:if="{{associationInfo.establishedYear}}" class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
+            <view wx:if="{{associationInfo.contactInfo}}" class="text-secondary mt-10">联系信息：{{associationInfo.contactInfo}}</view>
           </view>
-        </view>
-        
-        <!-- 成员列表 -->
-        <view wx:elif="{{members.length > 0}}">
-          <view class="member-item" wx:for="{{members}}" wx:key="id" bindtap="viewMemberDetail" data-id="{{item.id}}">
-            <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
-            <view class="member-info">
-              <view class="member-name-row">
-                <text class="member-name">{{item.name}}</text>
-                <view class="member-tag">{{item.role}}</view>
-              </view>
-              <view class="member-company">{{item.company}}</view>
-            </view>
-          </view>
-        </view>
-        
-        <!-- 空状态 -->
-        <view wx:else class="empty-container">
-          <view class="empty-icon">👥</view>
-          <view class="empty-text">暂无成员数据</view>
-          <view class="empty-desc">该校友会还没有成员，快来加入吧</view>
-        </view>
-      </view>
-    </view>
 
-    <!-- 组织结构标签页 -->
-    <view wx:if="{{activeTab === 2}}" class="tab-content">
-      <view class="card dashboard-card">
-        <view class="section-header">
-          <view class="section-title">
-            <view class="text-bold">组织结构</view>
-            <view class="section-subtitle">组织架构展示</view>
-          </view>
-        </view>
-        
-        <view class="role-list-section">
-          <!-- 骨架屏 -->
-          <view wx:if="{{organizationLoading}}" class="skeleton-role-list">
-            <view class="role-item skeleton-item" wx:for="[1,2,3]" wx:key="*this">
-              <view class="role-header">
-                <view class="role-name-container">
-                  <text class="expand-icon">▶</text>
-                  <view class="skeleton-role-name"></view>
+          <!-- 通知列表 -->
+          <view class="card mt-20 dashboard-card">
+            <view class="section-header">
+              <view class="section-title">
+                <view class="text-bold">通知</view>
+                <view class="section-subtitle">最新提醒、重要动态</view>
+              </view>
+              <view class="text-placeholder" bindtap="viewNotificationDetail" data-id="all">查看更多</view>
+            </view>
+            <view class="dashboard-list notification" wx:for="{{notifications}}" wx:key="id" bindtap="viewNotificationDetail" data-id="{{item.id}}">
+              <view class="dashboard-item">
+                <view class="item-leading">
+                  <view class="item-icon notify-icon">通</view>
                 </view>
-                <view class="skeleton-role-count"></view>
+                <view class="item-content">
+                  <view class="item-title">{{item.title}}</view>
+                  <view class="item-desc">{{item.content}}</view>
+                  <view class="item-meta">
+                    <text>{{item.time}}</text>
+                    <view wx:if="{{!item.isRead}}" class="status-dot"></view>
+                  </view>
+                </view>
+                <view class="item-extra">
+                  <text class="chevron">›</text>
+                </view>
               </view>
             </view>
           </view>
-          
-          <!-- 空状态 -->
-          <view wx:elif="{{roleList.length === 0}}" class="empty-container">
-            <text class="empty-text">暂无角色数据</text>
+
+          <!-- 活动列表 -->
+          <view class="card mt-20 dashboard-card">
+            <view class="section-header">
+              <view class="section-title">
+                <view class="text-bold">活动</view>
+                <view class="section-subtitle">近期热点校友活动</view>
+              </view>
+            </view>
+            <view class="dashboard-list activity" wx:for="{{activityList}}" wx:key="activityId">
+              <view class="dashboard-item activity-item" bindtap="viewActivityDetail" data-id="{{item.activityId}}">
+                <view class="item-leading">
+                  <image class="item-cover" src="{{item.coverImage}}" mode="aspectFill" />
+                </view>
+                <view class="item-content">
+                  <view class="activity-header">
+                    <view class="item-title">{{item.activityTitle}}</view>
+                    <view class="activity-time">{{item.startTime}}</view>
+                  </view>
+                  <view class="activity-footer">
+                    <view class="item-desc location-row">
+                      <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                      <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
+                    </view>
+                    <view class="activity-participants">
+                      <image class="participants-icon" src="/assets/icons/people.png" mode="aspectFit" />
+                      <text>{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
           </view>
-          
-          <org-structure list="{{roleList}}" loading="{{organizationLoading}}" empty-text="暂无角色数据" />
+
+          <!-- 附近权益列表 -->
+          <view class="card mt-20 dashboard-card">
+            <view class="section-header">
+              <view class="section-title">
+                <view class="text-bold">附近权益</view>
+                <view class="section-subtitle">优选商户权益随时用</view>
+              </view>
+              <view class="text-placeholder" bindtap="viewBenefitDetail" data-id="all">查看更多</view>
+            </view>
+            <view class="dashboard-list benefit" wx:for="{{nearbyBenefits}}" wx:key="id" bindtap="viewBenefitDetail" data-id="{{item.id}}">
+              <view class="dashboard-item">
+                <view class="item-leading benefit-leading">
+                  <view class="benefit-tag">{{item.discount}}</view>
+                </view>
+                <view class="item-content">
+                  <view class="item-title">
+                    {{item.title}}
+                    <view wx:if="{{item.isNew}}" class="new-badge-inline">上新</view>
+                  </view>
+                  <view class="item-desc">{{item.merchant}}</view>
+                  <view class="item-meta">
+                    <text>距离{{item.distance}}</text>
+                  </view>
+                </view>
+                <view class="item-extra">
+                  <view class="item-chip ghost">查看</view>
+                  <text class="chevron">›</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 校友企业列表 -->
+          <view class="card mt-20 dashboard-card">
+            <view class="section-header">
+              <view class="section-title">
+                <view class="text-bold">校友企业</view>
+                <view class="section-subtitle">优秀校友创办的企业</view>
+              </view>
+            </view>
+            <view class="dashboard-list enterprise" wx:for="{{enterpriseList}}" wx:key="placeId">
+              <view class="dashboard-item" bindtap="viewEnterpriseDetail" data-id="{{item.placeId}}">
+                <view class="item-leading">
+                  <block wx:if="{{item.logo}}">
+                    <image class="item-logo" src="{{item.logo}}" mode="aspectFill" />
+                  </block>
+                  <block wx:else>
+                    <view class="item-icon enterprise-icon">企</view>
+                  </block>
+                </view>
+                <view class="item-content">
+                  <view class="item-title">{{item.placeName}}</view>
+                  <view class="item-meta location-row">
+                    <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                    <text>{{item.province}}{{item.city}}{{item.district}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 校友商铺列表 -->
+          <view class="card mt-20 dashboard-card">
+            <view class="section-header">
+              <view class="section-title">
+                <view class="text-bold">校友商铺</view>
+                <view class="section-subtitle">校友经营的优质商铺</view>
+              </view>
+              <view class="text-placeholder" bindtap="viewShopDetail" data-id="all">查看更多</view>
+            </view>
+            <view class="dashboard-list shop" wx:for="{{alumniShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
+              <view class="dashboard-item">
+                <view class="item-leading">
+                  <view class="item-icon shop-icon">商</view>
+                </view>
+                <view class="item-content">
+                  <view class="item-title">{{item.name}}</view>
+                  <view class="item-desc">{{item.description}}</view>
+                  <view class="item-meta">
+                    <text class="rating-text">⭐ {{item.rating}}</text>
+                    <text class="meta-divider">·</text>
+                    <text>{{item.category}}</text>
+                    <text class="meta-divider">·</text>
+                    <text>距离{{item.distance}}</text>
+                  </view>
+                </view>
+                <view class="item-extra">
+                  <text class="chevron">›</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{activeTab === 1}}">
+          <view class="member-list">
+            <!-- 骨架屏 -->
+            <view wx:if="{{loading && members.length === 0}}" class="skeleton-list">
+              <view class="member-item skeleton-item" wx:for="[1,2,3,4,5]" wx:key="*this">
+                <view class="member-avatar skeleton-avatar"></view>
+                <view class="member-info">
+                  <view class="member-name-row">
+                    <view class="skeleton-name"></view>
+                    <view class="skeleton-tag"></view>
+                  </view>
+                  <view class="skeleton-text"></view>
+                </view>
+              </view>
+            </view>
+            
+            <!-- 成员列表 -->
+            <view wx:elif="{{members.length > 0}}">
+              <view class="member-item" wx:for="{{members}}" wx:key="id" bindtap="viewMemberDetail" data-id="{{item.id}}">
+                <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
+                <view class="member-info">
+                  <view class="member-name-row">
+                    <text class="member-name">{{item.name}}</text>
+                    <view class="member-tag">{{item.role}}</view>
+                  </view>
+                  <view class="member-company">{{item.company}}</view>
+                </view>
+              </view>
+            </view>
+            
+            <!-- 空状态 -->
+            <view wx:else class="empty-container">
+              <view class="empty-icon">👥</view>
+              <view class="empty-text">暂无成员数据</view>
+              <view class="empty-desc">该校友会还没有成员，快来加入吧</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 组织结构标签页 -->
+        <view wx:if="{{activeTab === 2}}" class="tab-content">
+          <view class="card dashboard-card">
+            <view class="section-header">
+              <view class="section-title">
+                <view class="text-bold">组织结构</view>
+                <view class="section-subtitle">组织架构展示</view>
+              </view>
+            </view>
+            
+            <view class="role-list-section">
+              <!-- 骨架屏 -->
+              <view wx:if="{{organizationLoading}}" class="skeleton-role-list">
+                <view class="role-item skeleton-item" wx:for="[1,2,3]" wx:key="*this">
+                  <view class="role-header">
+                    <view class="role-name-container">
+                      <text class="expand-icon">▶</text>
+                      <view class="skeleton-role-name"></view>
+                    </view>
+                    <view class="skeleton-role-count"></view>
+                  </view>
+                </view>
+              </view>
+              
+              <!-- 空状态 -->
+              <view wx:elif="{{roleList.length === 0}}" class="empty-container">
+                <text class="empty-text">暂无角色数据</text>
+              </view>
+              
+              <org-structure list="{{roleList}}" loading="{{organizationLoading}}" empty-text="暂无角色数据" />
+            </view>
+          </view>
         </view>
       </view>
-    </view>
-
     </view>
   </view>
-</view>
-</view>
+</custom-nav-bar>

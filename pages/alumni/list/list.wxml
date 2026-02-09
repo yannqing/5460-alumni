@@ -6,7 +6,7 @@
   <!-- 固定顶部背景 -->
   <view class="fixed-top-bg"></view>
   <!-- 自定义导航栏 -->
-  <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
+  <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
   <!-- 顶部图片 -->
   <view class="top-image-container">
     <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/06/64fc16d0-fb12-4e63-b7a0-8638b532c45a.png" mode="aspectFit" />
@@ -64,7 +64,7 @@
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.name}}</text>
-            <view wx:if="{{item.isAlumni}}" class="cert-badge">校友会认证</view>
+            <image wx:if="{{item.isAlumni}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
           </view>
 
           <!-- 学校和地点信息展示 -->

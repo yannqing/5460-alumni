@@ -18,9 +18,7 @@
               <view class="name-area">
                 <view class="nickname-wrap">
                   <view class="nickname-text">{{alumniInfo.nickname.value}}</view>
-                  <view class="certification-badge" wx:if="{{alumniInfo.isAlumni}}">
-                    <text class="badge-text">校友会认证</text>
-                  </view>
+                  <image wx:if="{{alumniInfo.isAlumni}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
                 </view>
                 <view class="signature-text {{alumniInfo.signature.isNull ? 'text-null' : ''}}">{{alumniInfo.signature.value}}</view>
               </view>
