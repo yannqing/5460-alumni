@@ -64,10 +64,12 @@
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.merchantName}}</text>
-            <view wx:if="{{item.memberTier > 0}}" class="tier-badge tier-{{item.memberTier}}">
-              {{item.tierName}}
+            <view class="badges-row">
+              <view wx:if="{{item.memberTier > 0}}" class="tier-badge tier-{{item.memberTier}}">
+                {{item.tierName}}
+              </view>
+              <view wx:if="{{item.isAlumniCertified === 1}}" class="cert-badge">✓ 校友认证</view>
             </view>
-            <view wx:if="{{item.isAlumniCertified === 1}}" class="cert-badge">✓ 校友认证</view>
           </view>
 
           <!-- 业务类别 -->

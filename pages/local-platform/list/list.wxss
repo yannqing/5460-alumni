@@ -1,13 +1,24 @@
 /* pages/local-platform/list/list.wxss */
 
 /* 页面容器 */
-.container {
-  height: 100vh;
+page {
   background: #3F61CA;
   padding: 0;
   margin: 0;
+  width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+}
+
+view, text, scroll-view, picker, input, button, image {
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background: #3F61CA;
+  padding: 0;
+  margin: 0;
 }
 
 /* 固定顶部背景 */
@@ -47,10 +58,12 @@ page {
 
 /* 头部容器（包含搜索栏和筛选条件） */
 .header-container {
-  position: relative;
+  position: sticky;
+  top: 180rpx;
   z-index: 15;
   background: #3F61CA;
   border-bottom: none;
+  bottom: 0;
 }
 
 /* 搜索栏 */
@@ -278,16 +291,14 @@ view, text, picker, input, button, image, navigator {
 
 /* 校促会列表 */
 .platform-list {
-  padding: 0 30rpx 20rpx;
+  padding: 30rpx 30rpx 20rpx;
   background-color: #F5F5F5;
   background: #F5F5F5;
   margin-top: 0;
   position: relative;
   z-index: 1;
-  height: calc(100vh - 350rpx);
+  min-height: 100vh;
   padding-bottom: 100rpx;
-  overflow: hidden;
-  touch-action: none;
 }
 
 .platform-card {
@@ -338,6 +349,8 @@ view, text, picker, input, button, image, navigator {
   gap: 12rpx;
   margin-bottom: 8rpx;
   margin-top: -3rpx;
+  width: 100%;
+  overflow: hidden;
 }
 
 .card-title {
@@ -346,6 +359,11 @@ view, text, picker, input, button, image, navigator {
   color: #333333;
   margin-top: -3rpx;
   transform: translateY(-6rpx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
 .status-badge {
@@ -484,6 +502,10 @@ view, text, picker, input, button, image, navigator {
   display: block;
   color: #ffffff;
   transform: translateY(-6rpx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 /* 背景图片上的城市信息 */
