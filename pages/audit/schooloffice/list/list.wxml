@@ -70,52 +70,71 @@
   <view class="group_7">
     <text lines="1" class="text_20">审核列表</text>
     
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
     <view class="association-list">
       <block wx:for="{{applicationList}}" wx:key="applicationId">
         <!-- 已通过状态 -->
-        <view class="block_2" wx:if="{{item.applicationStatus === 1}}">
-          <view class="text-wrapper_10">
-            <text lines="1" class="text_21">{{item.associationName}}</text>
-          </view>
-          <view class="box_4">
-            <view class="text-wrapper_11">
-              <text lines="1" class="text_22">已通过</text>
+        <view class="audit-card audit-card-approved" wx:if="{{item.applicationStatus === 1}}">
+          <view class="audit-card-top">
+            <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
+            <view class="audit-card-body">
+              <view class="audit-card-header">
+                <text class="audit-card-name">{{item.associationName}}</text>
+                <view class="audit-card-status status-approved">
+                  <text>已通过</text>
+                </view>
+              </view>
             </view>
+          </view>
+          <view class="audit-card-meta-wrap">
+            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
           </view>
         </view>
 
         <!-- 待审核状态 -->
-        <view class="block_3" wx:if="{{item.applicationStatus === 0}}">
-          <view class="text-wrapper_12">
-            <text lines="1" class="text_23">{{item.associationName}}</text>
-          </view>
-          <view class="box_6">
-            <view class="text-wrapper_13">
-              <text lines="1" class="text_24">待审核</text>
+        <view class="audit-card audit-card-pending" wx:if="{{item.applicationStatus === 0}}">
+          <view class="audit-card-top">
+            <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
+            <view class="audit-card-body">
+              <view class="audit-card-header">
+                <text class="audit-card-name">{{item.associationName}}</text>
+                <view class="audit-card-status status-pending">
+                  <text>待审核</text>
+                </view>
+              </view>
             </view>
           </view>
-          <view class="box_7">
-            <view class="box_8">
-              <view class="text-wrapper_14" catchtap="approveApplication" data-id="{{item.applicationId}}">
-                <text lines="1" class="text_25">通过</text>
-              </view>
-              <view class="text-wrapper_15" catchtap="rejectApplication" data-id="{{item.applicationId}}">
-                <text lines="1" class="text_26">拒绝</text>
-              </view>
+          <view class="audit-card-meta-wrap">
+            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
+          </view>
+          <view class="audit-card-actions">
+            <view class="audit-btn audit-btn-approve" catchtap="approveApplication" data-id="{{item.applicationId}}">
+              <text>通过</text>
+            </view>
+            <view class="audit-btn audit-btn-reject" catchtap="rejectApplication" data-id="{{item.applicationId}}">
+              <text>拒绝</text>
             </view>
           </view>
         </view>
 
         <!-- 已拒绝状态 -->
-        <view class="block_4" wx:if="{{item.applicationStatus === 2}}">
-          <view class="text-wrapper_16">
-            <text lines="1" class="text_27">{{item.associationName}}</text>
-          </view>
-          <view class="section_11">
-            <view class="text-wrapper_17">
-              <text lines="1" class="text_28">已拒绝</text>
+        <view class="audit-card audit-card-rejected" wx:if="{{item.applicationStatus === 2}}">
+          <view class="audit-card-top">
+            <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
+            <view class="audit-card-body">
+              <view class="audit-card-header">
+                <text class="audit-card-name">{{item.associationName}}</text>
+                <view class="audit-card-status status-rejected">
+                  <text>已拒绝</text>
+                </view>
+              </view>
             </view>
+          </view>
+          <view class="audit-card-meta-wrap">
+            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
           </view>
         </view>
       </block>
