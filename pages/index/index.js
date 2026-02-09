@@ -48,13 +48,19 @@ Page({
     _scrollTop: 0,
     // 触摸事件相关
     _touchStartY: 0,
-    _touchCurrentY: 0
+    _touchCurrentY: 0,
+    // 状态栏高度
+    statusBarHeight: 20
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    const systemInfo = wx.getSystemInfoSync();
+    this.setData({
+      statusBarHeight: systemInfo.statusBarHeight || 20
+    });
     this.getBannerList();
     this.getArticleList(true);
     // 添加滚动事件监听

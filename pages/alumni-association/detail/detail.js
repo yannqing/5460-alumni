@@ -116,6 +116,19 @@ Page({
         const schoolInfo = item.schoolInfo || {}
         const platformInfo = item.platform || {}
 
+        // 解析背景图列表
+        let coverList = []
+        try {
+          if (item.bgImg) {
+            const parsed = JSON.parse(item.bgImg)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              coverList = parsed.map(img => config.getImageUrl(img))
+            }
+          }
+        } catch (e) {
+          console.error('Parse bgImg error:', e)
+        }
+
         const mappedInfo = {
           // 使用前端当前请求的 id 作为校友会 ID，避免依赖后端未暴露字段
           id: this.data.associationId,
@@ -129,7 +142,8 @@ Page({
           presidentUserId: item.presidentUserId,
           // 优先使用后端返回的 logo 字段，如果没有则使用默认头像，与列表页保持一致
           icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/avatar-2.png',
-          cover: DEFAULT_COVER, // 后端暂无封面字段，使用默认
+          cover: coverList.length > 0 ? coverList[0] : DEFAULT_COVER,
+          coverList: coverList.length > 0 ? coverList : [DEFAULT_COVER],
           location: item.location || '',
           memberCount: item.memberCount || 0,
           contactInfo: item.contactInfo || '',

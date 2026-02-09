@@ -129,9 +129,9 @@
 /* 包含 个人中心标题 和 用户名 的区域 */
 .section_2 {
   height: 290rpx;
-  width: 281rpx;
+  width: auto;
   position: absolute;
-  left: 161rpx;
+  left: 175rpx;
   top: -11rpx;
   display: flex;
   flex-direction: column;
@@ -163,20 +163,21 @@
   font-style: normal;
 }
 
-/* 用户名外层 */
-.text-wrapper_8 {
-  width: 100rpx;
-  height: 45rpx;
+/* 昵称与勋章行 */
+.nickname-badge-row {
   display: flex;
   flex-direction: row;
-  margin: 94rpx 0 0 14rpx;
+  align-items: center;
+  margin: 94rpx 0 0 0rpx;
 }
 
 /* 用户名文本样式 */
 .text_6 {
-  width: 100rpx;
+  min-width: 50rpx;
+  max-width: 320rpx;
   height: 45rpx;
-  overflow-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #000000;
   font-size: 33rpx;
   letter-spacing: 0rpx;
@@ -207,45 +208,14 @@
   border-radius: 50%;
 }
 
-/* 校友会认证徽章区域 */
-.section_3 {
-  background-color: rgba(253,218,145,1.000000);
-  border-radius: 6rpx; /* 这里原代码是NaN，修正为6rpx或根据需要调整 */
+/* 校友会认证徽章图片 */
+.cert-badge-image {
   height: 38rpx;
-  display: flex;
-  flex-direction: column;
-  width: 145rpx;
-  position: absolute;
-  left: 322rpx;
-  top: 234rpx;
+  margin-left: 40rpx;
+  flex-shrink: 0;
 }
 
-/* 校友会认证文本 */
-.text_7 {
-  width: 111rpx;
-  height: 31rpx;
-  overflow-wrap: break-word;
-  color: rgba(176,119,0,1);
-  font-size: 22rpx;
-  letter-spacing: 0rpx;
-  font-family: PingFangSC-Semibold;
-  font-weight: 600;
-  text-align: left;
-  white-space: nowrap;
-  line-height: 31rpx;
-  margin: 4rpx 0 0 22rpx;
-}
 
-/* 徽章图标 */
-.group_12 {
-  position: absolute;
-  left: -18rpx;
-  top: 0rpx;
-  width: 36rpx;
-  height: 38rpx;
-  display: flex;
-  flex-direction: column;
-}
 
 /* 下方主体内容块 */
 .block_1 {

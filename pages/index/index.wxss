@@ -75,7 +75,6 @@
 
 .platform-tag {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 20%);
   left: 30rpx;
   background-color: rgba(255, 255, 255, 0.0);
   border-radius: 30rpx;

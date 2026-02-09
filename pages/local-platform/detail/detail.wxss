@@ -1,8 +1,54 @@
 @import "../../alumni-association/detail/detail.wxss";
 
+.platform-detail-page {
+  min-height: 100vh;
+  margin-top: 0;
+  position: relative;
+  z-index: 1;
+}
+
+page {
+  background: #3F61CA;
+  padding: 0;
+  margin: 0;
+}
+
+.top-background-container {
+  position: relative;
+  width: 100%;
+  height: 400rpx;
+  margin: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 423rpx;
+  margin: 0;
+  display: block;
+}
+
+.bg-gradient-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 240rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  z-index: 1;
+}
+
 /* 调整背景图和白色背景容器之间的间距 */
 .white-background {
-  margin-top: -50rpx !important;
+  background-color: #ffffff;
+  border-radius: 24rpx 24rpx 0 0;
+  margin-top: -30rpx !important;
+  position: relative;
+  z-index: 10;
+  padding-top: 20rpx;
+  min-height: 800rpx;
+  padding-bottom: 200rpx;
 }
 
 /* 调整白色背景容器内第一个卡片与背景图的间距 */

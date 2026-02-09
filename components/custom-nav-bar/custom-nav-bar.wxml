@@ -29,9 +29,9 @@
 </view>
 
 <!-- 默认样式：普通导航栏 -->
-<view wx:else class="custom-nav-bar" style="height: {{statusBarHeight + navBarHeight}}px;">
+<view wx:else class="custom-nav-bar" style="height: {{statusBarHeight + navBarHeight}}px; background-color: {{backgroundColor}};">
   <!-- 背景图 -->
-  <image wx:if="{{backgroundImage}}" class="nav-bar-bg" src="{{backgroundImage}}" mode="aspectFill"></image>
+  <image wx:if="{{showImage && backgroundImage}}" class="nav-bar-bg" src="{{backgroundImage}}" mode="aspectFill"></image>
   
   <!-- 状态栏占位 -->
   <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>

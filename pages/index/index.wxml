@@ -27,7 +27,7 @@
     
     <!-- 内容层（文字等） -->
     <view class="banner-content">
-      <view class="platform-tag">
+      <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
         <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
       </view>
     </view>

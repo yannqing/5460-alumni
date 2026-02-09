@@ -22,25 +22,22 @@
     </view>
 
     <!-- 个人中心标题和用户名 section_2 -->
-    <view class="section_2">
-      <view class="text-wrapper_7">
-        <text lines="1" class="text_5">个人中心</text>
+      <view class="section_2">
+        <view class="text-wrapper_7">
+          <text lines="1" class="text_5">个人中心</text>
+        </view>
+        <view class="nickname-badge-row">
+          <text class="text_6">{{userInfo.nickname || '用户名'}}</text>
+          <!-- 校友会认证徽章 -->
+          <image wx:if="{{userInfo.isAlumni === 1}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
+        </view>
       </view>
-      <view class="text-wrapper_8">
-        <text lines="1" class="text_6">{{userInfo.nickname || '用户名'}}</text>
-      </view>
-    </view>
 
     <!-- 头像 -->
     <view class="image-wrapper_7" bindtap="editProfile">
       <image src="{{userInfo.avatarUrl || '/assets/default-avatar.png'}}" class="image_12"></image>
     </view>
 
-    <!-- 校友会认证徽章 -->
-    <view class="section_3" wx:if="{{userInfo.isAlumni === 1}}">
-      <text lines="1" class="text_7">校友会认证</text>
-      <view class="group_12"></view>
-    </view>
   </view>
 
   <!-- 下方内容区域 -->

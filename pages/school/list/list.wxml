@@ -6,7 +6,7 @@
   <!-- 固定顶部背景 -->
   <view class="fixed-top-bg"></view>
   <!-- 自定义导航栏 -->
-  <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
+  <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
   <!-- 顶部图片 -->
   <view class="top-image-container">
     <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png" mode="aspectFit" />
