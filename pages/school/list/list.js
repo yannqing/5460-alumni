@@ -56,20 +56,20 @@ Page({
     const systemInfo = wx.getSystemInfoSync()
     const statusBarHeight = systemInfo.statusBarHeight || 0
     const navBarHeight = 44 // 导航栏高度固定为44px
-    
+
     this.setData({
       statusBarHeight: statusBarHeight,
       navBarHeight: navBarHeight
     })
-    
+
     // 检查是否为选择模式
     this.setData({
       selectMode: options.selectMode === 'true'
     })
-    
+
     // 初始化省市级数据
     this.initRegionData()
-    
+
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadSchoolList(true)
@@ -164,11 +164,11 @@ Page({
     // 显示时使用带单位的名称，但内部仍使用不带单位的名称作为key
     const provinceKeys = Object.keys(provinceCityMap)
     const provinceList = ['全部', ...provinceKeys.map(key => provinceSuffixMap[key] || key)]
-    
+
     // 初始化：第一列是省份（包含"全部"），第二列是"全部"或第一个省份的城市
     // 当选择"全部"省份时，城市列表也显示"全部"
     const firstProvinceCities = ['全部', ...(provinceCityMap[provinceKeys[0]] || [])]
-    
+
     this.setData({
       provinceCityMap: provinceCityMap,
       provinceSuffixMap: provinceSuffixMap, // 省份名称到带单位名称的映射
@@ -192,7 +192,7 @@ Page({
   async ensureLogin() {
     const app = getApp()
     const isLogin = app.checkHasLogined()
-    
+
     if (!isLogin) {
       try {
         await app.initApp()
@@ -231,7 +231,7 @@ Page({
 
     try {
       const { keyword, sortType, region, selectedLevel, current, pageSize } = this.data
-      
+
       // 从地区选择器中提取省份和城市（只使用省和市，忽略区）
       // region 格式: [省, 市]，例如: ['山西省', '太原市']
       let selectedProvince = undefined
@@ -240,15 +240,15 @@ Page({
         selectedProvince = region[0] || undefined
         selectedCity = region[1] || undefined
       }
-      
+
       // 构建请求参数（与后端 /school/page 的字段保持一致）
       // 后端字段：current, pageSize, sortField, sortOrder, schoolName, location, description, previousName
       // 新增字段：province, city, level（后端需要支持这些字段的查询）
       // 注意：后端使用 AND 关系，如果同时传多个字段，要求同时满足所有条件
       // 因此搜索时只传 schoolName，避免同时传 previousName 和 description 导致查不到数据
       const params = {
-        current: reset ? 1 : current + 1, // 加载更多时请求下一页
-        pageSize: pageSize,
+        current: reset ? 1 : current, // 使用当前页码进行请求
+        size: pageSize,
         // 搜索关键字：只搜索 schoolName（学校名称）
         // 如果同时传 schoolName、previousName、description，后端会要求同时满足三个条件（AND），几乎查不到数据
         // 因此只传 schoolName，让后端按学校名称筛选即可
@@ -274,7 +274,7 @@ Page({
       })
 
       const res = await schoolApi.getSchoolPage(params)
-      
+
       if (res.data && res.data.code === 200) {
         const responseData = res.data.data || {}
         const list = responseData.records || responseData.list || []
@@ -321,16 +321,16 @@ Page({
         if (reset) {
           this.setData({
             schoolList: finalList,
-            current: 1, // 重置为第1页
-            hasMore: currentPage < totalPages,
+            current: 2, // 下次加载第2页
+            hasMore: mappedList.length >= pageSize,
             loading: false,
             refreshing: false
           })
         } else {
           this.setData({
             schoolList: finalList,
-            current: currentPage, // 更新为当前已加载的页码
-            hasMore: currentPage < totalPages,
+            current: current + 1, // 下次加载下一页
+            hasMore: mappedList.length >= pageSize,
             loading: false
           })
         }
@@ -391,7 +391,7 @@ Page({
 
   onSearch() {
     const keyword = this.data.keyword.trim()
-    this.setData({ 
+    this.setData({
       current: 1
     })
     this.loadSchoolList(true)
@@ -401,10 +401,10 @@ Page({
   onRegionColumnChange(e) {
     const column = e.detail.column // 改变的列索引（0: 省, 1: 市）
     const value = e.detail.value // 新选中的索引
-    
+
     const { regionData, provinceCityMap, provinceNameMap, regionIndex } = this.data
     const provinceList = regionData[0]
-    
+
     // 如果改变的是省份列（第一列）
     if (column === 0) {
       // 如果选择的是"全部"（索引0），城市列表也显示"全部"
@@ -412,7 +412,7 @@ Page({
         const cityList = ['全部']
         const newRegionData = [provinceList, cityList]
         const newRegionIndex = [0, 0]
-        
+
         this.setData({
           regionData: newRegionData,
           regionIndex: newRegionIndex
@@ -424,10 +424,10 @@ Page({
         const selectedProvinceKey = provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
         const provinceCities = provinceCityMap[selectedProvinceKey] || []
         const cityList = ['全部', ...provinceCities]
-        
+
         const newRegionData = [provinceList, cityList]
         const newRegionIndex = [value, 0] // 重置城市索引为0（选中"全部"）
-        
+
         this.setData({
           regionData: newRegionData,
           regionIndex: newRegionIndex
@@ -446,28 +446,28 @@ Page({
   onRegionChange(e) {
     const index = e.detail.value // [省索引, 市索引]
     const { regionData, provinceNameMap } = this.data
-    
+
     const provinceList = regionData[0]
     const cityList = regionData[1]
-    
+
     // 根据索引获取选中的省和市（带单位的显示名称）
     const selectedProvinceWithSuffix = provinceList[index[0]] || ''
     const selectedCity = cityList[index[1]] || ''
-    
+
     // 将带单位的省份名称转换为不带单位的名称（用于传给后端）
     const selectedProvince = provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
-    
+
     // 构建地区数组和显示文本
     const region = []
     let regionDisplayText = '全部城市'
-    
+
     // 如果选择的是"全部"省份，不传任何地区参数
     if (selectedProvinceWithSuffix === '全部') {
       regionDisplayText = '全部城市'
     } else if (selectedProvinceWithSuffix) {
       // 选择了具体省份（传给后端时使用不带单位的名称）
       region.push(selectedProvince)
-      
+
       // 如果选择的是"全部"城市，只传省份（单一选择）
       if (selectedCity === '全部' || !selectedCity) {
         regionDisplayText = selectedProvinceWithSuffix // 显示时使用带单位的名称
@@ -477,14 +477,14 @@ Page({
         regionDisplayText = `${selectedProvinceWithSuffix} ${selectedCity}` // 显示时使用带单位的省份名称
       }
     }
-    
+
     this.setData({
       region: region,
       regionDisplayText: regionDisplayText,
       regionIndex: index,
       current: 1
     })
-    
+
     // 地区改变后重新加载数据
     this.loadSchoolList(true)
   },
@@ -494,7 +494,7 @@ Page({
     const level = e.detail.value
     const levelList = this.data.levelList
     const selectedLevel = levelList[level] || '全部'
-    
+
     this.setData({
       selectedLevel: selectedLevel,
       current: 1
@@ -530,7 +530,7 @@ Page({
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
     const { selectMode, schoolList } = this.data
-    
+
     if (selectMode) {
       // 选择模式：返回选中的学校
       const school = schoolList.find(item => String(item.id) === String(id))
@@ -620,9 +620,9 @@ Page({
     const optionIndex = e.detail.value
     const { filters } = this.data
     filters[0].selected = optionIndex
-    
+
     this.setData({ filters })
-    
+
     // 根据选择的筛选条件更新数据
     const selectedOption = filters[0].options[optionIndex]
     let level = '全部'
@@ -640,9 +640,9 @@ Page({
     const optionIndex = e.detail.value
     const { filters } = this.data
     filters[2].selected = optionIndex
-    
+
     this.setData({ filters })
-    
+
     // 根据选择的筛选条件更新数据
     const selectedOption = filters[2].options[optionIndex]
     let sortType = 'default'
@@ -662,7 +662,7 @@ Page({
     const optionIndex = e.detail.value
     const { filters } = this.data
     filters[3].selected = optionIndex
-    
+
     this.setData({ filters, current: 1 })
     // 这里可以根据需要实现关注筛选逻辑
     this.loadSchoolList(true)

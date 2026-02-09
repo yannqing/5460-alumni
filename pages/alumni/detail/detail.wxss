@@ -86,12 +86,48 @@
   flex: 1;
 }
 
+.nickname-wrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
 .nickname-text {
   font-size: 38rpx;
   font-weight: 600;
   color: #fff;
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-  margin-bottom: 6rpx;
+}
+
+.certification-badge {
+  background-color: #FDDA91;
+  padding: 0 12rpx 0 22rpx; /* 增加左边距以适配可能的图标位置 */
+  border-radius: 6rpx;
+  margin-left: 16rpx;
+  display: flex;
+  align-items: center;
+  height: 38rpx;
+  position: relative;
+}
+
+.badge-text {
+  color: #B07700;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 31rpx;
+  white-space: nowrap;
+}
+
+/* 模拟 profile 页面的装饰元素 */
+.certification-badge::before {
+  content: '';
+  position: absolute;
+  left: -10rpx;
+  top: 0;
+  width: 24rpx;
+  height: 38rpx;
+  background: radial-gradient(circle at 50% 50%, #FDDA91 0%, #FDDA91 70%, transparent 70%);
+  display: none; /* 如果不需要复杂装饰则保持简洁 */
 }
 
 .signature-text {
@@ -130,13 +166,16 @@
 
 .action-btn {
   height: 60rpx;
-  padding: 0 28rpx;
+  min-width: 120rpx;
+  padding: 0 24rpx;
   border-radius: 30rpx;
   font-size: 24rpx;
   font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .message-btn {

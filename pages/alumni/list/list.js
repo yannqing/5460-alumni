@@ -17,7 +17,7 @@ Page({
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
     alumniList: [],
-    page: 1,
+    current: 1,
     pageSize: 10,
     hasMore: true,
     loading: false
@@ -43,12 +43,12 @@ Page({
 
     this.setData({ loading: true })
 
-    const { keyword, filters, page, pageSize } = this.data
+    const { keyword, filters, current, pageSize } = this.data
     const [identityFilter, cityFilter, sortFilter, followFilter] = filters
 
     // 构建请求参数
     const params = {
-      page: reset ? 1 : page,
+      current: reset ? 1 : current,
       size: pageSize
     }
 
@@ -81,7 +81,7 @@ Page({
     if (keyword && keyword.trim()) {
       const searchKey = keyword.trim()
       params.keyword = searchKey
-      
+
       // 手机号搜索
       if (/^\d{11}$/.test(searchKey)) {
         params.phone = searchKey
@@ -100,7 +100,7 @@ Page({
           // 构造合并后的结果
           const records1 = (res1.data && res1.data.data && res1.data.data.records) || []
           const records2 = (res2.data && res2.data.data && res2.data.data.records) || []
-          
+
           // 合并并去重（根据 wxId）
           const combined = [...records1, ...records2]
           const map = new Map()
@@ -110,7 +110,7 @@ Page({
             }
           })
           const uniqueRecords = Array.from(map.values())
-          
+
           // 返回伪造的响应结构，保持与单个请求一致
           return {
             data: {
@@ -147,8 +147,8 @@ Page({
 
         this.setData({
           alumniList: finalList,
-          page: reset ? 2 : page + 1,
-          hasMore: mappedList.length >= pageSize,
+          current: reset ? 2 : current + 1,
+          hasMore: records.length >= pageSize,
           loading: false
         })
 
@@ -221,10 +221,10 @@ Page({
 
     // 返回统一格式（isDefaultAvatar 用于列表页仅对默认头像增大展示尺寸）
     const isDefaultAvatar = !item.avatarUrl
-    
+
     // 从新的后端结构中获取学校信息
     const schoolName = item.primaryEducation?.schoolInfo?.schoolName || '暂无学校信息'
-    
+
     return {
       id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
       name: displayName,
@@ -241,7 +241,8 @@ Page({
       followingCount: item.followingCount || 0, // 尝试从后端获取关注数
       isFollowed: item.isFollowed || false, // 关注状态
       followStatus: item.followStatus || 4, // 关注状态
-      isCertified: item.certificationStatus === 1, // 根据 certificationStatus 判断认证状态
+      isAlumni: item.isAlumni === 1 || item.isAlumni === true,
+      isCertified: item.certificationStatus === 1 || item.isAlumni === 1 || item.isAlumni === true, // 兼容旧字段
       tags: item.tags || [], // 尝试从后端获取标签
       identity: item.identity || '', // 尝试从后端获取身份
       // 保留后端原始字段
@@ -301,8 +302,28 @@ Page({
   },
 
   viewDetail(e) {
+    const id = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/alumni/detail/detail?id=${id}`,
+      events: {
+        // 监听来自详情页的状态更新
+        updateFollowStatus: (data) => {
+          console.log('接收到详情页关注状态同步请求:', data)
+          const { id, isFollowed, followStatus, isFriend } = data
+
+          const alumniList = this.data.alumniList
+          const index = alumniList.findIndex(item => item.id === id)
+
+          if (index !== -1) {
+            const key = `alumniList[${index}]`
+            this.setData({
+              [`${key}.isFollowed`]: isFollowed,
+              [`${key}.followStatus`]: followStatus,
+              [`${key}.isFriend`]: isFriend
+            })
+          }
+        }
+      }
     })
   },
 
