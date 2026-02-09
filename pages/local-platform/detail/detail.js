@@ -6,6 +6,7 @@ Page({
   data: {
     // 图标路径
     iconLocation: config.getIconUrl('position.png'),
+    iconPeople: '/assets/icons/people.png',
     platformId: '',
     platformInfo: null,
     loading: true,

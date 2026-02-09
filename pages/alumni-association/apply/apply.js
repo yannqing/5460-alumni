@@ -158,66 +158,102 @@ Page({
   },
 
   // 选择图片
-  chooseImage() {
-    const that = this
-    wx.chooseMedia({
-      count: 3 - this.data.attachments.length,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      success(res) {
-        const tempFiles = res.tempFiles
-        wx.showLoading({ title: '上传中...', mask: true })
-
-        // 逐个上传图片
-        const uploadPromises = tempFiles.map(file => {
-          return that.uploadImage(file.tempFilePath)
+  async chooseImage() {
+    try {
+      // 选择图片
+      const chooseRes = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: 3 - this.data.attachments.length,
+          mediaType: ['image'],
+          sourceType: ['album', 'camera'],
+          success: resolve,
+          fail: reject
         })
+      })
 
-        Promise.all(uploadPromises)
-          .then(results => {
-            const newAttachments = results.map(result => ({
-              url: result.url,
-              fileId: result.fileId
-            }))
-            that.setData({
-              attachments: [...that.data.attachments, ...newAttachments]
-            })
-            wx.hideLoading()
-            wx.showToast({
-              title: '上传成功',
-              icon: 'success'
-            })
-          })
-          .catch(error => {
-            console.error('上传失败:', error)
-            wx.hideLoading()
-            wx.showToast({
-              title: '上传失败，请重试',
-              icon: 'none'
-            })
-          })
+      const tempFiles = chooseRes.tempFiles
+      if (!tempFiles || tempFiles.length === 0) {
+        return
       }
-    })
-  },
 
-  // 上传图片到服务器
-  uploadImage(filePath) {
-    return new Promise((resolve, reject) => {
-      fileApi.uploadImage(filePath, 'attachment.jpg')
-        .then(res => {
-          if (res.data && res.data.code === 200) {
-            resolve({
-              url: res.data.data.url || filePath,
-              fileId: res.data.data.id
+      // 显示上传中提示
+      wx.showLoading({
+        title: '上传中...',
+        mask: true
+      })
+
+      const attachments = [...this.data.attachments]
+
+      // 逐个上传文件
+      for (const file of tempFiles) {
+        const tempFilePath = file.tempFilePath
+        const originalName = file.name || 'attachment.jpg'
+
+        // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
+        const fileSize = file.size || 0
+        const maxSize = 10 * 1024 * 1024 // 10MB
+        if (fileSize > maxSize) {
+          wx.showToast({
+            title: `${originalName} 大小不能超过10MB`,
+            icon: 'none'
+          })
+          continue
+        }
+
+        // 上传文件（与校友会logo上传使用相同的方法）
+        const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+
+        console.log('上传文件结果:', uploadRes)
+
+        if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+          // 获取返回的文件信息，确保获取到fileId
+          const fileId = uploadRes.data.fileId || uploadRes.data.id || uploadRes.data.file_id || uploadRes.data.id || ''
+          const fileUrl = uploadRes.data.fileUrl || ''
+          console.log('获取到的fileId:', fileId)
+          console.log('获取到的fileUrl:', fileUrl)
+          
+          if (fileId && fileUrl) {
+            attachments.push({
+              url: fileUrl,
+              fileId: fileId
             })
           } else {
-            reject(new Error('上传失败'))
+            wx.showToast({
+              title: `${originalName} 上传成功但未获取到文件信息`,
+              icon: 'none'
+            })
           }
+        } else {
+          wx.showToast({
+            title: `${originalName} 上传失败: ${uploadRes?.msg || '未知错误'}`,
+            icon: 'none'
+          })
+        }
+      }
+
+      if (attachments.length > this.data.attachments.length) {
+        this.setData({ attachments })
+        wx.showToast({
+          title: '上传成功',
+          icon: 'success'
         })
-        .catch(error => {
-          reject(error)
+      } else {
+        wx.showToast({
+          title: '上传失败',
+          icon: 'none'
         })
-    })
+      }
+    } catch (error) {
+      // 显示具体的错误信息
+      const errorMsg = error?.msg || error?.message || '上传失败，请重试'
+      wx.showToast({
+        title: errorMsg,
+        icon: 'none',
+        duration: 2000
+      })
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   // 删除附件
