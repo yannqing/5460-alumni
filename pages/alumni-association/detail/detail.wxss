@@ -35,6 +35,8 @@
 /* 内容滚动区域 */
 .content-scroll {
   margin-top: 140rpx;
+  position: relative;
+  z-index: 1;
 }
 
 /* 白色背景内容区域 */
@@ -58,7 +60,7 @@
 
 /* 重置默认样式 */
 page {
-  background: #3F61CA;
+  background: #ffffff;
   padding: 0;
   margin: 0;
 }
@@ -73,11 +75,13 @@ page {
 }
 .cover-image {
   width: 100%;
-  height: 400rpx;
+  height: 500rpx;
   margin: 0;
   display: block;
   vertical-align: top;
   line-height: 0;
+  position: relative;
+  z-index: 1000;
 }
 
 .tabs {
