@@ -39,9 +39,10 @@
   <!-- 导航栏内容 -->
   <view class="nav-bar-content" style="height: {{navBarHeight}}px;">
     <!-- 返回按钮 -->
-    <view wx:if="{{showBack}}" class="nav-back-btn" catchtap="goBack">
-      <image class="back-icon" src="{{iconBack}}" mode="aspectFit"></image>
-    </view>
+      <view wx:if="{{showBack}}" class="nav-back-btn" catchtap="goBack">
+        <image class="back-icon" src="{{iconBack}}" mode="aspectFit"></image>
+        <text class="back-text">返回</text>
+      </view>
     
     <!-- 标题 -->
     <view class="nav-center-wrap">
