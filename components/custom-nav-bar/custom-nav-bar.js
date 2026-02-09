@@ -47,7 +47,7 @@ Component({
     const navBarHeight = 44 // 导航栏高度固定为44px
     
     // 获取返回按钮图标
-    const iconBack = config.getIconUrl('back@3x.png')
+    const iconBack = '/assets/icons/back.png'
     // 管理入口样式：返回按钮图标（使用本地图片）
     const iconBackAudit = '/assets/avatar/back7@2x.png'
     
