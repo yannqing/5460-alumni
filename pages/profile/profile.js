@@ -224,7 +224,7 @@ Page({
     // 格式化用户信息
     // 兼容多种真实姓名字段名：name
     const realName = userInfo.name || userData.name || ''
-    
+
     const formattedUserInfo = {
       nickname: userInfo.nickname || userData.nickname || '用户',
       avatarUrl: avatarUrl,
@@ -232,6 +232,8 @@ Page({
       major: userInfo.major || userData.major || '',
       graduateYear: userInfo.graduateYear || userInfo.enrollYear || userData.graduateYear || userData.enrollYear || '',
       realName: realName,
+      phone: userInfo.phone || userData.phone || '',
+      hasEducation: (userInfo.alumniEducationList || userData.alumniEducationList || []).length > 0,
       isAlumni: userInfo.isAlumni || userData.isAlumni || 0
     }
 
