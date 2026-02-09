@@ -3,18 +3,22 @@
 <view wx:if="{{useAuditStyle}}" class="audit-page-wrapper">
   <!-- 蓝色渐变背景区域 -->
   <view class="audit-blue-header">
-    <!-- 中间 Logo 和标题 -->
-    <view class="audit-center-content">
-      <image class="audit-center-logo" src="{{centerLogo}}" mode="aspectFit"></image>
-      <text class="audit-center-title">{{auditTitle}}</text>
-    </view>
-    
-    <!-- 导航栏（返回按钮） -->
+    <!-- 导航栏（返回按钮、中间内容、右侧按钮） -->
     <view class="audit-nav-bar" style="top: {{statusBarHeight}}px;">
+      <!-- 返回按钮 -->
       <view wx:if="{{showBack}}" class="audit-back-btn" catchtap="goBack">
         <image class="audit-back-icon" src="{{iconBackAudit}}" mode="aspectFit"></image>
         <text class="audit-back-text">返回</text>
       </view>
+      
+      <!-- 中间 Logo 和标题 -->
+      <view class="audit-center-content">
+        <image class="audit-center-logo" src="{{centerLogo}}" mode="aspectFit"></image>
+        <text class="audit-center-title">{{auditTitle}}</text>
+      </view>
+      
+      <!-- 右侧按钮占位 -->
+      <view class="audit-right-btn"></view>
     </view>
   </view>
   

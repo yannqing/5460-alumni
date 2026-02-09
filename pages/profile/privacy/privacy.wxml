@@ -34,9 +34,8 @@
 
       <!-- 底部留白 -->
       <view class="bottom-space"></view>
-    </scroll-view>
   </view>
-</view>
+
 </custom-nav-bar>
 
 
