@@ -6,7 +6,8 @@ const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.
 Page({
   data: {
     alumniId: '',
-    alumniInfo: null
+    alumniInfo: null,
+    defaultAvatar: config.defaultAvatar
   },
 
   onLoad(options) {
@@ -51,7 +52,7 @@ Page({
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
       // 使用本地默认头像
-      avatarUrl = '/assets/avatar/default_avatar.jpeg'
+      avatarUrl = config.defaultAvatar
     }
 
     // 处理性别
