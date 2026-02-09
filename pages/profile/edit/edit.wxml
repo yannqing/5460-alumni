@@ -100,6 +100,21 @@
           </view>
         </view>
       </view>
+      <view class="form-item">
+        <view class="label">婚姻状态</view>
+        <picker mode="selector" range="{{maritalStatusOptions}}" value="{{form.maritalStatusIndex}}" bindchange="handleMaritalStatusChange">
+          <view class="picker-value">{{maritalStatusOptions[form.maritalStatusIndex] || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <view class="label">个人特长</view>
+        <view class="input-wrapper">
+          <input class="input" placeholder="请输入个人特长" value="{{form.personalSpecialty}}" data-field="personalSpecialty" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
+          <view class="save-btn" wx:if="{{editingField === 'personalSpecialty'}}" data-field="personalSpecialty" catchtap="handleSaveField">
+            <text class="save-icon">✓</text>
+          </view>
+        </view>
+      </view>
     </view>
 
     <view class="section-card card">
