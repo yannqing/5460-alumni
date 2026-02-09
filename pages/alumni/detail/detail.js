@@ -158,10 +158,13 @@ Page({
 
       educationList: educationList.length > 0 ? educationList : null,
       workExperienceList: workExperienceList.length > 0 ? workExperienceList : null,
+      isAlumni: data.isAlumni === 1 || data.isAlumni === true,
+      isFriend: data.isFriend === 1 || data.isFriend === true,
       isFollowed: data.isFollowed || false,
       identifyType: data.identifyType,
       schoolId: data.schoolId,
-      school: data.school || '母校'
+      school: data.school || '母校',
+      wxId: data.wxId || data.userId // 确保用于关注的 ID 存在
     }
   },
 
@@ -170,7 +173,16 @@ Page({
     const { alumniInfo, alumniId } = this.data
     if (!alumniInfo) return
 
-    const name = encodeURIComponent(alumniInfo.nickname)
+    // 如果不是好友，提示无法私信（根据用户需求：判断是否可以私信）
+    if (!alumniInfo.isFriend) {
+      wx.showToast({
+        title: '你们双方不是互相关注的好友，无法进行私信',
+        icon: 'none'
+      })
+      return
+    }
+
+    const name = encodeURIComponent(alumniInfo.nickname.value)
     const avatar = encodeURIComponent(alumniInfo.avatarUrl)
 
     wx.navigateTo({
@@ -258,10 +270,24 @@ Page({
 
     if (result.success) {
       // 更新关注状态
+      const newFollowed = !isFollowed
+      const newFollowStatus = newFollowed ? 1 : 4
+
       this.setData({
-        'alumniInfo.isFollowed': !isFollowed,
-        'alumniInfo.followStatus': !isFollowed ? 1 : 4
+        'alumniInfo.isFollowed': newFollowed,
+        'alumniInfo.followStatus': newFollowStatus
       })
+
+      // 通过 EventChannel 通知上一页（列表页）更新状态
+      const eventChannel = this.getOpenerEventChannel()
+      if (eventChannel && eventChannel.emit) {
+        eventChannel.emit('updateFollowStatus', {
+          id: alumniInfo.wxId,
+          isFollowed: newFollowed,
+          followStatus: newFollowStatus,
+          isFriend: this.data.alumniInfo.isFriend // 保持好友状态一致
+        })
+      }
 
       wx.showToast({
         title: result.message,

@@ -139,9 +139,6 @@
                     </view>
                 </view>
             </view>
-            <!-- 加载更多 -->
-            <view wx:if="{{associationLoading && associations.length > 0}}" class="loading-more">加载中...</view>
-            <view wx:elif="{{!hasMore && associations.length}}" class="no-more">没有更多了</view>
         </view>
         <!-- 新增：platformInfo 为空时的空状态展示 -->
         <view wx:else class="empty-state">
