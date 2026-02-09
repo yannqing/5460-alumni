@@ -1,110 +1,101 @@
 <!--pages/info-maintenance/edit/edit.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="编辑校友会信息" showBack="{{true}}"></custom-nav-bar>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑校友会信息">
+  <!-- 消息通知组件 -->
+  <message-notification />
 
-<view class="edit-page">
-  <form bindsubmit="submitForm">
-    <!-- 校友会名称 -->
-    <view class="form-section">
-      <view class="form-label">校友会名称</view>
-      <input 
-        class="form-input" 
-        placeholder="请输入校友会名称" 
-        value="{{formData.associationName}}" 
-        bindinput="handleInput" 
-        data-field="associationName"
-      />
-    </view>
+  <view class="edit-page-container">
+    <view class="edit-page">
+      <form bindsubmit="submitForm">
+        <!-- 校友会名称 -->
+        <view class="form-card">
+          <view class="form-label">校友会名称</view>
+          <input 
+            class="form-input" 
+            placeholder="请输入校友会名称" 
+            value="{{formData.associationName}}" 
+            bindinput="handleInput" 
+            data-field="associationName"
+          />
+        </view>
 
-    <!-- 联系信息 -->
-    <view class="form-section">
-      <view class="form-label">联系信息</view>
-      <textarea 
-        class="form-textarea" 
-        placeholder="请输入联系信息" 
-        value="{{formData.contactInfo}}" 
-        bindinput="handleInput" 
-        data-field="contactInfo"
-      />
-    </view>
+        <!-- 联系信息 -->
+        <view class="form-card">
+          <view class="form-label">联系信息</view>
+          <textarea 
+            class="form-textarea" 
+            placeholder="请输入联系信息" 
+            value="{{formData.contactInfo}}" 
+            bindinput="handleInput" 
+            data-field="contactInfo"
+          />
+        </view>
 
-    <!-- 常驻地点 -->
-    <view class="form-section">
-      <view class="form-label">常驻地点</view>
-      <input 
-        class="form-input" 
-        placeholder="请输入常驻地点" 
-        value="{{formData.location}}" 
-        bindinput="handleInput" 
-        data-field="location"
-      />
-    </view>
+        <!-- 常驻地点 -->
+        <view class="form-card">
+          <view class="form-label">常驻地点</view>
+          <input 
+            class="form-input" 
+            placeholder="请输入常驻地点" 
+            value="{{formData.location}}" 
+            bindinput="handleInput" 
+            data-field="location"
+          />
+        </view>
 
-    <!-- 校友会logo -->
-    <view class="form-section">
-      <view class="form-label">校友会logo</view>
-      <view class="upload-container">
-        <!-- 图片列表 -->
-        <view class="image-list">
-          <!-- 已上传的logo -->
-          <view class="image-item" wx:if="{{formData.logo}}">
-            <image class="list-image" src="{{formData.logo}}" mode="aspectFill"></image>
-            <!-- 删除按钮 -->
-            <view class="image-delete-btn" bindtap="onDeleteLogo">
-              <text class="delete-icon">×</text>
+        <!-- 校友会logo -->
+        <view class="form-card">
+          <view class="form-label">校友会logo</view>
+          <view class="upload-container">
+            <!-- 图片列表 -->
+            <view class="image-list">
+              <!-- 已上传的logo -->
+              <view class="image-item" wx:if="{{formData.logo}}">
+                <image class="list-image" src="{{formData.logo}}" mode="aspectFill"></image>
+                <!-- 删除按钮 -->
+                <view class="image-delete-btn" bindtap="onDeleteLogo">
+                  <text class="delete-icon">×</text>
+                </view>
+                <!-- 上传中状态 -->
+                <view class="image-loading" wx:if="{{uploadingLogo}}">
+                  <text class="loading-text">上传中...</text>
+                </view>
+              </view>
+              
+              <!-- 上传按钮 -->
+              <view class="upload-btn" bindtap="onUploadLogo" wx:if="{{!formData.logo}}">
+                <text class="upload-icon">+</text>
+                <text class="upload-text">点击上传logo</text>
+              </view>
             </view>
-            <!-- 上传中状态 -->
-            <view class="image-loading" wx:if="{{uploadingLogo}}">
-              <text class="loading-text">上传中...</text>
-            </view>
-          </view>
-          
-          <!-- 上传按钮 -->
-          <view class="upload-btn" bindtap="onUploadLogo" wx:if="{{!formData.logo}}">
-            <text class="upload-icon">+</text>
-            <text class="upload-text">点击上传logo</text>
           </view>
         </view>
-      </view>
-    </view>
 
-    <!-- 背景图 -->
-    <view class="form-section">
-      <view class="form-label">背景图</view>
-      <view class="upload-container">
-        <view class="image-list">
-          <view class="image-item" wx:for="{{bgImageList}}" wx:key="index">
-            <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
-            <view class="image-delete-btn" data-index="{{index}}" bindtap="onDeleteBgImage">
-              <text class="delete-icon">×</text>
+        <!-- 背景图 -->
+        <view class="form-card">
+          <view class="form-label">背景图</view>
+          <view class="upload-container">
+            <view class="image-list">
+              <view class="image-item" wx:for="{{bgImageList}}" wx:key="index">
+                <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
+                <view class="image-delete-btn" data-index="{{index}}" bindtap="onDeleteBgImage">
+                  <text class="delete-icon">×</text>
+                </view>
+              </view>
+              <view class="upload-btn" bindtap="onUploadBgImage" wx:if="{{bgImageList.length < 9}}">
+                <text class="upload-icon">+</text>
+                <text class="upload-text">上传背景图</text>
+              </view>
             </view>
-          </view>
-          <view class="upload-btn" bindtap="onUploadBgImage" wx:if="{{bgImageList.length < 9}}">
-            <text class="upload-icon">+</text>
-            <text class="upload-text">上传背景图</text>
+            <text class="image-count">最多上传9张图片</text>
           </view>
         </view>
-        <text class="image-count">最多上传9张图片</text>
-      </view>
+
+        <!-- 提交按钮 -->
+        <view class="submit-area">
+          <button class="submit-button" form-type="submit" loading="{{submitting}}">保存修改</button>
+        </view>
+      </form>
     </view>
-
-    <!-- 状态 -->
-    <!-- 已注销状态卡片 -->
-    <!-- <view class="form-section">
-      <view class="form-label">状态</view>
-      <view class="status-selector">
-        <label class="radio-label">
-          <radio value="1" checked="{{formData.status == 1}}" bindchange="handleStatusChange" />
-          <text>启用</text>
-        </label>
-        <label class="radio-label">
-          <radio value="0" checked="{{formData.status == 0}}" bindchange="handleStatusChange" />
-          <text>禁用</text>
-        </label>
-      </view>
-    </view> -->
-
-    <!-- 提交按钮 -->
-    <button class="submit-button" form-type="submit" loading="{{submitting}}">保存修改</button>
-  </form>
-</view>
+  </view>
+</custom-nav-bar>
