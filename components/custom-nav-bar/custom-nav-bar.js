@@ -48,11 +48,11 @@ Component({
     
     // 获取返回按钮图标
     const iconBack = config.getIconUrl('back@3x.png')
-    // 管理入口样式：返回按钮图标（images 文件夹下）
-    const iconBackAudit = config.getAssetImageUrl('back7@2x.png')
+    // 管理入口样式：返回按钮图标（使用本地图片）
+    const iconBackAudit = '/assets/avatar/back7@2x.png'
     
-    // 管理入口样式：中间 Logo（images 文件夹下）
-    const centerLogo = config.getAssetImageUrl('dbdh@2x.png')
+    // 管理入口样式：中间 Logo（使用本地图片）
+    const centerLogo = '/assets/avatar/dbdh@2x.png'
     // 默认样式：背景图
     const backgroundImage = config.getIconUrl('tljb@3x.png')
     
