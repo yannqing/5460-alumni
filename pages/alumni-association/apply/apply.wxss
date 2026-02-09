@@ -7,26 +7,18 @@ page {
   margin: 0;
 }
 
-/* 顶部固定区域 */
-.top-fixed-area {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  background: #3F61CA;
-  padding-bottom: 20rpx;
-}
-
-/* 内容滚动区域 */
-.content-scroll {
-  margin-top: 180rpx;
+.white-background-content {
+  background-color: #ffffff;
+  border-radius: 24rpx 24rpx 0 0;
+  margin-top: -30rpx;
   position: relative;
   z-index: 1;
+  padding-top: 20rpx;
+  min-height: 100vh;
 }
 
 .container {
-  padding: 0rpx 30rpx;
+  padding: 0rpx 30rpx 60rpx;
   box-sizing: border-box;
 }
 
