@@ -1,12 +1,24 @@
 /* pages/school/list/list.wxss */
 
 /* 页面容器 */
+page {
+  background: #3F61CA;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+view, text, scroll-view, picker, input, button, image {
+  box-sizing: border-box;
+}
+
 .container {
+  width: 100%;
   min-height: 100vh;
   background: #3F61CA;
   padding: 0;
   margin: 0;
-  box-sizing: border-box;
 }
 
 /* 固定顶部背景 */
@@ -18,15 +30,6 @@
   height: 350rpx;
   background: #3F61CA;
   z-index: 5;
-}
-
-
-
-/* 重置默认样式 */
-page {
-  background: #3F61CA;
-  padding: 0;
-  margin: 0;
 }
 
 /* 顶部图片 */
@@ -52,7 +55,6 @@ page {
   top: 180rpx;
   z-index: 15;
   background: #3F61CA;
-  overflow: hidden;
   border-bottom: none;
   bottom: 0;
 }
@@ -250,11 +252,10 @@ view, text, picker, input, button, image, navigator {
 
 /* 学校列表 */
 .association-list {
-  padding: 0 30rpx 20rpx;
+  padding: 30rpx 30rpx 20rpx;
   background-color: #F5F5F5;
   min-height: 100vh;
   background: #F5F5F5;
-  margin-top: -1rpx;
   position: relative;
   z-index: 0;
 }
@@ -403,14 +404,37 @@ view, text, picker, input, button, image, navigator {
   margin-top: 15rpx;
 }
 
-.card-subtitle {
+.card-meta-row {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  font-size: 26rpx;
+  margin-bottom: 12rpx;
+  width: 100%;
+  overflow: hidden;
+}
+
+.card-level {
   font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
-  font-weight: 500;
-  color: #666666;
+  font-size: 24rpx;
+  color: #999999;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-location-wrap {
+  display: flex;
+  align-items: center;
+  margin-left: 38rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.location-text {
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-size: 24rpx;
+  color: #999999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-location {

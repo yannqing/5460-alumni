@@ -24,6 +24,12 @@ function mapUserInfoToForm(userInfo) {
     ? (identifyTypeMap[userInfo.identifyType] !== undefined ? identifyTypeMap[userInfo.identifyType] : 0)
     : 0
 
+  // 婚姻状态映射：0-未知，1-未婚，2-已婚，3-离异，4-丧偶 -> 前端索引
+  const maritalStatusMap = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 4 }
+  const maritalStatusIndex = userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined
+    ? (maritalStatusMap[userInfo.maritalStatus] !== undefined ? maritalStatusMap[userInfo.maritalStatus] : 0)
+    : 0
+
   // 星座映射：后端值1-12 -> 前端索引0-11
   // 后端定义：1-摩羯座 2-水瓶座 3-双鱼座 4-白羊座 5-金牛座 6-双子座 7-巨蟹座 8-狮子座 9-处女座 10-天秤座 11-天蝎座 12-射手座
   // 前端数组索引对应：0-摩羯座 1-水瓶座 2-双鱼座 3-白羊座 4-金牛座 5-双子座 6-巨蟹座 7-狮子座 8-处女座 9-天秤座 10-天蝎座 11-射手座
@@ -115,6 +121,10 @@ function mapUserInfoToForm(userInfo) {
     identifyTypeIndex: identifyTypeIndex,
     identifyCode: userInfo.identifyCode || '',
     birthDate: birthDateStr,
+    // 婚姻状态和个人特长
+    maritalStatus: userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined ? userInfo.maritalStatus : null,
+    maritalStatusIndex: maritalStatusIndex,
+    personalSpecialty: userInfo.personalSpecialty || '',
     // 教育经历
     educationList: educationList,
     // 工作经历
@@ -163,6 +173,9 @@ function mapFormToUpdateData(form) {
     identifyType: form.identifyType !== null && form.identifyType !== undefined ? form.identifyType : null,
     identifyCode: form.identifyCode || null,
     birthDate: form.birthDate || null,
+    // 婚姻状态和个人特长
+    maritalStatus: form.maritalStatus !== null && form.maritalStatus !== undefined ? form.maritalStatus : null,
+    personalSpecialty: form.personalSpecialty || null,
     // 教育经历
     // 过滤掉没有有效 schoolId 的教育经历（后端要求 schoolId 不能为 null）
     alumniEducationList: (form.educationList || [])
@@ -280,6 +293,10 @@ Page({
       identifyTypeIndex: 0,
       identifyCode: '',
       birthDate: '',
+      // 婚姻状态和个人特长
+      maritalStatus: null,
+      maritalStatusIndex: 0,
+      personalSpecialty: '',
       // 教育经历列表
     educationList: [],
     // 工作经历列表
@@ -296,6 +313,7 @@ Page({
     searchSchoolTimer: {}, // 搜索防抖定时器 { index: timerId }
     genderOptions: ['未知', '男', '女'],
     identifyTypeOptions: ['身份证', '护照'],
+    maritalStatusOptions: ['未知', '未婚', '已婚', '离异', '丧偶'],
     // 星座选项：与后端数据库定义一致（1-摩羯座 2-水瓶座 3-双鱼座 4-白羊座 5-金牛座 6-双子座 7-巨蟹座 8-狮子座 9-处女座 10-天秤座 11-天蝎座 12-射手座）
     constellationOptions: ['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座']
   },
@@ -699,9 +717,21 @@ Page({
     this.setData({
       'form.birthDate': e.detail.value
     })
-    
+
     // 选择后自动保存
     const updateData = { birthDate: e.detail.value }
+    await this.saveSingleField(updateData, true)
+  },
+
+  async handleMaritalStatusChange(e) {
+    const index = Number(e.detail.value)
+    this.setData({
+      'form.maritalStatusIndex': index,
+      'form.maritalStatus': index // 0-未知，1-未婚，2-已婚，3-离异，4-丧偶
+    })
+
+    // 选择后自动保存
+    const updateData = { maritalStatus: index }
     await this.saveSingleField(updateData, true)
   },
 
