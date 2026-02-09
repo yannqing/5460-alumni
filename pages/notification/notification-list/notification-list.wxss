@@ -1,6 +1,6 @@
 /* pages/notification/notification-list/notification-list.wxss */
 .page {
-  min-height: 100vh;
+  height: 100%;
   background: #F7F7FE;
   display: flex;
   flex-direction: column;
