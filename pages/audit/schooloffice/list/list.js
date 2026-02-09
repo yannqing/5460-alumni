@@ -58,7 +58,7 @@ Page({
       console.log('[Debug] 从storage获取的角色列表:', roles)
       
       // 查找所有校促会管理员角色
-      const schoolOfficeAdminRoles = roles.filter(role => role.remark === '校促会管理员')
+      const schoolOfficeAdminRoles = roles.filter(role => role.roleCode === 'ORGANIZE_LOCAL_ADMIN')
       console.log('[Debug] 找到的校促会管理员角色:', schoolOfficeAdminRoles)
       
       if (schoolOfficeAdminRoles.length > 0) {
