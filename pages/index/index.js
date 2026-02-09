@@ -73,8 +73,8 @@ Page({
       // 计算其他元素的高度（轮播图 + 导航菜单）
       // 轮播图高度：450rpx 转换为 px
       const bannerHeight = 450 / 2;
-      // 导航菜单高度：考虑负边距和内边距
-      const navHeight = 200;
+      // 导航菜单高度：进一步压缩预留空间
+      const navHeight = 80;
       // 计算 scroll-view 可用高度
       const scrollViewHeight = screenHeight - (bannerHeight + navHeight);
       this.setData({
@@ -103,22 +103,22 @@ Page({
     this.setData({
       _scrollTop: scrollTop
     });
-    
+
     // 实现导航菜单的固定效果
     const navFixed = scrollTop > 150;
-    
+
     // 计算轮播图的 translateY 值
     // 核心思路：轮播图和导航菜单应该保持相对静止
     // 当导航菜单固定时，轮播图的位置需要相应调整
-    
+
     // 导航菜单原始 margin-top 是 -120rpx（约 -60px）
     const navMarginTop = -60; // 导航菜单原始 margin-top（-120rpx 转换为 px）
-    
+
     // 计算轮播图位置
     // 无论导航菜单是否固定，轮播图都应该与导航菜单保持相对静止
     // 轮播图的位置 = -scrollTop + (导航菜单固定时的位置补偿)
     let bannerTranslateY;
-    
+
     if (navFixed) {
       // 导航菜单固定时
       // 导航菜单固定后，它的顶部位置变为 0
@@ -130,12 +130,12 @@ Page({
       // 轮播图正常跟随页面滚动
       bannerTranslateY = Math.max(scrollTop * -1, -180); // 最大移动距离保持 -180px
     }
-    
+
     // 更新轮播图位置
     this.setData({
       bannerTranslateY: bannerTranslateY
     });
-    
+
     if (navFixed !== this.data.navFixed) {
       this.setData({
         navFixed: navFixed
@@ -195,7 +195,7 @@ Page({
   onScrollViewTouchMove: function (e) {
     const currentY = e.touches[0].pageY;
     const deltaY = currentY - this.data._touchStartY;
-    
+
     // 无论什么位置滑动，都先检查校友功能卡片的状态
     // 1. 向上滑动（手指向下移动，deltaY > 0）：
     //    - 首先让校友功能卡片达到固定状态（极限状态）
@@ -207,7 +207,7 @@ Page({
         return false;
       }
     }
-    
+
     // 2. 向下滑动（手指向上移动，deltaY < 0）：
     //    - 首先让校友功能卡片回到初始状态（解除固定）
     //    - 只有当校友功能卡片完全回到初始状态后，才允许列表向下滚动
@@ -745,7 +745,7 @@ Page({
         // 处理轮播图数据，获取图片URL
         const bannerList = records.map(item => {
           let imageUrl = '';
-          
+
           // 优先处理 bannerImage 字段（后端返回的字段名）
           if (item.bannerImage) {
             if (typeof item.bannerImage === 'object') {

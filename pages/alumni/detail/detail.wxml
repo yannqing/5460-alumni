@@ -16,7 +16,12 @@
             <view class="avatar-nickname-row">
               <image class="avatar-circle" src="{{alumniInfo.avatarUrl}}" mode="aspectFill"></image>
               <view class="name-area">
-                <view class="nickname-text">{{alumniInfo.nickname.value}}</view>
+                <view class="nickname-wrap">
+                  <view class="nickname-text">{{alumniInfo.nickname.value}}</view>
+                  <view class="certification-badge" wx:if="{{alumniInfo.isAlumni}}">
+                    <text class="badge-text">校友会认证</text>
+                  </view>
+                </view>
                 <view class="signature-text {{alumniInfo.signature.isNull ? 'text-null' : ''}}">{{alumniInfo.signature.value}}</view>
               </view>
             </view>
@@ -33,7 +38,7 @@
           <view class="profile-right-section">
             <view class="action-btn message-btn" bindtap="goToChat">私信</view>
             <view class="action-btn follow-btn {{alumniInfo.isFollowed ? 'followed' : ''}}" bindtap="toggleFollow">
-              {{alumniInfo.isFollowed ? '已关注' : '关注TA'}}
+              {{alumniInfo.isFriend ? '互相关注' : (alumniInfo.isFollowed ? '已关注' : '关注TA')}}
             </view>
           </view>
         </view>

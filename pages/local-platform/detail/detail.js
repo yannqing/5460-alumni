@@ -78,7 +78,7 @@ Page({
       path: `/pages/local-platform/detail/detail?id=${this.data.platformId}`
     }
   },
-  
+
   // 下拉刷新
   onPullDownRefresh() {
     // 如果当前是会员列表标签页，刷新校友会列表
@@ -91,7 +91,7 @@ Page({
       wx.stopPullDownRefresh()
     }
   },
-  
+
   // 上拉加载更多
   onReachBottom() {
     // 如果当前是会员列表标签页且有更多数据，加载更多
@@ -103,15 +103,15 @@ Page({
   // 加载校促会详情
   async loadPlatformDetail() {
     this.setData({ loading: true })
-    
+
     try {
       const res = await localPlatformApi.getLocalPlatformDetail(this.data.platformId)
-      
+
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
 
         // 将后端返回的数据映射到前端需要的格式，补充前端展示所需字段
-        
+
         // 处理头像
         let icon = data.avatar || ''
         if (icon) {
@@ -123,7 +123,7 @@ Page({
         } else {
           icon = config.defaultAlumniAvatar
         }
-        
+
         // 处理背景图片
         let cover = data.bgImg || ''
         if (cover) {
@@ -135,7 +135,7 @@ Page({
         } else {
           cover = config.defaultCover
         }
-        
+
         const platformInfo = {
           platformId: this.data.platformId,
           platformName: data.platformName || '',
@@ -155,7 +155,7 @@ Page({
           platformInfo,
           loading: false
         })
-        
+
         // 设置导航栏标题为校促会的city字段
         wx.setNavigationBarTitle({
           title: platformInfo.city || '校促会'
@@ -181,7 +181,7 @@ Page({
   switchTab(e) {
     const index = e.currentTarget.dataset.index
     this.setData({ activeTab: index })
-    
+
     // 切换到组织结构标签时，加载组织结构数据
     if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
@@ -197,13 +197,13 @@ Page({
       }
     }
   },
-  
+
   // 加载组织架构树
   loadOrganizationTree() {
     this.setData({
       organizationLoading: true
     })
-    
+
     // 调用API获取组织架构树（v2 接口）
     const { post } = require('../../../utils/request.js')
     post('/localPlatform/organizationTree/v2', {
@@ -231,33 +231,33 @@ Page({
       })
     })
   },
-  
+
   // 加载校友会列表
   async loadAssociations(refresh = false) {
     // 如果正在加载，直接返回
     if (this.data.associationLoading) {
       return
     }
-    
+
     try {
       this.setData({ associationLoading: true })
-      
+
       // 准备请求参数：使用极大pageSize，一次性加载所有数据
       const params = {
         current: 1,
-        pageSize: this.data.pageSize,
+        size: this.data.pageSize,
         platformId: this.data.platformId, // 直接使用字符串类型，避免数字精度丢失
         sortField: 'memberCount', // 默认按会员数量排序
         sortOrder: 'descend' // 默认降序
       }
-      
+
       // 调用接口
       const res = await localPlatformApi.getPlatformAssociations(params)
-      
+
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
         let associationList = data.records || []
-        
+
         // 处理校友会列表数据，添加头像处理逻辑
         associationList = associationList.map(item => {
           // 优先使用logo作为头像，如果没有logo则使用默认头像
@@ -272,13 +272,13 @@ Page({
             // 使用 config 中定义的默认校友会头像
             avatar = config.defaultAvatar
           }
-          
+
           return {
             ...item,
             avatar: avatar
           }
         })
-        
+
         // 更新数据：直接替换原有数据，无需分页
         this.setData({
           associations: associationList,
@@ -317,7 +317,7 @@ Page({
       })
     }
   },
-  
+
   // 查看校友会详情
   viewAssociationDetail(e) {
     const associationId = e.currentTarget.dataset.id
