@@ -269,8 +269,8 @@ Page({
               avatar = config.getImageUrl(item.logo)
             }
           } else {
-            // 使用默认头像，与校友会列表页面保持一致
-            avatar = '/assets/avatar/avatar-2.png'
+            // 使用 config 中定义的默认校友会头像
+            avatar = config.defaultAvatar
           }
           
           return {

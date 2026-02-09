@@ -4,7 +4,7 @@ const config = require('../../../utils/config.js')
 
 const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
 const DEFAULT_COVER = config.defaultCover
-const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
+const DEFAULT_ALUMNI_AVATAR = config.defaultAvatar
 
 Page({
   data: {

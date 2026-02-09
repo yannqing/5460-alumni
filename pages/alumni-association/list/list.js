@@ -264,8 +264,8 @@ Page({
           // 注意：前端统一用字符串形式的 id，避免大整数精度丢失
           id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
           name: item.associationName,
-          // 优先使用后端传入的logo字段作为头像，如果logo为空则使用本地默认头像
-          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/avatar-2.png',
+          // 优先使用后端传入的logo字段作为头像，如果logo为空则使用 config 中定义的默认校友会头像
+          icon: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar,
           // 下面这些是前端扩展字段
           associationCount: 0,
           followCount: 0,

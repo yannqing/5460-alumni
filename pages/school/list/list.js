@@ -3,7 +3,7 @@ const { schoolApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
 
-const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
+const DEFAULT_SCHOOL_AVATAR = config.defaultAvatar
 
 Page({
   data: {
