@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   width: 750rpx;
-  height: 120rpx;
+  height: 170rpx;
   background-color: rgba(255, 255, 255, 1);
   opacity: 1;
   display: flex;
@@ -31,7 +31,7 @@
   justify-content: center;
   position: relative;
   flex-shrink: 0;
-  padding-top: 60rpx;
+  padding-top: 20rpx;
   padding-bottom: 10rpx;
 }
 
