@@ -25,18 +25,33 @@
     
     <!-- 筛选栏 -->
     <view class="filter-bar">
-      <view class="filter-item" wx:for="{{filters}}" wx:key="label" data-index="{{index}}" bindtap="openFilterOptions">
-        <text>{{item.options[item.selected]}}</text>
+      <!-- 商铺类型筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+          <text>{{filters[0].options[filters[0].selected]}}</text>
+        </picker>
         <text class="filter-arrow">▾</text>
       </view>
-    </view>
-  </view>
-
-  <view wx:if="{{showFilterOptions}}">
-    <view class="filter-mask" bindtap="closeFilterOptions"></view>
-    <view class="filter-options-panel">
-      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
-        {{item}}
+      <!-- 会员等级筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onTierChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+          <text>{{filters[1].options[filters[1].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 业务类别筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onCategoryChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
+          <text>{{filters[2].options[filters[2].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 校友认证筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onCertChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
+          <text>{{filters[3].options[filters[3].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
       </view>
     </view>
   </view>

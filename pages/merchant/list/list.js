@@ -15,8 +15,6 @@ Page({
       { label: '业务类别', options: ['全部类别', '餐饮', '零售', '服务', '娱乐'], selected: 0 },
       { label: '校友认证', options: ['全部', '已认证'], selected: 0 }
     ],
-    showFilterOptions: false,
-    activeFilterIndex: -1,
     merchantList: [],
     current: 1,
     pageSize: 10,
@@ -165,30 +163,36 @@ Page({
     this.loadMerchantList(true)
   },
 
-  openFilterOptions(e) {
-    const { index } = e.currentTarget.dataset
-    if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-      this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-      return
-    }
-    this.setData({ activeFilterIndex: index, showFilterOptions: true })
-  },
-
-  selectFilterOption(e) {
-    const { optionIndex } = e.currentTarget.dataset
-    const { activeFilterIndex, filters } = this.data
-    if (activeFilterIndex === -1) return
-    filters[activeFilterIndex].selected = optionIndex
-    this.setData({
-      filters,
-      showFilterOptions: false,
-      activeFilterIndex: -1
-    })
+  // 商铺类型筛选
+  onTypeChange(e) {
+    const filters = this.data.filters
+    filters[0].selected = e.detail.value
+    this.setData({ filters })
     this.loadMerchantList(true)
   },
 
-  closeFilterOptions() {
-    this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
+  // 会员等级筛选
+  onTierChange(e) {
+    const filters = this.data.filters
+    filters[1].selected = e.detail.value
+    this.setData({ filters })
+    this.loadMerchantList(true)
+  },
+
+  // 业务类别筛选
+  onCategoryChange(e) {
+    const filters = this.data.filters
+    filters[2].selected = e.detail.value
+    this.setData({ filters })
+    this.loadMerchantList(true)
+  },
+
+  // 校友认证筛选
+  onCertChange(e) {
+    const filters = this.data.filters
+    filters[3].selected = e.detail.value
+    this.setData({ filters })
+    this.loadMerchantList(true)
   },
 
   viewDetail(e) {

@@ -147,68 +147,10 @@
       
       <view class="form-item">
         <text class="label">是否需要报名 <text class="required">*</text></text>
-        <picker mode="selector" data-field="isSignup" range="{{isSignupOptions}}" range-key="name" bindchange="onPickerChange">
-          <view class="picker-value">
-            {{isSignupOptions[formData.isSignup] ? isSignupOptions[formData.isSignup].name : '请选择'}}
-          </view>
-        </picker>
+        <view class="static-value">否</view>
       </view>
       
-      <view class="form-item" wx:if="{{formData.isSignup === 1}}">
-        <text class="label">报名开始时间</text>
-        <picker-view 
-          class="form-picker-view" 
-          value="{{registrationStartTimePickerValue}}" 
-          bindchange="onRegistrationStartTimePickerChange"
-          indicator-style="height: 50rpx;"
-          style="width: 100%; height: 300rpx;"
-        >
-          <picker-view-column>
-            <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-        </picker-view>
-        <text class="form-hint">{{registrationStartTimeDisplay || '请选择报名开始时间'}}</text>
-      </view>
-      
-      <view class="form-item" wx:if="{{formData.isSignup === 1}}">
-        <text class="label">报名截止时间</text>
-        <picker-view 
-          class="form-picker-view" 
-          value="{{registrationEndTimePickerValue}}" 
-          bindchange="onRegistrationEndTimePickerChange"
-          indicator-style="height: 50rpx;"
-          style="width: 100%; height: 300rpx;"
-        >
-          <picker-view-column>
-            <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-          <picker-view-column>
-            <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
-          </picker-view-column>
-        </picker-view>
-        <text class="form-hint">{{registrationEndTimeDisplay || '请选择报名截止时间'}}</text>
-      </view>
+
     </view>
     
     <view class="form-card">

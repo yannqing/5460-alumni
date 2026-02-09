@@ -2,17 +2,47 @@
 page {
   background-color: #f5f5f5;
   padding-bottom: 60rpx;
+  padding: 0;
+  margin: 0;
+}
+
+/* 顶部固定区域 */
+.top-fixed-area {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #3F61CA;
+  padding-bottom: 20rpx;
+}
+
+/* 内容滚动区域 */
+.content-scroll {
+  margin-top: 180rpx;
+  position: relative;
+  z-index: 1;
 }
 
 .container {
-  padding: 30rpx;
+  padding: 0rpx 30rpx;
   box-sizing: border-box;
+}
+
+.header-image {
+  width: 100%;
+  max-height: 180rpx;
+  border-radius: 16rpx 16rpx 0 0;
+  margin-bottom: 0rpx;
+  display: block;
+  vertical-align: top;
 }
 
 .form-card {
   background-color: #fff;
   border-radius: 16rpx;
-  padding: 30rpx;
+  padding: 20rpx 30rpx;
+  margin-top: 0rpx;
 }
 
 .form-title {
@@ -31,10 +61,18 @@ page {
 
 .add-btn {
   font-size: 26rpx;
-  color: #40B2E6;
-  border: 1rpx solid #40B2E6;
-  padding: 6rpx 20rpx;
-  border-radius: 30rpx;
+  color: white;
+  border: 1rpx solid #1890FF;
+  padding: 0;
+  border-radius: 7.25rpx;
+  width: 166.67rpx;
+  height: 57.97rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'PingFang SC', '苹方-简', sans-serif;
+  font-weight: normal;
+  background-color: #1890FF;
 }
 
 .form-item {
@@ -150,12 +188,20 @@ page {
   padding: 30rpx 0;
 }
 
-.submit-btn {
-  background-color: #40B2E6;
-  color: #fff;
+.form-actions {
   margin-top: 60rpx;
-  border-radius: 40rpx;
+  padding: 0 30rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.submit-btn {
+  background-color: #1890FF;
+  color: white;
+  border-radius: 42.57rpx;
   font-weight: 500;
+  width: 713.77rpx;
+  height: 85.14rpx;
 }
 
 /* 图片上传样式 */
