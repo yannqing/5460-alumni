@@ -69,11 +69,11 @@
           </view>
 
           <!-- 学校信息 -->
-          <view style="display: flex; align-items: center; margin-bottom: 12rpx;">
-            <text wx:if="{{item.level}}" style="font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif; font-size: 24rpx; color: #999999;">办学层次：{{item.level}}</text>
-            <view class="card-location" style="margin-bottom: 0; flex-shrink: 0; margin-left: 38rpx;">
+          <view class="card-meta-row">
+            <text wx:if="{{item.level}}" class="card-level">办学层次：{{item.level}}</text>
+            <view class="card-location-wrap">
               <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-              <text style="font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif; font-size: 24rpx;">{{item.location}}</text>
+              <text class="location-text">{{item.location}}</text>
             </view>
           </view>
 
