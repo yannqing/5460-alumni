@@ -1,5 +1,15 @@
 @import "../../alumni-association/detail/detail.wxss";
 
+/* 调整背景图和白色背景容器之间的间距 */
+.white-background {
+  margin-top: -50rpx !important;
+}
+
+/* 调整白色背景容器内第一个卡片与背景图的间距 */
+.white-background .card:first-child {
+  margin-top: 15rpx !important;
+}
+
 /* 加载更多和没有更多样式 */
 .loading-more, .no-more {
   text-align: center;
@@ -56,6 +66,61 @@
 
 .items-center {
   align-items: center;
+}
+
+/* Basic information items */
+.basic-info-item {
+  color: #666666;
+  font-size: 25rpx;
+  line-height: 58rpx;
+  padding: 10rpx 0;
+}
+
+.basic-info-item:first-child {
+  padding-top: 0;
+}
+
+.divider {
+  height: 1rpx;
+  background-color: #f0f0f0;
+  margin: 15rpx 0;
+}
+
+/* Text styles */
+.text-primary {
+  color: #333333;
+}
+
+.text-bold {
+  font-weight: 600;
+  font-size: 30rpx;
+}
+
+.text-secondary {
+  color: #666666;
+  font-size: 24rpx;
+}
+
+/* Spacing utilities */
+.mt-10 {
+  margin-top: 10rpx;
+}
+
+.mt-20 {
+  margin-top: 20rpx;
+}
+
+.mb-20 {
+  margin-bottom: 20rpx;
+}
+
+.ml-20 {
+  margin-left: 20rpx;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
 }
 
 /* 创建校友会按钮样式 */
