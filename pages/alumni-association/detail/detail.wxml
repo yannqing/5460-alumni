@@ -1,14 +1,26 @@
 <!--pages/alumni-association/detail/detail.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="校友会详情" showBack="{{true}}"></custom-nav-bar>
-
 <!-- 消息通知组件 -->
 <message-notification />
 
 <view class="container">
-  <view wx:if="{{associationInfo}}">
+  <!-- 顶部固定区域 -->
+  <view class="top-fixed-area">
+    <!-- 自定义导航栏 -->
+    <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
+    
+    <!-- 顶部图片（与导航栏同一层级） -->
+    <view class="top-image-container">
+      <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png" mode="aspectFit" />
+    </view>
+  </view>
+
+  <!-- 内容滚动区域 -->
+  <view class="content-scroll">
+    <view wx:if="{{associationInfo}}">
     <image class="cover-image" src="{{associationInfo.cover}}" mode="aspectFill" />
 
+    <!-- 白色背景内容区域 -->
+    <view class="white-background">
     <view class="card">
       <view class="flex">
         <image class="avatar avatar-large" src="{{associationInfo.icon}}" mode="aspectFill" />
@@ -24,11 +36,10 @@
             </view>
           </view>
           <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
-            <image class="school-icon" src="/assets/icons/学校.png" mode="aspectFit" />
             <view class="school-tag">{{associationInfo.schoolName}}</view>
           </view>
           <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
-            <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
+            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{associationInfo.location}}</text>
           </view>
         </view>
@@ -98,20 +109,24 @@
           </view>
         </view>
         <view class="dashboard-list activity" wx:for="{{activityList}}" wx:key="activityId">
-          <view class="dashboard-item">
+          <view class="dashboard-item activity-item">
             <view class="item-leading">
               <image class="item-cover" src="{{item.coverImage}}" mode="aspectFill" />
             </view>
             <view class="item-content">
-              <view class="item-title">{{item.activityTitle}}</view>
-              <view class="item-desc location-row">
-                <image class="location-icon" src="/assets/icons/定位.png" mode="aspectFit" />
-                <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
+              <view class="activity-header">
+                <view class="item-title">{{item.activityTitle}}</view>
+                <view class="activity-time">{{item.startTime}}</view>
               </view>
-              <view class="item-meta">
-                <text>🕐 {{item.startTime}}</text>
-                <text class="meta-divider">·</text>
-                <text>{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
+              <view class="activity-footer">
+                <view class="item-desc location-row">
+                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                  <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
+                </view>
+                <view class="activity-participants">
+                  <image class="participants-icon" src="/assets/icons/people.png" mode="aspectFit" />
+                  <text>{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
+                </view>
               </view>
             </view>
           </view>
@@ -170,8 +185,8 @@
             </view>
             <view class="item-content">
               <view class="item-title">{{item.placeName}}</view>
-              <view class="item-desc">{{item.description}}</view>
-              <view class="item-meta">
+              <view class="item-meta location-row">
+                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
                 <text>{{item.province}}{{item.city}}{{item.district}}</text>
               </view>
             </view>
@@ -285,5 +300,7 @@
       </view>
     </view>
 
+    </view>
   </view>
+</view>
 </view>

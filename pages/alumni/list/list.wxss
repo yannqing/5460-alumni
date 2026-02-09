@@ -1,63 +1,252 @@
 /* pages/alumni/list/list.wxss */
 
+/* 页面容器 */
+.container {
+  min-height: 100vh;
+  background: #0089DF;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* 固定顶部背景 */
+.fixed-top-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 350rpx;
+  background: #0089DF;
+  z-index: 5;
+}
+
+/* 重置默认样式 */
+page {
+  background: #0089DF;
+  padding: 0;
+  margin: 0;
+}
+
+/* 顶部图片 */
+.top-image-container {
+  width: 100%;
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 8;
+  position: relative;
+}
+
+.top-image {
+  width: 529.49rpx;
+  height: 90.3rpx;
+  border-radius: 12rpx;
+}
+
+/* 头部容器（包含搜索栏和筛选条件） */
+.header-container {
+  position: sticky;
+  top: 180rpx;
+  z-index: 15;
+  background: #0089DF;
+  overflow: hidden;
+  border-bottom: none;
+  bottom: 0;
+}
+
 /* 搜索栏 */
 .search-bar {
-  background-color: #ffffff;
-  padding: 20rpx 30rpx;
+  padding: 20rpx 26rpx;
+  box-shadow: none;
+  border-bottom: none !important;
+  margin-bottom: 30rpx;
 }
 
 .search-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 50rpx;
+  border-radius: 21.74rpx;
   padding: 16rpx 30rpx;
+  height: 74.28rpx;
+  background: #0072B3;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  outline: none;
 }
 
 .search-input {
   flex: 1;
   font-size: 28rpx;
+  color: #FFFFFF;
+  font-family: 'PingFang SC', sans-serif;
+  border: none;
+  outline: none;
+  background: transparent;
 }
 
-.search-icon {
+.search-input:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-left-icon {
   width: 32rpx;
   height: 32rpx;
-  margin-left: 16rpx;
+  margin-right: 32rpx;
   flex-shrink: 0;
+  background: transparent;
 }
 
-/* 筛选栏 */
-.filter-bar {
-  background-color: #ffffff;
+.search-button {
+  width: 128.62rpx;
+  height: 45.29rpx;
+  background-color: #66B3FD;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  border-radius: 50rpx;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+  font-family: 'PingFang SC', sans-serif;
   display: flex;
   align-items: center;
-  padding: 24rpx 30rpx;
-  border-top: 1rpx solid #f0f0f0;
-  border-bottom: 1rpx solid #f0f0f0;
+  justify-content: center;
+}
+
+/* 筛选区域 */
+.filter-section {
+  display: flex;
+  align-items: center;
+  padding: 0 30rpx 20rpx;
+  margin-bottom: 0;
+  background: #F5F5F5;
+  border-top-left-radius: 30rpx;
+  border-top-right-radius: 30rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border-bottom: none !important;
+  border-top: none !important;
+  position: relative;
+  z-index: 1;
+  min-height: 85rpx;
+  justify-content: space-around;
 }
 
 .filter-item {
   flex: 1;
   text-align: center;
-  font-size: 26rpx;
-  color: #666666;
+  font-size: 25.36rpx;
+  color: #111313;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-}
-
-.filter-item.active {
-  color: #333333;
-  font-weight: 600;
+  padding: 0 16rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  position: relative;
 }
 
 .filter-arrow {
-  font-size: 20rpx;
-  color: #999999;
+  font-size: 25.36rpx;
+  color: #111313;
 }
 
+/* 修复 picker 组件默认下划线问题 - 更全面的选择器 */
+picker {
+  border-bottom: none !important;
+  outline: none !important;
+  background: transparent !important;
+  line-height: normal !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* 确保 picker 内部 text 元素没有下划线 */
+picker text {
+  border-bottom: none !important;
+  outline: none !important;
+  background: transparent !important;
+  line-height: normal !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 修复 picker 组件可能的伪元素下划线 */
+picker::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+picker::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 确保整个筛选区域没有意外的边框或下划线 */
+.filter-section::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+.filter-section::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 确保 header-container 没有边框 */
+.header-container::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+.header-container::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 特别针对可能出现下划线的元素 */
+view, text, picker, input, button, image, navigator {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+/* 特别针对筛选区域的元素 */
+.filter-section view,
+.filter-section text,
+.filter-section picker,
+.filter-section input {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+.filter-item view,
+.filter-item text,
+.filter-item picker {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+/* 筛选弹窗 */
 .filter-mask {
   position: fixed;
   top: 0;
@@ -92,16 +281,20 @@
 
 /* 校友列表 */
 .alumni-list {
-  padding: 20rpx 30rpx;
-  background-color: #f8f8f8;
+  padding: 0 30rpx 20rpx;
+  background-color: #F5F5F5;
+  min-height: 100vh;
+  background: #F5F5F5;
+  margin-top: -1rpx;
+  position: relative;
+  z-index: 0;
 }
 
 .alumni-card {
-  position: relative;
-  background-color: #ffffff;
+  background-color: #FCFCFC;
   border-radius: 16rpx;
   padding: 30rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 40rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
@@ -110,16 +303,32 @@
   display: flex;
   align-items: flex-start;
   gap: 20rpx;
+  margin-bottom: 6rpx;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
 .alumni-avatar {
-  width: 120rpx;
-  height: 120rpx;
+  width:130rpx;
+  height:130rpx;
   border-radius: 50%;
   flex-shrink: 0;
   border: 3rpx solid #e0e0e0;
-  background-color: #ffffff;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: block;
+  margin: 0;
+  padding:0;
+  /* 新增以下样式确保图片占满容器 */
+  object-fit: cover; /* 关键：强制图片覆盖整个容器 */
+  background-size: cover;
+  background-position: center;
+}
+
+/* 列表页默认头像：增大 5rpx 以更好占满圆形容器 */
+.alumni-avatar.default-avatar {
+  width: 130rpx;
+  height: 130rpx;
 }
 
 .card-info {
@@ -131,13 +340,17 @@
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
 }
 
 .card-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333333;
+  font-family: 'PingFang SC', 'PingFang SC Semibold', sans-serif;
+  color: #111313;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cert-badge {
@@ -149,30 +362,35 @@
   flex-shrink: 0;
 }
 
-/* 副标题 */
-.card-subtitle {
+/* 学校和地点在一行展示 */
+.school-location-row {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  font-size: 26rpx;
-  color: #666666;
+  gap: 20rpx;
   margin-bottom: 12rpx;
+  flex-wrap: wrap;
 }
 
-.subtitle-icon {
-  width: 24rpx;
-  height: 24rpx;
-  flex-shrink: 0;
-}
-
-/* 位置信息 */
-.card-location {
+.school-location-item {
   display: flex;
   align-items: center;
   gap: 8rpx;
   font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
   color: #999999;
-  margin-bottom: 16rpx;
+}
+
+/* 关注按钮在城市和地点下面一行展示 */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 25rpx;
+}
+
+.card-action {
+  margin-right: 16rpx;
 }
 
 .location-icon {
@@ -181,35 +399,10 @@
   flex-shrink: 0;
 }
 
-/* 标签 */
-.card-tags {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  margin-bottom: 20rpx;
-  flex-wrap: wrap;
-}
-
-.mini-tag {
-  padding: 6rpx 16rpx;
-  background-color: #e6f7ff;
-  color: #40B2E6;
-  font-size: 22rpx;
-  border-radius: 6rpx;
-}
-
-.next-arrow {
-  margin-left: auto;
-  font-size: 32rpx;
-  color: #e0e0e0;
-  font-weight: 300;
-}
-
 /* 卡片底部 */
 .card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding-top: 20rpx;
   border-top: 1rpx solid #f5f5f5;
 }
@@ -227,27 +420,18 @@
   align-items: center;
 }
 
-.card-action-bottom {
-  position: absolute;
-  bottom: 30rpx;
-  right: 30rpx;
-  flex-shrink: 0;
-  z-index: 1;
-}
-
 .follow-btn {
-  padding: 10rpx 24rpx;
+  padding: 12rpx 32rpx;
   background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
   color: #ffffff;
-  font-size: 22rpx;
+  font-size: 24rpx;
   border-radius: 50rpx;
   font-weight: 500;
-  white-space: nowrap;
 }
 
 .follow-btn.followed {
   background: transparent;
-  border: 2rpx solid #40B2E6;
+  border: 2rpx solid #40B2E6 !important;
   color: #40B2E6;
 }
 
@@ -255,7 +439,7 @@
 .loading-text {
   text-align: center;
   padding: 40rpx 0;
-  color: #999999;
+  color: #666666;
   font-size: 24rpx;
 }
 
@@ -275,6 +459,6 @@
 }
 
 .empty-state text {
-  color: #999999;
+  color: #666666;
   font-size: 26rpx;
 }

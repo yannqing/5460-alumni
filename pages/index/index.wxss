@@ -1,17 +1,16 @@
 /* pages/index/index.wxss */
 .container {
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f8f8f8;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 /* 顶部 Banner */
 .header-banner {
   height: 450rpx;
-  position: fixed;
-  top: 0;
+  position: relative;
   left: 0;
   right: 0;
   z-index: 10;
@@ -76,7 +75,7 @@
 
 .platform-tag {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 100rpx);
+  top: calc(env(safe-area-inset-top) + 20%);
   left: 30rpx;
   background-color: rgba(255, 255, 255, 0.0);
   border-radius: 30rpx;
@@ -116,16 +115,28 @@
 
 /* 导航区域 */
 .nav-container {
-  margin: 0 15rpx;
+  margin: -120rpx 15rpx 0;
   background-color: #fff;
   border-radius: 20rpx;
   padding: 60rpx 20rpx 35rpx;
-  position: fixed;
-  top: calc(env(safe-area-inset-top) + 370rpx);
+  position: relative;
   left: 0;
   right: 0;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
   z-index: 20;
+  transition: all 0.3s ease;
+}
+
+/* 导航区域固定在顶部的样式 */
+.nav-container.fixed {
+  position: fixed;
+  top: 0;
+  left: 15rpx;
+  right: 15rpx;
+  margin-top: 0;
+  border-radius: 0 0 20rpx 20rpx;
+  z-index: 999;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
 }
 
 .nav-header {
@@ -169,13 +180,38 @@
   font-weight: 500;
 }
 
+/* 文章列表容器 */
+.article-container {
+  background-color: #f8f8f8;
+  margin-top: 0;
+  position: relative;
+  z-index: 5;
+  height: calc(100vh - 400rpx);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* 文章列表 scroll-view */
+.article-scroll-view {
+  width: 100%;
+  background-color: #f8f8f8;
+  margin-top: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100%;
+}
+
+/* 滚动条样式 */
+.article-scroll-view::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
 /* 文章列表 */
 .article-list {
-  flex: 1;
-  height: 0;
-  margin-top: calc(env(safe-area-inset-top) + 420rpx + 200rpx);
   padding: 0 0 20rpx 0;
   background-color: #f8f8f8;
+  margin-top: 0;
 }
 
 .article-item {

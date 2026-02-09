@@ -8,7 +8,7 @@ const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 Page({
   data: {
     // 图标路径
-    iconSearch: config.getIconUrl('sslss.png'),
+    iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
     keyword: '',
@@ -18,13 +18,12 @@ Page({
       { label: '排序', options: ['默认排序', '最新成立', '成员最多'], selected: 0 },
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
-    showFilterOptions: false,
-    activeFilterIndex: -1,
     associationList: [],
     current: 1,
     pageSize: 50, // 增大每页大小，一次加载更多数据
     hasMore: true,
     loading: false,
+    refreshing: false,
 
     // 地区筛选（与母校列表页一致）- 自定义省市级选择器（只到市）
     region: [], // 地区选择器的值 [省, 市]
@@ -41,6 +40,16 @@ Page({
   },
 
   async onLoad(options) {
+    // 获取系统信息
+    const systemInfo = wx.getSystemInfoSync()
+    const statusBarHeight = systemInfo.statusBarHeight || 0
+    const navBarHeight = 44 // 导航栏高度固定为44px
+    
+    this.setData({
+      statusBarHeight: statusBarHeight,
+      navBarHeight: navBarHeight
+    })
+    
     // 初始化省市级数据
     this.initRegionData()
     
@@ -199,19 +208,11 @@ Page({
 
   // 加载校友会列表
   async loadAssociationList(refresh = false) {
-    // 如果已经没有更多数据且不是刷新，直接返回
-    if (!this.data.hasMore && !refresh) {
-      return
-    }
-    
-    // 如果正在加载，直接返回
-    if (this.data.loading) {
-      return
-    }
-    
+    if (this.data.loading) return
+
+    this.setData({ loading: true })
+
     try {
-      this.setData({ loading: true })
-      
       const { keyword, filters, current, pageSize } = this.data
       const [typeFilter, cityFilter, sortFilter, followFilter] = filters
       
@@ -250,52 +251,34 @@ Page({
           // ===== 与后端 VO 完全一致的字段（AlumniAssociationListVo）=====
           alumniAssociationId: item.alumniAssociationId,   // 校友会ID
           associationName: item.associationName,           // 校友会名称
-          schoolId: item.schoolId,                         // 所属母校ID
-          platformId: item.platformId,                     // 所属校促会ID
-          presidentUserId: item.presidentUserId,           // 会长用户ID
+          school: item.school,                             // 所属母校信息
+          platformId: item.platformId,                     // 所属校处会ID
           contactInfo: item.contactInfo,                   // 联系信息
           location: item.location,                         // 常驻地点
           memberCount: item.memberCount,                   // 会员数量
+          role: item.role,                                 // 成员身份：0-会员单位 1-理事单位
+          isMember: item.isMember,                         // 当前登录用户是否已加入该校友会
+          isFollowed: item.isFollowed,                     // 当前登录用户是否已关注该校友会
 
           // ===== 前端内部使用的通用字段（保持原有逻辑不变）=====
           // 注意：前端统一用字符串形式的 id，避免大整数精度丢失
           id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
           name: item.associationName,
           // 优先使用后端传入的logo字段作为头像，如果logo为空则使用本地默认头像
-          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/compressed-avatar.jpg',
-          // 下面这些是前端扩展字段，后端暂时没有
+          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/avatar-2.png',
+          // 下面这些是前端扩展字段
           associationCount: 0,
           followCount: 0,
-          isFollowed: false, // 初始值
-          followStatus: 4, // 关注状态：1-正常关注，4-未关注
+          followStatus: item.isFollowed ? 1 : 4, // 关注状态：1-正常关注，4-未关注
           isCertified: false,
-          schoolName: '' // 需要根据 schoolId 查询
+          schoolName: item.school?.schoolName || '' // 从school对象中获取学校名称
         }))
 
-        // 根据 schoolId 批量补齐 schoolName（并行请求优化）
-        const schoolIdSet = new Set(mappedList.map(i => i.schoolId).filter(Boolean))
-        const schoolNameMap = {}
-        
-        // 将所有请求改为并行执行，显著提升加载速度
-        const schoolPromises = Array.from(schoolIdSet).map(sid => 
-          schoolApi.getSchoolDetail(sid)
-            .then(schoolRes => {
-              if (schoolRes.data && schoolRes.data.code === 200 && schoolRes.data.data) {
-                schoolNameMap[sid] = schoolRes.data.data.schoolName || schoolRes.data.data.name || ''
-              }
-            })
-            .catch(e => {
-              // 请求失败时忽略，保持空
-            })
-        )
-        
-        // 等待所有学校信息请求完成
-        await Promise.all(schoolPromises)
-        
-        // 填充学校名称
+        // 学校信息已包含在接口返回的school对象中，无需额外查询
+        // 确保schoolName字段正确设置
         mappedList.forEach(item => {
-          if (item.schoolId && schoolNameMap[item.schoolId]) {
-            item.schoolName = schoolNameMap[item.schoolId]
+          if (item.school && item.school.schoolName) {
+            item.schoolName = item.school.schoolName
           }
         })
 
@@ -326,13 +309,22 @@ Page({
         const updatedList = refresh ? finalList : [...this.data.associationList, ...finalList]
 
         // 更新数据
-        this.setData({
-          associationList: updatedList,
-          current: refresh ? 2 : this.data.current + 1,
-          hasMore: list.length >= this.data.pageSize,
-          loading: false,
-          refreshing: false
-        })
+        if (refresh) {
+          this.setData({
+            associationList: updatedList,
+            current: 1,
+            hasMore: list.length >= this.data.pageSize,
+            loading: false,
+            refreshing: false
+          })
+        } else {
+          this.setData({
+            associationList: updatedList,
+            current: this.data.current + 1,
+            hasMore: list.length >= this.data.pageSize,
+            loading: false
+          })
+        }
 
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'associationList', FollowTargetType.ASSOCIATION)
@@ -379,31 +371,33 @@ Page({
     this.loadAssociationList(true)
   },
 
-  openFilterOptions(e) {
-    const { index } = e.currentTarget.dataset
-    // 城市筛选（索引为1）使用多列选择器，不打开下拉面板
-    if (index === 1) {
-      return
-    }
-    if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-      this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-      return
-    }
-    this.setData({ activeFilterIndex: index, showFilterOptions: true })
+  // 类型筛选变更
+  onTypeChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[0].selected = optionIndex
+    
+    this.setData({ filters, current: 1 })
+    this.loadAssociationList(true)
   },
 
-  selectFilterOption(e) {
-    const { optionIndex } = e.currentTarget.dataset
-    const { activeFilterIndex, filters } = this.data
-    if (activeFilterIndex === -1) return
+  // 排序筛选变更
+  onSortChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[2].selected = optionIndex
     
-    filters[activeFilterIndex].selected = optionIndex
-    this.setData({
-      filters,
-      showFilterOptions: false,
-      activeFilterIndex: -1,
-      current: 1
-    })
+    this.setData({ filters, current: 1 })
+    this.loadAssociationList(true)
+  },
+
+  // 关注筛选变更
+  onFollowChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[3].selected = optionIndex
+    
+    this.setData({ filters, current: 1 })
     this.loadAssociationList(true)
   },
 
@@ -521,9 +515,7 @@ Page({
     this.loadAssociationList(true)
   },
 
-  closeFilterOptions() {
-    this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-  },
+  
 
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
@@ -536,5 +528,20 @@ Page({
   async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
     await handleListItemFollow(this, 'associationList', id, followed, FollowTargetType.ASSOCIATION)
+  },
+
+  // 加入校友会
+  joinAssociation(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/alumni-association/apply/apply?id=${id}`
+    })
+  },
+
+  // 创建校友会
+  createAssociation() {
+    wx.navigateTo({
+      url: `/pages/alumni-association/create/create`
+    })
   }
 })

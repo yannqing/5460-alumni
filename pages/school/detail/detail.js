@@ -93,10 +93,11 @@ Page({
           contactInfo: item.contactInfo,
           location: item.location,
           memberCount: item.memberCount,
+          logo: item.logo,
           // 前端通用字段
           id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
           name: item.associationName || '',
-          icon: DEFAULT_ALUMNI_AVATAR,
+          icon: item.logo || DEFAULT_ALUMNI_AVATAR,
           isCertified: false,
           isJoined: false
         }))

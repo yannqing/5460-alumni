@@ -30,7 +30,7 @@ const config = {
   timeout: 10000,
 
   // 默认个人头像
-  defaultAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/images/eravarter@2x.png',
+  defaultAvatar: 'https://cni-alumni.yannqing.com/upload/images/2026/02/08/d012344c-e82b-4293-b62d-c058bf6d97bb.png',
 
   // 默认母校头像
   defaultSchoolAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/logo/njdx.jpg',
