@@ -55,6 +55,8 @@ const associationApi = {
   cancelApplication: (applicationId) => put(`/AlumniAssociationApplication/cancel/${applicationId}`),
   // 编辑并重新提交待审核的校友会申请（普通用户）
   updateApplication: (data) => put('/AlumniAssociationApplication/update', data),
+  // 退出校友会
+  quitAssociation: (data) => post('/AlumniAssociationJoinApplication/quit', data),
   // 获取组织结构列表
   getOrganizationRoles: (params) => post('/alumniAssociationManagement/role/list', params),
 }

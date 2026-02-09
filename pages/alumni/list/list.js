@@ -118,7 +118,7 @@ Page({
               data: {
                 records: uniqueRecords,
                 total: uniqueRecords.length,
-                current: page,
+                current: params.current,
                 size: pageSize
               },
               msg: 'success'

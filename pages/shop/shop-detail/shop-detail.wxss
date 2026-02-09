@@ -1,8 +1,9 @@
 /* pages/shop/shop-detail/shop-detail.wxss */
 .shop-detail-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 40rpx;
+  margin-top: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .loading-wrap {
@@ -29,6 +30,18 @@
   height: 100%;
 }
 
+/* 白色背景内容区域 */
+.white-background-content {
+  background-color: #f5f5f5;
+  border-radius: 24rpx 24rpx 0 0;
+  margin-top: -30rpx;
+  position: relative;
+  z-index: 10;
+  padding-top: 10rpx;
+  min-height: 800rpx;
+  padding-bottom: 200rpx;
+}
+
 /* 卡片样式 */
 .card {
   background-color: #fff;
@@ -47,7 +60,6 @@
 
 /* 基础信息卡片 */
 .basic-info-card {
-  margin-top: -40rpx;
   position: relative;
   z-index: 2;
 }

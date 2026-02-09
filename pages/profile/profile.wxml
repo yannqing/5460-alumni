@@ -63,7 +63,7 @@
     </view>
 
     <!-- Banner图片 / 完善信息提示 -->
-    <block wx:if="{{userInfo && userInfo.realName && userInfo.realName !== ''}}">
+    <block wx:if="{{userInfo && userInfo.nickname && userInfo.nickname !== '用户' && userInfo.realName && userInfo.realName !== '' && userInfo.phone && userInfo.phone !== '' && userInfo.hasEducation}}">
       <image src="{{imageBanner}}" class="image_13" mode="widthFix"></image>
     </block>
     <view class="complete-profile-banner" wx:else>
