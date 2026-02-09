@@ -75,7 +75,7 @@
                 <view class="text-bold">通知</view>
                 <view class="section-subtitle">最新提醒、重要动态</view>
               </view>
-              <view class="text-placeholder" bindtap="viewNotificationDetail" data-id="all">查看更多</view>
+              <view class="text-placeholder" bindtap="handleDeveloping">查看更多</view>
             </view>
             <view class="dashboard-list notification" wx:for="{{notifications}}" wx:key="id" bindtap="viewNotificationDetail" data-id="{{item.id}}">
               <view class="dashboard-item">
@@ -137,7 +137,7 @@
                 <view class="text-bold">附近权益</view>
                 <view class="section-subtitle">优选商户权益随时用</view>
               </view>
-              <view class="text-placeholder" bindtap="viewBenefitDetail" data-id="all">查看更多</view>
+              <view class="text-placeholder" bindtap="handleDeveloping">查看更多</view>
             </view>
             <view class="dashboard-list benefit" wx:for="{{nearbyBenefits}}" wx:key="id" bindtap="viewBenefitDetail" data-id="{{item.id}}">
               <view class="dashboard-item">
@@ -198,7 +198,7 @@
                 <view class="text-bold">校友商铺</view>
                 <view class="section-subtitle">校友经营的优质商铺</view>
               </view>
-              <view class="text-placeholder" bindtap="viewShopDetail" data-id="all">查看更多</view>
+              <view class="text-placeholder" bindtap="handleDeveloping">查看更多</view>
             </view>
             <view class="dashboard-list shop" wx:for="{{alumniShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
               <view class="dashboard-item">

@@ -1005,15 +1005,7 @@ Page({
           confirmColor: '#40B2E6',
           success: (res) => {
             if (res.confirm) {
-              // TODO: 调用退出校友会接口
-              wx.showToast({
-                title: '已退出',
-                icon: 'success'
-              })
-              // 更新状态
-              this.setData({
-                'associationInfo.applicationStatus': null
-              })
+              this.handleQuitAssociation()
             }
           }
         })
@@ -1050,6 +1042,43 @@ Page({
     wx.navigateTo({
       url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&schoolId=${schoolId}&schoolName=${encodeURIComponent(schoolName)}`
     })
+  },
+
+  // 退出校友会
+  async handleQuitAssociation() {
+    wx.showLoading({ title: '处理中...' })
+    try {
+      const res = await associationApi.quitAssociation({
+        alumniAssociationId: this.data.associationId
+      })
+
+      wx.hideLoading()
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '已成功退出',
+          icon: 'success'
+        })
+
+        // 更新本地状态，改变按钮显示
+        this.setData({
+          'associationInfo.applicationStatus': null,
+          'associationInfo.memberCount': Math.max(0, (this.data.associationInfo.memberCount || 1) - 1)
+        })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '退出失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('退出校友会失败:', error)
+      wx.showToast({
+        title: '请求失败，请稍后重试',
+        icon: 'none'
+      })
+    }
   },
 
   // 跳转到申请详情页面（查看模式）
@@ -1256,6 +1285,14 @@ Page({
       this.setData({
         organizationLoading: false
       })
+    })
+  },
+
+  // 显示“开发中”提示
+  handleDeveloping() {
+    wx.showToast({
+      title: '开发中，敬请期待',
+      icon: 'none'
     })
   }
 })

@@ -152,13 +152,15 @@ Page({
   /**
    * 页面下拉刷新事件处理函数
    */
-  onPullDownRefresh: function () {
+  onPullDownRefresh: async function () {
     console.log('[Index] 下拉刷新触发');
     this.setData({ refreshing: true });
-    this.getArticleList(true).finally(() => {
+    try {
+      await this.getArticleList(true);
+    } finally {
       wx.stopPullDownRefresh();
       this.setData({ refreshing: false });
-    });
+    }
   },
 
   /**
