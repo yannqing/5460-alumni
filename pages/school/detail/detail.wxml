@@ -1,21 +1,7 @@
-<!--pages/school/detail/detail.wxml-->
-<!-- 消息通知组件 -->
-<message-notification />
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="总会详情">
+  <message-notification />
 
-<view class="container">
-  <!-- 顶部固定区域 -->
-  <view class="top-fixed-area">
-    <!-- 自定义导航栏 -->
-    <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
-    
-    <!-- 顶部图片（与导航栏同一层级） -->
-    <view class="top-image-container">
-      <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png" mode="aspectFit" />
-    </view>
-  </view>
-
-  <!-- 内容滚动区域 -->
-  <view class="content-scroll">
+  <view class="school-detail-page">
     <view wx:if="{{schoolInfo}}">
       <!-- 顶部背景图区域（包含学校信息） -->
       <view class="top-background-container">
@@ -93,4 +79,4 @@
       </view>
     </view>
   </view>
-</view>
+</custom-nav-bar>
