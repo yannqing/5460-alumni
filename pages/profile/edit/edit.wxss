@@ -1,6 +1,5 @@
 .edit-container {
-  min-height: 100vh;
-  background: #f7f8fa;
+  height: calc(100vh - 190.22rpx);
   display: flex;
   flex-direction: column;
 }
@@ -9,6 +8,7 @@
   flex: 1;
   padding: 20rpx;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .card {
@@ -266,8 +266,8 @@
 }
 
 .bottom-action {
-  padding: 20rpx;
-  background: #f7f8fa;
+  padding: 20rpx 40rpx 40rpx;
+  background: #fff;
   box-shadow: 0 -10rpx 30rpx rgba(0, 0, 0, 0.05);
 }
 
