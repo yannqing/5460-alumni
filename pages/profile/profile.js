@@ -43,7 +43,9 @@ Page({
     iconGrys: config.getIconUrl('grys@3x.png'),
     // 页面装饰图片
     imageTopBg: config.getAssetImageUrl('grdbt@2x.png'),   // 顶部背景图
-    imageBanner: config.getAssetImageUrl('grjrt@2x.png')   // 中间 Banner 图
+    imageBanner: config.getAssetImageUrl('grjrt@2x.png'),   // 中间 Banner 图
+    // 默认头像
+    defaultAvatar: config.defaultAvatar
   },
 
   onLoad() {

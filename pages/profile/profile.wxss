@@ -663,7 +663,7 @@
 .image-text_8-3 {
   width: 87rpx;
   height: 112rpx;
-  margin-right: 0;
+  margin-right: 62rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

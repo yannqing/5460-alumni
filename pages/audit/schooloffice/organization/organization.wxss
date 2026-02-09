@@ -206,7 +206,16 @@
 .scroll-list {
   flex: 1;
   width: 100%;
-  height: auto;
+  height: 0;
+  min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
 }
 
 /* 设计稿 group_19：标题行；标题与列表左对齐（与内容区左缘一致），按钮右缘与列表编辑/删除右缘对齐 */

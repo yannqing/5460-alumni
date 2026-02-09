@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "校促会审核",
   "navigationStyle": "custom",
+  "disableScroll": true,
   "enablePullDownRefresh": false,
   "enableBackToTop": true,
   "backgroundTextStyle": "dark",
