@@ -132,7 +132,7 @@ Page({
       nickname: formatValue(data.nickname || data.name),
       name: formatValue(data.name),
       avatarUrl: avatarUrl,
-      background: data.background ? config.getImageUrl(data.background) : '',
+      bgImg: data.bgImg ? config.getImageUrl(data.bgImg) : '',
       gender: formatValue(gender),
       age: formatValue(age ? `${age}岁` : ''),
       zodiac: formatValue(constellation),
