@@ -1286,5 +1286,13 @@ Page({
         organizationLoading: false
       })
     })
+  },
+
+  // 显示“开发中”提示
+  handleDeveloping() {
+    wx.showToast({
+      title: '开发中，敬请期待',
+      icon: 'none'
+    })
   }
 })

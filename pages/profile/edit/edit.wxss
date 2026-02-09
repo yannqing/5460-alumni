@@ -130,6 +130,12 @@
   color: #666;
 }
 
+.label-required::before {
+  content: "*";
+  color: #ff4d4f;
+  margin-right: 4rpx;
+}
+
 .input-wrapper {
   flex: 1;
   display: flex;
