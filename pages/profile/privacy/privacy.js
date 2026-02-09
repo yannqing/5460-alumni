@@ -31,6 +31,30 @@ Page({
       // 个人简介（按编辑资料页面顺序）
       showDescription: false
     },
+    // 记录哪些字段在接口中返回了（用于控制开关项的显示）
+    fieldAvailable: {
+      avatar: false,
+      nickname: false,
+      name: false,
+      gender: false,
+      birthDate: false,
+      phone: false,
+      constellation: false,
+      signature: false,
+      wxNum: false,
+      qqNum: false,
+      email: false,
+      originProvince: false,
+      curContinent: false,
+      curCountry: false,
+      curProvince: false,
+      curCity: false,
+      curCounty: false,
+      address: false,
+      identifyType: false,
+      identifyCode: false,
+      description: false
+    },
     // 存储后端返回的原始数据（用于更新时回传）
     privacyList: []
   },
@@ -109,6 +133,31 @@ Page({
           showDescription: false
         }
 
+        // 初始化字段可用性状态
+        const fieldAvailable = {
+          avatar: false,
+          nickname: false,
+          name: false,
+          gender: false,
+          birthDate: false,
+          phone: false,
+          constellation: false,
+          signature: false,
+          wxNum: false,
+          qqNum: false,
+          email: false,
+          originProvince: false,
+          curContinent: false,
+          curCountry: false,
+          curProvince: false,
+          curCity: false,
+          curCounty: false,
+          address: false,
+          identifyType: false,
+          identifyCode: false,
+          description: false
+        }
+
         // 遍历后端返回的数组，更新对应的设置
         // 注意：visibility=1表示可见（开关关闭false），visibility=0表示不可见（开关打开true）
         dataList.forEach(item => {
@@ -119,9 +168,40 @@ Page({
             // visibility: 1表示可见（开关关闭=false），0表示不可见（开关打开=true）
             privacySettings[frontendKey] = item.visibility === 0
           }
+
+          // 标记该字段在接口中返回了（可用）
+          // 特殊处理某些字段名的映射
+          const fieldCodeToAvailableMap = {
+            'avatar': 'avatar',
+            'nickname': 'nickname',
+            'username': 'name',  // 后端 username 对应前端 name
+            'gender': 'gender',
+            'birthDate': 'birthDate',
+            'phone': 'phone',
+            'constellation': 'constellation',
+            'signature': 'signature',
+            'wxNum': 'wxNum',
+            'qqNum': 'qqNum',
+            'email': 'email',
+            'originProvince': 'originProvince',
+            'curContinent': 'curContinent',
+            'curCountry': 'curCountry',
+            'curProvince': 'curProvince',
+            'curCity': 'curCity',
+            'curCounty': 'curCounty',
+            'address': 'address',
+            'identifyType': 'identifyType',
+            'identifyCode': 'identifyCode',
+            'description': 'description'
+          }
+
+          const availableKey = fieldCodeToAvailableMap[fieldCode]
+          if (availableKey && fieldAvailable.hasOwnProperty(availableKey)) {
+            fieldAvailable[availableKey] = true
+          }
         })
 
-        this.setData({ privacySettings })
+        this.setData({ privacySettings, fieldAvailable })
       } else {
         // 接口失败，使用默认值
         console.warn('获取隐私设置失败，使用默认值')
@@ -189,69 +269,63 @@ Page({
 
       // 从 privacyList 中找到当前要更新的字段
       const currentItem = this.data.privacyList.find(item => item.fieldCode === fieldCode)
-      
+
       console.log('[Privacy] 查找字段:', {
         key: key,
         fieldCode: fieldCode,
         privacyListLength: this.data.privacyList.length,
-        privacyList: this.data.privacyList,
         currentItem: currentItem
       })
-      
-      if (!currentItem) {
-        // 如果找不到对应的项，可能是后端还没有该字段的记录，需要先创建
-        console.error('[Privacy] 找不到对应的隐私设置项，fieldCode:', fieldCode)
-        this.setData({
-          [`privacySettings.${key}`]: !value
-        })
-        wx.showToast({
-          title: '该字段尚未初始化，请刷新后重试',
-          icon: 'none'
-        })
-        return
-      }
-      
-      if (!currentItem.userPrivacySettingId) {
-        // 如果找不到 userPrivacySettingId，恢复原值并提示错误
-        console.error('[Privacy] userPrivacySettingId 为空，currentItem:', currentItem)
-        this.setData({
-          [`privacySettings.${key}`]: !value
-        })
-        wx.showToast({
-          title: '数据错误，请刷新后重试',
-          icon: 'none'
-        })
-        return
-      }
 
-      // 构造请求数据：只传入当前要更新的那一个字段的对象
+      // 构造请求数据
       // 注意：value=true表示开关打开（隐藏信息，visibility=0）
       //       value=false表示开关关闭（显示信息，visibility=1）
       const requestData = {
-        userPrivacySettingId: String(currentItem.userPrivacySettingId),  // 确保是字符串，避免精度丢失
         fieldCode: fieldCode,
         visibility: value ? 0 : 1,  // 反转逻辑：true=0（隐藏），false=1（显示）
         searchable: 1  // 固定为1，表示可被搜索
       }
-      
+
+      // 如果找到了已有的记录，添加 userPrivacySettingId
+      if (currentItem && currentItem.userPrivacySettingId) {
+        requestData.userPrivacySettingId = String(currentItem.userPrivacySettingId)
+      }
+      // 如果没有找到记录，不传 userPrivacySettingId，让后端自动创建
+
       const res = await userApi.updatePrivacy(requestData)
 
       if (res.data && res.data.code === 200) {
         // 更新本地存储的 privacyList 中对应字段的值
-        const updatedPrivacyList = this.data.privacyList.map(item => {
-          if (item.fieldCode === fieldCode) {
-            return {
-              ...item,
-              visibility: requestData.visibility,
-              searchable: requestData.searchable
+        let updatedPrivacyList = [...this.data.privacyList]
+
+        if (currentItem) {
+          // 更新已有记录
+          updatedPrivacyList = updatedPrivacyList.map(item => {
+            if (item.fieldCode === fieldCode) {
+              return {
+                ...item,
+                visibility: requestData.visibility,
+                searchable: requestData.searchable
+              }
             }
+            return item
+          })
+        } else {
+          // 新创建的记录，添加到列表中
+          // 如果后端返回了新的 userPrivacySettingId，使用它；否则使用临时 ID
+          const newItem = {
+            userPrivacySettingId: res.data.data?.userPrivacySettingId || `temp_${fieldCode}`,
+            fieldCode: fieldCode,
+            visibility: requestData.visibility,
+            searchable: requestData.searchable
           }
-          return item
-        })
+          updatedPrivacyList.push(newItem)
+        }
+
         this.setData({ privacyList: updatedPrivacyList })
 
         wx.showToast({
-          title: value ? '已隐藏' : '已显示',  // 更新提示文案
+          title: value ? '已隐藏' : '已显示',
           icon: 'success',
           duration: 1500
         })

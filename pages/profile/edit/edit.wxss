@@ -285,6 +285,21 @@
   color: #333333;
 }
 
+/* 展开/折叠教育经历按钮 */
+.toggle-education-btn {
+  margin-top: 20rpx;
+  padding: 16rpx 24rpx;
+  text-align: center;
+  background: #f7f8fa;
+  border-radius: 8rpx;
+  color: #40B2E6;
+  font-size: 26rpx;
+}
+
+.toggle-education-btn:active {
+  background: #e8e8e8;
+}
+
 .add-education-btn {
   margin-top: 20rpx;
   padding: 20rpx;
@@ -349,6 +364,32 @@
   font-size: 28rpx;
   font-weight: 600;
   color: #333333;
+}
+
+/* 展开/折叠工作经历按钮 */
+.toggle-work-btn {
+  margin-top: 20rpx;
+  padding: 16rpx 24rpx;
+  text-align: center;
+  background: #f7f8fa;
+  border-radius: 8rpx;
+  color: #40B2E6;
+  font-size: 26rpx;
+}
+
+.toggle-work-btn:active {
+  background: #e8e8e8;
+}
+
+/* 添加工作经历按钮 */
+.add-work-btn {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  text-align: center;
+  border: 1rpx dashed #d0d0d0;
+  border-radius: 8rpx;
+  color: #666666;
+  font-size: 26rpx;
 }
 
 /* 工作经历确定按钮 */
