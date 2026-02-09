@@ -1,6 +1,7 @@
 // pages/article-publish/index/index.js
 const app = getApp()
 const { homeArticleApi, alumniApi, associationApi, localPlatformApi } = require('../../../api/api')
+const config = require('../../../utils/config.js')
 
 // 防抖函数
 function debounce(fn, delay) {
@@ -40,7 +41,8 @@ Page({
     publisherList: [],
     showPublisherPicker: false,
     publisherSearchKeyword: '',
-    showPublisherSearchResults: false
+    showPublisherSearchResults: false,
+    defaultAvatar: config.defaultAvatar
   },
 
   onLoad(options) {

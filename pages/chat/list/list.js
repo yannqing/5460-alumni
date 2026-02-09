@@ -29,7 +29,8 @@ Page({
     imageBanner: config.getAssetImageUrl('chatbanner2@2x.png'), // Reusing the banner from profile for now as placeholder
     iconAlumni: config.getIconUrl('chatwdxyh@2x.png'), // Using existing icons as placeholders if specific ones aren't known
     iconFav: config.getIconUrl('chatwdsc@2x.png'),
-    iconFollow: config.getIconUrl('chatwdgz@2x.png')
+    iconFollow: config.getIconUrl('chatwdgz@2x.png'),
+    defaultAvatar: config.defaultAvatar
   },
 
   // WebSocket 事件监听器引用（用于移除监听）
@@ -268,7 +269,7 @@ Page({
           if (isSystemNotification) {
             avatar = config.getAssetImageUrl('xttzavartar@2x.png')
           } else {
-            avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : '')
+            avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : config.defaultAvatar)
           }
 
           return {

@@ -118,7 +118,7 @@ Page({
             }
         } else {
             // 使用默认头像
-            avatar = config.getIconUrl('default-avatar.png')
+            avatar = config.defaultAvatar
         }
         
         // 处理背景图片
