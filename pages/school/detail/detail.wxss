@@ -262,10 +262,17 @@ page {
   font-size: 24rpx;
 }
 
+/* Basic information items */
+.basic-info-item {
+  color: #666666;
+  font-size: 25rpx;
+  line-height: 58rpx;
+}
+
 .divider {
   height: 1rpx;
   background-color: #f0f0f0;
-  margin: 20rpx 0;
+  margin: 15rpx 0;
 }
 
 /* 校友会列表 */

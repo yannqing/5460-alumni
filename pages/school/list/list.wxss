@@ -3,7 +3,7 @@
 /* 页面容器 */
 .container {
   min-height: 100vh;
-  background: #0089DF;
+  background: #3F61CA;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
@@ -16,7 +16,7 @@
   left: 0;
   right: 0;
   height: 350rpx;
-  background: #0089DF;
+  background: #3F61CA;
   z-index: 5;
 }
 
@@ -24,7 +24,7 @@
 
 /* 重置默认样式 */
 page {
-  background: #0089DF;
+  background: #3F61CA;
   padding: 0;
   margin: 0;
 }
@@ -51,7 +51,7 @@ page {
   position: sticky;
   top: 180rpx;
   z-index: 15;
-  background: #0089DF;
+  background: #3F61CA;
   overflow: hidden;
   border-bottom: none;
   bottom: 0;
@@ -72,7 +72,7 @@ page {
   border-radius: 21.74rpx;
   padding: 16rpx 30rpx;
   height: 74.28rpx;
-  background: #0072B3;
+  background: #304BA0;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
   box-sizing: border-box;
   outline: none;

@@ -48,12 +48,14 @@
           <view class="text-bold mb-20">基本信息</view>
           
           <view wx:if="{{schoolInfo.description}}" class="text-secondary">{{schoolInfo.description}}</view>
-          <view class="divider"></view>
-          <view class="text-secondary">学校名称：{{schoolInfo.name}}</view>
-          <view wx:if="{{schoolInfo.previousName}}" class="text-secondary mt-10">曾用名：{{schoolInfo.previousName}}</view>
-          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="text-secondary mt-10">合并院校：{{schoolInfo.mergedInstitutions}}</view>
-          <view wx:if="{{schoolInfo.provinceCity}}" class="text-secondary mt-10">所在地：{{schoolInfo.provinceCity}}</view>
-          <view wx:if="{{schoolInfo.location}}" class="text-secondary mt-10">详细地址：{{schoolInfo.location}}</view>
+          <view class="basic-info-item">学校名称：{{schoolInfo.name}}</view>
+          <view wx:if="{{schoolInfo.previousName}}" class="divider"></view>
+          <view wx:if="{{schoolInfo.previousName}}" class="basic-info-item">曾用名：{{schoolInfo.previousName}}</view>
+          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="divider"></view>
+          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="basic-info-item">合并院校：{{schoolInfo.mergedInstitutions}}</view>
+          <view wx:if="{{schoolInfo.previousName}}" class="divider"></view>
+          <view wx:if="{{schoolInfo.provinceCity}}" class="basic-info-item">所在地：{{schoolInfo.provinceCity}}</view>
+         
         </view>
 
         <!-- 校友会列表 -->
