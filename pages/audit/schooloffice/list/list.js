@@ -1,5 +1,6 @@
 // pages/audit/schooloffice/list/list.js
 const app = getApp()
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
@@ -238,15 +239,25 @@ Page({
       if (res.data && res.data.code === 200 && res.data.data) {
         console.log('[Debug] 接口调用成功，获取到的审核列表:', res.data.data)
         
-        // 确保每条记录都有 applicationStatus 字段，并且是数字类型
+        // 确保每条记录都有 applicationStatus 字段，并处理头像、申请人、提交时间
         const records = res.data.data.records || []
         const processedRecords = records.map(record => {
-          console.log('[Debug] 处理记录，applicationStatus:', record.applicationStatus)
           const status = parseInt(record.applicationStatus, 10)
-          console.log('[Debug] 转换后的状态值:', status)
+          const rawLogo = record.logo || record.associationLogo || ''
+          const displayLogo = rawLogo ? config.getImageUrl(rawLogo) : config.defaultAlumniAvatar
+          // 申请人：优先 chargeName，其次 applicantName、applicant
+          const displayApplicant = record.chargeName || record.applicantName || record.applicant || '未知'
+          // 提交时间：待审核时 reviewTime 为空，优先用 createTime/submitTime/applyTime；已通过/已拒绝可有 reviewTime
+          let displaySubmitTime = record.applyTime || ''
+          if (displaySubmitTime && typeof displaySubmitTime === 'string') {
+            displaySubmitTime = displaySubmitTime.replace('T', ' ')
+          }
           return {
             ...record,
-            applicationStatus: isNaN(status) ? 0 : status
+            applicationStatus: isNaN(status) ? 0 : status,
+            displayLogo,
+            displayApplicant,
+            displaySubmitTime
           }
         })
         

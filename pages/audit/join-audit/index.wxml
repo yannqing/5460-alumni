@@ -28,7 +28,7 @@
       </view>
     </view>
 
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" bindscrolltolower="loadMore">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}" bindscrolltolower="loadMore">
       <view wx:if="{{applicationLoading && applicationList.length === 0}}" class="loading-state">
         <text>加载审核列表中...</text>
       </view>
