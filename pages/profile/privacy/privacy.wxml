@@ -7,9 +7,9 @@
 
 <view class="privacy-page">
   <!-- 基本信息 -->
-  <view class="card menu-card">
+  <view class="card menu-card" wx:if="{{fieldAvailable.avatar || fieldAvailable.nickname || fieldAvailable.name || fieldAvailable.gender || fieldAvailable.birthDate || fieldAvailable.phone || fieldAvailable.constellation || fieldAvailable.signature || fieldAvailable.wxNum || fieldAvailable.qqNum || fieldAvailable.email}}">
     <view class="section-title">基本信息</view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.avatar}}">
       <view class="menu-left">
         <text class="menu-icon">👤</text>
         <view class="menu-content">
@@ -19,7 +19,7 @@
       </view>
       <switch checked="{{privacySettings.showAvatar}}" bindchange="togglePrivacy" data-key="showAvatar" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.nickname}}">
       <view class="menu-left">
         <text class="menu-icon">✏️</text>
         <view class="menu-content">
@@ -29,7 +29,7 @@
       </view>
       <switch checked="{{privacySettings.showNickname}}" bindchange="togglePrivacy" data-key="showNickname" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.name}}">
       <view class="menu-left">
         <text class="menu-icon">👨</text>
         <view class="menu-content">
@@ -39,7 +39,7 @@
       </view>
       <switch checked="{{privacySettings.showName}}" bindchange="togglePrivacy" data-key="showName" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.gender}}">
       <view class="menu-left">
         <text class="menu-icon">⚧</text>
         <view class="menu-content">
@@ -49,7 +49,7 @@
       </view>
       <switch checked="{{privacySettings.showGender}}" bindchange="togglePrivacy" data-key="showGender" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.birthDate}}">
       <view class="menu-left">
         <text class="menu-icon">🎂</text>
         <view class="menu-content">
@@ -59,7 +59,7 @@
       </view>
       <switch checked="{{privacySettings.showBirthDate}}" bindchange="togglePrivacy" data-key="showBirthDate" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.phone}}">
       <view class="menu-left">
         <text class="menu-icon">📱</text>
         <view class="menu-content">
@@ -69,7 +69,7 @@
       </view>
       <switch checked="{{privacySettings.showPhone}}" bindchange="togglePrivacy" data-key="showPhone" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.constellation}}">
       <view class="menu-left">
         <text class="menu-icon">⭐</text>
         <view class="menu-content">
@@ -79,7 +79,7 @@
       </view>
       <switch checked="{{privacySettings.showConstellation}}" bindchange="togglePrivacy" data-key="showConstellation" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.signature}}">
       <view class="menu-left">
         <text class="menu-icon">✍️</text>
         <view class="menu-content">
@@ -89,7 +89,7 @@
       </view>
       <switch checked="{{privacySettings.showSignature}}" bindchange="togglePrivacy" data-key="showSignature" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.wxNum}}">
       <view class="menu-left">
         <text class="menu-icon">💬</text>
         <view class="menu-content">
@@ -99,7 +99,7 @@
       </view>
       <switch checked="{{privacySettings.showWxNum}}" bindchange="togglePrivacy" data-key="showWxNum" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.qqNum}}">
       <view class="menu-left">
         <text class="menu-icon">🐧</text>
         <view class="menu-content">
@@ -109,7 +109,7 @@
       </view>
       <switch checked="{{privacySettings.showQqNum}}" bindchange="togglePrivacy" data-key="showQqNum" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.email}}">
       <view class="menu-left">
         <text class="menu-icon">📧</text>
         <view class="menu-content">
@@ -122,9 +122,9 @@
   </view>
 
   <!-- 位置信息 -->
-  <view class="card menu-card">
+  <view class="card menu-card" wx:if="{{fieldAvailable.originProvince || fieldAvailable.curContinent || fieldAvailable.curCountry || fieldAvailable.curProvince || fieldAvailable.curCity || fieldAvailable.curCounty || fieldAvailable.address}}">
     <view class="section-title">位置信息</view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.originProvince}}">
       <view class="menu-left">
         <text class="menu-icon">🏠</text>
         <view class="menu-content">
@@ -134,7 +134,7 @@
       </view>
       <switch checked="{{privacySettings.showOriginProvince}}" bindchange="togglePrivacy" data-key="showOriginProvince" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.curContinent}}">
       <view class="menu-left">
         <text class="menu-icon">🌍</text>
         <view class="menu-content">
@@ -144,7 +144,7 @@
       </view>
       <switch checked="{{privacySettings.showCurContinent}}" bindchange="togglePrivacy" data-key="showCurContinent" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.curCountry}}">
       <view class="menu-left">
         <text class="menu-icon">🌏</text>
         <view class="menu-content">
@@ -154,7 +154,7 @@
       </view>
       <switch checked="{{privacySettings.showCurCountry}}" bindchange="togglePrivacy" data-key="showCurCountry" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.curProvince}}">
       <view class="menu-left">
         <text class="menu-icon">📍</text>
         <view class="menu-content">
@@ -164,7 +164,7 @@
       </view>
       <switch checked="{{privacySettings.showCurProvince}}" bindchange="togglePrivacy" data-key="showCurProvince" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.curCity}}">
       <view class="menu-left">
         <text class="menu-icon">🏙️</text>
         <view class="menu-content">
@@ -174,7 +174,7 @@
       </view>
       <switch checked="{{privacySettings.showCurCity}}" bindchange="togglePrivacy" data-key="showCurCity" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.curCounty}}">
       <view class="menu-left">
         <text class="menu-icon">🏘️</text>
         <view class="menu-content">
@@ -184,7 +184,7 @@
       </view>
       <switch checked="{{privacySettings.showCurCounty}}" bindchange="togglePrivacy" data-key="showCurCounty" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.address}}">
       <view class="menu-left">
         <text class="menu-icon">🏡</text>
         <view class="menu-content">
@@ -197,9 +197,9 @@
   </view>
 
   <!-- 证件信息 -->
-  <view class="card menu-card">
+  <view class="card menu-card" wx:if="{{fieldAvailable.identifyType || fieldAvailable.identifyCode}}">
     <view class="section-title">证件信息</view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.identifyType}}">
       <view class="menu-left">
         <text class="menu-icon">🪪</text>
         <view class="menu-content">
@@ -209,7 +209,7 @@
       </view>
       <switch checked="{{privacySettings.showIdentifyType}}" bindchange="togglePrivacy" data-key="showIdentifyType" color="#40B2E6" />
     </view>
-    <view class="menu-item">
+    <view class="menu-item" wx:if="{{fieldAvailable.identifyCode}}">
       <view class="menu-left">
         <text class="menu-icon">🔢</text>
         <view class="menu-content">
@@ -222,7 +222,7 @@
   </view>
 
   <!-- 个人简介 -->
-  <view class="card menu-card">
+  <view class="card menu-card" wx:if="{{fieldAvailable.description}}">
     <view class="section-title">个人简介</view>
     <view class="menu-item">
       <view class="menu-left">
