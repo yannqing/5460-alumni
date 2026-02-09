@@ -76,7 +76,10 @@
                       <image class="location-icon-small" src="{{iconLocation}}" mode="aspectFit" />
                       <text>{{item.location}}</text>
                     </view>
-                    <text class="association-members">{{item.memberCount}}人</text>
+                    <view class="association-members">
+                      <image class="meta-icon" src="{{iconPeople}}" mode="aspectFit" />
+                      <text>{{item.memberCount}}人</text>
+                    </view>
                   </view>
                 </view>
               </view>
