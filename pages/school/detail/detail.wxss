@@ -112,7 +112,7 @@ page {
 /* 背景图上的学校头像 */
 .school-avatar-on-bg {
   position: absolute;
-  bottom: 24rpx;
+  bottom: 34rpx;
   left: 24rpx;
   width: 80rpx;
   height: 80rpx;
@@ -126,7 +126,7 @@ page {
 /* 背景图上的学校信息 */
 .school-info-on-bg {
   position: absolute;
-  bottom: 27rpx;
+  bottom: 37rpx;
   left: 130rpx;
   z-index: 2;
   color: #ffffff;
@@ -166,7 +166,7 @@ page {
 /* 背景图上的认证标签容器 */
 .cert-tag-wrap-on-bg {
   position: absolute;
-  bottom: 24rpx;
+  bottom: 34rpx;
   right: 24rpx;
   z-index: 2;
   display: flex;
@@ -358,7 +358,17 @@ page {
 }
 
 .association-members {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   color: #999999;
+  margin-left: 10rpx;
+}
+
+.meta-icon {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
 }
 
 .association-action {
