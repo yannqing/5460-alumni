@@ -1,107 +1,95 @@
 <!--pages/school/detail/detail.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="母校详情" showBack="{{true}}"></custom-nav-bar>
-
 <!-- 消息通知组件 -->
 <message-notification />
 
 <view class="container">
-  <view wx:if="{{loading}}" class="loading-wrap">
-    <view class="loading">加载中...</view>
+  <!-- 顶部固定区域 -->
+  <view class="top-fixed-area">
+    <!-- 自定义导航栏 -->
+    <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
+    
+    <!-- 顶部图片（与导航栏同一层级） -->
+    <view class="top-image-container">
+      <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png" mode="aspectFit" />
+    </view>
   </view>
 
-  <view wx:else>
-    <!-- 封面图 -->
-    <view class="cover-section">
+  <!-- 内容滚动区域 -->
+  <view class="content-scroll">
+    <view wx:if="{{schoolInfo}}">
       <image class="cover-image" src="{{schoolInfo.cover}}" mode="aspectFill" bindtap="previewImage" data-url="{{schoolInfo.cover}}" />
-      <view class="cover-overlay">
-        <view class="school-basic">
-          <image class="school-icon-large" src="{{schoolInfo.icon}}" mode="aspectFill" />
-          <view class="school-basic-info">
-            <view class="school-name-row">
-              <text class="school-name-large">{{schoolInfo.name}}</text>
-              <view class="cert-tag-wrap">
-                <view wx:if="{{schoolInfo.certifiedUnion}}" class="certified-badge-large" catchtap="viewCertifiedUnion">
-                  {{schoolInfo.certifiedUnion.name}}
-                </view>
-                <!-- 测试：校友总会标签（一直显示） -->
-                <view class="certified-badge-large" catchtap="viewAlumniHeadquarters">
-                  总会测试
-                </view>
-              </view>
-            </view>
-            <view class="school-location-large" wx:if="{{schoolInfo.provinceCity}}">
-              <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-              {{schoolInfo.provinceCity}}
-            </view>
-          </view>
-        </view>
-      </view>
-    </view>
 
-    <!-- 基本信息 -->
-    <view class="tab-content">
-      <view class="info-section card">
-        <view class="section-title-small">基本信息</view>
-
-        <view class="info-row">
-          <view class="info-label">学校名称</view>
-          <view class="info-value">{{schoolInfo.name}}</view>
-        </view>
-
-        <view wx:if="{{schoolInfo.previousName}}" class="info-row">
-          <view class="info-label">曾用名</view>
-          <view class="info-value">{{schoolInfo.previousName}}</view>
-        </view>
-
-        <view wx:if="{{schoolInfo.mergedInstitutions}}" class="info-row">
-          <view class="info-label">合并院校</view>
-          <view class="info-value">{{schoolInfo.mergedInstitutions}}</view>
-        </view>
-
-        <view class="info-row" wx:if="{{schoolInfo.provinceCity}}">
-          <view class="info-label">所在地</view>
-          <view class="info-value">{{schoolInfo.provinceCity}}</view>
-        </view>
-
-        <view class="info-row" wx:if="{{schoolInfo.location}}">
-          <view class="info-label">详细地址</view>
-          <view class="info-value">{{schoolInfo.location}}</view>
-        </view>
-      </view>
-
-      <!-- 校友会列表 -->
-      <view class="association-list-section card">
-        <view class="section-title-small">校友会</view>
-
-        <view wx:if="{{associationList.length > 0}}" class="association-list">
-          <view class="association-item" wx:for="{{associationList}}" wx:key="id">
-            <view class="association-row" bindtap="viewAssociationDetail" data-id="{{item.id}}">
-              <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
-              <view class="association-info">
-                <view class="association-name-row">
-                  <text class="association-name">{{item.name}}</text>
-                  <view wx:if="{{item.isCertified}}" class="certified-badge-small">✓ 认证</view>
-                </view>
-                <view class="association-meta">
-                  <view class="association-location">
-                    <image class="location-icon-small" src="{{iconLocation}}" mode="aspectFit" />
-                    <text>{{item.location}}</text>
+      <!-- 白色背景内容区域 -->
+      <view class="white-background">
+        <view class="card">
+          <view class="flex">
+            <image class="avatar avatar-large" src="{{schoolInfo.icon}}" mode="aspectFill" />
+            <view class="flex-1 ml-20">
+              <view class="name-row">
+                <text class="text-primary text-bold">{{schoolInfo.name}}</text>
+                <view class="cert-tag-wrap">
+                  <view wx:if="{{schoolInfo.certifiedUnion}}" class="cert-tag" catchtap="viewCertifiedUnion">
+                    {{schoolInfo.certifiedUnion.name}}
                   </view>
-                  <text class="association-members">{{item.memberCount}}人</text>
+                  <view class="cert-tag" catchtap="viewAlumniHeadquarters">
+                    总会测试
+                  </view>
                 </view>
               </view>
-            </view>
-            <view class="association-action" catchtap="toggleJoinAssociation" data-id="{{item.id}}">
-              <view class="join-btn {{item.isJoined ? 'joined' : ''}}">
-                {{item.isJoined ? '已加入' : '加入'}}
+              <view wx:if="{{schoolInfo.provinceCity}}" class="text-secondary mt-10 location-row">
+                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                <text>{{schoolInfo.provinceCity}}</text>
               </view>
             </view>
           </view>
         </view>
 
-        <view wx:else class="empty-association">
-          <text class="empty-text">暂无校友会</text>
+        <!-- 基本信息 -->
+        <view class="card">
+          <view class="text-bold mb-20">基本信息</view>
+          
+          <view wx:if="{{schoolInfo.description}}" class="text-secondary">{{schoolInfo.description}}</view>
+          <view class="divider"></view>
+          <view class="text-secondary">学校名称：{{schoolInfo.name}}</view>
+          <view wx:if="{{schoolInfo.previousName}}" class="text-secondary mt-10">曾用名：{{schoolInfo.previousName}}</view>
+          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="text-secondary mt-10">合并院校：{{schoolInfo.mergedInstitutions}}</view>
+          <view wx:if="{{schoolInfo.provinceCity}}" class="text-secondary mt-10">所在地：{{schoolInfo.provinceCity}}</view>
+          <view wx:if="{{schoolInfo.location}}" class="text-secondary mt-10">详细地址：{{schoolInfo.location}}</view>
+        </view>
+
+        <!-- 校友会列表 -->
+        <view class="card mt-20">
+          <view class="text-bold mb-20">校友会</view>
+          
+          <view wx:if="{{associationList.length > 0}}" class="association-list">
+            <view class="association-item" wx:for="{{associationList}}" wx:key="id">
+              <view class="association-row" bindtap="viewAssociationDetail" data-id="{{item.id}}">
+                <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
+                <view class="association-info">
+                  <view class="association-name-row">
+                    <text class="association-name">{{item.name}}</text>
+                    <view wx:if="{{item.isCertified}}" class="certified-badge-small">✓ 认证</view>
+                  </view>
+                  <view class="association-meta">
+                    <view class="association-location">
+                      <image class="location-icon-small" src="{{iconLocation}}" mode="aspectFit" />
+                      <text>{{item.location}}</text>
+                    </view>
+                    <text class="association-members">{{item.memberCount}}人</text>
+                  </view>
+                </view>
+              </view>
+              <view class="association-action" catchtap="toggleJoinAssociation" data-id="{{item.id}}">
+                <view class="join-btn {{item.isJoined ? 'joined' : ''}}">
+                  {{item.isJoined ? '已加入' : '加入'}}
+                </view>
+              </view>
+            </view>
+          </view>
+          
+          <view wx:else class="empty-association">
+            <text class="empty-text">暂无校友会</text>
+          </view>
         </view>
       </view>
     </view>
