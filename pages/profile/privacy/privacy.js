@@ -1,36 +1,30 @@
 // pages/profile/privacy/privacy.js
 const { userApi } = require('../../../api/api.js')
 
+// 字段分组配置
+const FIELD_GROUPS = {
+  basicInfo: {
+    title: '基本信息',
+    fields: ['avatar', 'nickname', 'username', 'gender', 'birthDate', 'phone', 'constellation', 'signature', 'wxNum', 'qqNum', 'email']
+  },
+  location: {
+    title: '位置信息',
+    fields: ['originProvince', 'curContinent', 'curCountry', 'curProvince', 'curCity', 'curCounty', 'address']
+  },
+  identity: {
+    title: '证件信息',
+    fields: ['identifyType', 'identifyCode']
+  },
+  description: {
+    title: '个人简介',
+    fields: ['description']
+  }
+}
+
 Page({
   data: {
-    privacySettings: {
-      // 基本信息（按编辑资料页面顺序）
-      // 注意：false=显示信息（visibility=1），true=隐藏信息（visibility=0）
-      showAvatar: false,
-      showNickname: false,
-      showName: false,
-      showGender: false,
-      showBirthDate: false,
-      showPhone: false,
-      showConstellation: false,
-      showSignature: false,
-      showWxNum: false,
-      showQqNum: false,
-      showEmail: false,
-      // 位置信息（按编辑资料页面顺序）
-      showOriginProvince: false,
-      showCurContinent: false,
-      showCurCountry: false,
-      showCurProvince: false,
-      showCurCity: false,
-      showCurCounty: false,
-      showAddress: false,
-      // 证件信息（按编辑资料页面顺序）
-      showIdentifyType: false,
-      showIdentifyCode: false,
-      // 个人简介（按编辑资料页面顺序）
-      showDescription: false
-    },
+    // 分组后的隐私设置列表（用于渲染）
+    groupedPrivacyList: [],
     // 存储后端返回的原始数据（用于更新时回传）
     privacyList: []
   },
@@ -80,66 +74,82 @@ Page({
           // 个人简介
           'description': 'showDescription'
         }
+        // 为每个字段添加开关状态
+        // visibility: 1表示可见（开关关闭=false），0表示不可见（开关打开=true）
+        const processedList = dataList.map(item => ({
+          ...item,
+          checked: item.visibility === 0  // true=隐藏，false=显示
+        }))
 
-        const privacySettings = {
-          // 基本信息（默认都是 false，表示显示信息）
-          showAvatar: false,
-          showNickname: false,
-          showName: false,
-          showGender: false,
-          showBirthDate: false,
-          showPhone: false,
-          showConstellation: false,
-          showSignature: false,
-          showWxNum: false,
-          showQqNum: false,
-          showEmail: false,
-          // 位置信息
-          showOriginProvince: false,
-          showCurContinent: false,
-          showCurCountry: false,
-          showCurProvince: false,
-          showCurCity: false,
-          showCurCounty: false,
-          showAddress: false,
-          // 证件信息
-          showIdentifyType: false,
-          showIdentifyCode: false,
-          // 个人简介
-          showDescription: false
-        }
+        // 按分组整理数据
+        const groupedPrivacyList = this.groupPrivacyItems(processedList)
 
-        // 遍历后端返回的数组，更新对应的设置
-        // 注意：visibility=1表示可见（开关关闭false），visibility=0表示不可见（开关打开true）
-        dataList.forEach(item => {
-          const fieldCode = item.fieldCode
-          const frontendKey = fieldCodeMap[fieldCode]
-
-          if (frontendKey) {
-            // visibility: 1表示可见（开关关闭=false），0表示不可见（开关打开=true）
-            privacySettings[frontendKey] = item.visibility === 0
-          }
-        })
-
-        this.setData({ privacySettings })
+        this.setData({ groupedPrivacyList })
       } else {
-        // 接口失败，使用默认值
-        console.warn('获取隐私设置失败，使用默认值')
+        // 接口失败
+        console.warn('获取隐私设置失败')
+        wx.showToast({
+          title: '加载失败，请重试',
+          icon: 'none'
+        })
       }
     } catch (error) {
       console.error('加载隐私设置失败:', error)
-      // 出错时使用默认值
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
     }
+  },
+
+  // 将隐私项按分组整理
+  groupPrivacyItems(items) {
+    const groups = []
+    const usedFieldCodes = new Set()
+
+    // 按预定义的分组顺序处理
+    Object.keys(FIELD_GROUPS).forEach(groupKey => {
+      const groupConfig = FIELD_GROUPS[groupKey]
+      const groupItems = []
+
+      // 找出属于这个分组的字段
+      groupConfig.fields.forEach(fieldCode => {
+        const item = items.find(i => i.fieldCode === fieldCode)
+        if (item) {
+          groupItems.push(item)
+          usedFieldCodes.add(fieldCode)
+        }
+      })
+
+      // 只有当分组有内容时才添加
+      if (groupItems.length > 0) {
+        groups.push({
+          title: groupConfig.title,
+          items: groupItems
+        })
+      }
+    })
+
+    // 处理未分组的字段（后端新增的字段），放到"其他"分组
+    const otherItems = items.filter(item => !usedFieldCodes.has(item.fieldCode))
+    if (otherItems.length > 0) {
+      groups.push({
+        title: '其他',
+        items: otherItems
+      })
+    }
+
+    return groups
   },
 
   // 切换隐私设置
   async togglePrivacy(e) {
-    const { key } = e.currentTarget.dataset
+    const { groupIndex, itemIndex, fieldCode } = e.currentTarget.dataset
     const value = e.detail.value
 
     // 先更新UI
     this.setData({
-      [`privacySettings.${key}`]: value
+      [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: value
     })
 
     try {
@@ -189,51 +199,21 @@ Page({
 
       // 从 privacyList 中找到当前要更新的字段
       const currentItem = this.data.privacyList.find(item => item.fieldCode === fieldCode)
-      
-      console.log('[Privacy] 查找字段:', {
-        key: key,
-        fieldCode: fieldCode,
-        privacyListLength: this.data.privacyList.length,
-        privacyList: this.data.privacyList,
-        currentItem: currentItem
-      })
-      
-      if (!currentItem) {
-        // 如果找不到对应的项，可能是后端还没有该字段的记录，需要先创建
-        console.error('[Privacy] 找不到对应的隐私设置项，fieldCode:', fieldCode)
-        this.setData({
-          [`privacySettings.${key}`]: !value
-        })
-        wx.showToast({
-          title: '该字段尚未初始化，请刷新后重试',
-          icon: 'none'
-        })
-        return
-      }
-      
-      if (!currentItem.userPrivacySettingId) {
-        // 如果找不到 userPrivacySettingId，恢复原值并提示错误
-        console.error('[Privacy] userPrivacySettingId 为空，currentItem:', currentItem)
-        this.setData({
-          [`privacySettings.${key}`]: !value
-        })
-        wx.showToast({
-          title: '数据错误，请刷新后重试',
-          icon: 'none'
-        })
-        return
-      }
 
-      // 构造请求数据：只传入当前要更新的那一个字段的对象
+      // 构造请求数据
       // 注意：value=true表示开关打开（隐藏信息，visibility=0）
       //       value=false表示开关关闭（显示信息，visibility=1）
       const requestData = {
-        userPrivacySettingId: String(currentItem.userPrivacySettingId),  // 确保是字符串，避免精度丢失
         fieldCode: fieldCode,
         visibility: value ? 0 : 1,  // 反转逻辑：true=0（隐藏），false=1（显示）
         searchable: 1  // 固定为1，表示可被搜索
       }
-      
+
+      // 如果找到了已有的记录，添加 userPrivacySettingId
+      if (currentItem && currentItem.userPrivacySettingId) {
+        requestData.userPrivacySettingId = String(currentItem.userPrivacySettingId)
+      }
+
       const res = await userApi.updatePrivacy(requestData)
 
       if (res.data && res.data.code === 200) {
@@ -248,17 +228,18 @@ Page({
           }
           return item
         })
+
         this.setData({ privacyList: updatedPrivacyList })
 
         wx.showToast({
-          title: value ? '已隐藏' : '已显示',  // 更新提示文案
+          title: value ? '已隐藏' : '已显示',
           icon: 'success',
           duration: 1500
         })
       } else {
         // 保存失败，恢复原值
         this.setData({
-          [`privacySettings.${key}`]: !value
+          [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: !value
         })
         wx.showToast({
           title: res.data?.msg || '保存失败',
@@ -269,7 +250,7 @@ Page({
       console.error('保存隐私设置失败:', error)
       // 保存失败，恢复原值
       this.setData({
-        [`privacySettings.${key}`]: !value
+        [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: !value
       })
       wx.showToast({
         title: '保存失败，请重试',

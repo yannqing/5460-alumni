@@ -346,8 +346,10 @@ Page({
           wx.navigateBack()
         }, 2000)
       } else {
+        // 检查是否是重复加入的错误
+        const errorMsg = res.data?.msg || res.data?.message || '提交失败'
         wx.showToast({
-          title: res.data?.message || '提交失败',
+          title: errorMsg,
           icon: 'none'
         })
         this.setData({ submitting: false })

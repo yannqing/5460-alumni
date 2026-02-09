@@ -130,6 +130,16 @@
   line-height: 1.4;
 }
 
+/* 空状态提示 */
+.empty-tip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80rpx 40rpx;
+  color: #999;
+  font-size: 28rpx;
+}
+
 /* 底部留白 */
 .bottom-space {
   height: 40rpx;

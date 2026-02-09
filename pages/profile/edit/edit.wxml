@@ -105,33 +105,6 @@
     <view class="section-card card">
       <view class="section-title">位置信息</view>
       <view class="form-item">
-        <view class="label">籍贯</view>
-        <view class="input-wrapper">
-          <input class="input" placeholder="请输入籍贯" value="{{form.originProvince}}" data-field="originProvince" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-          <view class="save-btn" wx:if="{{editingField === 'originProvince'}}" data-field="originProvince" catchtap="handleSaveField">
-            <text class="save-icon">✓</text>
-          </view>
-        </view>
-      </view>
-      <view class="form-item">
-        <view class="label">当前所在洲</view>
-        <view class="input-wrapper">
-          <input class="input" placeholder="请输入所在洲" value="{{form.curContinent}}" data-field="curContinent" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-          <view class="save-btn" wx:if="{{editingField === 'curContinent'}}" data-field="curContinent" catchtap="handleSaveField">
-            <text class="save-icon">✓</text>
-          </view>
-        </view>
-      </view>
-      <view class="form-item">
-        <view class="label">当前所在国</view>
-        <view class="input-wrapper">
-          <input class="input" placeholder="请输入所在国" value="{{form.curCountry}}" data-field="curCountry" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-          <view class="save-btn" wx:if="{{editingField === 'curCountry'}}" data-field="curCountry" catchtap="handleSaveField">
-            <text class="save-icon">✓</text>
-          </view>
-        </view>
-      </view>
-      <view class="form-item">
         <view class="label">当前所在省市</view>
         <view class="input-wrapper">
           <input class="input" placeholder="请输入所在省市" value="{{form.curProvince}}" data-field="curProvince" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
@@ -149,34 +122,17 @@
           </view>
         </view>
       </view>
-      <view class="form-item">
-        <view class="label">当前所在村/区</view>
-        <view class="input-wrapper">
-          <input class="input" placeholder="请输入所在村/区" value="{{form.curCounty}}" data-field="curCounty" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-          <view class="save-btn" wx:if="{{editingField === 'curCounty'}}" data-field="curCounty" catchtap="handleSaveField">
-            <text class="save-icon">✓</text>
-          </view>
-        </view>
-      </view>
-      <view class="form-item">
-        <view class="label">详细地址</view>
-        <view class="input-wrapper">
-          <input class="input" placeholder="请输入详细地址" value="{{form.address}}" data-field="address" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-          <view class="save-btn" wx:if="{{editingField === 'address'}}" data-field="address" catchtap="handleSaveField">
-            <text class="save-icon">✓</text>
-          </view>
-        </view>
-      </view>
     </view>
 
     <view class="section-card card">
-      <view class="section-title">教育经历</view>
+      <view class="section-title">学习经历</view>
       <!-- 遮罩层，点击隐藏下拉列表 -->
       <view wx:if="{{hasSchoolDropdownVisible}}" class="school-dropdown-mask" catchtap="hideSchoolDropdown"></view>
       <view class="education-list">
-        <view class="education-item" wx:for="{{form.educationList}}" wx:key="eduIndex" wx:for-index="eduIndex">
+        <!-- 教育经历列表：默认只显示主要经历或第一个次要经历，展开时显示全部 -->
+        <view class="education-item" wx:for="{{form.educationList}}" wx:key="eduIndex" wx:for-index="eduIndex" wx:if="{{showAllEducation || eduIndex === defaultEducationIndex}}">
           <view class="education-header">
-            <text class="education-title">教育经历 {{eduIndex + 1}}</text>
+            <text class="education-title">学习经历 {{eduIndex + 1}}{{form.educationList[eduIndex].type === 1 ? '（主要）' : ''}}</text>
             <text class="delete-btn" bindtap="removeEducation" data-index="{{eduIndex}}">删除</text>
           </view>
           
@@ -254,11 +210,92 @@
               <view class="picker-value">{{form.educationList[eduIndex].educationLevel || '请选择学历层次'}}</view>
             </picker>
           </view>
+          
+          <view class="form-item">
+            <view class="label">经历类型</view>
+            <picker mode="selector" range="{{['次要经历', '主要经历']}}" value="{{form.educationList[eduIndex].type || 1}}" bindchange="handleEducationTypeChange" data-index="{{eduIndex}}">
+              <view class="picker-value">{{form.educationList[eduIndex].type === 1 ? '主要经历' : '次要经历'}}</view>
+            </picker>
+          </view>
 
         </view>
 
+        <!-- 展开/折叠按钮（只有多个教育经历时才显示） -->
+        <view class="toggle-education-btn" wx:if="{{form.educationList.length > 1}}" bindtap="toggleEducationExpand">
+          <text>{{showAllEducation ? '收起其他经历' : '展开全部经历（共' + form.educationList.length + '条）'}}</text>
+        </view>
+
         <view class="add-education-btn" bindtap="addEducation">
-          <text>+ 添加教育经历</text>
+          <text>+ 添加学习经历</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">工作经历</view>
+      <view class="work-experience-list">
+        <!-- 工作经历列表：默认只显示当前在职或第一个经历，展开时显示全部 -->
+        <view class="work-experience-item" wx:for="{{form.workExperienceList}}" wx:key="workIndex" wx:for-index="workIndex" wx:if="{{showAllWork || workIndex === defaultWorkIndex}}">
+          <view class="work-experience-header">
+            <text class="work-experience-title">工作经历 {{workIndex + 1}}{{form.workExperienceList[workIndex].isCurrent === 1 ? '（在职）' : ''}}</text>
+            <text class="delete-btn" bindtap="removeWorkExperience" data-index="{{workIndex}}">删除</text>
+          </view>
+          
+          <!-- 确定按钮（只在编辑该工作经历时显示） -->
+          <view class="work-experience-save-btn" wx:if="{{editingWorkIndex === workIndex}}" data-index="{{workIndex}}" catchtap="handleSaveWorkExperience">
+            <text class="work-experience-save-text">确定</text>
+          </view>
+          
+          <view class="form-item">
+            <view class="label">公司名称</view>
+            <input class="input" placeholder="请输入公司名称" value="{{form.workExperienceList[workIndex].companyName || ''}}" data-index="{{workIndex}}" data-field="companyName" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">职位/角色</view>
+            <input class="input" placeholder="请输入职位/角色" value="{{form.workExperienceList[workIndex].position || ''}}" data-index="{{workIndex}}" data-field="position" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">所属行业</view>
+            <input class="input" placeholder="请输入所属行业" value="{{form.workExperienceList[workIndex].industry || ''}}" data-index="{{workIndex}}" data-field="industry" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">入职日期</view>
+            <picker mode="date" value="{{form.workExperienceList[workIndex].startDate}}" bindchange="handleWorkDateChange" data-index="{{workIndex}}" data-field="startDate">
+              <view class="picker-value">{{form.workExperienceList[workIndex].startDate || '请选择入职日期'}}</view>
+            </picker>
+          </view>
+
+          <view class="form-item">
+            <view class="label">离职日期</view>
+            <picker mode="date" value="{{form.workExperienceList[workIndex].endDate}}" bindchange="handleWorkDateChange" data-index="{{workIndex}}" data-field="endDate" disabled="{{form.workExperienceList[workIndex].isCurrent === 1}}">
+              <view class="picker-value">{{form.workExperienceList[workIndex].endDate || '请选择离职日期'}}</view>
+            </picker>
+          </view>
+
+          <view class="form-item">
+            <view class="label">是否当前在职</view>
+            <picker mode="selector" range="{{['否', '是']}}" value="{{form.workExperienceList[workIndex].isCurrent || 0}}" bindchange="handleWorkCurrentChange" data-index="{{workIndex}}">
+              <view class="picker-value">{{form.workExperienceList[workIndex].isCurrent === 1 ? '是' : '否'}}</view>
+            </picker>
+          </view>
+
+          <view class="form-item">
+            <view class="label">工作内容/项目成就</view>
+            <textarea class="textarea" placeholder="请输入工作内容或项目成就" value="{{form.workExperienceList[workIndex].workDescription || ''}}" data-index="{{workIndex}}" data-field="workDescription" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" style="height: 100px;" />
+          </view>
+
+        </view>
+
+        <!-- 展开/折叠按钮（只有多个工作经历时才显示） -->
+        <view class="toggle-work-btn" wx:if="{{form.workExperienceList.length > 1}}" bindtap="toggleWorkExpand">
+          <text>{{showAllWork ? '收起其他经历' : '展开全部经历（共' + form.workExperienceList.length + '条）'}}</text>
+        </view>
+
+        <view class="add-work-btn" bindtap="addWorkExperience">
+          <text>+ 添加工作经历</text>
         </view>
       </view>
     </view>

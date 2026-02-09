@@ -2,7 +2,7 @@
   "libVersion": "3.14.1",
   "projectname": "5460_front",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "coverView": true,
     "lazyloadPlaceholderEnable": false,
     "skylineRenderEnable": false,
