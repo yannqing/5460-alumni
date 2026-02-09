@@ -1,23 +1,14 @@
-<!--pages/local-platform/detail/detail.wxml-->
-<!-- 消息通知组件 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校促会详情">
 <message-notification />
-<view class="container">
-    <!-- 顶部固定区域 -->
-    <view class="top-fixed-area">
-        <!-- 自定义导航栏 -->
-        <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
-        <!-- 顶部图片（与导航栏同一层级） -->
-        <view class="top-image-container">
-            <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png" mode="aspectFit" />
-        </view>
+<view class="platform-detail-page">
+    <view wx:if="{{loading}}" class="loading-wrap">
+        <view class="loading">加载中...</view>
     </view>
-    <!-- 内容滚动区域 -->
-    <view class="content-scroll">
-        <view wx:if="{{loading}}" class="loading-wrap">
-            <view class="loading">加载中...</view>
+    <view wx:elif="{{platformInfo}}">
+        <view class="top-background-container">
+            <image class="cover-image" src="{{platformInfo.cover}}" mode="aspectFill" />
+            <view class="bg-gradient-overlay"></view>
         </view>
-        <view wx:elif="{{platformInfo}}">
-            <image class="cover-image" src="{{platformInfo.cover}}" mode="aspectFit" />
             <!-- 白色背景内容区域 -->
             <view class="white-background">
                 <view class="card">
@@ -144,6 +135,6 @@
         <view wx:else class="empty-state">
             <view class="empty-placeholder">暂无数据</view>
             <text>暂无校促会信息</text>
-        </view>
     </view>
 </view>
+</custom-nav-bar>
