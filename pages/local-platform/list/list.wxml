@@ -1,32 +1,50 @@
 <!--pages/local-platform/list/list.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="城市" showBack="{{true}}"></custom-nav-bar>
-
 <!-- 消息通知组件 -->
 <message-notification />
 
 <view class="container">
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="输入关键字进行搜索" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-      <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
-    </view>
+  <!-- 固定顶部背景 -->
+  <view class="fixed-top-bg"></view>
+  <!-- 自定义导航栏 -->
+  <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
+  <!-- 顶部图片 -->
+  <view class="top-image-container">
+    <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png" mode="aspectFit" />
   </view>
-
-  <!-- 筛选栏 -->
-  <view class="filter-bar">
-    <view class="filter-item" wx:for="{{filters}}" wx:key="label" data-index="{{index}}" bindtap="openFilterOptions">
-      <text>{{item.options[item.selected]}}</text>
-      <text class="filter-arrow">▾</text>
+  
+  <!-- 搜索栏和筛选条件容器 -->
+  <view class="header-container">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
+        <input class="search-input" type="text" placeholder="搜索校促会名称或城市" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+        <view class="search-button" bindtap="onSearch">搜索</view>
+      </view>
     </view>
-  </view>
-
-  <view wx:if="{{showFilterOptions}}">
-    <view class="filter-mask" bindtap="closeFilterOptions"></view>
-    <view class="filter-options-panel">
-      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
-        {{item}}
+    
+    <!-- 筛选区域 -->
+    <view class="filter-section">
+      <!-- 城市筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onCityChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+          <text>{{filters[0].options[filters[0].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 状态筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onStatusChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+          <text>{{filters[1].options[filters[1].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 排序筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
+          <text>{{filters[2].options[filters[2].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
       </view>
     </view>
   </view>

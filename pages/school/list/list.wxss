@@ -1,138 +1,285 @@
 /* pages/school/list/list.wxss */
 
+/* 页面容器 */
+.container {
+  min-height: 100vh;
+  background: #0089DF;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* 固定顶部背景 */
+.fixed-top-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 350rpx;
+  background: #0089DF;
+  z-index: 5;
+}
+
+
+
+/* 重置默认样式 */
+page {
+  background: #0089DF;
+  padding: 0;
+  margin: 0;
+}
+
+/* 顶部图片 */
+.top-image-container {
+  width: 100%;
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 8;
+  position: relative;
+}
+
+.top-image {
+  width: 529.49rpx;
+  height: 90.3rpx;
+  border-radius: 12rpx;
+}
+
+/* 头部容器（包含搜索栏和筛选条件） */
+.header-container {
+  position: sticky;
+  top: 180rpx;
+  z-index: 15;
+  background: #0089DF;
+  overflow: hidden;
+  border-bottom: none;
+  bottom: 0;
+}
+
 /* 搜索栏 */
 .search-bar {
-  background-color: #ffffff;
-  padding: 20rpx 30rpx;
+  padding: 20rpx 26rpx;
+  box-shadow: none;
+  border-bottom: none !important;
+  margin-bottom: 30rpx;
 }
 
 .search-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 50rpx;
+  border-radius: 21.74rpx;
   padding: 16rpx 30rpx;
+  height: 74.28rpx;
+  background: #0072B3;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  outline: none;
 }
 
 .search-input {
   flex: 1;
   font-size: 28rpx;
+  color: #FFFFFF;
+  font-family: 'PingFang SC', sans-serif;
+  border: none;
+  outline: none;
+  background: transparent;
 }
 
-.search-icon {
+.search-input:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-left-icon {
   width: 32rpx;
   height: 32rpx;
+  margin-right: 32rpx;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.search-button {
+  width: 128.62rpx;
+  height: 45.29rpx;
+  background-color: #66B3FD;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  border-radius: 50rpx;
   margin-left: 16rpx;
   flex-shrink: 0;
-}
-
-/* 筛选条件选择栏（新增） */
-.filter-select-bar {
-  background-color: #ffffff;
-  padding: 12rpx 40rpx;
-  border-top: 1rpx solid #f0f0f0;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.filter-select-row {
+  font-family: 'PingFang SC', sans-serif;
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
-  gap: 20rpx;
+  justify-content: center;
 }
 
-.filter-select-item {
+/* 筛选区域 */
+.filter-section {
   display: flex;
   align-items: center;
-  font-size: 26rpx;
-  min-width: 0;
-}
-
-.filter-select-item:first-child {
-  flex: 0 0 auto;
-}
-
-.filter-select-item:last-child {
-  flex: 1;
-  min-width: 0;
-}
-
-.filter-label {
-  color: #666666;
-  margin-right: 12rpx;
-  min-width: 100rpx;
-  flex-shrink: 0;
-  font-size: 26rpx;
-}
-
-.picker-text {
-  padding: 10rpx 16rpx;
-  background-color: #f5f5f5;
-  border-radius: 6rpx;
-  color: #333333;
-  text-align: center;
-  font-size: 24rpx;
-  flex: 1;
-  min-width: 0;
+  padding: 0 30rpx 20rpx;
+  margin-bottom: 0;
+  background: #F5F5F5;
+  border-top-left-radius: 30rpx;
+  border-top-right-radius: 30rpx;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.picker-disabled {
-  background-color: #f0f0f0;
-  color: #999999;
-}
-
-/* 筛选栏 */
-.filter-bar {
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
-  padding: 20rpx 30rpx;
-  border-top: 1rpx solid #f0f0f0;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border-bottom: none !important;
+  border-top: none !important;
+  position: relative;
+  z-index: 1;
+  min-height: 85rpx;
+  justify-content: space-around;
 }
 
 .filter-item {
   flex: 1;
   text-align: center;
-  font-size: 26rpx;
-  color: #666666;
+  font-size: 25.36rpx;
+  color: #111313;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8rpx;
+  padding: 0 16rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  position: relative;
 }
 
-.arrow-down {
-  font-size: 20rpx;
-  color: #999999;
+.filter-arrow {
+  font-size: 25.36rpx;
+  color: #111313;
+}
+
+/* 修复 picker 组件默认下划线问题 - 更全面的选择器 */
+picker {
+  border-bottom: none !important;
+  outline: none !important;
+  background: transparent !important;
+  line-height: normal !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* 确保 picker 内部 text 元素没有下划线 */
+picker text {
+  border-bottom: none !important;
+  outline: none !important;
+  background: transparent !important;
+  line-height: normal !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 修复 picker 组件可能的伪元素下划线 */
+picker::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+picker::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 确保整个筛选区域没有意外的边框或下划线 */
+.filter-section::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+.filter-section::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 确保 header-container 没有边框 */
+.header-container::after {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+.header-container::before {
+  display: none !important;
+  content: none !important;
+  border-bottom: none !important;
+}
+
+/* 特别针对可能出现下划线的元素 */
+view, text, picker, input, button, image, navigator {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+/* 特别针对筛选区域的元素 */
+.filter-section view,
+.filter-section text,
+.filter-section picker,
+.filter-section input {
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+.filter-item view,
+.filter-item text,
+.filter-item picker {
+  border-bottom: none !important;
+  outline: none !important;
 }
 
 /* 学校列表 */
-.school-list {
-  padding: 20rpx;
+.association-list {
+  padding: 0 30rpx 20rpx;
+  background-color: #F5F5F5;
+  min-height: 100vh;
+  background: #F5F5F5;
+  margin-top: -1rpx;
+  position: relative;
+  z-index: 0;
 }
 
-.school-item {
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
+.association-card {
+  background-color: #FCFCFC;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 40rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
-.school-header {
+/* 卡片头部 */
+.card-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 20rpx;
+  margin-bottom: 10rpx;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
-.school-icon {
-  width: 120rpx;
-  height: 120rpx;
+.association-icon {
+  width: 140rpx;
+  height: 140rpx;
   border-radius: 50%;
   flex-shrink: 0;
   border: 3rpx solid #e0e0e0;
@@ -140,149 +287,220 @@
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
-.school-info {
+.card-info {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
-.school-name-row {
+.card-title-row {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
 }
 
-.school-name {
+.card-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333333;
+  font-family: 'PingFang SC', 'PingFang SC Semibold', sans-serif;
+  color: #111313;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.certified-badge {
+.cert-badge {
   padding: 4rpx 12rpx;
-  background-color:rgb(226, 175, 22);
+  background-color: rgb(226, 175, 22);
   color: #ffffff;
   font-size: 20rpx;
   border-radius: 6rpx;
   flex-shrink: 0;
 }
 
-.school-old-names {
-  font-size: 22rpx;
-  color: #999999;
-  margin-bottom: 8rpx;
-}
-
-.old-name-label {
-  color: #666666;
-}
-
-.school-location {
+/* 副标题 */
+.card-subtitle {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
   color: #666666;
+  margin-bottom: 12rpx;
 }
 
-.school-location .location-icon {
+.subtitle-icon {
   width: 24rpx;
   height: 24rpx;
   flex-shrink: 0;
 }
 
-.school-tags {
+/* 位置信息 */
+.card-location {
   display: flex;
+  align-items: center;
   gap: 8rpx;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
+  color: #999999;
+  margin-bottom: 12rpx;
+}
+
+.location-icon {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
+}
+
+/* 标签 */
+.card-tags {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
   flex-wrap: wrap;
 }
 
-.school-action {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
+.mini-tag {
+  padding: 6rpx 16rpx;
+  background-color: #e6f7ff;
+  color: #40B2E6;
+  font-size: 22rpx;
+  border-radius: 6rpx;
 }
 
-/* 弹窗 */
-.popup-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+.next-arrow {
+  margin-left: auto;
+  font-size: 32rpx;
+  color: #e0e0e0;
+  font-weight: 300;
+}
+
+/* 卡片底部 */
+.school-info-actions {
   display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  margin-top: 8rpx;
+}
+
+.info-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.action-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
   align-items: flex-end;
 }
 
-.popup-content {
-  width: 100%;
-  max-height: 70vh;
-  background-color: #ffffff;
-  border-radius: 24rpx 24rpx 0 0;
-  overflow: hidden;
+.card-action {
+  width: fit-content;
+  margin-top: 15rpx;
 }
 
-.popup-header {
+.card-subtitle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  gap: 8rpx;
+  font-size: 26rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
+  color: #666666;
 }
 
-.popup-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333333;
-}
-
-.popup-close {
-  font-size: 40rpx;
+.card-location {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  font-weight: 500;
   color: #999999;
-  line-height: 1;
+  margin-bottom: 16rpx;
 }
 
-.city-list,
-.sort-list {
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.city-item,
-.sort-item {
+.follow-btn {
+  width: 144.93rpx;
+  height: 47.1rpx;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 30rpx;
-  font-size: 28rpx;
-  color: #333333;
-  border-bottom: 1rpx solid #f5f5f5;
+  justify-content: center;
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
+  color: #ffffff;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  line-height: 30.8rpx;
+  font-weight: 500;
+  border-radius: 20.83rpx;
+  margin-top: 6rpx;
 }
 
-.city-item:active,
-.sort-item:active {
-  background-color: #f8f8f8;
+.card-footer {
+  display: flex;
+  align-items: center;
+  padding-top: 10rpx;
 }
 
-.city-item.active,
-.sort-item.active {
+.card-stats {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+}
+
+.follow-btn.followed {
+  width: 144.93rpx;
+  height: 47.1rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 2rpx solid #40B2E6 !important;
   color: #40B2E6;
+  font-size: 24rpx;
+  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
+  line-height: 30.8rpx;
+  font-weight: 500;
+  border-radius: 20.83rpx;
 }
 
-.check-icon {
-  color: #40B2E6;
-  font-size: 32rpx;
-  font-weight: 600;
+/* 加载状态 */
+.loading-text {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #666666;
+  font-size: 24rpx;
 }
 
-.popup-footer {
-  padding: 30rpx;
-  border-top: 1rpx solid #f0f0f0;
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-state image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-state text {
+  color: #666666;
+  font-size: 26rpx;
 }
 
 .full-width {

@@ -6,7 +6,7 @@ const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = re
 Page({
   data: {
     // 图标路径
-    iconSearch: config.getIconUrl('sslss.png'),
+    iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
     keyword: '',
@@ -16,8 +16,6 @@ Page({
       { label: '排序', options: ['默认排序', '最新加入', '人气最高'], selected: 0 },
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
-    showFilterOptions: false,
-    activeFilterIndex: -1,
     alumniList: [],
     page: 1,
     pageSize: 10,
@@ -185,13 +183,13 @@ Page({
 
   // 数据映射：将后端数据映射为前端所需格式
   mapAlumniItem(item) {
-    // 处理头像 - 使用后端返回的 avatarUrl 字段，如果为空则使用默认头像
+    // 处理头像 - 使用后端返回的 avatarUrl 字段，如果为空则使用 config 中的默认头像
     let avatarUrl = item.avatarUrl || ''
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
-      // 使用本地默认头像，与校友会列表页保持一致
-      avatarUrl = '/assets/avatar/default_avatar.jpeg'
+      // 使用 config.js 中配置的默认个人头像
+      avatarUrl = config.defaultAvatar
     }
 
     // 构建位置信息 - 优先使用完整的位置组合
@@ -221,12 +219,18 @@ Page({
     // 显示昵称，如果没有则显示真实姓名
     const displayName = item.nickname || item.name || item.realName || '未知用户'
 
-    // 返回统一格式
+    // 返回统一格式（isDefaultAvatar 用于列表页仅对默认头像增大展示尺寸）
+    const isDefaultAvatar = !item.avatarUrl
+    
+    // 从新的后端结构中获取学校信息
+    const schoolName = item.primaryEducation?.schoolInfo?.schoolName || '暂无学校信息'
+    
     return {
       id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
       name: displayName,
       avatarUrl: avatarUrl,
-      school: item.school || '暂无学校信息', // 尝试从后端获取学校信息
+      isDefaultAvatar: isDefaultAvatar,
+      school: schoolName, // 从 primaryEducation.schoolInfo.schoolName 获取学校信息
       city: item.curCity || '',
       location: location,
       major: item.major || '', // 尝试从后端获取专业信息
@@ -264,30 +268,36 @@ Page({
     this.loadAlumniList(true)
   },
 
-  openFilterOptions(e) {
-    const { index } = e.currentTarget.dataset
-    if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-      this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-      return
-    }
-    this.setData({ activeFilterIndex: index, showFilterOptions: true })
-  },
-
-  selectFilterOption(e) {
-    const { optionIndex } = e.currentTarget.dataset
-    const { activeFilterIndex, filters } = this.data
-    if (activeFilterIndex === -1) return
-    filters[activeFilterIndex].selected = optionIndex
-    this.setData({
-      filters,
-      showFilterOptions: false,
-      activeFilterIndex: -1
-    })
+  // 身份筛选
+  onIdentityChange(e) {
+    const filters = this.data.filters
+    filters[0].selected = e.detail.value
+    this.setData({ filters })
     this.loadAlumniList(true)
   },
 
-  closeFilterOptions() {
-    this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
+  // 城市筛选
+  onCityChange(e) {
+    const filters = this.data.filters
+    filters[1].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
+  },
+
+  // 排序筛选
+  onSortChange(e) {
+    const filters = this.data.filters
+    filters[2].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
+  },
+
+  // 关注筛选
+  onFollowChange(e) {
+    const filters = this.data.filters
+    filters[3].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
   },
 
   viewDetail(e) {
