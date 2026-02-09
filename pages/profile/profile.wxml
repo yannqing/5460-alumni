@@ -91,9 +91,10 @@
           <image src="{{iconSwhz}}" class="label_9-1"></image>
           <text lines="1" class="text-group_2-1">我的校友会</text>
         </view>
-        <view class="image-text_8-2" bindtap="navigateTo" data-url="/pages/my-favorites/my-favorites">
+        <view class="image-text_8-2">
           <image src="{{iconWdsc}}" class="label_9-2"></image>
           <text lines="1" class="text-group_2-2">我的收藏</text>
+          <view class="construction-tag">建设中</view>
         </view>
         <view class="image-text_8-3" bindtap="navigateTo" data-url="/pages/profile/my-card/my-card">
           <image src="{{iconWdsc}}" class="label_9-3"></image>

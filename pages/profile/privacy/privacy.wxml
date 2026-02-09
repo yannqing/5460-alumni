@@ -33,7 +33,6 @@
         </view>
 
 
-<<<<<<< HEAD
       <!-- 底部留白 -->
       <view class="bottom-space"></view>
   </view>
@@ -47,10 +46,3 @@
 
 
 
-=======
-
-        <!-- 底部留白 -->
-        <view class="bottom-space"></view>
-</view>
-</custom-nav-bar>
->>>>>>> origin/dev

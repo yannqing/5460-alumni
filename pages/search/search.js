@@ -44,6 +44,56 @@ Page({
     const history = wx.getStorageSync('searchHistory') || []
     this.setData({ searchHistory: history })
   },
+  
+  onReady() {
+    // 在页面渲染完成后，重写 custom-nav-bar 的返回方法
+    const navBar = this.selectComponent('#custom-nav-bar')
+    if (navBar) {
+      const originalGoBack = navBar.goBack.bind(navBar)
+      navBar.goBack = () => {
+        this.handleNavBarBack()
+      }
+    }
+  },
+  
+  // 处理导航栏返回
+  handleNavBarBack() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) {
+      // 如果有上一页，则返回
+      wx.navigateBack({
+        fail: () => {
+          // 如果返回失败，则清空搜索结果
+          this.setData({
+            showResult: false,
+            keyword: '',
+            searchResult: {
+              schools: [],
+              associations: [],
+              alumni: [],
+              merchants: []
+            },
+            pageNum: 1,
+            hasMore: true
+          })
+        }
+      })
+    } else {
+      // 如果没有上一页（从 tabBar 进入），则清空搜索结果
+      this.setData({
+        showResult: false,
+        keyword: '',
+        searchResult: {
+          schools: [],
+          associations: [],
+          alumni: [],
+          merchants: []
+        },
+        pageNum: 1,
+        hasMore: true
+      })
+    }
+  },
 
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
