@@ -1,7 +1,13 @@
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="申请创建校友会" showBack="{{true}}"></custom-nav-bar>
+<view class="top-fixed-area">
+  <!-- 自定义导航栏 -->
+  <custom-nav-bar title="创建校友会" showBack="{{true}}" textColor="#ffffff"></custom-nav-bar>
+</view>
 
+<!-- 内容滚动区域 -->
+<view class="content-scroll">
 <view class="container" bindtap="closeAllDropdowns">
+  <image src="https://cni-alumni.yannqing.com/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png" class="header-image" mode="aspectFit"></image>
   <view class="form-card">
     <view class="form-title">基本信息</view>
 
@@ -23,7 +29,7 @@
     
     <view class="form-item search-group" style="z-index: 10;" catchtap="preventBubble">
       <text class="label">相关地区 *</text>
-      <input class="input" placeholder="请输入并选择相关地区(校处会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
+      <input class="input" placeholder="请输入并选择相关地区(校促会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showPlatformResults}}">
         <view wx:if="{{platformList.length === 0}}" class="search-placeholder">未找到相关地区</view>
         <view wx:for="{{platformList}}" wx:key="platformId" class="search-item" bindtap="selectPlatform" data-index="{{index}}">
@@ -120,5 +126,8 @@
     <view wx:if="{{members.length === 0}}" class="empty-tip">暂无其他成员，请点击上方按钮添加</view>
   </view>
 
-  <button class="submit-btn" bindtap="submitForm">提交申请</button>
+  <view class="form-actions">
+    <button class="submit-btn" bindtap="submitForm">提交申请</button>
+  </view>
+</view>
 </view>

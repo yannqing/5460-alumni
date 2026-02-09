@@ -176,6 +176,19 @@
   border-radius: 16rpx;
   box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.05);
   border: 2rpx solid #f5f5f5;
+  position: relative;
+}
+
+.role-tag {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
 .member-avatar {
@@ -206,6 +219,20 @@
   font-size: 30rpx;
   font-weight: 600;
   color: #333333;
+  flex-shrink: 0;
+}
+
+/* 角色标签样式 */
+.member-tag {
+  background-color: #E6F7FF;
+  color: #1890FF;
+  border: 1rpx solid #91D5FF;
+}
+
+.director-tag {
+  background-color: #F6FFED;
+  color: #52C41A;
+  border: 1rpx solid #B7EB8F;
 }
 
 /* 空状态样式 - 与校友会详情页面一致 */

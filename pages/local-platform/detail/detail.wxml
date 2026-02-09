@@ -42,6 +42,8 @@
                       </view>
                     </view>
                   </view>
+                  <view wx:if="{{item.role === 0}}" class="role-tag member-tag">会员单位</view>
+                  <view wx:elif="{{item.role === 1}}" class="role-tag director-tag">理事单位</view>
                 </view>
               </view>
               <!-- 加载更多 -->

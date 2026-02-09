@@ -223,7 +223,8 @@ Page({
           const signature = item.signature || '暂无公司信息'
 
           return {
-            id: item.userId || item.id,
+            id: item.wxId,
+            wxId: item.wxId,
             avatar: avatarUrl,
             nickname: item.nickname || '',
             name: item.name || item.realName || '未知用户',
