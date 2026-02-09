@@ -1,9 +1,115 @@
 /* components/custom-nav-bar/custom-nav-bar.wxss */
+
+/* ========== 管理入口样式 ========== */
+.audit-page-wrapper {
+  position: relative;
+  width: 750rpx;
+  min-height: 100vh;
+  background-color: #F7F7FE;
+}
+
+/* 蓝色渐变背景区域 */
+.audit-blue-header {
+  width: 750rpx;
+  height: 433rpx;
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* 中间内容区域（Logo + 标题） */
+.audit-center-content {
+  position: absolute;
+  left: 50%;
+  top: 100rpx;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  z-index: 5;
+}
+
+/* 中间 Logo */
+.audit-center-logo {
+  width: 197.46rpx;
+  height: 47.1rpx;
+  margin-right: -8rpx;
+}
+
+/* 中间标题文字 */
+.audit-center-title {
+  height: 28rpx;
+  font-size: 30rpx;
+  font-family: FZLTCHK--GBK1-0, PingFangSC-Semibold;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 28rpx;
+  opacity: 0.9;
+  white-space: nowrap;
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+  margin-left: -8rpx;
+}
+
+/* 导航栏（返回按钮区域） */
+.audit-nav-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 32rpx;
+  z-index: 10;
+}
+
+.audit-back-btn {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.audit-back-icon {
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 19rpx;
+  opacity: 1;
+}
+
+.audit-back-text {
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 500;
+  font-size: 28rpx;
+  color: #FFFFFF;
+  opacity: 0.8;
+  line-height: 40rpx;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* 白色圆角内容区域 */
+.audit-content-wrapper {
+  position: absolute;
+  left: 0rpx;
+  width: 750rpx;
+  height: calc(100vh - 190.22rpx);
+  background: #F7F7FE;
+  border-radius: 14.49rpx 14.49rpx 0rpx 0rpx;
+  z-index: 999;
+  padding-bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ========== 默认样式 ========== */
 .custom-nav-bar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  width: 750rpx;
   z-index: 9999;
   overflow: hidden;
 }
@@ -30,6 +136,14 @@
   padding: 0 30rpx;
   position: relative;
   z-index: 1;
+}
+
+.nav-center-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
 }
 
 .nav-back-btn {

@@ -90,7 +90,7 @@
   font-weight: 600;
 }
 
-/* 校处会列表 */
+/* 校促会列表 */
 .platform-list {
   padding: 20rpx 30rpx;
   background-color: #f8f8f8;

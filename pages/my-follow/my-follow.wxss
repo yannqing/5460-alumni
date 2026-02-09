@@ -1,9 +1,72 @@
 /* pages/my-follow/my-follow.wxss */
-.follow-page {
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: #f5f5f5;
+  overflow: hidden;
+}
+
+.group_tabs {
+  width: 714rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 10rpx 0 20rpx 18rpx;
+  padding: 5rpx 30rpx 20rpx 30rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 20rpx 18rpx;
+  padding: 30rpx 20rpx 30rpx 20rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+  z-index: 0;
+  /* 通过调整宽度让滚动条被遮挡 */
+  margin-right: -20rpx;
+  padding-right: 20rpx;
+  /* 彻底隐藏滚动条 - 多种方式确保兼容性 */
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE 和 Edge */
+}
+
+/* 隐藏 WebKit 浏览器的滚动条 - 更彻底的隐藏 */
+.scroll-list::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.scroll-list::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+.scroll-list::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
 }
 
 /* 顶部Tab栏 */
@@ -11,19 +74,20 @@
   display: flex;
   background-color: #fff;
   border-bottom: 1rpx solid #eee;
+  margin-bottom: 30rpx;
 }
 
 .tab-item {
   flex: 1;
   text-align: center;
   padding: 30rpx 0;
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #666;
   position: relative;
 }
 
 .tab-item.active {
-  color: #40B2E6;
+  color: #3759C7;
   font-weight: 600;
 }
 
@@ -34,22 +98,22 @@
   left: 50%;
   transform: translateX(-50%);
   width: 60rpx;
-  height: 6rpx;
-  background-color: #40B2E6;
-  border-radius: 3rpx;
+  height: 4rpx;
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
+  border-radius: 2rpx;
 }
 
 /* 类型筛选 */
 .type-scroll {
-  background-color: #fff;
-  border-bottom: 1rpx solid #eee;
+  background-color: transparent;
+  border-bottom: none;
   white-space: nowrap;
 }
 
 .type-tabs {
   display: flex;
-  padding: 20rpx 30rpx;
-  gap: 20rpx;
+  padding: 0;
+  gap: 16rpx;
 }
 
 .type-tab {
@@ -64,7 +128,7 @@
 
 .type-tab.active {
   color: #fff;
-  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
 }
 
 /* 列表区域 */
@@ -74,20 +138,21 @@
 }
 
 .list {
-  padding: 20rpx;
+  padding: 10rpx 0;
 }
 
 /* 统一卡片样式 */
 .follow-item-card {
-  background-color: #fff;
-  border-radius: 24rpx;
-  padding: 24rpx;
+  background-color: #F9F9F9;
+  border-radius: 16rpx;
+  padding: 30rpx;
   display: flex;
   align-items: flex-start;
   gap: 24rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   margin-bottom: 20rpx;
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .follow-item-card:active {
@@ -118,11 +183,13 @@
   font-size: 32rpx;
   font-weight: 600;
   color: #333;
+  line-height: 1.4;
+  margin-bottom: 8rpx;
 }
 
 /* 简介 */
 .item-description {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #666;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -151,14 +218,15 @@
 }
 
 .status-text {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #40B2E6;
   font-weight: 500;
   white-space: nowrap;
-  padding: 8rpx 16rpx;
+  padding: 10rpx 20rpx;
   background-color: rgba(64, 178, 230, 0.1);
   border-radius: 20rpx;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .status-text:active {
@@ -166,11 +234,11 @@
 }
 
 .status-text-readonly {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #999;
   font-weight: 500;
   white-space: nowrap;
-  padding: 8rpx 16rpx;
+  padding: 10rpx 20rpx;
   background-color: rgba(153, 153, 153, 0.1);
   border-radius: 20rpx;
 }

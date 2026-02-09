@@ -1,65 +1,110 @@
 /* pages/audit/merchant/apply/apply.wxss */
-.apply-page {
-  padding: 20rpx;
-  background-color: #f5f5f5;
-  min-height: 100vh;
-}
-
-.tabs-container {
+.page {
+  background-color: transparent;
+  width: 750rpx;
+  height: calc(100vh - 190.22rpx);
   display: flex;
-  background-color: #fff;
-  border-radius: 10rpx;
-  margin-bottom: 20rpx;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.tab-item {
+.group_7 {
+  width: 714rpx;
   flex: 1;
-  text-align: center;
-  padding: 24rpx 0;
-  font-size: 28rpx;
-  color: #666;
-  border-bottom: 4rpx solid transparent;
-  transition: all 0.3s;
+  max-height: 55vh;
+  min-height: 0;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  margin: 47rpx 0 20rpx 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.tab-item.active {
-  color: #1890ff;
-  border-bottom-color: #1890ff;
-  font-weight: bold;
+.list-header { margin-bottom: 16rpx; flex-shrink: 0; }
+.group_7 .text_20 {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: rgba(0,0,0,1);
+  line-height: 40rpx;
 }
+
+.filter-tabs-wrap {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+  flex-shrink: 0;
+}
+
+.filter-tab {
+  padding: 12rpx 28rpx;
+  border-radius: 14rpx;
+  font-size: 25rpx;
+  color: #666;
+  background-color: #f5f5f5;
+}
+
+.filter-tab.active {
+  background-color: rgba(24,144,255,0.12);
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.scroll-list { width: 100%; flex-shrink: 0; }
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.empty-block {
+  padding: 16rpx 0 60rpx;
+  text-align: center;
+}
+
+.empty-text { font-size: 28rpx; color: #999; }
 
 .apply-list {
-  padding-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding-bottom: 16rpx;
 }
 
 .apply-item {
-  background-color: #fff;
-  border-radius: 10rpx;
-  padding: 30rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  border: 1rpx solid #f0f0f0;
 }
 
 .apply-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20rpx;
-  padding-bottom: 20rpx;
-  border-bottom: 1rpx solid #eee;
+  margin-bottom: 16rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .apply-name {
-  font-size: 32rpx;
-  font-weight: bold;
+  font-size: 29rpx;
+  font-weight: 600;
   color: #333;
 }
 
 .apply-status {
   font-size: 24rpx;
   padding: 8rpx 16rpx;
-  border-radius: 20rpx;
+  border-radius: 14rpx;
 }
 
 .apply-status.pending {
@@ -80,36 +125,34 @@
 .apply-info {
   display: flex;
   margin-bottom: 12rpx;
-  font-size: 28rpx;
+  font-size: 25rpx;
 }
 
 .apply-label {
   color: #999;
-  width: 160rpx;
+  width: 140rpx;
+  flex-shrink: 0;
 }
 
-.apply-value {
-  color: #333;
-  flex: 1;
-}
+.apply-value { color: #333; flex: 1; }
 
 .apply-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20rpx;
-  padding-top: 20rpx;
-  border-top: 1rpx solid #eee;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
 }
 
 .action-btn {
-  padding: 16rpx 40rpx;
-  border-radius: 36rpx;
-  font-size: 28rpx;
-  margin-left: 20rpx;
+  padding: 12rpx 32rpx;
+  border-radius: 8rpx;
+  font-size: 25rpx;
 }
 
 .action-btn.reject {
-  background-color: #fff2f0;
+  background-color: rgba(255,77,79,0.12);
   color: #ff4d4f;
   border: 1rpx solid #ff4d4f;
 }
@@ -117,35 +160,14 @@
 .action-btn.approve {
   background-color: #1890ff;
   color: #fff;
-}
-
-.empty-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 100rpx 0;
-}
-
-.empty-text {
-  font-size: 28rpx;
-  color: #999;
-}
-
-.loading-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40rpx 0;
-}
-
-.loading-text {
-  font-size: 28rpx;
-  color: #999;
+  border: none;
 }
 
 .load-more {
-  text-align: center;
-  padding: 30rpx;
-  font-size: 28rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24rpx 0;
   color: #999;
+  font-size: 24rpx;
 }

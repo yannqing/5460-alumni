@@ -55,7 +55,7 @@ Page({
         // fieldCode 字段代码映射关系（按编辑资料页面字段顺序）
         const fieldCodeMap = {
           // 基本信息
-          'avatar': 'showAvatar',
+          'avatarUrl': 'showAvatar',
           'nickname': 'showNickname',
           'username': 'showName',  // 真实姓名对应 username
           'gender': 'showGender',
@@ -146,7 +146,7 @@ Page({
       // 前端字段到后端 fieldCode 的映射关系（按编辑资料页面字段顺序）
       const keyToFieldCodeMap = {
         // 基本信息
-        'showAvatar': 'avatar',
+        'showAvatar': 'avatarUrl',
         'showNickname': 'nickname',
         'showName': 'username',  // 真实姓名对应 username
         'showGender': 'gender',

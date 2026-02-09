@@ -178,7 +178,7 @@ Page({
         })
     },
 
-    // --- 地区(校处会)搜索处理 ---
+    // --- 地区(校促会)搜索处理 ---
 
     handlePlatformInput(e) {
         const value = e.detail.value
@@ -223,7 +223,7 @@ Page({
                 })
             }
         } catch (e) {
-            console.error('搜索校处会失败', e)
+            console.error('搜索校促会失败', e)
         }
     },
 

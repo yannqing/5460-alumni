@@ -18,10 +18,6 @@
     <!-- 装饰背景层 section_1 -->
     <view class="section_1">
       <view class="image-wrapper_6">
-        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng241651b3653932142a38eb96e9e7ca95f143d918c1810c0b393d0101f14fc69d" class="image_10"></image>
-        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng11bc7d99bbdfea86e20ee2953d750515935919663f81a03b3373d254944151a6" class="image_11"></image>
-        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPnge11d921b8db330afe3803a2311ec3f275c3ca84e05c0bcdb8b01f6c8e5a9098f" class="thumbnail_4"></image>
-        <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng74ba3f01da81516698481d9d137f48486e279f7f16e39dc505c8cdc9a236f6aa" class="thumbnail_5"></image>
       </view>
     </view>
 
@@ -132,7 +128,6 @@
         <text lines="1" class="text-group_4">券包({{couponStats.unused}})</text>
       </view>
     </view>
-    <image src="https://lanhu-oss-proxy.lanhuapp.com/SketchPng6459f3592ef9f4f71a48c0ab599f18326cd018950fa3e6b5e8b45e8d6db7df03" class="label_12"></image>
   </view>
 </view>
 

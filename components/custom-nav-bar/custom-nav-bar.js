@@ -18,6 +18,16 @@ Component({
     textColor: {
       type: String,
       value: '#000'
+    },
+    /** 是否使用管理入口样式（渐变背景 + 中间 Logo） */
+    useAuditStyle: {
+      type: Boolean,
+      value: false
+    },
+    /** 管理入口样式的标题文字 */
+    auditTitle: {
+      type: String,
+      value: '管理'
     }
   },
 
@@ -25,7 +35,9 @@ Component({
     statusBarHeight: 0,
     navBarHeight: 0,
     iconBack: '',
-    backgroundImage: ''
+    iconBackAudit: '',
+    backgroundImage: '',
+    centerLogo: ''
   },
 
   attached() {
@@ -36,14 +48,20 @@ Component({
     
     // 获取返回按钮图标
     const iconBack = config.getIconUrl('back@3x.png')
+    // 管理入口样式：返回按钮图标（images 文件夹下）
+    const iconBackAudit = config.getAssetImageUrl('back7@2x.png')
     
-    // 获取导航栏背景图片
+    // 管理入口样式：中间 Logo（images 文件夹下）
+    const centerLogo = config.getAssetImageUrl('dbdh@2x.png')
+    // 默认样式：背景图
     const backgroundImage = config.getIconUrl('tljb@3x.png')
     
     this.setData({
       statusBarHeight: statusBarHeight,
       navBarHeight: navBarHeight,
       iconBack: iconBack,
+      iconBackAudit: iconBackAudit,
+      centerLogo: centerLogo,
       backgroundImage: backgroundImage
     })
   },

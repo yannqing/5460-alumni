@@ -1,14 +1,66 @@
 /* pages/profile/privacy/privacy.wxss */
-.privacy-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 40rpx;
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 10rpx 20rpx 30rpx 20rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+  z-index: 0;
+  /* 通过调整宽度让滚动条被遮挡 */
+  margin-right: -20rpx;
+  padding-right: 20rpx;
+  /* 彻底隐藏滚动条 - 多种方式确保兼容性 */
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE 和 Edge */
+}
+
+/* 隐藏 WebKit 浏览器的滚动条 - 更彻底的隐藏 */
+.scroll-list::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.scroll-list::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+.scroll-list::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
 }
 
 /* 卡片样式 */
 .card {
-  background-color: #ffffff;
-  margin: 20rpx;
+  background-color: transparent;
+  margin: 0 0 20rpx 0;
   border-radius: 0;
   overflow: hidden;
 }
@@ -33,6 +85,11 @@
   padding: 32rpx 30rpx;
   border-bottom: 1rpx solid #f0f0f0;
   background-color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item:active {
+  background-color: #f9f9f9;
 }
 
 .menu-item:last-child {
@@ -64,6 +121,7 @@
   font-size: 28rpx;
   color: #333;
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .menu-desc {

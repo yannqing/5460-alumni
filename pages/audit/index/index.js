@@ -52,7 +52,7 @@ Page({
       //   url: '/pages/article/audit-list/audit-list'
       // }
     ],
-    // 校处会功能列表
+    // 校促会功能列表
   schoolOfficeFunctions: [
     {
       id: 1,
@@ -264,10 +264,19 @@ Page({
       //   icon: '📈',
       //   url: ''
       // }
-    ]
+    ],
+    // 中间 Logo 图片（images 文件夹下）
+    imageCenterLogo: config.getAssetImageUrl('dbdhl@2x.png'),
+    statusBarHeight: 20
   },
 
   onLoad(options) {
+    // 获取状态栏高度
+    const systemInfo = wx.getSystemInfoSync()
+    this.setData({
+      statusBarHeight: systemInfo.statusBarHeight || 20
+    })
+    
     // 页面加载
     this.checkPermissions()
   },
@@ -357,7 +366,7 @@ Page({
       return false
     })
     
-    // 过滤校处会管理功能（schoolOfficeFunctions）
+    // 过滤校促会管理功能（schoolOfficeFunctions）
     const filteredSchoolOfficeFunctions = this.data.schoolOfficeFunctions.filter(item => {
       // 超级管理员显示所有功能
       if (hasSuperAdmin) {
@@ -450,6 +459,10 @@ Page({
     if (url) {
       wx.navigateTo({ url })
     }
+  },
+
+  goBack() {
+    wx.navigateBack()
   }
 })
 

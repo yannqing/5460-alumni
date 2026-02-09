@@ -111,7 +111,8 @@ page::-webkit-scrollbar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10rpx;
+  justify-content: center;
+  position: relative;
 }
 
 .function-icon {
@@ -119,6 +120,7 @@ page::-webkit-scrollbar {
   height: 62rpx; /* 图标按钮高度 */
   /* background-color: #f0f0f0; 占位背景，有图后可移除 */
   border-radius: 20rpx;
+  margin-bottom: 10rpx;
 }
 
 .function-text {
@@ -129,8 +131,9 @@ page::-webkit-scrollbar {
   font-size: 25rpx;
   color: #000000;
   line-height: 36rpx;
-  text-align: right;
+  text-align: center;
   font-style: normal;
+  position: relative;
 }
 
 /* ================== 滚动内容区域 ================== */
@@ -191,6 +194,7 @@ page::-webkit-scrollbar {
   display: flex;
   flex-direction: column;
   padding-top: 30rpx; /* Banner 移出后，列表顶部添加间距 */
+  padding-bottom: 100rpx; /* 增加底部间距，确保最后一项完整显示 */
   /* 确保不产生滚动条 */
   overflow: hidden;
   scrollbar-width: none !important;
@@ -229,10 +233,10 @@ page::-webkit-scrollbar {
 
 /* 滑动激活样式 */
 .touch-move-active .chat-content {
-  transform: translateX(-280rpx); /* 左移露出按钮 */
+  transform: translateX(-420rpx); /* 左移露出按钮 */
 }
 .touch-move-active .action-buttons {
-  transform: translateX(-280rpx);
+  transform: translateX(-420rpx);
 }
 
 /* 头像区域 */
@@ -339,10 +343,10 @@ page::-webkit-scrollbar {
 /* 滑动操作按钮 */
 .action-buttons {
   position: absolute;
-  right: -280rpx; /* 初始在屏幕外 */
+  right: -420rpx; /* 初始在屏幕外 */
   top: 0;
   height: 100%;
-  width: 280rpx;
+  width: 420rpx;
   display: flex;
   z-index: 1;
   transition: transform 0.3s;
@@ -365,7 +369,7 @@ page::-webkit-scrollbar {
 }
 
 .action-btn.read {
-  background-color: #34C759;
+  background-color: #FF9500;
 }
 
 .action-btn.delete {

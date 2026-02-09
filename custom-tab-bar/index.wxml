@@ -1,11 +1,13 @@
 <view class="tab-bar">
   <view class="tab-bar-border"></view>
-  <view wx:for="{{list}}" wx:key="index" class="tab-bar-item" data-path="{{item.pagePath}}" data-index="{{index}}" bindtap="switchTab">
+  <view wx:for="{{list}}" wx:key="index" class="tab-bar-item {{index === 1 ? 'tab-bar-item-disabled' : ''}}" data-path="{{item.pagePath}}" data-index="{{index}}" bindtap="switchTab">
     <view class="tab-bar-icon-wrapper">
       <image class="tab-bar-icon {{index === 2 ? 'tab-bar-icon-5460' : ''}}" src="{{selected === index ? item.selectedIconPath : item.iconPath}}"></image>
       <!-- 第三个tab（5460消息）显示未读角标 -->
       <view wx:if="{{index === 2 && unreadCount > 0}}" class="tab-bar-badge">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+      <!-- 第二个tab（发现）显示"组建设中"标签 -->
+      <view wx:if="{{index === 1}}" class="tab-bar-construction-tag">建设中</view>
     </view>
-    <view class="tab-bar-text" wx:if="{{index !== 2}}" style="color: {{selected === index ? selectedColor : color}}">{{item.text}}</view>
+    <view class="tab-bar-text {{index === 0 && selected === index ? 'tab-bar-text-selected' : ''}}" wx:if="{{index !== 2}}">{{item.text}}</view>
   </view>
 </view>

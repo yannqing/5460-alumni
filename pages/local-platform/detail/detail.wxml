@@ -136,6 +136,6 @@
 
   <view wx:else class="empty-state">
     <view class="empty-placeholder">暂无数据</view>
-    <text>暂无校处会信息</text>
+    <text>暂无校促会信息</text>
   </view>
 </view>
