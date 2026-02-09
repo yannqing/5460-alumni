@@ -69,7 +69,15 @@ Page({
       console.log('[Debug] 加载审核列表结果:', res)
       
       if (res.data && res.data.code === 200 && res.data.data) {
-        const newList = refresh ? res.data.data.records : [...this.data.applicationList, ...res.data.data.records]
+        // 处理数据：格式化时间（去掉T）
+        const processedRecords = (res.data.data.records || []).map(item => {
+          if (item.applyTime) {
+            item.applyTime = item.applyTime.replace('T', ' ')
+          }
+          return item
+        })
+        
+        const newList = refresh ? processedRecords : [...this.data.applicationList, ...processedRecords]
         
         this.setData({
           applicationList: newList,

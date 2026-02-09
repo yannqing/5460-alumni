@@ -59,9 +59,9 @@
 .detail-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 16rpx;
   flex-shrink: 0;
+  position: relative;
 }
 
 .group_7 .text_20 {
@@ -72,6 +72,8 @@
 }
 
 .edit-button {
+  position: absolute;
+  right: 0;
   background-color: #1890ff;
   color: #fff;
   padding: 12rpx 24rpx;
