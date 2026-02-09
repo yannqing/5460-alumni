@@ -16,8 +16,8 @@
       <text class="text_20">校友会详情</text>
       <button class="edit-button" bindtap="goToEditPage">编辑</button>
     </view>
-    <view class="alumni-logo" wx:if="{{currentAlumniDetail && currentAlumniDetail.activityList && currentAlumniDetail.activityList[0] && currentAlumniDetail.activityList[0].organizerAvatar}}">
-      <image class="logo-image" src="{{currentAlumniDetail.activityList[0].organizerAvatar}}" mode="aspectFill"></image>
+    <view class="alumni-logo" wx:if="{{currentAlumniDetail && (currentAlumniDetail.logo || (currentAlumniDetail.activityList && currentAlumniDetail.activityList[0] && currentAlumniDetail.activityList[0].organizerAvatar))}}">
+      <image class="logo-image" src="{{currentAlumniDetail.logo || currentAlumniDetail.activityList[0].organizerAvatar}}" mode="aspectFill"></image>
     </view>
     <view class="alumni-detail">
       <view class="detail-item">
