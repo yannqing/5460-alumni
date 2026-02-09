@@ -254,11 +254,81 @@
               <view class="picker-value">{{form.educationList[eduIndex].educationLevel || '请选择学历层次'}}</view>
             </picker>
           </view>
+          
+          <view class="form-item">
+            <view class="label">经历类型</view>
+            <picker mode="selector" range="{{['次要经历', '主要经历']}}" value="{{form.educationList[eduIndex].type || 1}}" bindchange="handleEducationTypeChange" data-index="{{eduIndex}}">
+              <view class="picker-value">{{form.educationList[eduIndex].type === 1 ? '主要经历' : '次要经历'}}</view>
+            </picker>
+          </view>
 
         </view>
 
         <view class="add-education-btn" bindtap="addEducation">
           <text>+ 添加教育经历</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card card">
+      <view class="section-title">工作经历</view>
+      <view class="work-experience-list">
+        <view class="work-experience-item" wx:for="{{form.workExperienceList}}" wx:key="workIndex" wx:for-index="workIndex">
+          <view class="work-experience-header">
+            <text class="work-experience-title">工作经历 {{workIndex + 1}}</text>
+            <text class="delete-btn" bindtap="removeWorkExperience" data-index="{{workIndex}}">删除</text>
+          </view>
+          
+          <!-- 确定按钮（只在编辑该工作经历时显示） -->
+          <view class="work-experience-save-btn" wx:if="{{editingWorkIndex === workIndex}}" data-index="{{workIndex}}" catchtap="handleSaveWorkExperience">
+            <text class="work-experience-save-text">确定</text>
+          </view>
+          
+          <view class="form-item">
+            <view class="label">公司名称</view>
+            <input class="input" placeholder="请输入公司名称" value="{{form.workExperienceList[workIndex].companyName || ''}}" data-index="{{workIndex}}" data-field="companyName" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">职位/角色</view>
+            <input class="input" placeholder="请输入职位/角色" value="{{form.workExperienceList[workIndex].position || ''}}" data-index="{{workIndex}}" data-field="position" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">所属行业</view>
+            <input class="input" placeholder="请输入所属行业" value="{{form.workExperienceList[workIndex].industry || ''}}" data-index="{{workIndex}}" data-field="industry" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">入职日期</view>
+            <picker mode="date" value="{{form.workExperienceList[workIndex].startDate}}" bindchange="handleWorkDateChange" data-index="{{workIndex}}" data-field="startDate">
+              <view class="picker-value">{{form.workExperienceList[workIndex].startDate || '请选择入职日期'}}</view>
+            </picker>
+          </view>
+
+          <view class="form-item">
+            <view class="label">离职日期</view>
+            <picker mode="date" value="{{form.workExperienceList[workIndex].endDate}}" bindchange="handleWorkDateChange" data-index="{{workIndex}}" data-field="endDate" disabled="{{form.workExperienceList[workIndex].isCurrent === 1}}">
+              <view class="picker-value">{{form.workExperienceList[workIndex].endDate || '请选择离职日期'}}</view>
+            </picker>
+          </view>
+
+          <view class="form-item">
+            <view class="label">是否当前在职</view>
+            <picker mode="selector" range="{{['否', '是']}}" value="{{form.workExperienceList[workIndex].isCurrent || 0}}" bindchange="handleWorkCurrentChange" data-index="{{workIndex}}">
+              <view class="picker-value">{{form.workExperienceList[workIndex].isCurrent === 1 ? '是' : '否'}}</view>
+            </picker>
+          </view>
+
+          <view class="form-item">
+            <view class="label">工作内容/项目成就</view>
+            <textarea class="textarea" placeholder="请输入工作内容或项目成就" value="{{form.workExperienceList[workIndex].workDescription || ''}}" data-index="{{workIndex}}" data-field="workDescription" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" style="height: 100px;" />
+          </view>
+
+        </view>
+
+        <view class="add-work-experience-btn" bindtap="addWorkExperience">
+          <text>+ 添加工作经历</text>
         </view>
       </view>
     </view>

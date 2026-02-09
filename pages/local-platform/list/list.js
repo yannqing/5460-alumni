@@ -5,7 +5,7 @@ const config = require('../../../utils/config.js')
 Page({
     data: {
         // 图标路径
-        iconSearch: config.getIconUrl('sslss.png'),
+        iconSearch: '../../../assets/icons/magnifying glass.png',
         iconLocation: config.getIconUrl('position.png'),
         iconScope: config.getIconUrl('xx.png'),
         iconContact: config.getIconUrl('phone.png'),
@@ -15,8 +15,6 @@ Page({
             { label: '状态', options: ['全部状态', '活跃', '未激活'], selected: 0 },
             { label: '排序', options: ['默认排序', '最新创建'], selected: 0 }
         ],
-        showFilterOptions: false,
-        activeFilterIndex: -1,
         platformList: [],
         current: 1,
         pageSize: 10,
@@ -28,15 +26,7 @@ Page({
         this.loadPlatformList(true)
     },
 
-    onPullDownRefresh() {
-        this.loadPlatformList(true)
-    },
-
-    onReachBottom() {
-        if (this.data.hasMore && !this.data.loading) {
-            this.loadPlatformList(false)
-        }
-    },
+    
 
     async loadPlatformList(reset = false) {
         if (this.data.loading) return
@@ -95,22 +85,15 @@ Page({
                 this.setData({
                     platformList: finalList,
                     current: reset ? 2 : current + 1,
-                    hasMore: data.hasNext || false,
+                    hasMore: false,
                     loading: false
                 })
-
-                if (reset) {
-                    wx.stopPullDownRefresh()
-                }
             } else {
                 this.setData({ loading: false })
                 wx.showToast({
                     title: res.data?.msg || '加载失败',
                     icon: 'none'
                 })
-                if (reset) {
-                    wx.stopPullDownRefresh()
-                }
             }
         } catch (error) {
             console.error('加载校处会列表失败:', error)
@@ -119,9 +102,6 @@ Page({
                 title: '加载失败，请重试',
                 icon: 'none'
             })
-            if (reset) {
-                wx.stopPullDownRefresh()
-            }
         }
     },
 
@@ -176,30 +156,28 @@ Page({
         this.loadPlatformList(true)
     },
 
-    openFilterOptions(e) {
-        const { index } = e.currentTarget.dataset
-        if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-            this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-            return
-        }
-        this.setData({ activeFilterIndex: index, showFilterOptions: true })
-    },
-
-    selectFilterOption(e) {
-        const { optionIndex } = e.currentTarget.dataset
-        const { activeFilterIndex, filters } = this.data
-        if (activeFilterIndex === -1) return
-        filters[activeFilterIndex].selected = optionIndex
-        this.setData({
-            filters,
-            showFilterOptions: false,
-            activeFilterIndex: -1
-        })
+    // 城市筛选
+    onCityChange(e) {
+        const filters = this.data.filters
+        filters[0].selected = e.detail.value
+        this.setData({ filters })
         this.loadPlatformList(true)
     },
 
-    closeFilterOptions() {
-        this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
+    // 状态筛选
+    onStatusChange(e) {
+        const filters = this.data.filters
+        filters[1].selected = e.detail.value
+        this.setData({ filters })
+        this.loadPlatformList(true)
+    },
+
+    // 排序筛选
+    onSortChange(e) {
+        const filters = this.data.filters
+        filters[2].selected = e.detail.value
+        this.setData({ filters })
+        this.loadPlatformList(true)
     },
 
     viewDetail(e) {
