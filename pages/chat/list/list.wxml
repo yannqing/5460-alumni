@@ -19,9 +19,10 @@
         <image class="function-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
         <text class="function-text">我的校友会</text>
       </view>
-      <view class="function-item" bindtap="navigateToMyFavorites">
+      <view class="function-item">
         <image class="function-icon" src="{{iconFav}}" mode="aspectFit"></image>
         <text class="function-text">我的收藏</text>
+        <view class="construction-tag">建设中</view>
       </view>
       <view class="function-item" bindtap="navigateToMyFollows">
         <image class="function-icon" src="{{iconFollow}}" mode="aspectFit"></image>

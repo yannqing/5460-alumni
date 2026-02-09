@@ -1,6 +1,8 @@
 /* pages/search/search.wxss */
 .container {
   position: relative;
+  min-height: 100vh;
+  background-color: #F7F7FE;
 }
 
 .search-bar {
@@ -10,6 +12,7 @@
   display: flex;
   align-items: center;
   gap: 20rpx;
+  margin-top: 20rpx;
 }
 
 /* 返回按钮 */
