@@ -1,5 +1,6 @@
 const { schoolApi, localPlatformApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
+const config = require('../../../utils/config.js')
 
 // 防抖函数
 function debounce(fn, delay) {
@@ -52,7 +53,8 @@ Page({
         bgImages: [],
 
         loading: false,
-        submitting: false
+        submitting: false,
+        defaultAvatar: config.defaultAvatar
     },
 
     onLoad(options) {
