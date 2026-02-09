@@ -223,7 +223,8 @@ Page({
           const signature = item.signature || '暂无公司信息'
 
           return {
-            id: item.userId || item.id,
+            id: item.wxId,
+            wxId: item.wxId,
             avatar: avatarUrl,
             nickname: item.nickname || '',
             name: item.name || item.realName || '未知用户',
@@ -1119,12 +1120,12 @@ Page({
   },
 
   // 查看活动详情
-  // viewActivityDetail(e) {
-  //   const { id } = e.currentTarget.dataset
-  //   wx.navigateTo({
-  //     url: `/pages/activity/detail/detail?id=${id}`
-  //   })
-  // },
+  viewActivityDetail(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/activity/detail-new/detail-new?id=${id}`
+    })
+  },
 
   // 查看权益详情
   viewBenefitDetail(e) {
@@ -1177,18 +1178,18 @@ Page({
   },
 
   // 查看校友企业详情
-  // viewEnterpriseDetail(e) {
-  //   const { id } = e.currentTarget.dataset
-  //   if (id === 'all') {
-  //     wx.navigateTo({
-  //       url: `/pages/enterprise/list/list?associationId=${this.data.associationId}`
-  //     })
-  //   } else {
-  //     wx.navigateTo({
-  //       url: `/pages/enterprise/detail/detail?id=${id}`
-  //     })
-  //   }
-  // },
+  viewEnterpriseDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (id === 'all') {
+      wx.navigateTo({
+        url: `/pages/enterprise/list/list?associationId=${this.data.associationId}`
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/enterprise/detail/detail?id=${id}`
+      })
+    }
+  },
 
   // 查看校友商铺详情
   viewShopDetail(e) {
