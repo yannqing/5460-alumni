@@ -26,10 +26,26 @@ Page({
     selectedOrganizeId: 0, // 存储选中的organizeId
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限
     hasAlumniAdminPermission: false, // 是否有校友会管理员身份
+    scrollListHeight: 400, // 下方卡片内 scroll-view 高度(px)，onLoad 中按屏幕计算
   },
 
   onLoad() {
+    this.setScrollListHeight()
     this.initPage()
+  },
+
+  // 计算下方卡片内列表可滚动区域高度（scroll-view 必须明确高度才能滚动）
+  setScrollListHeight() {
+    try {
+      const res = wx.getSystemInfoSync()
+      const navRpx = 190.22
+      const navPx = (res.windowWidth * navRpx) / 750
+      const contentH = res.windowHeight - navPx
+      const scrollH = Math.floor(contentH * 0.5)
+      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 })
+    } catch (e) {
+      this.setData({ scrollListHeight: 400 })
+    }
   },
 
   // 初始化页面数据

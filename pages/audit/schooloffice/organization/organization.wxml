@@ -1,35 +1,26 @@
 <!--pages/audit/schooloffice/organization/organization.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="校处会组织架构" showBack="{{true}}"></custom-nav-bar>
-
-<view class="container">
-  <view class="form-card" wx:if="{{!hasSingleSchoolOffice}}">
-    <view class="form-title">校处会组织</view>
-
-    <!-- 选择校处会 -->
-    <view class="form-item">
-      <text class="label">选择校处会</text>
-      <view class="school-office-selector" bindtap="showSchoolOfficeSelector">
-        <text class="selector-label">{{selectedSchoolOfficeName || '请选择校处会'}}</text>
-        <text class="selector-arrow">▼</text>
-      </view>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="架构管理">
+<view class="page">
+  <!-- 校促会选择卡片（与校友会审核页一致，固定不滚动） -->
+  <view class="group_5" wx:if="{{!hasSingleSchoolOffice}}">
+    <text class="text_14">校促会组织</text>
+    <text class="label_text">选择校促会</text>
+    <view class="text-wrapper_8" bindtap="{{hasSingleSchoolOffice ? '' : 'showSchoolOfficeSelector'}}">
+      <text class="text_15">{{selectedSchoolOfficeName || '请选择校促会'}}</text>
     </view>
   </view>
 
-  <!-- 角色列表 -->
-  <view class="form-card" style="margin-top: 20rpx;">
-    <view class="form-title-row">
-      <text class="form-title">校处会角色列表</text>
-      <view class="add-role-btn" bindtap="openAddModal">+ 新增角色</view>
+  <!-- 角色列表卡片（与校友会审核页 group_7 一致：固定标题，仅内部 scroll-list 滚动，样式按设计稿 group_15/group_19） -->
+  <view class="group_7">
+    <view class="group_19">
+      <text class="text_25">校促会角色列表</text>
+      <view class="text-wrapper_13" bindtap="openAddModal">+新增角色</view>
     </view>
-    
-    <!-- 加载中 -->
-    <view wx:if="{{roleLoading}}" class="loading-state">
-      <text>加载角色中...</text>
-    </view>
-    
-    <!-- 角色列表（树形结构，支持展开/收缩） -->
-    <view class="role-list" wx:else>
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
+      <view wx:if="{{roleLoading}}" class="loading-state">
+        <text>加载角色中...</text>
+      </view>
+      <view class="role-list" wx:else>
       <!-- 一级角色 -->
       <block wx:for="{{roleList}}" wx:key="roleOrId">
         <view class="role-item level-1" bindlongpress="onRoleLongPress" data-role="{{item}}">
@@ -92,17 +83,18 @@
 
       <!-- 空状态 -->
       <view class="empty-state" wx:if="{{roleList.length === 0}}">
-        <text>{{selectedSchoolOfficeId ? '暂无角色数据' : '请先选择校处会'}}</text>
+        <text>{{selectedSchoolOfficeId ? '暂无角色数据' : '请先选择校促会'}}</text>
       </view>
-    </view>
+      </view>
+    </scroll-view>
   </view>
 
-  <!-- 校处会选择器弹窗 -->
+  <!-- 校促会选择器弹窗 -->
   <view class="school-office-picker" wx:if="{{showSchoolOfficePicker}}">
     <view class="picker-overlay" bindtap="cancelSchoolOfficeSelect"></view>
     <view class="picker-content">
       <view class="picker-header">
-        <text class="picker-title">选择校处会</text>
+        <text class="picker-title">选择校促会</text>
         <text class="picker-cancel" bindtap="cancelSchoolOfficeSelect">取消</text>
       </view>
       <view class="picker-list">
@@ -118,7 +110,7 @@
           <text class="item-check" wx:if="{{selectedSchoolOfficeId == item.schoolOfficeId}}">✓</text>
         </view>
         <view class="picker-empty" wx:if="{{schoolOfficeList.length === 0}}">
-          <text>暂无校处会数据</text>
+          <text>暂无校促会数据</text>
         </view>
       </view>
     </view>
@@ -209,7 +201,7 @@
       <view class="move-modal-tip">
         <text>长按角色可快速调整层级关系</text>
       </view>
-      <scroll-view class="move-modal-body" scroll-y>
+      <scroll-view class="move-modal-body" scroll-y show-scrollbar="{{false}}">
         <view
           class="parent-item {{item.isRoot ? 'root-item' : ''}} {{(movingRole.pid === null && item.roleOrId === '0') || (String(movingRole.pid) === String(item.roleOrId)) ? 'current-parent' : ''}}"
           wx:for="{{availableParents}}"
@@ -297,3 +289,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

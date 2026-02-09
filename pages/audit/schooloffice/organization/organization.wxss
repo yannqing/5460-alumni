@@ -1,25 +1,13 @@
 /* pages/audit/schooloffice/organization/organization.wxss */
-/* 基础样式 */
-.container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 30rpx;
-  box-sizing: border-box;
-}
-
-/* 表单卡片 */
-.form-card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.form-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  margin-bottom: 30rpx;
-  color: #333;
+/* 与校友会审核页 list 一致：.page 布局，固定 group_5，仅 group_7 内 scroll-list 滚动 */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .form-item {
@@ -33,42 +21,102 @@
   display: block;
 }
 
-/* 校处会选择器 */
-.school-office-selector {
-  border: 1rpx solid #eee;
-  padding: 20rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  height: 80rpx;
-  box-sizing: border-box;
+/* 校促会选择卡片（与 list 一致：固定不滚动） */
+.page .group_5 {
+  width: 714rpx;
+  min-height: auto;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
+}
+
+.group_5 {
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
   display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_5 .text_14 {
+  width: auto;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+}
+
+.group_5 .label_text {
+  width: auto;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.6);
+  font-size: 25rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 16rpx;
+  display: block;
+}
+
+.group_5 .text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
-  cursor: pointer;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  position: relative;
 }
 
-.selector-label {
-  color: #333;
+.group_5 .text_15 {
   flex: 1;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.85);
+  font-size: 28rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.selector-arrow {
+.group_5 .text-wrapper_8::after {
+  content: '▼';
   color: #999;
   font-size: 20rpx;
+  margin-left: 10rpx;
 }
 
-/* 校处会选择器弹窗 */
+/* 校促会选择器弹窗（与校友会审核页一致） */
 .school-office-picker {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 10000;
 }
 
-.picker-overlay {
+.school-office-picker .picker-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -77,7 +125,7 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.picker-content {
+.school-office-picker .picker-content {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -88,7 +136,7 @@
   overflow: hidden;
 }
 
-.picker-header {
+.school-office-picker .picker-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -96,53 +144,132 @@
   border-bottom: 1rpx solid #f0f0f0;
 }
 
-.picker-title {
+.school-office-picker .picker-title {
   font-size: 32rpx;
   font-weight: 600;
   color: #333;
 }
 
-.picker-cancel {
+.school-office-picker .picker-cancel {
   font-size: 28rpx;
   color: #999;
-  cursor: pointer;
 }
 
-.picker-list {
-  max-height: 50vh;
+.school-office-picker .picker-list {
+  max-height: calc(50vh + 40px);
   overflow-y: auto;
   padding: 0 30rpx;
 }
 
-.picker-item {
+.school-office-picker .picker-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 30rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
-  cursor: pointer;
 }
 
-.item-name {
+.school-office-picker .item-name {
   font-size: 28rpx;
   color: #333;
 }
 
-.item-check {
+.school-office-picker .item-check {
   font-size: 32rpx;
   color: #52c41a;
   font-weight: 600;
 }
 
-.picker-empty {
+.school-office-picker .picker-empty {
   padding: 60rpx 0;
   text-align: center;
   color: #999;
   font-size: 28rpx;
 }
-/* 角色列表 */
-.role-list {
+
+/* 角色列表卡片（与 list 的 group_7 一致，样式按设计稿 group_15/group_19） */
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 25rpx 20rpx 25rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  height: auto;
+}
+
+/* 设计稿 group_19：标题行；标题与列表左对齐（与内容区左缘一致），按钮右缘与列表编辑/删除右缘对齐 */
+.group_19 {
+  position: relative;
+  width: 100%;
+  height: 58rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: -10rpx 0 0 15rpx;
+  padding: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* 设计稿 text_25：校促会角色列表 */
+.group_19 .text_25 {
+  width: 205rpx;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+  margin-top: 9rpx;
+  flex-shrink: 0;
+}
+
+/* +新增角色按钮：右边缘与列表第一级框内编辑/删除右边缘对齐（role-item 有 padding 24rpx，故 right: 24rpx） */
+.group_19 .text-wrapper_13 {
+  position: absolute;
+  right: 24rpx;
+  top: 0;
+  background-color: rgba(24,144,255,1);
+  border-radius: 7rpx;
+  height: 58rpx;
+  min-width: 167rpx;
+  width: 167rpx;
+  padding: 0 24rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  color: rgba(255,255,255,1);
+  line-height: 36rpx;
+  flex-shrink: 0;
+}
+
+/* 角色列表内容：与标题保持统一垂直间距，与图中一致 */
+.group_7 .role-list {
   margin-top: 20rpx;
+  padding-bottom: 40rpx;
 }
 
 .role-item {

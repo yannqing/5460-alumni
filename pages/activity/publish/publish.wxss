@@ -1,29 +1,71 @@
 /* pages/activity/publish/publish.wxss */
-.publish-page {
-  padding: 20rpx;
-  background: #f7f8fa;
-  min-height: 100vh;
+/* 与审核页一致：公共导航栏 + 底层白框，仅内容区滚动 */
+/* 与 custom-nav-bar 的 audit-content-wrapper 一致：该区域高度为 calc(100vh - 190.22rpx)，page 需明确高度以便内部 scroll-view 能计算 */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: calc(100vh - 190.22rpx);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* form 参与 flex，内部用包裹层 + 明确高度，保证 scroll-view 能拿到高度（小程序 scroll-y 必须要有明确高度） */
+.page form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.form-scroll-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 高度 = 视口 - 顶部导航区 - 底部固定按钮区，避免滚动区伸入固定栏导致白块遮挡表单 */
+.scroll-content {
+  width: 100%;
+  height: calc(100vh - 330rpx);
+}
+
+/* 底层白框（与城市审核页 group_7 一致） */
+.group_7 {
+  width: 714rpx;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 25rpx 160rpx 25rpx;
+  background-color: #fff;
+  border-radius: 28.99rpx;
   box-sizing: border-box;
-  padding-bottom: 120rpx;
+  position: relative;
+  z-index: 1;
 }
 
 .form-card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-  margin-bottom: 20rpx;
+  background-color: transparent;
+  padding: 0;
+  margin-bottom: 32rpx;
+}
+
+.form-card:last-of-type {
+  margin-bottom: 0;
 }
 
 .form-title {
   font-size: 32rpx;
   font-weight: 600;
-  margin-bottom: 30rpx;
+  margin-bottom: 24rpx;
   color: #333;
 }
 
 .form-item {
-  margin-bottom: 30rpx;
+  margin-bottom: 28rpx;
 }
 
 .form-item:last-child {
@@ -33,7 +75,7 @@
 .label {
   font-size: 28rpx;
   color: #666;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
   display: block;
 }
 
@@ -41,31 +83,59 @@
   color: #ff4d4f;
 }
 
-.input {
-  border: 1rpx solid #eee;
-  padding: 20rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
+/* 输入框重构：统一高度与占位样式，避免键盘顶起异常 */
+.field-input-wrapper {
   width: 100%;
+  min-height: 80rpx;
   box-sizing: border-box;
 }
 
-.textarea {
+.field-textarea-wrapper {
+  width: 100%;
+  min-height: 160rpx;
+  box-sizing: border-box;
+}
+
+.input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 20rpx;
   border: 1rpx solid #eee;
-  padding: 20rpx;
   border-radius: 8rpx;
   font-size: 28rpx;
-  width: 100%;
+  line-height: 80rpx;
+  background-color: #fff;
   box-sizing: border-box;
+  color: #333;
+}
+
+.input-placeholder {
+  color: #999;
+  font-size: 28rpx;
+}
+
+.textarea {
+  width: 100%;
   min-height: 160rpx;
+  padding: 20rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  background-color: #fff;
+  box-sizing: border-box;
+  color: #333;
 }
 
 .picker-value {
   border: 1rpx solid #eee;
-  padding: 20rpx;
+  padding: 0 20rpx;
+  height: 80rpx;
+  line-height: 80rpx;
   border-radius: 8rpx;
   font-size: 28rpx;
   color: #333;
+  box-sizing: border-box;
 }
 
 .form-picker-view {
@@ -90,14 +160,13 @@
   margin-top: 8rpx;
   text-align: center;
 }
-/* 上传容器样式 */
+
 .upload-container {
   display: flex;
   flex-direction: column;
   gap: 12rpx;
 }
 
-/* 封面图预览样式 */
 .cover-preview {
   display: flex;
   align-items: center;
@@ -120,54 +189,23 @@
 }
 
 .change-cover-btn {
-  background-color: #ff4d4f;
+  background-color: #1890ff;
   color: #fff;
   font-size: 24rpx;
   padding: 12rpx 24rpx;
   border-radius: 8rpx;
   border: none;
-  transition: all 0.3s ease;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-  z-index: 10;
-  cursor: pointer;
-}
-
-.change-cover-btn:hover {
-  background-color: #ff7875;
-}
-
-.change-cover-btn:active {
-  transform: scale(0.98);
-  background-color: #cf1322;
 }
 
 .delete-cover-btn {
-  background-color: #ff4d4f;
+  background-color: #1890ff;
   color: #fff;
   font-size: 24rpx;
   padding: 12rpx 24rpx;
   border-radius: 8rpx;
   border: none;
-  transition: all 0.3s ease;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-  z-index: 10;
-  cursor: pointer;
 }
 
-.delete-cover-btn:hover {
-  background-color: #ff7875;
-}
-
-.delete-cover-btn:active {
-  transform: scale(0.98);
-  background-color: #cf1322;
-}
-
-/* 上传按钮样式 */
 .upload-btn {
   display: flex;
   flex-direction: column;
@@ -178,50 +216,25 @@
   border: 2rpx dashed #d0d0d0;
   border-radius: 12rpx;
   background-color: #fafafa;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.upload-btn:hover {
-  border-color: #ff4d4f;
-  background-color: #fff5f5;
-  transform: scale(1.02);
-}
-
-.upload-btn:active {
-  transform: scale(0.98);
 }
 
 .upload-icon {
   font-size: 52rpx;
   color: #888;
   margin-bottom: 10rpx;
-  transition: all 0.3s ease;
-}
-
-.upload-btn:hover .upload-icon {
-  color: #ff4d4f;
-  transform: scale(1.1);
 }
 
 .upload-text {
   font-size: 22rpx;
   color: #666;
-  transition: all 0.3s ease;
 }
 
-.upload-btn:hover .upload-text {
-  color: #ff4d4f;
-}
-
-/* 图片列表样式 */
 .image-list {
   display: flex;
   flex-wrap: wrap;
   gap: 20rpx;
 }
 
-/* 图片项样式 */
 .image-item {
   position: relative;
   width: 168rpx;
@@ -230,11 +243,6 @@
   overflow: hidden;
   border: 1rpx solid #e5e5e5;
   background-color: #fafafa;
-  transition: all 0.3s ease;
-}
-
-.image-item:active {
-  transform: scale(0.98);
 }
 
 .list-image {
@@ -243,24 +251,17 @@
   object-fit: cover;
 }
 
-/* 图片删除按钮 */
 .image-delete-btn {
   position: absolute;
   top: 0;
   right: 0;
   width: 50rpx;
   height: 50rpx;
-  background-color: rgba(255, 69, 69, 0.9);
+  background-color: rgba(24, 144, 255, 0.9);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.image-delete-btn:active {
-  transform: scale(0.9);
-  background-color: rgba(255, 69, 69, 1);
 }
 
 .delete-icon {
@@ -270,11 +271,14 @@
   line-height: 1;
 }
 
-/* 图片数量提示 */
 .image-count {
   font-size: 24rpx;
   color: #999;
   align-self: flex-start;
+}
+
+.submit-placeholder {
+  height: 160rpx;
 }
 
 .submit-area {
@@ -282,13 +286,19 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20rpx;
+  padding: 20rpx 18rpx 20rpx 18rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   background: #fff;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
 .submit-btn {
-  background: #ff4d4f;
+  width: 100%;
+  max-width: 714rpx;
+  margin: 0 auto;
+  display: block;
+  background: #1890ff;
   color: #fff;
   border: none;
   border-radius: 8rpx;
@@ -301,35 +311,33 @@
   opacity: 0.7;
 }
 
-/* 位置选择器样式 */
 .location-selector {
   display: flex;
   align-items: center;
   gap: 20rpx;
 }
 
+.location-input-wrap {
+  flex: 1;
+  min-height: 80rpx;
+}
+
 .location-input {
   flex: 1;
   background-color: #fafafa;
+  color: #333;
+}
+
+.location-input[disabled] {
   color: #999;
 }
 
 .select-location-btn {
-  background-color: #ff4d4f;
+  background-color: #1890ff;
   color: #fff;
   font-size: 24rpx;
   font-weight: 500;
   border: none;
   border-radius: 8rpx;
   padding: 16rpx 24rpx;
-  transition: all 0.3s ease;
-}
-
-.select-location-btn:hover {
-  background-color: #ff7875;
-}
-
-.select-location-btn:active {
-  background-color: #cf1322;
-  transform: scale(0.98);
 }

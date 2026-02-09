@@ -342,7 +342,7 @@ function hasManagementPermission() {
   // 允许的角色代码列表
   const allowedRoleCodes = [
     'SYSTEM_SUPER_ADMIN',          // 系统管理员
-    'ORGANIZE_LOCAL_ADMIN',        // 校处会管理员
+    'ORGANIZE_LOCAL_ADMIN',        // 校促会管理员
     'ORGANIZE_ALUMNI_ADMIN',       // 校友会管理员
     'ORGANIZE_MERCHANT_ADMIN',     // 商户管理员
     'ORGANIZE_SHOP_ADMIN'          // 门店管理员

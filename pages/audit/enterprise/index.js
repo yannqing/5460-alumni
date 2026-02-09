@@ -27,14 +27,26 @@ Page({
     selectedAlumniAssociationName: '',
     showAlumniAssociationPicker: false,
     hasSingleAlumniAssociation: false,
-    hasAlumniAdminPermission: false
+    hasAlumniAdminPermission: false,
+    scrollListHeight: 400
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
+    this.setScrollListHeight();
     this.initPage();
+  },
+
+  setScrollListHeight() {
+    try {
+      const res = wx.getSystemInfoSync();
+      const navRpx = 190.22;
+      const navPx = (res.windowWidth * navRpx) / 750;
+      const contentH = res.windowHeight - navPx;
+      const scrollH = Math.floor(contentH * 0.5);
+      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 });
+    } catch (e) {
+      this.setData({ scrollListHeight: 400 });
+    }
   },
 
   /**

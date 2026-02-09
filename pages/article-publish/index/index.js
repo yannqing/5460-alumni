@@ -23,7 +23,7 @@ Page({
     coverImage: '',
     coverImgId: '', // 封面图文件ID，用于发布文章时传给后端
     articleType: 3, // 默认第三方链接类型，固定值：3-第三方链接
-    publishType: 'ALUMNI', // 默认校友发布类型，可选：ALUMNI-校友，ASSOCIATION-校友会，LOCAL_PLATFORM-校处会
+    publishType: 'ALUMNI', // 默认校友发布类型，可选：ALUMNI-校友，ASSOCIATION-校友会，LOCAL_PLATFORM-校促会
     articleTypes: [
       { value: 1, label: '公众号' },
       { value: 2, label: '内部路径' },
@@ -32,7 +32,7 @@ Page({
     publishTypes: [
       { value: 'ALUMNI', label: '校友' },
       { value: 'ASSOCIATION', label: '校友会' },
-      { value: 'LOCAL_PLATFORM', label: '校处会' }
+      { value: 'LOCAL_PLATFORM', label: '校促会' }
     ],
     // 发布者选择相关数据
     selectedPublisherId: '',
@@ -267,7 +267,7 @@ Page({
           this.setData({ publisherList })
         }
       } else if (publishType === 'LOCAL_PLATFORM') {
-        // 搜索校处会
+        // 搜索校促会
         res = await localPlatformApi.getLocalPlatformPage({
           current: 1,
           pageSize: 10,
@@ -275,7 +275,7 @@ Page({
         })
         
         if (res.data && res.data.code === 200) {
-          // 处理校处会搜索结果
+          // 处理校促会搜索结果
           const platformList = res.data.data.records || []
           const publisherList = platformList.map(platform => ({
             id: platform.id || platform.platformId || '',

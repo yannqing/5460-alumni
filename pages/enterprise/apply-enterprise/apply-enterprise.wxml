@@ -1,7 +1,10 @@
 <!--pages/enterprise/apply-enterprise/apply-enterprise.wxml-->
-<view class="container">
-  <view class="form-container">
-    <form bindsubmit="submitForm">
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="申请企业">
+<view class="page">
+  <view class="group_7">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" enhanced>
+      <form bindsubmit="submitForm">
       <!-- 企业名称 -->
       <view class="form-item">
         <text class="form-label required">企业名称</text>
@@ -143,10 +146,12 @@
         </picker>
       </view>
       
-      <!-- 提交按钮 -->
-      <view class="form-submit">
-        <button form-type="submit" class="submit-button">提交申请</button>
-      </view>
-    </form>
+        <!-- 提交按钮 -->
+        <view class="form-submit">
+          <button form-type="submit" class="submit-button">提交申请</button>
+        </view>
+      </form>
+    </scroll-view>
   </view>
 </view>
+</custom-nav-bar>
