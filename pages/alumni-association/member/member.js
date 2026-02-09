@@ -66,9 +66,9 @@ Page({
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
 
-      // 查找所有校友会管理员角色（根据roleName或remark）
+      // 查找所有校友会管理员角色（根据roleCode）
       const alumniAdminRoles = roles.filter(role => 
-        role.roleName === '校友会管理员' || role.remark === '校友会管理员'
+        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
       )
       console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
 
