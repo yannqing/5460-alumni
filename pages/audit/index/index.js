@@ -131,7 +131,7 @@ Page({
       },
       {
         id: 3,
-        name: '商户管理',
+        name: '商户审核',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/apply/apply'
@@ -394,7 +394,7 @@ Page({
         return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
       } else if (item.name === '成员管理') {
         return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT')
-      } else if (item.name === '商户管理') {
+      } else if (item.name === '商户审核') {
         return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT')
       } else if (item.name === '店铺审核') {
         return this.hasPermission('ALUMNI_ASSOCIATION_SHOP_REVIEW')
