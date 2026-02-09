@@ -214,7 +214,7 @@ Page({
   getOrganizerTypeText(organizerType) {
     const typeMap = {
       1: '校友会',
-      2: '校处会',
+      2: '校促会',
       3: '商铺',
       4: '母校',
       5: '门店'

@@ -1,81 +1,61 @@
 <!--pages/info-maintenance/index/index.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="信息维护" showBack="{{true}}"></custom-nav-bar>
-
-<view class="info-maintenance-page">
-  <!-- 选择校友会 -->
-  <view class="info-section" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
-    <view class="info-section-title">选择校友会</view>
-    <view class="info-form-item">
-      <view class="alumni-association-selector" bindtap="showAlumniAssociationSelector">
-        <text class="selector-label">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
-        <text class="selector-arrow">▼</text>
-      </view>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="信息维护">
+<view class="page">
+  <!-- 选择校友会卡片（与校友会审核页 group_5 一致） -->
+  <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <text class="text_14">信息维护</text>
+    <text class="label_text">选择校友会</text>
+    <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
+      <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
     </view>
   </view>
 
-  <!-- 校友会详情区域 -->
-  <view class="info-section" wx:if="{{selectedAlumniAssociationId}}" style="margin-top: 20rpx;">
-    <view style="display: flex; justify-content: space-between; align-items: center;">
-      <view class="info-section-title">校友会详情</view>
+  <!-- 校友会详情卡片（与校友会审核页 group_7 一致） -->
+  <view class="group_7" wx:if="{{selectedAlumniAssociationId}}">
+    <view class="detail-header">
+      <text class="text_20">校友会详情</text>
       <button class="edit-button" bindtap="goToEditPage">编辑</button>
     </view>
-    <!-- 校友会logo -->
     <view class="alumni-logo" wx:if="{{currentAlumniDetail && currentAlumniDetail.activityList && currentAlumniDetail.activityList[0] && currentAlumniDetail.activityList[0].organizerAvatar}}">
       <image class="logo-image" src="{{currentAlumniDetail.activityList[0].organizerAvatar}}" mode="aspectFill"></image>
     </view>
     <view class="alumni-detail">
-      <!-- 校友会名称 -->
       <view class="detail-item">
         <text class="detail-label">校友会名称</text>
         <text class="detail-value">{{currentAlumniDetail ? currentAlumniDetail.associationName : '加载中...'}}</text>
       </view>
-      
-      <!-- 联系信息 -->
       <view class="detail-item">
         <text class="detail-label">联系信息</text>
         <text class="detail-value">{{currentAlumniDetail ? (currentAlumniDetail.contactInfo || '无') : '无'}}</text>
       </view>
-      
-      <!-- 常驻地点 -->
       <view class="detail-item">
         <text class="detail-label">常驻地点</text>
         <text class="detail-value">{{currentAlumniDetail ? (currentAlumniDetail.location || '无') : '无'}}</text>
       </view>
-      
-      <!-- 会员数量 -->
       <view class="detail-item">
         <text class="detail-label">会员数量</text>
         <text class="detail-value">{{currentAlumniDetail ? (currentAlumniDetail.memberCount || 0) : 0}}</text>
       </view>
-      
-      <!-- 学校信息 -->
       <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.schoolInfo}}">
         <text class="detail-label">学校信息</text>
         <text class="detail-value">{{currentAlumniDetail.schoolInfo.schoolName || '无'}}</text>
       </view>
-      
-      <!-- 校处会信息 -->
       <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.platform}}">
-        <text class="detail-label">校处会信息</text>
+        <text class="detail-label">校促会信息</text>
         <text class="detail-value">{{currentAlumniDetail.platform.platformName || '无'}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 无数据提示 -->
-  <view class="empty-state" wx:if="{{!selectedAlumniAssociationId && hasAlumniAdminPermission && alumniAssociationList.length === 0}}">
-    <text>暂无校友会数据</text>
+  <!-- 无数据/未选择/无权限提示 -->
+  <view class="empty-block" wx:if="{{!selectedAlumniAssociationId && hasAlumniAdminPermission && alumniAssociationList.length === 0}}">
+    <text class="empty-text">暂无校友会数据</text>
   </view>
-
-  <!-- 未选择提示 -->
-  <view class="empty-state" wx:if="{{!selectedAlumniAssociationId && hasAlumniAdminPermission && alumniAssociationList.length > 0}}">
-    <text>请选择校友会查看详情</text>
+  <view class="empty-block" wx:elif="{{!selectedAlumniAssociationId && hasAlumniAdminPermission && alumniAssociationList.length > 0}}">
+    <text class="empty-text">请选择校友会查看详情</text>
   </view>
-
-  <!-- 无权限提示 -->
-  <view class="empty-state" wx:if="{{!hasAlumniAdminPermission}}">
-    <text>您没有校友会管理员权限</text>
+  <view class="empty-block" wx:elif="{{!hasAlumniAdminPermission}}">
+    <text class="empty-text">您没有校友会管理员权限</text>
   </view>
 
   <!-- 校友会选择器弹窗 -->
@@ -87,14 +67,7 @@
         <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
       </view>
       <view class="picker-list">
-        <view 
-          class="picker-item"
-          wx:for="{{alumniAssociationList}}"
-          wx:key="alumniAssociationId"
-          data-alumni-association-id="{{item.alumniAssociationId}}"
-          data-alumni-association-name="{{item.alumniAssociationName}}"
-          bindtap="selectAlumniAssociation"
-        >
+        <view class="picker-item" wx:for="{{alumniAssociationList}}" wx:key="alumniAssociationId" data-alumni-association-id="{{item.alumniAssociationId}}" data-alumni-association-name="{{item.alumniAssociationName}}" bindtap="selectAlumniAssociation">
           <text class="item-name">{{item.alumniAssociationName}}</text>
           <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
         </view>
@@ -105,3 +78,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

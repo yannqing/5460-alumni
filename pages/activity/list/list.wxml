@@ -1,82 +1,67 @@
 <!--pages/activity/list/list.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="活动" showBack="{{true}}"></custom-nav-bar>
-
-<!-- 消息通知组件 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="活动管理">
 <message-notification />
 
-<view class="container activity-page">
-  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
-    <view class="form-title">校友活动</view>
+<view class="page">
+  <!-- 校友会选择卡片（与成员管理/架构管理一致，固定不滚动） -->
+  <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <text class="text_14">校友活动</text>
+    <text class="label_text">选择校友会</text>
+    <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
+      <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+    </view>
+  </view>
 
-    <!-- 选择校友会 -->
-    <view class="form-item">
-      <text class="label">选择校友会</text>
-      <view class="alumni-association-selector" bindtap="showAlumniAssociationSelector">
-        <text class="selector-label">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
-        <text class="selector-arrow">▼</text>
+  <!-- 活动列表卡片（与审核列表一致：固定标题+筛选，仅内部滚动） -->
+  <view class="group_7">
+    <view class="activity-list-header">
+      <view class="header-left">
+        <text class="header-title">校友活动</text>
+        <text class="header-subtitle">一起链接更有能量的同伴</text>
+      </view>
+      <view class="header-btn-wrap">
+        <button class="hero-btn" size="mini" bindtap="goToPublish">发布活动</button>
       </view>
     </view>
-  </view>
 
-  <view class="activity-hero card">
-    <view class="hero-header">
-      <view>
-        <view class="hero-title">校友活动</view>
-        <view class="hero-subtitle">一起链接更有能量的同伴</view>
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
+      <view wx:if="{{!displayList.length}}" class="empty-block">
+        <text class="empty-text">{{selectedAlumniAssociationId ? '暂无匹配的活动，换个条件试试' : '请先选择校友会'}}</text>
       </view>
-      <button class="hero-btn" size="mini" plain bindtap="goToPublish">发布活动</button>
-    </view>
-  </view>
 
-  <scroll-view class="filter-tabs" scroll-x>
-    <view
-      class="tab {{filterStatus === option.id ? 'active' : ''}}"
-      wx:for="{{filterOptions}}"
-      wx:key="id"
-      data-id="{{option.id}}"
-      bindtap="handleFilterChange"
-    >
-      {{option.label}}
-    </view>
-  </scroll-view>
-
-  <view wx:if="{{!displayList.length}}" class="empty-block card">
-    <image src="https://cdn.example.com/empty-activity.png" mode="widthFix"></image>
-    <text>{{selectedAlumniAssociationId ? '暂无匹配的活动，换个条件试试' : '请先选择校友会'}}</text>
-  </view>
-
-  <view class="activity-list">
-    <view
-      class="card activity-card"
-      wx:for="{{displayList}}"
-      wx:key="id"
-      bindtap="viewDetail"
-      data-id="{{item.id}}"
-    >
-      <view class="activity-header">
-        <view class="activity-title">{{item.title}}</view>
-        <view class="status-badge {{item.status}}">
-          {{item.originalStatus === 0 ? '草稿' : item.originalStatus === 1 ? '报名中' : item.originalStatus === 2 ? '报名结束' : item.originalStatus === 3 ? '进行中' : item.originalStatus === 4 ? '已结束' : item.originalStatus === 5 ? '已取消' : '即将开始'}}
+      <view class="activity-list" wx:else>
+        <view
+          class="activity-card"
+          wx:for="{{displayList}}"
+          wx:key="id"
+          bindtap="viewDetail"
+          data-id="{{item.id}}"
+        >
+          <view class="activity-header">
+            <view class="activity-title">{{item.title}}</view>
+            <view class="status-badge {{item.status}}">
+              {{item.originalStatus === 0 ? '草稿' : item.originalStatus === 1 ? '报名中' : item.originalStatus === 2 ? '报名结束' : item.originalStatus === 3 ? '进行中' : item.originalStatus === 4 ? '已结束' : item.originalStatus === 5 ? '已取消' : '即将开始'}}
+            </view>
+          </view>
+          <view class="activity-meta">
+            <text>{{item.organizer}}</text>
+            <text class="dot">·</text>
+            <text>{{item.participantCount}}人已报</text>
+          </view>
+          <view class="activity-tags" wx:if="{{item.tags.length > 0}}">
+            <view class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</view>
+          </view>
+          <view class="activity-footer">
+            <text wx:if="{{item.location}}">📍 {{item.location}}</text>
+            <text class="time">🕐 {{item.startTime}}</text>
+          </view>
+          <view class="activity-actions">
+            <view class="edit-btn" catchtap="editActivity" data-id="{{item.id}}">编辑</view>
+            <view class="delete-btn" catchtap="deleteActivity" data-id="{{item.id}}">删除</view>
+          </view>
         </view>
       </view>
-      <view class="activity-meta">
-        <text>{{item.organizer}}</text>
-        <text class="dot">·</text>
-        <text>{{item.participantCount}}人已报</text>
-      </view>
-      <view class="activity-tags" wx:if="{{item.tags.length > 0}}">
-        <view class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</view>
-      </view>
-      <view class="activity-footer">
-        <text wx:if="{{item.location}}">📍 {{item.location}}</text>
-        <text class="time">🕐 {{item.startTime}}</text>
-      </view>
-      <view class="activity-actions">
-        <button class="edit-btn" catchtap="editActivity" data-id="{{item.id}}">编辑</button>
-        <button class="delete-btn" catchtap="deleteActivity" data-id="{{item.id}}">删除</button>
-      </view>
-    </view>
+    </scroll-view>
   </view>
 
   <!-- 校友会选择器弹窗 -->
@@ -88,7 +73,7 @@
         <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
       </view>
       <view class="picker-list">
-        <view 
+        <view
           class="picker-item"
           wx:for="{{alumniAssociationList}}"
           wx:key="alumniAssociationId"
@@ -106,3 +91,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

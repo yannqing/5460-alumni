@@ -276,7 +276,7 @@ view, text, picker, input, button, image, navigator {
   font-weight: 600;
 }
 
-/* 校处会列表 */
+/* 校促会列表 */
 .platform-list {
   padding: 0 30rpx 20rpx;
   background-color: #F5F5F5;

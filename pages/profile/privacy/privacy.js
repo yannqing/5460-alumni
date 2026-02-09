@@ -45,6 +45,35 @@ Page({
         // 保存原始数据
         this.setData({ privacyList: dataList })
 
+        // 将后端数据数组映射到前端字段
+        // fieldCode 字段代码映射关系（按编辑资料页面字段顺序）
+        const fieldCodeMap = {
+          // 基本信息
+          'avatarUrl': 'showAvatar',
+          'nickname': 'showNickname',
+          'username': 'showName',  // 真实姓名对应 username
+          'gender': 'showGender',
+          'birthDate': 'showBirthDate',
+          'phone': 'showPhone',
+          'constellation': 'showConstellation',
+          'signature': 'showSignature',
+          'wxNum': 'showWxNum',
+          'qqNum': 'showQqNum',
+          'email': 'showEmail',
+          // 位置信息
+          'originProvince': 'showOriginProvince',
+          'curContinent': 'showCurContinent',
+          'curCountry': 'showCurCountry',
+          'curProvince': 'showCurProvince',
+          'curCity': 'showCurCity',
+          'curCounty': 'showCurCounty',
+          'address': 'showAddress',
+          // 证件信息
+          'identifyType': 'showIdentifyType',
+          'identifyCode': 'showIdentifyCode',
+          // 个人简介
+          'description': 'showDescription'
+        }
         // 为每个字段添加开关状态
         // visibility: 1表示可见（开关关闭=false），0表示不可见（开关打开=true）
         const processedList = dataList.map(item => ({
@@ -124,6 +153,50 @@ Page({
     })
 
     try {
+      // 前端字段到后端 fieldCode 的映射关系（按编辑资料页面字段顺序）
+      const keyToFieldCodeMap = {
+        // 基本信息
+        'showAvatar': 'avatarUrl',
+        'showNickname': 'nickname',
+        'showName': 'username',  // 真实姓名对应 username
+        'showGender': 'gender',
+        'showBirthDate': 'birthDate',
+        'showPhone': 'phone',
+        'showConstellation': 'constellation',
+        'showSignature': 'signature',
+        'showWxNum': 'wxNum',
+        'showQqNum': 'qqNum',
+        'showEmail': 'email',
+        // 位置信息
+        'showOriginProvince': 'originProvince',
+        'showCurContinent': 'curContinent',
+        'showCurCountry': 'curCountry',
+        'showCurProvince': 'curProvince',
+        'showCurCity': 'curCity',
+        'showCurCounty': 'curCounty',
+        'showAddress': 'address',
+        // 证件信息
+        'showIdentifyType': 'identifyType',
+        'showIdentifyCode': 'identifyCode',
+        // 个人简介
+        'showDescription': 'description'
+      }
+
+      const fieldCode = keyToFieldCodeMap[key]
+
+      if (!fieldCode) {
+        // 如果找不到对应的 fieldCode 映射，恢复原值并提示错误
+        console.error('[Privacy] 找不到字段映射，key:', key)
+        this.setData({
+          [`privacySettings.${key}`]: !value
+        })
+        wx.showToast({
+          title: '字段映射错误，请刷新后重试',
+          icon: 'none'
+        })
+        return
+      }
+
       // 从 privacyList 中找到当前要更新的字段
       const currentItem = this.data.privacyList.find(item => item.fieldCode === fieldCode)
 

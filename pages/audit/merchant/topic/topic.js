@@ -3,23 +3,36 @@ const { get, post, del } = require('../../../../utils/request.js')
 
 Page({
   data: {
-    shops: [], // 店铺列表
-    selectedShopIndex: -1, // 选中的店铺索引
-    loading: false, // 加载状态
-    
-    // 活动列表相关数据
-    activityList: [], // 活动列表
-    current: 1, // 当前页码
-    pageSize: 10, // 每页数量
-    total: 0, // 总记录数
-    sortField: 'createTime', // 排序字段
-    sortOrder: 'ascend', // 排序顺序
-    activityTitle: '', // 活动标题筛选
-    activityLoading: false, // 活动列表加载状态
+    shops: [],
+    selectedShopIndex: -1,
+    loading: false,
+    activityList: [],
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    sortField: 'createTime',
+    sortOrder: 'ascend',
+    activityTitle: '',
+    activityLoading: false,
+    scrollListHeight: 400
   },
 
   onLoad(options) {
-    this.getShops();
+    this.setScrollListHeight()
+    this.getShops()
+  },
+
+  setScrollListHeight() {
+    try {
+      const res = wx.getSystemInfoSync()
+      const navRpx = 190.22
+      const navPx = (res.windowWidth * navRpx) / 750
+      const contentH = res.windowHeight - navPx
+      const scrollH = Math.floor(contentH * 0.5)
+      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 })
+    } catch (e) {
+      this.setData({ scrollListHeight: 400 })
+    }
   },
 
   // 获取店铺列表

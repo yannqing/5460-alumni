@@ -1,104 +1,77 @@
 <!--pages/audit/join-audit/index.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="加入审核" showBack="{{true}}"></custom-nav-bar>
-
-<view class="container">
-  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
-    <view class="form-title">加入审核</view>
-
-      <!-- 选择校友会 -->
-    <view class="form-item">
-      <text class="label">选择校友会</text>
-      <view class="alumni-association-selector" bindtap="showAlumniAssociationSelector">
-        <text class="selector-label">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
-        <text class="selector-arrow">▼</text>
-      </view>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="加入审核">
+<view class="page">
+  <!-- 选择校友会卡片（与校友会审核页 group_5 一致，固定不滚动） -->
+  <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <text class="text_14">加入审核</text>
+    <text class="label_text">选择校友会</text>
+    <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
+      <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
     </view>
   </view>
 
-  <!-- 审核列表 -->
-  <view class="form-card" style="margin-top: 20rpx;">
-    <view class="form-title">审核列表</view>
-    
-    <!-- 状态选择 -->
-    <view class="status-selector-container">
-      <view class="status-selector">
-        <view 
-          wx:for="{{statusList}}" 
-          wx:key="value"
-          class="status-item {{applicationStatus == item.value ? 'active' : ''}}"
-          data-status="{{item.value}}"
-          bindtap="selectStatus"
-        >
-          <text>{{item.label}}</text>
-        </view>
+  <!-- 审核列表卡片（与校友会审核页 group_7 一致：固定标题+筛选，仅内部滚动） -->
+  <view class="group_7">
+    <view class="join-audit-header">
+      <text class="text_20">审核列表</text>
+    </view>
+
+    <view class="filter-tabs-wrap">
+      <view
+        class="filter-tab {{applicationStatus === item.value ? 'active' : ''}}"
+        wx:for="{{statusList}}"
+        wx:key="value"
+        data-status="{{item.value}}"
+        bindtap="selectStatus"
+      >
+        {{item.label}}
       </view>
     </view>
-    
-    <!-- 加载中 -->
-    <view wx:if="{{applicationLoading && applicationList.length === 0}}" class="loading-state">
-      <text>加载审核列表中...</text>
-    </view>
-    
-    <!-- 空状态 -->
-    <view wx:elif="{{!applicationLoading && applicationList.length === 0}}" class="empty-state">
-      <text>{{selectedAlumniAssociationId ? '暂无审核数据' : '请先选择校友会'}}</text>
-    </view>
-    
-    <!-- 审核列表 -->
-    <view wx:else class="application-list">
-      <view wx:for="{{applicationList}}" wx:key="applicationId" class="application-item">
-        <view class="application-header">
-          <view class="applicant-info">
-            <image wx:if="{{item.applicantInfo && item.applicantInfo.avatarUrl}}" src="{{item.applicantInfo.avatarUrl}}" class="avatar"></image>
-            <view class="info-text">
-              <text class="nickname">{{(item.applicantInfo && item.applicantInfo.nickname) || '未知用户'}}</text>
-              <text class="apply-time">申请时间：{{item.applyTime}}</text>
+
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" bindscrolltolower="loadMore">
+      <view wx:if="{{applicationLoading && applicationList.length === 0}}" class="loading-state">
+        <text>加载审核列表中...</text>
+      </view>
+      <view wx:elif="{{!applicationLoading && applicationList.length === 0}}" class="empty-block">
+        <text class="empty-text">{{selectedAlumniAssociationId ? '暂无审核数据' : '请先选择校友会'}}</text>
+      </view>
+      <view wx:else class="application-list">
+        <view wx:for="{{applicationList}}" wx:key="applicationId" class="application-item">
+          <view class="application-header">
+            <view class="applicant-info">
+              <image wx:if="{{item.applicantInfo && item.applicantInfo.avatarUrl}}" src="{{item.applicantInfo.avatarUrl}}" class="avatar"></image>
+              <view class="info-text">
+                <text class="nickname">{{(item.applicantInfo && item.applicantInfo.nickname) || '未知用户'}}</text>
+                <text class="apply-time">申请时间：{{item.applyTime}}</text>
+              </view>
+            </view>
+            <view class="status-tag" style="background-color: {{item.applicationStatus === 0 ? '#ffd591' : item.applicationStatus === 1 ? '#b7eb8f' : item.applicationStatus === 2 ? '#ffccc7' : '#d9d9d9'}}">
+              {{item.applicationStatusText || (item.applicationStatus === 0 ? '待审核' : item.applicationStatus === 1 ? '已通过' : item.applicationStatus === 2 ? '已拒绝' : '已撤销')}}
             </view>
           </view>
-          <view class="status-tag" style="background-color: {{item.applicationStatus === 0 ? '#ffd591' : item.applicationStatus === 1 ? '#b7eb8f' : item.applicationStatus === 2 ? '#ffccc7' : '#d9d9d9'}}">
-            {{item.applicationStatusText || (item.applicationStatus === 0 ? '待审核' : item.applicationStatus === 1 ? '已通过' : item.applicationStatus === 2 ? '已拒绝' : '已撤销')}}
+          <view class="application-body">
+            <view class="application-item-row">
+              <text class="label">校友会：</text>
+              <text class="value">{{item.alumniAssociationName || '未知校友会'}}</text>
+            </view>
+            <view class="application-item-row">
+              <text class="label">申请理由：</text>
+              <text class="value">{{item.applicationReason || '无'}}</text>
+            </view>
           </view>
-        </view>
-        <view class="application-body">
-          <view class="application-item-row">
-            <text class="label">校友会：</text>
-            <text class="value">{{item.alumniAssociationName || '未知校友会'}}</text>
+          <view class="application-footer" wx:if="{{item.applicationStatus === 0}}">
+            <button class="review-btn pass-btn" data-application-id="{{item.applicationId}}" bindtap="passApplication">通过</button>
+            <button class="review-btn reject-btn" data-application-id="{{item.applicationId}}" bindtap="rejectApplication">拒绝</button>
           </view>
-          <view class="application-item-row">
-            <text class="label">申请理由：</text>
-            <text class="value">{{item.applicationReason || '无'}}</text>
-          </view>
-        </view>
-        <!-- 审核按钮 -->
-        <view class="application-footer" wx:if="{{item.applicationStatus === 0}}">
-          <button 
-            class="review-btn pass-btn" 
-            data-application-id="{{item.applicationId}}" 
-            bindtap="passApplication"
-          >
-            通过
-          </button>
-          <button 
-            class="review-btn reject-btn" 
-            data-application-id="{{item.applicationId}}" 
-            bindtap="rejectApplication"
-          >
-            拒绝
-          </button>
         </view>
       </view>
-      
-      <!-- 加载更多 -->
       <view wx:if="{{applicationLoading && applicationList.length > 0}}" class="loading-more">
         <text>加载更多...</text>
       </view>
-      
-      <!-- 没有更多数据 -->
       <view wx:if="{{!applicationLoading && !hasMore && applicationList.length > 0}}" class="no-more">
         <text>没有更多数据了</text>
       </view>
-    </view>
+    </scroll-view>
   </view>
 
   <!-- 校友会选择器弹窗 -->
@@ -110,7 +83,7 @@
         <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
       </view>
       <view class="picker-list">
-        <view 
+        <view
           class="picker-item"
           wx:for="{{alumniAssociationList}}"
           wx:key="alumniAssociationId"
@@ -127,5 +100,5 @@
       </view>
     </view>
   </view>
-
 </view>
+</custom-nav-bar>

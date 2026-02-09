@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "我的商户"
+  "navigationBarTitleText": "我的商户",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
 }
