@@ -1,48 +1,40 @@
 <!--pages/profile/privacy/privacy.wxml-->
 <!-- 自定义导航栏 -->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="个人隐私">
-<!-- 消息通知组件 -->
-<message-notification />
+    <!-- 消息通知组件 -->
+    <message-notification />
 
-<view class="privacy-page">
-  <!-- 动态渲染分组 -->
-  <view class="card menu-card" wx:for="{{groupedPrivacyList}}" wx:key="title" wx:for-index="groupIndex">
-    <view class="section-title">{{item.title}}</view>
-    <!-- 动态渲染每个隐私项 -->
-    <view class="menu-item" wx:for="{{item.items}}" wx:key="fieldCode" wx:for-item="privacyItem" wx:for-index="itemIndex">
-      <view class="menu-left">
-        <view class="menu-content">
-          <text class="menu-name">{{privacyItem.fieldName}}</text>
-          <text class="menu-desc">开启后隐藏该信息</text>
+    <view class="privacy-page">
+
+        <!-- 空状态提示 -->
+        <view class="empty-tip" wx:if="{{groupedPrivacyList.length === 0}}">
+          <text>暂无隐私设置项</text>
         </view>
-      </view>
-      <switch
-        checked="{{privacyItem.checked}}"
-        bindchange="togglePrivacy"
-        data-group-index="{{groupIndex}}"
-        data-item-index="{{itemIndex}}"
-        data-field-code="{{privacyItem.fieldCode}}"
-        color="#40B2E6"
-      />
-    </view>
-  </view>
+        <!-- 动态渲染分组 -->
+        <view class="card menu-card" wx:for="{{groupedPrivacyList}}" wx:key="title" wx:for-index="groupIndex">
+            <view class="section-title">{{item.title}}</view>
+            <!-- 动态渲染每个隐私项 -->
+            <view class="menu-item" wx:for="{{item.items}}" wx:key="fieldCode" wx:for-item="privacyItem" wx:for-index="itemIndex">
+                <view class="menu-left">
+                    <view class="menu-content">
+                        <text class="menu-name">{{privacyItem.fieldName}}</text>
+                        <text class="menu-desc">开启后隐藏该信息</text>
+                    </view>
+                </view>
+                <switch
+                    checked="{{privacyItem.checked}}"
+                    bindchange="togglePrivacy"
+                    data-group-index="{{groupIndex}}"
+                    data-item-index="{{itemIndex}}"
+                    data-field-code="{{privacyItem.fieldCode}}"
+                    color="#40B2E6"
+                />
+            </view>
+        </view>
 
-  <!-- 空状态提示 -->
-  <view class="empty-tip" wx:if="{{groupedPrivacyList.length === 0}}">
-    <text>暂无隐私设置项</text>
-  </view>
 
-      <!-- 底部留白 -->
-      <view class="bottom-space"></view>
-    </scroll-view>
-  </view>
+
+        <!-- 底部留白 -->
+        <view class="bottom-space"></view>
 </view>
 </custom-nav-bar>
-
-
-
-
-
-
-
-

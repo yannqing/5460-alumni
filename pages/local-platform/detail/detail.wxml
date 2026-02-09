@@ -1,141 +1,152 @@
 <!--pages/local-platform/detail/detail.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="{{platformInfo.city}}" showBack="{{true}}"></custom-nav-bar>
-
+<!-- 消息通知组件 -->
+<message-notification />
 <view class="container">
-  <view wx:if="{{loading}}" class="loading-wrap">
-    <view class="loading">加载中...</view>
-  </view>
-
-  <view wx:elif="{{platformInfo}}">
-    <!-- 顶部封面 + 头像，与校友会主页风格保持一致 -->
-    <image class="cover-image" src="{{platformInfo.cover}}" mode="aspectFill" />
-
-    <view class="card">
-      <view class="flex">
-        <image class="avatar avatar-large" src="{{platformInfo.icon}}" mode="aspectFill" />
-        <view class="flex-1 ml-20">
-          <view class="name-row">
-            <text class="text-primary text-bold">{{platformInfo.platformName}}</text>
-          </view>
-          <view wx:if="{{platformInfo.city}}" class="text-secondary mt-10 location-row">
-            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-            <text>{{platformInfo.city}}</text>
-          </view>
+    <!-- 顶部固定区域 -->
+    <view class="top-fixed-area">
+        <!-- 自定义导航栏 -->
+        <custom-nav-bar showBack="{{true}}"></custom-nav-bar>
+        <!-- 顶部图片（与导航栏同一层级） -->
+        <view class="top-image-container">
+            <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png" mode="aspectFit" />
         </view>
-      </view>
     </view>
-
-    <!-- 顶部 Tab，与校友会主页一致：基本信息 / 成员列表 -->
-    <view class="tabs">
-      <view
-        class="tab-item {{activeTab === index ? 'active' : ''}}"
-        wx:for="{{tabs}}"
-        wx:key="*this"
-        bindtap="switchTab"
-        data-index="{{index}}"
-      >
-        {{item}}
-      </view>
-    </view>
-
-    <!-- Tab 内容：基本信息 -->
-    <view wx:if="{{activeTab === 0}}" class="tab-content">
-      <view class="card">
-        <view class="text-bold mb-20">基本信息</view>
-        <view class="divider"></view>
-        <view class="text-secondary">联系信息：{{platformInfo.contactInfo || '暂无'}}</view>
-        <view class="text-secondary mt-10" wx:if="{{platformInfo.city}}">
-          所在城市：{{platformInfo.city}}
+    <!-- 内容滚动区域 -->
+    <view class="content-scroll">
+        <view wx:if="{{loading}}" class="loading-wrap">
+            <view class="loading">加载中...</view>
         </view>
-        <view class="text-secondary mt-10" wx:if="{{platformInfo.associationCount}}">
-          关联校友会数量：{{platformInfo.associationCount}}个
-        </view>
-        <view class="text-secondary mt-10" wx:if="{{platformInfo.memberCount}}">
-          会员：{{platformInfo.memberCount}}人
-        </view>
-        <view class="text-secondary mt-10" wx:if="{{platformInfo.description}}">
-          简介: {{platformInfo.description}}
-        </view>
-      </view>
-    </view>
-
-    <!-- Tab 内容：组织结构 -->
-    <view wx:if="{{activeTab === 1}}" class="tab-content">
-      <view class="card dashboard-card">
-        <view class="section-header">
-          <view class="section-title">
-            <view class="text-bold">组织结构</view>
-            <view class="section-subtitle">组织架构展示</view>
-          </view>
-          <view wx:if="{{canEditOrg}}" class="section-edit-btn">
-            <view wx:if="{{!isEditOrgMode}}" class="edit-btn" bindtap="onEditOrgClick">
-              <text class="edit-text">编辑</text>
+        <view wx:elif="{{platformInfo}}">
+            <image class="cover-image" src="{{platformInfo.cover}}" mode="aspectFit" />
+            <!-- 白色背景内容区域 -->
+            <view class="white-background">
+                <view class="card">
+                    <view class="flex">
+                        <image class="avatar avatar-large" src="{{platformInfo.icon}}" mode="aspectFill" />
+                        <view class="flex-1 ml-20">
+                            <view class="name-row">
+                                <text class="text-primary text-bold">{{platformInfo.platformName}}</text>
+                            </view>
+                            <view wx:if="{{platformInfo.city}}" class="text-secondary mt-10 location-row">
+                                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                                <text>{{platformInfo.city}}</text>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+                <!-- 顶部 Tab，与校友会主页一致：基本信息 / 成员列表 -->
+                <view class="tabs">
+                    <view 
+                        class="tab-item {{activeTab === index ? 'active' : ''}}" 
+                        wx:for="{{tabs}}" 
+                        wx:key="*this" 
+                        bindtap="switchTab" 
+                        data-index="{{index}}"
+                    >
+                        {{item}}
+                    </view>
+                </view>
+                <!-- Tab 内容：基本信息 -->
+                <view wx:if="{{activeTab === 0}}" class="tab-content">
+                    <view class="card">
+                        <view class="text-bold mb-20">基本信息</view>
+                        <view class="basic-info-item">联系信息：{{platformInfo.contactInfo || '暂无'}}</view>
+                        <view class="basic-info-item" wx:if="{{platformInfo.city}}">所在城市：{{platformInfo.city}}</view>
+                        <view class="basic-info-item" wx:if="{{platformInfo.associationCount}}">关联校友会数量：{{platformInfo.associationCount}}个</view>
+                        <view class="basic-info-item" wx:if="{{platformInfo.memberCount}}">会员：{{platformInfo.memberCount}}人</view>
+                        <view class="basic-info-item" wx:if="{{platformInfo.description}}">简介: {{platformInfo.description}}</view>
+                    </view>
+                </view>
+                <!-- Tab 内容：组织结构 -->
+                <view wx:if="{{activeTab === 1}}" class="tab-content">
+                    <view class="card dashboard-card">
+                        <view class="section-header">
+                            <view class="section-title">
+                                <view class="text-bold">组织结构</view>
+                                <view class="section-subtitle">组织架构展示</view>
+                            </view>
+                            <view wx:if="{{canEditOrg}}" class="section-edit-btn">
+                                <view wx:if="{{!isEditOrgMode}}" class="edit-btn" bindtap="onEditOrgClick">
+                                    <text class="edit-text">编辑</text>
+                                </view>
+                                <view wx:else class="edit-btn cancel-btn" bindtap="onCancelOrgEdit">
+                                    <text class="edit-text">取消</text>
+                                </view>
+                            </view>
+                        </view>
+                        <org-structure 
+                            id="org-structure" 
+                            list="{{roleList}}" 
+                            loading="{{organizationLoading}}" 
+                            empty-text="暂无角色数据" 
+                            isLocalPlatform="{{true}}" 
+                            localPlatformId="{{platformId}}" 
+                            bind:refresh="onOrgStructureRefresh"
+                        />
+                    </view>
+                </view>
+                <!-- Tab 内容：会员列表 -->
+                <view wx:if="{{activeTab === 2}}">
+                    <view class="member-list">
+                        <!-- 骨架屏 -->
+                        <view wx:if="{{associationLoading && associations.length === 0}}" class="skeleton-list">
+                            <view class="member-item skeleton-item" wx:for="[1,2,3,4,5]" wx:key="*this">
+                                <view class="member-avatar skeleton-avatar"></view>
+                                <view class="member-info">
+                                    <view class="member-name-row">
+                                        <view class="skeleton-name"></view>
+                                    </view>
+                                    <view class="skeleton-text"></view>
+                                    <view class="skeleton-text"></view>
+                                </view>
+                            </view>
+                        </view>
+                        <!-- 空状态 -->
+                        <view wx:elif="{{!associations.length}}" class="empty-container">
+                            <view class="empty-icon">👥</view>
+                            <view class="empty-text">暂无校友会</view>
+                            <view class="empty-desc">该平台还没有关联的校友会</view>
+                        </view>
+                        <!-- 实际数据 -->
+                        <view wx:else>
+                            <view class="member-item" wx:for="{{associations}}" wx:key="alumniAssociationId" bindtap="viewAssociationDetail" data-id="{{item.alumniAssociationId}}">
+                                <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
+                                <view class="member-info">
+                                    <view class="member-name-row">
+                                        <text class="member-name">{{item.associationName}}</text>
+                                    </view>
+                                    <view class="member-meta">
+                                        <view class="meta-item" wx:if="{{item.location}}">
+                                            <image class="meta-icon" src="{{iconLocation}}" mode="aspectFit" />
+                                            <text>{{item.location}}</text>
+                                        </view>
+                                        <view class="meta-item" wx:else>
+                                            <text>暂无地点</text>
+                                        </view>
+                                        <view class="meta-item">
+                                            <image class="meta-icon" src="{{iconPeople}}" mode="aspectFit" />
+                                            <text>{{item.memberCount}}人</text>
+                                        </view>
+                                    </view>
+                                </view>
+                                <view wx:if="{{item.role === 0}}" class="role-tag member-tag">会员单位</view>
+                                <view wx:elif="{{item.role === 1}}" class="role-tag director-tag">理事单位</view>
+                            </view>
+                        </view>
+                        <!-- 加载更多 -->
+                        <view wx:if="{{associationLoading && associations.length > 0}}" class="loading-more">加载中...</view>
+                        <view wx:elif="{{!hasMore && associations.length}}" class="no-more">没有更多了</view>
+                    </view>
+                </view>
             </view>
-            <view wx:else class="edit-btn cancel-btn" bindtap="onCancelOrgEdit">
-              <text class="edit-text">取消</text>
-            </view>
-          </view>
+            <!-- 加载更多 -->
+            <view wx:if="{{associationLoading && associations.length > 0}}" class="loading-more">加载中...</view>
+            <view wx:elif="{{!hasMore && associations.length}}" class="no-more">没有更多了</view>
         </view>
-        
-        <org-structure 
-          id="org-structure"
-          list="{{roleList}}" 
-          loading="{{organizationLoading}}" 
-          empty-text="暂无角色数据"
-          isLocalPlatform="{{true}}"
-          localPlatformId="{{platformId}}"
-          bind:refresh="onOrgStructureRefresh"
-        />
-      </view>
+        <!-- 新增：platformInfo 为空时的空状态展示 -->
+        <view wx:else class="empty-state">
+            <view class="empty-placeholder">暂无数据</view>
+            <text>暂无校促会信息</text>
+        </view>
     </view>
-
-    <!-- Tab 内容：会员列表 -->
-    <view wx:if="{{activeTab === 2}}" class="tab-content">
-      <view class="card">
-        <view class="flex justify-between items-center mb-20">
-          <view class="text-bold">会员列表</view>
-          <view class="create-btn" bindtap="createAlumniAssociation">
-            <text class="create-btn-text">创建校友会</text>
-          </view>
-        </view>
-        <!-- 骨架屏 -->
-        <view wx:if="{{associationLoading && associations.length === 0}}" class="member-list skeleton-list">
-          <view class="member-item skeleton-item" wx:for="[1,2,3,4,5]" wx:key="*this">
-            <view class="member-avatar skeleton-avatar"></view>
-            <view class="member-info">
-              <view class="member-name-row">
-                <view class="skeleton-name"></view>
-              </view>
-              <view class="skeleton-text"></view>
-              <view class="skeleton-text"></view>
-            </view>
-          </view>
-        </view>
-        <!-- 空状态 -->
-        <view wx:elif="{{!associations.length}}" class="text-placeholder">暂无校友会</view>
-        <!-- 实际数据 -->
-        <view wx:else class="member-list">
-          <view class="member-item" wx:for="{{associations}}" wx:key="alumniAssociationId" bindtap="viewAssociationDetail" data-id="{{item.alumniAssociationId}}">
-            <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
-            <view class="member-info">
-              <view class="member-name-row">
-                <text class="member-name">{{item.associationName}}</text>
-              </view>
-              <view class="member-company">会员人数：{{item.memberCount}}人</view>
-              <view class="member-company">所在地：{{item.location || '暂无'}}</view>
-            </view>
-          </view>
-        </view>
-        <!-- 加载更多 -->
-        <view wx:if="{{associationLoading && associations.length > 0}}" class="loading-more">加载中...</view>
-        <view wx:elif="{{!hasMore && associations.length}}" class="no-more">没有更多了</view>
-      </view>
-    </view>
-  </view>
-
-  <view wx:else class="empty-state">
-    <view class="empty-placeholder">暂无数据</view>
-    <text>暂无校促会信息</text>
-  </view>
 </view>
