@@ -17,6 +17,18 @@
       <view class="avatar-tip">建议使用清晰的本人照片，大小不超过10MB</view>
     </view>
 
+    <view class="background-card card">
+      <view class="section-title">个人背景</view>
+      <view class="background-wrap" bindtap="chooseBackground">
+        <image wx:if="{{form.bgImg}}" class="background-img" src="{{form.bgImg}}" mode="aspectFill" />
+        <view wx:else class="default-bg-gradient"></view>
+        <view class="background-mask">
+          <text>{{form.bgImg ? '更换背景图' : '设置背景图'}}</text>
+        </view>
+      </view>
+      <view class="avatar-tip">将展示在您的名片详情页顶部</view>
+    </view>
+
     <view class="section-card card">
       <view class="section-title">基本信息</view>
       <view class="form-item">
