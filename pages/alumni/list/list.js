@@ -11,10 +11,9 @@ Page({
     iconLocation: config.getIconUrl('position.png'),
     keyword: '',
     filters: [
-      { label: '身份', options: ['全部校友', '企业高管', '创业校友', '在读校友'], selected: 0 },
-      { label: '城市', options: ['全部城市', '南京', '上海', '杭州', '深圳'], selected: 0 },
-      { label: '排序', options: ['默认排序', '最新加入', '人气最高'], selected: 0 },
-      { label: '关注', options: ['全部', '我的关注'], selected: 0 }
+      { label: '注册时间', options: ['升序', '降序'], selected: 0 },
+      { label: '性别', options: ['全部', '男', '女'], selected: 0 },
+      { label: '关注', options: ['我的关注'], selected: 0 }
     ],
     alumniList: [],
     current: 1,
@@ -44,7 +43,7 @@ Page({
     this.setData({ loading: true })
 
     const { keyword, filters, current, pageSize } = this.data
-    const [identityFilter, cityFilter, sortFilter, followFilter] = filters
+    const [sortFilter, genderFilter] = filters
 
     // 构建请求参数
     const params = {
@@ -52,28 +51,15 @@ Page({
       size: pageSize
     }
 
-    // 身份筛选
-    if (identityFilter.selected > 0) {
-      params.identity = identityFilter.options[identityFilter.selected]
+    // 注册时间排序
+    if (sortFilter.selected >= 0) {
+      params.sortField = 'createTime'
+      params.sortOrder = sortFilter.selected === 0 ? 'ascend' : 'descend'
     }
 
-    // 城市筛选
-    if (cityFilter.selected > 0) {
-      params.city = cityFilter.options[cityFilter.selected]
-    }
-
-    // 排序方式
-    if (sortFilter.selected === 1) {
-      params.sortBy = 'createTime' // 最新加入
-      params.sortOrder = 'desc'
-    } else if (sortFilter.selected === 2) {
-      params.sortBy = 'followerCount' // 人气最高
-      params.sortOrder = 'desc'
-    }
-
-    // 关注筛选
-    if (followFilter.selected === 1) {
-      params.onlyFollowed = true
+    // 性别筛选
+    if (genderFilter.selected > 0) {
+      params.gender = genderFilter.selected // 1-男，2-女
     }
 
     // 搜索逻辑
@@ -277,28 +263,27 @@ Page({
     this.loadAlumniList(true)
   },
 
-  // 城市筛选
+  // 注册时间筛选
   onCityChange(e) {
+    const filters = this.data.filters
+    filters[0].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
+  },
+
+  // 性别筛选
+  onSortChange(e) {
     const filters = this.data.filters
     filters[1].selected = e.detail.value
     this.setData({ filters })
     this.loadAlumniList(true)
   },
 
-  // 排序筛选
-  onSortChange(e) {
-    const filters = this.data.filters
-    filters[2].selected = e.detail.value
-    this.setData({ filters })
-    this.loadAlumniList(true)
-  },
-
   // 关注筛选
   onFollowChange(e) {
-    const filters = this.data.filters
-    filters[3].selected = e.detail.value
-    this.setData({ filters })
-    this.loadAlumniList(true)
+    wx.navigateTo({
+      url: '/pages/my-follow/my-follow'
+    })
   },
 
   viewDetail(e) {
