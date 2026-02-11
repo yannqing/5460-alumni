@@ -25,32 +25,23 @@
     
     <!-- 筛选区域 -->
     <view class="filter-section">
-      <!-- 身份筛选 -->
+      <!-- 注册时间筛选 -->
       <view class="filter-item">
-        <picker bindchange="onIdentityChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
-          <text>{{filters[0].options[filters[0].selected]}}</text>
+        <picker bindchange="onCityChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+          <text>{{filters[0].selected === 0 ? '注册时间' : filters[0].options[filters[0].selected]}}</text>
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
-      <!-- 城市筛选 -->
+      <!-- 性别筛选 -->
       <view class="filter-item">
-        <picker bindchange="onCityChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
-          <text>{{filters[1].options[filters[1].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 排序筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
-          <text>{{filters[2].options[filters[2].selected]}}</text>
+        <picker bindchange="onSortChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+          <text>{{filters[1].selected === 0 ? '性别' : filters[1].options[filters[1].selected]}}</text>
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
       <!-- 关注筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onFollowChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
-          <text>{{filters[3].options[filters[3].selected]}}</text>
-        </picker>
+      <view class="filter-item" bindtap="onFollowChange">
+        <text>我的关注</text>
         <text class="filter-arrow">▾</text>
       </view>
     </view>
