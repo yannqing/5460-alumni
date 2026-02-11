@@ -13,7 +13,7 @@ Page({
     associationId: '',
     associationInfo: null,
     activeTab: 0,
-    tabs: ['基本信息', '成员列表', '组织结构'],//, '关系图谱'],
+    tabs: ['基本信息', '组织结构', '成员列表'],//, '关系图谱'],
     members: [],
     // 图谱数据（预留后端接口）
     graphData: null,
@@ -272,18 +272,18 @@ Page({
     const index = e.currentTarget.dataset.index
     this.setData({ activeTab: index })
 
-    // 切换到成员列表标签时
-    if (index === 1) {
-      // 如果还没加载过成员数据，则加载
-      if (this.data.members.length === 0) {
-        this.loadMembers()
-      }
-    }
     // 切换到组织结构标签时，加载组织结构数据
-    else if (index === 2) {
+    if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
       if (this.data.roleList.length === 0) {
         this.loadOrganizationTree()
+      }
+    }
+    // 切换到成员列表标签时
+    else if (index === 2) {
+      // 如果还没加载过成员数据，则加载
+      if (this.data.members.length === 0) {
+        this.loadMembers()
       }
     }
     /* // 切换到图谱标签时
