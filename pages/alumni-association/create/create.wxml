@@ -5,13 +5,8 @@
   <view class="form-card">
     <view class="form-title">基本信息</view>
 
-    <view class="form-item">
-      <text class="label">校友会名称 *</text>
-      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
-    </view>
-    
-    <view class="form-item search-group" style="z-index: 20;" catchtap="preventBubble">
-      <text class="label">申请学校 *</text>
+    <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
+      <text class="label">申请学校</text>
       <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
         <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
@@ -21,8 +16,13 @@
       </scroll-view>
     </view>
     
-    <view class="form-item search-group" style="z-index: 10;" catchtap="preventBubble">
-      <text class="label">相关地区 *</text>
+    <view class="form-item required">
+      <text class="label">校友会名称</text>
+      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
+    </view>
+    
+    <view class="form-item search-group required" style="z-index: 10;" catchtap="preventBubble">
+      <text class="label">相关地区</text>
       <input class="input" placeholder="请输入并选择相关地区(校促会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showPlatformResults}}">
         <view wx:if="{{platformList.length === 0}}" class="search-placeholder">未找到相关地区</view>
@@ -32,13 +32,13 @@
       </scroll-view>
     </view>
 
-    <view class="form-item">
-      <text class="label">负责人姓名 *</text>
+    <view class="form-item required">
+      <text class="label">负责人姓名</text>
       <input class="input" placeholder="请输入负责人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
     </view>
 
-    <view class="form-item">
-      <text class="label">负责人电话 *</text>
+    <view class="form-item required">
+      <text class="label">负责人电话</text>
       <input class="input" placeholder="请输入负责人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
     </view>
 
@@ -79,7 +79,7 @@
     
 
 
-    <view class="form-item">
+    <view class="form-item required">
       <text class="label">申请理由</text>
       <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
     </view>
