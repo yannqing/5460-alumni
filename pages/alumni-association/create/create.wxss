@@ -73,18 +73,37 @@ page {
 
 .label {
   font-size: 28rpx;
-  color: #666;
+  color: #666666;
   margin-bottom: 16rpx;
   display: block;
 }
 
-.input {
+.form-item.required .label::before {
+  content: '*';
+  color: #ff4d4f;
+  margin-right: 6rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.input,
+.textarea {
   border: 1rpx solid #eee;
   padding: 20rpx;
   border-radius: 8rpx;
   font-size: 28rpx;
-  height: 80rpx;
   box-sizing: border-box;
+}
+
+.input {
+  height: 80rpx;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 120rpx;
+  resize: none;
 }
 
 .input.disabled {
