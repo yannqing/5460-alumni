@@ -337,12 +337,12 @@ Page({
             }
           }
 
-          // 处理时间：格式化时间，去掉T
+          // 处理时间：格式化时间为 MM-DD HH:MM
           let time = '';
           if (item.createTime) {
-            time = item.createTime.replace('T', ' ');
+            time = item.createTime.replace('T', ' ').substring(5, 16);
           } else if (item.publishTime) {
-            time = item.publishTime.replace('T', ' ');
+            time = item.publishTime.replace('T', ' ').substring(5, 16);
           }
 
           // 处理ID：确保ID存在且有效
