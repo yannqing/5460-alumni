@@ -225,7 +225,7 @@
 .article-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 16rpx;
 }
 
@@ -262,10 +262,6 @@
   font-size: 30rpx;
   color: #333;
   font-weight: 600;
-  max-width: 350rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .publish-time {
