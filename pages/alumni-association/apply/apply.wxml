@@ -75,7 +75,7 @@
         <picker
           mode="date"
           fields="year"
-          value="{{formData.enrollmentYear}}"
+          value="{{formData.enrollmentYear ? formData.enrollmentYear + '-01-01' : ''}}"
           bindchange="handleYearChange"
           data-field="enrollmentYear"
           disabled="{{mode === 'view'}}"
@@ -91,7 +91,7 @@
         <picker
           mode="date"
           fields="year"
-          value="{{formData.graduationYear}}"
+          value="{{formData.graduationYear ? formData.graduationYear + '-01-01' : ''}}"
           bindchange="handleYearChange"
           data-field="graduationYear"
           disabled="{{mode === 'view'}}"

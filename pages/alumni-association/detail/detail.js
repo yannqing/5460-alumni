@@ -13,7 +13,7 @@ Page({
     associationId: '',
     associationInfo: null,
     activeTab: 0,
-    tabs: ['基本信息', '组织结构', '成员列表'],//, '关系图谱'],
+    tabs: ['基本信息', '组织架构', '成员列表'],//, '关系图谱'],
     members: [],
     // 图谱数据（预留后端接口）
     graphData: null,

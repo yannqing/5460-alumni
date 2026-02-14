@@ -21,25 +21,30 @@
       <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
     </view>
     
-    <view class="form-item search-group required" style="z-index: 10;" catchtap="preventBubble">
+    <view class="form-item required">
       <text class="label">相关地区</text>
-      <input class="input" placeholder="请输入并选择相关地区(校促会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
-      <scroll-view scroll-y class="search-results" wx:if="{{showPlatformResults}}">
-        <view wx:if="{{platformList.length === 0}}" class="search-placeholder">未找到相关地区</view>
-        <view wx:for="{{platformList}}" wx:key="platformId" class="search-item" bindtap="selectPlatform" data-index="{{index}}">
-          {{item.city || item.platformName}}
+      <picker 
+        mode="selector" 
+        range="{{platformList}}" 
+        range-key="platformName" 
+        value="{{platformIndex}}" 
+        bindchange="handlePlatformChange"
+        class="input"
+      >
+        <view class="picker-content">
+          {{formData.platformName || '请选择相关地区(校促会)'}}
         </view>
-      </scroll-view>
+      </picker>
     </view>
 
     <view class="form-item required">
-      <text class="label">负责人姓名</text>
-      <input class="input" placeholder="请输入负责人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
+      <text class="label">联系人姓名</text>
+      <input class="input" placeholder="请输入联系人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
     </view>
 
     <view class="form-item required">
-      <text class="label">负责人电话</text>
-      <input class="input" placeholder="请输入负责人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+      <text class="label">联系人电话</text>
+      <input class="input" placeholder="请输入联系人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
     </view>
 
     <view class="form-item">
