@@ -229,7 +229,7 @@
           <view class="card dashboard-card">
             <view class="section-header">
               <view class="section-title">
-                <view class="text-bold">组织结构</view>
+                <view class="text-bold">组织架构</view>
                 <view class="section-subtitle">组织架构展示</view>
               </view>
             </view>

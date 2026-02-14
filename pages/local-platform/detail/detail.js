@@ -14,7 +14,7 @@ Page({
     associations: [],
     // 顶部标签：基本信息 / 组织结构 / 会员列表
     activeTab: 0,
-    tabs: ['基本信息', '组织结构', '会员列表'],
+    tabs: ['基本信息', '组织架构', '会员列表'],
     // 组织结构数据
     roleList: [], // 存储角色列表
     organizationLoading: false, // 组织结构加载状态
