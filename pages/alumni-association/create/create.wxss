@@ -111,6 +111,15 @@ page {
   color: #999;
 }
 
+/* 下拉选择器样式 */
+.picker-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  color: #333333;
+}
+
 .picker {
   /* color: #999; Removed placeholder color for picker */
   padding: 0 20rpx;
