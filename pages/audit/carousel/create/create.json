@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "新增轮播图",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}

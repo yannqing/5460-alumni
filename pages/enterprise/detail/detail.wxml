@@ -1,0 +1,91 @@
+<!--pages/enterprise/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="企业详情" showBack="{{true}}"></custom-nav-bar>
+
+<view class="container enterprise-detail-page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:else>
+    <view class="card hero-card">
+      <view class="enterprise-header">
+        <image class="enterprise-logo-large" src="{{enterpriseInfo.logo}}" mode="aspectFill" />
+        <view class="enterprise-info">
+          <view class="enterprise-name-large">{{enterpriseInfo.placeName}}</view>
+          <view class="enterprise-industry">{{enterpriseInfo.placeType === 1 ? '企业' : '场所'}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card info-card">
+      <view class="section-title">基本信息</view>
+      <view class="info-row">
+        <view class="info-label">企业名称</view>
+        <view class="info-value">{{enterpriseInfo.placeName}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">类型</view>
+        <view class="info-value">{{enterpriseInfo.placeType === 1 ? '企业' : '场所'}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">企业地址</view>
+        <view class="info-value">{{enterpriseInfo.province}}{{enterpriseInfo.city}}{{enterpriseInfo.district}}{{enterpriseInfo.address}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">成立时间</view>
+        <view class="info-value">{{enterpriseInfo.establishedTime}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">营业/办公时间</view>
+        <view class="info-value">{{enterpriseInfo.businessHours}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">状态</view>
+        <view class="info-value">
+          {{enterpriseInfo.status === 0 ? '停业/关闭' : enterpriseInfo.status === 1 ? '正常运营' : enterpriseInfo.status === 2 ? '筹建中' : ''}}
+        </view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">审核状态</view>
+        <view class="info-value">
+          {{enterpriseInfo.reviewStatus === 0 ? '待审核' : enterpriseInfo.reviewStatus === 1 ? '审核通过' : enterpriseInfo.reviewStatus === 2 ? '审核失败' : ''}}
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">企业简介</view>
+      <view class="text-secondary">{{enterpriseInfo.description}}</view>
+    </view>
+
+    <view class="card" wx:if="{{enterpriseInfo.contactPhone || enterpriseInfo.contactEmail}}">
+      <view class="section-title">联系方式</view>
+      <view class="contact-item" wx:if="{{enterpriseInfo.contactPhone}}">
+        <view class="contact-label">联系电话</view>
+        <view class="contact-value link-text" bindtap="makeCall" data-phone="{{enterpriseInfo.contactPhone}}">{{enterpriseInfo.contactPhone}}</view>
+      </view>
+      <view class="contact-item" wx:if="{{enterpriseInfo.contactEmail}}">
+        <view class="contact-label">电子邮箱</view>
+        <view class="contact-value link-text" bindtap="copyEmail" data-email="{{enterpriseInfo.contactEmail}}">{{enterpriseInfo.contactEmail}}</view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{enterpriseInfo.viewCount || enterpriseInfo.clickCount || enterpriseInfo.ratingScore}}">
+      <view class="section-title">统计信息</view>
+      <view class="info-row">
+        <view class="info-label">浏览次数</view>
+        <view class="info-value">{{enterpriseInfo.viewCount || 0}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">点击次数</view>
+        <view class="info-value">{{enterpriseInfo.clickCount || 0}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">评分</view>
+        <view class="info-value">{{enterpriseInfo.ratingScore || 0}}分</view>
+      </view>
+    </view>
+  </view>
+</view>
+

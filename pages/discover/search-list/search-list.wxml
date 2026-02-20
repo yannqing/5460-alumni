@@ -1,0 +1,117 @@
+<!--pages/discover/search-list/search-list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="搜索结果" showBack="{{true}}"></custom-nav-bar>
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="search-list-page">
+  <!-- 列表视图 -->
+  <scroll-view
+    class="list-view"
+    scroll-y="true"
+    refresher-enabled="true"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onPullDownRefresh"
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+  >
+    <!-- 附近优惠列表 -->
+    <view class="content-list" wx:if="{{queryType === 1}}">
+      <!-- 空列表提示 -->
+      <view class="empty-tip" wx:if="{{list.length === 0 && !loading}}">
+        <text>暂无搜索结果</text>
+      </view>
+      <view class="coupon-card" wx:for="{{list}}" wx:key="id" wx:for-index="idx" bindtap="handleShopTap" data-id="{{item.id}}">
+        <view class="coupon-main">
+          <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="coupon-content">
+            <view class="coupon-name">{{item.name}}</view>
+            <view class="coupon-distance">距离 {{item.distance}}</view>
+            <view class="coupon-associations-wrapper">
+              <view class="coupon-associations">
+                <view class="association-tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">
+                  <image class="association-avatar" src="{{defaultAvatar}}" mode="aspectFill"></image>
+                  <text class="association-text">{{assoc}}</text>
+                </view>
+              </view>
+              <view class="coupon-expand" bindtap="handleExpand" data-id="{{item.id}}">
+                <text class="expand-icon">></text>
+              </view>
+            </view>
+          </view>
+        </view>
+        <scroll-view class="coupon-buttons" scroll-x="true" show-scrollbar="false">
+          <view class="coupon-btn-wrapper">
+            <view class="coupon-btn" wx:for="{{item.coupons}}" wx:key="*this" wx:for-item="coupon" wx:for-index="couponIdx">
+              <view class="coupon-btn-left">
+                <text class="coupon-discount">{{coupon.discount}}</text>
+                <text class="coupon-type">{{coupon.type}}</text>
+              </view>
+              <view class="coupon-btn-divider"></view>
+              <view class="coupon-btn-right">
+                <text class="coupon-title">{{coupon.title || coupon.discount}}</text>
+                <text class="coupon-expire">{{coupon.expireDate}}</text>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+      <!-- 没有更多了提示 -->
+      <view class="no-more" wx:if="{{!hasMore && list.length > 0 && !loading}}">
+        <text>没有更多了</text>
+      </view>
+    </view>
+
+    <!-- 附近场所列表 -->
+    <view class="content-list" wx:if="{{queryType === 2}}">
+      <view class="empty-tip" wx:if="{{list.length === 0 && !loading}}">
+        <text>暂无搜索结果</text>
+      </view>
+      <view class="coupon-card" wx:for="{{list}}" wx:key="id">
+        <image class="coupon-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="coupon-content">
+          <view class="coupon-name">{{item.name}}</view>
+          <view class="coupon-distance">距离 {{item.distance}}</view>
+          <view class="coupon-associations">
+            <view class="association-tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">{{assoc}}</view>
+          </view>
+          <view class="coupon-rating" wx:if="{{item.rating}}">
+            <text>⭐ {{item.rating}}</text>
+          </view>
+        </view>
+      </view>
+      <!-- 没有更多了提示 -->
+      <view class="no-more" wx:if="{{!hasMore && list.length > 0 && !loading}}">
+        <text>没有更多了</text>
+      </view>
+    </view>
+
+    <!-- 附近校友列表 -->
+    <view class="content-list" wx:if="{{queryType === 3}}">
+      <view class="empty-tip" wx:if="{{list.length === 0 && !loading}}">
+        <text>暂无搜索结果</text>
+      </view>
+      <view class="content-card" wx:for="{{list}}" wx:key="id">
+        <view class="card-avatar">
+          <image class="avatar-img" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+        </view>
+        <view class="card-content">
+          <view class="card-name">{{item.name}}</view>
+          <view class="card-distance">距离 {{item.distance}}</view>
+          <view class="card-signature" wx:if="{{item.signature}}">{{item.signature}}</view>
+          <view class="card-association" wx:if="{{item.association}}">{{item.association}}</view>
+          <view class="card-tag" wx:if="{{item.tag}}">{{item.tag}}</view>
+        </view>
+        <view class="card-action">
+          <view class="follow-btn">关注</view>
+        </view>
+      </view>
+      <!-- 没有更多了提示 -->
+      <view class="no-more" wx:if="{{!hasMore && list.length > 0 && !loading}}">
+        <text>没有更多了</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+

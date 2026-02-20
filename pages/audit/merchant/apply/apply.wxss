@@ -1,0 +1,151 @@
+/* pages/audit/merchant/apply/apply.wxss */
+.apply-page {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.tabs-container {
+  display: flex;
+  background-color: #fff;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  border-bottom: 4rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.tab-item.active {
+  color: #1890ff;
+  border-bottom-color: #1890ff;
+  font-weight: bold;
+}
+
+.apply-list {
+  padding-bottom: 20rpx;
+}
+
+.apply-item {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.apply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.apply-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.apply-status {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.apply-status.pending {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+
+.apply-status.approved {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.apply-status.rejected {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+}
+
+.apply-info {
+  display: flex;
+  margin-bottom: 12rpx;
+  font-size: 28rpx;
+}
+
+.apply-label {
+  color: #999;
+  width: 160rpx;
+}
+
+.apply-value {
+  color: #333;
+  flex: 1;
+}
+
+.apply-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.action-btn {
+  padding: 16rpx 40rpx;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  margin-left: 20rpx;
+}
+
+.action-btn.reject {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  border: 1rpx solid #ff4d4f;
+}
+
+.action-btn.approve {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100rpx 0;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.load-more {
+  text-align: center;
+  padding: 30rpx;
+  font-size: 28rpx;
+  color: #999;
+}

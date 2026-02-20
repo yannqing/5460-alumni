@@ -1,0 +1,141 @@
+<!--pages/profile/profile.wxml-->
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="profile-page">
+  <!-- 个人信息卡片 -->
+  <view class="user-card">
+    <view class="user-info">
+      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="editProfile" wx:if="{{userInfo.avatarUrl}}"></image>
+      <view class="user-avatar-placeholder" bindtap="editProfile" wx:else></view>
+      <view class="user-detail">
+        <view class="user-name-container">
+          <text class="user-name">{{userInfo.nickname || '用户'}}</text>
+          <image class="alumni-badge" src="/assets/certification/alumni_certification1.png" mode="aspectFit" wx:if="{{userInfo.isAlumni === 1}}" />
+        </view>
+        <view class="edit-hint" bindtap="editProfile">编辑资料 ›</view>
+      </view>
+      <!-- 关注和粉丝统计 -->
+      <view class="follow-stats">
+        <view class="follow-stat-item" bindtap="goToMyFans">
+          <view class="follow-stat-value">{{followStats.fansCount || 0}}</view>
+          <view class="follow-stat-label">粉丝</view>
+        </view>
+        <view class="follow-stat-item" bindtap="goToMyFollow">
+          <view class="follow-stat-value">{{followStats.followingCount || 0}}</view>
+          <view class="follow-stat-label">关注</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 数据栏 -->
+    <view class="stats-section">
+      <view class="stat-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my">
+        <view class="stat-value">{{stats.coupons}}</view>
+        <view class="stat-label">优惠券</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="navigateTo" data-url="/pages/shop/list/list?type=followed">
+        <view class="stat-value">{{stats.followedShops}}</view>
+        <view class="stat-label">关注商铺</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="navigateTo" data-url="/pages/footprint/footprint">
+        <view class="stat-value">{{stats.footprints}}</view>
+        <view class="stat-label">足迹</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="card menu-card">
+    <!-- 管理入口 - 仅管理者可见 -->
+    <view class="menu-item" wx:if="{{hasManagementPermission}}" bindtap="navigateTo" data-url="/pages/audit/index/index">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconGlrk}}" mode="aspectFit"></image>
+        <text class="menu-name">管理入口</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconWdjb}}" mode="aspectFit"></image>
+        <text class="menu-name">我的券包</text>
+        <text class="menu-badge" wx:if="{{couponStats.unused > 0}}">{{couponStats.unused}}</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/alumni-association/alumni-association">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
+        <text class="menu-name">我的校友会</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/merchant/my-merchant/my-merchant">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
+        <text class="menu-name">我的商户</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/enterprise/my-enterprise/my-enterprise">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
+        <text class="menu-name">我的企业</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <!-- 商务合作 - 暂时注释掉 -->
+    <!-- <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/cooperation/cooperation">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconSwhz}}" mode="aspectFit"></image>
+        <text class="menu-name">商务合作</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view> -->
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/my-favorites/my-favorites">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconWdsc}}" mode="aspectFit"></image>
+        <text class="menu-name">我的收藏</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/my-card/my-card">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconWdsc}}" mode="aspectFit"></image>
+        <text class="menu-name">我的名片</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="navigateTo" data-url="/pages/profile/privacy/privacy">
+      <view class="menu-left">
+        <image class="menu-icon-img" src="{{iconGrys}}" mode="aspectFit"></image>
+        <text class="menu-name">个人隐私</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 底部留白 -->
+  <view class="bottom-space"></view>
+</view>
+
+<!-- 校友卡弹窗 -->
+<view class="alumni-card-modal" wx:if="{{showCardModal}}" bindtap="hideAlumniCard">
+  <view class="alumni-card-content" catchtap="true">
+    <view class="alumni-card-header">
+      <text class="card-title">校友卡</text>
+      <text class="close-btn" bindtap="hideAlumniCard">×</text>
+    </view>
+    <view class="alumni-card-body">
+      <image class="card-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+      <view class="card-name">{{userInfo.nickname}}</view>
+      <view class="card-school">{{userInfo.school}} · {{userInfo.graduateYear}}级</view>
+      <view class="card-qrcode">
+        <image src="{{alumniCardQrcode}}" mode="aspectFit"></image>
+      </view>
+      <view class="card-number">校友卡号：{{alumniCardNumber}}</view>
+    </view>
+  </view>
+</view>

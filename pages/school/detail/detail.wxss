@@ -1,0 +1,485 @@
+/* pages/school/detail/detail.wxss */
+
+.loading-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 封面区域 */
+.cover-section {
+  position: relative;
+  height: 500rpx;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+}
+
+.cover-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  padding: 40rpx 30rpx 30rpx;
+}
+
+.school-basic {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+}
+
+.school-icon-large {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 3rpx solid #ffffff;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+}
+
+.school-basic-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.school-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.school-name-large {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.certified-badge-large {
+  padding: 4rpx 12rpx;
+  background-color: rgb(226, 175, 22);
+  color: #ffffff;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  flex-shrink: 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.school-location-large {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  color: #ffffff;
+}
+
+.school-location-large .location-icon {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
+}
+
+/* 操作栏 */
+.action-bar {
+  display: flex;
+  background-color: #ffffff;
+  padding: 30rpx;
+  gap: 40rpx;
+  justify-content: space-around;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.action-icon {
+  font-size: 40rpx;
+  color: #40B2E6;
+}
+
+.action-text {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 选项卡 */
+.tabs {
+  display: flex;
+  background-color: #ffffff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 28rpx;
+  color: #666666;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #40B2E6;
+  font-weight: 600;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background-color: #40B2E6;
+  border-radius: 2rpx;
+}
+
+/* 内容区域 */
+.tab-content {
+  padding: 20rpx;
+}
+
+/* 信息区块 */
+.info-section {
+  margin-bottom: 20rpx;
+}
+
+/* 校友会列表区块 */
+.association-list-section {
+  margin-top: 20rpx;
+}
+
+.association-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.association-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.association-item:last-child {
+  border-bottom: none;
+}
+
+.association-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.association-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2rpx solid #f0f0f0;
+  background-color: #ffffff;
+}
+
+.association-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.association-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 10rpx;
+}
+
+.association-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.certified-badge-small {
+  padding: 2rpx 10rpx;
+  background-color: rgb(226, 175, 22);
+  color: #ffffff;
+  font-size: 20rpx;
+  border-radius: 4rpx;
+  flex-shrink: 0;
+}
+
+.association-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.association-location {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.location-icon-small {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
+}
+
+.association-members {
+  color: #999999;
+}
+
+.association-action {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+.join-btn {
+  padding: 12rpx 32rpx;
+  background: linear-gradient(90deg, #40B2E6 0%, #6BC5ED 100%);
+  color: #ffffff;
+  font-size: 26rpx;
+  border-radius: 40rpx;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 4rpx 12rpx rgba(64, 178, 230, 0.3);
+  transition: all 0.3s;
+}
+
+.join-btn.joined {
+  background: linear-gradient(90deg, #e0e0e0 0%, #f0f0f0 100%);
+  color: #999999;
+  box-shadow: none;
+}
+
+.empty-association {
+  padding: 60rpx 0;
+  text-align: center;
+}
+
+.empty-association .empty-text {
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.section-title-small {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 24rpx;
+}
+
+.info-row {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  width: 180rpx;
+  font-size: 26rpx;
+  color: #999999;
+  flex-shrink: 0;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333333;
+  word-break: break-all;
+}
+
+.link-text {
+  color: #40B2E6;
+  text-decoration: underline;
+}
+
+.description-text {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+/* 校友会区块 */
+.association-section {
+  margin-bottom: 20rpx;
+}
+
+.section-header-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding: 0 10rpx;
+}
+
+.section-more-inline {
+  font-size: 24rpx;
+  color: #999999;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.association-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.association-item-card {
+  padding: 24rpx;
+}
+
+.association-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.association-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.association-item-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12rpx;
+}
+
+.association-item-meta {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 8rpx;
+}
+
+.association-item-detail {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.dot {
+  margin: 0 8rpx;
+}
+
+.association-item-action {
+  flex-shrink: 0;
+}
+
+/* 校友总会 */
+.union-section {
+  margin-bottom: 20rpx;
+}
+
+.union-header {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+  padding-bottom: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.union-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  flex-shrink: 0;
+}
+
+.union-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.union-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.union-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.certified-badge {
+  padding: 4rpx 12rpx;
+  background-color: rgb(226, 175, 22);
+  color: #ffffff;
+  font-size: 20rpx;
+  border-radius: 6rpx;
+  flex-shrink: 0;
+}
+
+.union-desc {
+  font-size: 24rpx;
+  color: #666666;
+  line-height: 1.6;
+}
+
+.union-contact {
+  margin-bottom: 20rpx;
+}
+
+.contact-item {
+  padding: 16rpx 0;
+  font-size: 26rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.contact-item:last-child {
+  border-bottom: none;
+}
+
+.contact-label {
+  color: #999999;
+}
+
+.contact-value {
+  color: #333333;
+}
+
+.union-tip {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 20rpx;
+  background-color: #e6f7ff;
+  border-radius: 8rpx;
+}
+
+.tip-icon {
+  font-size: 32rpx;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: #40B2E6;
+}

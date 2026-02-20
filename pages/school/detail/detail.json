@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "母校详情",
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification",
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}

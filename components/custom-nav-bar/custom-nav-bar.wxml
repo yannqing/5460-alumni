@@ -1,0 +1,25 @@
+<!--components/custom-nav-bar/custom-nav-bar.wxml-->
+<view class="custom-nav-bar" style="height: {{statusBarHeight + navBarHeight}}px;">
+  <!-- 背景图片 -->
+  <image wx:if="{{backgroundImage}}" class="nav-bar-bg" src="{{backgroundImage}}" mode="aspectFill"></image>
+  
+  <!-- 状态栏占位 -->
+  <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+  
+  <!-- 导航栏内容 -->
+  <view class="nav-bar-content" style="height: {{navBarHeight}}px;">
+    <!-- 返回按钮 -->
+    <view wx:if="{{showBack}}" class="nav-back-btn" catchtap="goBack">
+      <image class="back-icon" src="{{iconBack}}" mode="aspectFit"></image>
+    </view>
+    
+    <!-- 标题 -->
+    <view class="nav-title" style="color: {{textColor}};">{{title}}</view>
+    
+    <!-- 右侧占位（保持标题居中） -->
+    <view wx:if="{{showBack}}" class="nav-right-placeholder"></view>
+  </view>
+</view>
+
+<!-- 占位视图，避免内容被导航栏遮挡 -->
+<view class="nav-bar-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>

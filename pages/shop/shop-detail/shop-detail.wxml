@@ -1,0 +1,184 @@
+<!--pages/shop/shop-detail/shop-detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="门店详情" showBack="{{true}}"></custom-nav-bar>
+
+<view class="shop-detail-page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:elif="{{shopInfo}}">
+    <!-- 多图轮播 -->
+    <swiper class="shop-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
+      <swiper-item wx:for="{{gallery}}" wx:key="*this">
+        <image class="swiper-image" src="{{item}}" mode="aspectFill"></image>
+      </swiper-item>
+    </swiper>
+
+    <!-- 基础信息卡片 -->
+    <view class="card basic-info-card">
+      <view class="shop-header">
+        <view class="shop-name-row">
+          <text class="shop-name">{{shopInfo.shopName}}</text>
+          <text class="shop-item-type">{{shopInfo.shopType === 1 ? '总店' : '分店'}}</text>
+        </view>
+        <view class="shop-rating-row" wx:if="{{shopInfo.ratingScore}}">
+          <text class="rating-text">⭐ {{shopInfo.ratingScore}}</text>
+          <text class="rating-count">({{shopInfo.ratingCount || 0}}评价)</text>
+        </view>
+      </view>
+
+      <view class="info-section">
+        <view class="info-item" bindtap="openLocation">
+          <image class="info-icon" src="{{iconLocation}}" mode="aspectFit"></image>
+          <view class="info-content">
+            <text class="info-label">地址</text>
+            <text class="info-value">{{location}}</text>
+          </view>
+          <text class="nav-text">导航</text>
+        </view>
+        <view class="info-item" bindtap="makeCall">
+          <image class="info-icon" src="{{iconPhone}}" mode="aspectFit"></image>
+          <view class="info-content">
+            <text class="info-label">电话</text>
+            <text class="info-value link-text">{{shopInfo.phone}}</text>
+          </view>
+        </view>
+        <view class="info-item" wx:if="{{shopInfo.businessHours}}">
+          <image class="info-icon" src="{{iconTime}}" mode="aspectFit"></image>
+          <view class="info-content">
+            <text class="info-label">营业时间</text>
+            <text class="info-value">{{shopInfo.businessHours}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 店铺详情信息 -->
+    <view class="card merchant-info-card" wx:if="{{shopInfo.description}}">
+      <view class="section-title">店铺简介</view>
+      <view class="shop-description">{{shopInfo.description}}</view>
+    </view>
+
+    <!-- 状态信息 -->
+    <view class="card status-info-card">
+      <view class="section-title">店铺状态</view>
+      <view class="status-row">
+        <view class="status-item">
+          <view class="status-label">营业状态</view>
+          <view class="status-value">
+            <view class="status-tag status-{{shopInfo.status}}">
+              {{shopInfo.status === 0 ? '停业' : shopInfo.status === 1 ? '营业中' : '装修中'}}
+            </view>
+          </view>
+        </view>
+        <view class="status-item">
+          <view class="status-label">审核状态</view>
+          <view class="status-value">
+            <view class="status-tag status-{{shopInfo.reviewStatus}}">
+              {{shopInfo.reviewStatus === 0 ? '待审核' : shopInfo.reviewStatus === 1 ? '审核通过' : '审核失败'}}
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="status-row" wx:if="{{shopInfo.isRecommended}}">
+        <view class="status-item">
+          <view class="status-label">校友会推荐</view>
+          <view class="status-value">
+            <view class="status-tag recommended">
+              {{shopInfo.isRecommended === 1 ? '是' : '否'}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 优惠券列表 -->
+    <view class="card coupon-section" wx:if="{{shopInfo.coupons && shopInfo.coupons.length}}">
+      <view class="section-title">优惠券</view>
+      <view class="coupon-list">
+        <view class="coupon-card" wx:for="{{shopInfo.coupons}}" wx:key="couponId">
+          <view class="coupon-left">
+            <view class="coupon-discount">
+              <text wx:if="{{item.couponType === 1}}">折</text>
+              <text wx:elif="{{item.couponType === 2}}">满{{item.minSpend}}减{{item.discountValue}}</text>
+              <text wx:else>{{item.couponName}}</text>
+            </view>
+            <view class="coupon-label">优惠券</view>
+          </view>
+          <view class="coupon-divider"></view>
+          <view class="coupon-right">
+            <view class="coupon-title">{{item.couponName}}</view>
+            <view class="coupon-desc">{{item.couponDesc}}</view>
+            <view class="coupon-expire">有效期至 {{item.validEndTime}}</view>
+          </view>
+          <view class="coupon-action" catchtap="handleCoupon" data-id="{{item.couponId}}">
+            <view 
+              class="coupon-btn {{item.status === 1 ? '' : 'disabled'}}"
+            >
+              立即领取
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 活动列表 -->
+    <view class="card activity-section" wx:if="{{shopInfo.activities && shopInfo.activities.length > 0}}">
+      <view class="section-title">店铺活动</view>
+      <view class="activity-list">
+        <view class="activity-card" wx:for="{{shopInfo.activities}}" wx:key="activityId" catchtap="handleActivityTap" data-id="{{item.activityId}}">
+          <view class="activity-card-inner">
+            <view class="activity-left">
+              <image class="activity-image" src="{{item.coverImage || ''}}" mode="aspectFill"></image>
+            </view>
+            <view class="activity-right">
+              <view class="activity-header">
+                <view class="activity-title">{{item.activityTitle || '暂无活动标题'}}</view>
+                <view class="status-tag status-{{item.status || 0}}">
+                  {{item.status === 0 ? '草稿' : item.status === 1 ? '报名中' : item.status === 2 ? '报名结束' : item.status === 3 ? '进行中' : item.status === 4 ? '已结束' : '已取消'}}
+                </view>
+              </view>
+              <view class="activity-organizer-info">
+                <image class="organizer-avatar" src="{{item.organizerAvatar || ''}}" mode="aspectFill"></image>
+                <view class="organizer-name">{{item.organizerName || '暂无主办方'}}</view>
+              </view>
+              <view class="activity-details">
+                <view class="detail-item">
+                  <image class="detail-icon" src="{{iconTime}}" mode="aspectFit"></image>
+                  <view class="detail-text">{{item.startTime || ''}} - {{item.endTime || ''}}</view>
+                </view>
+                <view class="detail-item category-item">
+                  <view class="detail-text">{{item.activityCategory || '暂无分类'}}</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 店铺统计信息 -->
+    <view class="card stats-info-card" wx:if="{{shopInfo.viewCount || shopInfo.clickCount}}">
+      <view class="section-title">店铺数据</view>
+      <view class="stats-row">
+        <view class="stat-item" wx:if="{{shopInfo.viewCount}}">
+          <view class="stat-value">{{shopInfo.viewCount}}</view>
+          <view class="stat-label">浏览次数</view>
+        </view>
+        <view class="stat-item" wx:if="{{shopInfo.clickCount}}">
+          <view class="stat-value">{{shopInfo.clickCount}}</view>
+          <view class="stat-label">点击次数</view>
+        </view>
+        <view class="stat-item" wx:if="{{shopInfo.couponReceivedCount}}">
+          <view class="stat-value">{{shopInfo.couponReceivedCount}}</view>
+          <view class="stat-label">优惠券领取次数</view>
+        </view>
+        <view class="stat-item" wx:if="{{shopInfo.couponVerifiedCount}}">
+          <view class="stat-value">{{shopInfo.couponVerifiedCount}}</view>
+          <view class="stat-label">优惠券核销次数</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

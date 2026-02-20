@@ -1,0 +1,325 @@
+/* pages/search/search.wxss */
+.container {
+  position: relative;
+}
+
+.search-bar {
+  background-color: #fff;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+/* 返回按钮 */
+.back-button {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+  position: relative;
+  z-index: 10;
+  /* 确保点击区域足够大 */
+  min-width: 64rpx;
+  min-height: 64rpx;
+}
+
+.back-button:active {
+  background-color: #f5f5f5;
+  transform: scale(0.95);
+}
+
+.back-icon {
+  color: #333;
+  font-size: 36rpx;
+  font-weight: 600;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  pointer-events: none; /* 防止图标阻止点击事件 */
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 50rpx;
+  padding: 16rpx 30rpx;
+  gap: 20rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.search-input-wrap.with-back {
+  /* 当有返回按钮时，搜索框宽度自动调整 */
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-shrink: 0;
+}
+
+.scan-btn-icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
+.search-btn {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
+.section {
+  margin: 20rpx;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.history-icon {
+  font-size: 32rpx;
+  color: #999;
+}
+
+.history-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.tabs {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.tab-item.active {
+  color: #40B2E6;
+  font-weight: 600;
+  border-bottom: 4rpx solid #40B2E6;
+}
+
+.result-section {
+  margin: 20rpx;
+}
+
+.empty-result {
+  padding: 100rpx 20rpx;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.loading-more {
+  padding: 40rpx 20rpx;
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.no-more {
+  padding: 40rpx 20rpx;
+  text-align: center;
+}
+
+.no-more-text {
+  font-size: 26rpx;
+  color: #ccc;
+}
+
+/* 列表项通用样式 */
+.list-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 24rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  gap: 24rpx;
+}
+
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.text-primary {
+  color: #333;
+}
+
+.text-bold {
+  font-weight: 600;
+}
+
+.text-placeholder {
+  color: #999;
+  font-size: 24rpx;
+}
+
+.mt-10 {
+  margin-top: 10rpx;
+}
+
+.mt-8 {
+  margin-top: 8rpx;
+}
+
+/* 校友列表项特殊样式 */
+.alumni-item {
+  padding: 32rpx 24rpx;
+  min-height: 180rpx;
+}
+
+.alumni-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+}
+
+.alumni-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.alumni-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.alumni-info {
+  font-size: 26rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.alumni-location {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  line-height: 1.5;
+}
+
+.alumni-signature {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 搜索榜单样式 */
+.ranking-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10rpx 0;
+}
+
+.ranking-item {
+  width: 50%; /* 两列显示 */
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  box-sizing: border-box;
+}
+
+.rank-number {
+  width: 36rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #999;
+  font-style: italic;
+  margin-right: 16rpx;
+  text-align: center;
+}
+
+.rank-number.top-rank {
+  color: #F5C348; /* 前三名颜色 - 重点色 */
+}
+
+/* 如果需要前三名分别不同颜色 */
+.ranking-item:nth-child(1) .rank-number {
+  color: #ff4d4f;
+}
+.ranking-item:nth-child(2) .rank-number {
+  color: #ff7a45;
+}
+.ranking-item:nth-child(3) .rank-number {
+  color: #ffa940;
+}
+
+.rank-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding-right: 20rpx;
+}
+
+.rank-keyword {
+  font-size: 28rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-icon {
+  font-size: 24rpx;
+  margin-left: 8rpx;
+}

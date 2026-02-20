@@ -1,0 +1,59 @@
+<!--pages/audit/content/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="内容审核" showBack="{{true}}"></custom-nav-bar>
+
+<view class="content-audit-list-page">
+  <!-- 标签栏 -->
+  <view class="tabs-container">
+    <view 
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      wx:for-index="index"
+      data-index="{{index}}"
+      bindtap="switchTab"
+    >
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 内容列表 -->
+  <view class="content-list">
+    <view 
+      class="content-item"
+      wx:for="{{contentList}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="viewDetail"
+    >
+      <view class="content-header">
+        <view class="content-title">{{item.title}}</view>
+        <view class="content-status {{item.status}}">{{item.statusText}}</view>
+      </view>
+      <view class="content-info">
+        <text class="info-label">类型：</text>
+        <text class="info-value">{{item.type === 'post' ? '帖子' : '评论'}}</text>
+      </view>
+      <view class="content-info">
+        <text class="info-label">作者：</text>
+        <text class="info-value">{{item.author}}</text>
+      </view>
+      <view class="content-info">
+        <text class="info-label">提交时间：</text>
+        <text class="info-value">{{item.submitTime}}</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && contentList.length === 0}}">
+      <text class="empty-text">暂无内容审核数据</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+</view>
+
+

@@ -1,0 +1,191 @@
+<!-- pages/audit/carousel/edit/edit.wxml -->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="编辑轮播图" showBack="{{true}}"></custom-nav-bar>
+
+<view class="create-banner-page">
+  <!-- 页面内容区域 -->
+  <view class="content-container">
+    <!-- 表单区域 -->
+    <form class="banner-form" bindsubmit="submitForm">
+      <!-- 轮播图标题 -->
+      <view class="form-item">
+        <text class="form-label required">轮播图标题</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入轮播图标题" 
+          value="{{formData.bannerTitle}}" 
+          data-field="bannerTitle"
+          bindinput="onInput"
+          required
+        />
+      </view>
+
+      <!-- 轮播图图片 -->
+      <view class="form-item">
+        <text class="form-label required">轮播图图片</text>
+        <view class="upload-section">
+          <view class="upload-btn" bindtap="uploadImage">
+            <image class="upload-icon" src="/images/icon/upload.png" mode="aspectFit"></image>
+            <text class="upload-text">上传图片</text>
+          </view>
+          <!-- 已上传图片预览 -->
+          <view class="image-preview" wx:if="{{imageFile}}">
+            <image src="{{imageFile.fileUrl}}" mode="aspectFill"></image>
+          </view>
+        </view>
+      </view>
+
+      <!-- 跳转类型 -->
+      <view class="form-item">
+        <text class="form-label required">跳转类型</text>
+        <view class="form-picker disabled">
+          <view class="picker-text">无跳转</view>
+        </view>
+      </view>
+
+      <!-- 跳转链接地址 -->
+      <view class="form-item" wx:if="{{formData.bannerType == 2 || formData.bannerType == 3}}">
+        <text class="form-label required">{{formData.bannerType == 2 ? '内部路径' : '第三方链接'}}</text>
+        <input 
+          class="form-input" 
+          placeholder="{{formData.bannerType == 2 ? '请输入内部路径' : '请输入第三方链接地址'}}" 
+          value="{{formData.linkUrl}}" 
+          data-field="linkUrl"
+          bindinput="onInput"
+        />
+      </view>
+
+      <!-- 关联业务ID -->
+      <view class="form-item" wx:if="{{formData.bannerType == 4}}">
+        <text class="form-label optional">关联文章ID</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入文章ID" 
+          value="{{formData.relatedId}}" 
+          data-field="relatedId"
+          bindinput="onInput"
+          type="number"
+        />
+      </view>
+
+      <!-- 关联业务类型 -->
+      <view class="form-item" wx:if="{{formData.bannerType == 4}}">
+        <text class="form-label optional">关联业务类型</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入关联业务类型(如ARTICLE)" 
+          value="{{formData.relatedType}}" 
+          data-field="relatedType"
+          bindinput="onInput"
+        />
+      </view>
+
+      <!-- 排序顺序 -->
+      <view class="form-item">
+        <text class="form-label optional">排序顺序</text>
+        <input 
+          class="form-input" 
+          placeholder="数值越小越靠前" 
+          value="{{formData.sortOrder}}" 
+          data-field="sortOrder"
+          bindinput="onInput"
+          type="number"
+        />
+      </view>
+
+      <!-- 状态 -->
+      <view class="form-item">
+        <text class="form-label optional">状态</text>
+        <picker mode="selector" range="{{statusOptions}}" range-key="label" value="{{selectedStatusIndex}}" bindchange="onStatusChange">
+          <view class="form-picker">
+            <view class="picker-text">{{statusOptions[selectedStatusIndex].label}}</view>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 生效开始时间 -->
+      <view class="form-item">
+        <text class="form-label optional">生效开始时间</text>
+        <picker-view 
+          class="form-picker-view" 
+          value="{{startTimePickerValue}}" 
+          bindchange="onStartTimePickerChange"
+          indicator-style="height: 50rpx;"
+          style="width: 100%; height: 300rpx;"
+        >
+          <picker-view-column>
+            <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+        </picker-view>
+        <text class="form-hint">{{startTimeDisplay || '请选择开始时间'}}</text>
+      </view>
+
+      <!-- 生效结束时间 -->
+      <view class="form-item">
+        <text class="form-label optional">生效结束时间</text>
+        <picker-view 
+          class="form-picker-view" 
+          value="{{endTimePickerValue}}" 
+          bindchange="onEndTimePickerChange"
+          indicator-style="height: 50rpx;"
+          style="width: 100%; height: 300rpx;"
+        >
+          <picker-view-column>
+            <view wx:for="{{yearList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{monthList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{dayList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{hourList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{minuteList}}" wx:key="*this" class="picker-view-item">{{item}}</view>
+          </picker-view-column>
+        </picker-view>
+        <text class="form-hint">{{endTimeDisplay || '请选择结束时间'}}</text>
+      </view>
+
+      <!-- 描述信息 -->
+      <view class="form-item">
+        <text class="form-label optional">描述信息</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入描述信息" 
+          value="{{formData.description}}" 
+          data-field="description"
+          bindinput="onInput"
+          auto-height
+          maxlength="200"
+        ></textarea>
+      </view>
+
+      <!-- 提交按钮 -->
+      <view class="submit-section">
+        <button 
+          class="submit-btn" 
+          type="primary" 
+          form-type="submit"
+          loading="{{loading}}"
+        >
+          更新
+        </button>
+      </view>
+    </form>
+  </view>
+</view>
