@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "我的",
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification"
+  }
+}

@@ -1,0 +1,283 @@
+<!--pages/alumni-association/organization/organization.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="组织架构" showBack="{{true}}"></custom-nav-bar>
+
+<view class="container">
+  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <view class="form-title">校友会组织</view>
+
+    <!-- 选择校友会 -->
+    <view class="form-item">
+      <text class="label">选择校友会</text>
+      <view class="alumni-association-selector" bindtap="showAlumniAssociationSelector">
+        <text class="selector-label">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+        <text class="selector-arrow">▼</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 角色列表 -->
+  <view class="form-card" style="margin-top: 20rpx;">
+    <view class="form-title-row">
+      <text class="form-title">校友会角色列表</text>
+      <view class="add-role-btn" bindtap="openAddModal">+ 新增角色</view>
+    </view>
+    
+    <!-- 加载中 -->
+    <view wx:if="{{roleLoading}}" class="loading-state">
+      <text>加载角色中...</text>
+    </view>
+    
+    <!-- 角色列表（树形结构，支持展开/收缩） -->
+    <view class="role-list" wx:else>
+      <!-- 一级角色 -->
+      <block wx:for="{{roleList}}" wx:key="roleOrId">
+        <view class="role-item level-1" bindlongpress="onRoleLongPress" data-role="{{item}}">
+          <view class="role-left">
+            <view
+              class="expand-icon {{expandedRoles[item.roleOrId] ? 'expanded' : ''}}"
+              wx:if="{{item.children && item.children.length > 0}}"
+              catchtap="toggleExpand"
+              data-role-or-id="{{item.roleOrId}}"
+            >
+              <text class="arrow">▶</text>
+            </view>
+            <view class="expand-placeholder" wx:else></view>
+            <view class="role-name">{{item.roleOrName}}</view>
+          </view>
+          <view class="role-actions">
+            <view class="edit-btn" catchtap="openEditModal" data-role="{{item}}">编辑</view>
+            <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{item.roleOrId}}">删除</view>
+          </view>
+        </view>
+        <!-- 二级角色 -->
+        <block wx:if="{{expandedRoles[item.roleOrId]}}">
+          <block wx:for="{{item.children}}" wx:for-item="child" wx:key="roleOrId">
+            <view class="role-item level-2" bindlongpress="onRoleLongPress" data-role="{{child}}">
+              <view class="role-left">
+                <view
+                  class="expand-icon {{expandedRoles[child.roleOrId] ? 'expanded' : ''}}"
+                  wx:if="{{child.children && child.children.length > 0}}"
+                  catchtap="toggleExpand"
+                  data-role-or-id="{{child.roleOrId}}"
+                >
+                  <text class="arrow">▶</text>
+                </view>
+                <view class="expand-placeholder" wx:else></view>
+                <view class="role-name">{{child.roleOrName}}</view>
+              </view>
+              <view class="role-actions">
+                <view class="edit-btn" catchtap="openEditModal" data-role="{{child}}">编辑</view>
+                <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{child.roleOrId}}">删除</view>
+              </view>
+            </view>
+            <!-- 三级角色 -->
+            <block wx:if="{{expandedRoles[child.roleOrId]}}">
+              <block wx:for="{{child.children}}" wx:for-item="grandChild" wx:key="roleOrId">
+                <view class="role-item level-3" bindlongpress="onRoleLongPress" data-role="{{grandChild}}">
+                  <view class="role-left">
+                    <view class="expand-placeholder"></view>
+                    <view class="role-name">{{grandChild.roleOrName}}</view>
+                  </view>
+                  <view class="role-actions">
+                    <view class="edit-btn" catchtap="openEditModal" data-role="{{grandChild}}">编辑</view>
+                    <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{grandChild.roleOrId}}">删除</view>
+                  </view>
+                </view>
+              </block>
+            </block>
+          </block>
+        </block>
+      </block>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{roleList.length === 0}}">
+        <text>{{selectedAlumniAssociationId ? '暂无角色数据' : '请先选择校友会'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 校友会选择器弹窗 -->
+  <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
+    <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校友会</text>
+        <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view 
+          class="picker-item"
+          wx:for="{{alumniAssociationList}}"
+          wx:key="alumniAssociationId"
+          data-alumni-association-id="{{item.alumniAssociationId}}"
+          data-alumni-association-name="{{item.alumniAssociationName}}"
+          bindtap="selectAlumniAssociation"
+        >
+          <text class="item-name">{{item.alumniAssociationName}}</text>
+          <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">
+          <text>暂无校友会数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 编辑角色弹窗 -->
+  <view class="edit-modal" wx:if="{{showEditModal}}">
+    <view class="edit-modal-overlay" bindtap="closeEditModal"></view>
+    <view class="edit-modal-content">
+      <view class="edit-modal-header">
+        <text class="edit-modal-title">编辑角色</text>
+        <text class="edit-modal-close" bindtap="closeEditModal">×</text>
+      </view>
+      <view class="edit-modal-body">
+        <!-- 角色名 -->
+        <view class="edit-form-item">
+          <text class="edit-label required">角色名</text>
+          <input
+            class="edit-input"
+            placeholder="请输入角色名"
+            value="{{editForm.roleOrName}}"
+            bindinput="onEditInputChange"
+            data-field="roleOrName"
+          />
+        </view>
+        <!-- 角色代码 -->
+        <view class="edit-form-item">
+          <text class="edit-label">角色代码</text>
+          <input
+            class="edit-input"
+            placeholder="请输入角色代码"
+            value="{{editForm.roleOrCode}}"
+            bindinput="onEditInputChange"
+            data-field="roleOrCode"
+          />
+        </view>
+        <!-- 角色含义 -->
+        <view class="edit-form-item">
+          <text class="edit-label">角色含义</text>
+          <input
+            class="edit-input"
+            placeholder="请输入角色含义"
+            value="{{editForm.remark}}"
+            bindinput="onEditInputChange"
+            data-field="remark"
+          />
+        </view>
+        <!-- 状态 -->
+        <view class="edit-form-item">
+          <text class="edit-label">状态</text>
+          <view class="status-switch">
+            <switch checked="{{editForm.status === 1}}" bindchange="onStatusChange" color="#1890ff" />
+            <text class="status-text">{{editForm.status === 1 ? '启用' : '禁用'}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="edit-modal-footer">
+        <view class="edit-btn-cancel" bindtap="closeEditModal">取消</view>
+        <view class="edit-btn-confirm" bindtap="submitEdit">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 移动层级弹窗 -->
+  <view class="move-modal" wx:if="{{showMoveModal}}">
+    <view class="move-modal-overlay" bindtap="closeMoveModal"></view>
+    <view class="move-modal-content">
+      <view class="move-modal-header">
+        <text class="move-modal-title">移动「{{movingRole.roleOrName}}」到</text>
+        <text class="move-modal-close" bindtap="closeMoveModal">×</text>
+      </view>
+      <view class="move-modal-tip">
+        <text>长按角色可快速调整层级关系</text>
+      </view>
+      <scroll-view class="move-modal-body" scroll-y>
+        <view
+          class="parent-item {{item.isRoot ? 'root-item' : ''}} {{(movingRole.pid === null && item.roleOrId === '0') || (String(movingRole.pid) === String(item.roleOrId)) ? 'current-parent' : ''}}"
+          wx:for="{{availableParents}}"
+          wx:key="roleOrId"
+          bindtap="selectNewParent"
+          data-parent-id="{{item.roleOrId}}"
+        >
+          <view class="parent-indent" style="width: {{item.level * 30}}rpx;"></view>
+          <text class="parent-name">{{item.roleOrName}}</text>
+          <text class="current-tag" wx:if="{{(movingRole.pid === null && item.roleOrId === '0') || (String(movingRole.pid) === String(item.roleOrId))}}">当前</text>
+        </view>
+        <view class="move-empty" wx:if="{{availableParents.length === 0}}">
+          <text>暂无可选的父级</text>
+        </view>
+      </scroll-view>
+      <view class="move-modal-footer">
+        <view class="move-btn-cancel" bindtap="closeMoveModal">取消</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新增角色弹窗 -->
+  <view class="add-modal" wx:if="{{showAddModal}}">
+    <view class="add-modal-overlay" bindtap="closeAddModal"></view>
+    <view class="add-modal-content">
+      <view class="add-modal-header">
+        <text class="add-modal-title">新增角色</text>
+        <text class="add-modal-close" bindtap="closeAddModal">×</text>
+      </view>
+      <view class="add-modal-body">
+        <!-- 角色名 -->
+        <view class="add-form-item">
+          <text class="add-label required">角色名</text>
+          <input
+            class="add-input"
+            placeholder="请输入角色名"
+            value="{{addForm.roleOrName}}"
+            bindinput="onAddInputChange"
+            data-field="roleOrName"
+          />
+        </view>
+        <!-- 父级角色 -->
+        <view class="add-form-item">
+          <text class="add-label">父级角色</text>
+          <picker
+            mode="selector"
+            range="{{parentOptions}}"
+            range-key="roleOrName"
+            value="{{selectedParentIndex}}"
+            bindchange="onParentChange"
+          >
+            <view class="add-picker">
+              <text class="add-picker-text">{{selectedParentName || '请选择父级'}}</text>
+              <text class="add-picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+        <!-- 角色代码 -->
+        <view class="add-form-item">
+          <text class="add-label">角色代码</text>
+          <input
+            class="add-input"
+            placeholder="请输入角色代码"
+            value="{{addForm.roleOrCode}}"
+            bindinput="onAddInputChange"
+            data-field="roleOrCode"
+          />
+        </view>
+        <!-- 角色含义 -->
+        <view class="add-form-item">
+          <text class="add-label">角色含义</text>
+          <input
+            class="add-input"
+            placeholder="请输入角色含义"
+            value="{{addForm.remark}}"
+            bindinput="onAddInputChange"
+            data-field="remark"
+          />
+        </view>
+      </view>
+      <view class="add-modal-footer">
+        <view class="add-btn-cancel" bindtap="closeAddModal">取消</view>
+        <view class="add-btn-confirm" bindtap="submitAdd">添加</view>
+      </view>
+    </view>
+  </view>
+</view>

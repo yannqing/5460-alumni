@@ -1,0 +1,117 @@
+<!--pages/alumni-association/organization-detail/organization-detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="组织结构" showBack="{{true}}"></custom-nav-bar>
+
+<view class="container">
+  <view class="header">
+    <view class="title">组织结构</view>
+  </view>
+
+  <!-- 角色列表 -->
+  <view class="role-list-section">
+    <view class="section-title">组织架构</view>
+    
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-container">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view wx:elif="{{roleList.length === 0}}" class="empty-container">
+      <text class="empty-text">暂无角色数据</text>
+    </view>
+    
+    <!-- 角色列表 -->
+    <view wx:else class="role-list">
+      <view wx:for="{{roleList}}" wx:key="roleOrId" class="role-item">
+        <view class="role-header" bindtap="toggleExpand" data-id="{{item.roleOrId}}">
+          <view class="role-name-container">
+            <text class="expand-icon">{{item.expanded ? '▼' : '▶'}}</text>
+            <text class="role-name">{{item.roleOrName || '未知角色'}}</text>
+          </view>
+          <text class="role-count">{{item.members.length || 0}}人</text>
+        </view>
+        
+        
+        
+        <!-- 成员列表 -->
+        <view class="members-list" wx:if="{{item.members.length > 0}}">
+          <view class="members-title">成员: ({{item.members.length}}人)</view>
+          <view class="members-scroll-container">
+            <view class="members-grid">
+              <view wx:for="{{item.members}}" wx:key="wxId" class="member-item">
+                <image class="member-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+                <view class="member-info">
+                  <text class="member-name">{{item.name || item.nickname || '未知'}}</text>
+                  <text class="member-gender">{{item.gender === 1 ? '男' : item.gender === 2 ? '女' : '未知'}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 子角色列表 -->
+        <view class="children-list" wx:if="{{item.expanded && item.children && item.children.length > 0}}">
+          <view wx:for="{{item.children}}" wx:key="roleOrId" class="child-role-item">
+            <view class="role-header" bindtap="toggleExpand" data-id="{{item.roleOrId}}">
+              <view class="role-name-container">
+                <text class="expand-icon">{{item.expanded ? '▼' : '▶'}}</text>
+                <text class="role-name">{{item.roleOrName || '未知角色'}}</text>
+              </view>
+              <text class="role-count">{{item.members.length || 0}}人</text>
+            </view>
+            
+            
+            
+            <!-- 子角色成员列表 -->
+            <view class="members-list" wx:if="{{item.members.length > 0}}">
+              <view class="members-title">成员: ({{item.members.length}}人)</view>
+              <view class="members-scroll-container">
+                <view class="members-grid">
+                  <view wx:for="{{item.members}}" wx:key="wxId" class="member-item">
+                    <image class="member-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+                    <view class="member-info">
+                      <text class="member-name">{{item.name || item.nickname || '未知'}}</text>
+                      <text class="member-gender">{{item.gender === 1 ? '男' : item.gender === 2 ? '女' : '未知'}}</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+            
+            <!-- 孙角色列表 -->
+            <view class="grandchildren-list" wx:if="{{item.expanded && item.children && item.children.length > 0}}">
+              <view wx:for="{{item.children}}" wx:key="roleOrId" class="grandchild-role-item">
+                <view class="role-header">
+                  <view class="role-name-container">
+                    <text class="role-name">{{item.roleOrName || '未知角色'}}</text>
+                  </view>
+                  <text class="role-count">{{item.members.length || 0}}人</text>
+                </view>
+                
+                
+                
+                <!-- 孙角色成员列表 -->
+                <view class="members-list" wx:if="{{item.members.length > 0}}">
+                  <view class="members-title">成员: ({{item.members.length}}人)</view>
+                  <view class="members-scroll-container">
+                    <view class="members-grid">
+                      <view wx:for="{{item.members}}" wx:key="wxId" class="member-item">
+                        <image class="member-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+                        <view class="member-info">
+                          <text class="member-name">{{item.name || item.nickname || '未知'}}</text>
+                          <text class="member-gender">{{item.gender === 1 ? '男' : item.gender === 2 ? '女' : '未知'}}</text>
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

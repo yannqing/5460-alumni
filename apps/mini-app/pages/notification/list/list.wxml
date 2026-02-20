@@ -1,0 +1,64 @@
+<!--pages/notification/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="通知列表" showBack="{{true}}"></custom-nav-bar>
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="container notification-page">
+  <view class="notify-header card">
+    <view class="notify-title-row">
+      <view>
+        <view class="notify-title">消息中心</view>
+        <view class="notify-subtitle">及时掌握校友动态</view>
+      </view>
+      <button class="mark-read-btn" size="mini" bindtap="markAllRead">全部已读</button>
+    </view>
+    <view class="notify-search">
+      <text>🔍</text>
+      <input
+        placeholder="搜索标题或内容"
+        value="{{searchValue}}"
+        bindinput="handleSearchInput"
+      />
+    </view>
+  </view>
+
+  <scroll-view class="notify-tabs" scroll-x>
+    <view
+      class="notify-tab {{filterType === option.id ? 'active' : ''}}"
+      wx:for="{{filterOptions}}"
+      wx:key="id"
+      data-id="{{option.id}}"
+      bindtap="handleFilterChange"
+    >
+      {{option.label}}
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+  <view wx:elif="{{!displayList.length}}" class="empty-state card">
+    <image src="https://cdn.example.com/empty-notify.png" mode="widthFix"></image>
+    <text>暂无消息</text>
+  </view>
+  <view wx:else class="notification-list">
+    <view
+      class="notification-item card {{item.isRead ? 'is-read' : ''}}"
+      wx:for="{{displayList}}"
+      wx:key="id"
+      bindtap="viewDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="notification-header">
+        <view class="notification-title">{{item.title}}</view>
+        <view class="badge" wx:if="{{!item.isRead}}">未读</view>
+      </view>
+      <view class="notification-content">{{item.content}}</view>
+      <view class="notification-footer">
+        <view class="notification-time">{{item.time}}</view>
+        <view class="notification-type">{{item.type}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+

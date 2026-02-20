@@ -1,0 +1,124 @@
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="申请创建校友会" showBack="{{true}}"></custom-nav-bar>
+
+<view class="container" bindtap="closeAllDropdowns">
+  <view class="form-card">
+    <view class="form-title">基本信息</view>
+
+    <view class="form-item">
+      <text class="label">校友会名称 *</text>
+      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
+    </view>
+    
+    <view class="form-item search-group" style="z-index: 20;" catchtap="preventBubble">
+      <text class="label">申请学校 *</text>
+      <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
+      <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
+        <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
+        <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
+          {{item.schoolName}}
+        </view>
+      </scroll-view>
+    </view>
+    
+    <view class="form-item search-group" style="z-index: 10;" catchtap="preventBubble">
+      <text class="label">相关地区 *</text>
+      <input class="input" placeholder="请输入并选择相关地区(校处会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
+      <scroll-view scroll-y class="search-results" wx:if="{{showPlatformResults}}">
+        <view wx:if="{{platformList.length === 0}}" class="search-placeholder">未找到相关地区</view>
+        <view wx:for="{{platformList}}" wx:key="platformId" class="search-item" bindtap="selectPlatform" data-index="{{index}}">
+          {{item.city || item.platformName}}
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">负责人姓名 *</text>
+      <input class="input" placeholder="请输入负责人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">负责人电话 *</text>
+      <input class="input" placeholder="请输入负责人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">校友会logo</text>
+      <view class="upload-container">
+        <input class="input" placeholder="请输入校友会logo" value="{{formData.logo}}" data-field="logo" bindinput="handleInput" style="display: none;" />
+        <button class="upload-btn" bindtap="chooseLogo">选择图片</button>
+        <image wx:if="{{formData.logo}}" src="{{formData.logo}}" class="uploaded-image" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">背景图</text>
+      <view class="upload-container">
+        <button class="upload-btn" bindtap="chooseBgImage">选择图片</button>
+        <view wx:if="{{bgImages.length > 0}}" class="attachments-list">
+          <view wx:for="{{bgImages}}" wx:key="index" class="attachment-item">
+            <text class="attachment-name">{{item.name}}</text>
+            <text class="attachment-delete" bindtap="deleteBgImage" data-index="{{index}}">删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">申请材料</text>
+      <view class="upload-container">
+        <button class="upload-btn" bindtap="chooseAttachment">选择文件</button>
+        <view wx:if="{{attachments.length > 0}}" class="attachments-list">
+          <view wx:for="{{attachments}}" wx:key="index" class="attachment-item">
+            <text class="attachment-name">{{item.name}}</text>
+            <text class="attachment-delete" bindtap="deleteAttachment" data-index="{{index}}">删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+
+
+    <view class="form-item">
+      <text class="label">申请理由</text>
+      <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
+    </view>
+  </view>
+
+  <view class="form-card" style="margin-top: 20rpx;">
+    <view class="form-header">
+      <view class="form-title">其余人员信息</view>
+      <view class="add-btn" bindtap="addMember">+ 添加成员</view>
+    </view>
+
+    <block wx:for="{{members}}" wx:key="index">
+      <view class="member-item">
+        <view class="member-header">
+          <text class="member-index">成员 {{index + 1}}</text>
+          <text class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
+        </view>
+        <view class="form-row">
+          <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble">
+            <input class="input member-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="handleMemberNameInput" bindfocus="handleMemberNameFocus" />
+            <scroll-view scroll-y class="search-results" wx:if="{{memberSearchResults[index] && memberSearchResults[index].length > 0}}">
+              <view wx:if="{{memberSearchResults[index].length === 0}}" class="search-placeholder">未找到相关人员</view>
+              <view wx:for="{{memberSearchResults[index]}}" wx:key="userId" wx:for-index="userIndex" class="search-item member-search-item" bindtap="selectMember" data-index="{{index}}" data-user-index="{{userIndex}}">
+                <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" />
+                <image wx:else src="/images/default-avatar.png" class="member-avatar" />
+                <view class="member-info">
+                  <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
+                  <text class="member-school">{{item.school || '暂无学校信息'}}</text>
+                </view>
+              </view>
+            </scroll-view>
+          </view>
+          <input class="input member-input" placeholder="角色 (如:副会长)" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
+        </view>
+      </view>
+    </block>
+    
+    <view wx:if="{{members.length === 0}}" class="empty-tip">暂无其他成员，请点击上方按钮添加</view>
+  </view>
+
+  <button class="submit-btn" bindtap="submitForm">提交申请</button>
+</view>

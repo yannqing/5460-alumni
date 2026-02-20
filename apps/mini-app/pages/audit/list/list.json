@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "审核管理",
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}
+
+

@@ -1,0 +1,76 @@
+<!--pages/alumni/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校友" showBack="{{true}}"></custom-nav-bar>
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <input class="search-input" type="text" placeholder="搜索校友名称、昵称或手机号" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
+    </view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item" wx:for="{{filters}}" wx:key="label" data-index="{{index}}" bindtap="openFilterOptions">
+      <text>{{item.options[item.selected]}}</text>
+      <text class="filter-arrow">▾</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showFilterOptions}}">
+    <view class="filter-mask" bindtap="closeFilterOptions"></view>
+    <view class="filter-options-panel">
+      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
+        {{item}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 校友列表 -->
+  <view class="alumni-list">
+    <view class="alumni-card" wx:for="{{alumniList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <!-- 头部：头像、名称和认证标识 -->
+      <view class="card-header">
+        <image class="alumni-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+        <view class="card-info">
+          <view class="card-title-row">
+            <text class="card-title">{{item.name}}</text>
+            <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
+          </view>
+
+          <!-- 学校信息 -->
+          <view class="card-subtitle">
+            <image class="subtitle-icon" src="{{iconSchool}}" mode="aspectFit" />
+            <text>{{item.school}}</text>
+          </view>
+
+          <!-- 位置信息 -->
+          <view class="card-location">
+            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+            <text>{{item.location}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="card-action-bottom" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+        <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+          {{item.isFollowed ? '已关注' : '+ 关注'}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+    <view wx:elif="{{!hasMore}}" class="loading-text">没有更多了</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && alumniList.length === 0}}" class="empty-state">
+      <view class="empty-placeholder">暂无数据</view>
+      <text>暂无数据</text>
+    </view>
+  </view>
+</view>

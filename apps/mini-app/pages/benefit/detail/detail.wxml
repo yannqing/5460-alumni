@@ -1,0 +1,43 @@
+<!--pages/benefit/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="权益详情" showBack="{{true}}"></custom-nav-bar>
+
+<view class="container">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:else-if="{{benefitInfo}}">
+    <view class="card">
+      <view class="benefit-detail-title">{{benefitInfo.title}}</view>
+      <view class="benefit-detail-merchant">{{benefitInfo.merchant}}</view>
+      <view class="benefit-detail-discount">优惠：{{benefitInfo.discount}}</view>
+      <view class="benefit-detail-distance">距离：{{benefitInfo.distance}}</view>
+    </view>
+
+    <view class="card">
+      <view class="text-bold mb-20">权益说明</view>
+      <view class="text-secondary">{{benefitInfo.description}}</view>
+      <view class="divider"></view>
+      <view class="text-bold mb-20">使用规则</view>
+      <view class="rule-list">
+        <view class="rule-item" wx:for="{{benefitInfo.rules}}" wx:key="*this">
+          <text class="rule-dot">•</text>
+          <text class="rule-text">{{item}}</text>
+        </view>
+      </view>
+      <view class="divider"></view>
+      <view class="text-bold mb-20">有效期</view>
+      <view class="text-secondary">至 {{benefitInfo.expireDate}}</view>
+    </view>
+
+    <view class="card">
+      <view class="text-bold mb-20">商家信息</view>
+      <view class="text-secondary mb-10">地址：{{benefitInfo.address}}</view>
+      <view class="text-secondary">
+        电话：<text class="link-text" bindtap="makeCall">{{benefitInfo.phone}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+

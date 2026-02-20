@@ -1,0 +1,100 @@
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="文章审核" showBack="{{true}}"></custom-nav-bar>
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="container">
+  <!-- 标签栏 -->
+  <view class="tabs-container">
+    <view 
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      wx:for-index="index"
+      data-index="{{index}}"
+      bindtap="switchTab"
+    >
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 审核列表 -->
+  <view class="audit-list">
+    <block wx:for="{{applyList}}" wx:key="id" wx:for-index="idx">
+      <view class="audit-item">
+        <view class="audit-header" bindtap="viewArticleDetail" data-id="{{item.homeArticleId}}" data-index="{{idx}}">
+          <view class="article-title">{{item.articleTitle}}</view>
+          <view class="audit-status {{item.statusClass}}">{{item.statusText}}</view>
+        </view>
+
+        <!-- 文章内容区域 -->
+        <view class="article-content-wrapper" bindtap="viewArticleDetail" data-id="{{item.homeArticleId}}" data-index="{{idx}}">
+          <view class="article-body">
+            <view class="article-text-content">
+              <view class="article-description" wx:if="{{item.articleDescription}}">{{item.articleDescription}}</view>
+            </view>
+            <view class="article-cover-wrapper" wx:if="{{item.coverImg}}">
+              <image class="article-cover" src="{{item.coverImg}}" mode="aspectFill"></image>
+            </view>
+          </view>
+        </view>
+
+        <view class="audit-info" bindtap="viewArticleDetail" data-id="{{item.homeArticleId}}" data-index="{{idx}}">
+          <view class="info-row">
+            <text class="info-label">文章ID：</text>
+            <text class="info-value">{{item.homeArticleId}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.publishUsername}}">
+            <view class="publisher-info">
+              <view class="publisher-avatar-wrapper" wx:if="{{item.publisherAvatar}}">
+                <image class="publisher-avatar" src="{{item.publisherAvatar}}" mode="aspectFill"></image>
+              </view>
+              <text class="info-label">发布者：</text>
+              <text class="info-value">{{item.publishUsername}}</text>
+            </view>
+          </view>
+          <view class="info-row">
+            <text class="info-label">提交时间：</text>
+            <text class="info-value">{{item.createTime}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.completedTime}}">
+            <text class="info-label">审核时间：</text>
+            <text class="info-value">{{item.completedTime}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.appliedName}}">
+            <text class="info-label">审核人：</text>
+            <text class="info-value">{{item.appliedName}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.appliedDescription}}">
+            <text class="info-label">审核意见：</text>
+            <text class="info-value">{{item.appliedDescription}}</text>
+          </view>
+        </view>
+
+        <!-- 操作按钮：只有待审核状态才显示审核按钮 -->
+        <view class="audit-actions" wx:if="{{currentTab === 0 && item.applyStatus === 0}}">
+          <view class="action-btn approve-btn" bindtap="approveArticle" data-id="{{item.id}}" data-index="{{idx}}">通过审核</view>
+          <view class="action-btn reject-btn" bindtap="rejectArticle" data-id="{{item.id}}" data-index="{{idx}}">拒绝</view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && applyList.length === 0}}">
+      <text class="empty-text">暂无审核数据</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more-state" wx:if="{{!hasMore && applyList.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+  </view>
+</view>
+
+

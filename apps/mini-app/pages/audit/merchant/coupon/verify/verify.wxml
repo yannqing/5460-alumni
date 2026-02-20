@@ -1,0 +1,106 @@
+<!--pages/audit/merchant/coupon/verify/verify.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="核销优惠券" showBack="{{true}}"></custom-nav-bar>
+
+<view class="verify-coupon-page">
+  <!-- 门店选择 -->
+  <view class="shop-selector-container" wx:if="{{shopList.length > 1}}">
+    <view class="shop-selector-header" bindtap="toggleShopSelector">
+      <view class="shop-selector-label">选择门店</view>
+      <view class="shop-selector-value">
+        <text wx:if="{{selectedShop}}">{{selectedShop.shopName || '未选择'}}</text>
+        <text wx:else class="placeholder-text">请选择门店</text>
+      </view>
+      <view class="shop-selector-arrow">{{showShopSelector ? '▲' : '▼'}}</view>
+    </view>
+    
+    <!-- 门店列表 -->
+    <view wx:if="{{showShopSelector}}" class="shop-list-dropdown">
+      <view 
+        class="shop-item {{selectedShop && selectedShop.shopId === item.shopId ? 'selected' : ''}}"
+        wx:for="{{shopList}}" 
+        wx:key="shopId"
+        bindtap="onSelectShop"
+        data-shopid="{{item.shopId}}"
+      >
+        <view class="shop-item-info">
+          <view class="shop-item-name">{{item.shopName || '未命名门店'}}</view>
+          <view class="shop-item-address" wx:if="{{item.address}}">{{item.address}}</view>
+        </view>
+        <view wx:if="{{selectedShop && selectedShop.shopId === item.shopId}}" class="shop-item-check">✓</view>
+      </view>
+      <view wx:if="{{shopList.length === 0 && !loadingShops}}" class="shop-empty">
+        <text>暂无可用门店</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="search-container">
+    <view class="search-box">
+      <input 
+        class="search-input" 
+        type="text" 
+        placeholder="请输入优惠券码或扫描二维码"
+        value="{{searchValue}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+      />
+      <view class="scan-btn" bindtap="onScanClick">
+        <image class="scan-btn-icon" src="{{iconScan}}" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <text class="loading-text">查询中...</text>
+  </view>
+
+  <!-- 核销码输入后显示核销按钮 -->
+  <view wx:if="{{searchValue && !loading}}" class="coupon-info-container">
+    <!-- 如果有优惠券信息，显示优惠券卡片 -->
+    <view wx:if="{{couponInfo}}" class="coupon-card">
+      <view class="coupon-card-left">
+        <view class="coupon-discount">
+          <text wx:if="{{couponInfo.discountPrice > 0}}">¥{{couponInfo.discountPrice}}</text>
+          <text wx:else>{{couponInfo.discount || '优惠券'}}</text>
+        </view>
+        <view class="coupon-label">优惠券</view>
+      </view>
+      <view class="coupon-card-divider"></view>
+      <view class="coupon-card-right">
+        <view class="coupon-title">{{couponInfo.title}}</view>
+        <view class="coupon-merchant">{{couponInfo.merchant || couponInfo.merchantName}}</view>
+        <view class="coupon-code">券码：{{couponInfo.code || searchValue}}</view>
+        <view class="coupon-validity" wx:if="{{couponInfo.endTime}}">
+          有效期至 {{couponInfo.endTime}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 核销码显示 -->
+    <view wx:else class="code-display-container">
+      <view class="code-label">核销码</view>
+      <view class="code-value">{{searchValue}}</view>
+    </view>
+
+    <!-- 订单金额输入 -->
+    <view class="order-amount-container">
+      <view class="amount-label">订单金额（元）</view>
+      <input 
+        class="amount-input" 
+        type="digit" 
+        placeholder="请输入订单金额"
+        value="{{orderAmount}}"
+        bindinput="onAmountInput"
+      />
+    </view>
+
+    <!-- 核销按钮 -->
+    <view class="verify-btn-container">
+      <view class="verify-btn" bindtap="verifyCoupon">
+        <text class="verify-btn-text">确认核销</text>
+      </view>
+    </view>
+  </view>
+</view>

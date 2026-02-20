@@ -1,0 +1,10 @@
+/* pages/chat/settings/settings.wxss */
+.settings-page {
+  padding: 20rpx;
+}
+
+.settings-content {
+  text-align: center;
+  padding: 40rpx;
+}
+

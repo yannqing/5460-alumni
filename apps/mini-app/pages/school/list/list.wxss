@@ -1,0 +1,290 @@
+/* pages/school/list/list.wxss */
+
+/* 搜索栏 */
+.search-bar {
+  background-color: #ffffff;
+  padding: 20rpx 30rpx;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 50rpx;
+  padding: 16rpx 30rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+/* 筛选条件选择栏（新增） */
+.filter-select-bar {
+  background-color: #ffffff;
+  padding: 12rpx 40rpx;
+  border-top: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.filter-select-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 20rpx;
+}
+
+.filter-select-item {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  min-width: 0;
+}
+
+.filter-select-item:first-child {
+  flex: 0 0 auto;
+}
+
+.filter-select-item:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-label {
+  color: #666666;
+  margin-right: 12rpx;
+  min-width: 100rpx;
+  flex-shrink: 0;
+  font-size: 26rpx;
+}
+
+.picker-text {
+  padding: 10rpx 16rpx;
+  background-color: #f5f5f5;
+  border-radius: 6rpx;
+  color: #333333;
+  text-align: center;
+  font-size: 24rpx;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picker-disabled {
+  background-color: #f0f0f0;
+  color: #999999;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.filter-item {
+  flex: 1;
+  text-align: center;
+  font-size: 26rpx;
+  color: #666666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.arrow-down {
+  font-size: 20rpx;
+  color: #999999;
+}
+
+/* 学校列表 */
+.school-list {
+  padding: 20rpx;
+}
+
+.school-item {
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.school-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.school-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 3rpx solid #e0e0e0;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.school-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.school-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.school-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.certified-badge {
+  padding: 4rpx 12rpx;
+  background-color:rgb(226, 175, 22);
+  color: #ffffff;
+  font-size: 20rpx;
+  border-radius: 6rpx;
+  flex-shrink: 0;
+}
+
+.school-old-names {
+  font-size: 22rpx;
+  color: #999999;
+  margin-bottom: 8rpx;
+}
+
+.old-name-label {
+  color: #666666;
+}
+
+.school-location {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.school-location .location-icon {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
+}
+
+.school-tags {
+  display: flex;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+
+.school-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* 弹窗 */
+.popup-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.popup-content {
+  width: 100%;
+  max-height: 70vh;
+  background-color: #ffffff;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.popup-close {
+  font-size: 40rpx;
+  color: #999999;
+  line-height: 1;
+}
+
+.city-list,
+.sort-list {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.city-item,
+.sort-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  font-size: 28rpx;
+  color: #333333;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.city-item:active,
+.sort-item:active {
+  background-color: #f8f8f8;
+}
+
+.city-item.active,
+.sort-item.active {
+  color: #40B2E6;
+}
+
+.check-icon {
+  color: #40B2E6;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.popup-footer {
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.full-width {
+  width: 100%;
+}

@@ -1,0 +1,58 @@
+<!--pages/notification/notification-list/notification-list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="系统通知" showBack="{{true}}"></custom-nav-bar>
+
+<view class="page">
+  <!-- 顶部操作栏 -->
+  <view class="header">
+    <view class="tabs">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="key"
+        class="tab {{activeTab === item.key ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-key="{{item.key}}"
+      >
+        {{item.label}}
+      </view>
+    </view>
+    <view class="actions">
+      <view class="btn-read-all" bindtap="markAllAsRead">
+        <text class="icon">✓</text>
+        <text>全部已读</text>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view
+    class="list"
+    scroll-y
+    refresher-enabled
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="refreshList"
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+  >
+    <view
+      wx:for="{{notificationList}}"
+      wx:key="notificationId"
+      class="item {{item.readStatus === 0 ? 'unread' : ''}}"
+      bindtap="handleNotificationClick"
+      data-item="{{item}}"
+      data-index="{{index}}"
+    >
+      <view class="item-main">
+        <view class="item-top">
+          <text class="type">{{item.messageTypeText}}</text>
+          <text class="time">{{item.createdTime}}</text>
+        </view>
+        <text class="content">{{item.content}}</text>
+      </view>
+      <view wx:if="{{item.readStatus === 0}}" class="dot"></view>
+    </view>
+
+    <view wx:if="{{loading && pageNum === 1}}" class="tip">加载中...</view>
+    <view wx:if="{{!hasMore && notificationList.length > 0}}" class="tip">没有更多了</view>
+    <view wx:if="{{!loading && notificationList.length === 0}}" class="empty">暂无通知</view>
+  </scroll-view>
+</view>

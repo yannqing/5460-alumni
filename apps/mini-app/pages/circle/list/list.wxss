@@ -1,0 +1,29 @@
+/* pages/circle/list/list.wxss */
+.circle-list {
+  padding: 20rpx;
+}
+
+.circle-cover {
+  width: 100%;
+  height: 300rpx;
+}
+
+.circle-info {
+  padding: 24rpx;
+}
+
+.circle-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.circle-stats {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.dot {
+  margin: 0 8rpx;
+}

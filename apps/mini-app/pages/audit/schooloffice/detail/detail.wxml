@@ -1,0 +1,40 @@
+<!--pages/audit/schooloffice/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校处会审核详情" showBack="{{true}}"></custom-nav-bar>
+
+<view class="schooloffice-audit-detail-page">
+  <view class="detail-header">
+    <view class="detail-title">校处会审核详情</view>
+    <view class="detail-status {{getStatusClass(applicationInfo.applicationStatus)}}">{{getStatusText(applicationInfo.applicationStatus)}}</view>
+  </view>
+
+  <view class="detail-content">
+    <view class="detail-section">
+      <view class="section-title">基本信息</view>
+      <view class="detail-item">
+        <text class="item-label">校友会名称：</text>
+        <text class="item-value">{{applicationInfo.associationName}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="item-label">负责人：</text>
+        <text class="item-value">{{applicationInfo.chargeName}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="item-label">常驻地点：</text>
+        <text class="item-value">{{applicationInfo.location}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="item-label">提交时间：</text>
+        <text class="item-value">{{applicationInfo.createTime}}</text>
+      </view>
+    </view>
+
+    <view class="detail-section">
+      <view class="section-title">审核操作</view>
+      <view class="action-buttons">
+        <button class="action-button approve" bindtap="approveApplication">通过</button>
+        <button class="action-button reject" bindtap="rejectApplication">拒绝</button>
+      </view>
+    </view>
+  </view>
+</view>
