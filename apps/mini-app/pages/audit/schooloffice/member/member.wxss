@@ -1,13 +1,26 @@
 /* pages/audit/schooloffice/member/member.wxss */
-/* 基础样式 */
-.container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 30rpx;
-  box-sizing: border-box;
+/* 与校友会审核页 list 一致：.page 布局，固定 group_5，仅 group_7 内 scroll-list 滚动 */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* 表单卡片 */
+.container {
+  height: 100%;
+  background-color: #f5f5f5;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 表单卡片（成员列表等使用） */
 .form-card {
   background-color: #fff;
   border-radius: 16rpx;
@@ -33,42 +46,102 @@
   display: block;
 }
 
-/* 校处会选择器 */
-.school-office-selector {
-  border: 1rpx solid #eee;
-  padding: 20rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  height: 80rpx;
-  box-sizing: border-box;
+/* 校促会选择卡片（与 list 一致：固定不滚动） */
+.page .group_5 {
+  width: 714rpx;
+  min-height: auto;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
+}
+
+.group_5 {
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
   display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_5 .text_14 {
+  width: auto;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+}
+
+.group_5 .label_text {
+  width: auto;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.6);
+  font-size: 25rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 16rpx;
+  display: block;
+}
+
+.group_5 .text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
-  cursor: pointer;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  position: relative;
 }
 
-.selector-label {
-  color: #333;
+.group_5 .text_15 {
   flex: 1;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.85);
+  font-size: 28rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.selector-arrow {
+.group_5 .text-wrapper_8::after {
+  content: '▼';
   color: #999;
   font-size: 20rpx;
+  margin-left: 10rpx;
 }
 
-/* 校处会选择器弹窗 */
+/* 校促会选择器弹窗（与校友会审核页一致） */
 .school-office-picker {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 10000;
 }
 
-.picker-overlay {
+.school-office-picker .picker-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -77,7 +150,7 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.picker-content {
+.school-office-picker .picker-content {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -88,7 +161,7 @@
   overflow: hidden;
 }
 
-.picker-header {
+.school-office-picker .picker-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -96,45 +169,43 @@
   border-bottom: 1rpx solid #f0f0f0;
 }
 
-.picker-title {
+.school-office-picker .picker-title {
   font-size: 32rpx;
   font-weight: 600;
   color: #333;
 }
 
-.picker-cancel {
+.school-office-picker .picker-cancel {
   font-size: 28rpx;
   color: #999;
-  cursor: pointer;
 }
 
-.picker-list {
-  max-height: 50vh;
+.school-office-picker .picker-list {
+  max-height: calc(50vh + 40px);
   overflow-y: auto;
   padding: 0 30rpx;
 }
 
-.picker-item {
+.school-office-picker .picker-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 30rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
-  cursor: pointer;
 }
 
-.item-name {
+.school-office-picker .item-name {
   font-size: 28rpx;
   color: #333;
 }
 
-.item-check {
+.school-office-picker .item-check {
   font-size: 32rpx;
   color: #52c41a;
   font-weight: 600;
 }
 
-.picker-empty {
+.school-office-picker .picker-empty {
   padding: 60rpx 0;
   text-align: center;
   color: #999;
@@ -161,160 +232,302 @@
   font-size: 28rpx;
 }
 
-/* 成员列表标题行 */
-.form-title-row {
+/* 成员列表卡片（与 list 的 group_7 一致：固定标题，仅 scroll-list 内滚动，默认高度调低） */
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  max-height: 100vh;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 25rpx 20rpx 25rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* 与 list 一致：仅此区域可滚动（scroll-view 需明确高度才能滚动） */
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
+.group_7 .member-list-header {
+  width: 100%;
+  height: 58rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 11rpx 18rpx;
+  padding: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_7 .text_20 {
+  width: auto;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+}
+
+.invite-btn-wrap {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-bottom: 30rpx;
+  margin-right: 24rpx;
+}
+
+.group_7 .invite-btn {
+  background-color: rgba(24,144,255,1);
+  border-radius: 7rpx;
+  height: 58rpx;
+  min-width: 167rpx;
+  padding: 0 24rpx;
+  font-size: 25rpx;
+  color: rgba(255,255,255,1);
+  line-height: 58rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  white-space: nowrap;
+}
+
+.group_7 .invite-btn-disabled {
+  background-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 成员列表内容（与 list 的 association-list 一致） */
+.group_7 .member-list {
   width: 100%;
+  margin-top: 11rpx;
+  padding-bottom: 40rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 成员列表项 */
+.group_7 .member-item {
+  background-color: rgba(249,249,249,1);
+  border-radius: 14rpx;
+  width: 100%;
+  min-height: 125rpx;
+  margin-bottom: 14rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
   box-sizing: border-box;
 }
 
-.form-title-row .form-title {
+.group_7 .member-item:last-child {
   margin-bottom: 0;
-  flex-shrink: 0;
-  margin-right: auto;
 }
 
-/* 成员列表 */
-.member-list {
-  margin-top: 20rpx;
-}
-
-.member-item {
+/* 左侧：头像+姓名性别 image-text */
+.member-item-left {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  margin: 24rpx 0 0 31rpx;
+  flex-shrink: 0;
 }
 
-.member-item:last-child {
-  border-bottom: none;
-}
-
-.member-avatar {
-  width: 80rpx;
-  height: 80rpx;
+.group_7 .member-avatar {
+  width: 65rpx;
+  height: 65rpx;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 20rpx;
   flex-shrink: 0;
 }
 
-.avatar-img {
+.group_7 .avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.member-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.member-name-row {
+.member-text-group {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8rpx;
+  margin-left: 24rpx;
+  min-height: 78rpx;
 }
 
-.member-name {
-  font-size: 28rpx;
+.group_7 .member-name {
+  width: auto;
+  max-width: 200rpx;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
   font-weight: 600;
-  color: #333;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.member-gender-text {
+  width: auto;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 25rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  text-align: left;
   white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 5rpx;
 }
 
-.member-role {
-  font-size: 24rpx;
-  color: #1890ff;
-  background-color: #e6f7ff;
-  padding: 4rpx 16rpx;
-  border-radius: 12rpx;
-}
-
-.member-gender {
-  font-size: 24rpx;
-  color: #666;
-}
-
-.gender-text {
-  margin-left: 4rpx;
-}
-
-/* 邀请按钮样式 */
-.invite-btn {
-  background-color: #1890ff;
-  color: #fff;
-  border: none;
-  padding: 12rpx 24rpx;
-  border-radius: 8rpx;
-  font-size: 24rpx;
-  height: 60rpx;
-  line-height: 60rpx;
+/* 角色标签 text-wrapper_14 */
+.member-role-tag {
+  background-color: rgba(24,144,255,1);
+  border-radius: 18rpx;
+  height: 36rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* 确保邀请按钮靠在最右边 */
-.form-title-row .invite-btn {
+  min-width: 94rpx;
+  padding: 0 16rpx;
+  margin-left: 24rpx;
   flex-shrink: 0;
-  margin-right: -20rpx;
+  font-size: 22rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  color: rgba(255,255,255,1);
+  line-height: 31rpx;
 }
 
-/* 成员操作按钮 */
-.member-actions {
+/* 操作按钮区 */
+.group_7 .member-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: auto;
+  padding: 0 33rpx 0 14rpx;
+  gap: 0;
+}
+
+/* 编辑按钮 text-wrapper_15 */
+.group_7 .edit-btn {
+  background-color: rgba(255,255,255,1);
+  border-radius: 18rpx;
+  height: 43rpx;
+  min-width: 83rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid rgba(67,100,204,1);
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  color: rgba(67,100,204,1);
+  line-height: 29rpx;
+  margin-left: 14rpx;
 }
 
-.edit-btn {
-  font-size: 24rpx;
-  color: #1890ff;
-  background-color: #e6f7ff;
-  padding: 8rpx 20rpx;
-  border-radius: 16rpx;
-  border: 1rpx solid #91d5ff;
-  cursor: pointer;
-  margin-left: 20rpx;
+/* 删除按钮 text-wrapper_16 */
+.group_7 .delete-btn {
+  box-shadow: 0px 2px 11px 0px rgba(194,194,255,0.37);
+  background-color: rgba(255,255,255,1);
+  border-radius: 18rpx;
+  height: 43rpx;
+  min-width: 83rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid rgba(176,54,62,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  color: rgba(176,54,62,1);
+  line-height: 29rpx;
+  margin-left: 14rpx;
 }
 
-.edit-btn:hover {
-  background-color: #bae7ff;
-}
-
-.delete-btn {
-  font-size: 24rpx;
-  color: #ff4d4f;
-  background-color: #fff1f0;
-  padding: 8rpx 20rpx;
-  border-radius: 16rpx;
-  border: 1rpx solid #ffccc7;
-  cursor: pointer;
-  margin-left: 20rpx;
-}
-
-.delete-btn:hover {
-  background-color: #ffe8e6;
-}
-
-/* 搜索相关样式 */
-.search-group {
+/* 校友姓名输入框样式 */
+.alumni-name-field {
   position: relative;
+  margin-bottom: 30rpx;
 }
 
-.search-results {
+.field-label {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 40rpx;
+  height: 40rpx;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.field-input-wrapper {
+  position: relative;
+  width: 100%;
+  height: 80rpx;
+}
+
+.field-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  line-height: 80rpx;
+  background-color: #fff;
+  box-sizing: border-box;
+  color: #333;
+}
+
+.field-placeholder {
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 搜索下拉列表 */
+.alumni-search-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
+  margin-top: 8rpx;
   background-color: #fff;
   border: 1rpx solid #eee;
   border-radius: 8rpx;
@@ -324,28 +537,22 @@
   overflow: hidden;
 }
 
-.search-results-content {
-  max-height: 400rpx;
-  overflow-y: auto;
-}
-
-.search-item {
+.alumni-search-item {
   display: flex;
   align-items: center;
   padding: 20rpx;
   border-bottom: 1rpx solid #f0f0f0;
-  cursor: pointer;
 }
 
-.search-item:last-child {
+.alumni-search-item:last-child {
   border-bottom: none;
 }
 
-.search-item:active {
+.alumni-search-item:active {
   background-color: #f5f5f5;
 }
 
-.member-avatar {
+.alumni-avatar {
   width: 60rpx;
   height: 60rpx;
   border-radius: 50%;
@@ -353,12 +560,14 @@
   flex-shrink: 0;
 }
 
-.search-item .member-info {
+.alumni-item-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.search-item .member-name {
+.alumni-item-name {
   font-size: 28rpx;
   font-weight: 600;
   color: #333;
@@ -366,16 +575,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   margin-bottom: 4rpx;
-  display: block;
 }
 
-.search-item .member-school {
+.alumni-item-school {
   font-size: 24rpx;
   color: #999;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: block;
 }
 
 /* 角色选择器样式 */

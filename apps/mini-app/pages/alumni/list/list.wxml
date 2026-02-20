@@ -1,32 +1,48 @@
 <!--pages/alumni/list/list.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="校友" showBack="{{true}}"></custom-nav-bar>
-
 <!-- 消息通知组件 -->
 <message-notification />
 
 <view class="container">
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="搜索校友名称、昵称或手机号" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-      <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
-    </view>
+  <!-- 固定顶部背景 -->
+  <view class="fixed-top-bg"></view>
+  <!-- 自定义导航栏 -->
+  <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
+  <!-- 顶部图片 -->
+  <view class="top-image-container">
+    <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/06/64fc16d0-fb12-4e63-b7a0-8638b532c45a.png" mode="aspectFit" />
   </view>
-
-  <!-- 筛选栏 -->
-  <view class="filter-bar">
-    <view class="filter-item" wx:for="{{filters}}" wx:key="label" data-index="{{index}}" bindtap="openFilterOptions">
-      <text>{{item.options[item.selected]}}</text>
-      <text class="filter-arrow">▾</text>
+  
+  <!-- 搜索栏和筛选条件容器 -->
+  <view class="header-container">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
+        <input class="search-input" type="text" placeholder="搜索校友名称、昵称或手机号" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+        <view class="search-button" bindtap="onSearch">搜索</view>
+      </view>
     </view>
-  </view>
-
-  <view wx:if="{{showFilterOptions}}">
-    <view class="filter-mask" bindtap="closeFilterOptions"></view>
-    <view class="filter-options-panel">
-      <view class="option-item {{optIndex === filters[activeFilterIndex].selected ? 'active' : ''}}" wx:for="{{filters[activeFilterIndex].options}}" wx:key="*this" wx:for-index="optIndex" data-option-index="{{optIndex}}" bindtap="selectFilterOption">
-        {{item}}
+    
+    <!-- 筛选区域 -->
+    <view class="filter-section">
+      <!-- 注册时间筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onCityChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+          <text>{{filters[0].selected === 0 ? '注册时间' : filters[0].options[filters[0].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 性别筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onSortChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+          <text>{{filters[1].selected === 0 ? '性别' : filters[1].options[filters[1].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 关注筛选 -->
+      <view class="filter-item" bindtap="onFollowChange">
+        <text>我的关注</text>
+        <text class="filter-arrow">▾</text>
       </view>
     </view>
   </view>
@@ -36,29 +52,40 @@
     <view class="alumni-card" wx:for="{{alumniList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
       <!-- 头部：头像、名称和认证标识 -->
       <view class="card-header">
-        <image class="alumni-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.name}}</text>
-            <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
+            <image wx:if="{{item.isAlumni}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
           </view>
 
-          <!-- 学校信息 -->
-          <view class="card-subtitle">
-            <image class="subtitle-icon" src="{{iconSchool}}" mode="aspectFit" />
-            <text>{{item.school}}</text>
+          <!-- 学校和地点信息展示 -->
+          <view class="meta-row">
+            <view wx:if="{{item.school}}" class="meta-item">
+              <image class="location-icon" src="{{iconSchool}}" mode="aspectFit" />
+              <text class="truncate">{{item.school}}</text>
+            </view>
+            <view wx:if="{{item.location}}" class="meta-item location-item">
+              <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+              <text class="truncate">{{item.location}}</text>
+            </view>
           </view>
 
-          <!-- 位置信息 -->
-          <view class="card-location">
-            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-            <text>{{item.location}}</text>
+          <!-- 关注按钮在城市和地点下面一行展示 -->
+          <view class="action-row">
+            <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+              <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+                {{item.isFollowed ? '已关注' : '+ 关注'}}
+              </view>
+            </view>
           </view>
         </view>
+        <image class="alumni-avatar {{item.isDefaultAvatar ? 'default-avatar' : ''}}" src="{{item.avatarUrl}}" mode="aspectFill" />
       </view>
-      <view class="card-action-bottom" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-        <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
-          {{item.isFollowed ? '已关注' : '+ 关注'}}
+
+      <!-- 底部：统计数据 -->
+      <view class="card-footer">
+        <view class="card-stats">
+          <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
         </view>
       </view>
     </view>

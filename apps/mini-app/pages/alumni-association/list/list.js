@@ -8,7 +8,7 @@ const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 Page({
   data: {
     // 图标路径
-    iconSearch: config.getIconUrl('sslss.png'),
+    iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
     keyword: '',
@@ -18,13 +18,12 @@ Page({
       { label: '排序', options: ['默认排序', '最新成立', '成员最多'], selected: 0 },
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
-    showFilterOptions: false,
-    activeFilterIndex: -1,
     associationList: [],
     current: 1,
     pageSize: 50, // 增大每页大小，一次加载更多数据
     hasMore: true,
     loading: false,
+    refreshing: false,
 
     // 地区筛选（与母校列表页一致）- 自定义省市级选择器（只到市）
     region: [], // 地区选择器的值 [省, 市]
@@ -41,9 +40,19 @@ Page({
   },
 
   async onLoad(options) {
+    // 获取系统信息
+    const systemInfo = wx.getSystemInfoSync()
+    const statusBarHeight = systemInfo.statusBarHeight || 0
+    const navBarHeight = 44 // 导航栏高度固定为44px
+
+    this.setData({
+      statusBarHeight: statusBarHeight,
+      navBarHeight: navBarHeight
+    })
+
     // 初始化省市级数据
     this.initRegionData()
-    
+
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadAssociationList(true)
@@ -138,11 +147,11 @@ Page({
     // 显示时使用带单位的名称，但内部仍使用不带单位的名称作为key
     const provinceKeys = Object.keys(provinceCityMap)
     const provinceList = ['全部', ...provinceKeys.map(key => provinceSuffixMap[key] || key)]
-    
+
     // 初始化：第一列是省份（包含"全部"），第二列是"全部"或第一个省份的城市
     // 当选择"全部"省份时，城市列表也显示"全部"
     const firstProvinceCities = ['全部', ...(provinceCityMap[provinceKeys[0]] || [])]
-    
+
     this.setData({
       provinceCityMap: provinceCityMap,
       provinceSuffixMap: provinceSuffixMap, // 省份名称到带单位名称的映射
@@ -166,7 +175,7 @@ Page({
   async ensureLogin() {
     const app = getApp()
     const isLogin = app.checkHasLogined()
-    
+
     if (!isLogin) {
       try {
         await app.initApp()
@@ -199,26 +208,18 @@ Page({
 
   // 加载校友会列表
   async loadAssociationList(refresh = false) {
-    // 如果已经没有更多数据且不是刷新，直接返回
-    if (!this.data.hasMore && !refresh) {
-      return
-    }
-    
-    // 如果正在加载，直接返回
-    if (this.data.loading) {
-      return
-    }
-    
+    if (this.data.loading) return
+
+    this.setData({ loading: true })
+
     try {
-      this.setData({ loading: true })
-      
       const { keyword, filters, current, pageSize } = this.data
       const [typeFilter, cityFilter, sortFilter, followFilter] = filters
-      
+
       // 准备请求参数
       const params = {
         current: refresh ? 1 : this.data.current,
-        pageSize: this.data.pageSize,
+        size: this.data.pageSize,
         // 搜索关键词：校友会名称
         associationName: keyword || undefined,
         // 地区筛选：如果选择了具体城市，传 location；如果只选了省份，不传（在前端过滤）
@@ -240,62 +241,44 @@ Page({
 
       // 调用接口
       const res = await associationApi.getAssociationList(params)
-      
+
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
         let list = data.records || data.list || []
-        
+
         // 数据映射（与后端字段保持同步）
         const mappedList = list.map(item => ({
           // ===== 与后端 VO 完全一致的字段（AlumniAssociationListVo）=====
           alumniAssociationId: item.alumniAssociationId,   // 校友会ID
           associationName: item.associationName,           // 校友会名称
-          schoolId: item.schoolId,                         // 所属母校ID
+          school: item.school,                             // 所属母校信息
           platformId: item.platformId,                     // 所属校处会ID
-          presidentUserId: item.presidentUserId,           // 会长用户ID
           contactInfo: item.contactInfo,                   // 联系信息
           location: item.location,                         // 常驻地点
           memberCount: item.memberCount,                   // 会员数量
+          role: item.role,                                 // 成员身份：0-会员单位 1-理事单位
+          isMember: item.isMember,                         // 当前登录用户是否已加入该校友会
+          isFollowed: item.isFollowed,                     // 当前登录用户是否已关注该校友会
 
           // ===== 前端内部使用的通用字段（保持原有逻辑不变）=====
           // 注意：前端统一用字符串形式的 id，避免大整数精度丢失
           id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
           name: item.associationName,
-          // 优先使用后端传入的logo字段作为头像，如果logo为空则使用本地默认头像
-          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/compressed-avatar.jpg',
-          // 下面这些是前端扩展字段，后端暂时没有
+          // 优先使用后端传入的logo字段作为头像，如果logo为空则使用 config 中定义的默认校友会头像
+          icon: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar,
+          // 下面这些是前端扩展字段
           associationCount: 0,
           followCount: 0,
-          isFollowed: false, // 初始值
-          followStatus: 4, // 关注状态：1-正常关注，4-未关注
+          followStatus: item.isFollowed ? 1 : 4, // 关注状态：1-正常关注，4-未关注
           isCertified: false,
-          schoolName: '' // 需要根据 schoolId 查询
+          schoolName: item.school?.schoolName || '' // 从school对象中获取学校名称
         }))
 
-        // 根据 schoolId 批量补齐 schoolName（并行请求优化）
-        const schoolIdSet = new Set(mappedList.map(i => i.schoolId).filter(Boolean))
-        const schoolNameMap = {}
-        
-        // 将所有请求改为并行执行，显著提升加载速度
-        const schoolPromises = Array.from(schoolIdSet).map(sid => 
-          schoolApi.getSchoolDetail(sid)
-            .then(schoolRes => {
-              if (schoolRes.data && schoolRes.data.code === 200 && schoolRes.data.data) {
-                schoolNameMap[sid] = schoolRes.data.data.schoolName || schoolRes.data.data.name || ''
-              }
-            })
-            .catch(e => {
-              // 请求失败时忽略，保持空
-            })
-        )
-        
-        // 等待所有学校信息请求完成
-        await Promise.all(schoolPromises)
-        
-        // 填充学校名称
+        // 学校信息已包含在接口返回的school对象中，无需额外查询
+        // 确保schoolName字段正确设置
         mappedList.forEach(item => {
-          if (item.schoolId && schoolNameMap[item.schoolId]) {
-            item.schoolName = schoolNameMap[item.schoolId]
+          if (item.school && item.school.schoolName) {
+            item.schoolName = item.school.schoolName
           }
         })
 
@@ -304,19 +287,19 @@ Page({
         if (this.data.selectedProvince && (!this.data.selectedCity || this.data.selectedCity === '全部')) {
           const { provinceCityMap } = this.data
           const provinceCities = provinceCityMap[this.data.selectedProvince] || []
-          
+
           // 过滤：location 字段包含该省份下的任何城市名称，或包含省份名称
           finalList = mappedList.filter(item => {
             if (!item.location) return false
-            
+
             const location = item.location
-            
+
             // 检查是否包含省份名称（带单位或不带单位）
-            if (location.includes(this.data.selectedProvinceWithSuffix) || 
-                location.includes(this.data.selectedProvince)) {
+            if (location.includes(this.data.selectedProvinceWithSuffix) ||
+              location.includes(this.data.selectedProvince)) {
               return true
             }
-            
+
             // 检查是否包含该省份下的任何城市名称
             return provinceCities.some(city => location.includes(city))
           })
@@ -326,13 +309,22 @@ Page({
         const updatedList = refresh ? finalList : [...this.data.associationList, ...finalList]
 
         // 更新数据
-        this.setData({
-          associationList: updatedList,
-          current: refresh ? 2 : this.data.current + 1,
-          hasMore: list.length >= this.data.pageSize,
-          loading: false,
-          refreshing: false
-        })
+        if (refresh) {
+          this.setData({
+            associationList: updatedList,
+            current: 1,
+            hasMore: list.length >= this.data.pageSize,
+            loading: false,
+            refreshing: false
+          })
+        } else {
+          this.setData({
+            associationList: updatedList,
+            current: this.data.current + 1,
+            hasMore: list.length >= this.data.pageSize,
+            loading: false
+          })
+        }
 
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'associationList', FollowTargetType.ASSOCIATION)
@@ -379,31 +371,33 @@ Page({
     this.loadAssociationList(true)
   },
 
-  openFilterOptions(e) {
-    const { index } = e.currentTarget.dataset
-    // 城市筛选（索引为1）使用多列选择器，不打开下拉面板
-    if (index === 1) {
-      return
-    }
-    if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-      this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-      return
-    }
-    this.setData({ activeFilterIndex: index, showFilterOptions: true })
+  // 类型筛选变更
+  onTypeChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[0].selected = optionIndex
+
+    this.setData({ filters, current: 1 })
+    this.loadAssociationList(true)
   },
 
-  selectFilterOption(e) {
-    const { optionIndex } = e.currentTarget.dataset
-    const { activeFilterIndex, filters } = this.data
-    if (activeFilterIndex === -1) return
-    
-    filters[activeFilterIndex].selected = optionIndex
-    this.setData({
-      filters,
-      showFilterOptions: false,
-      activeFilterIndex: -1,
-      current: 1
-    })
+  // 排序筛选变更
+  onSortChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[2].selected = optionIndex
+
+    this.setData({ filters, current: 1 })
+    this.loadAssociationList(true)
+  },
+
+  // 关注筛选变更
+  onFollowChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[3].selected = optionIndex
+
+    this.setData({ filters, current: 1 })
     this.loadAssociationList(true)
   },
 
@@ -411,10 +405,10 @@ Page({
   onRegionColumnChange(e) {
     const column = e.detail.column // 改变的列索引（0: 省, 1: 市）
     const value = e.detail.value // 新选中的索引
-    
+
     const { regionData, provinceCityMap, provinceNameMap, regionIndex } = this.data
     const provinceList = regionData[0]
-    
+
     // 如果改变的是省份列（第一列）
     if (column === 0) {
       // 如果选择的是"全部"（索引0），城市列表也显示"全部"
@@ -422,7 +416,7 @@ Page({
         const cityList = ['全部']
         const newRegionData = [provinceList, cityList]
         const newRegionIndex = [0, 0]
-        
+
         this.setData({
           regionData: newRegionData,
           regionIndex: newRegionIndex
@@ -434,10 +428,10 @@ Page({
         const selectedProvinceKey = provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
         const provinceCities = provinceCityMap[selectedProvinceKey] || []
         const cityList = ['全部', ...provinceCities]
-        
+
         const newRegionData = [provinceList, cityList]
         const newRegionIndex = [value, 0] // 重置城市索引为0（选中"全部"）
-        
+
         this.setData({
           regionData: newRegionData,
           regionIndex: newRegionIndex
@@ -456,22 +450,22 @@ Page({
   onRegionChange(e) {
     const index = e.detail.value // [省索引, 市索引]
     const { regionData, provinceNameMap } = this.data
-    
+
     const provinceList = regionData[0]
     const cityList = regionData[1]
-    
+
     // 根据索引获取选中的省和市（带单位的显示名称）
     const selectedProvinceWithSuffix = provinceList[index[0]] || ''
     const selectedCity = cityList[index[1]] || ''
-    
+
     // 将带单位的省份名称转换为不带单位的名称（用于传给后端）
     const selectedProvince = provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
-    
+
     // 构建地区数组、显示文本和 location 字段
     const region = []
     let regionDisplayText = '全部城市'
     let location = undefined // 用于传给后端的合并字段
-    
+
     // 如果选择的是"全部"省份，不传任何地区参数
     if (selectedProvinceWithSuffix === '全部') {
       regionDisplayText = '全部城市'
@@ -490,7 +484,7 @@ Page({
     } else if (selectedProvinceWithSuffix) {
       // 选择了具体省份（传给后端时使用不带单位的名称）
       region.push(selectedProvince)
-      
+
       // 如果选择的是"全部"城市，只传省份（单一选择）
       // 注意：如果只选择省份，不传 location 参数，在前端过滤
       if (selectedCity === '全部' || !selectedCity) {
@@ -505,7 +499,7 @@ Page({
         location = selectedCity
       }
     }
-    
+
     this.setData({
       region: region,
       regionDisplayText: regionDisplayText,
@@ -516,14 +510,12 @@ Page({
       selectedCity: selectedCity || undefined, // 存储选中的城市
       current: 1
     })
-    
+
     // 地区改变后重新加载数据
     this.loadAssociationList(true)
   },
 
-  closeFilterOptions() {
-    this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-  },
+
 
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
@@ -536,5 +528,20 @@ Page({
   async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
     await handleListItemFollow(this, 'associationList', id, followed, FollowTargetType.ASSOCIATION)
+  },
+
+  // 加入校友会
+  joinAssociation(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/alumni-association/apply/apply?id=${id}`
+    })
+  },
+
+  // 创建校友会
+  createAssociation() {
+    wx.navigateTo({
+      url: `/pages/alumni-association/create/create`
+    })
   }
 })

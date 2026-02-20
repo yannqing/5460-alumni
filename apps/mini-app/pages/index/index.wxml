@@ -2,9 +2,9 @@
 <!-- 消息通知组件 -->
 <message-notification />
 
-<view class="container">
+<view class="container" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
   <!-- 顶部 Banner 区域 -->
-  <view class="header-banner">
+  <view class="header-banner" style="transform: translateY({{bannerTranslateY}}px); transition: transform 0.1s ease-out;">
     <!-- 轮播图背景 -->
     <swiper 
       wx:if="{{bannerList.length > 0}}"
@@ -27,14 +27,14 @@
     
     <!-- 内容层（文字等） -->
     <view class="banner-content">
-      <view class="platform-tag">
+      <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
         <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
       </view>
     </view>
   </view>
 
   <!-- 导航菜单区域 -->
-  <view class="nav-container">
+  <view class="nav-container {{navFixed ? 'fixed' : ''}}">
     <view class="nav-header">
       <view class="nav-title-tag">校友功能</view>
     </view>
@@ -62,68 +62,76 @@
     </view>
   </view>
 
-  <!-- 文章列表区域 -->
-  <scroll-view
-    class="article-list"
-    scroll-y="true"
-    refresher-enabled="true"
-    refresher-triggered="{{refreshing}}"
-    bindrefresherrefresh="onListRefresh"
-    bindscrolltolower="onReachBottom"
-    lower-threshold="100"
-  >
-    <view class="article-item" wx:for="{{articleList}}" wx:key="id" wx:for-index="idx" bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
-      <view class="article-header">
-        <view class="user-info">
-          <view class="user-avatar-wrapper">
-            <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
-          </view>
-          <text class="user-name">{{item.username}}</text>
-        </view>
-        <text class="publish-time">{{item.time}}</text>
-      </view>
-      <view class="article-body">
-        <!-- 封面图：始终显示图片框 -->
-        <view class="article-cover-wrapper {{item.hasChildren ? 'with-title-overlay' : ''}}">
-          <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
-          <!-- 如果有子文章，标题显示在图片上 -->
-          <view wx:if="{{item.hasChildren}}" class="cover-title-overlay">
-            <view class="overlay-title">{{item.title}}</view>
-          </view>
-        </view>
-
-        <!-- 如果没有子文章，正常显示标题和描述 -->
-        <view wx:if="{{!item.hasChildren}}" class="article-content">
-          <view class="article-title">{{item.title}}</view>
-          <view class="article-desc">{{item.description}}</view>
-        </view>
-
-        <!-- 如果有子文章，显示子文章列表 -->
-        <view wx:if="{{item.hasChildren}}" class="children-list">
-          <view
-            wx:for="{{item.children}}"
-            wx:key="id"
-            wx:for-item="child"
-            class="child-item"
-            catchtap="goToChildDetail"
-            data-item="{{child}}"
-          >
-            <view class="child-content">
-              <view class="child-title">{{child.title}}</view>
+  <!-- 文章列表容器 -->
+  <view class="article-container">
+    <!-- 文章列表区域 - 使用 scroll-view 实现局部滚动 -->
+    <scroll-view 
+      class="article-scroll-view"
+      scroll-y="true"
+      bindscrolltolower="onReachBottom"
+      refresher-enabled="{{true}}"
+      refresher-triggered="{{refreshing}}"
+      bindrefresherrefresh="onListRefresh"
+      scroll-with-animation="true"
+      style="height: {{articleScrollHeight}}px;"
+      bindtouchstart="onScrollViewTouchStart"
+      catchtouchmove="onScrollViewTouchMove"
+    >
+      <view class="article-list">
+        <view class="article-item" wx:for="{{articleList}}" wx:key="id" wx:for-index="idx" bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
+          <view class="article-header">
+            <view class="user-info">
+              <view class="user-avatar-wrapper">
+                <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+              </view>
+              <text class="user-name">{{item.username}}</text>
             </view>
-            <view class="child-cover-wrapper">
-              <image wx:if="{{child.cover}}" class="child-cover" src="{{child.cover}}" mode="aspectFill"></image>
+            <text class="publish-time">{{item.time}}</text>
+          </view>
+          <view class="article-body">
+            <!-- 封面图：始终显示图片框 -->
+            <view class="article-cover-wrapper {{item.hasChildren ? 'with-title-overlay' : ''}}">
+              <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
+              <!-- 如果有子文章，标题显示在图片上 -->
+              <view wx:if="{{item.hasChildren}}" class="cover-title-overlay">
+                <view class="overlay-title">{{item.title}}</view>
+              </view>
+            </view>
+
+            <!-- 如果没有子文章，正常显示标题和描述 -->
+            <view wx:if="{{!item.hasChildren}}" class="article-content">
+              <view class="article-title">{{item.title}}</view>
+              <view class="article-desc">{{item.description}}</view>
+            </view>
+
+            <!-- 如果有子文章，显示子文章列表 -->
+            <view wx:if="{{item.hasChildren}}" class="children-list">
+              <view
+                wx:for="{{item.children}}"
+                wx:key="id"
+                wx:for-item="child"
+                class="child-item"
+                catchtap="goToChildDetail"
+                data-item="{{child}}"
+              >
+                <view class="child-content">
+                  <view class="child-title">{{child.title}}</view>
+                </view>
+                <view class="child-cover-wrapper">
+                  <image wx:if="{{child.cover}}" class="child-cover" src="{{child.cover}}" mode="aspectFill"></image>
+                </view>
+              </view>
             </view>
           </view>
         </view>
-      </view>
-    </view>
 
-    <!-- 加载更多/无数据提示 -->
-    <view class="loading-more" wx:if="{{loading}}">加载中...</view>
-    <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">没有更多了</view>
-    <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
-      <text>暂无内容</text>
-    </view>
-  </scroll-view>
+        <!-- 加载更多/无数据提示 -->
+        <view class="loading-more" wx:if="{{loading}}">加载中...</view>
+        <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">没有更多了</view>
+        <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
+          <text>暂无内容</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
 </view>

@@ -1,32 +1,28 @@
 <!-- pages/audit/merchant/shop-audit/shop-audit.wxml -->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="店铺审核" showBack="{{true}}"></custom-nav-bar>
-
-<view class="shop-audit-page">
-  <!-- 选择商家 -->
-  <view class="form-card">
-    <view class="form-item">
-      <text class="form-label">选择商家</text>
-      <view class="merchant-selector" bindtap="showMerchantSelector">
-        <text class="selector-label">{{selectedMerchantName || '请选择商家'}}</text>
-        <text class="selector-arrow">▼</text>
-      </view>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="店铺审核">
+<view class="page">
+  <!-- 选择商家卡片 -->
+  <view class="group_5">
+    <text class="text_14">店铺审核</text>
+    <text class="label_text">选择商家</text>
+    <view class="text-wrapper_8" bindtap="showMerchantSelector">
+      <text class="text_15">{{selectedMerchantName || '请选择商家'}}</text>
     </view>
   </view>
-  
-  <!-- 店铺审核列表 -->
-  <view class="form-card" style="margin-top: 20rpx;">
-    <!-- 加载状态 -->
-    <view class="loading-state" wx:if="{{shopLoading}}">
-      <text class="loading-text">加载中...</text>
+
+  <!-- 审核列表卡片 -->
+  <view class="group_7">
+    <view class="list-header">
+      <text class="text_20">审核列表</text>
     </view>
-    
-    <!-- 空状态 -->
-    <view class="empty-state" wx:elif="{{approvalList.length === 0}}">
-      <text class="empty-text">暂无待审核店铺</text>
-    </view>
-    
-    <!-- 审核列表 -->
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
+      <view class="loading-state" wx:if="{{shopLoading}}">
+        <text>加载中...</text>
+      </view>
+      <view class="empty-block" wx:elif="{{approvalList.length === 0}}">
+        <text class="empty-text">暂无待审核店铺</text>
+      </view>
+      <view class="approval-list" wx:else>
     <view class="shop-item" wx:for="{{approvalList}}" wx:key="shopId">
       <view class="shop-header">
         <view class="shop-name">{{item.shopName}}</view>
@@ -76,7 +72,6 @@
       </view>
     </view>
     
-    <!-- 分页组件 -->
     <view class="pagination" wx:if="{{total > 0}}">
       <view class="pagination-info">共 {{total}} 条记录，第 {{current}}/{{pages}} 页</view>
       <view class="pagination-controls">
@@ -87,8 +82,10 @@
         <button class="page-btn" disabled="{{!hasNext}}" bindtap="nextPage">下一页</button>
       </view>
     </view>
+      </view>
+    </scroll-view>
   </view>
-  
+
   <!-- 审核弹窗 -->
   <view class="modal-overlay" wx:if="{{showAuditModal}}" bindtap="hideAuditModal"></view>
   <view class="modal-container" wx:if="{{showAuditModal}}">
@@ -160,3 +157,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

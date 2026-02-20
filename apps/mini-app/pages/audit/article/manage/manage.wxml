@@ -1,33 +1,41 @@
 <!-- pages/audit/article/manage/manage.wxml -->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="文章管理" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="文章管理">
 <view class="article-management-list-page">
-  <!-- 文章列表 -->
-  <view class="article-list">
-
-    <view 
-      class="article-item"
-      wx:for="{{articleList}}"
-      wx:key="id"
-    >
-      <view class="article-header">
-        <image class="article-cover" src="{{item.coverImg}}" mode="aspectFill" wx:if="{{item.coverImg}}"></image>
-        <view class="article-cover-placeholder" wx:else></view>
-        <view class="article-info" data-id="{{item.id}}" bindtap="viewDetail">
-          <view class="article-title">{{item.nickname}}</view>
-          <view class="article-meta">{{item.school}}</view>
+  <!-- 可滚动列表区域 -->
+  <scroll-view 
+    class="scroll-list" 
+    scroll-y 
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+    enable-back-to-top
+    show-scrollbar="{{false}}"
+  >
+    <!-- 文章列表 -->
+    <view class="article-list">
+    <block wx:for="{{articleList}}" wx:key="id">
+      <!-- 文章卡片 -->
+      <view class="block_9">
+        <view class="section_7">
+          <view class="box_9">
+            <text lines="1" class="text_24">{{item.nickname}}</text>
+            <view class="text-wrapper_12 {{item.status}}">
+              <text lines="1" class="text_25">{{item.statusText}}</text>
+            </view>
+          </view>
+          <view class="text-wrapper_16">
+            <text lines="1" class="text_26">提交时间：</text>
+            <text lines="1" class="text_27">{{item.submitTime}}</text>
+          </view>
+          <view class="edit-action">
+            <view class="edit-btn-wrapper" catchtap="onEditTap" data-id="{{item.id}}">
+              <text lines="1" class="edit-btn-text">编辑</text>
+            </view>
+          </view>
         </view>
-        <view class="article-status {{item.status}}">{{item.statusText}}</view>
-        <view class="article-actions">
-          <button class="edit-btn" data-id="{{item.id}}" bindtap="onEditTap">编辑</button>
-        </view>
+        <image class="image_7" src="{{item.coverImg}}" mode="aspectFill" wx:if="{{item.coverImg}}"></image>
+        <view class="image_7 placeholder" wx:else></view>
       </view>
-      <view class="article-detail">
-        <text class="detail-label">提交时间：</text>
-        <text class="detail-value">{{item.submitTime}}</text>
-      </view>
-    </view>
+    </block>
 
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
@@ -38,7 +46,8 @@
     <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">
       <text>没有更多数据了</text>
     </view>
-  </view>
+    </view>
+  </scroll-view>
 
   <!-- 发布文章按钮 -->
   <view class="publish-btn-container">
@@ -109,3 +118,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

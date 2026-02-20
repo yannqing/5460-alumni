@@ -1,18 +1,35 @@
 /* pages/info-maintenance/edit/edit.wxss */
 
-.edit-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 30rpx;
-  box-sizing: border-box;
+.edit-page-container {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  min-height: calc(100vh - 190.22rpx);
+  display: flex;
+  flex-direction: column;
 }
 
-.form-section {
+.edit-page {
+  padding: 20rpx;
+  box-sizing: border-box;
+  padding-bottom: 40rpx;
+}
+
+.white-background-content {
+  background: #ffffff;
+  border-radius: 32rpx 32rpx 0 0;
+  position: relative;
+  z-index: 10;
+  padding: 10rpx 0;
+  min-height: calc(100vh - 200rpx);
+}
+
+.form-card {
   background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  border-radius: 28rpx;
+  padding: 30rpx 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
 }
 
 .form-label {
@@ -22,25 +39,30 @@
 }
 
 .form-input {
-  font-size: 28rpx;
+  font-size: 30rpx; /* Increased font size for better legibility */
   color: #333;
   border: 1rpx solid #eee;
-  border-radius: 8rpx;
-  padding: 20rpx;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
   box-sizing: border-box;
   width: 100%;
+  height: 100rpx; /* Explicit height for better touch area and legibility */
+  line-height: 100rpx;
+  background-color: #f9f9f9;
 }
 
 .form-textarea {
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #333;
   border: 1rpx solid #eee;
-  border-radius: 8rpx;
-  padding: 20rpx;
+  border-radius: 12rpx;
+  padding: 24rpx;
   box-sizing: border-box;
   width: 100%;
-  min-height: 200rpx;
+  min-height: 240rpx;
   resize: none;
+  background-color: #f9f9f9;
+  line-height: 1.6;
 }
 
 .status-selector {
@@ -82,4 +104,127 @@ button {
 
 button::after {
   border: none;
+}
+
+/* 图片上传容器 */
+.upload-container {
+  margin-top: 16rpx;
+}
+
+/* 图片列表 */
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 16rpx;
+}
+
+/* 图片项 */
+.image-item {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  margin-right: 20rpx;
+  margin-bottom: 20rpx;
+  border-radius: 10rpx;
+  overflow: hidden;
+  border: 1rpx solid #eee;
+}
+
+/* 列表图片 */
+.list-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 上传按钮 */
+.upload-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
+  border: 2rpx dashed #ddd;
+  border-radius: 10rpx;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+  border-color: #1890ff;
+  background-color: #f0f4ff;
+}
+
+.upload-btn:active {
+  transform: scale(0.98);
+}
+
+/* 上传图标 */
+.upload-icon {
+  font-size: 48rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+/* 上传文本 */
+.upload-text {
+  font-size: 22rpx;
+  color: #666;
+}
+
+/* 图片删除按钮 */
+.image-delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50rpx;
+  height: 50rpx;
+  background-color: rgba(255, 69, 69, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 10rpx rgba(255, 69, 69, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* 图片上传中状态 */
+.image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10rpx;
+}
+
+.image-loading .loading-text {
+  color: #fff;
+  font-size: 24rpx;
+}
+
+.image-delete-btn:active {
+  transform: scale(0.9);
+  background-color: rgba(255, 69, 69, 1);
+}
+
+/* 删除图标 */
+.delete-icon {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* 图片数量提示 */
+.image-count {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
 }

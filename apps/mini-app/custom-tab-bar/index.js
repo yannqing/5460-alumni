@@ -8,32 +8,32 @@ Component({
       {
         pagePath: "/pages/index/index",
         text: "首页",
-        iconPath: "/assets/icons/home@3x.png",
-        selectedIconPath: "/assets/icons/home_hover2@3x.png"
+        iconPath: "/assets/icons/home@2x.png",
+        selectedIconPath: "/assets/icons/home_hover2@2x.png"
       },
       {
         pagePath: "/pages/discover/discover",
         text: "发现",
-        iconPath: "/assets/icons/discover@3x.png",
-        selectedIconPath: "/assets/icons/discover_hover@3x.png"
+        iconPath: "/assets/icons/discover@2x.png",
+        selectedIconPath: "/assets/icons/discover_hover@2x.png"
       },
       {
         pagePath: "/pages/chat/list/list",
         text: "5460",
-        iconPath: "/assets/icons/tab_5460@3x.png",
-        selectedIconPath: "/assets/icons/tab_5460@3x.png"
+        iconPath: "/assets/icons/5460@2x.png",
+        selectedIconPath: "/assets/icons/5460@2x.png"
       },
       {
         pagePath: "/pages/search/search",
         text: "搜索",
-        iconPath: "/assets/icons/find_nor@3x.png",
-        selectedIconPath: "/assets/icons/find_on@3x.png"
+        iconPath: "/assets/icons/find_nor@2x.png",
+        selectedIconPath: "/assets/icons/find_on@2x.png"
       },
       {
         pagePath: "/pages/profile/profile",
         text: "我的",
-        iconPath: "/assets/icons/own@3x.png",
-        selectedIconPath: "/assets/icons/own_hover@3x.png"
+        iconPath: "/assets/icons/own@2x.png",
+        selectedIconPath: "/assets/icons/own_hover@2x.png"
       }
     ]
   },
@@ -46,7 +46,14 @@ Component({
   methods: {
     switchTab(e) {
     const data = e.currentTarget.dataset;
+    const index = data.index;
     const url = data.path;
+    
+    // 禁用"发现"按钮（index === 1）的跳转
+    if (index === 1) {
+      return;
+    }
+    
     wx.switchTab({ 
       url,
       success: () => {
