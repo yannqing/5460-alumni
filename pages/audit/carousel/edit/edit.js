@@ -245,10 +245,17 @@ Page({
         fileUploadUtil.uploadImage(tempFilePath, '/file/upload/images')
           .then(res => {
             if (res.code === 200 && res.data && res.data.fileId) {
+              // 处理图片URL，确保是完整的URL
+              const config = require('../../../../utils/config.js')
+              const processedImageFile = {
+                ...res.data,
+                fileUrl: config.getImageUrl(res.data.fileUrl)
+              }
+              
               // 更新表单数据
               this.setData({
                 'formData.bannerImage': res.data.fileId,
-                imageFile: res.data
+                imageFile: processedImageFile
               })
               
               wx.showToast({

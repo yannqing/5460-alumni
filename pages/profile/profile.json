@@ -1,5 +1,6 @@
 {
-  "navigationBarTitleText": "我的",
+  "navigationStyle": "custom",
+  "navigationBarTextStyle": "black",
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification"
   }

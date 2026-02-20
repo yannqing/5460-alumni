@@ -36,10 +36,6 @@ Page({
     },
     activityImagesList: [],
     uploadingImages: false,
-    isSignupOptions: [
-      { id: 0, name: '否' },
-      { id: 1, name: '是' }
-    ],
     isNeedReviewOptions: [
       { id: 0, name: '无需审核' },
       { id: 1, name: '需要审核' }
@@ -118,10 +114,7 @@ Page({
     let selectedValue = value
     
     // 根据不同字段获取对应的id值
-    if (field === 'isSignup') {
-      const option = this.data.isSignupOptions[value]
-      selectedValue = option ? option.id : value
-    } else if (field === 'isNeedReview') {
+    if (field === 'isNeedReview') {
       const option = this.data.isNeedReviewOptions[value]
       selectedValue = option ? option.id : value
     } else if (field === 'isPublic') {
@@ -319,9 +312,19 @@ Page({
     this.setData({ submitting: true })
     
     try {
+      const activityImages = formData.activityImages.trim() || '[]'
+      
+      // 构建提交数据，不需要报名时移除报名时间字段
       const submitData = {
         ...formData,
+        activityImages,
         alumniAssociationId
+      }
+      
+      // 如果不需要报名，删除报名时间相关字段
+      if (submitData.isSignup === 0) {
+        delete submitData.registrationStartTime
+        delete submitData.registrationEndTime
       }
       
       const res = await this.publishActivity(submitData)

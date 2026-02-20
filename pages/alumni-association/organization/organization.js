@@ -21,8 +21,12 @@ Page({
       roleOrName: '',
       remark: '',
       roleOrCode: '',
-      status: 1
+      status: 1,
+      pid: '0' // 父角色ID，0表示顶级
     },
+    editParentOptions: [], // 编辑时的父级选项列表
+    editSelectedParentIndex: 0, // 编辑时选中的父级索引
+    editSelectedParentName: '', // 编辑时选中的父级名称
     // 移动层级相关
     showMoveModal: false,
     movingRole: null, // 当前正在移动的角色
@@ -57,9 +61,9 @@ Page({
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
 
-      // 查找所有校友会管理员角色（根据roleName或remark）
+      // 查找所有校友会管理员角色（根据roleCode）
       const alumniAdminRoles = roles.filter(role => 
-        role.roleName === '校友会管理员' || role.remark === '校友会管理员'
+        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
       )
       console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
 
@@ -386,6 +390,18 @@ Page({
     const { role } = e.currentTarget.dataset
     console.log('[Debug] 打开编辑弹窗，角色数据:', role)
 
+    // 获取可选的父级列表（排除自己及其子节点）
+    const editParentOptions = this.getAvailableParentsForEdit(role)
+    
+    // 设置当前父级ID（默认为0表示顶级）
+    const currentPid = role.pid === null || role.pid === undefined ? '0' : String(role.pid)
+    
+    // 查找当前父级在选项列表中的索引
+    const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
+    
+    // 获取当前父级名称
+    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级角色（无父级）'
+
     this.setData({
       showEditModal: true,
       editingRole: role,
@@ -393,8 +409,12 @@ Page({
         roleOrName: role.roleOrName || '',
         remark: role.remark || '',
         roleOrCode: role.roleOrCode || '',
-        status: role.status !== undefined ? role.status : 1
-      }
+        status: role.status !== undefined ? role.status : 1,
+        pid: currentPid
+      },
+      editParentOptions: editParentOptions,
+      editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
+      editSelectedParentName: editSelectedParentName
     })
   },
 
@@ -407,8 +427,12 @@ Page({
         roleOrName: '',
         remark: '',
         roleOrCode: '',
-        status: 1
-      }
+        status: 1,
+        pid: '0'
+      },
+      editParentOptions: [],
+      editSelectedParentIndex: 0,
+      editSelectedParentName: ''
     })
   },
 
@@ -426,6 +450,18 @@ Page({
     const status = e.detail.value ? 1 : 0
     this.setData({
       'editForm.status': status
+    })
+  },
+
+  // 编辑时选择父级
+  onEditParentChange(e) {
+    const index = e.detail.value
+    const editParentOptions = this.data.editParentOptions
+    const selectedParent = editParentOptions[index]
+    this.setData({
+      'editForm.pid': selectedParent.roleOrId,
+      editSelectedParentIndex: index,
+      editSelectedParentName: selectedParent.roleOrName
     })
   },
 
@@ -448,7 +484,7 @@ Page({
       const res = await this.callUpdateRoleApi({
         organizeId: selectedAlumniAssociationId,
         roleOrId: editingRole.roleOrId,
-        pid: editingRole.pid,
+        pid: editForm.pid === '0' ? null : editForm.pid, // 0表示顶级，传null
         roleOrName: editForm.roleOrName.trim(),
         remark: editForm.remark.trim(),
         roleOrCode: editForm.roleOrCode.trim(),
@@ -516,6 +552,42 @@ Page({
     result.push({
       roleOrId: '0',
       roleOrName: '设为顶级角色',
+      level: 0,
+      isRoot: true
+    })
+
+    // 遍历树形结构，收集可选的父级
+    const traverse = (list, level) => {
+      list.forEach(item => {
+        if (!excludeIds.includes(String(item.roleOrId))) {
+          result.push({
+            roleOrId: item.roleOrId,
+            roleOrName: item.roleOrName,
+            level: level
+          })
+        }
+        if (item.children && item.children.length > 0) {
+          traverse(item.children, level + 1)
+        }
+      })
+    }
+
+    traverse(roleList, 1)
+    return result
+  },
+
+  // 获取编辑时可选的父级角色列表
+  getAvailableParentsForEdit(editingRole) {
+    const { roleList } = this.data
+    const excludeIds = this.getDescendantIds(editingRole)
+    excludeIds.push(String(editingRole.roleOrId))
+
+    const result = []
+
+    // 添加"顶级角色（无父级）"选项
+    result.push({
+      roleOrId: '0',
+      roleOrName: '顶级角色（无父级）',
       level: 0,
       isRoot: true
     })

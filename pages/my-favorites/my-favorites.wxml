@@ -1,49 +1,53 @@
 <!--pages/my-favorites/my-favorites.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="我收藏的" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="我的收藏">
 <!-- 消息通知组件 -->
 <message-notification />
 
-<view class="favorites-page">
-  <view class="shop-list">
-    <view class="shop-card" wx:for="{{favoriteShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
-      <image class="shop-cover" src="{{item.cover}}" mode="aspectFill"></image>
-      <view class="shop-content">
-        <view class="shop-header">
-          <text class="shop-name">{{item.name}}</text>
-          <view wx:if="{{item.isCertified}}" class="certified-badge">校友商铺</view>
-        </view>
-        <view class="shop-desc">{{item.description}}</view>
-        <view class="shop-meta">
-          <view class="meta-item">
-            <text class="meta-icon">⭐</text>
-            <text class="meta-text">{{item.rating}}</text>
+<view class="page">
+  <view class="group_7">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
+      <view class="shop-list">
+        <view class="shop-card" wx:for="{{favoriteShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
+          <image class="shop-cover" src="{{item.cover}}" mode="aspectFill"></image>
+          <view class="shop-content">
+            <view class="shop-header">
+              <text class="shop-name">{{item.name}}</text>
+              <view wx:if="{{item.isCertified}}" class="certified-badge">校友商铺</view>
+            </view>
+            <view class="shop-desc">{{item.description}}</view>
+            <view class="shop-meta">
+              <view class="meta-item">
+                <text class="meta-icon">⭐</text>
+                <text class="meta-text">{{item.rating}}</text>
+              </view>
+              <view class="meta-item">
+                <text class="meta-icon">📍</text>
+                <text class="meta-text">{{item.distance}}m</text>
+              </view>
+              <view class="meta-item" wx:if="{{item.avgPrice}}">
+                <text class="meta-icon">💰</text>
+                <text class="meta-text">人均¥{{item.avgPrice}}</text>
+              </view>
+            </view>
+            <view class="shop-tags" wx:if="{{item.tags && item.tags.length}}">
+              <text class="tag-item" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+            </view>
           </view>
-          <view class="meta-item">
-            <text class="meta-icon">📍</text>
-            <text class="meta-text">{{item.distance}}m</text>
+          <view class="unfavorite-btn" bindtap="unfavoriteShop" data-id="{{item.id}}" catchtap="true">
+            <text class="unfavorite-icon">❤️</text>
           </view>
-          <view class="meta-item" wx:if="{{item.avgPrice}}">
-            <text class="meta-icon">💰</text>
-            <text class="meta-text">人均¥{{item.avgPrice}}</text>
-          </view>
-        </view>
-        <view class="shop-tags" wx:if="{{item.tags && item.tags.length}}">
-          <text class="tag-item" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
         </view>
       </view>
-      <view class="unfavorite-btn" bindtap="unfavoriteShop" data-id="{{item.id}}" catchtap="true">
-        <text class="unfavorite-icon">❤️</text>
-      </view>
-    </view>
-  </view>
 
-  <view wx:if="{{favoriteShops.length === 0}}" class="empty-state">
-    <view class="empty-placeholder">暂无收藏</view>
-    <text class="empty-text">暂无收藏的店铺</text>
-    <view class="empty-btn" bindtap="goToDiscover">去发现</view>
+      <view wx:if="{{favoriteShops.length === 0}}" class="empty-state">
+        <view class="empty-placeholder">暂无收藏</view>
+        <text class="empty-text">暂无收藏的店铺</text>
+        <view class="empty-btn" bindtap="goToDiscover">去发现</view>
+      </view>
+    </scroll-view>
   </view>
 </view>
+</custom-nav-bar>
 
 

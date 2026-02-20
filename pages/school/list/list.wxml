@@ -1,98 +1,109 @@
 <!--pages/school/list/list.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="校友总会" showBack="{{true}}"></custom-nav-bar>
-
 <!-- 消息通知组件 -->
 <message-notification />
 
 <view class="container">
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <view class="search-input-wrap">
-      <input class="search-input" type="text" placeholder="搜索母校名称、曾用名、合并院校名称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-      <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
-    </view>
+  <!-- 固定顶部背景 -->
+  <view class="fixed-top-bg"></view>
+  <!-- 自定义导航栏 -->
+  <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
+  <!-- 顶部图片 -->
+  <view class="top-image-container">
+    <image class="top-image" src="https://cni-alumni.yannqing.com/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png" mode="aspectFit" />
   </view>
-
-  <!-- 筛选和排序栏 -->
-  <view class="filter-bar">
-    <!-- 第一个：办学层次选择 -->
-    <view class="filter-item">
-      <picker mode="selector" range="{{levelList}}" value="{{levelList.indexOf(selectedLevel) >= 0 ? levelList.indexOf(selectedLevel) : 0}}" bindchange="onLevelChange">
-        <text class="{{selectedLevel && selectedLevel !== '全部' ? 'theme-color' : ''}}">{{selectedLevel === '全部' ? '全部层次' : (selectedLevel || '全部层次')}}</text>
-        <text class="arrow-down">▾</text>
-      </picker>
+  
+  <!-- 搜索栏和筛选条件容器 -->
+  <view class="header-container">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
+        <input class="search-input" type="text" placeholder="搜索母校、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+        <view class="search-button" bindtap="onSearch">搜索</view>
+      </view>
     </view>
-    <!-- 第二个：地区选择（自定义省市级选择器，只到市） -->
-    <view class="filter-item">
-      <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
-        <text class="{{region && region.length > 0 ? 'theme-color' : ''}}">{{regionDisplayText || '全部城市'}}</text>
-        <text class="arrow-down">▾</text>
-      </picker>
-    </view>
-    <!-- 第三个：排序 -->
-    <view class="filter-item" bindtap="showSortPanel">
-      <text>{{selectedSort}}</text>
-      <text class="arrow-down">▾</text>
-    </view>
-    <!-- 第四个：我的关注 -->
-    <view class="filter-item" bindtap="goToMyFollow">
-      <text>我的关注</text>
-      <text class="arrow-down">▾</text>
+    
+    <!-- 筛选区域 -->
+    <view class="filter-section">
+      <!-- 类型筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+          <text>{{filters[0].options[filters[0].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 城市筛选 -->
+      <view class="filter-item">
+        <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+          <text>{{regionDisplayText || '全部城市'}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 排序筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
+          <text>{{filters[2].options[filters[2].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
+      <!-- 关注筛选 -->
+      <view class="filter-item">
+        <picker bindchange="onFollowChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
+          <text>{{filters[3].options[filters[3].selected]}}</text>
+        </picker>
+        <text class="filter-arrow">▾</text>
+      </view>
     </view>
   </view>
 
   <!-- 学校列表 -->
-  <view class="school-list">
-    <view class="school-item" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <view class="school-header">
-        <image class="school-icon" src="{{item.icon}}" mode="aspectFill" />
-        <view class="school-info">
-          <view class="school-name-row">
-            <text class="school-name">{{item.name}}</text>
-            <view wx:if="{{item.isCertified}}" class="certified-badge">✓ 认证</view>
+  <view class="association-list">
+
+    <view class="association-card" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <!-- 头部：图标、名称和认证标识 -->
+      <view class="card-header">
+        <view class="card-info">
+          <view class="card-title-row">
+            <text class="card-title">{{item.name}}</text>
+            <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
           </view>
-          <view wx:if="{{item.level}}" class="school-old-names">
-            <text class="old-name-label">办学层次：</text>
-            <text>{{item.level}}</text>
+
+          <!-- 学校信息 -->
+          <view class="card-meta-row">
+            <text wx:if="{{item.level}}" class="card-level">办学层次：{{item.level}}</text>
+            <view class="card-location-wrap">
+              <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+              <text class="location-text">{{item.location}}</text>
+            </view>
           </view>
-          <view class="school-location">
-            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-            <text>{{item.location}}</text>
+
+          <!-- 关注按钮 -->
+          <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+            <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+              {{item.isFollowed ? '已关注' : '+ 关注'}}
+            </view>
           </view>
         </view>
-        <view class="school-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-          <view class="btn btn-small {{item.isFollowed ? 'btn-plain' : 'btn-primary'}}">
-            {{item.isFollowed ? '已关注' : '+ 关注'}}
-          </view>
+        <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
+      </view>
+
+      <!-- 底部：统计数据 -->
+      <view class="card-footer">
+        <view class="card-stats">
+          <text wx:if="{{item.associationCount > 0}}" class="stat-item">校友会 {{item.associationCount}}</text>
+          <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
         </view>
       </view>
     </view>
 
     <!-- 加载状态 -->
-    <view wx:if="{{loading}}" class="loading">加载中...</view>
-    <view wx:elif="{{!hasMore}}" class="loading">没有更多了</view>
+    <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+    <view wx:elif="{{!hasMore}}" class="loading-text">没有更多了</view>
 
     <!-- 空状态 -->
     <view wx:if="{{!loading && schoolList.length === 0}}" class="empty-state">
       <view class="empty-placeholder">暂无数据</view>
       <text>暂无数据</text>
-    </view>
-  </view>
-
-  <!-- 排序弹窗 -->
-  <view class="popup-mask" wx:if="{{showSort}}" bindtap="hideSortPanel" catchtouchmove="true">
-    <view class="popup-content" catchtap="stopPropagation">
-      <view class="popup-header">
-        <text class="popup-title">选择排序</text>
-        <text class="popup-close" bindtap="hideSortPanel">✕</text>
-      </view>
-      <view class="sort-list">
-        <view class="sort-item {{selectedSort === item.label ? 'active' : ''}}" wx:for="{{sortOptions}}" wx:key="value" bindtap="onSortChange" data-value="{{item.value}}" data-label="{{item.label}}">
-          <text>{{item.label}}</text>
-          <text wx:if="{{selectedSort === item.label}}" class="check-icon">✓</text>
-        </view>
-      </view>
     </view>
   </view>
 </view>
