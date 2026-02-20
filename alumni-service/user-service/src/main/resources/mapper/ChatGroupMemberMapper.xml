@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.ChatGroupMemberMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.ChatGroupMember">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="chatGroupId" column="chat_group_id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="groupRemark" column="group_remark" jdbcType="VARCHAR"/>
+        <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, chat_group_id, user_id,
+        group_remark, group_name,
+        create_time, update_time
+    </sql>
+
+</mapper>

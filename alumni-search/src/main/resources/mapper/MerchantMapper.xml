@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.MerchantMapper">
+
+    <!-- 根据用户ID查询商户列表 -->
+    <select id="selectByUserId" resultType="com.cmswe.alumni.common.entity.Merchant">
+        SELECT * FROM merchant
+        WHERE user_id = #{userId}
+          AND is_delete = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据会员等级查询商户列表 -->
+    <select id="selectByMemberTier" resultType="com.cmswe.alumni.common.entity.Merchant">
+        SELECT * FROM merchant
+        WHERE member_tier = #{memberTier}
+          AND status = 1
+          AND is_delete = 0
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 查询待审核的商户列表 -->
+    <select id="selectPendingReview" resultType="com.cmswe.alumni.common.entity.Merchant">
+        SELECT * FROM merchant
+        WHERE review_status = 0
+        <if test="merchantType != null">
+            AND merchant_type = #{merchantType}
+        </if>
+          AND is_delete = 0
+        ORDER BY create_time ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 统计商户数量（按状态） -->
+    <select id="countByStatus" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM merchant
+        WHERE status = #{status}
+          AND is_delete = 0
+    </select>
+
+    <!-- 更新商户统计数据 -->
+    <update id="updateStatistics">
+        UPDATE merchant
+        SET shop_count = (SELECT COUNT(*) FROM shop WHERE merchant_id = #{merchantId} AND is_delete = 0),
+            total_coupon_issued = (SELECT COUNT(*) FROM coupon WHERE merchant_id = #{merchantId} AND is_delete = 0),
+            total_coupon_verified = (SELECT COUNT(*) FROM coupon_verification WHERE merchant_id = #{merchantId})
+        WHERE merchant_id = #{merchantId}
+    </update>
+
+</mapper>

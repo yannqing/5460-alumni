@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.OrganizeArchiRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.OrganizeArchiRole">
+        <id property="roleOrId" column="role_or_id" jdbcType="BIGINT"/>
+        <result property="pid" column="pid" jdbcType="BIGINT"/>
+        <result property="organizeType" column="organize_type" jdbcType="TINYINT"/>
+        <result property="organizeId" column="organize_id" jdbcType="BIGINT"/>
+        <result property="roleOrName" column="role_or_name" jdbcType="VARCHAR"/>
+        <result property="roleOrCode" column="role_or_code" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        role_or_id, pid, organize_type, organize_id, role_or_name, role_or_code, remark, status, create_time, update_time, is_delete
+    </sql>
+
+</mapper>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.MessageDeadLetterMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.MessageDeadLetter" autoMapping="true">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="messageId" column="message_id" jdbcType="VARCHAR"/>
+        <result property="messageCategory" column="message_category" jdbcType="VARCHAR"/>
+        <result property="messageType" column="message_type" jdbcType="VARCHAR"/>
+        <result property="originalMessage" column="original_message" jdbcType="VARCHAR"/>
+        <result property="failureReason" column="failure_reason" jdbcType="VARCHAR"/>
+        <result property="failureTime" column="failure_time" jdbcType="TIMESTAMP"/>
+        <result property="retryCount" column="retry_count" jdbcType="INTEGER"/>
+        <result property="errorStack" column="error_stack" jdbcType="VARCHAR"/>
+        <result property="processStatus" column="process_status" jdbcType="TINYINT"/>
+        <result property="processTime" column="process_time" jdbcType="TIMESTAMP"/>
+        <result property="processResult" column="process_result" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, message_id, message_category, message_type, original_message,
+        failure_reason, failure_time, retry_count, error_stack, process_status,
+        process_time, process_result, created_time, updated_time
+    </sql>
+
+    <!-- 查询未处理的死信消息 -->
+    <select id="selectUnprocessed" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM message_dead_letter
+        WHERE process_status = 0
+        ORDER BY failure_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 查询指定消息类别的死信消息 -->
+    <select id="selectByCategory" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM message_dead_letter
+        WHERE message_category = #{messageCategory}
+        <if test="processStatus != null">
+            AND process_status = #{processStatus}
+        </if>
+        ORDER BY failure_time DESC
+    </select>
+
+    <!-- 更新死信消息处理状态 -->
+    <update id="updateProcessStatus">
+        UPDATE message_dead_letter
+        SET process_status = #{processStatus},
+            process_time = NOW(),
+            process_result = #{processResult},
+            updated_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 增加重试次数 -->
+    <update id="incrementRetryCount">
+        UPDATE message_dead_letter
+        SET retry_count = retry_count + 1,
+            updated_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 按失败原因分组统计 -->
+    <select id="countByFailureReason" resultType="map">
+        SELECT
+            failure_reason,
+            COUNT(*) as count
+        FROM message_dead_letter
+        <where>
+            <if test="processStatus != null">
+                process_status = #{processStatus}
+            </if>
+        </where>
+        GROUP BY failure_reason
+        ORDER BY count DESC
+    </select>
+
+</mapper>

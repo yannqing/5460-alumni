@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.ShopStatisticsMapper">
+
+    <!-- 查询店铺指定日期的统计数据 -->
+    <select id="selectByShopIdAndDate" resultType="com.cmswe.alumni.common.entity.ShopStatistics">
+        SELECT * FROM shop_statistics
+        WHERE shop_id = #{shopId}
+          AND stat_date = #{statDate}
+        LIMIT 1
+    </select>
+
+    <!-- 查询店铺指定日期范围的统计数据 -->
+    <select id="selectByShopIdAndDateRange" resultType="com.cmswe.alumni.common.entity.ShopStatistics">
+        SELECT * FROM shop_statistics
+        WHERE shop_id = #{shopId}
+          AND stat_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY stat_date DESC
+    </select>
+
+    <!-- 查询商户指定日期范围的统计数据 -->
+    <select id="selectByMerchantIdAndDateRange" resultType="com.cmswe.alumni.common.entity.ShopStatistics">
+        SELECT * FROM shop_statistics
+        WHERE merchant_id = #{merchantId}
+          AND stat_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY stat_date DESC
+    </select>
+
+</mapper>

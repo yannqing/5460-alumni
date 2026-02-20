@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.SearchNoResultQueryMapper">
+
+    <!-- 查询高频无结果查询（按查询次数倒序） -->
+    <select id="selectTopFrequent" resultType="com.cmswe.alumni.common.entity.SearchNoResultQuery">
+        SELECT * FROM search_no_result_query
+        WHERE is_delete = 0
+        <if test="searchType != null">
+            AND search_type = #{searchType}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY query_count DESC, last_query_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 增加查询次数（如果记录不存在则插入） -->
+    <update id="incrementQueryCount">
+        INSERT INTO search_no_result_query (keyword, search_type, query_count, last_query_time, status, created_time, updated_time)
+        VALUES (#{keyword}, #{searchType}, 1, CURRENT_TIMESTAMP, 'PENDING', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE
+            query_count = query_count + 1,
+            last_query_time = CURRENT_TIMESTAMP,
+            updated_time = CURRENT_TIMESTAMP
+    </update>
+
+    <!-- 批量更新处理状态 -->
+    <update id="batchUpdateStatus">
+        UPDATE search_no_result_query
+        SET status = #{status},
+            handler = #{handler},
+            updated_time = CURRENT_TIMESTAMP
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

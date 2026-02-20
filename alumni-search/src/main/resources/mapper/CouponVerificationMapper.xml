@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.CouponVerificationMapper">
+
+    <!-- 根据店铺ID查询核销记录 -->
+    <select id="selectByShopId" resultType="com.cmswe.alumni.common.entity.CouponVerification">
+        SELECT * FROM coupon_verification
+        WHERE shop_id = #{shopId}
+        <if test="startTime != null">
+            AND verification_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND verification_time &lt;= #{endTime}
+        </if>
+        ORDER BY verification_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 根据商户ID查询核销记录 -->
+    <select id="selectByMerchantId" resultType="com.cmswe.alumni.common.entity.CouponVerification">
+        SELECT * FROM coupon_verification
+        WHERE merchant_id = #{merchantId}
+        <if test="startTime != null">
+            AND verification_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND verification_time &lt;= #{endTime}
+        </if>
+        ORDER BY verification_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 根据用户ID查询核销记录 -->
+    <select id="selectByUserId" resultType="com.cmswe.alumni.common.entity.CouponVerification">
+        SELECT * FROM coupon_verification
+        WHERE user_id = #{userId}
+        <if test="startTime != null">
+            AND verification_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND verification_time &lt;= #{endTime}
+        </if>
+        ORDER BY verification_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 统计店铺核销数量 -->
+    <select id="countByShopId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM coupon_verification
+        WHERE shop_id = #{shopId}
+        <if test="startTime != null">
+            AND verification_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND verification_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <!-- 根据核销码查询核销记录 -->
+    <select id="selectByVerificationCode" resultType="com.cmswe.alumni.common.entity.CouponVerification">
+        SELECT * FROM coupon_verification
+        WHERE verification_code = #{verificationCode}
+        LIMIT 1
+    </select>
+
+</mapper>

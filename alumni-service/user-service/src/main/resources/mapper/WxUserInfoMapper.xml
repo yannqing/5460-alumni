@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.WxUserInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.WxUserInfo">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="wxId" column="wx_id" jdbcType="BIGINT"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="avatarUrl" column="avatar_url" jdbcType="VARCHAR"/>
+        <result property="bgImg" column="bg_img" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="wxNum" column="wx_num" jdbcType="VARCHAR"/>
+        <result property="qqNum" column="qq_num" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="originProvince" column="origin_province" jdbcType="VARCHAR"/>
+        <result property="curContinent" column="cur_continent" jdbcType="VARCHAR"/>
+        <result property="curCountry" column="cur_country" jdbcType="VARCHAR"/>
+        <result property="curProvince" column="cur_province" jdbcType="VARCHAR"/>
+        <result property="curCity" column="cur_city" jdbcType="VARCHAR"/>
+        <result property="curCounty" column="cur_county" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="latitude" column="latitude" jdbcType="DECIMAL"/>
+        <result property="longitude" column="longitude" jdbcType="DECIMAL"/>
+        <result property="constellation" column="constellation" jdbcType="TINYINT"/>
+        <result property="signature" column="signature" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="personalSpecialty" column="personal_specialty" jdbcType="VARCHAR"/>
+        <result property="maritalStatus" column="marital_status" jdbcType="TINYINT"/>
+        <result property="gender" column="gender" jdbcType="TINYINT"/>
+        <result property="identifyType" column="identify_type" jdbcType="TINYINT"/>
+        <result property="identifyCode" column="identify_code" jdbcType="VARCHAR"/>
+        <result property="birthDate" column="birth_date" jdbcType="DATE"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, wx_id, nickname, name, avatar_url, bg_img, phone, wx_num, qq_num, email,
+        origin_province, cur_continent, cur_country, cur_province, cur_city, cur_county,
+        address, latitude, longitude, constellation, signature, description,
+        personal_specialty, marital_status, gender, identify_type, identify_code, birth_date,
+        created_time, updated_time, is_delete
+    </sql>
+
+    <!-- 根据地理位置分页查询附近校友（带距离计算和关注状态，基于 wx_users 表的实时位置） -->
+    <select id="selectNearbyWithPage" resultType="com.cmswe.alumni.common.vo.NearbyAlumniVo">
+        SELECT
+            ui.wx_id AS wxId,
+            ui.nickname,
+            ui.name,
+            ui.avatar_url AS avatarUrl,
+            ui.cur_continent AS curContinent,
+            ui.cur_country AS curCountry,
+            ui.cur_province AS curProvince,
+            ui.cur_city AS curCity,
+            ui.constellation,
+            ui.signature,
+            ui.gender,
+            uf.follow_status AS followStatus,
+            IF(uf.follow_status IS NOT NULL, TRUE, FALSE) AS isFollowed,
+            (6371 * ACOS(
+                COS(RADIANS(#{latitude})) * COS(RADIANS(u.latitude)) *
+                COS(RADIANS(u.longitude) - RADIANS(#{longitude})) +
+                SIN(RADIANS(#{latitude})) * SIN(RADIANS(u.latitude))
+            )) AS distance
+        FROM wx_users u
+        INNER JOIN wx_user_info ui ON u.wx_id = ui.wx_id
+        LEFT JOIN user_follow uf ON uf.wx_id = #{currentUserId}
+            AND uf.target_id = ui.wx_id
+            AND uf.target_type = 1
+            AND uf.follow_status IN (1, 2, 3)
+            AND uf.is_deleted = 0
+        WHERE u.is_delete = 0
+          AND ui.is_delete = 0
+          AND u.latitude IS NOT NULL
+          AND u.longitude IS NOT NULL
+          AND u.is_enabled = 1
+        <if test="currentUserId != null">
+            AND u.wx_id != #{currentUserId}
+        </if>
+        <if test="name != null and name != ''">
+            AND (ui.nickname LIKE CONCAT('%', #{name}, '%') OR ui.name LIKE CONCAT('%', #{name}, '%'))
+        </if>
+        HAVING distance &lt;= #{radius}
+        ORDER BY distance ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计附近校友总数（基于 wx_users 表的实时位置） -->
+    <select id="countNearbyAlumni" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM (
+            SELECT
+                u.wx_id,
+                (6371 * ACOS(
+                    COS(RADIANS(#{latitude})) * COS(RADIANS(u.latitude)) *
+                    COS(RADIANS(u.longitude) - RADIANS(#{longitude})) +
+                    SIN(RADIANS(#{latitude})) * SIN(RADIANS(u.latitude))
+                )) AS distance
+            FROM wx_users u
+            INNER JOIN wx_user_info ui ON u.wx_id = ui.wx_id
+            WHERE u.is_delete = 0
+              AND ui.is_delete = 0
+              AND u.latitude IS NOT NULL
+              AND u.longitude IS NOT NULL
+              AND u.is_enabled = 1
+            <if test="currentUserId != null">
+              AND u.wx_id != #{currentUserId}
+            </if>
+            <if test="name != null and name != ''">
+                AND (ui.nickname LIKE CONCAT('%', #{name}, '%') OR ui.name LIKE CONCAT('%', #{name}, '%'))
+            </if>
+            HAVING distance &lt;= #{radius}
+        ) AS nearby_alumni
+    </select>
+
+</mapper>

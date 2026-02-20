@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.PermissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.Permission">
+        <id property="perId" column="per_id" jdbcType="BIGINT"/>
+        <result property="perUuid" column="per_uuid" jdbcType="VARCHAR"/>
+        <result property="pid" column="pid" jdbcType="BIGINT"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="code" column="code" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="sortOrder" column="sort_order" jdbcType="INTEGER"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        per_id, per_uuid, pid, name, code, type, create_time, update_time, status, sort_order, is_delete
+    </sql>
+
+    <!-- 根据用户ID查询权限列表 -->
+    <select id="selectPermissionsByUserId" resultMap="BaseResultMap">
+        SELECT DISTINCT p.*
+        FROM permission p
+                 JOIN role_permissions rp ON p.per_id = rp.per_id
+                 JOIN role_user ru ON rp.role_id = ru.role_id
+        WHERE ru.user_id = #{userId}
+          AND p.is_delete = 0
+          AND rp.is_delete = 0
+          AND ru.is_delete = 0
+    </select>
+
+    <!-- 根据角色ID查询权限列表 -->
+    <select id="selectPermissionsByRoleId" resultMap="BaseResultMap">
+        SELECT p.*
+        FROM permission p
+                 JOIN role_permissions rp ON p.per_id = rp.per_id
+        WHERE rp.role_id = #{roleId}
+          AND p.is_delete = 0
+          AND rp.is_delete = 0
+    </select>
+
+    <!-- 根据权限编码查询权限 -->
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM permission
+        WHERE code = #{code} AND is_delete = 0
+    </select>
+
+</mapper>

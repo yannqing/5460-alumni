@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.ChatMessageMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.ChatMessage" autoMapping="true">
+        <id property="messageId" column="message_id" jdbcType="BIGINT"/>
+        <result property="kfMsgId" column="kd_msg_id" jdbcType="BIGINT"/>
+        <result property="fromId" column="from_id" jdbcType="BIGINT"/>
+        <result property="toId" column="to_id" jdbcType="BIGINT"/>
+        <result property="messageFormat" column="message_format"
+                typeHandler="com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler"/>
+        <result property="messageType" column="message_type"
+                typeHandler="com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler"/>
+        <result property="ChatMessageContent" column="msg_content"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"
+                javaType="com.cmswe.alumni.common.model.ChatMessageContent"/>
+        <result property="isShowTime" column="is_show_time" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="sourceType" column="source_type"
+                typeHandler="com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        message_id, kf_msg_id, from_id, to_id,
+        message_format, message_type, msg_content,
+        is_show_time, status, source_type,
+        create_time, update_time
+    </sql>
+
+    <!-- 查询两个用户之间的聊天记录 -->
+    <select id="selectChatHistory" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM chat_message
+        WHERE (
+            (from_id = #{userId1} AND to_id = #{userId2})
+            OR
+            (from_id = #{userId2} AND to_id = #{userId1})
+        )
+        AND source_type = 'user'
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 查询用户未读消息数量（status=1，已送达但未读的消息） -->
+    <select id="countUnreadMessages" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM chat_message
+        WHERE to_id = #{toId}
+          AND status = 1
+    </select>
+
+    <!-- 查询用户与某人的未读消息数量（status=1，已送达但未读的消息） -->
+    <select id="countUnreadMessagesByFromId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM chat_message
+        WHERE to_id = #{toId}
+          AND from_id = #{fromId}
+          AND status = 1
+    </select>
+
+    <!-- 批量标记消息为已读（将status从1更新为2，只更新已送达的消息） -->
+    <update id="batchMarkAsRead">
+        UPDATE chat_message
+        SET status = 2,
+            update_time = NOW()
+        WHERE to_id = #{toId}
+          AND from_id = #{fromId}
+          AND status = 1
+    </update>
+
+    <!-- 查询群组消息 -->
+    <select id="selectGroupMessages" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM chat_message
+        WHERE to_id = #{groupId}
+          AND source_type = 'group'
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 查询用户最近的会话列表 -->
+    <select id="selectRecentConversations" resultType="java.lang.Long">
+        SELECT conversation_user_id
+        FROM (
+            SELECT
+                CASE
+                    WHEN from_id = #{userId} THEN to_id
+                    ELSE from_id
+                END AS conversation_user_id,
+                MAX(create_time) AS last_message_time
+            FROM chat_message
+            WHERE (from_id = #{userId} OR to_id = #{userId})
+              AND source_type = 'user'
+            GROUP BY conversation_user_id
+            ORDER BY last_message_time DESC
+            LIMIT #{limit}
+        ) AS recent_conversations
+    </select>
+
+    <!-- 根据 Kafka 消息 ID 查询消息 -->
+    <select id="selectByKfMsgId" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM chat_message
+        WHERE kf_msg_id = #{kfMsgId}
+        LIMIT 1
+    </select>
+
+    <!-- 根据 Kafka 消息 ID 更新消息状态（只更新status=0发送中的消息，防止重复更新） -->
+    <update id="updateStatusByKfMsgId">
+        UPDATE chat_message
+        SET status = #{status},
+            update_time = NOW()
+        WHERE kf_msg_id = #{kfMsgId}
+          AND status = 0
+    </update>
+
+</mapper>

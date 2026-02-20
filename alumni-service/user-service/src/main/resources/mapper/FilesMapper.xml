@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.FilesMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.Files">
+        <id property="fileId" column="file_id" jdbcType="BIGINT"/>
+        <result property="wxId" column="wx_id" jdbcType="BIGINT"/>
+        <result property="sessionId" column="session_id" jdbcType="VARCHAR"/>
+        <result property="fileType" column="file_type" jdbcType="VARCHAR"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="originalName" column="original_name" jdbcType="VARCHAR"/>
+        <result property="displayName" column="display_name" jdbcType="VARCHAR"/>
+        <result property="fileExtension" column="file_extension" jdbcType="VARCHAR"/>
+        <result property="storageType" column="storage_type" jdbcType="VARCHAR"/>
+        <result property="fileUrl" column="file_url" jdbcType="VARCHAR"/>
+        <result property="filePath" column="file_path" jdbcType="VARCHAR"/>
+        <result property="thumbnailUrl" column="thumbnail_url" jdbcType="VARCHAR"/>
+        <result property="fileSize" column="file_size" jdbcType="BIGINT"/>
+        <result property="fileMd5" column="file_md5" jdbcType="VARCHAR"/>
+        <result property="fileHash" column="file_hash" jdbcType="VARCHAR"/>
+        <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
+        <result property="accessCount" column="access_count" jdbcType="INTEGER"/>
+        <result property="downloadCount" column="download_count" jdbcType="INTEGER"/>
+        <result property="previewCount" column="preview_count" jdbcType="INTEGER"/>
+        <result property="shareCount" column="share_count" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="permissionLevel" column="permission_level" jdbcType="TINYINT"/>
+        <result property="uploadIp" column="upload_ip" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        file_id
+        , wx_id, session_id, file_type, file_name, original_name, display_name,file_extension,
+        storage_type, file_url, file_path, thumbnail_url, file_size, file_md5, file_hash,
+        mime_type, access_count, download_count, preview_count, share_count,
+        status, permission_level, upload_ip, created_time, updated_time, is_deleted
+    </sql>
+
+</mapper>

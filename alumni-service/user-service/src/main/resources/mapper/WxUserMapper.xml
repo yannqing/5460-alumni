@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.WxUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.WxUser">
+        <id property="wxId" column="wx_id" jdbcType="BIGINT"/>
+        <result property="openid" column="openid" jdbcType="VARCHAR"/>
+        <result property="unionId" column="union_id" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="latitude" column="latitude" jdbcType="DECIMAL"/>
+        <result property="longitude" column="longitude" jdbcType="DECIMAL"/>
+        <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP"/>
+        <result property="lastLoginIp" column="last_login_ip" jdbcType="VARCHAR"/>
+        <result property="isEnabled" column="is_enabled" jdbcType="TINYINT"/>
+        <result property="isAlumni" column="is_alumni" jdbcType="TINYINT"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        wx_id,openid,union_id,
+        remark,latitude,longitude,
+        last_login_time,last_login_ip,is_enabled,
+        is_alumni,created_time,updated_time,is_delete
+    </sql>
+
+</mapper>

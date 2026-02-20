@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.FollowStatisticsMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.FollowStatistics">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="targetType" column="target_type" jdbcType="TINYINT"/>
+        <result property="targetId" column="target_id" jdbcType="BIGINT"/>
+        <result property="followerCount" column="follower_count" jdbcType="INTEGER"/>
+        <result property="followingCount" column="following_count" jdbcType="INTEGER"/>
+        <result property="friendCount" column="friend_count" jdbcType="INTEGER"/>
+        <result property="dailyNewFollowers" column="daily_new_followers" jdbcType="INTEGER"/>
+        <result property="weeklyNewFollowers" column="weekly_new_followers" jdbcType="INTEGER"/>
+        <result property="monthlyNewFollowers" column="monthly_new_followers" jdbcType="INTEGER"/>
+        <result property="activeFollowers" column="active_followers" jdbcType="INTEGER"/>
+        <result property="vipFollowers" column="vip_followers" jdbcType="INTEGER"/>
+        <result property="statDate" column="stat_date" jdbcType="DATE"/>
+        <result property="lastCalcTime" column="last_calc_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, target_type, target_id, follower_count, following_count, friend_count,
+        daily_new_followers, weekly_new_followers, monthly_new_followers,
+        active_followers, vip_followers, stat_date, last_calc_time
+    </sql>
+
+</mapper>

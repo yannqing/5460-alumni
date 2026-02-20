@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.system.mapper.ActivityRegistrationMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.ActivityRegistration">
+        <id property="registrationId" column="registration_id" jdbcType="BIGINT"/>
+        <result property="activityId" column="activity_id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userPhone" column="user_phone" jdbcType="VARCHAR"/>
+        <result property="registrationTime" column="registration_time" jdbcType="TIMESTAMP"/>
+        <result property="registrationStatus" column="registration_status" jdbcType="INTEGER"/>
+        <result property="auditTime" column="audit_time" jdbcType="TIMESTAMP"/>
+        <result property="auditReason" column="audit_reason" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        registration_id, activity_id, user_id, user_name, user_phone,
+        registration_time, registration_status, audit_time, audit_reason,
+        remark, create_time, update_time, is_delete
+    </sql>
+
+</mapper>
