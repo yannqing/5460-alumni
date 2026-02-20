@@ -1,286 +1,215 @@
 /* pages/activity/list/list.wxss */
-.activity-page {
-  padding: 20rpx;
-  background: #f7f8fa;
-  min-height: 100vh;
-  box-sizing: border-box;
-}
-
-.card {
-  border-radius: 24rpx;
-  background: #fff;
-  box-shadow: 0 18rpx 50rpx rgba(20, 34, 66, 0.08);
-  margin-bottom: 28rpx;
+/* 与成员管理/审核列表一致：.page + group_5 + group_7，仅 group_7 内滚动 */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: calc(100vh - 190.22rpx);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-/* 表单卡片 */
-.form-card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-  margin-bottom: 28rpx;
+/* 校友会选择卡片（固定不滚动） */
+.page .group_5 {
+  width: 714rpx;
+  min-height: auto;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
 }
 
-.form-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  margin-bottom: 30rpx;
-  color: #333;
-}
-
-.form-item {
-  margin-bottom: 30rpx;
-}
-
-.label {
-  font-size: 28rpx;
-  color: #666;
-  margin-bottom: 16rpx;
-  display: block;
-}
-
-/* 校友会选择器 */
-.alumni-association-selector {
-  border: 1rpx solid #eee;
-  padding: 20rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  height: 80rpx;
+.group_5 {
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_5 .text_14 {
+  width: auto;
+  height: 40rpx;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  line-height: 40rpx;
+}
+
+.group_5 .label_text {
+  width: auto;
+  height: 36rpx;
+  color: rgba(0,0,0,0.6);
+  font-size: 25rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  margin-top: 16rpx;
+  display: block;
+  line-height: 36rpx;
+}
+
+.group_5 .text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
-  cursor: pointer;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
 }
 
-.selector-label {
-  color: #333;
+.group_5 .text_15 {
+  flex: 1;
+  height: 36rpx;
+  color: rgba(0,0,0,0.85);
+  font-size: 28rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 36rpx;
+}
+
+.group_5 .text-wrapper_8::after {
+  content: '▼';
+  color: #999;
+  font-size: 20rpx;
+  margin-left: 10rpx;
+}
+
+/* 活动列表白框（与校友会审核页一致：固定高度，仅 scroll-list 内滚动） */
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  max-height: 55vh;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+/* 标题行：校友活动 + 发布活动按钮（与 group_5 标题→副标题→内容 16rpx 间距一致） */
+.activity-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+  flex-shrink: 0;
+}
+
+.header-left {
   flex: 1;
 }
 
-.selector-arrow {
-  color: #999;
-  font-size: 20rpx;
-}
-
-/* 校友会选择器弹窗 */
-.alumni-association-picker {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-}
-
-.picker-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.picker-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  border-radius: 20rpx 20rpx 0 0;
-  max-height: 70vh;
-  overflow: hidden;
-}
-
-.picker-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.picker-title {
-  font-size: 32rpx;
+.header-title {
+  font-size: 29rpx;
   font-weight: 600;
-  color: #333;
+  color: rgba(0,0,0,1);
+  line-height: 40rpx;
+  display: block;
 }
 
-.picker-cancel {
-  font-size: 28rpx;
-  color: #999;
-  cursor: pointer;
+.header-subtitle {
+  font-size: 25rpx;
+  color: rgba(0,0,0,0.6);
+  line-height: 36rpx;
+  margin-top: 16rpx;
+  display: block;
 }
 
-.picker-list {
-  max-height: 50vh;
-  overflow-y: auto;
-  padding: 0 30rpx;
-}
-
-.picker-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 30rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-  cursor: pointer;
-}
-
-.item-name {
-  font-size: 28rpx;
-  color: #333;
-}
-
-.item-check {
-  font-size: 32rpx;
-  color: #52c41a;
-  font-weight: 600;
-}
-
-.picker-empty {
-  padding: 60rpx 0;
-  text-align: center;
-  color: #999;
-  font-size: 28rpx;
-}
-
-.activity-hero {
-  padding: 28rpx;
-}
-
-.hero-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24rpx;
-}
-
-.hero-title {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #1f1f1f;
-}
-
-.hero-subtitle {
-  font-size: 26rpx;
-  color: #8c8c8c;
-  margin-top: 6rpx;
+.header-btn-wrap {
+  flex-shrink: 0;
 }
 
 .hero-btn {
-  border-color: #ff4d4f;
-  color: #ff4d4f;
-}
-
-.hero-stats {
-  display: flex;
-  justify-content: space-between;
-  text-align: center;
-  margin-bottom: 20rpx;
-}
-
-.stat-item {
-  flex: 1;
-}
-
-.stat-num {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #1f1f1f;
-}
-
-.stat-label {
-  display: block;
-  font-size: 24rpx;
-  color: #8c8c8c;
-}
-
-.search-bar {
+  background-color: #1890ff;
+  color: #fff;
+  border: none;
+  border-radius: 7rpx;
+  height: 58rpx;
+  padding: 0 24rpx;
+  font-size: 25rpx;
+  line-height: 58rpx;
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  padding: 18rpx 24rpx;
-  background: #f5f7fb;
-  border-radius: 999rpx;
+  justify-content: center;
 }
 
-.search-bar .icon {
-  font-size: 30rpx;
-}
-
-.search-input {
-  flex: 1;
-  font-size: 26rpx;
-}
-
+/* 筛选 tab（与审核列表 tab 风格统一：蓝底激活） */
 .filter-tabs {
+  flex-shrink: 0;
   display: flex;
-  padding-bottom: 8rpx;
-  margin-bottom: 20rpx;
+  white-space: nowrap;
+  padding-bottom: 16rpx;
+  margin-bottom: 8rpx;
 }
 
 .tab {
+  flex-shrink: 0;
   padding: 12rpx 28rpx;
-  border-radius: 999rpx;
-  background: #fff;
-  margin-right: 14rpx;
-  font-size: 26rpx;
+  border-radius: 14rpx;
+  margin-right: 16rpx;
+  font-size: 25rpx;
   color: #666;
-  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.05);
+  background-color: #f5f5f5;
 }
 
 .tab.active {
-  background: rgba(255, 77, 79, 0.12);
-  color: #ff4d4f;
+  background-color: rgba(24, 144, 255, 0.12);
+  color: #1890ff;
   font-weight: 600;
 }
 
+/* 仅列表区域滚动（高度由 js 通过 style 注入，scroll-view 必须明确高度才能滚动） */
+.scroll-list {
+  width: 100%;
+  flex-shrink: 0;
+}
+
 .empty-block {
-  padding: 40rpx;
+  padding: 16rpx 0 60rpx;
   text-align: center;
 }
 
-.empty-block image {
-  width: 280rpx;
-  margin-bottom: 16rpx;
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
 }
 
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 16rpx;
+  padding-bottom: 16rpx;
 }
 
 .activity-card {
-  padding: 28rpx;
-  border-radius: 24rpx;
-  background: #fff;
-  box-shadow: 0 8rpx 32rpx rgba(20, 34, 66, 0.06);
-  margin-bottom: 24rpx;
-  transition: all 0.3s ease;
-}
-
-.activity-card:hover {
-  box-shadow: 0 12rpx 40rpx rgba(20, 34, 66, 0.1);
-  transform: translateY(-2rpx);
+  padding: 20rpx 24rpx;
+  border-radius: 12rpx;
+  background-color: #f9f9f9;
+  border: 1rpx solid #f0f0f0;
 }
 
 .activity-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .activity-title {
-  font-size: 34rpx;
+  font-size: 28rpx;
   font-weight: 600;
-  color: #1f1f1f;
+  color: #333;
   flex: 1;
   margin-right: 16rpx;
   line-height: 1.4;
@@ -292,8 +221,8 @@
 }
 
 .status-badge {
-  padding: 6rpx 18rpx;
-  border-radius: 999rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
   font-size: 22rpx;
   color: #fff;
   flex-shrink: 0;
@@ -302,17 +231,14 @@
 
 .status-badge.upcoming {
   background: #ff7a45;
-  box-shadow: 0 2rpx 8rpx rgba(255, 122, 69, 0.3);
 }
 
 .status-badge.ongoing {
   background: #52c41a;
-  box-shadow: 0 2rpx 8rpx rgba(82, 196, 26, 0.3);
 }
 
 .status-badge.finished {
   background: rgba(0, 0, 0, 0.4);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .activity-meta {
@@ -320,8 +246,8 @@
   color: #8c8c8c;
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
 }
 
 .dot {
@@ -333,22 +259,16 @@
   display: flex;
   gap: 12rpx;
   flex-wrap: wrap;
-  margin-bottom: 20rpx;
+  margin-bottom: 12rpx;
 }
 
 .tag {
-  padding: 8rpx 20rpx;
-  background: #f5f7fb;
-  border-radius: 999rpx;
+  padding: 6rpx 16rpx;
+  background: #f0f7ff;
+  border-radius: 8rpx;
   font-size: 22rpx;
-  color: #666;
-  border: 1rpx solid #e8eaf0;
-}
-
-.activity-location {
-  font-size: 26rpx;
-  color: #595959;
-  margin-bottom: 12rpx;
+  color: #1890ff;
+  border: 1rpx solid #d6e4ff;
 }
 
 .activity-footer {
@@ -356,56 +276,116 @@
   justify-content: space-between;
   font-size: 24rpx;
   color: #8c8c8c;
-  margin-top: 16rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #f0f0f0;
   flex-wrap: wrap;
-  gap: 16rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid #f0f2f5;
-}
-
-.activity-footer .time {
-  margin-left: 0;
+  gap: 12rpx;
 }
 
 .activity-actions {
-  margin-top: 20rpx;
+  margin-top: 16rpx;
   display: flex;
   justify-content: flex-end;
   gap: 16rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid #f0f2f5;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #f0f0f0;
 }
 
 .edit-btn {
-  padding: 10rpx 28rpx;
-  border-radius: 12rpx;
-  background: #f5f7fb;
-  color: #333;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
   font-size: 24rpx;
-  border: 1rpx solid #e8eaf0;
-  margin-right: 0;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.edit-btn:hover {
-  background: #e8eaf0;
-  border-color: #d9dfea;
+  color: #1890ff;
+  background: #e6f7ff;
+  border: 1rpx solid #91d5ff;
 }
 
 .delete-btn {
-  padding: 10rpx 28rpx;
-  border-radius: 12rpx;
-  background: #ff4d4f;
-  color: #fff;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
   font-size: 24rpx;
-  border: none;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  box-shadow: 0 2rpx 8rpx rgba(255, 77, 79, 0.3);
+  color: #ff4d4f;
+  background: #fff1f0;
+  border: 1rpx solid #ffccc7;
 }
 
-.delete-btn:hover {
-  background: #ff7875;
-  box-shadow: 0 4rpx 12rpx rgba(255, 77, 79, 0.4);
+/* 校友会选择器弹窗 */
+.alumni-association-picker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+}
+
+.alumni-association-picker .picker-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.alumni-association-picker .picker-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.alumni-association-picker .picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.alumni-association-picker .picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.alumni-association-picker .picker-cancel {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.alumni-association-picker .picker-list {
+  max-height: calc(50vh + 40px);
+  overflow-y: auto;
+  padding: 0 30rpx;
+}
+
+.alumni-association-picker .picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.alumni-association-picker .item-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.alumni-association-picker .item-check {
+  font-size: 32rpx;
+  color: #52c41a;
+  font-weight: 600;
+}
+
+.alumni-association-picker .picker-empty {
+  padding: 60rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
 }

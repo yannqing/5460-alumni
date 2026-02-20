@@ -1,7 +1,7 @@
 <!--pages/article-publish/index/index.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="发布文章" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="发布文章">
+<scroll-view class="scroll-container" scroll-y enable-back-to-top>
 <view class="article-publish-page">
   <!-- 标题输入 -->
   <view class="form-item">
@@ -156,3 +156,5 @@
     <button class="publish-btn" bindtap="publishArticle">发布文章</button>
   </view>
 </view>
+</scroll-view>
+</custom-nav-bar>

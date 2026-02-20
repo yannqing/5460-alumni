@@ -1,13 +1,7 @@
-<!--pages/alumni-association/apply/apply.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="申请加入校友会" showBack="{{true}}"></custom-nav-bar>
-
-<view class="container">
-  <view class="form-container">
-    <view class="form-header">
-      <view class="form-title">{{mode === 'view' ? '申请详情' : '申请加入校友会'}}</view>
-      <view class="form-subtitle">{{mode === 'view' ? '您的申请正在审核中' : '请填写以下信息，提交后等待审核'}}</view>
-    </view>
+<custom-nav-bar useAuditStyle="{{true}}" auditTitle="申请加入校友会" showBack="{{true}}">
+  <view class="white-background-content">
+    <view class="container" bindtap="closeAllDropdowns">
+  <image src="https://${API_DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png" class="header-image" mode="aspectFit"></image>
 
     <!-- 基本信息 -->
     <view class="form-section">
@@ -81,7 +75,7 @@
         <picker
           mode="date"
           fields="year"
-          value="{{formData.enrollmentYear}}"
+          value="{{formData.enrollmentYear ? formData.enrollmentYear + '-01-01' : ''}}"
           bindchange="handleYearChange"
           data-field="enrollmentYear"
           disabled="{{mode === 'view'}}"
@@ -97,7 +91,7 @@
         <picker
           mode="date"
           fields="year"
-          value="{{formData.graduationYear}}"
+          value="{{formData.graduationYear ? formData.graduationYear + '-01-01' : ''}}"
           bindchange="handleYearChange"
           data-field="graduationYear"
           disabled="{{mode === 'view'}}"
@@ -167,18 +161,26 @@
     <view class="form-section">
       <view class="section-title">相关材料（选填）</view>
       <view class="upload-container">
-        <block wx:for="{{attachments}}" wx:key="index">
-          <view class="upload-item">
-            <image class="upload-image" src="{{item.url}}" mode="aspectFill" />
-            <view wx:if="{{mode === 'edit'}}" class="upload-delete" bindtap="deleteAttachment" data-index="{{index}}">×</view>
+        <!-- 图片列表 -->
+        <view class="image-list">
+          <view class="image-item" wx:for="{{attachments}}" wx:key="index">
+            <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
+            <!-- 删除按钮 -->
+            <view wx:if="{{mode === 'edit'}}" class="image-delete-btn" bindtap="deleteAttachment" data-index="{{index}}">
+              <text class="delete-icon">×</text>
+            </view>
           </view>
-        </block>
-        <view wx:if="{{mode === 'edit' && attachments.length < 3}}" class="upload-button" bindtap="chooseImage">
-          <text class="upload-icon">+</text>
-          <text class="upload-text">上传图片</text>
+          
+          <!-- 上传按钮 -->
+          <view wx:if="{{mode === 'edit' && attachments.length < 3}}" class="upload-btn" bindtap="chooseImage">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">{{attachments.length > 0 ? '继续上传' : '上传图片'}}</text>
+          </view>
         </view>
+        
+        <!-- 图片数量提示 -->
+        <text wx:if="{{mode === 'edit'}}" class="image-count">{{attachments.length}}/3</text>
       </view>
-      <view wx:if="{{mode === 'edit'}}" class="upload-hint">最多上传3张图片</view>
     </view>
 
     <!-- 按钮区域 -->
@@ -196,3 +198,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

@@ -23,7 +23,14 @@ Page({
       peerNickname : '',
       peerAvatar : '',
       messageContent: ''
-    }
+    },
+    statusBarHeight: 0,
+    imageTopBg: config.getAssetImageUrl('grdbt@2x.png'),
+    imageBanner: config.getAssetImageUrl('chatbanner2@2x.png'), // Reusing the banner from profile for now as placeholder
+    iconAlumni: config.getIconUrl('chatwdxyh@2x.png'), // Using existing icons as placeholders if specific ones aren't known
+    iconFav: config.getIconUrl('chatwdsc@2x.png'),
+    iconFollow: config.getIconUrl('chatwdgz@2x.png'),
+    defaultAvatar: config.defaultAvatar
   },
 
   // WebSocket 事件监听器引用（用于移除监听）
@@ -33,6 +40,10 @@ Page({
   disconnectListener: null,
 
   onLoad() {
+    const systemInfo = wx.getSystemInfoSync()
+    this.setData({
+      statusBarHeight: systemInfo.statusBarHeight
+    })
     this.initWebSocket()
   },
 
@@ -256,9 +267,9 @@ Page({
           // 判断头像：如果是系统通知使用默认图标，否则使用用户头像
           let avatar = ''
           if (isSystemNotification) {
-            avatar = 'https://${API_DOMAIN}/upload/images/2026/01/14/message.png'
+            avatar = config.getAssetImageUrl('xttzavartar@2x.png')
           } else {
-            avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : '')
+            avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : config.defaultAvatar)
           }
 
           return {
@@ -374,11 +385,8 @@ Page({
   },
 
   navigateToMyAssociations() {
-    // 功能已移除
-    this.toggleSidebar()
-    wx.showToast({
-      title: '功能已移除',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/profile/alumni-association/alumni-association'
     })
   },
 
@@ -450,10 +458,10 @@ Page({
   // ================= 列表操作逻辑 =================
 
   /**
-   * 标记已读
+   * 标记已读/未读
    */
   async markRead(e) {
-    const { peerid, index } = e.currentTarget.dataset
+    const { peerid, index, unreadcount } = e.currentTarget.dataset
     
     if (!peerid) {
       console.error('[ChatList] 标记已读失败：缺少 peerid')
@@ -461,32 +469,46 @@ Page({
       return
     }
     
-    // 乐观更新
     const list = this.data.allChatList
+    const currentUnreadCount = parseInt(unreadcount) || list[index].unreadCount || 0
     const originalUnreadCount = list[index].unreadCount
-    list[index].unreadCount = 0
-    list[index].isTouchMove = false // 关闭滑动菜单
-    this.setData({ allChatList: list })
+    
+    // 如果有未读消息，标记为已读；如果没有未读消息，恢复为未读状态
+    if (currentUnreadCount > 0) {
+      // 标记为已读
+      list[index].unreadCount = 0
+      list[index].isTouchMove = false // 关闭滑动菜单
+      this.setData({ allChatList: list })
 
-    try {
-      // 调用后端接口标记已读
-      const res = await chatApi.markConversationRead(peerid)
-      
-      if (res.data && res.data.code === 200) {
-        // 更新未读总数
-        this.loadUnreadTotal()
-      } else {
+      try {
+        // 调用后端接口标记已读
+        const res = await chatApi.markConversationRead(peerid)
+        
+        if (res.data && res.data.code === 200) {
+          // 更新未读总数
+          this.loadUnreadTotal()
+        } else {
+          // 回滚
+          list[index].unreadCount = originalUnreadCount
+          this.setData({ allChatList: list })
+          wx.showToast({ title: res.data?.msg || '操作失败', icon: 'none' })
+        }
+      } catch (error) {
+        console.error('[ChatList] 标记已读失败:', error)
         // 回滚
         list[index].unreadCount = originalUnreadCount
         this.setData({ allChatList: list })
-        wx.showToast({ title: res.data?.msg || '操作失败', icon: 'none' })
+        wx.showToast({ title: '操作失败', icon: 'none' })
       }
-    } catch (error) {
-      console.error('[ChatList] 标记已读失败:', error)
-      // 回滚
-      list[index].unreadCount = originalUnreadCount
+    } else {
+      // 恢复为未读状态（前端状态，不调用接口）
+      list[index].unreadCount = 1 // 恢复为1条未读
+      list[index].isTouchMove = false // 关闭滑动菜单
       this.setData({ allChatList: list })
-      wx.showToast({ title: '操作失败', icon: 'none' })
+      
+      // 更新未读总数（增加1）
+      const currentTotal = this.data.unreadTotal || 0
+      this.setData({ unreadTotal: currentTotal + 1 })
     }
   },
 

@@ -3,17 +3,20 @@ const { schoolApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
 
-const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
+const DEFAULT_SCHOOL_AVATAR = config.defaultAvatar
 
 Page({
   data: {
     // 图标路径
-    iconSearch: config.getIconUrl('sslss.png'),
+    iconSearch: '../../../assets/icons/magnifying glass.png',
     iconLocation: config.getIconUrl('position.png'),
     // 是否为选择模式
     selectMode: false,
     // 搜索关键词
     keyword: '',
+    // 导航栏高度
+    statusBarHeight: 0,
+    navBarHeight: 0,
 
     // 筛选条件
     sortType: 'default', // default: 默认, alumni: 校友数, association: 校友会数, name: 名称
@@ -29,36 +32,44 @@ Page({
     selectedLevel: '全部', // 选中的办学层次
     levelList: ['全部', '本科', '专科'],
 
+    // 筛选器配置
+    filters: [
+      { label: '类型', options: ['全部学校', '本科', '专科'], selected: 0 },
+      { label: '城市', options: ['全部城市'], selected: 0 },
+      { label: '排序', options: ['默认排序', '校友数量', '校友会数量', '名称排序'], selected: 0 },
+      { label: '关注', options: ['全部', '我的关注'], selected: 0 }
+    ],
+    showFilterOptions: false,
+    activeFilterIndex: -1,
+
     // 列表数据
     schoolList: [],
     current: 1,  // 当前页码（与后端 current 字段对应）
     pageSize: 10,
     hasMore: true,
     loading: false,
-    refreshing: false,
-
-    // 显示筛选面板
-    showSort: false,
-
-    // 排序选项
-    sortOptions: [
-      { value: 'default', label: '默认排序' },
-      { value: 'alumni', label: '校友数量' },
-      { value: 'association', label: '校友会数量' },
-      { value: 'name', label: '名称排序' }
-    ],
-    selectedSort: '默认排序'
+    refreshing: false
   },
 
   async onLoad(options) {
+    // 获取系统信息
+    const systemInfo = wx.getSystemInfoSync()
+    const statusBarHeight = systemInfo.statusBarHeight || 0
+    const navBarHeight = 44 // 导航栏高度固定为44px
+
+    this.setData({
+      statusBarHeight: statusBarHeight,
+      navBarHeight: navBarHeight
+    })
+
     // 检查是否为选择模式
     this.setData({
       selectMode: options.selectMode === 'true'
     })
-    
+
     // 初始化省市级数据
     this.initRegionData()
-    
+
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadSchoolList(true)
@@ -153,11 +164,11 @@ Page({
     // 显示时使用带单位的名称，但内部仍使用不带单位的名称作为key
     const provinceKeys = Object.keys(provinceCityMap)
     const provinceList = ['全部', ...provinceKeys.map(key => provinceSuffixMap[key] || key)]
-    
+
     // 初始化：第一列是省份（包含"全部"），第二列是"全部"或第一个省份的城市
     // 当选择"全部"省份时，城市列表也显示"全部"
     const firstProvinceCities = ['全部', ...(provinceCityMap[provinceKeys[0]] || [])]
-    
+
     this.setData({
       provinceCityMap: provinceCityMap,
       provinceSuffixMap: provinceSuffixMap, // 省份名称到带单位名称的映射
@@ -181,7 +192,7 @@ Page({
   async ensureLogin() {
     const app = getApp()
     const isLogin = app.checkHasLogined()
-    
+
     if (!isLogin) {
       try {
         await app.initApp()
@@ -220,7 +231,7 @@ Page({
 
     try {
       const { keyword, sortType, region, selectedLevel, current, pageSize } = this.data
-      
+
       // 从地区选择器中提取省份和城市（只使用省和市，忽略区）
       // region 格式: [省, 市]，例如: ['山西省', '太原市']
       let selectedProvince = undefined
@@ -229,15 +240,15 @@ Page({
         selectedProvince = region[0] || undefined
         selectedCity = region[1] || undefined
       }
-      
+
       // 构建请求参数（与后端 /school/page 的字段保持一致）
       // 后端字段：current, pageSize, sortField, sortOrder, schoolName, location, description, previousName
       // 新增字段：province, city, level（后端需要支持这些字段的查询）
       // 注意：后端使用 AND 关系，如果同时传多个字段，要求同时满足所有条件
       // 因此搜索时只传 schoolName，避免同时传 previousName 和 description 导致查不到数据
       const params = {
-        current: reset ? 1 : current + 1, // 加载更多时请求下一页
-        pageSize: pageSize,
+        current: reset ? 1 : current, // 使用当前页码进行请求
+        size: pageSize,
         // 搜索关键字：只搜索 schoolName（学校名称）
         // 如果同时传 schoolName、previousName、description，后端会要求同时满足三个条件（AND），几乎查不到数据
         // 因此只传 schoolName，让后端按学校名称筛选即可
@@ -263,7 +274,7 @@ Page({
       })
 
       const res = await schoolApi.getSchoolPage(params)
-      
+
       if (res.data && res.data.code === 200) {
         const responseData = res.data.data || {}
         const list = responseData.records || responseData.list || []
@@ -310,16 +321,16 @@ Page({
         if (reset) {
           this.setData({
             schoolList: finalList,
-            current: 1, // 重置为第1页
-            hasMore: currentPage < totalPages,
+            current: 2, // 下次加载第2页
+            hasMore: mappedList.length >= pageSize,
             loading: false,
             refreshing: false
           })
         } else {
           this.setData({
             schoolList: finalList,
-            current: currentPage, // 更新为当前已加载的页码
-            hasMore: currentPage < totalPages,
+            current: current + 1, // 下次加载下一页
+            hasMore: mappedList.length >= pageSize,
             loading: false
           })
         }
@@ -380,7 +391,7 @@ Page({
 
   onSearch() {
     const keyword = this.data.keyword.trim()
-    this.setData({ 
+    this.setData({
       current: 1
     })
     this.loadSchoolList(true)
@@ -390,10 +401,10 @@ Page({
   onRegionColumnChange(e) {
     const column = e.detail.column // 改变的列索引（0: 省, 1: 市）
     const value = e.detail.value // 新选中的索引
-    
+
     const { regionData, provinceCityMap, provinceNameMap, regionIndex } = this.data
     const provinceList = regionData[0]
-    
+
     // 如果改变的是省份列（第一列）
     if (column === 0) {
       // 如果选择的是"全部"（索引0），城市列表也显示"全部"
@@ -401,7 +412,7 @@ Page({
         const cityList = ['全部']
         const newRegionData = [provinceList, cityList]
         const newRegionIndex = [0, 0]
-        
+
         this.setData({
           regionData: newRegionData,
           regionIndex: newRegionIndex
@@ -413,10 +424,10 @@ Page({
         const selectedProvinceKey = provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
         const provinceCities = provinceCityMap[selectedProvinceKey] || []
         const cityList = ['全部', ...provinceCities]
-        
+
         const newRegionData = [provinceList, cityList]
         const newRegionIndex = [value, 0] // 重置城市索引为0（选中"全部"）
-        
+
         this.setData({
           regionData: newRegionData,
           regionIndex: newRegionIndex
@@ -435,28 +446,28 @@ Page({
   onRegionChange(e) {
     const index = e.detail.value // [省索引, 市索引]
     const { regionData, provinceNameMap } = this.data
-    
+
     const provinceList = regionData[0]
     const cityList = regionData[1]
-    
+
     // 根据索引获取选中的省和市（带单位的显示名称）
     const selectedProvinceWithSuffix = provinceList[index[0]] || ''
     const selectedCity = cityList[index[1]] || ''
-    
+
     // 将带单位的省份名称转换为不带单位的名称（用于传给后端）
     const selectedProvince = provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
-    
+
     // 构建地区数组和显示文本
     const region = []
     let regionDisplayText = '全部城市'
-    
+
     // 如果选择的是"全部"省份，不传任何地区参数
     if (selectedProvinceWithSuffix === '全部') {
       regionDisplayText = '全部城市'
     } else if (selectedProvinceWithSuffix) {
       // 选择了具体省份（传给后端时使用不带单位的名称）
       region.push(selectedProvince)
-      
+
       // 如果选择的是"全部"城市，只传省份（单一选择）
       if (selectedCity === '全部' || !selectedCity) {
         regionDisplayText = selectedProvinceWithSuffix // 显示时使用带单位的名称
@@ -466,14 +477,14 @@ Page({
         regionDisplayText = `${selectedProvinceWithSuffix} ${selectedCity}` // 显示时使用带单位的省份名称
       }
     }
-    
+
     this.setData({
       region: region,
       regionDisplayText: regionDisplayText,
       regionIndex: index,
       current: 1
     })
-    
+
     // 地区改变后重新加载数据
     this.loadSchoolList(true)
   },
@@ -483,7 +494,7 @@ Page({
     const level = e.detail.value
     const levelList = this.data.levelList
     const selectedLevel = levelList[level] || '全部'
-    
+
     this.setData({
       selectedLevel: selectedLevel,
       current: 1
@@ -519,7 +530,7 @@ Page({
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
     const { selectMode, schoolList } = this.data
-    
+
     if (selectMode) {
       // 选择模式：返回选中的学校
       const school = schoolList.find(item => String(item.id) === String(id))
@@ -602,6 +613,59 @@ Page({
     wx.navigateTo({
       url: '/pages/my-follow/my-follow?type=school'
     })
+  },
+
+  // 类型筛选变更
+  onTypeChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[0].selected = optionIndex
+
+    this.setData({ filters })
+
+    // 根据选择的筛选条件更新数据
+    const selectedOption = filters[0].options[optionIndex]
+    let level = '全部'
+    if (selectedOption === '本科') {
+      level = '本科'
+    } else if (selectedOption === '专科') {
+      level = '专科'
+    }
+    this.setData({ selectedLevel: level, current: 1 })
+    this.loadSchoolList(true)
+  },
+
+  // 排序筛选变更
+  onSortChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[2].selected = optionIndex
+
+    this.setData({ filters })
+
+    // 根据选择的筛选条件更新数据
+    const selectedOption = filters[2].options[optionIndex]
+    let sortType = 'default'
+    if (selectedOption === '校友数量') {
+      sortType = 'alumni'
+    } else if (selectedOption === '校友会数量') {
+      sortType = 'association'
+    } else if (selectedOption === '名称排序') {
+      sortType = 'name'
+    }
+    this.setData({ sortType, current: 1 })
+    this.loadSchoolList(true)
+  },
+
+  // 关注筛选变更
+  onFollowChange(e) {
+    const optionIndex = e.detail.value
+    const { filters } = this.data
+    filters[3].selected = optionIndex
+
+    this.setData({ filters, current: 1 })
+    // 这里可以根据需要实现关注筛选逻辑
+    this.loadSchoolList(true)
   }
 })
 

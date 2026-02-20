@@ -1,69 +1,57 @@
 <!--pages/audit/schooloffice/member/member.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="校处会成员管理" showBack="{{true}}"></custom-nav-bar>
-
-<view class="container">
-  <view class="form-card" wx:if="{{!hasSingleSchoolOffice}}">
-    <view class="form-title">校处会成员管理</view>
-
-    <!-- 选择校处会 -->
-    <view class="form-item">
-      <text class="label">选择校处会</text>
-      <view class="school-office-selector" bindtap="showSchoolOfficeSelector">
-        <text class="selector-label">{{selectedSchoolOfficeName || '请选择校处会'}}</text>
-        <text class="selector-arrow">▼</text>
-      </view>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="成员管理">
+<view class="page">
+  <!-- 校促会选择卡片（与校友会审核页一致，固定不滚动） -->
+  <view class="group_5" wx:if="{{!hasSingleSchoolOffice}}">
+    <text class="text_14">校促会成员管理</text>
+    <text class="label_text">选择校促会</text>
+    <view class="text-wrapper_8" bindtap="{{hasSingleSchoolOffice ? '' : 'showSchoolOfficeSelector'}}">
+      <text class="text_15">{{selectedSchoolOfficeName || '请选择校促会'}}</text>
     </view>
   </view>
 
-  <!-- 成员列表 -->
-  <view class="form-card" style="margin-top: 20rpx;">
-    <view class="form-title-row">
-      <text class="form-title">成员列表</text>
-      <button class="invite-btn" bindtap="showInviteModal">邀请加入</button>
-    </view>
-    
-    <!-- 加载中 -->
-    <view wx:if="{{memberLoading}}" class="loading-state">
-      <text>加载成员中...</text>
-    </view>
-    
-    <!-- 成员列表 -->
-    <view class="member-list" wx:else>
-      <!-- 成员列表项 -->
-      <view class="member-item" wx:for="{{memberList}}" wx:key="wxId">
-        <view class="member-avatar">
-          <image class="avatar-img" src="{{item.avatarUrl || 'https://${API_DOMAIN}/upload/images/assets/images/avatar.png'}}"></image>
-        </view>
-        <view class="member-info">
-          <view class="member-name-row">
-            <text class="member-name">{{item.name || item.nickname || '未命名'}}</text>
-            <text class="member-role">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</text>
-          </view>
-
-          <view class="member-gender" wx:if="{{item.gender}}">
-            <text class="gender-text">{{item.gender === 1 ? '男' : '女'}}</text>
-          </view>
-        </view>
-        <view class="member-actions">
-          <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
-          <view class="delete-btn" catchtap="deleteMember" data-member="{{item}}">删除</view>
-        </view>
-      </view>
-      
-      <!-- 空状态 -->
-      <view class="empty-state" wx:if="{{memberList.length === 0}}">
-        <text>{{selectedSchoolOfficeId ? '暂无成员数据' : '请先选择校处会'}}</text>
+  <!-- 成员列表卡片（与校友会审核页 group_7 一致：固定标题，仅内部 scroll-list 滚动） -->
+  <view class="group_7">
+    <view class="member-list-header">
+      <text class="text_20">成员列表</text>
+      <view class="invite-btn-wrap">
+        <button class="invite-btn" bindtap="showInviteModal">+邀请加入</button>
       </view>
     </view>
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
+      <view wx:if="{{memberLoading}}" class="loading-state">
+        <text>加载成员中...</text>
+      </view>
+      <view class="member-list" wx:else>
+        <view class="member-item" wx:for="{{memberList}}" wx:key="wxId">
+          <view class="member-item-left">
+            <view class="member-avatar">
+              <image class="avatar-img" src="{{item.avatarUrl || 'https://${API_DOMAIN}/upload/images/assets/images/avatar.png'}}"></image>
+            </view>
+            <view class="member-text-group">
+              <text class="member-name">{{item.name || item.nickname || '未命名'}}</text>
+              <text class="member-gender-text" wx:if="{{item.gender}}">{{item.gender === 1 ? '男' : '女'}}</text>
+            </view>
+          </view>
+          <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</view>
+          <view class="member-actions">
+            <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
+            <view class="delete-btn" catchtap="deleteMember" data-member="{{item}}">删除</view>
+          </view>
+        </view>
+        <view class="empty-state" wx:if="{{memberList.length === 0}}">
+          <text>{{selectedSchoolOfficeId ? '暂无成员数据' : '请先选择校促会'}}</text>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
-  <!-- 校处会选择器弹窗 -->
+  <!-- 校促会选择器弹窗 -->
   <view class="school-office-picker" wx:if="{{showSchoolOfficePicker}}">
     <view class="picker-overlay" bindtap="cancelSchoolOfficeSelect"></view>
     <view class="picker-content">
       <view class="picker-header">
-        <text class="picker-title">选择校处会</text>
+        <text class="picker-title">选择校促会</text>
         <text class="picker-cancel" bindtap="cancelSchoolOfficeSelect">取消</text>
       </view>
       <view class="picker-list">
@@ -79,7 +67,7 @@
           <text class="item-check" wx:if="{{selectedSchoolOfficeId == item.schoolOfficeId}}">✓</text>
         </view>
         <view class="picker-empty" wx:if="{{schoolOfficeList.length === 0}}">
-          <text>暂无校处会数据</text>
+          <text>暂无校促会数据</text>
         </view>
       </view>
     </view>
@@ -94,28 +82,32 @@
         <text class="modal-close" bindtap="hideInviteModal">×</text>
       </view>
       <view class="modal-body">
-        <view class="form-item search-group" catchtap="preventBubble">
-          <text class="label">校友姓名</text>
-          <input 
-            class="input" 
-            placeholder="请输入校友姓名进行搜索" 
-            bindinput="onMemberNameInput"
-            bindfocus="onMemberNameFocus"
-            value="{{inviteForm.name}}"
-          />
-          <scroll-view scroll-y class="search-results" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
-            <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="search-item" bindtap="selectAlumni" data-index="{{index}}">
-              <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" mode="aspectFill" />
-              <image wx:else src="https://${API_DOMAIN}/upload/images/assets/images/avatar.png" class="member-avatar" mode="aspectFill" />
-              <view class="member-info">
-                <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
-                <text class="member-school">{{item.school || '暂无学校信息'}}</text>
+        <view class="alumni-name-field" catchtap="preventBubble">
+          <view class="field-label">校友姓名</view>
+          <view class="field-input-wrapper">
+            <input 
+              class="field-input" 
+              placeholder="请输入校友姓名进行搜索"
+              placeholder-class="field-placeholder"
+              adjust-position="{{false}}"
+              bindinput="onMemberNameInput"
+              bindfocus="onMemberNameFocus"
+              value="{{inviteForm.name}}"
+            />
+          </view>
+          <scroll-view scroll-y class="alumni-search-dropdown" show-scrollbar="{{false}}" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
+            <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="alumni-search-item" bindtap="selectAlumni" data-index="{{index}}">
+              <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="alumni-avatar" mode="aspectFill" />
+              <image wx:else src="https://${API_DOMAIN}/upload/images/assets/images/avatar.png" class="alumni-avatar" mode="aspectFill" />
+              <view class="alumni-item-info">
+                <text class="alumni-item-name">{{item.name || item.nickname || item.realName}}</text>
+                <text class="alumni-item-school">{{item.school || '暂无学校信息'}}</text>
               </view>
             </view>
           </scroll-view>
         </view>
         <view class="form-item">
-          <text class="label">校处会身份</text>
+          <text class="label">校促会身份</text>
           <picker bindchange="onRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{inviteForm.roleIndex || 0}}">
             <view class="role-selector">
               <text class="selector-text">{{inviteForm.roleOrName || '请选择身份'}}</text>
@@ -148,7 +140,7 @@
           </view>
         </view>
         <view class="form-item">
-          <text class="label">校处会身份</text>
+          <text class="label">校促会身份</text>
           <picker bindchange="onEditRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{editingMember.roleIndex || 0}}">
             <view class="role-selector">
               <text class="selector-text">{{editingMember.newRoleName || (editingMember.organizeArchiRole && editingMember.organizeArchiRole.roleOrName) || '请选择身份'}}</text>
@@ -164,3 +156,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

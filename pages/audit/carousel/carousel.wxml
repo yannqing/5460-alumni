@@ -1,104 +1,108 @@
 <!-- pages/audit/carousel/carousel.wxml -->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="轮播图管理" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="轮播图管理">
 <view class="carousel-management-page">
-  <!-- 标签栏 -->
-  <view class="tabs-container">
-    <view 
-      class="tab-item {{currentTab === index ? 'active' : ''}}"
-      wx:for="{{tabs}}"
-      wx:key="index"
-      wx:for-index="index"
-      data-index="{{index}}"
-      bindtap="switchTab"
-    >
-      {{item}}
-    </view>
-  </view>
-
   <!-- 页面内容区域 -->
   <view class="content-container">
-    <!-- 顶部操作栏 -->
+    <!-- 顶部操作栏 - 固定 -->
     <view class="top-bar">
       <!-- 搜索栏 -->
-      <view class="search-bar">
-        <view class="search-input-wrapper">
-          <image class="search-icon" src="/images/icon/search.png" mode="aspectFit"></image>
+      <view class="search-box">
+        <view class="image-text">
+          <image src="{{iconSearch}}" class="search-thumbnail"></image>
           <input 
-            class="search-input" 
-            placeholder="请输入轮播图标题搜索" 
+            class="search-text-group" 
+            placeholder="校友名称、昵称或手机号"
+            placeholder-class="search-placeholder"
             value="{{searchParams.bannerTitle}}" 
             bindinput="onInput"
             confirm-type="search"
             bindconfirm="onSearch"
           />
-          <view class="search-btn" bindtap="onSearch">搜索</view>
+        </view>
+        <view class="search-text-wrapper" bindtap="onSearch">
+          <text lines="1" class="search-text">搜索</text>
         </view>
       </view>
       <!-- 类型筛选 -->
-      <view class="filter-item">
-        <text class="filter-label">类型：</text>
+      <view class="filter-box">
+        <text lines="1" class="filter-text">类型：</text>
         <picker 
-          class="filter-picker" 
+          class="filter-text-wrapper" 
           range="{{typeOptions}}" 
           range-key="label" 
           value="{{selectedTypeIndex}}" 
           bindchange="onTypeChange"
         >
-          <view class="picker-text">{{typeOptions[selectedTypeIndex].label}}</view>
+          <view class="picker-content">
+            <text lines="1" class="picker-text-1">{{typeOptions[selectedTypeIndex].label}}</text>
+            <text lines="1" class="picker-text-2">▼</text>
+          </view>
         </picker>
       </view>
-      <!-- 新增按钮 -->
-      <view class="add-btn" bindtap="onAddBanner">新增轮播图</view>
     </view>
 
-    <!-- 轮播图列表 -->
-    <view class="banner-list">
+    <!-- 可滚动列表区域 -->
+    <scroll-view 
+      class="scroll-list" 
+      scroll-y 
+      bindscrolltolower="onReachBottom"
+      lower-threshold="100"
+      enable-back-to-top
+      show-scrollbar="{{false}}"
+    >
+      <!-- 轮播图列表 -->
+      <view class="banner-list">
       <block wx:if="{{bannerList.length > 0}}">
-        <view class="banner-item" wx:for="{{bannerList}}" wx:key="bannerId">
-          <view class="banner-content" bindtap="onBannerTap" data-banner="{{item}}">
-            <view class="banner-info">
-              <view class="banner-title">{{item.bannerTitle}}</view>
-              <view class="banner-meta">
-                <view class="meta-item">
-                  <text class="meta-label">状态：</text>
-                  <text class="meta-value {{item.bannerStatus == 1 ? 'status-enabled' : 'status-disabled'}}">{{item.bannerStatus == 1 ? '启用' : '禁用'}}</text>
-                </view>
-                <view class="meta-item">
-                  <text class="meta-label">类型：</text>
-                  <text class="meta-value">{{['', '无跳转', '内部路径', '第三方链接', '文章详情'][item.bannerType]}}</text>
-                </view>
+        <view class="block_2" wx:for="{{bannerList}}" wx:key="bannerId">
+          <view class="box_9">
+            <view class="section_2">
+              <text lines="1" class="text_21">{{item.bannerTitle}}</text>
+              <view class="text-wrapper_11">
+                <text lines="1" class="text_22">状态：</text>
+                <text lines="1" class="text_23 {{item.bannerStatus == 1 ? 'status-enabled' : 'status-disabled'}}">{{item.bannerStatus == 1 ? '启用' : '禁用'}}</text>
               </view>
-              <view class="banner-meta">
-                <view class="meta-item create-time">
-                  <text class="meta-label">创建时间：</text>
-                  <text class="meta-value">{{item.createTime}}</text>
-                </view>
+              <text lines="1" class="text_24">提交时间：</text>
+            </view>
+            <view class="section_3">
+              <view class="text-wrapper_12">
+                <text lines="1" class="text_25">类型：</text>
+                <text lines="1" class="text_26">{{['', '无跳转', '内部路径', '第三方链接', '文章详情'][item.bannerType]}}</text>
               </view>
+              <text lines="1" decode="true" class="text_27">{{item.createTime}}</text>
             </view>
-            <view class="banner-image">
-              <image src="{{item.bannerImage ? item.bannerImage.fileUrl : '/images/default-img.png'}}" mode="aspectFill"></image>
-            </view>
+            <image src="{{item.bannerImage ? item.bannerImage.fileUrl : '/images/default-img.png'}}" class="image_6"></image>
           </view>
-          <view class="banner-action">
-            <view class="edit-btn" bindtap="onEditBanner" data-banner="{{item}}">编辑</view>
-            <view class="delete-btn" bindtap="onDeleteBanner" data-banner="{{item}}">删除</view>
+          <view class="box_10">
+            <view class="text-wrapper_13" bindtap="onEditBanner" data-banner="{{item}}">
+              <text lines="1" class="text_28">编辑</text>
+            </view>
+            <view class="text-wrapper_14" bindtap="onDeleteBanner" data-banner="{{item}}">
+              <text lines="1" class="text_29">删除</text>
+            </view>
           </view>
         </view>
       </block>
       <block wx:else>
         <view class="empty-state">
-          <image class="empty-img" src="/images/icon/empty.png" mode="aspectFit"></image>
           <text class="empty-text">{{loading ? '加载中...' : '暂无轮播图数据'}}</text>
         </view>
       </block>
     </view>
 
-    <!-- 加载更多 -->
-    <view class="load-more" wx:if="{{hasNext}}">
-      <text class="load-more-text" wx:if="{{!loading}}">上拉加载更多</text>
-      <text class="load-more-text" wx:else>加载中...</text>
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{hasNext}}">
+        <text class="load-more-text" wx:if="{{!loading}}">上拉加载更多</text>
+        <text class="load-more-text" wx:else>加载中...</text>
+      </view>
+    </scroll-view>
+  </view>
+  
+  <!-- 新增轮播图按钮（浮动在右下角） -->
+  <view class="add-btn" bindtap="onAddBanner">
+    <view class="add-btn-icon">
+      <text class="add-icon-emoji">+</text>
     </view>
+    <text lines="1" class="add-btn-text">新增轮播图</text>
   </view>
 </view>
+</custom-nav-bar>
