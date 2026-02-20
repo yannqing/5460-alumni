@@ -1,0 +1,21 @@
+<!--pages/article/web-view/web-view.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="{{title || '加载中...'}}" showBack="{{true}}"></custom-nav-bar>
+
+<view class="web-view-container">
+  <!-- web-view区域 -->
+  <web-view 
+    src="{{url}}"
+    binderror="onWebViewError"
+    bindload="onWebViewLoad"
+  ></web-view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-content">
+      <text class="loading-text">文章加载中...</text>
+    </view>
+  </view>
+</view>
+
+

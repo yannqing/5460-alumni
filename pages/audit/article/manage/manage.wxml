@@ -1,0 +1,111 @@
+<!-- pages/audit/article/manage/manage.wxml -->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="文章管理" showBack="{{true}}"></custom-nav-bar>
+
+<view class="article-management-list-page">
+  <!-- 文章列表 -->
+  <view class="article-list">
+
+    <view 
+      class="article-item"
+      wx:for="{{articleList}}"
+      wx:key="id"
+    >
+      <view class="article-header">
+        <image class="article-cover" src="{{item.coverImg}}" mode="aspectFill" wx:if="{{item.coverImg}}"></image>
+        <view class="article-cover-placeholder" wx:else></view>
+        <view class="article-info" data-id="{{item.id}}" bindtap="viewDetail">
+          <view class="article-title">{{item.nickname}}</view>
+          <view class="article-meta">{{item.school}}</view>
+        </view>
+        <view class="article-status {{item.status}}">{{item.statusText}}</view>
+        <view class="article-actions">
+          <button class="edit-btn" data-id="{{item.id}}" bindtap="onEditTap">编辑</button>
+        </view>
+      </view>
+      <view class="article-detail">
+        <text class="detail-label">提交时间：</text>
+        <text class="detail-value">{{item.submitTime}}</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
+      <text class="empty-text">暂无数据</text>
+    </view>
+
+    <!-- 没有更多数据 -->
+    <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">
+      <text>没有更多数据了</text>
+    </view>
+  </view>
+
+  <!-- 发布文章按钮 -->
+  <view class="publish-btn-container">
+    <button class="publish-btn" bindtap="onPublishTap">发布文章</button>
+  </view>
+
+  <!-- 编辑弹框 -->
+  <view class="modal-overlay" wx:if="{{isEditModalVisible}}" bindtap="hideEditModal"></view>
+  <view class="edit-modal" wx:if="{{isEditModalVisible}}">
+    <view class="modal-header">
+      <text class="modal-title">编辑文章</text>
+      <text class="modal-close" bindtap="hideEditModal">×</text>
+    </view>
+    <view class="modal-content">
+      <view class="form-item">
+        <text class="form-label">文章标题</text>
+        <input 
+          class="form-input" 
+          type="text" 
+          placeholder="请输入文章标题" 
+          value="{{editForm.articleTitle}}" 
+          data-field="articleTitle" 
+          bindinput="onEditInput"
+        />
+      </view>
+      <view class="form-item">
+        <text class="form-label">封面图</text>
+        <view class="cover-upload-container">
+          <image 
+            class="cover-preview" 
+            src="{{editForm.coverImgUrl}}" 
+            mode="aspectFill" 
+            wx:if="{{editForm.coverImgUrl}}"
+          ></image>
+          <view class="cover-placeholder" wx:else>
+            <text class="placeholder-text">点击上传封面图</text>
+          </view>
+          <button class="upload-btn" bindtap="onCoverUploadTap">
+            {{editForm.coverImgUrl ? '更换封面' : '上传封面'}}
+          </button>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="form-label">文章描述</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入文章描述" 
+          value="{{editForm.description}}" 
+          data-field="description" 
+          bindinput="onEditInput"
+        ></textarea>
+      </view>
+      <view class="form-item">
+        <text class="form-label">文章链接</text>
+        <input 
+          class="form-input" 
+          type="text" 
+          placeholder="请输入文章链接" 
+          value="{{editForm.articleLink}}" 
+          data-field="articleLink" 
+          bindinput="onEditInput"
+        />
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="hideEditModal">取消</button>
+      <button class="modal-btn confirm-btn" bindtap="onSubmitEdit">确定</button>
+    </view>
+  </view>
+</view>

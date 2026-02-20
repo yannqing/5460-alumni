@@ -1,0 +1,91 @@
+<view class="container" wx:if="{{!loading}}">
+  <!-- 活动封面 -->
+  <view class="cover-container" wx:if="{{activityInfo.coverImage}}">
+    <image class="cover-image" src="{{activityInfo.coverImage}}" mode="aspectFill"></image>
+  </view>
+  
+  <!-- 活动标题 -->
+  <view class="title-container">
+    <text class="title">{{activityInfo.activityTitle}}</text>
+    <view class="status-tag" wx:if="{{activityInfo.status}}">
+      <text class="status-text">{{getStatusText(activityInfo.status)}}</text>
+    </view>
+  </view>
+  
+  <!-- 主办方信息 -->
+  <view class="organizer-container">
+    <image class="organizer-avatar" src="{{activityInfo.organizerAvatar}}" mode="aspectFill"></image>
+    <view class="organizer-info">
+      <text class="organizer-name">{{activityInfo.organizerName}}</text>
+      <text class="organizer-type">{{getOrganizerTypeText(activityInfo.organizerType)}}</text>
+    </view>
+  </view>
+  
+  <!-- 活动信息 -->
+  <view class="info-section">
+    <!-- 活动时间 -->
+    <view class="info-item">
+      <text class="info-label">活动时间</text>
+      <text class="info-value">{{activityInfo.startTime || ''}} - {{activityInfo.endTime || ''}}</text>
+    </view>
+    
+    <!-- 报名时间 -->
+    <view class="info-item">
+      <text class="info-label">报名时间</text>
+      <text class="info-value">{{activityInfo.registrationStartTime || ''}} - {{activityInfo.registrationEndTime || ''}}</text>
+    </view>
+    
+    <!-- 活动地点 -->
+    <view class="info-item" wx:if="{{activityInfo.address}}">
+      <text class="info-label">活动地点</text>
+      <text class="info-value">{{activityInfo.province}}{{activityInfo.city}}{{activityInfo.district}}{{activityInfo.address}}</text>
+    </view>
+    
+    <!-- 参与人数 -->
+    <view class="info-item" wx:if="{{activityInfo.maxParticipants}}">
+      <text class="info-label">参与人数</text>
+      <text class="info-value">{{activityInfo.currentParticipants}}/{{activityInfo.maxParticipants}}人</text>
+    </view>
+    
+    <!-- 联系人 -->
+    <view class="info-item" wx:if="{{activityInfo.contactPerson}}">
+      <text class="info-label">联系人</text>
+      <text class="info-value">{{activityInfo.contactPerson}}</text>
+    </view>
+    
+    <!-- 联系电话 -->
+    <view class="info-item" wx:if="{{activityInfo.contactPhone}}">
+      <text class="info-label">联系电话</text>
+      <text class="info-value">{{activityInfo.contactPhone}}</text>
+    </view>
+  </view>
+  
+  <!-- 活动图片 -->
+  <view class="images-section" wx:if="{{activityImages.length > 0}}">
+    <text class="section-title">活动图片</text>
+    <view class="images-grid">
+      <view class="image-item" wx:for="{{activityImages}}" wx:key="index">
+        <image class="activity-image" src="{{item}}" mode="aspectFill"></image>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 活动详情 -->
+  <view class="description-section" wx:if="{{activityInfo.description}}">
+    <text class="section-title">活动详情</text>
+    <text class="description">{{activityInfo.description}}</text>
+  </view>
+  
+
+</view>
+
+<!-- 加载中 -->
+<view class="loading-container" wx:else>
+  <text class="loading-text">加载中...</text>
+</view>
+
+<!-- 错误提示 -->
+<view class="error-container" wx:if="{{error && !loading}}">
+  <text class="error-text">{{error}}</text>
+  <button class="retry-btn" bindtap="loadActivityDetail">重试</button>
+</view>

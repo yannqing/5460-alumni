@@ -1,0 +1,105 @@
+/* pages/audit/index/index.wxss */
+.audit-index-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20rpx;
+}
+
+.audit-content {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 3rpx solid #e8e8e8;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.audit-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 40rpx;
+  padding-left: 10rpx;
+}
+
+.audit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx 10rpx;
+}
+
+.audit-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.audit-icon-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.audit-icon {
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #fff5f8 0%, #ffebf2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 20rpx rgba(255, 107, 157, 0.12);
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 2;
+}
+
+.audit-icon-text {
+  font-size: 50rpx;
+  line-height: 1;
+}
+
+.audit-icon-image {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.audit-icon-base {
+  width: 80rpx;
+  height: 14rpx;
+  background: linear-gradient(135deg, #ffe8f0 0%, #ffd4e5 100%);
+  border-radius: 50%;
+  margin-top: -8rpx;
+  opacity: 0.6;
+  filter: blur(2rpx);
+}
+
+.audit-name {
+  font-size: 24rpx;
+  color: #333333;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* 校友会图标样式 */
+.alumni-icon {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  box-shadow: 0 6rpx 20rpx rgba(56, 189, 248, 0.12);
+}
+
+.alumni-icon-base {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
+/* 商户图标样式 */
+.merchant-icon {
+  background: linear-gradient(135deg, #fef9f5 0%, #fef3e8 100%);
+  box-shadow: 0 6rpx 20rpx rgba(251, 146, 60, 0.12);
+}
+
+.merchant-icon-base {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+}
+

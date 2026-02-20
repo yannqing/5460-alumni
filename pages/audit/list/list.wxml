@@ -1,0 +1,56 @@
+<!--pages/audit/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="审核管理" showBack="{{true}}"></custom-nav-bar>
+
+<view class="audit-list-page">
+  <!-- 标签栏 -->
+  <view class="tabs-container">
+    <view 
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      wx:for-index="index"
+      data-index="{{index}}"
+      bindtap="switchTab"
+    >
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 审核列表 -->
+  <view class="audit-list">
+    <view 
+      class="audit-item"
+      wx:for="{{auditList}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      data-type="{{item.type}}"
+      bindtap="viewDetail"
+    >
+      <view class="audit-header">
+        <view class="audit-title">{{item.title}}</view>
+        <view class="audit-status {{item.status}}">{{item.statusText}}</view>
+      </view>
+      <view class="audit-info">
+        <text class="audit-label">申请人：</text>
+        <text class="audit-value">{{item.applicant}}</text>
+      </view>
+      <view class="audit-info">
+        <text class="audit-label">提交时间：</text>
+        <text class="audit-value">{{item.submitTime}}</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && auditList.length === 0}}">
+      <text class="empty-text">暂无审核数据</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+</view>
+
+

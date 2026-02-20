@@ -1,0 +1,375 @@
+/* pages/profile/profile.wxss */
+.profile-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 40rpx;
+}
+
+/* 个人信息卡片 */
+.user-card {
+  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
+  padding: 40rpx 30rpx 30rpx;
+  margin: 20rpx;
+  border-radius: 24rpx;
+  color: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(64, 178, 230, 0.3);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.user-avatar-placeholder {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.user-detail {
+  flex: 1;
+}
+
+.user-name-container {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.alumni-badge {
+  width: 82rpx;
+  height: 42rpx;
+  border-radius: 21rpx;
+}
+
+.edit-hint {
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+/* 关注和粉丝统计 */
+.follow-stats {
+  display: flex;
+  gap: 40rpx;
+  margin-left: auto;
+}
+
+.follow-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  min-width: 80rpx;
+}
+
+.follow-stat-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.follow-stat-label {
+  font-size: 22rpx;
+  opacity: 0.85;
+  color: #ffffff;
+}
+
+.login-prompt {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.default-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+}
+
+.login-text {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+/* 认证状态条 */
+.certification-bar {
+  margin-bottom: 32rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.cert-status-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.cert-status-item.certified {
+  cursor: pointer;
+}
+
+.cert-icon {
+  font-size: 48rpx;
+  flex-shrink: 0;
+}
+
+.cert-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.cert-title {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.cert-desc {
+  font-size: 22rpx;
+  opacity: 0.9;
+}
+
+.cert-action {
+  font-size: 24rpx;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+/* 数据栏 */
+.stats-section {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 16rpx;
+  padding: 30rpx 20rpx;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  cursor: pointer;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  opacity: 0.9;
+}
+
+.stat-divider {
+  width: 1rpx;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 0 20rpx;
+}
+
+/* 卡片样式 */
+.card {
+  background-color: #ffffff;
+  margin: 20rpx;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.menu-card {
+  padding: 0;
+}
+
+/* 菜单项 - 简洁列表样式 */
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #fff;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-divider {
+  height: 20rpx;
+  background-color: #f5f5f5;
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  flex: 1;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  flex-shrink: 0;
+  width: 40rpx;
+  text-align: center;
+}
+
+.menu-icon-img {
+  width: 50rpx;
+  height: 50rpx;
+  flex-shrink: 0;
+  display: block;
+}
+
+.menu-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.menu-badge {
+  margin-left: 12rpx;
+  padding: 2rpx 10rpx;
+  background-color: #40B2E6;
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+.cert-status-badge {
+  margin-left: 12rpx;
+  padding: 4rpx 12rpx;
+  background-color: #52c41a;
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.cert-status-badge.unverified {
+  background-color: #ff9800;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: #ccc;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+/* 校友卡弹窗 */
+.alumni-card-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.alumni-card-content {
+  width: 600rpx;
+  background-color: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+
+.alumni-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-btn {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alumni-card-body {
+  padding: 40rpx;
+  text-align: center;
+}
+
+.card-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  border: 4rpx solid #f0f0f0;
+  margin: 0 auto 24rpx;
+}
+
+.card-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.card-school {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 32rpx;
+}
+
+.card-qrcode {
+  width: 300rpx;
+  height: 300rpx;
+  margin: 0 auto 24rpx;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-qrcode image {
+  width: 100%;
+  height: 100%;
+}
+
+.card-number {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.bottom-space {
+  height: 40rpx;
+}

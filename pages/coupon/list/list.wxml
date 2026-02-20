@@ -1,0 +1,47 @@
+<!--pages/coupon/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="优惠券" showBack="{{true}}"></custom-nav-bar>
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="container">
+  <!-- 选项卡 -->
+  <view class="tabs">
+    <view class="tab-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 优惠券列表 -->
+  <view class="coupon-list">
+    <view class="coupon-item" wx:for="{{couponList}}" wx:key="id" wx:for-index="idx" bindtap="viewDetail" data-userCouponId="{{item.userCouponId}}" data-index="{{idx}}">
+      <view class="coupon-card">
+        <text class="coupon-status-tag status-{{item.rawStatus}}" wx:if="{{item.statusText}}">{{item.statusText}}</text>
+        <view class="coupon-left-section">
+          <view class="coupon-discount-big">
+            <text wx:if="{{item.discountPrice > 0}}">¥{{item.discountPrice}}</text>
+            <text wx:else>{{item.discount || '优惠券'}}</text>
+          </view>
+          <view class="coupon-label-text">优惠券</view>
+        </view>
+        <view class="coupon-divider-vertical"></view>
+        <view class="coupon-right-section">
+          <view class="coupon-title-main">{{item.title}}</view>
+          <view class="coupon-merchant-name">{{item.merchant}}</view>
+          <view class="coupon-meta">
+            <text class="coupon-time-text">有效期至 {{item.endTime}}</text>
+            <text class="coupon-stock-text">剩余{{item.stock}}/{{item.totalStock}}</text>
+          </view>
+          <view class="coupon-stock-bar">
+            <view class="stock-progress-bar" style="width: {{item.stock/item.totalStock*100}}%"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{couponList.length === 0}}" class="empty-state">
+      <view class="empty-placeholder">暂无优惠券</view>
+    </view>
+  </view>
+</view>

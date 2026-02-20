@@ -1,0 +1,51 @@
+<!--pages/enterprise/my-enterprise/my-enterprise.wxml-->
+<view class="container">
+  <!-- 申请企业按钮 -->
+  <view class="apply-button-container">
+    <button class="apply-button" bindtap="goToApply">申请企业</button>
+  </view>
+  
+  <view class="page-content">
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-container" wx:elif="{{places.length === 0 && !loading}}">
+      <text>暂无企业数据</text>
+    </view>
+    
+    <!-- 企业列表 -->
+    <view class="places-list" wx:else>
+      <view class="place-item" wx:for="{{places}}" wx:key="{{item.placeId}}" bindtap="goToDetail" data-id="{{item.placeId}}">
+        <view class="place-header">
+          <text class="place-name">{{item.placeName}}</text>
+          <text class="review-status">{{item.reviewStatus === 1 ? '审核通过' : item.reviewStatus === 2 ? '审核失败' : '待审核'}}</text>
+        </view>
+        <view class="place-info">
+          <view class="place-detail-item">
+            <text class="detail-label">运营状态：</text>
+            <text class="detail-value">{{item.status === 1 ? '正常运营' : item.status === 2 ? '筹建中' : '停业/关闭'}}</text>
+          </view>
+          <view class="place-detail-item">
+            <text class="detail-label">类型：</text>
+            <text class="detail-value">{{item.placeType === 1 ? '企业' : '场所'}}</text>
+          </view>
+          <view class="place-detail-item" wx:if="{{item.isRecommended === 1}}">
+            <text class="detail-label">推荐状态：</text>
+            <text class="detail-value recommended-text">校友会推荐</text>
+          </view>
+          <view class="place-detail-item">
+            <text class="detail-label">地址：</text>
+            <text class="detail-value">{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
+          </view>
+          <view class="place-detail-item" wx:if="{{item.contactPhone}}">
+            <text class="detail-label">联系电话：</text>
+            <text class="detail-value">{{item.contactPhone}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

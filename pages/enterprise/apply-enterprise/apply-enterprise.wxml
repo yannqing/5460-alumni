@@ -1,0 +1,152 @@
+<!--pages/enterprise/apply-enterprise/apply-enterprise.wxml-->
+<view class="container">
+  <view class="form-container">
+    <form bindsubmit="submitForm">
+      <!-- 企业名称 -->
+      <view class="form-item">
+        <text class="form-label required">企业名称</text>
+        <input class="form-input" name="placeName" placeholder="请输入企业名称" required />
+      </view>
+      
+      <!-- 类型选择 -->
+      <view class="form-item">
+        <text class="form-label required">类型</text>
+        <view class="type-display">
+          <text class="type-text">企业</text>
+        </view>
+      </view>
+      
+      <!-- 所属校友会 -->
+      <view class="form-item">
+        <text class="form-label required">所属校友会</text>
+        <view class="picker-container">
+          <picker bindchange="bindAssociationChange" value="{{selectedAssociationIndex}}" range="{{associations}}" range-key="associationName">
+            <view class="picker-input">
+              {{selectedAssociation ? selectedAssociation.associationName : '请选择所属校友会'}}
+            </view>
+          </picker>
+        </view>
+      </view>
+      
+      <!-- 省份 -->
+      <view class="form-item">
+        <text class="form-label">省份</text>
+        <input class="form-input" name="province" placeholder="请输入省份" />
+      </view>
+      
+      <!-- 城市 -->
+      <view class="form-item">
+        <text class="form-label">城市</text>
+        <input class="form-input" name="city" placeholder="请输入城市" />
+      </view>
+      
+      <!-- 区县 -->
+      <view class="form-item">
+        <text class="form-label">区县</text>
+        <input class="form-input" name="district" placeholder="请输入区县" />
+      </view>
+      
+      <!-- 详细地址 -->
+      <view class="form-item">
+        <text class="form-label">详细地址</text>
+        <input class="form-input" name="address" placeholder="请输入详细地址" />
+      </view>
+      
+      <!-- 企业地点 -->
+      <view class="form-item">
+        <text class="form-label">企业地点</text>
+        <view class="location-selector">
+          <input class="form-input location-input" placeholder="请选择企业地点" value="{{locationName}}" disabled />
+          <button class="select-location-btn" bindtap="chooseLocation">选择位置</button>
+        </view>
+      </view>
+      
+      <!-- 联系电话 -->
+      <view class="form-item">
+        <text class="form-label">联系电话</text>
+        <input class="form-input" name="contactPhone" placeholder="请输入联系电话" />
+      </view>
+      
+      <!-- 联系邮箱 -->
+      <view class="form-item">
+        <text class="form-label">联系邮箱</text>
+        <input class="form-input" name="contactEmail" type="text" placeholder="请输入联系邮箱" />
+      </view>
+      
+      <!-- 营业/办公时间 -->
+      <view class="form-item">
+        <text class="form-label">营业/办公时间</text>
+        <input class="form-input" name="businessHours" placeholder="请输入营业/办公时间" />
+      </view>
+      
+      <!-- 上传企业Logo -->
+      <view class="form-item">
+        <text class="form-label">企业Logo</text>
+        <view class="upload-container">
+          <!-- Logo预览 -->
+          <view class="cover-preview" wx:if="{{logo}}">
+            <image class="cover-image" src="{{logo}}" mode="aspectFill"></image>
+            <view class="cover-actions">
+              <button class="change-cover-btn" bindtap="chooseLogo">更换Logo</button>
+              <button class="delete-cover-btn" bindtap="deleteLogo">删除Logo</button>
+            </view>
+          </view>
+          <!-- Logo上传按钮 -->
+          <view class="upload-btn" wx:if="{{!logo}}" bindtap="chooseLogo">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">点击上传Logo</text>
+          </view>
+        </view>
+      </view>
+      
+
+      
+      <!-- 上传企业宣传图片 -->
+      <view class="form-item">
+        <text class="form-label">企业宣传图片</text>
+        <view class="upload-container">
+          <!-- 图片列表 -->
+          <view class="image-list">
+            <view class="image-item" wx:for="{{images}}" wx:key="{{index}}">
+              <image class="list-image" src="{{item}}" mode="aspectFill" bindtap="previewImage" data-index="{{index}}"></image>
+              <!-- 删除按钮 -->
+              <view class="image-delete-btn" bindtap="deleteImage" data-index="{{index}}">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
+            
+            <!-- 上传按钮 -->
+            <view class="upload-btn" bindtap="chooseImages" wx:if="{{images.length < 9}}">
+              <text class="upload-icon">+</text>
+              <text class="upload-text">{{images.length > 0 ? '继续上传' : '点击上传图片'}}</text>
+            </view>
+          </view>
+          
+          <!-- 图片数量提示 -->
+          <text class="image-count">{{images.length}}/9</text>
+        </view>
+      </view>
+      
+      <!-- 简介 -->
+      <view class="form-item">
+        <text class="form-label">简介</text>
+        <textarea class="form-textarea" name="description" placeholder="请输入企业/场所简介" />
+      </view>
+      
+      <!-- 成立时间 -->
+      <view class="form-item">
+        <text class="form-label">成立时间</text>
+        <picker mode="date" bindchange="onEstablishedTimeChange" start="1900-01-01" end="{{currentDate}}" fields="day">
+          <view class="picker-input">
+            {{establishedTime || '请选择成立时间'}}
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 提交按钮 -->
+      <view class="form-submit">
+        <button form-type="submit" class="submit-button">提交申请</button>
+      </view>
+    </form>
+  </view>
+</view>

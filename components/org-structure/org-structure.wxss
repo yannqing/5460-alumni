@@ -1,0 +1,488 @@
+/* 组织结构骨架屏样式 */
+.skeleton-role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.skeleton-role-name {
+  width: 180rpx;
+  height: 26rpx;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4rpx;
+  margin-left: 12rpx;
+}
+
+.skeleton-role-count {
+  width: 60rpx;
+  height: 28rpx;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 14rpx;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 空状态样式 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+
+.org-tree {
+  padding: 12rpx 0;
+}
+
+.tree-node {
+  margin: 12rpx 0;
+}
+
+.tree-node:last-child {
+  margin-bottom: 0;
+}
+
+/* 顶级角色卡片：圆角 + 阴影 + 渐变背景 */
+.level-1 .node-header {
+  width: 618rpx;
+  height: 101rpx;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+  border-radius: 7rpx;
+  box-sizing: border-box;
+}
+
+/* 子级角色：头部缩进卡片（成员区域不缩进） */
+.level-2,
+.level-3 {
+  margin-left: 0;
+}
+
+/* 二级节点头部缩进一格 */
+.level-2 .node-header {
+  width: 589rpx;
+  height: 101rpx;
+  margin-left: 30rpx;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+  border-radius: 7rpx;
+  border: none;
+  box-sizing: border-box;
+}
+
+/* 三级节点再多缩进一格，层级更明显 */
+.level-3 .node-header {
+  width: 560rpx;
+  height: 101rpx;
+  margin-left: 60rpx;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+  border-radius: 7rpx;
+  border: none;
+  box-sizing: border-box;
+}
+
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx 28rpx;
+  box-sizing: border-box;
+  position: relative;
+  overflow: visible;
+}
+
+.node-title {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+}
+
+.role-name,
+.member-count-inline {
+  position: relative;
+  z-index: 10;
+}
+
+.node-header:active {
+  background-color: #f5f5f5;
+}
+
+.node-title {
+  display: flex;
+  align-items: flex-end;
+  gap: 12rpx;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 第二级和第三级缩进图标 */
+.level-2 .node-header,
+.level-3 .node-header {
+  position: relative;
+}
+
+.indent-icon {
+  position: absolute;
+  left: 0; /* 圆点中心在边框线上 */
+  top: 50%;
+  transform: translate(-70%, -50%); /* 让圆点中心对齐 */
+  width: 39.86rpx;
+  height: 18.12rpx;
+  opacity: 1;
+  z-index: 999; /* 层级放到最上面 */
+}
+
+/* 左侧旧的展开三角隐藏，只保留右侧箭头 */
+.expand-icon {
+  display: none;
+}
+
+.role-name {
+  height: 40rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 29rpx;
+  color: #1F1F1F;
+  line-height: 40rpx;
+  text-align: left;
+  font-style: normal;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* 第二级左边字体 */
+.level-2 .role-name {
+  height: 40rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 29rpx;
+  color: #1F1F1F;
+  line-height: 40rpx;
+  text-align: left;
+  font-style: normal;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* 第三级左边字体 */
+.level-3 .role-name {
+  height: 40rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 29rpx;
+  color: #1F1F1F;
+  line-height: 40rpx;
+  text-align: left;
+  font-style: normal;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.member-count-inline {
+  height: 36rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 25rpx;
+  color: #1F1F1F;
+  opacity: 0.35;
+  line-height: 36rpx;
+  text-align: left;
+  font-style: normal;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* 第二级和第三级右边字体样式相同 */
+.level-2 .member-count-inline,
+.level-3 .member-count-inline {
+  height: 36rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 25rpx;
+  color: #1F1F1F;
+  opacity: 0.35;
+  line-height: 36rpx;
+  text-align: left;
+  font-style: normal;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.node-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.arrow-icon {
+  width: 40rpx;
+  height: 30rpx;
+  opacity: 1;
+  display: block;
+  border: 2rpx;
+}
+
+.node-content {
+}
+
+.node-members {
+  /* 成员区域左右内边距固定，不随层级变化；与上方卡片留更大间距 */
+  padding: 26rpx 28rpx 30rpx 28rpx;
+}
+
+.org-member-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx 15rpx;
+  justify-content: flex-start;
+}
+
+.org-member-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: calc(50% - 10rpx);
+  flex: 0 0 calc(50% - 10rpx);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.org-member-info {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.member-bullet {
+  width: 11rpx;
+  height: 11rpx;
+  background: linear-gradient(180deg, #63C2EB 0%, #009AE3 100%);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.member-name-role {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.org-member-name {
+  height: 40rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 29rpx;
+  color: #1F1F1F;
+  opacity: 0.8;
+  line-height: 40rpx;
+  text-align: right;
+  font-style: normal;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.org-member-role {
+  height: 36rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 25rpx;
+  color: #1F1F1F;
+  opacity: 0.5;
+  line-height: 36rpx;
+  text-align: left;
+  font-style: normal;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* 编辑功能样式 */
+.edit-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+}
+
+.edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  background-color: #40B2E6;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.edit-btn.cancel-btn {
+  background-color: #999;
+}
+
+.edit-icon {
+  font-size: 28rpx;
+}
+
+.edit-text {
+  font-size: 26rpx;
+}
+
+.member-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  width: 100%;
+}
+
+.member-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.member-edit-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.member-edit-input {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.member-input {
+  display: inline-block;
+  padding: 8rpx 12rpx;
+  border: 2rpx solid #40B2E6;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  background-color: #fff;
+  box-sizing: border-box;
+  height: 56rpx;
+  line-height: 40rpx;
+  vertical-align: middle;
+  z-index: 10;
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx;
+  height: 48rpx;
+  background-color: #40B2E6;
+  border-radius: 50%;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.save-icon {
+  font-size: 32rpx;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.org-member-name.edit-clickable {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #40B2E6;
+}
+
+.add-member-section {
+  margin-top: 20rpx;
+  padding: 0 28rpx;
+}
+
+.add-member-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.add-member-input {
+  flex: 1;
+  padding: 12rpx 16rpx;
+  border: 2rpx dashed #d9d9d9;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  background-color: #fafafa;
+}
+
+.add-member-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #40B2E6;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.add-icon {
+  font-size: 40rpx;
+  font-weight: 300;
+  line-height: 1;
+  display: block;
+  text-align: center;
+}
+
+/* 编辑按钮包装器 */
+.add-member-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10rpx 0;
+  margin-top: 10rpx;
+}
+
+/* 添加成员按钮（圆形加号） */
+.add-member-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #40B2E6;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: 300;
+  line-height: 1;
+  position: relative;
+}
+
+.add-member-btn .add-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -62%);
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

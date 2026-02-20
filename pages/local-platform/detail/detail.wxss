@@ -1,0 +1,74 @@
+@import "../../alumni-association/detail/detail.wxss";
+
+/* 加载更多和没有更多样式 */
+.loading-more, .no-more {
+  text-align: center;
+  padding: 40rpx;
+  color: #999;
+  font-size: 26rpx;
+  width: 100%;
+  display: block;
+}
+
+/* 组织结构编辑按钮样式 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.section-edit-btn {
+  display: flex;
+  align-items: center;
+}
+
+.edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  background-color: #40B2E6;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.edit-btn.cancel-btn {
+  background-color: #999;
+}
+
+.edit-icon {
+  font-size: 28rpx;
+}
+
+.edit-text {
+  font-size: 26rpx;
+}
+
+/* Flexbox utility classes */
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+/* 创建校友会按钮样式 */
+.create-btn {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 24rpx;
+  background-color: #40B2E6;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.create-btn-text {
+  font-size: 26rpx;
+}

@@ -1,0 +1,115 @@
+<!--pages/audit/index/index.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="管理入口" showBack="{{true}}"></custom-nav-bar>
+
+<view class="audit-index-page">
+  <!-- 管理功能 -->
+  <view class="audit-content" wx:if="{{auditFunctions.length > 0}}">
+    <view class="audit-title">管理功能</view>
+    <view class="audit-grid">
+      <view
+        class="audit-item"
+        wx:for="{{auditFunctions}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="onFunctionTap"
+      >
+        <view class="audit-icon-wrapper">
+          <view class="audit-icon">
+            <block wx:if="{{item.iconType === 'image'}}">
+              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="audit-icon-text">{{item.icon}}</text>
+            </block>
+          </view>
+          <view class="audit-icon-base"></view>
+        </view>
+        <view class="audit-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 校处会 -->
+  <view class="audit-content" wx:if="{{schoolOfficeFunctions.length > 0}}">
+    <view class="audit-title">城市</view>
+    <view class="audit-grid">
+      <view
+        class="audit-item"
+        wx:for="{{schoolOfficeFunctions}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="onFunctionTap"
+      >
+        <view class="audit-icon-wrapper">
+          <view class="audit-icon alumni-icon">
+            <block wx:if="{{item.iconType === 'image'}}">
+              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="audit-icon-text">{{item.icon}}</text>
+            </block>
+          </view>
+          <view class="audit-icon-base alumni-icon-base"></view>
+        </view>
+        <view class="audit-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 校友会 -->
+  <view class="audit-content" wx:if="{{alumniFunctions.length > 0}}">
+    <view class="audit-title">校友会</view>
+    <view class="audit-grid">
+      <view
+        class="audit-item"
+        wx:for="{{alumniFunctions}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="onFunctionTap"
+      >
+        <view class="audit-icon-wrapper">
+          <view class="audit-icon alumni-icon">
+            <block wx:if="{{item.iconType === 'image'}}">
+              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="audit-icon-text">{{item.icon}}</text>
+            </block>
+          </view>
+          <view class="audit-icon-base alumni-icon-base"></view>
+        </view>
+        <view class="audit-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 商户 -->
+  <view class="audit-content" wx:if="{{merchantFunctions.length > 0}}">
+    <view class="audit-title">商家</view>
+    <view class="audit-grid">
+      <view
+        class="audit-item"
+        wx:for="{{merchantFunctions}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="onFunctionTap"
+      >
+        <view class="audit-icon-wrapper">
+          <view class="audit-icon merchant-icon">
+            <block wx:if="{{item.iconType === 'image'}}">
+              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="audit-icon-text">{{item.icon}}</text>
+            </block>
+          </view>
+          <view class="audit-icon-base merchant-icon-base"></view>
+        </view>
+        <view class="audit-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+

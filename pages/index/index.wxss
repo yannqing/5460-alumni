@@ -1,0 +1,362 @@
+/* pages/index/index.wxss */
+.container {
+  height: 100vh;
+  background-color: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 顶部 Banner */
+.header-banner {
+  height: 450rpx;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.banner-swiper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-default-bg {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #40B2E6 0%, #6BC5ED 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.banner-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: border-box;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none; /* 允许触摸事件穿透到 swiper */
+}
+
+.platform-tag {
+  pointer-events: auto; /* logo 区域恢复触摸事件 */
+}
+
+/* 轮播图指示器样式 */
+.banner-swiper .wx-swiper-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.banner-swiper .wx-swiper-dot-active {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.platform-tag {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 100rpx);
+  left: 30rpx;
+  background-color: rgba(255, 255, 255, 0.0);
+  border-radius: 30rpx;
+}
+
+.platform-logo {
+  width: 130rpx;
+  height: 60rpx;
+  display: block;
+}
+
+.slogan-container {
+  margin-top: 180rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 20rpx;
+}
+
+.slogan-main {
+  font-size: 56rpx;
+  font-weight: bold;
+  font-style: italic;
+  letter-spacing: 4rpx;
+}
+
+.slogan-side {
+  font-size: 28rpx;
+  opacity: 0.8;
+}
+
+.sub-slogan {
+  font-size: 32rpx;
+  margin-top: 24rpx;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+/* 导航区域 */
+.nav-container {
+  margin: 0 15rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 60rpx 20rpx 35rpx;
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 370rpx);
+  left: 0;
+  right: 0;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+  z-index: 20;
+}
+
+.nav-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.nav-title-tag {
+  background-color: #38C7D4; /* 青蓝色，与主题色协调 */
+  color: #fff;
+  font-size: 24rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx 0 20rpx 0;
+  box-shadow: 2rpx 2rpx 4rpx rgba(0,0,0,0.1);
+}
+
+.nav-grid {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.nav-icon {
+  width: 80rpx;
+  height: 80rpx;
+  /* background-color: #f9f9f9; */
+  border-radius: 50%;
+}
+
+.nav-text {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 文章列表 */
+.article-list {
+  flex: 1;
+  height: 0;
+  margin-top: calc(env(safe-area-inset-top) + 420rpx + 200rpx);
+  padding: 0 0 20rpx 0;
+  background-color: #f8f8f8;
+}
+
+.article-item {
+  background-color: #fff;
+  padding: 30rpx;
+  margin: 0 15rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8rpx;
+}
+
+.article-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.article-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20rpx;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.user-avatar-wrapper {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  border: 1rpx solid #f0f0f0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.user-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 600;
+  max-width: 350rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.publish-time {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.article-content {
+  width: 100%;
+  padding-left: 0;
+}
+
+.article-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
+}
+
+.article-desc {
+  font-size: 30rpx;
+  color: #555;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-cover-wrapper {
+  width: 100%;
+  height: 350rpx;
+  border-radius: 8rpx;
+  background: #f0f0f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.article-cover {
+  width: 100%;
+  height: 100%;
+  border-radius: 8rpx;
+  object-fit: cover;
+}
+
+/* 有子文章时，图片上的标题覆盖层 */
+.article-cover-wrapper.with-title-overlay .article-cover {
+  filter: brightness(0.7);
+}
+
+.cover-title-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40rpx 30rpx 30rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+}
+
+.overlay-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.4;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+}
+
+/* 子文章列表 */
+.children-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.child-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx;
+  background: #f8f8f8;
+  border-radius: 8rpx;
+  transition: all 0.3s;
+}
+
+.child-item:active {
+  background: #f0f0f0;
+  transform: scale(0.98);
+}
+
+.child-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.child-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.child-cover-wrapper {
+  width: 120rpx;
+  height: 90rpx;
+  border-radius: 6rpx;
+  background: #e0e0e0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.child-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.loading-more, .no-more, .empty-state {
+  text-align: center;
+  padding: 40rpx;
+  color: #999;
+  font-size: 26rpx;
+}

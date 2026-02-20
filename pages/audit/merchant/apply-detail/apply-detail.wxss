@@ -1,0 +1,113 @@
+/* pages/audit/merchant/apply-detail/apply-detail.wxss */
+.apply-detail-page {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.loading-text {
+  text-align: center;
+  padding: 50rpx;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.detail-content {
+  padding-bottom: 20rpx;
+}
+
+.detail-section {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 25rpx;
+  padding-bottom: 15rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  align-items: flex-start;
+}
+
+.detail-label {
+  color: #999;
+  width: 180rpx;
+  padding-top: 8rpx;
+}
+
+.detail-value {
+  color: #333;
+  flex: 1;
+  line-height: 1.6;
+  padding-top: 8rpx;
+}
+
+.status-pending {
+  color: #fa8c16;
+}
+
+.status-approved {
+  color: #52c41a;
+}
+
+.status-rejected {
+  color: #ff4d4f;
+}
+
+.audit-actions {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.remark-input {
+  width: 100%;
+  min-height: 150rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  margin-bottom: 30rpx;
+  background-color: #fafafa;
+  box-sizing: border-box;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  margin: 0 10rpx;
+}
+
+.action-btn.reject {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  border: 2rpx solid #ffccc7;
+}
+
+.action-btn.approve {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 2rpx solid #91d5ff;
+}
