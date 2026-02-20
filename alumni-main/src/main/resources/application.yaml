@@ -1,0 +1,211 @@
+app:
+  url: http://localhost:8080
+spring:
+  application:
+    name: cni-alumni-core
+  profiles:
+      active: local
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cni_alumni?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&connectionTimeZone=Asia/Shanghai&forceConnectionTimeZoneToSession=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: wyjh030208..
+    druid:
+      initial-size: 5          # 根据预期并发调整
+      min-idle: 5
+      max-active: 20           # 根据最大并发调整
+      max-wait: 10000          # 生产环境可缩短到10秒
+      filters: stat,wall,log4j2    # 添加日志过滤器
+      connection-properties:
+        druid.stat.mergeSql=true
+        druid.stat.slowSqlMillis=5000
+        druid.stat.logSlowSql=true
+      # Web统计过滤器
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+        session-stat-enable: true
+        session-stat-max-count: 1000
+      # 监控页面Servlet
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false
+  #        login-username: admin      # 监控页面登录用户名
+  #        login-password: admin123   # 监控页面登录密码
+  #        allow: 192.168.1.100       # 允许访问的IP（生产环境重要！）
+
+  # Redis 配置
+  data:
+    redis:
+      database: 1
+      host: localhost
+      port: 6379
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 4
+          max-wait: 1000ms
+          max-idle: 4
+          min-idle: 0
+
+  # Elasticsearch 配置（Spring Data ES）
+  elasticsearch:
+    uris: http://localhost:9200
+    username: ${ES_USERNAME:}
+    password: ${ES_PASSWORD:}
+    connection-timeout: 10s
+    socket-timeout: 30s
+
+  # 文件上传
+  servlet:
+    multipart:
+      # 大小限制（音频文件通常比较大，设置为20MB）
+      max-file-size: 20MB
+      max-request-size: 25MB
+  # Kafka 配置
+  kafka:
+    enabled: true
+    bootstrap-servers: localhost:9092
+    producer:
+      # 生产者配置
+      retries: 3
+      batch-size: 16384
+      buffer-memory: 33554432
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      # 消费者配置
+      group-id: alumni-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      auto-commit-interval: 1000
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      # 监听器配置
+      ack-mode: batch
+      concurrency: 3
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  # 枚举包扫描配置（让 MyBatis-Plus 识别 @EnumValue 注解）
+  type-enums-package: com.cmswe.alumni.common.enums
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+      # 字段策略配置
+      insert-strategy: not_null # 插入时忽略 null 值字段
+      update-strategy: not_null # 更新时忽略 null 值字段
+
+# 日志配置
+logging:
+  file:
+    name: logs/application.log  # 日志文件路径
+  level:
+    root: INFO                  # 根日志级别
+    com.resume.core: INFO       # 项目包日志级别
+    org.springframework: WARN   # Spring框架日志级别
+    com.baomidou: WARN          # MyBatis-Plus日志级别
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB       # 单个文件最大大小
+      max-history: 30           # 保留天数
+      file-name-pattern: logs/application-%d{yyyy-MM-dd}.%i.log  # 归档日志文件名模式
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+  basic:
+    username: admin
+    password: admin123
+file:
+  upload-common-url: .  # 文件存储一级目录： /yannqing
+  upload-prefix-url: /upload  # 1. 请求路径前缀：127.0.0.1:8080/upload/**  2. 文件存储二级目录： /yannqing/upload/**
+  upload-image-url: images     # 图片文件存储的三级目录  eg: /yannqing/upload/images/**     对应 url 路径：127.0.0.1:8080/upload/images/**
+  upload-resume-url: resumes   # 简历文件存储的三级目录  eg: /yannqing/upload/resumes/**    对应 url 路径：127.0.0.1:8080/upload/resumes/**
+  upload-audio-url: audios     # 音频文件存储的三级目录  eg: /yannqing/upload/audios/**     对应 url 路径：127.0.0.1:8080/upload/audios/**
+
+# 雪花算法 id
+snowflake:
+  worker-id: 0      # 机器ID，不同服务器设置不同值(0-31)
+  datacenter-id: 0  # 数据中心ID，不同数据中心设置不同值(0-31)
+
+# 微信小程序配置
+wechat:
+  mini:
+    app-id: ${WECHAT_MINI_APP_ID:your_app_id_here}  # 微信小程序AppID
+    secret: ${WECHAT_MINI_SECRET:your_secret_here}  # 微信小程序Secret
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:your_jwt_secret_key_here}  # JWT密钥，生产环境请使用环境变量
+  expire-times: ${JWT_EXPIRE_TIMES:your_jwt_expire_times_here}  # Token有效期
+
+# 签名验证配置
+# 注意：白名单路径已统一在 Constant.java 中定义
+api:
+  signature:
+    # 是否启用签名验证（开发环境可设为false）
+    enabled: ${API_SIGNATURE_ENABLED:false}
+    # 签名密钥（生产环境必须使用环境变量！）
+    secret: ${API_SIGNATURE_SECRET:your_default_secret_key_32_chars}
+    # 时间容差（毫秒），默认5分钟
+    time-tolerance: ${API_SIGNATURE_TIME_TOLERANCE:300000}
+
+# ==================== Elasticsearch 自动初始化配置 ====================
+elasticsearch:
+  host: http://localhost:9200
+  auto-init: true  # 开启自动初始化（应用启动时自动创建索引）
+  # 设置为 false 则需要手动执行 init_indices.sh 创建索引
+
+# ==================== Elasticsearch 搜索配置 ====================
+search:
+  # 缓存配置
+  cache:
+    local-ttl: 5m           # 本地缓存（Caffeine）TTL
+    redis-ttl: 5m           # Redis 缓存 TTL
+    max-size: 1000          # 本地缓存最大条目数
+  # 高亮配置
+  highlight:
+    pre-tag: '<em class="highlight">'   # 高亮前缀标签
+    post-tag: '</em>'                    # 高亮后缀标签
+    fragment-size: 150                   # 高亮片段大小
+  # 分页配置
+  pagination:
+    max-page-size: 100      # 最大每页大小
+    default-page-size: 20   # 默认每页大小
+    max-page-num: 100       # 最大页码（防止深度分页）
+
+# ==================== Spring Boot Actuator 配置 ====================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # 只暴露健康检查和信息端点（生产环境最小化暴露）
+      base-path: /actuator    # 端点基础路径
+  endpoint:
+    health:
+      show-details: when-authorized  # 只对认证用户显示详细信息
+      probes:
+        enabled: true         # 启用 Kubernetes 探针支持
+  health:
+    defaults:
+      enabled: true
+    db:
+      enabled: true           # 数据库健康检查
+    redis:
+      enabled: true           # Redis 健康检查

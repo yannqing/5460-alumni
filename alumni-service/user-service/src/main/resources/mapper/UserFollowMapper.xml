@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.UserFollowMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.UserFollow">
+        <id property="followId" column="follow_id" jdbcType="BIGINT"/>
+        <result property="wxId" column="wx_id" jdbcType="BIGINT"/>
+        <result property="targetType" column="target_type" jdbcType="TINYINT"/>
+        <result property="targetId" column="target_id" jdbcType="BIGINT"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="followStatus" column="follow_status" jdbcType="TINYINT"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        follow_id, wx_id, target_type, target_id, remark, follow_status, created_time, updated_time, is_deleted
+    </sql>
+
+</mapper>

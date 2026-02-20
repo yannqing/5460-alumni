@@ -1,0 +1,101 @@
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "refresh_interval": "1s",
+    "max_result_window": 10000,
+    "analysis": {
+      "analyzer": {
+        "ik_pinyin_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": ["lowercase", "pinyin_filter"]
+        }
+      },
+      "filter": {
+        "pinyin_filter": {
+          "type": "pinyin",
+          "keep_first_letter": true,
+          "keep_full_pinyin": true,
+          "keep_original": true,
+          "lowercase": true
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "associationId": {
+        "type": "keyword"
+      },
+      "associationName": {
+        "type": "text",
+        "analyzer": "ik_pinyin_analyzer",
+        "search_analyzer": "ik_smart",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "schoolId": {
+        "type": "keyword"
+      },
+      "schoolName": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "platformId": {
+        "type": "keyword"
+      },
+      "platformName": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "presidentName": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "contactInfo": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "province": {
+        "type": "keyword"
+      },
+      "city": {
+        "type": "keyword"
+      },
+      "memberCount": {
+        "type": "integer"
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "introduction": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "coverImage": {
+        "type": "keyword",
+        "index": false
+      },
+      "createTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "updateTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      }
+    }
+  }
+}

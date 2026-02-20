@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.AlumniPlaceMapper">
+
+    <!-- 根据地理位置分页查询附近企业/场所（带距离计算） -->
+    <select id="selectNearbyWithPage" resultType="com.cmswe.alumni.common.vo.NearbyPlaceVo">
+        SELECT
+            ap.place_id AS placeId,
+            ap.place_name AS placeName,
+            ap.place_type AS placeType,
+            ap.alumni_id AS alumniId,
+            ap.alumni_association_id AS alumniAssociationId,
+            ap.province,
+            ap.city,
+            ap.district,
+            ap.address,
+            ap.latitude,
+            ap.longitude,
+            ap.contact_phone AS contactPhone,
+            ap.contact_email AS contactEmail,
+            ap.business_hours AS businessHours,
+            ap.images,
+            ap.logo,
+            ap.description,
+            ap.established_time AS establishedTime,
+            ap.status,
+            ap.is_recommended AS isRecommended,
+            ap.view_count AS viewCount,
+            ap.click_count AS clickCount,
+            ap.rating_score AS ratingScore,
+            ap.rating_count AS ratingCount,
+            (6371 * ACOS(
+                COS(RADIANS(#{latitude})) * COS(RADIANS(ap.latitude)) *
+                COS(RADIANS(ap.longitude) - RADIANS(#{longitude})) +
+                SIN(RADIANS(#{latitude})) * SIN(RADIANS(ap.latitude))
+            )) AS distance
+        FROM alumni_place ap
+        WHERE ap.status = 1
+          AND ap.review_status = 1
+          AND ap.is_delete = 0
+        <if test="placeType != null">
+            AND ap.place_type = #{placeType}
+        </if>
+        <if test="placeName != null and placeName != ''">
+            AND ap.place_name LIKE CONCAT('%', #{placeName}, '%')
+        </if>
+        <if test="isRecommended != null">
+            AND ap.is_recommended = #{isRecommended}
+        </if>
+        HAVING distance &lt;= #{radius}
+        ORDER BY distance ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计附近企业/场所总数 -->
+    <select id="countNearbyPlaces" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM (
+            SELECT
+                ap.place_id,
+                (6371 * ACOS(
+                    COS(RADIANS(#{latitude})) * COS(RADIANS(ap.latitude)) *
+                    COS(RADIANS(ap.longitude) - RADIANS(#{longitude})) +
+                    SIN(RADIANS(#{latitude})) * SIN(RADIANS(ap.latitude))
+                )) AS distance
+            FROM alumni_place ap
+            WHERE ap.status = 1
+              AND ap.review_status = 1
+              AND ap.is_delete = 0
+            <if test="placeType != null">
+                AND ap.place_type = #{placeType}
+            </if>
+            <if test="placeName != null and placeName != ''">
+                AND ap.place_name LIKE CONCAT('%', #{placeName}, '%')
+            </if>
+            <if test="isRecommended != null">
+                AND ap.is_recommended = #{isRecommended}
+            </if>
+            HAVING distance &lt;= #{radius}
+        ) AS nearby_places
+    </select>
+
+    <!-- 增加场所/企业浏览次数 -->
+    <update id="incrementViewCount">
+        UPDATE alumni_place
+        SET view_count = view_count + 1
+        WHERE place_id = #{placeId}
+    </update>
+
+    <!-- 增加场所/企业点击次数 -->
+    <update id="incrementClickCount">
+        UPDATE alumni_place
+        SET click_count = click_count + 1
+        WHERE place_id = #{placeId}
+    </update>
+</mapper>

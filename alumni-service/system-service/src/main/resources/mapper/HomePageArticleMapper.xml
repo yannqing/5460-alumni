@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.system.mapper.HomePageArticleMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.HomePageArticle">
+        <id property="homeArticleId" column="home_article_id" jdbcType="BIGINT"/>
+        <result property="pid" column="pid" jdbcType="BIGINT"/>
+        <result property="articleTitle" column="article_title" jdbcType="VARCHAR"/>
+        <result property="coverImg" column="cover_img" jdbcType="BIGINT"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="articleType" column="article_type" jdbcType="TINYINT"/>
+        <result property="articleLink" column="article_link" jdbcType="VARCHAR"/>
+        <result property="articleFile" column="article_file" jdbcType="BIGINT"/>
+        <result property="metaData" column="meta_data" jdbcType="VARCHAR"/>
+        <result property="articleStatus" column="article_status" jdbcType="TINYINT"/>
+        <result property="publishWxId" column="publish_wx_id" jdbcType="BIGINT"/>
+        <result property="publishUsername" column="publish_username" jdbcType="VARCHAR"/>
+        <result property="publishType" column="publish_type" jdbcType="VARCHAR"/>
+        <result property="publisherAvatar" column="publisher_avatar" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        home_article_id, pid, article_title, cover_img, description, article_type,
+        article_link, article_file, meta_data, article_status, publish_wx_id,
+        publish_username, publish_type, publisher_avatar, create_time, update_time, is_delete
+    </sql>
+
+</mapper>
