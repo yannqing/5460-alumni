@@ -1,28 +1,40 @@
 /* pages/audit/merchant/coupon/coupon.wxss */
-.coupon-management-page {
-  padding: 20rpx;
-  background-color: #f5f5f5;
-  min-height: 100vh;
+.page {
+  background-color: transparent;
+  width: 750rpx;
+  height: calc(100vh - 190.22rpx);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.page-title {
-  font-size: 36rpx;
-  font-weight: bold;
-  margin-bottom: 30rpx;
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  margin: 47rpx 0 20rpx 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.list-header { margin-bottom: 16rpx; flex-shrink: 0; }
+.group_7 .text_20 {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: rgba(0,0,0,1);
+  line-height: 40rpx;
+}
+
+.placeholder-block {
+  padding: 60rpx 0;
   text-align: center;
-  color: #333;
 }
 
-.page-content {
-  background-color: #fff;
-  padding: 40rpx;
-  border-radius: 10rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
-}
-
-.placeholder {
-  font-size: 32rpx;
+.placeholder-text {
+  font-size: 28rpx;
   color: #999;
-  text-align: center;
-  display: block;
 }

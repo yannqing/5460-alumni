@@ -1,6 +1,7 @@
 // pages/audit/carousel/carousel.js
 const app = getApp()
 const { bannerApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 
 Page({
   data: {
@@ -27,10 +28,17 @@ Page({
       { value: 2, label: '内部路径' },
       { value: 3, label: '第三方链接' },
       { value: 4, label: '文章详情' }
-    ]
+    ],
+    // 图标
+    iconSearch: ''
   },
 
   onLoad(options) {
+    // 加载图标
+    const iconSearch = config.getIconUrl('ss@2x.png')
+    this.setData({
+      iconSearch: iconSearch
+    })
     // 页面加载时初始化数据
     this.initData()
   },
@@ -50,6 +58,18 @@ Page({
 
   onUnload() {
     // 页面卸载
+  },
+
+  // 下拉刷新
+  onPullDownRefresh() {
+    this.setData({
+      pageNum: 1,
+      bannerList: [],
+      hasNext: false
+    })
+    this.loadBannerList().finally(() => {
+      wx.stopPullDownRefresh()
+    })
   },
 
   // 初始化数据
@@ -83,7 +103,7 @@ Page({
       ...this.data.searchParams
     }
     
-    bannerApi.getBannerPage(params).then(res => {
+    return bannerApi.getBannerPage(params).then(res => {
       this.setData({ loading: false })
       
       if (res.data && res.data.code === 200) {
@@ -97,6 +117,14 @@ Page({
           // 非第一页，追加数据
           bannerList = bannerList.concat(data.records || [])
         }
+        
+        // 处理时间格式，将T替换为空格
+        bannerList = bannerList.map(item => {
+          if (item.createTime) {
+            item.createTime = item.createTime.replace('T', ' ')
+          }
+          return item
+        })
         
         this.setData({
           bannerList: bannerList,

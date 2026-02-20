@@ -52,7 +52,7 @@ Page({
   switchTab(e) {
     const { index } = e.currentTarget.dataset
     this.setData({
-      currentTab: index
+      currentTab: parseInt(index)
     })
     this.loadArticleList()
   },
@@ -148,13 +148,19 @@ Page({
         // 从appliedUserInfo中获取用户昵称
         const userNickname = item.appliedUserInfo?.nickname || item.appliedName || ''
         
+        // 格式化时间，移除T字符
+        let formattedTime = item.createTime || ''
+        if (formattedTime) {
+          formattedTime = formattedTime.replace('T', ' ')
+        }
+        
         return {
           id: item.homeArticleApplyId,
           articleId: item.homeArticleId,
           nickname: articleTitle, // 使用文章标题作为昵称显示
           avatar: item.appliedUserInfo?.avatarUrl || '', // 使用用户头像
           school: '', // API返回中没有school字段，暂时为空
-          submitTime: item.createTime,
+          submitTime: formattedTime,
           status: status,
           statusText: statusText,
           userId: item.appliedWxId,

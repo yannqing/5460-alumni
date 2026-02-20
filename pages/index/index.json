@@ -4,5 +4,5 @@
   "backgroundTextStyle": "dark",
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification"
-  }
+  } 
 }

@@ -1,7 +1,10 @@
 {
   "navigationBarTitleText": "文章审核",
   "navigationStyle": "custom",
-  "enablePullDownRefresh": true,
+  "enablePullDownRefresh": false,
+  "enableBackToTop": true,
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#F7F7FE",
   "usingComponents": {
     "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
   }

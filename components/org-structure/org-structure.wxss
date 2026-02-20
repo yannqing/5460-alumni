@@ -253,7 +253,7 @@
 .org-member-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10rpx 15rpx;
+  gap: 20rpx 15rpx;
   justify-content: flex-start;
 }
 

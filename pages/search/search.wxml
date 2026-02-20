@@ -2,22 +2,19 @@
 <!-- 消息通知组件 -->
 <message-notification />
 
-<view class="container">
-  <!-- 搜索框 -->
-  <view class="search-bar">
-    <!-- 返回按钮（仅在显示搜索结果时显示） -->
-    <view wx:if="{{showResult}}" class="back-button" catchtap="goBack">
-      <text class="back-icon">←</text>
-    </view>
-    
-    <view class="search-input-wrap {{showResult ? 'with-back' : ''}}">
-      <input class="search-input" type="text" placeholder="搜索母校、校友会、校友" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" focus="{{!showResult}}" />
-      <view class="search-actions">
-        <image class="scan-btn-icon" src="{{iconScan}}" mode="aspectFit" bindtap="scanCode" />
-        <image class="search-btn" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
+<!-- 自定义导航栏 -->
+<custom-nav-bar id="custom-nav-bar" title="搜索" showBack="{{showResult}}" useAuditStyle="{{true}}" auditTitle="搜索">
+  <view class="container">
+    <!-- 搜索框 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <input class="search-input" type="text" placeholder="搜索母校、校友会、校友" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" focus="{{!showResult}}" />
+        <view class="search-actions">
+          <image class="scan-btn-icon" src="{{iconScan}}" mode="aspectFit" bindtap="scanCode" />
+          <image class="search-btn" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
+        </view>
       </view>
     </view>
-  </view>
 
   <!-- 搜索前显示 -->
   <view wx:if="{{!showResult}}">
@@ -217,5 +214,6 @@
       </view>
     </view>
   </view>
-</view>
+  </view>
+</custom-nav-bar>
 

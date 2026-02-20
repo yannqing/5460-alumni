@@ -1,59 +1,66 @@
 <!--pages/profile/alumni-association/alumni-association.wxml-->
-<view class="alumni-association-page">
-  <!-- 加载状态 -->
-  <view class="loading-container" wx:if="{{loading}}">
-    <text class="loading-text">加载中...</text>
-  </view>
-  
-  <!-- 错误状态 -->
-  <view class="error-container" wx:elif="{{error}}">
-    <text class="error-text">{{errorMsg}}</text>
-    <button class="retry-btn" bindtap="loadMyAssociations">重试</button>
-  </view>
-  
-  <!-- 空状态 -->
-  <view class="empty-container" wx:elif="{{associations.length === 0}}">
-    <text class="empty-text">暂无校友会</text>
-    <button class="join-btn" bindtap="goToAssociationList">立即加入</button>
-  </view>
-  
-  <!-- 校友会列表 -->
-  <view class="association-list" wx:else>
-    <view 
-      wx:for="{{associations}}" 
-      wx:key="alumniAssociationId" 
-      class="association-item" 
-      bindtap="goToAssociationDetail" 
-      data-id="{{item.alumniAssociationId}}"
-    >
-      <!-- 校友会logo -->
-      <view class="association-logo">
-        <image 
-          src="{{item.logo || '../../assets/default/default-logo.png'}}" 
-          mode="aspectFill"
-        ></image>
-      </view>
-      
-      <!-- 校友会信息 -->
-      <view class="association-info">
-        <text class="association-name">{{item.associationName}}</text>
-        
-        <view class="association-meta">
-          <text class="meta-item">会员: {{item.memberCount || 0}}人</text>
-          <text class="meta-separator">|</text>
-          <text class="meta-item">{{item.location || '未知地点'}}</text>
-        </view>
-        
-        <view class="association-contact" wx:if="{{item.contactInfo}}">
-          <text class="contact-label">联系信息: </text>
-          <text class="contact-info">{{item.contactInfo}}</text>
-        </view>
-      </view>
-      
-      <!-- 箭头 -->
-      <view class="association-arrow">
-        <text class="arrow">›</text>
-      </view>
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="我的校友会">
+<view class="page">
+  <view class="group_7">
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
     </view>
+    
+    <!-- 错误状态 -->
+    <view class="error-container" wx:elif="{{error}}">
+      <text class="error-text">{{errorMsg}}</text>
+      <button class="retry-btn" bindtap="loadMyAssociations">重试</button>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-container" wx:elif="{{associations.length === 0}}">
+      <text class="empty-text">暂无校友会</text>
+      <button class="join-btn" bindtap="goToAssociationList">立即加入</button>
+    </view>
+    
+    <!-- 校友会列表 -->
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" wx:else>
+      <view class="association-list">
+        <view 
+          wx:for="{{associations}}" 
+          wx:key="alumniAssociationId" 
+          class="association-item" 
+          bindtap="goToAssociationDetail" 
+          data-id="{{item.alumniAssociationId}}"
+        >
+          <!-- 校友会logo -->
+          <view class="association-logo">
+            <image 
+              src="{{item.logo || '../../assets/default/default-logo.png'}}" 
+              mode="aspectFill"
+            ></image>
+          </view>
+          
+          <!-- 校友会信息 -->
+          <view class="association-info">
+            <text class="association-name">{{item.associationName}}</text>
+            
+            <view class="association-meta">
+              <text class="meta-item">会员: {{item.memberCount || 0}}人</text>
+              <text class="meta-separator">|</text>
+              <text class="meta-item">{{item.location || '未知地点'}}</text>
+            </view>
+            
+            <view class="association-contact" wx:if="{{item.contactInfo}}">
+              <text class="contact-label">联系信息: </text>
+              <text class="contact-info">{{item.contactInfo}}</text>
+            </view>
+          </view>
+          
+          <!-- 箭头 -->
+          <view class="association-arrow">
+            <text class="arrow">›</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 </view>
+</custom-nav-bar>
