@@ -1,0 +1,171 @@
+{
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1,
+    "refresh_interval": "1s",
+    "max_result_window": 10000,
+    "analysis": {
+      "analyzer": {
+        "ik_pinyin_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": ["lowercase", "pinyin_filter"]
+        },
+        "ik_pinyin_smart": {
+          "type": "custom",
+          "tokenizer": "ik_smart",
+          "filter": ["lowercase", "pinyin_filter"]
+        }
+      },
+      "filter": {
+        "pinyin_filter": {
+          "type": "pinyin",
+          "keep_first_letter": true,
+          "keep_separate_first_letter": false,
+          "keep_full_pinyin": true,
+          "keep_original": true,
+          "limit_first_letter_length": 16,
+          "lowercase": true,
+          "remove_duplicated_term": true
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "alumniId": {
+        "type": "keyword"
+      },
+      "userId": {
+        "type": "keyword"
+      },
+      "wxId": {
+        "type": "keyword"
+      },
+      "realName": {
+        "type": "text",
+        "analyzer": "ik_pinyin_analyzer",
+        "search_analyzer": "ik_pinyin_smart",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          },
+          "pinyin": {
+            "type": "text",
+            "analyzer": "pinyin"
+          }
+        }
+      },
+      "nickname": {
+        "type": "text",
+        "analyzer": "ik_pinyin_analyzer",
+        "search_analyzer": "ik_pinyin_smart",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          },
+          "pinyin": {
+            "type": "text",
+            "analyzer": "pinyin"
+          }
+        }
+      },
+      "phone": {
+        "type": "keyword"
+      },
+      "email": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "avatar": {
+        "type": "keyword",
+        "index": false
+      },
+      "schoolId": {
+        "type": "keyword"
+      },
+      "schoolName": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "graduationYear": {
+        "type": "integer"
+      },
+      "major": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "province": {
+        "type": "keyword"
+      },
+      "city": {
+        "type": "keyword"
+      },
+      "district": {
+        "type": "keyword"
+      },
+      "industry": {
+        "type": "keyword"
+      },
+      "position": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "company": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "searchable": {
+        "type": "boolean"
+      },
+      "privacyLevel": {
+        "type": "keyword"
+      },
+      "certified": {
+        "type": "boolean"
+      },
+      "certificationStatus": {
+        "type": "keyword"
+      },
+      "tags": {
+        "type": "keyword"
+      },
+      "signature": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "lastLoginTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "createTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "updateTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "suggest": {
+        "type": "completion",
+        "analyzer": "ik_max_word",
+        "contexts": [
+          {
+            "name": "searchable",
+            "type": "category"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.system.mapper.ActivityMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.Activity">
+        <id property="activityId" column="activity_id" jdbcType="BIGINT"/>
+        <result property="activityTitle" column="activity_title" jdbcType="VARCHAR"/>
+        <result property="organizerType" column="organizer_type" jdbcType="INTEGER"/>
+        <result property="organizerId" column="organizer_id" jdbcType="BIGINT"/>
+        <result property="organizerName" column="organizer_name" jdbcType="VARCHAR"/>
+        <result property="organizerAvatar" column="organizer_avatar" jdbcType="VARCHAR"/>
+        <result property="coverImage" column="cover_image" jdbcType="VARCHAR"/>
+        <result property="activityImages" column="activity_images" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="activityCategory" column="activity_category" jdbcType="VARCHAR"/>
+        <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="registrationStartTime" column="registration_start_time" jdbcType="TIMESTAMP"/>
+        <result property="registrationEndTime" column="registration_end_time" jdbcType="TIMESTAMP"/>
+        <result property="province" column="province" jdbcType="VARCHAR"/>
+        <result property="city" column="city" jdbcType="VARCHAR"/>
+        <result property="district" column="district" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="latitude" column="latitude" jdbcType="DECIMAL"/>
+        <result property="longitude" column="longitude" jdbcType="DECIMAL"/>
+        <result property="geohash" column="geohash" jdbcType="VARCHAR"/>
+        <result property="maxParticipants" column="max_participants" jdbcType="INTEGER"/>
+        <result property="currentParticipants" column="current_participants" jdbcType="INTEGER"/>
+        <result property="isNeedReview" column="is_need_review" jdbcType="INTEGER"/>
+        <result property="isSignup" column="is_signup" jdbcType="INTEGER"/>
+        <result property="contactPerson" column="contact_person" jdbcType="VARCHAR"/>
+        <result property="contactPhone" column="contact_phone" jdbcType="VARCHAR"/>
+        <result property="contactEmail" column="contact_email" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="reviewStatus" column="review_status" jdbcType="INTEGER"/>
+        <result property="reviewReason" column="review_reason" jdbcType="VARCHAR"/>
+        <result property="reviewerId" column="reviewer_id" jdbcType="BIGINT"/>
+        <result property="reviewTime" column="review_time" jdbcType="TIMESTAMP"/>
+        <result property="viewCount" column="view_count" jdbcType="BIGINT"/>
+        <result property="isPublic" column="is_public" jdbcType="INTEGER"/>
+        <result property="isRecommended" column="is_recommended" jdbcType="INTEGER"/>
+        <result property="tagsId" column="tags_id" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        activity_id, activity_title, organizer_type, organizer_id, organizer_name, organizer_avatar,
+        cover_image, activity_images, description, activity_category,
+        start_time, end_time, registration_start_time, registration_end_time,
+        province, city, district, address, latitude, longitude, geohash,
+        max_participants, current_participants, is_need_review, is_signup,
+        contact_person, contact_phone, contact_email,
+        status, review_status, review_reason, reviewer_id, review_time,
+        view_count, is_public, is_recommended, tags_id, remark,
+        created_by, create_time, update_time, is_delete
+    </sql>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.WxUserWorkMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.WxUserWork">
+        <id property="userWorkId" column="user_work_id" jdbcType="BIGINT"/>
+        <result property="wxId" column="wx_id" jdbcType="BIGINT"/>
+        <result property="companyName" column="company_name" jdbcType="VARCHAR"/>
+        <result property="position" column="position" jdbcType="VARCHAR"/>
+        <result property="industry" column="industry" jdbcType="VARCHAR"/>
+        <result property="startDate" column="start_date" jdbcType="DATE"/>
+        <result property="endDate" column="end_date" jdbcType="DATE"/>
+        <result property="isCurrent" column="is_current" jdbcType="TINYINT"/>
+        <result property="workDescription" column="work_description" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_work_id, wx_id, company_name, position, industry, start_date, end_date,
+        is_current, work_description, create_time, update_time, is_delete
+    </sql>
+
+</mapper>

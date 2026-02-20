@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.ChatConversationMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.ChatConversation" autoMapping="true">
+        <id property="conversationId" column="conversation_id" jdbcType="BIGINT"/>
+        <result property="wxId" column="wx_id" jdbcType="BIGINT"/>
+        <result property="peerId" column="peer_id" jdbcType="BIGINT"/>
+        <result property="conversationType" column="conversation_type"
+                typeHandler="com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler"/>
+        <result property="lastMessageId" column="last_message_id" jdbcType="BIGINT"/>
+        <result property="lastMessageContent" column="last_message_content" jdbcType="VARCHAR"/>
+        <result property="lastMessageTime" column="last_message_time" jdbcType="TIMESTAMP"/>
+        <result property="lastMessageFromId" column="last_message_from_id" jdbcType="BIGINT"/>
+        <result property="unreadCount" column="unread_count" jdbcType="INTEGER"/>
+        <result property="isPinned" column="is_pinned" jdbcType="TINYINT"/>
+        <result property="isMuted" column="is_muted" jdbcType="TINYINT"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+        <result property="isHidden" column="is_hidden" jdbcType="TINYINT"/>
+        <result property="draftContent" column="draft_content" jdbcType="VARCHAR"/>
+        <result property="mentionCount" column="mention_count" jdbcType="INTEGER"/>
+        <result property="extInfo" column="ext_info" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        conversation_id, wx_id, peer_id, conversation_type,
+        last_message_id, last_message_content, last_message_time, last_message_from_id,
+        unread_count, is_pinned, is_muted, is_deleted, is_hidden,
+        draft_content, mention_count, ext_info,
+        create_time, update_time
+    </sql>
+
+    <!-- 查询用户的会话列表 -->
+    <select id="selectUserConversations" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM chat_conversation
+        WHERE wx_id = #{userId}
+          AND is_deleted = 0
+        ORDER BY is_pinned DESC, last_message_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 查询或创建会话 -->
+    <select id="selectOrCreateConversation" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM chat_conversation
+        WHERE wx_id = #{userId}
+          AND peer_id = #{peerId}
+          AND conversation_type = #{conversationType}
+        LIMIT 1
+    </select>
+
+    <!-- 更新会话最后消息信息 -->
+    <update id="updateLastMessage">
+        UPDATE chat_conversation
+        SET last_message_id = #{lastMessageId},
+            last_message_content = #{lastMessageContent},
+            last_message_time = #{lastMessageTime},
+            last_message_from_id = #{lastMessageFromId},
+            update_time = NOW()
+        WHERE wx_id = #{userId}
+          AND peer_id = #{peerId}
+          AND conversation_type = #{conversationType}
+    </update>
+
+    <!-- 增加未读数 -->
+    <update id="incrementUnreadCount">
+        UPDATE chat_conversation
+        SET unread_count = unread_count + #{count},
+            update_time = NOW()
+        WHERE wx_id = #{userId}
+          AND peer_id = #{peerId}
+          AND conversation_type = #{conversationType}
+    </update>
+
+    <!-- 清空未读数 -->
+    <update id="clearUnreadCount">
+        UPDATE chat_conversation
+        SET unread_count = 0,
+            update_time = NOW()
+        WHERE wx_id = #{userId}
+          AND peer_id = #{peerId}
+          AND conversation_type = #{conversationType}
+    </update>
+
+    <!-- 更新置顶状态 -->
+    <update id="updatePinnedStatus">
+        UPDATE chat_conversation
+        SET is_pinned = #{isPinned},
+            update_time = NOW()
+        WHERE conversation_id = #{conversationId}
+    </update>
+
+    <!-- 更新免打扰状态 -->
+    <update id="updateMutedStatus">
+        UPDATE chat_conversation
+        SET is_muted = #{isMuted},
+            update_time = NOW()
+        WHERE conversation_id = #{conversationId}
+    </update>
+
+    <!-- 删除会话（软删除） -->
+    <update id="deleteConversation">
+        UPDATE chat_conversation
+        SET is_deleted = 1,
+            update_time = NOW()
+        WHERE conversation_id = #{conversationId}
+    </update>
+
+    <!-- 保存草稿 -->
+    <update id="saveDraft">
+        UPDATE chat_conversation
+        SET draft_content = #{draftContent},
+            update_time = NOW()
+        WHERE conversation_id = #{conversationId}
+    </update>
+
+    <!-- 查询用户总未读数 -->
+    <select id="countTotalUnread" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(unread_count), 0)
+        FROM chat_conversation
+        WHERE wx_id = #{userId}
+          AND is_deleted = 0
+          AND is_muted = 0
+    </select>
+
+</mapper>

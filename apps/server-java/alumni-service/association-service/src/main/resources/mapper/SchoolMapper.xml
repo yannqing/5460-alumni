@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.association.mapper.SchoolMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.School">
+        <id property="schoolId" column="school_id" jdbcType="BIGINT"/>
+        <result property="logo" column="logo" jdbcType="VARCHAR"/>
+        <result property="schoolName" column="school_name" jdbcType="VARCHAR"/>
+        <result property="schoolCode" column="school_code" jdbcType="VARCHAR"/>
+        <result property="headquartersId" column="headquarters_id" jdbcType="BIGINT"/>
+        <result property="province" column="province" jdbcType="VARCHAR"/>
+        <result property="city" column="city" jdbcType="VARCHAR"/>
+        <result property="level" column="level" jdbcType="VARCHAR"/>
+        <result property="mergedInstitutions" column="merged_institutions" jdbcType="VARCHAR"/>
+        <result property="previousName" column="previous_name" jdbcType="VARCHAR"/>
+        <result property="otherInfo" column="other_info" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="foundingDate" column="founding_date" jdbcType="DATE"/>
+        <result property="location" column="location" jdbcType="VARCHAR"/>
+        <result property="officialCertification" column="official_certification" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        school_id, logo, school_name, school_code, headquarters_id, province, city, level,
+        merged_institutions, previous_name, other_info, description,
+        founding_date, location, official_certification, status,
+        create_time, update_time, is_delete
+    </sql>
+
+</mapper>

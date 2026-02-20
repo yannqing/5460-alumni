@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.ChatGroupMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.ChatGroup" autoMapping="true">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+        <result property="groupAvatar" column="group_avatar" jdbcType="VARCHAR"/>
+        <result property="groupOwnerId" column="group_owner_id" jdbcType="BIGINT"/>
+        <result property="groupType" column="group_type" jdbcType="VARCHAR"/>
+        <result property="memberCount" column="member_count" jdbcType="INTEGER"/>
+        <result property="maxMemberCount" column="max_member_count" jdbcType="INTEGER"/>
+        <result property="groupNotice" column="group_notice" jdbcType="VARCHAR"/>
+        <result property="groupDescription" column="group_description" jdbcType="VARCHAR"/>
+        <result property="joinMode" column="join_mode" jdbcType="VARCHAR"/>
+        <result property="muteAll" column="mute_all" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, group_name, group_avatar, group_owner_id, group_type,
+        member_count, max_member_count, group_notice, group_description,
+        join_mode, mute_all, create_time, update_time, is_deleted
+    </sql>
+
+    <!-- 查询用户创建的群组列表 -->
+    <select id="selectByGroupOwnerId" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM chat_group
+        WHERE group_owner_id = #{groupOwnerId}
+          AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 查询用户加入的所有群组（通过群成员表关联） -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT
+            cg.id, cg.group_name, cg.group_avatar, cg.group_owner_id, cg.group_type,
+            cg.member_count, cg.max_member_count, cg.group_notice, cg.group_description,
+            cg.join_mode, cg.mute_all, cg.create_time, cg.update_time, cg.is_deleted
+        FROM chat_group cg
+        INNER JOIN chat_group_member cgm ON cg.id = cgm.chat_group_id
+        WHERE cgm.user_id = #{userId}
+          AND cg.is_deleted = 0
+        ORDER BY cg.create_time DESC
+    </select>
+
+    <!-- 更新群成员数量 -->
+    <update id="updateMemberCount">
+        UPDATE chat_group
+        SET member_count = member_count + #{delta},
+            update_time = NOW()
+        WHERE id = #{groupId}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 查询指定类型的群组 -->
+    <select id="selectByGroupType" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM chat_group
+        WHERE group_type = #{groupType}
+          AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

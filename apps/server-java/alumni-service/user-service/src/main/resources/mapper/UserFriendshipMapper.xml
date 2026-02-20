@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.UserFriendshipMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.UserFriendship">
+        <id property="friendshipId" column="friendship_id" jdbcType="BIGINT"/>
+        <result property="wxIdA" column="wx_id_a" jdbcType="BIGINT"/>
+        <result property="wxIdB" column="wx_id_b" jdbcType="BIGINT"/>
+        <result property="relationship" column="relationship" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="intimacyScore" column="intimacy_score" jdbcType="INTEGER"/>
+        <result property="lastInteract" column="last_interact" jdbcType="TIMESTAMP"/>
+        <result property="interactCount" column="interact_count" jdbcType="INTEGER"/>
+        <result property="remarkAToB" column="remark_a_to_b" jdbcType="VARCHAR"/>
+        <result property="remarkBToA" column="remark_b_to_a" jdbcType="VARCHAR"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
+        <result property="isStarA" column="is_star_a" jdbcType="TINYINT"/>
+        <result property="isStarB" column="is_star_b" jdbcType="TINYINT"/>
+        <result property="sourceType" column="source_type" jdbcType="TINYINT"/>
+        <result property="sourceId" column="source_id" jdbcType="VARCHAR"/>
+        <result property="addRemarks" column="add_remarks" jdbcType="VARCHAR"/>
+        <result property="addTime" column="add_time" jdbcType="TIMESTAMP"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        friendship_id, wx_id_a, wx_id_b, relationship, status, intimacy_score, last_interact,
+        interact_count, remark_a_to_b, remark_b_to_a, tags, is_star_a, is_star_b,
+        source_type, source_id, add_remarks, add_time, created_time, updated_time, is_deleted
+    </sql>
+
+</mapper>

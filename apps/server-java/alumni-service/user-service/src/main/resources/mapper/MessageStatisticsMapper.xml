@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.user.mapper.MessageStatisticsMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.MessageStatistics" autoMapping="true">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="statDate" column="stat_date" jdbcType="DATE"/>
+        <result property="messageCategory" column="message_category" jdbcType="VARCHAR"/>
+        <result property="totalCount" column="total_count" jdbcType="BIGINT"/>
+        <result property="successCount" column="success_count" jdbcType="BIGINT"/>
+        <result property="failedCount" column="failed_count" jdbcType="BIGINT"/>
+        <result property="avgProcessTime" column="avg_process_time" jdbcType="INTEGER"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, stat_date, message_category, total_count, success_count,
+        failed_count, avg_process_time, created_time, updated_time
+    </sql>
+
+    <!-- 查询指定日期范围的统计数据 -->
+    <select id="selectByDateRange" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM message_statistics
+        WHERE stat_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY stat_date DESC, message_category
+    </select>
+
+    <!-- 查询指定日期和类别的统计数据 -->
+    <select id="selectByDateAndCategory" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM message_statistics
+        WHERE stat_date = #{statDate}
+          AND message_category = #{messageCategory}
+        LIMIT 1
+    </select>
+
+    <!-- 增量更新统计数据 -->
+    <update id="incrementStatistics">
+        UPDATE message_statistics
+        SET total_count = total_count + #{totalDelta},
+            success_count = success_count + #{successDelta},
+            failed_count = failed_count + #{failedDelta},
+            updated_time = NOW()
+        WHERE stat_date = #{statDate}
+          AND message_category = #{messageCategory}
+    </update>
+
+    <!-- 插入或更新统计数据（ON DUPLICATE KEY UPDATE） -->
+    <insert id="upsertStatistics">
+        INSERT INTO message_statistics (
+            stat_date, message_category, total_count, success_count,
+            failed_count, avg_process_time, created_time, updated_time
+        ) VALUES (
+            #{statDate}, #{messageCategory}, #{totalCount}, #{successCount},
+            #{failedCount}, #{avgProcessTime}, NOW(), NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            total_count = total_count + VALUES(total_count),
+            success_count = success_count + VALUES(success_count),
+            failed_count = failed_count + VALUES(failed_count),
+            avg_process_time = VALUES(avg_process_time),
+            updated_time = NOW()
+    </insert>
+
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>com.cmswe</groupId>
+        <artifactId>cni-alumni-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>alumni-api</artifactId>
+    <name>alumni-api</name>
+    <description>Alumni System API Layer - Interface definitions for services</description>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>user-api</module>
+        <module>association-api</module>
+        <module>system-api</module>
+        <module>search-api</module>
+    </modules>
+    
+    <!-- API层通用依赖管理 -->
+    <dependencies>
+        <dependency>
+            <groupId>com.cmswe</groupId>
+            <artifactId>alumni-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
+</project>

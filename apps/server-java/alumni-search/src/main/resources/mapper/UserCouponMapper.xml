@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.UserCouponMapper">
+
+    <!-- 查询用户的优惠券列表（按状态） -->
+    <select id="selectByUserIdAndStatus" resultType="com.cmswe.alumni.common.entity.UserCoupon">
+        SELECT * FROM user_coupon
+        WHERE user_id = #{userId}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 查询用户已领取的某张优惠券 -->
+    <select id="selectByUserIdAndCouponId" resultType="com.cmswe.alumni.common.entity.UserCoupon">
+        SELECT * FROM user_coupon
+        WHERE user_id = #{userId}
+          AND coupon_id = #{couponId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 统计用户已领取的某张优惠券数量 -->
+    <select id="countByUserIdAndCouponId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM user_coupon
+        WHERE user_id = #{userId}
+          AND coupon_id = #{couponId}
+    </select>
+
+    <!-- 查询即将过期的用户优惠券（用于提醒） -->
+    <select id="selectExpiringSoon" resultType="com.cmswe.alumni.common.entity.UserCoupon">
+        SELECT * FROM user_coupon
+        WHERE status = 1
+          AND valid_end_time BETWEEN #{currentTime} AND DATE_ADD(#{currentTime}, INTERVAL #{hours} HOUR)
+          AND expire_reminded = #{expireReminded}
+        ORDER BY valid_end_time ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 标记优惠券已提醒 -->
+    <update id="markAsReminded">
+        UPDATE user_coupon
+        SET expire_reminded = 1
+        WHERE user_coupon_id = #{userCouponId}
+    </update>
+
+    <!-- 批量更新过期优惠券状态 -->
+    <update id="batchUpdateExpired">
+        UPDATE user_coupon
+        SET status = 3
+        WHERE status = 1
+          AND valid_end_time &lt; #{currentTime}
+    </update>
+
+</mapper>
