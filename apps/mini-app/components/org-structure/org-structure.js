@@ -15,12 +15,12 @@ Component({
       type: String,
       value: '暂无角色数据'
     },
-    // 是否是校处会（用于判断是否显示编辑功能）
+    // 是否是校促会（用于判断是否显示编辑功能）
     isLocalPlatform: {
       type: Boolean,
       value: false
     },
-    // 校处会ID（用于调用接口）
+    // 校促会ID（用于调用接口）
     localPlatformId: {
       type: String,
       value: ''

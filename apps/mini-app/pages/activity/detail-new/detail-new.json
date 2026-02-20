@@ -1,4 +1,8 @@
 {
-  "usingComponents": {},
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar",
+    "message-notification": "/components/message-notification/message-notification"
+  },
   "navigationBarTitleText": "活动详情"
 }

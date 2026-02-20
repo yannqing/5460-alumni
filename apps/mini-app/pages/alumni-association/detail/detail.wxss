@@ -1,7 +1,74 @@
 /* pages/alumni-association/detail/detail.wxss */
-.cover-image {
+
+/* 页面容器 */
+.container {
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.association-detail-page {
+  min-height: 100vh;
+  margin-top: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* 封面轮播图 */
+.cover-swiper {
   width: 100%;
   height: 400rpx;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 白色背景内容区域 */
+.white-background-content {
+  background-color: #ffffff;
+  border-radius: 24rpx 24rpx 0 0;
+  margin-top: -30rpx;
+  position: relative;
+  z-index: 10;
+  padding-top: 20rpx;
+  min-height: 800rpx;
+  padding-bottom: 200rpx;
+}
+
+.top-image {
+  width: 424.49rpx;
+  height: 55.3rpx;
+  border-radius: 12rpx;
+  vertical-align: middle;
+}
+
+/* 重置默认样式 */
+page {
+  background: #ffffff;
+  padding: 0;
+  margin: 0;
+}
+
+/* 卡片样式 */
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+.cover-image {
+  width: 100%;
+  height: 500rpx;
+  margin: 0;
+  display: block;
+  vertical-align: top;
+  line-height: 0;
+  position: relative;
+  z-index: 1000;
 }
 
 .tabs {
@@ -272,7 +339,9 @@
 }
 
 .member-list {
-  padding: 0 20rpx 20rpx;
+  padding: 0 20rpx 100rpx;
+  background-color: #ffffff;
+  min-height: 600rpx;
 }
 
 .member-item {
@@ -441,7 +510,7 @@
 }
 
 .dashboard-card {
-  padding: 30rpx 30rpx 16rpx;
+  padding: 20rpx;
 }
 
 .section-title {
@@ -565,6 +634,69 @@
   font-size: 22rpx;
   color: #9a9a9a;
   margin-top: 12rpx;
+}
+
+/* 活动列表样式 */
+.activity-item .item-content {
+  padding-bottom: 0;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.activity-header .item-title {
+  flex: 1;
+  margin-right: 12rpx;
+}
+
+.activity-time {
+  font-size: 20rpx;
+  color: #9a9a9a;
+  white-space: nowrap;
+}
+
+.activity-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.activity-footer .item-desc {
+  flex: 1;
+  margin-right: 12rpx;
+  margin-top: 0;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.location-icon {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
+}
+
+.participants-icon {
+  width: 24rpx;
+  height: 24rpx;
+  flex-shrink: 0;
+  margin-right: 8rpx;
+}
+
+.activity-participants {
+  display: flex;
+  align-items: center;
+  font-size: 20rpx;
+  color: #666666;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .meta-divider {

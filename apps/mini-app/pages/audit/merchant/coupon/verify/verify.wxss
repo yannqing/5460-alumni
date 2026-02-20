@@ -1,24 +1,30 @@
 /* pages/audit/merchant/coupon/verify/verify.wxss */
 .verify-coupon-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20rpx;
+  background-color: transparent;
+  padding: 0;
+  width: 750rpx;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* 门店选择器 */
+/* 门店选择器（与校友会审核页 group_5 一致） */
 .shop-selector-container {
-  margin-bottom: 20rpx;
-  background-color: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  width: 714rpx;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .shop-selector-header {
   display: flex;
   align-items: center;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 0;
+  border-bottom: none;
 }
 
 .shop-selector-label {
@@ -40,9 +46,9 @@
 }
 
 .shop-selector-arrow {
-  font-size: 24rpx;
+  font-size: 20rpx;
   color: #999;
-  margin-left: 20rpx;
+  margin-left: 10rpx;
   flex-shrink: 0;
 }
 
@@ -98,9 +104,12 @@
 }
 
 .search-container {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 20rpx;
+  width: 714rpx;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  box-sizing: border-box;
   margin-bottom: 20rpx;
 }
 

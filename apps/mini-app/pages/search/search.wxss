@@ -1,6 +1,8 @@
 /* pages/search/search.wxss */
 .container {
   position: relative;
+  min-height: 100vh;
+  background-color: #F7F7FE;
 }
 
 .search-bar {
@@ -10,6 +12,7 @@
   display: flex;
   align-items: center;
   gap: 20rpx;
+  margin-top: 20rpx;
 }
 
 /* 返回按钮 */
@@ -86,6 +89,32 @@
 
 .section {
   margin: 20rpx;
+}
+
+/* 卡片样式：白底、圆角、内边距 */
+.section.card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-title-small {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+  line-height: 1.4;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mb-20 {
+  margin-bottom: 20rpx;
 }
 
 .tag-list {

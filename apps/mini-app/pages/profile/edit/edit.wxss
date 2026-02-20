@@ -1,6 +1,5 @@
 .edit-container {
-  min-height: 100vh;
-  background: #f7f8fa;
+  height: calc(100vh - 190.22rpx);
   display: flex;
   flex-direction: column;
 }
@@ -9,6 +8,7 @@
   flex: 1;
   padding: 20rpx;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .card {
@@ -67,6 +67,51 @@
   margin-bottom: 20rpx;
 }
 
+/* 个人背景编辑 */
+.background-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.background-wrap {
+  position: relative;
+  width: 100%;
+  height: 240rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+  border: 1rpx solid #eee;
+}
+
+.background-img {
+  width: 100%;
+  height: 100%;
+}
+
+.default-bg-gradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #A9C7F7 0%, #C8DAFA 100%);
+  position: relative;
+}
+
+.background-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  backdrop-filter: blur(2px);
+}
+
+.background-wrap:active .background-mask {
+  background: rgba(0, 0, 0, 0.4);
+}
+
 .form-item {
   display: flex;
   align-items: center;
@@ -83,6 +128,12 @@
   width: 160rpx;
   font-size: 28rpx;
   color: #666;
+}
+
+.label-required::before {
+  content: "*";
+  color: #ff4d4f;
+  margin-right: 4rpx;
 }
 
 .input-wrapper {
@@ -221,8 +272,8 @@
 }
 
 .bottom-action {
-  padding: 20rpx;
-  background: #f7f8fa;
+  padding: 20rpx 40rpx 40rpx;
+  background: #fff;
   box-shadow: 0 -10rpx 30rpx rgba(0, 0, 0, 0.05);
 }
 
@@ -285,6 +336,21 @@
   color: #333333;
 }
 
+/* 展开/折叠教育经历按钮 */
+.toggle-education-btn {
+  margin-top: 20rpx;
+  padding: 16rpx 24rpx;
+  text-align: center;
+  background: #f7f8fa;
+  border-radius: 8rpx;
+  color: #40B2E6;
+  font-size: 26rpx;
+}
+
+.toggle-education-btn:active {
+  background: #e8e8e8;
+}
+
 .add-education-btn {
   margin-top: 20rpx;
   padding: 20rpx;
@@ -317,6 +383,88 @@
 }
 
 .education-save-text {
+  color: #333;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* 工作经历样式 */
+.work-experience-list {
+  margin-top: 20rpx;
+}
+
+.work-experience-item {
+  position: relative;
+  padding: 20rpx 0;
+  padding-bottom: 80rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.work-experience-item:last-child {
+  border-bottom: none;
+}
+
+.work-experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.work-experience-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* 展开/折叠工作经历按钮 */
+.toggle-work-btn {
+  margin-top: 20rpx;
+  padding: 16rpx 24rpx;
+  text-align: center;
+  background: #f7f8fa;
+  border-radius: 8rpx;
+  color: #40B2E6;
+  font-size: 26rpx;
+}
+
+.toggle-work-btn:active {
+  background: #e8e8e8;
+}
+
+/* 添加工作经历按钮 */
+.add-work-btn {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  text-align: center;
+  border: 1rpx dashed #d0d0d0;
+  border-radius: 8rpx;
+  color: #666666;
+  font-size: 26rpx;
+}
+
+/* 工作经历确定按钮 */
+.work-experience-save-btn {
+  position: absolute;
+  bottom: 20rpx;
+  right: 0;
+  padding: 12rpx 32rpx;
+  background: #fff;
+  border: 1rpx solid #d9d9d9;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.work-experience-save-btn:active {
+  background: #f5f5f5;
+  transform: scale(0.95);
+}
+
+.work-experience-save-text {
   color: #333;
   font-size: 28rpx;
   font-weight: 500;

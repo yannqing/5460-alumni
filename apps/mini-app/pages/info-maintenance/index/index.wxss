@@ -1,34 +1,95 @@
 /* pages/info-maintenance/index/index.wxss */
-/* 基础样式 */
-.info-maintenance-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 30rpx;
+.page {
+  background-color: transparent;
+  width: 750rpx;
+  min-height: calc(100vh - 190.22rpx);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page .group_5 {
+  width: 714rpx;
+  min-height: auto;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
+}
+
+.group_5 {
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_5 .text_14 { font-size: 29rpx; font-weight: 600; color: rgba(0,0,0,1); line-height: 40rpx; }
+.group_5 .label_text { font-size: 25rpx; color: rgba(0,0,0,0.6); margin-top: 16rpx; display: block; line-height: 36rpx; }
+.group_5 .text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
   box-sizing: border-box;
 }
+.group_5 .text_15 { flex: 1; font-size: 28rpx; color: rgba(0,0,0,0.85); line-height: 36rpx; overflow: hidden; text-overflow: ellipsis; }
+.group_5 .text-wrapper_8::after { content: '▼'; color: #999; font-size: 20rpx; margin-left: 10rpx; }
 
-/* 表单卡片 */
-.info-section {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-  margin-bottom: 20rpx;
+.group_7 {
+  width: 714rpx;
+  flex-shrink: 0;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.info-section-title {
-  font-size: 32rpx;
+.detail-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.group_7 .text_20 {
+  font-size: 29rpx;
   font-weight: 600;
-  margin-bottom: 30rpx;
-  color: #333;
+  color: rgba(0,0,0,1);
+  line-height: 40rpx;
 }
 
-/* 校友会logo样式 */
+.edit-button {
+  position: absolute;
+  right: 0;
+  background-color: #1890ff;
+  color: #fff;
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 25rpx;
+  min-width: 120rpx;
+  text-align: center;
+  border: none;
+}
+.edit-button::after { border: none; }
+
 .alumni-logo {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 30rpx;
+  margin-bottom: 24rpx;
 }
 
 .logo-image {
@@ -38,11 +99,10 @@
   object-fit: cover;
 }
 
-/* 校友会详情样式 */
 .alumni-detail {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 0;
 }
 
 .detail-item {
@@ -51,85 +111,51 @@
   justify-content: space-between;
   padding: 16rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
+  font-size: 28rpx;
 }
 
-.detail-item:last-child {
-  border-bottom: none;
-}
+.detail-item:last-child { border-bottom: none; }
 
 .detail-label {
-  font-size: 28rpx;
   color: #666;
   flex: 1;
 }
 
 .detail-value {
-  font-size: 28rpx;
   color: #333;
   flex: 2;
   text-align: right;
 }
 
-/* 空状态样式 */
-.empty-state {
+.empty-block {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 100rpx 0;
+  padding: 60rpx 20rpx;
+  flex: 1;
+}
+
+.empty-text {
   color: #999;
   font-size: 28rpx;
   text-align: center;
 }
 
-/* 校友会选择器 */
-.alumni-association-selector {
-  border: 1rpx solid #eee;
-  padding: 20rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  height: 80rpx;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #fff;
-  cursor: pointer;
-}
-
-.selector-label {
-  color: #333;
-  flex: 1;
-}
-
-.selector-arrow {
-  color: #999;
-  font-size: 20rpx;
-}
-
-/* 校友会选择器弹窗 */
 .alumni-association-picker {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
 }
 
 .picker-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
 }
 
 .picker-content {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   background-color: #fff;
   border-radius: 20rpx 20rpx 0 0;
   max-height: 70vh;
@@ -144,20 +170,11 @@
   border-bottom: 1rpx solid #f0f0f0;
 }
 
-.picker-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.picker-cancel {
-  font-size: 28rpx;
-  color: #999;
-  cursor: pointer;
-}
+.picker-title { font-size: 32rpx; font-weight: 600; color: #333; }
+.picker-cancel { font-size: 28rpx; color: #999; }
 
 .picker-list {
-  max-height: 50vh;
+  max-height: calc(50vh + 40px);
   overflow-y: auto;
   padding: 0 30rpx;
 }
@@ -168,49 +185,14 @@
   justify-content: space-between;
   padding: 30rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
-  cursor: pointer;
 }
 
-.item-name {
-  font-size: 28rpx;
-  color: #333;
-}
-
-.item-check {
-  font-size: 32rpx;
-  color: #52c41a;
-  font-weight: 600;
-}
+.item-name { font-size: 28rpx; color: #333; }
+.item-check { font-size: 32rpx; color: #52c41a; font-weight: 600; }
 
 .picker-empty {
   padding: 60rpx 0;
   text-align: center;
   color: #999;
   font-size: 28rpx;
-}
-
-/* 去掉button默认样式 */
-button {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: inherit;
-  color: inherit;
-  outline: none;
-}
-
-button::after {
-  border: none;
-}
-
-/* 编辑按钮样式 */
-.edit-button {
-  background-color: #1890ff;
-  color: white;
-  padding: 12rpx 24rpx;
-  border-radius: 8rpx;
-  font-size: 24rpx;
-  min-width: 120rpx;
-  text-align: center;
 }

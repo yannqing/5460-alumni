@@ -1,61 +1,49 @@
 <!--pages/alumni-association/member/member.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="成员管理" showBack="{{true}}"></custom-nav-bar>
-
-<view class="member-page">
-  <view class="form-card" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
-    <view class="form-title">校友会成员管理</view>
-
-    <!-- 选择校友会 -->
-    <view class="form-item">
-      <text class="label">选择校友会</text>
-      <view class="alumni-association-selector" bindtap="showAlumniAssociationSelector">
-        <text class="selector-label">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
-        <text class="selector-arrow">▼</text>
-      </view>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会成员">
+<view class="page">
+  <!-- 校友会选择卡片（与城市/校促会成员管理一致，固定不滚动） -->
+  <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <text class="text_14">校友会组织</text>
+    <text class="label_text">选择校友会</text>
+    <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
+      <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
     </view>
   </view>
 
-  <!-- 成员列表 -->
-  <view class="form-card" style="margin-top: 20rpx;">
-    <view class="form-title-row">
-      <text class="form-title">成员列表</text>
-      <button class="invite-btn" bindtap="showInviteModal">邀请加入</button>
-    </view>
-    
-    <!-- 加载中 -->
-    <view wx:if="{{memberLoading}}" class="loading-state">
-      <text>加载成员中...</text>
-    </view>
-    
-    <!-- 成员列表 -->
-    <view class="member-list" wx:else>
-      <!-- 成员列表项 -->
-      <view class="member-item" wx:for="{{memberList}}" wx:key="wxId">
-        <view class="member-avatar">
-          <image class="avatar-img" src="{{item.avatarUrl || 'https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png'}}"></image>
-        </view>
-        <view class="member-info">
-          <view class="member-name-row">
-            <text class="member-name">{{item.name || item.nickname || '未命名'}}</text>
-            <text class="member-role">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</text>
-          </view>
-
-          <view class="member-gender" wx:if="{{item.gender}}">
-            <text class="gender-text">{{item.gender === 1 ? '男' : '女'}}</text>
-          </view>
-        </view>
-        <view class="member-actions">
-          <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
-          <view class="delete-btn" catchtap="deleteMember" data-member="{{item}}">删除</view>
-        </view>
-      </view>
-      
-      <!-- 空状态 -->
-      <view class="empty-state" wx:if="{{memberList.length === 0}}">
-        <text>{{selectedAlumniAssociationId ? '暂无成员数据' : '请先选择校友会'}}</text>
+  <!-- 成员列表卡片（与城市成员管理一致：固定标题，仅内部 scroll-list 滚动） -->
+  <view class="group_7">
+    <view class="member-list-header">
+      <text class="text_20">成员列表</text>
+      <view class="invite-btn-wrap">
+        <button class="invite-btn" bindtap="showInviteModal">+邀请加入</button>
       </view>
     </view>
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
+      <view wx:if="{{memberLoading}}" class="loading-state">
+        <text>加载成员中...</text>
+      </view>
+      <view class="member-list" wx:else>
+        <view class="member-item" wx:for="{{memberList}}" wx:key="wxId">
+          <view class="member-item-left">
+            <view class="member-avatar">
+              <image class="avatar-img" src="{{item.avatarUrl || 'https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png'}}"></image>
+            </view>
+            <view class="member-text-group">
+              <text class="member-name">{{item.name || item.nickname || '未命名'}}</text>
+              <text class="member-gender-text" wx:if="{{item.gender}}">{{item.gender === 1 ? '男' : '女'}}</text>
+            </view>
+          </view>
+          <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</view>
+          <view class="member-actions">
+            <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
+            <view class="delete-btn" catchtap="deleteMember" data-member="{{item}}">删除</view>
+          </view>
+        </view>
+        <view class="empty-state" wx:if="{{memberList.length === 0}}">
+          <text>{{selectedAlumniAssociationId ? '暂无成员数据' : '请先选择校友会'}}</text>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
   <!-- 校友会选择器弹窗 -->
@@ -67,7 +55,7 @@
         <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
       </view>
       <view class="picker-list">
-        <view 
+        <view
           class="picker-item"
           wx:for="{{alumniAssociationList}}"
           wx:key="alumniAssociationId"
@@ -94,22 +82,26 @@
         <text class="modal-close" bindtap="hideInviteModal">×</text>
       </view>
       <view class="modal-body">
-        <view class="form-item search-group" catchtap="preventBubble">
-          <text class="label">校友姓名</text>
-          <input 
-            class="input" 
-            placeholder="请输入校友姓名进行搜索" 
-            bindinput="onMemberNameInput"
-            bindfocus="onMemberNameFocus"
-            value="{{inviteForm.name}}"
-          />
-          <scroll-view scroll-y class="search-results" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
-            <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="search-item" bindtap="selectAlumni" data-index="{{index}}">
-              <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" mode="aspectFill" />
-              <image wx:else src="https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png" class="member-avatar" mode="aspectFill" />
-              <view class="member-info">
-                <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
-                <text class="member-school">{{item.school || '暂无学校信息'}}</text>
+        <view class="alumni-name-field" catchtap="preventBubble">
+          <view class="field-label">校友姓名</view>
+          <view class="field-input-wrapper">
+            <input
+              class="field-input"
+              placeholder="请输入校友姓名进行搜索"
+              placeholder-class="field-placeholder"
+              adjust-position="{{false}}"
+              bindinput="onMemberNameInput"
+              bindfocus="onMemberNameFocus"
+              value="{{inviteForm.name}}"
+            />
+          </view>
+          <scroll-view scroll-y class="alumni-search-dropdown" show-scrollbar="{{false}}" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
+            <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="alumni-search-item" bindtap="selectAlumni" data-index="{{index}}">
+              <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="alumni-avatar" mode="aspectFill" />
+              <image wx:else src="https://cni-alumni.yannqing.com/upload/images/assets/images/avatar.png" class="alumni-avatar" mode="aspectFill" />
+              <view class="alumni-item-info">
+                <text class="alumni-item-name">{{item.name || item.nickname || item.realName}}</text>
+                <text class="alumni-item-school">{{item.school || '暂无学校信息'}}</text>
               </view>
             </view>
           </scroll-view>
@@ -130,7 +122,7 @@
       </view>
     </view>
   </view>
-  
+
   <!-- 编辑成员角色弹窗 -->
   <view class="edit-modal" wx:if="{{showEditModal}}">
     <view class="modal-overlay" bindtap="hideEditModal"></view>
@@ -164,3 +156,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

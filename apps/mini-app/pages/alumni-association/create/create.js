@@ -1,5 +1,6 @@
 const { schoolApi, localPlatformApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
+const config = require('../../../utils/config.js')
 
 // 防抖函数
 function debounce(fn, delay) {
@@ -35,9 +36,11 @@ Page({
         schoolList: [],
         platformList: [],
 
+        // 平台选择索引
+        platformIndex: -1,
+
         // 控制显示
         showSchoolResults: false,
-        showPlatformResults: false,
 
         // 其他成员列表
         members: [],
@@ -52,16 +55,50 @@ Page({
         bgImages: [],
 
         loading: false,
-        submitting: false
+        submitting: false,
+        defaultAvatar: config.defaultAvatar
     },
 
     onLoad(options) {
         // 创建搜索防抖函数
         this.searchSchoolDebounced = debounce(this.searchSchool, 500)
-        this.searchPlatformDebounced = debounce(this.searchPlatform, 500)
         this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
 
         this.loadInitialData()
+        this.loadPlatformList()
+    },
+
+    // 加载平台列表
+    async loadPlatformList() {
+        try {
+            const res = await localPlatformApi.getLocalPlatformPage({
+                current: 1,
+                pageSize: 100, // 加载更多平台
+                platformName: '' // 空关键词加载所有平台
+            })
+            if (res.data && res.data.code === 200) {
+                this.setData({
+                    platformList: res.data.data.records || []
+                })
+            }
+        } catch (e) {
+            console.error('加载平台列表失败', e)
+        }
+    },
+
+    // 处理平台选择
+    handlePlatformChange(e) {
+        const index = e.detail.value
+        const platform = this.data.platformList[index]
+        if (platform) {
+            const location = platform.city || platform.location || platform.platformName
+            this.setData({
+                platformIndex: index,
+                'formData.platformId': platform.platformId,
+                'formData.platformName': platform.platformName,
+                'formData.location': location
+            })
+        }
     },
 
     async loadInitialData() {
@@ -101,8 +138,7 @@ Page({
 
     closeAllDropdowns() {
         this.setData({
-            showSchoolResults: false,
-            showPlatformResults: false
+            showSchoolResults: false
         })
     },
 
@@ -125,8 +161,7 @@ Page({
         this.setData({
             'formData.schoolName': value,
             'formData.schoolId': '', // 清空ID，因为修改了名称
-            showSchoolResults: true,
-            showPlatformResults: false // 确保另一个关闭
+            showSchoolResults: true
         })
 
         if (value.trim()) {
@@ -138,10 +173,6 @@ Page({
 
     handleSchoolFocus() {
         // 聚焦时如果已有内容，也展示结果
-        this.setData({
-            showPlatformResults: false // 关闭另一个
-        })
-
         if (this.data.formData.schoolName) {
             this.setData({ showSchoolResults: true })
             if (this.data.schoolList.length === 0) {
@@ -174,69 +205,8 @@ Page({
         this.setData({
             'formData.schoolId': school.schoolId,
             'formData.schoolName': school.schoolName,
+            'formData.associationName': school.schoolName, // 自动填充校友会名称为学校名称
             showSchoolResults: false
-        })
-    },
-
-    // --- 地区(校处会)搜索处理 ---
-
-    handlePlatformInput(e) {
-        const value = e.detail.value
-        this.setData({
-            'formData.platformName': value,
-            'formData.platformId': '', // 清空ID
-            showPlatformResults: true,
-            showSchoolResults: false // 确保另一个关闭
-        })
-
-        if (value.trim()) {
-            this.searchPlatformDebounced(value)
-        } else {
-            this.setData({ platformList: [] })
-        }
-    },
-
-    handlePlatformFocus() {
-        this.setData({
-            showSchoolResults: false // 关闭另一个
-        })
-
-        if (this.data.formData.platformName) {
-            this.setData({ showPlatformResults: true })
-            if (this.data.platformList.length === 0) {
-                this.searchPlatform(this.data.formData.platformName)
-            }
-        }
-    },
-
-    async searchPlatform(keyword) {
-        if (!keyword) return
-        try {
-            const res = await localPlatformApi.getLocalPlatformPage({
-                current: 1,
-                pageSize: 20,
-                platformName: keyword.trim()
-            })
-            if (res.data && res.data.code === 200) {
-                this.setData({
-                    platformList: res.data.data.records || []
-                })
-            }
-        } catch (e) {
-            console.error('搜索校处会失败', e)
-        }
-    },
-
-    selectPlatform(e) {
-        const index = e.currentTarget.dataset.index
-        const platform = this.data.platformList[index]
-        const location = platform.city || platform.location || platform.platformName
-
-        this.setData({
-            'formData.platformId': platform.platformId,
-            'formData.platformName': platform.platformName,
-            'formData.location': location,
-            showPlatformResults: false
         })
     },
 
@@ -657,11 +627,11 @@ Page({
         }
         // platformId is optional per API specs
         if (!formData.chargeName) {
-            wx.showToast({ title: '请输入负责人姓名', icon: 'none' })
+            wx.showToast({ title: '请输入联系人姓名', icon: 'none' })
             return
         }
         if (!formData.contactInfo) {
-            wx.showToast({ title: '请输入负责人电话', icon: 'none' })
+            wx.showToast({ title: '请输入联系人电话', icon: 'none' })
             return
         }
         if (!formData.applicationReason) {
@@ -743,6 +713,12 @@ Page({
                 setTimeout(() => {
                     wx.navigateBack()
                 }, 1500)
+            } else if (res.data && res.data.code === 50006) {
+                // 处理重复提交的情况
+                wx.showToast({
+                    title: res.data.msg || '该学校和地点已有待审核的校友会创建申请，请勿重复提交',
+                    icon: 'none'
+                })
             } else {
                 wx.showToast({
                     title: res.data?.message || '提交失败',

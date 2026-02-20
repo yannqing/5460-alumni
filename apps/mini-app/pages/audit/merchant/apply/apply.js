@@ -10,11 +10,33 @@ Page({
     tabs: ['全部', '待审核', '已通过', '已拒绝'],
     hasMore: true,
     pageNum: 1,
-    pageSize: 10
+    pageSize: 10,
+    scrollListHeight: 400
   },
 
   onLoad(options) {
+    this.setScrollListHeight()
     this.loadApplyList()
+  },
+
+  setScrollListHeight() {
+    try {
+      const res = wx.getSystemInfoSync()
+      const navRpx = 190.22
+      const navPx = (res.windowWidth * navRpx) / 750
+      const contentH = res.windowHeight - navPx
+      const scrollH = Math.floor(contentH * 0.55)
+      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 })
+    } catch (e) {
+      this.setData({ scrollListHeight: 400 })
+    }
+  },
+
+  loadMore() {
+    if (this.data.hasMore && !this.data.loading) {
+      this.setData({ pageNum: this.data.pageNum + 1 })
+      this.loadApplyList()
+    }
   },
 
   onShow() {
