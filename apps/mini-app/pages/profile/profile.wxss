@@ -1,283 +1,853 @@
 /* pages/profile/profile.wxss */
-.profile-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 40rpx;
-}
 
-/* 个人信息卡片 */
-.user-card {
-  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
-  padding: 40rpx 30rpx 30rpx;
-  margin: 20rpx;
-  border-radius: 24rpx;
-  color: #ffffff;
-  box-shadow: 0 8rpx 24rpx rgba(64, 178, 230, 0.3);
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-  margin-bottom: 32rpx;
-}
-
-.user-avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  border: 4rpx solid rgba(255, 255, 255, 0.3);
-  flex-shrink: 0;
-}
-
-.user-avatar-placeholder {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  border: 4rpx solid rgba(255, 255, 255, 0.3);
-  background-color: rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
-}
-
-.user-detail {
-  flex: 1;
-}
-
-.user-name-container {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  margin-bottom: 12rpx;
-}
-
-.user-name {
-  font-size: 36rpx;
-  font-weight: 600;
-}
-
-.alumni-badge {
-  width: 82rpx;
-  height: 42rpx;
-  border-radius: 21rpx;
-}
-
-.edit-hint {
-  font-size: 24rpx;
-  opacity: 0.9;
-}
-
-/* 关注和粉丝统计 */
-.follow-stats {
-  display: flex;
-  gap: 40rpx;
-  margin-left: auto;
-}
-
-.follow-stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-  min-width: 80rpx;
-}
-
-.follow-stat-value {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.follow-stat-label {
-  font-size: 22rpx;
-  opacity: 0.85;
-  color: #ffffff;
-}
-
-.login-prompt {
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-  margin-bottom: 32rpx;
-}
-
-.default-avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-}
-
-.login-text {
-  font-size: 32rpx;
-  font-weight: 600;
-}
-
-/* 认证状态条 */
-.certification-bar {
-  margin-bottom: 32rpx;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 16rpx;
-  padding: 24rpx;
-}
-
-.cert-status-item {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-
-.cert-status-item.certified {
-  cursor: pointer;
-}
-
-.cert-icon {
-  font-size: 48rpx;
-  flex-shrink: 0;
-}
-
-.cert-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-
-.cert-title {
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.cert-desc {
-  font-size: 22rpx;
-  opacity: 0.9;
-}
-
-.cert-action {
-  font-size: 24rpx;
-  opacity: 0.9;
-  flex-shrink: 0;
-}
-
-/* 数据栏 */
-.stats-section {
-  display: flex;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 16rpx;
-  padding: 30rpx 20rpx;
-}
-
-.stat-item {
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-}
-
-.stat-value {
-  font-size: 40rpx;
-  font-weight: 600;
-  margin-bottom: 8rpx;
-}
-
-.stat-label {
-  font-size: 22rpx;
-  opacity: 0.9;
-}
-
-.stat-divider {
-  width: 1rpx;
-  background-color: rgba(255, 255, 255, 0.3);
-  margin: 0 20rpx;
-}
-
-/* 卡片样式 */
-.card {
-  background-color: #ffffff;
-  margin: 20rpx;
-  border-radius: 0;
+/* 页面整体容器 */
+.page {
+  background-color: rgba(247,247,254,1.000000);
+  position: relative;
+  width: 750rpx;
+  height: 1632rpx;
   overflow: hidden;
-}
-
-.menu-card {
-  padding: 0;
-}
-
-/* 菜单项 - 简洁列表样式 */
-.menu-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 32rpx 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-  background-color: #fff;
+  flex-direction: column;
 }
 
-.menu-item:last-child {
-  border-bottom: none;
+/* 顶部背景区域容器 */
+.box_6 {
+  height: 328rpx;
+  /* background-image 由 WXML 中的 style 动态控制，这里保留属性以匹配设计稿 */
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 750rpx;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-.menu-divider {
+/* 时间显示区域外层 */
+.text-wrapper_5 {
+  width: 109rpx;
+  height: 33rpx;
+  display: flex;
+  flex-direction: row;
+  margin: 25rpx 0 0 42rpx;
+}
+
+/* 时间文本样式 9:41 */
+.text_3 {
+  width: 109rpx;
+  height: 33rpx;
+  overflow-wrap: break-word;
+  color: rgba(13,31,20,1);
+  font-size: 27rpx;
+  letter-spacing: -1rpx;
+  font-family: Helvetica;
+  font-weight: normal;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 33rpx;
+}
+
+/* 编辑资料按钮外层 */
+.text-wrapper_6 {
+  width: 118rpx;
+  height: 33rpx;
+  display: flex;
+  flex-direction: row;
+  /* 补偿移除时间显示导致的上移：原 margin-top 234rpx + text-wrapper_5 高度 33rpx + margin 25rpx = 292rpx */
+  margin: 292rpx 0 4rpx 176rpx;
+}
+
+/* 编辑资料文本样式 */
+.text_4 {
+  width: 118rpx;
+  height: 33rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 24rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-style: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 33rpx;
+  opacity: 0.4;
+}
+
+/* 顶部装饰图区域 section_1 */
+.section_1 {
+  height: 248rpx;
+  display: flex;
+  flex-direction: column;
+  width: 511rpx;
+  position: absolute;
+  left: 239rpx;
+  top: -43rpx;
+}
+
+/* 装饰图组 */
+.image-wrapper_6 {
+  height: 136rpx;
+  display: flex;
+  flex-direction: column;
+  width: 351rpx;
+  position: relative;
+  margin: 83rpx 0 0 159rpx;
+}
+
+.image_10 {
+  width: 159rpx;
+  height: 58rpx;
+  margin: 51rpx 0 0 183rpx;
+}
+
+.image_11 {
+  position: absolute;
+  left: 281rpx;
+  top: -9rpx;
+  width: 45rpx;
+  height: 22rpx;
+}
+
+.thumbnail_4 {
+  position: absolute;
+  left: 245rpx;
+  top: -9rpx;
+  width: 27rpx;
   height: 20rpx;
-  background-color: #f5f5f5;
 }
 
-.menu-left {
+.thumbnail_5 {
+  position: absolute;
+  left: 205rpx;
+  top: -7rpx;
+  width: 31rpx;
+  height: 20rpx;
+}
+
+/* 包含 个人中心标题 和 用户名 的区域 */
+.section_2 {
+  height: 290rpx;
+  width: auto;
+  position: absolute;
+  left: 175rpx;
+  top: -11rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* 个人中心标题外层 */
+.text-wrapper_7 {
+  width: 118rpx;
+  height: 40rpx;
+  display: flex;
+  flex-direction: row;
+  margin: 111rpx 0 0 154rpx;
+}
+
+/* 个人中心文本样式 */
+.text_5 {
+  width: 118rpx;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+  font-style: normal;
+}
+
+/* 昵称与勋章行 */
+.nickname-badge-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 94rpx 0 0 0rpx;
+}
+
+/* 用户名文本样式 */
+.text_6 {
+  min-width: 50rpx;
+  max-width: 320rpx;
+  height: 45rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #000000;
+  font-size: 33rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-style: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 45rpx;
+  opacity: 0.8;
+}
+
+/* 头像外层 */
+.image-wrapper_7 {
+  height: 101rpx;
+  display: flex;
+  flex-direction: column;
+  width: 101rpx;
+  position: absolute;
+  left: 42rpx;
+  top: 228rpx;
+}
+
+/* 头像图片 */
+.image_12 {
+  width: 101rpx;
+  height: 101rpx;
+  border-radius: 50%;
+}
+
+/* 校友会认证徽章图片 */
+.cert-badge-image {
+  height: 38rpx;
+  margin-left: 40rpx;
+  flex-shrink: 0;
+}
+
+
+
+/* 下方主体内容块 */
+.block_1 {
+  width: 750rpx;
+  /* height: 1306rpx; */ /* 自适应高度，去掉固定高度 */
+  margin-bottom: 2rpx;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 200rpx; /* 增加底部间距 */
+}
+
+/* 统计列表（关注、粉丝等） */
+.list_4 {
+  width: 553rpx;
+  height: 96rpx;
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
+  margin: 47rpx 0 0 105rpx;
+}
+
+/* 统计项组 - 关注 */
+.text-group_9-0 {
+  min-width: 53rpx;
+  height: 96rpx;
+  margin-right: 114rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* 统计数字 */
+.text_8-0 {
+  width: 100%;
+  min-width: 53rpx;
+  box-sizing: border-box;
+  height: 54rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 40rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 54rpx;
+}
+
+/* 统计标签 - 关注/粉丝/足迹/卡券 */
+.text_9-0 {
+  width: 53rpx;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-style: normal;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 5rpx;
+  opacity: 0.3;
+}
+
+/* 统计项组 - 粉丝 */
+.text-group_9-1 {
+  min-width: 53rpx;
+  height: 96rpx;
+  margin-right: 114rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.text_8-1 {
+  width: 100%;
+  min-width: 53rpx;
+  box-sizing: border-box;
+  height: 54rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 40rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 54rpx;
+}
+
+.text_9-1 {
+  width: 53rpx;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-style: normal;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 5rpx;
+  opacity: 0.3;
+}
+
+/* 统计项组 - 足迹 */
+.text-group_9-2 {
+  min-width: 53rpx;
+  height: 96rpx;
+  margin-right: 114rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.text_8-2 {
+  width: 100%;
+  min-width: 53rpx;
+  box-sizing: border-box;
+  height: 54rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 40rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 54rpx;
+}
+
+.text_9-2 {
+  width: 53rpx;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-style: normal;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 5rpx;
+  opacity: 0.3;
+}
+
+/* 统计项组 - 卡券 */
+.text-group_9-3 {
+  min-width: 53rpx;
+  height: 96rpx;
+  margin-right: 114rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.text_8-3 {
+  width: 100%;
+  min-width: 53rpx;
+  box-sizing: border-box;
+  height: 54rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 40rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 54rpx;
+}
+
+.text_9-3 {
+  width: 53rpx;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: #000000;
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-style: normal;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 5rpx;
+  opacity: 0.3;
+}
+
+/* Banner 图片 */
+.image_13 {
+  width: 678rpx; /* 与下方卡片宽度一致 */
+  height: 141rpx;
+  margin: 16rpx 0 0 42rpx; /* 与下方卡片左边距一致 */
+}
+
+/* 完善个人信息 Banner */
+.complete-profile-banner {
+  width: 678rpx; /* 与下方卡片宽度一致 */
+  height: 101rpx;
+  background: linear-gradient(270deg, #F8F0DF 0%, #EEDCBC 100%);
+  border-radius: 29rpx;
+  margin: 16rpx 0 0 42rpx; /* 与下方卡片左边距一致 */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.complete-profile-text-group {
+  margin-left: 38rpx;
   display: flex;
   align-items: center;
-  gap: 24rpx;
-  flex: 1;
+  height: 33rpx;
 }
 
-.menu-icon {
-  font-size: 36rpx;
-  flex-shrink: 0;
-  width: 40rpx;
-  text-align: center;
+.complete-profile-text-regular {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 24rpx;
+  color: #000000;
+  line-height: 33rpx;
 }
 
-.menu-icon-img {
-  width: 50rpx;
-  height: 50rpx;
-  flex-shrink: 0;
-  display: block;
+.complete-profile-text-bold {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 24rpx;
+  color: #000000;
+  line-height: 33rpx;
 }
 
-.menu-name {
-  font-size: 28rpx;
-  color: #333;
+.complete-profile-btn {
+  width: 179rpx;
+  height: 49rpx;
+  background: linear-gradient(180deg, #5F5F62 0%, #313133 100%);
+  border-radius: 24rpx;
+  position: absolute;
+  right: 38rpx; /* 改为靠右定位，适应宽度变化 */
+  top: 27rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.menu-badge {
-  margin-left: 12rpx;
-  padding: 2rpx 10rpx;
-  background-color: #40B2E6;
-  color: #fff;
-  border-radius: 20rpx;
-  font-size: 20rpx;
-  min-width: 32rpx;
-  text-align: center;
-}
-
-.cert-status-badge {
-  margin-left: 12rpx;
-  padding: 4rpx 12rpx;
-  background-color: #52c41a;
-  color: #fff;
-  border-radius: 20rpx;
+.complete-profile-btn-text {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
   font-size: 22rpx;
+  color: #D5D5C9;
+  line-height: 31rpx;
+}
+
+/* 常用功能区域 */
+.section_4 {
+  background-color: rgba(255,255,255,1.000000);
+  border-radius: 29rpx;
+  width: 678rpx;
+  height: 236rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 29rpx 0 31rpx 42rpx;
+}
+
+/* 常用功能标题 */
+.text_10 {
+  width: 103rpx;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin: 22rpx 0 0 34rpx;
+}
+
+/* 常用功能列表 */
+.list_5 {
+  width: 534rpx;
+  height: 112rpx;
+  flex-direction: row;
+  display: flex;
+  justify-content: flex-start;
+  margin: 22rpx 0 43rpx 76rpx;
+}
+
+.image-text_8-0 {
+  width: 87rpx;
+  height: 112rpx;
+  margin-right: 62rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label_9-0 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_2-0 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
   font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
 }
 
-.cert-status-badge.unverified {
-  background-color: #ff9800;
+.image-text_8-1 {
+  width: 87rpx;
+  height: 112rpx;
+  margin-right: 62rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.menu-arrow {
-  font-size: 32rpx;
-  color: #ccc;
-  font-weight: 300;
-  flex-shrink: 0;
+.label_9-1 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
 }
 
-/* 校友卡弹窗 */
+.text-group_2-1 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+.image-text_8-2 {
+  width: 87rpx;
+  height: 112rpx;
+  margin-right: 62rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.label_9-2 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_2-2 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+.construction-tag {
+  position: absolute;
+  top: -12rpx;
+  right: -40rpx;
+  width: 67rpx;
+  height: 27rpx;
+  background: linear-gradient(90deg, #FF6B00 0%, #FFB800 100%);
+  border: 1rpx solid #FFFFFF;
+  border-radius: 13.5rpx;
+  color: rgba(255, 255, 255, 1);
+  font-size: 16rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  line-height: 27rpx;
+  text-align: center;
+  opacity: 1;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.image-text_8-3 {
+  width: 87rpx;
+  height: 112rpx;
+  margin-right: 62rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label_9-3 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_2-3 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+/* 其他功能区域 */
+.section_5 {
+  background-color: rgba(255,255,255,1.000000);
+  border-radius: 29rpx;
+  width: 678rpx;
+  height: 380rpx;
+  display: flex;
+  flex-direction: column;
+  margin: -2rpx 0 0 42rpx;
+}
+
+/* 其他功能标题 */
+.text_11 {
+  width: 103rpx;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 25rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin: 22rpx 0 0 34rpx;
+}
+
+/* 其他功能列表 */
+.list_6 {
+  width: 534rpx;
+  height: 112rpx;
+  flex-direction: row;
+  display: flex;
+  justify-content: flex-start;
+  margin: 24rpx 0 0 76rpx;
+}
+
+.image-text_9-0 {
+  width: 87rpx;
+  height: 112rpx;
+  margin: 0 62rpx 29rpx 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label_10-0 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_3-0 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+.image-text_9-1 {
+  width: 87rpx;
+  height: 112rpx;
+  margin: 0 62rpx 29rpx 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label_10-1 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_3-1 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+.image-text_9-2 {
+  width: 87rpx;
+  height: 112rpx;
+  margin: 0 62rpx 29rpx 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label_10-2 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_3-2 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+.image-text_9-3 {
+  width: 87rpx;
+  height: 112rpx;
+  margin: 0 0 29rpx 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label_10-3 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_3-3 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+.image-text_10 {
+  width: 87rpx;
+  height: 112rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0 0 0 76rpx;
+}
+
+.label_11 {
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.text-group_4 {
+  width: 87rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(51,51,51,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 31rpx;
+  margin-top: 9rpx;
+}
+
+.label_12 {
+  width: 58rpx;
+  height: 58rpx;
+  margin: 205rpx 0 92rpx 560rpx;
+}
+
+/* 校友卡弹窗样式 */
 .alumni-card-modal {
   position: fixed;
   top: 0;
@@ -368,8 +938,4 @@
 .card-number {
   font-size: 24rpx;
   color: #999;
-}
-
-.bottom-space {
-  height: 40rpx;
 }

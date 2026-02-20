@@ -1,8 +1,17 @@
 /* pages/article-publish/index/index.wxss */
+
+/* 滚动容器 */
+.scroll-container {
+  width: 750rpx;
+  height: calc(100vh - 190.22rpx);
+  background-color: #F7F7FE;
+}
+
 .article-publish-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
+  min-height: 100%;
+  background-color: #F7F7FE;
   padding: 20rpx;
+  padding-bottom: 120rpx;
 }
 
 .form-item {
@@ -186,7 +195,7 @@
 }
 
 .picker-list {
-  max-height: 50vh;
+  max-height: calc(50vh + 40px);
   overflow-y: auto;
   padding: 0 30rpx;
 }

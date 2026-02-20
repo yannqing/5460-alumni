@@ -1,51 +1,25 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="话题管理">
+<view class="page">
+  <!-- 选择店铺卡片 -->
+  <view class="group_5" wx:if="{{shops.length > 1}}">
+    <text class="text_14">话题管理</text>
+    <text class="label_text">选择店铺</text>
+    <view class="text-wrapper_8">
+      <picker bindchange="onShopChange" value="{{selectedShopIndex}}" range="{{shops}}" range-key="shopName" disabled="{{shops.length === 0}}" style="flex:1;display:flex;align-items:center;">
+        <text class="text_15">{{selectedShopIndex >= 0 ? shops[selectedShopIndex].shopName : '请选择店铺'}}</text>
+      </picker>
+    </view>
+  </view>
 
-<custom-nav-bar title="话题管理" showBack="{{true}}"></custom-nav-bar>
-
-<view class="topic-management-page">
-  <view class="container">
-    <!-- 选择店铺 -->
-    <view wx:if="{{shops.length > 1}}">
-      <view class="section-title">选择店铺</view>
-      
-      <!-- 加载状态 -->
-      <view class="loading-container" wx:if="{{loading}}">
-        <text class="loading-text">加载中...</text>
-      </view>
-      
-      <!-- 选择框 -->
-      <view class="picker-container" wx:else>
-        <picker 
-          bindchange="onShopChange" 
-          value="{{selectedShopIndex}}" 
-          range="{{shops}}" 
-          range-key="shopName" 
-          disabled="{{shops.length === 0}}"
-        >
-          <view class="picker">
-            <text class="picker-label">店铺：</text>
-            <text class="picker-value">{{selectedShopIndex >= 0 ? shops[selectedShopIndex].shopName : '请选择店铺'}}</text>
-            <text class="picker-arrow">▼</text>
-          </view>
-        </picker>
-        
-        <!-- 空数据提示 -->
-        <view class="empty-container" wx:if="{{shops.length === 0}}">
-          <text class="empty-text">暂无店铺数据</text>
-        </view>
+  <!-- 活动列表卡片 -->
+  <view class="group_7" wx:if="{{shops.length > 0}}">
+    <view class="topic-list-header">
+      <text class="text_20">活动列表</text>
+      <view class="publish-btn-wrap">
+        <button class="publish-btn" bindtap="onNavigateToPublish">发布话题</button>
       </view>
     </view>
-    
-    <!-- 发布话题按钮 -->
-    <view class="publish-btn-container" wx:if="{{shops.length > 0}}">
-      <button class="publish-btn" bindtap="onNavigateToPublish">发布话题</button>
-    </view>
-    
-    <!-- 活动列表区域 -->
-    <view class="activity-section" wx:if="{{shops.length > 0}}">
-      <view class="section-title">活动列表</view>
-      
-      <!-- 筛选条件 -->
-      <view class="filter-container">
+    <view class="filter-container">
         <view class="filter-item">
           <text class="filter-label">活动标题：</text>
           <input 
@@ -60,22 +34,16 @@
           <button class="filter-btn search-btn" bindtap="onSearchActivity">搜索</button>
           <button class="filter-btn reset-btn" bindtap="onResetSearch">重置</button>
         </view>
+    </view>
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
+      <view class="loading-container" wx:if="{{activityLoading}}">
+        <text class="loading-text">加载中...</text>
       </view>
-      
-      <!-- 活动列表 -->
-      <view class="activity-list-container">
-        <!-- 加载状态 -->
-        <view class="loading-container" wx:if="{{activityLoading}}">
-          <text class="loading-text">加载中...</text>
-        </view>
-        
-        <!-- 空数据提示 -->
-        <view class="empty-container" wx:elif="{{activityList.length === 0 && !activityLoading}}">
-          <text class="empty-text">暂无活动数据</text>
-        </view>
-        
-        <!-- 列表 -->
-        <view class="activity-list" wx:else>
+      <view class="empty-container" wx:elif="{{activityList.length === 0 && !activityLoading}}">
+        <text class="empty-text">暂无活动数据</text>
+      </view>
+      <view class="activity-list-wrap" wx:else>
+      <view class="activity-list">
           <view class="activity-item" wx:for="{{activityList}}" wx:key="activityId">
             <view class="activity-header">
               <text class="activity-title">{{item.activityTitle}}</text>
@@ -132,26 +100,15 @@
             </view>
           </view>
         </view>
-        
-        <!-- 分页 -->
-        <view class="pagination-container" wx:if="{{total > 0 && !activityLoading}}">
-          <text class="pagination-info">共 {{total}} 条记录，第 {{current}}/{{Math.ceil(total/pageSize)}} 页</text>
-          <view class="pagination-buttons">
-            <button 
-              class="page-btn" 
-              bindtap="onPageChange" 
-              data-current="{{current - 1}}" 
-              disabled="{{current <= 1}}"
-            >上一页</button>
-            <button 
-              class="page-btn" 
-              bindtap="onPageChange" 
-              data-current="{{current + 1}}" 
-              disabled="{{current >= Math.ceil(total/pageSize)}}"
-            >下一页</button>
-          </view>
+      <view class="pagination-container" wx:if="{{total > 0 && !activityLoading}}">
+        <text class="pagination-info">共 {{total}} 条记录，第 {{current}}/{{Math.ceil(total/pageSize)}} 页</text>
+        <view class="pagination-buttons">
+          <button class="page-btn" bindtap="onPageChange" data-current="{{current - 1}}" disabled="{{current <= 1}}">上一页</button>
+          <button class="page-btn" bindtap="onPageChange" data-current="{{current + 1}}" disabled="{{current >= Math.ceil(total/pageSize)}}">下一页</button>
         </view>
       </view>
-    </view>
+      </view>
+    </scroll-view>
   </view>
 </view>
+</custom-nav-bar>

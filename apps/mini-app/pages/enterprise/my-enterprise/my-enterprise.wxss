@@ -1,13 +1,35 @@
 /* pages/enterprise/my-enterprise/my-enterprise.wxss */
-.container {
-  width: 100%;
-  min-height: 100vh;
-  background-color: #f5f7fa;
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.page-content {
-  padding: 16px;
-  min-height: 100vh;
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 30rpx 30rpx 30rpx 30rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+  z-index: 0;
 }
 
 /* 加载状态 */
@@ -15,11 +37,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 400rpx;
+  padding: 80rpx 0;
 }
 
 .loading-container text {
-  font-size: 15px;
+  font-size: 28rpx;
   color: #999;
 }
 
@@ -28,11 +50,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 400rpx;
+  padding: 80rpx 0;
 }
 
 .empty-container text {
-  font-size: 15px;
+  font-size: 28rpx;
   color: #999;
 }
 
@@ -42,17 +64,17 @@
 }
 
 .place-item {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: #F9F9F9;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .place-item:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: scale(0.98);
+  background-color: #F0F0F0;
 }
 
 .place-header {
@@ -63,20 +85,22 @@
 }
 
 .place-name {
-  font-size: 18px;
+  font-size: 32rpx;
   font-weight: 600;
-  color: #2d3748;
+  color: #333;
   flex: 1;
-  margin-right: 12px;
+  margin-right: 24rpx;
+  line-height: 1.4;
 }
 
 .review-status {
-  font-size: 12px;
+  font-size: 24rpx;
   color: #fff;
-  background-color: #9f7aea;
-  padding: 2px 8px;
-  border-radius: 12px;
+  background-color: #40B2E6;
+  padding: 8rpx 16rpx;
+  border-radius: 24rpx;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .place-info {
@@ -90,49 +114,69 @@
 }
 
 .detail-label {
-  font-size: 14px;
-  color: #4a5568;
+  font-size: 28rpx;
+  color: #666;
   font-weight: 500;
-  min-width: 80px;
+  min-width: 160rpx;
   flex-shrink: 0;
-}
-
-.detail-value {
-  font-size: 14px;
-  color: #718096;
-  flex: 1;
   line-height: 1.5;
 }
 
+.detail-value {
+  font-size: 28rpx;
+  color: #666;
+  flex: 1;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
 .recommended-text {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #f56565;
   font-weight: 500;
 }
 
 /* 申请企业按钮 */
 .apply-button-container {
-  padding: 16px;
-  background-color: #fff;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 714rpx;
+  padding: 30rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  margin: 34rpx 0 20rpx 18rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .apply-button {
   width: 100%;
-  height: 48px;
-  background-color: #6366f1;
+  height: 88rpx;
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
   color: #fff;
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 16rpx;
   border: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(55, 89, 199, 0.3);
+  transition: all 0.3s ease;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+  line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.apply-button::after {
+  border: none !important;
 }
 
 .apply-button:active {
-  background-color: #4f46e5;
+  background: linear-gradient(180deg, #2d4ab3 0%, #4562c0 100%);
+  transform: scale(0.98);
 }
 

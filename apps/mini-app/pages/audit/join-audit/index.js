@@ -26,7 +26,7 @@ Page({
       { value: 3, label: '已撤销' }
     ],
     // 审核相关
-    reviewing: false
+    reviewing: false,
   },
 
   onLoad(options) {
@@ -69,7 +69,15 @@ Page({
       console.log('[Debug] 加载审核列表结果:', res)
       
       if (res.data && res.data.code === 200 && res.data.data) {
-        const newList = refresh ? res.data.data.records : [...this.data.applicationList, ...res.data.data.records]
+        // 处理数据：格式化时间（去掉T）
+        const processedRecords = (res.data.data.records || []).map(item => {
+          if (item.applyTime) {
+            item.applyTime = item.applyTime.replace('T', ' ')
+          }
+          return item
+        })
+        
+        const newList = refresh ? processedRecords : [...this.data.applicationList, ...processedRecords]
         
         this.setData({
           applicationList: newList,
@@ -128,9 +136,9 @@ Page({
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
 
-      // 查找所有校友会管理员角色（根据roleName或remark）
+      // 查找所有校友会管理员角色（根据roleCode）
       const alumniAdminRoles = roles.filter(role => 
-        role.roleName === '校友会管理员' || role.remark === '校友会管理员'
+        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
       )
       console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
 
@@ -331,6 +339,12 @@ Page({
     
     this.setData({ applicationStatus: status })
     await this.loadApplicationList(true)
+  },
+
+  // 滚动触底加载更多
+  loadMore() {
+    if (!this.data.hasMore || this.data.applicationLoading) return
+    this.loadApplicationList()
   },
 
   // 通过申请

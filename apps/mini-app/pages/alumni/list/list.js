@@ -6,20 +6,17 @@ const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = re
 Page({
   data: {
     // 图标路径
-    iconSearch: config.getIconUrl('sslss.png'),
+    iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
     keyword: '',
     filters: [
-      { label: '身份', options: ['全部校友', '企业高管', '创业校友', '在读校友'], selected: 0 },
-      { label: '城市', options: ['全部城市', '南京', '上海', '杭州', '深圳'], selected: 0 },
-      { label: '排序', options: ['默认排序', '最新加入', '人气最高'], selected: 0 },
-      { label: '关注', options: ['全部', '我的关注'], selected: 0 }
+      { label: '注册时间', options: ['升序', '降序'], selected: 0 },
+      { label: '性别', options: ['全部', '男', '女'], selected: 0 },
+      { label: '关注', options: ['我的关注'], selected: 0 }
     ],
-    showFilterOptions: false,
-    activeFilterIndex: -1,
     alumniList: [],
-    page: 1,
+    current: 1,
     pageSize: 10,
     hasMore: true,
     loading: false
@@ -45,37 +42,24 @@ Page({
 
     this.setData({ loading: true })
 
-    const { keyword, filters, page, pageSize } = this.data
-    const [identityFilter, cityFilter, sortFilter, followFilter] = filters
+    const { keyword, filters, current, pageSize } = this.data
+    const [sortFilter, genderFilter] = filters
 
     // 构建请求参数
     const params = {
-      page: reset ? 1 : page,
+      current: reset ? 1 : current,
       size: pageSize
     }
 
-    // 身份筛选
-    if (identityFilter.selected > 0) {
-      params.identity = identityFilter.options[identityFilter.selected]
+    // 注册时间排序
+    if (sortFilter.selected >= 0) {
+      params.sortField = 'createTime'
+      params.sortOrder = sortFilter.selected === 0 ? 'ascend' : 'descend'
     }
 
-    // 城市筛选
-    if (cityFilter.selected > 0) {
-      params.city = cityFilter.options[cityFilter.selected]
-    }
-
-    // 排序方式
-    if (sortFilter.selected === 1) {
-      params.sortBy = 'createTime' // 最新加入
-      params.sortOrder = 'desc'
-    } else if (sortFilter.selected === 2) {
-      params.sortBy = 'followerCount' // 人气最高
-      params.sortOrder = 'desc'
-    }
-
-    // 关注筛选
-    if (followFilter.selected === 1) {
-      params.onlyFollowed = true
+    // 性别筛选
+    if (genderFilter.selected > 0) {
+      params.gender = genderFilter.selected // 1-男，2-女
     }
 
     // 搜索逻辑
@@ -83,7 +67,7 @@ Page({
     if (keyword && keyword.trim()) {
       const searchKey = keyword.trim()
       params.keyword = searchKey
-      
+
       // 手机号搜索
       if (/^\d{11}$/.test(searchKey)) {
         params.phone = searchKey
@@ -102,7 +86,7 @@ Page({
           // 构造合并后的结果
           const records1 = (res1.data && res1.data.data && res1.data.data.records) || []
           const records2 = (res2.data && res2.data.data && res2.data.data.records) || []
-          
+
           // 合并并去重（根据 wxId）
           const combined = [...records1, ...records2]
           const map = new Map()
@@ -112,7 +96,7 @@ Page({
             }
           })
           const uniqueRecords = Array.from(map.values())
-          
+
           // 返回伪造的响应结构，保持与单个请求一致
           return {
             data: {
@@ -120,7 +104,7 @@ Page({
               data: {
                 records: uniqueRecords,
                 total: uniqueRecords.length,
-                current: page,
+                current: params.current,
                 size: pageSize
               },
               msg: 'success'
@@ -149,8 +133,8 @@ Page({
 
         this.setData({
           alumniList: finalList,
-          page: reset ? 2 : page + 1,
-          hasMore: mappedList.length >= pageSize,
+          current: reset ? 2 : current + 1,
+          hasMore: records.length >= pageSize,
           loading: false
         })
 
@@ -185,13 +169,13 @@ Page({
 
   // 数据映射：将后端数据映射为前端所需格式
   mapAlumniItem(item) {
-    // 处理头像 - 使用后端返回的 avatarUrl 字段，如果为空则使用默认头像
+    // 处理头像 - 使用后端返回的 avatarUrl 字段，如果为空则使用 config 中的默认头像
     let avatarUrl = item.avatarUrl || ''
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
-      // 使用本地默认头像，与校友会列表页保持一致
-      avatarUrl = '/assets/avatar/default_avatar.jpeg'
+      // 使用 config.js 中配置的默认个人头像
+      avatarUrl = config.defaultAvatar
     }
 
     // 构建位置信息 - 优先使用完整的位置组合
@@ -221,12 +205,18 @@ Page({
     // 显示昵称，如果没有则显示真实姓名
     const displayName = item.nickname || item.name || item.realName || '未知用户'
 
-    // 返回统一格式
+    // 返回统一格式（isDefaultAvatar 用于列表页仅对默认头像增大展示尺寸）
+    const isDefaultAvatar = !item.avatarUrl
+
+    // 从新的后端结构中获取学校信息
+    const schoolName = item.primaryEducation?.schoolInfo?.schoolName || '暂无学校信息'
+
     return {
       id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
       name: displayName,
       avatarUrl: avatarUrl,
-      school: item.school || '暂无学校信息', // 尝试从后端获取学校信息
+      isDefaultAvatar: isDefaultAvatar,
+      school: schoolName, // 从 primaryEducation.schoolInfo.schoolName 获取学校信息
       city: item.curCity || '',
       location: location,
       major: item.major || '', // 尝试从后端获取专业信息
@@ -237,7 +227,8 @@ Page({
       followingCount: item.followingCount || 0, // 尝试从后端获取关注数
       isFollowed: item.isFollowed || false, // 关注状态
       followStatus: item.followStatus || 4, // 关注状态
-      isCertified: item.certificationStatus === 1, // 根据 certificationStatus 判断认证状态
+      isAlumni: item.isAlumni === 1 || item.isAlumni === true,
+      isCertified: item.certificationStatus === 1 || item.isAlumni === 1 || item.isAlumni === true, // 兼容旧字段
       tags: item.tags || [], // 尝试从后端获取标签
       identity: item.identity || '', // 尝试从后端获取身份
       // 保留后端原始字段
@@ -264,35 +255,60 @@ Page({
     this.loadAlumniList(true)
   },
 
-  openFilterOptions(e) {
-    const { index } = e.currentTarget.dataset
-    if (this.data.activeFilterIndex === index && this.data.showFilterOptions) {
-      this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
-      return
-    }
-    this.setData({ activeFilterIndex: index, showFilterOptions: true })
-  },
-
-  selectFilterOption(e) {
-    const { optionIndex } = e.currentTarget.dataset
-    const { activeFilterIndex, filters } = this.data
-    if (activeFilterIndex === -1) return
-    filters[activeFilterIndex].selected = optionIndex
-    this.setData({
-      filters,
-      showFilterOptions: false,
-      activeFilterIndex: -1
-    })
+  // 身份筛选
+  onIdentityChange(e) {
+    const filters = this.data.filters
+    filters[0].selected = e.detail.value
+    this.setData({ filters })
     this.loadAlumniList(true)
   },
 
-  closeFilterOptions() {
-    this.setData({ showFilterOptions: false, activeFilterIndex: -1 })
+  // 注册时间筛选
+  onCityChange(e) {
+    const filters = this.data.filters
+    filters[0].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
+  },
+
+  // 性别筛选
+  onSortChange(e) {
+    const filters = this.data.filters
+    filters[1].selected = e.detail.value
+    this.setData({ filters })
+    this.loadAlumniList(true)
+  },
+
+  // 关注筛选
+  onFollowChange(e) {
+    wx.navigateTo({
+      url: '/pages/my-follow/my-follow'
+    })
   },
 
   viewDetail(e) {
+    const id = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/alumni/detail/detail?id=${id}`,
+      events: {
+        // 监听来自详情页的状态更新
+        updateFollowStatus: (data) => {
+          console.log('接收到详情页关注状态同步请求:', data)
+          const { id, isFollowed, followStatus, isFriend } = data
+
+          const alumniList = this.data.alumniList
+          const index = alumniList.findIndex(item => item.id === id)
+
+          if (index !== -1) {
+            const key = `alumniList[${index}]`
+            this.setData({
+              [`${key}.isFollowed`]: isFollowed,
+              [`${key}.followStatus`]: followStatus,
+              [`${key}.isFriend`]: isFriend
+            })
+          }
+        }
+      }
     })
   },
 

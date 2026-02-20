@@ -1,302 +1,388 @@
 /* pages/chat/list/list.wxss */
-.chat-page {
+
+/* 全局隐藏所有滚动条 */
+page {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+page::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* 页面整体容器 */
+.page {
+  background-color: #fff;
+  position: relative;
+  width: 750rpx;
   height: 100vh;
-  background-color: #f5f5f5;
+  overflow: hidden !important; /* 页面固定，不允许滚动 - 强制隐藏 */
+  display: flex;
+  flex-direction: column;
+  /* 彻底禁止页面滚动条 */
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* 确保页面本身不显示滚动条 */
+.page::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* ================== 顶部 Header 区域 ================== */
+.header-section {
+  width: 750rpx;
+  height: 328rpx; /* 与 profile 页保持一致 */
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   position: relative;
+  z-index: 10;
+  box-sizing: border-box; /* 包含 padding */
 }
 
-/* 菜单栏 */
-.menu-bar {
-  background-color: #fff;
-  padding: 20rpx 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.menu-btn {
+/* 标题栏 */
+.page-title {
+  position: absolute;
+  left: 340.58rpx; /* 位置 left */
+  top: 99.64rpx; /* 位置 top */
+  width: 71rpx;
+  height: 40rpx;
+  text-align: right;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  gap: 12rpx;
 }
 
-.menu-icon {
-  font-size: 36rpx;
-  color: #333;
+.title-text {
+  width: 71rpx;
+  height: 40rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 29rpx;
+  color: #000000;
+  line-height: 40rpx;
+  text-align: right;
+  font-style: normal;
 }
 
-.menu-text {
-  font-size: 28rpx;
-  color: #333;
-}
-
-/* 侧边栏 */
-.sidebar-mask {
-  position: fixed;
+.title-icons {
+  position: absolute;
+  right: 42rpx;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 200;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
-}
-
-.sidebar-mask.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 560rpx;
-  max-width: 80%;
-  background-color: #fff;
-  z-index: 201;
-  transform: translateX(-100%);
-  transition: transform 0.3s;
-  box-shadow: 2rpx 0 12rpx rgba(0, 0, 0, 0.1);
-  padding-top: env(safe-area-inset-top);
-}
-
-.sidebar.show {
-  transform: translateX(0);
-}
-
-.sidebar-header {
   display: flex;
+  flex-direction: row;
+  gap: 20rpx;
   align-items: center;
-  justify-content: space-between;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  height: 100%;
 }
 
-.sidebar-title {
-  font-size: 32rpx;
+.title-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.circle-icon {
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.05);
+}
+
+/* 顶部功能入口 (校友会、收藏、关注) */
+.top-functions {
+  position: absolute;
+  top: 210rpx; /* 参考 Title bottom (~158rpx) + 52rpx gap */
+  left: 83rpx; /* 参考 box_4 margin-left */
+  width: 574rpx; /* 参考 box_4 width */
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 110rpx; /* 按钮之间间距 */
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.function-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.function-icon {
+  width: 80rpx; /* 图标按钮宽度 */
+  height: 62rpx; /* 图标按钮高度 */
+  /* background-color: #f0f0f0; 占位背景，有图后可移除 */
+  border-radius: 20rpx;
+  margin-bottom: 10rpx;
+}
+
+.function-text {
+  width: 129rpx;
+  height: 36rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 25rpx;
+  color: #000000;
+  line-height: 36rpx;
+  text-align: center;
+  font-style: normal;
+  position: relative;
+}
+
+.construction-tag {
+  position: absolute;
+  top: -12rpx;
+  right: -10rpx;
+  width: 67rpx;
+  height: 27rpx;
+  background: linear-gradient(90deg, #FF6B00 0%, #FFB800 100%);
+  border: 1rpx solid #FFFFFF;
+  border-radius: 13.5rpx;
+  color: rgba(255, 255, 255, 1);
+  font-size: 16rpx;
+  font-family: PingFangSC-Semibold;
   font-weight: 600;
-  color: #333;
-}
-
-.sidebar-close {
-  font-size: 48rpx;
-  color: #999;
-  line-height: 1;
-  width: 60rpx;
-  height: 60rpx;
+  line-height: 27rpx;
+  text-align: center;
+  opacity: 1;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
 }
 
-.sidebar-content {
-  padding: 20rpx 0;
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  padding: 30rpx 40rpx;
-  active-color: #f9f9f9;
-}
-
-.sidebar-item:active {
-  background-color: #f5f5f5;
-}
-
-.sidebar-icon {
-  font-size: 36rpx;
-  margin-right: 20rpx;
-  width: 40rpx;
-  text-align: center;
-}
-
-.sidebar-text {
+/* ================== 滚动内容区域 ================== */
+.content-scroll {
   flex: 1;
-  font-size: 30rpx;
-  color: #333;
-}
-
-.sidebar-arrow {
-  font-size: 32rpx;
-  color: #ccc;
-}
-
-/* 聊天列表 */
-.chat-list {
-  flex: 1;
-  height: 0; /* 配合 flex: 1 实现滚动 */
-}
-
-/* 聊天项容器（支持滑动） */
-.chat-item-container {
-  display: flex;
-  justify-content: space-between;
   width: 100%;
-  overflow: hidden;
+  height: 0; /* 配合 flex: 1 使用，确保 scroll-view 正确计算高度 */
   background-color: #fff;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-top-left-radius: 30rpx;
+  border-top-right-radius: 30rpx;
+  margin-top: 0; /* Banner 已移出，不需要上移 */
+  padding-top: 0; /* Banner 已移出，不需要 padding */
   position: relative;
-}
-
-/* 内容区域包装 */
-.chat-content-wrapper {
-  width: 100%;
-  display: flex;
-  padding: 24rpx 30rpx;
+  z-index: 11;
   box-sizing: border-box;
-  transition: all 0.4s;
-  transform: translateX(0);
-  background-color: #fff;
-  /* 确保在操作按钮之上 */
-  z-index: 2; 
+  /* 彻底隐藏滚动条 - 多种方式确保兼容性 */
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE 和 Edge */
+  overflow-x: hidden !important; /* 禁止横向滚动 */
 }
 
-/* 滑动后的状态：内容左移，露出操作按钮 */
-.touch-move-active .chat-content-wrapper {
-  transform: translateX(-420rpx); /* 3个按钮的总宽度 */
+/* 隐藏 WebKit 浏览器的滚动条 - 更彻底的隐藏 */
+.content-scroll::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.content-scroll::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+.content-scroll::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Banner 横幅 (固定在顶部) */
+.banner-wrapper {
+  width: 609rpx; /* 参考 image_11 width */
+  height: 127rpx; /* 参考 image_11 height */
+  margin: 40rpx auto 0 auto; /* 参考 image_11 margin: 40rpx 0 0 69rpx (水平居中) */
+  box-sizing: border-box;
+  flex-shrink: 0; /* 防止被压缩 */
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 16rpx;
+}
+
+/* 聊天列表容器 */
+.chat-list-container {
+  display: flex;
+  flex-direction: column;
+  padding-top: 30rpx; /* Banner 移出后，列表顶部添加间距 */
+  padding-bottom: 100rpx; /* 增加底部间距，确保最后一项完整显示 */
+  /* 确保不产生滚动条 */
+  overflow: hidden;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.chat-list-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* 单个聊天项 */
+.chat-item {
+  width: 100%;
+  /* height: 140rpx; */ /* 移除固定高度，由 padding 撑开 */
+  display: flex;
+  position: relative;
+  overflow: hidden; /* 隐藏滑动按钮 */
+  background-color: #fff;
+}
+
+.chat-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start; /* 顶部对齐 */
+  /* 参考 image-text_2 margin-top 36rpx 和 image_13 margin 45rpx */
+  /* 这里简化为 padding-top: 36rpx, padding-bottom: 45rpx */
+  padding: 36rpx 80rpx 45rpx 65rpx; 
+  box-sizing: border-box;
+  transition: transform 0.3s;
+  background-color: #fff;
+  z-index: 2;
+}
+
+/* 滑动激活样式 */
+.touch-move-active .chat-content {
+  transform: translateX(-420rpx); /* 左移露出按钮 */
 }
 .touch-move-active .action-buttons {
-  transform: translateX(-420rpx); /* 按钮也左移进入可视区 */
+  transform: translateX(-420rpx);
 }
 
+/* 头像区域 */
 .chat-avatar-wrapper {
   position: relative;
   margin-right: 24rpx;
+  /* 参考 image_14 尺寸 */
+  width: 91rpx;
+  height: 91rpx;
+  flex-shrink: 0; /* 防止压缩 */
 }
 
 .chat-avatar {
-  width: 96rpx;
-  height: 96rpx;
+  width: 91rpx;
+  height: 91rpx;
   border-radius: 50%;
-  background-color: #f0f0f0;
+  background-color: #f5f5f5;
 }
 
-.system-notification-avatar {
-  width: 65rpx;
-  height: 65rpx;
-}
-
-.online-status {
-  position: absolute;
-  right: -4rpx;
-  bottom: -4rpx;
-  width: 20rpx;
-  height: 20rpx;
-  border-radius: 50%;
-  background-color: #4caf50;
-  border: 4rpx solid #fff;
+.system-avatar {
+  /* 系统通知头像特殊样式如果有 */
 }
 
 .unread-badge {
   position: absolute;
-  right: -10rpx;
-  top: -10rpx;
+  right: -6rpx;
+  top: -6rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
   background-color: #ff3b30;
   color: #fff;
   font-size: 20rpx;
-  min-width: 32rpx;
-  height: 32rpx;
   border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 8rpx;
-  box-sizing: border-box;
   border: 2rpx solid #fff;
+  box-sizing: border-box;
 }
 
+/* 文本信息区域 */
 .chat-info {
+  /* width: 489rpx; */ /* 参考 text-group_2 width */
   flex: 1;
+  /* height: 85rpx; */ /* 参考 text-group_2 height */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
+  margin-top: 5rpx; /* 参考 text-group_2 margin-top */
 }
 
 .chat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8rpx;
-}
-
-.chat-name-wrap {
-  display: flex;
-  align-items: center;
-  max-width: 70%;
+  /* height: 40rpx; */ /* 参考 text-wrapper_1 height */
 }
 
 .chat-name {
-  font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
+  font-size: 29rpx; /* 参考 text_6 font-size */
+  color: rgba(0,0,0,1);
+  font-weight: 600; /* PingFangSC-Semibold */
+  font-family: PingFangSC-Semibold;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.chat-tag {
-  font-size: 20rpx;
-  color: #fff;
-  background-color: #ccc;
-  padding: 2rpx 8rpx;
-  border-radius: 6rpx;
-  margin-left: 12rpx;
+  max-width: 300rpx;
 }
 
 .chat-time {
-  font-size: 24rpx;
-  color: #999;
+  font-size: 25rpx; /* 与消息内容一致 */
+  color: #000000;
+  font-weight: 600; /* PingFangSC-Semibold */
+  font-family: PingFangSC, PingFang SC;
+  opacity: 0.34; /* 34% 不透明度，与消息内容一致 */
+  line-height: 36rpx;
+  font-style: normal;
 }
 
-.chat-preview {
+.chat-message-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  margin-top: 9rpx; /* 参考 text_8 margin-top */
 }
 
 .chat-message {
-  font-size: 26rpx;
-  color: #999;
+  width: 486rpx;
+  height: 36rpx;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 25rpx;
+  color: #000000;
+  line-height: 36rpx;
+  text-align: left;
+  font-style: normal;
+  opacity: 0.34; /* 34% 不透明度 */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
-  margin-right: 20rpx;
 }
 
-.chat-mute {
-  font-size: 24rpx;
-  color: #ccc;
-}
-
-/* 操作按钮区域 */
+/* 滑动操作按钮 */
 .action-buttons {
-  width: 420rpx; /* 3个按钮 * 140rpx */
-  display: flex;
-  flex-direction: row;
-  color: #fff;
-  transform: translateX(0); /* 初始隐藏在右侧屏幕外 */
-  transition: all 0.4s;
-  /* 这里的布局有点 tricky，通常是用 absolute 或者 flex-shrink: 0 */
-  /* 使用绝对定位方案更稳妥 */
   position: absolute;
+  right: -420rpx; /* 初始在屏幕外 */
   top: 0;
-  bottom: 0;
-  right: -420rpx; /* 初始在右侧外面 */
+  height: 100%;
+  width: 420rpx;
+  display: flex;
   z-index: 1;
+  transition: transform 0.3s;
 }
 
 .action-btn {
-  width: 140rpx;
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  color: #fff;
   font-size: 28rpx;
 }
 
@@ -315,16 +401,33 @@
   background-color: #FF3B30;
 }
 
+/* 列表分割线 */
+.list-divider {
+  width: 614rpx; /* 参考 image_13 width */
+  height: 2rpx; /* 参考 image_13 height */
+  background-color: #E5E5E5; /* 使用颜色模拟图片分割线 */
+  margin-left: 65rpx; /* 参考 image_13 margin-left */
+  /* margin-top: 45rpx; */ /* padding-bottom 已经包含了这部分空间 */
+}
+
+/* 空状态 */
 .empty-state {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding-top: 200rpx;
+  align-items: center;
+  padding-top: 100rpx;
 }
 
 .empty-text {
   font-size: 28rpx;
   color: #999;
-  margin-top: 20rpx;
+}
+
+/* ================== 侧边栏 ================== */
+.sidebar-mask {
+  display: none;
+}
+
+.sidebar {
+  display: none;
 }

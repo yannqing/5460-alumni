@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "校处会审核详情",
+  "navigationBarTitleText": "校促会审核详情",
   "navigationStyle": "custom",
   "usingComponents": {
     "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"

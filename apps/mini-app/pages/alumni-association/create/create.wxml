@@ -1,17 +1,12 @@
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="申请创建校友会" showBack="{{true}}"></custom-nav-bar>
-
-<view class="container" bindtap="closeAllDropdowns">
+<custom-nav-bar useAuditStyle="{{true}}" auditTitle="创建校友会" showBack="{{true}}">
+  <view class="white-background-content">
+    <view class="container" bindtap="closeAllDropdowns">
+  <image src="https://${API_DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png" class="header-image" mode="aspectFit"></image>
   <view class="form-card">
     <view class="form-title">基本信息</view>
 
-    <view class="form-item">
-      <text class="label">校友会名称 *</text>
-      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
-    </view>
-    
-    <view class="form-item search-group" style="z-index: 20;" catchtap="preventBubble">
-      <text class="label">申请学校 *</text>
+    <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
+      <text class="label">申请学校</text>
       <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
         <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
@@ -21,25 +16,35 @@
       </scroll-view>
     </view>
     
-    <view class="form-item search-group" style="z-index: 10;" catchtap="preventBubble">
-      <text class="label">相关地区 *</text>
-      <input class="input" placeholder="请输入并选择相关地区(校处会)" value="{{formData.platformName}}" data-field="platformName" bindinput="handlePlatformInput" bindfocus="handlePlatformFocus" />
-      <scroll-view scroll-y class="search-results" wx:if="{{showPlatformResults}}">
-        <view wx:if="{{platformList.length === 0}}" class="search-placeholder">未找到相关地区</view>
-        <view wx:for="{{platformList}}" wx:key="platformId" class="search-item" bindtap="selectPlatform" data-index="{{index}}">
-          {{item.city || item.platformName}}
+    <view class="form-item required">
+      <text class="label">校友会名称</text>
+      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
+    </view>
+    
+    <view class="form-item required">
+      <text class="label">相关地区</text>
+      <picker 
+        mode="selector" 
+        range="{{platformList}}" 
+        range-key="platformName" 
+        value="{{platformIndex}}" 
+        bindchange="handlePlatformChange"
+        class="input"
+      >
+        <view class="picker-content">
+          {{formData.platformName || '请选择相关地区(校促会)'}}
         </view>
-      </scroll-view>
+      </picker>
     </view>
 
-    <view class="form-item">
-      <text class="label">负责人姓名 *</text>
-      <input class="input" placeholder="请输入负责人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
+    <view class="form-item required">
+      <text class="label">联系人姓名</text>
+      <input class="input" placeholder="请输入联系人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
     </view>
 
-    <view class="form-item">
-      <text class="label">负责人电话 *</text>
-      <input class="input" placeholder="请输入负责人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+    <view class="form-item required">
+      <text class="label">联系人电话</text>
+      <input class="input" placeholder="请输入联系人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
     </view>
 
     <view class="form-item">
@@ -79,7 +84,7 @@
     
 
 
-    <view class="form-item">
+    <view class="form-item required">
       <text class="label">申请理由</text>
       <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
     </view>
@@ -118,7 +123,10 @@
     </block>
     
     <view wx:if="{{members.length === 0}}" class="empty-tip">暂无其他成员，请点击上方按钮添加</view>
+    <view class="form-actions">
+      <button class="submit-btn" bindtap="submitForm">提交申请</button>
+    </view>
+    </view>
   </view>
-
-  <button class="submit-btn" bindtap="submitForm">提交申请</button>
 </view>
+</custom-nav-bar>

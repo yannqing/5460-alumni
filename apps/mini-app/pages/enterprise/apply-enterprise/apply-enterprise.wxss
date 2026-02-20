@@ -1,37 +1,89 @@
 /* pages/enterprise/apply-enterprise/apply-enterprise.wxss */
-.container {
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 20rpx 20rpx 30rpx 20rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
   width: 100%;
-  min-height: 100vh;
-  background-color: #f5f7fa;
-  padding-bottom: 32px;
+  min-height: 0;
+  position: relative;
+  z-index: 0;
+  /* 通过调整宽度让滚动条被遮挡 */
+  margin-right: -20rpx;
+  padding-right: 20rpx;
+  /* 彻底隐藏滚动条 - 多种方式确保兼容性 */
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE 和 Edge */
+}
+
+/* 隐藏 WebKit 浏览器的滚动条 - 更彻底的隐藏 */
+.scroll-list::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.scroll-list::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+.scroll-list::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
 }
 
 .form-container {
-  padding: 20px 16px 0;
+  padding: 0;
 }
 
 .form-title {
-  font-size: 20px;
+  font-size: 40rpx;
   font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 24px;
+  color: #333;
+  margin-bottom: 48rpx;
   display: block;
 }
 
 .form-item {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #F9F9F9;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .form-label {
-  font-size: 14px;
+  font-size: 28rpx;
   font-weight: 500;
-  color: #4a5568;
-  margin-bottom: 8px;
+  color: #666;
+  margin-bottom: 16rpx;
   display: block;
+  line-height: 1.5;
 }
 
 .required {
@@ -41,57 +93,66 @@
 .required::after {
   content: '*';
   color: #f56565;
-  margin-left: 4px;
+  margin-left: 8rpx;
 }
 
 .form-input {
-  font-size: 14px;
-  color: #2d3748;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
+  font-size: 28rpx;
+  color: #333;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 16rpx;
+  padding: 24rpx;
   width: 100%;
+  height: 88rpx;
   box-sizing: border-box;
+  background-color: #fff;
+  line-height: 1.5;
 }
 
 .form-input:focus {
-  border-color: #6366f1;
+  border-color: #40B2E6;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3rpx rgba(64, 178, 230, 0.1);
 }
 
 .form-textarea {
-  font-size: 14px;
-  color: #2d3748;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
+  font-size: 28rpx;
+  color: #333;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 16rpx;
+  padding: 24rpx;
   width: 100%;
-  height: 100px;
+  min-height: 200rpx;
   box-sizing: border-box;
   resize: none;
+  background-color: #fff;
+  line-height: 1.6;
 }
 
 .form-textarea:focus {
-  border-color: #6366f1;
+  border-color: #40B2E6;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3rpx rgba(64, 178, 230, 0.1);
 }
 
 /* 选择器样式 */
 .picker-container {
-  margin-top: 8px;
+  margin-top: 16rpx;
 }
 
 .picker-input {
-  font-size: 14px;
-  color: #2d3748;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
+  font-size: 28rpx;
+  color: #333;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 16rpx;
+  padding: 24rpx;
   width: 100%;
+  min-height: 88rpx;
   box-sizing: border-box;
   background-color: #fff;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
 }
 
 .radio-group {
@@ -112,58 +173,70 @@
 
 /* 类型显示样式 */
 .type-display {
-  margin-top: 8px;
-  padding: 12px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  margin-top: 16rpx;
+  padding: 24rpx;
+  background-color: #fff;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
 }
 
 .type-text {
-  font-size: 14px;
-  color: #2d3748;
+  font-size: 28rpx;
+  color: #333;
   font-weight: 500;
+  line-height: 1.5;
 }
 
 .form-submit {
-  margin-top: 32px;
-  margin-bottom: 24px;
+  margin-top: 64rpx;
+  margin-bottom: 48rpx;
 }
 
 .submit-button {
   width: 100%;
-  height: 48px;
-  background-color: #6366f1;
+  height: 88rpx;
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
   color: #fff;
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 16rpx;
   border: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(55, 89, 199, 0.3);
+  transition: all 0.3s ease;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .submit-button:active {
-  background-color: #4f46e5;
+  background: linear-gradient(180deg, #2d4ab3 0%, #4562c0 100%);
+  transform: scale(0.98);
+}
+
+.submit-button::after {
+  border: none !important;
 }
 
 /* 上传组件样式 */
 .upload-container {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
-  margin-top: 8px;
+  gap: 24rpx;
+  margin-top: 16rpx;
 }
 
 /* 封面图预览样式 */
 .cover-preview {
   display: flex;
   align-items: center;
-  gap: 20rpx;
-  margin-bottom: 20rpx;
+  gap: 40rpx;
+  margin-bottom: 40rpx;
 }
 
 .cover-image {
@@ -212,7 +285,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 20rpx;
-  margin-bottom: 12px;
+  margin-bottom: 24rpx;
 }
 
 /* 图片项样式 */
@@ -270,8 +343,8 @@
   font-size: 24rpx;
   color: #999;
   align-self: flex-start;
-  margin-top: 8px;
-  margin-left: 4px;
+  margin-top: 16rpx;
+  margin-left: 8rpx;
 }
 
 /* 上传按钮样式 */
@@ -321,7 +394,7 @@
 .location-selector {
   display: flex;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 16rpx;
 }
 
 .location-input {
@@ -331,21 +404,31 @@
 }
 
 .select-location-btn {
-  width: 100px;
-  height: 44px;
-  background-color: #6366f1;
+  width: 200rpx;
+  height: 88rpx;
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
   color: #fff;
-  font-size: 14px;
+  font-size: 28rpx;
   border: none;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
+  border-top-right-radius: 16rpx;
+  border-bottom-right-radius: 16rpx;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: all 0.3s ease;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .select-location-btn:active {
-  background-color: #4f46e5;
+  background: linear-gradient(180deg, #2d4ab3 0%, #4562c0 100%);
+  transform: scale(0.98);
+}
+
+.select-location-btn::after {
+  border: none !important;
 }
 
 /* 响应式调整 */

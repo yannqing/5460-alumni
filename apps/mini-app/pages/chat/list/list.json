@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "5460",
-  "enablePullDownRefresh": true,
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": false,
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification"
   }

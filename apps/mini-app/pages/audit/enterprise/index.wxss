@@ -1,101 +1,104 @@
 /* pages/audit/enterprise/index.wxss */
-
-/* 页面整体样式 */
-.enterprise-audit-list-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 20rpx;
-}
-
-/* 表单卡片样式 */
-.form-card {
-  background-color: #fff;
-  margin: 20rpx;
-  padding: 30rpx;
-  border-radius: 12rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.form-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 30rpx;
-}
-
-.form-item {
+.page {
+  background-color: transparent;
+  width: 750rpx;
+  height: calc(100vh - 190.22rpx);
   display: flex;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
-.form-item:last-child {
-  margin-bottom: 0;
-}
-
-.label {
-  font-size: 28rpx;
-  color: #666;
-  width: 180rpx;
-}
-
-/* 校友会选择器样式 */
-.alumni-association-selector {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20rpx;
-  background-color: #f9f9f9;
-  border-radius: 8rpx;
-  border: 1rpx solid #e8e8e8;
-}
-
-.selector-label {
-  font-size: 28rpx;
-  color: #333;
+  flex-direction: column;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
 }
 
-.selector-arrow {
-  font-size: 20rpx;
-  color: #999;
-  margin-left: 10rpx;
+.page .group_5 {
+  width: 714rpx;
+  min-height: auto;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
 }
 
-/* 企业列表样式 */
-.enterprise-list {
-  padding: 20rpx;
+.group_5 {
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
-/* 企业项样式 */
-.enterprise-item {
-  background-color: #fff;
-  margin-bottom: 20rpx;
-  padding: 30rpx;
+.group_5 .text_14 { font-size: 29rpx; font-weight: 600; color: rgba(0,0,0,1); line-height: 40rpx; }
+.group_5 .label_text { font-size: 25rpx; color: rgba(0,0,0,0.6); margin-top: 16rpx; display: block; line-height: 36rpx; }
+.group_5 .text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
   border-radius: 12rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+.group_5 .text_15 { flex: 1; font-size: 28rpx; color: rgba(0,0,0,0.85); line-height: 36rpx; overflow: hidden; text-overflow: ellipsis; }
+.group_5 .text-wrapper_8::after { content: '▼'; color: #999; font-size: 20rpx; margin-left: 10rpx; }
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  max-height: 55vh;
+  min-height: 0;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.enterprise-item:active {
-  transform: translateY(2rpx);
-  box-shadow: 0 1rpx 5rpx rgba(0, 0, 0, 0.05);
+.list-header { margin-bottom: 16rpx; flex-shrink: 0; }
+.group_7 .text_20 { font-size: 29rpx; font-weight: 600; color: rgba(0,0,0,1); line-height: 40rpx; }
+.scroll-list { width: 100%; flex-shrink: 0; }
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 28rpx;
 }
 
-/* 企业头部样式 */
+.empty-block { padding: 16rpx 0 60rpx; text-align: center; }
+.empty-text { font-size: 28rpx; color: #999; }
+
+.enterprise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding-bottom: 16rpx;
+}
+
+.enterprise-item {
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  border: 1rpx solid #f0f0f0;
+}
+
 .enterprise-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
 }
 
 .enterprise-name {
-  font-size: 32rpx;
+  font-size: 29rpx;
   font-weight: 600;
   color: #333;
   flex: 1;
@@ -105,248 +108,111 @@
   white-space: nowrap;
 }
 
-/* 状态标签样式 */
 .enterprise-status {
-  padding: 8rpx 20rpx;
-  border-radius: 20rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 14rpx;
   font-size: 24rpx;
-  font-weight: 500;
+  flex-shrink: 0;
 }
 
-.enterprise-status.pending {
-  background-color: #fff3cd;
-  color: #856404;
-}
+.enterprise-status.pending { background-color: #fff7e6; color: #fa8c16; }
+.enterprise-status.approved { background-color: #f6ffed; color: #52c41a; }
+.enterprise-status.rejected { background-color: #fff2f0; color: #ff4d4f; }
+.enterprise-status.canceled { background-color: #f5f5f5; color: #999; }
 
-.enterprise-status.approved {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.enterprise-status.rejected {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.enterprise-status.canceled {
-  background-color: #e2e3e5;
-  color: #383d41;
-}
-
-/* 企业信息样式 */
 .enterprise-info {
   display: flex;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
   align-items: flex-start;
+  font-size: 25rpx;
 }
 
-.enterprise-info:last-child {
-  margin-bottom: 20rpx;
-}
+.info-label { color: #999; width: 140rpx; flex-shrink: 0; }
+.info-value { color: #333; flex: 1; line-height: 1.4; }
 
-/* 审核操作按钮样式 */
 .audit-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 20rpx;
-  margin-top: 20rpx;
-  padding-top: 20rpx;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
   border-top: 1rpx solid #f0f0f0;
 }
 
 .audit-btn {
-  padding: 14rpx 32rpx;
+  padding: 12rpx 28rpx;
   border-radius: 8rpx;
-  font-size: 26rpx;
-  font-weight: 500;
-  min-width: 160rpx;
+  font-size: 25rpx;
+  min-width: 140rpx;
   text-align: center;
 }
 
 .approve-btn {
-  background-color: #40B2E6;
+  background-color: #1890ff;
   color: #fff;
   border: none;
 }
 
 .reject-btn {
-  background-color: #fff;
+  background-color: rgba(255,77,79,0.12);
   color: #ff4d4f;
   border: 1rpx solid #ff4d4f;
 }
 
-.approve-btn:active {
-  background-color: #3399cc;
-}
+.audit-btn::after { border: none; }
 
-.reject-btn:active {
-  background-color: #fff2f0;
-}
-
-.info-label {
-  font-size: 26rpx;
-  color: #666;
-  width: 140rpx;
-  flex-shrink: 0;
-}
-
-.info-value {
-  font-size: 26rpx;
-  color: #333;
-  flex: 1;
-  line-height: 1.4;
-}
-
-/* 空状态样式 */
-.empty-state {
-  background-color: #fff;
-  padding: 80rpx 20rpx;
-  border-radius: 12rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.empty-text {
-  font-size: 28rpx;
-  color: #999;
-  text-align: center;
-}
-
-/* 加载中样式 */
-.loading-state {
-  background-color: #fff;
-  padding: 40rpx 20rpx;
-  border-radius: 12rpx;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.loading-text {
-  font-size: 26rpx;
-  color: #999;
-}
-
-/* 校友会选择器弹窗样式 */
 .alumni-association-picker {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
 }
 
 .picker-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
 }
 
 .picker-content {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
   background-color: #fff;
-  border-top-left-radius: 20rpx;
-  border-top-right-radius: 20rpx;
+  border-radius: 20rpx 20rpx 0 0;
   max-height: 70vh;
   overflow: hidden;
-  z-index: 10000;
 }
 
 .picker-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 30rpx;
   border-bottom: 1rpx solid #f0f0f0;
 }
 
-.picker-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.picker-cancel {
-  font-size: 28rpx;
-  color: #999;
-}
+.picker-title { font-size: 32rpx; font-weight: 600; color: #333; }
+.picker-cancel { font-size: 28rpx; color: #999; }
 
 .picker-list {
-  max-height: 60vh;
+  max-height: calc(50vh + 40px);
   overflow-y: auto;
+  padding: 0 30rpx;
 }
 
 .picker-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 30rpx;
+  justify-content: space-between;
+  padding: 30rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
-  transition: background-color 0.2s ease;
 }
 
-.picker-item:active {
-  background-color: #f5f5f5;
-}
-
-.item-name {
-  font-size: 28rpx;
-  color: #333;
-  flex: 1;
-}
-
-.item-check {
-  font-size: 32rpx;
-  color: #40B2E6;
-  font-weight: 600;
-}
+.item-name { font-size: 28rpx; color: #333; }
+.item-check { font-size: 32rpx; color: #52c41a; font-weight: 600; }
 
 .picker-empty {
-  padding: 60rpx 20rpx;
+  padding: 60rpx 0;
   text-align: center;
   color: #999;
   font-size: 28rpx;
-}
-
-/* 响应式样式 */
-@media (max-width: 375px) {
-  .form-card {
-    margin: 10rpx;
-    padding: 20rpx;
-  }
-  
-  .form-title {
-    font-size: 28rpx;
-    margin-bottom: 20rpx;
-  }
-  
-  .enterprise-item {
-    margin-bottom: 15rpx;
-    padding: 20rpx;
-  }
-  
-  .enterprise-name {
-    font-size: 28rpx;
-  }
-  
-  .info-label {
-    font-size: 24rpx;
-    width: 120rpx;
-  }
-  
-  .info-value {
-    font-size: 24rpx;
-  }
 }
