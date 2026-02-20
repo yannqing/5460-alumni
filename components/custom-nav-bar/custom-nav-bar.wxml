@@ -1,7 +1,37 @@
 <!--components/custom-nav-bar/custom-nav-bar.wxml-->
-<view class="custom-nav-bar" style="height: {{statusBarHeight + navBarHeight}}px;">
-  <!-- 背景图片 -->
-  <image wx:if="{{backgroundImage}}" class="nav-bar-bg" src="{{backgroundImage}}" mode="aspectFill"></image>
+<!-- 管理入口样式：蓝色渐变区域 + 白色内容区 -->
+<view wx:if="{{useAuditStyle}}" class="audit-page-wrapper">
+  <!-- 蓝色渐变背景区域 -->
+  <view class="audit-blue-header">
+    <!-- 导航栏（返回按钮、中间内容、右侧按钮） -->
+    <view class="audit-nav-bar" style="top: {{statusBarHeight}}px;">
+      <!-- 返回按钮 -->
+      <view wx:if="{{showBack}}" class="audit-back-btn" catchtap="goBack">
+        <image class="audit-back-icon" src="{{iconBackAudit}}" mode="aspectFit"></image>
+        <text class="audit-back-text">返回</text>
+      </view>
+      
+      <!-- 中间 Logo 和标题 -->
+      <view class="audit-center-content">
+        <image class="audit-center-logo" src="{{centerLogo}}" mode="aspectFit"></image>
+        <text class="audit-center-title">{{auditTitle}}</text>
+      </view>
+      
+      <!-- 右侧按钮占位 -->
+      <view class="audit-right-btn"></view>
+    </view>
+  </view>
+  
+  <!-- 白色圆角内容区域 -->
+  <view class="audit-content-wrapper" style="top: 190.22rpx;">
+    <slot></slot>
+  </view>
+</view>
+
+<!-- 默认样式：普通导航栏 -->
+<view wx:else class="custom-nav-bar" style="height: {{statusBarHeight + navBarHeight}}px; background-color: {{backgroundColor}};">
+  <!-- 背景图 -->
+  <image wx:if="{{showImage && backgroundImage}}" class="nav-bar-bg" src="{{backgroundImage}}" mode="aspectFill"></image>
   
   <!-- 状态栏占位 -->
   <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
@@ -9,17 +39,20 @@
   <!-- 导航栏内容 -->
   <view class="nav-bar-content" style="height: {{navBarHeight}}px;">
     <!-- 返回按钮 -->
-    <view wx:if="{{showBack}}" class="nav-back-btn" catchtap="goBack">
-      <image class="back-icon" src="{{iconBack}}" mode="aspectFit"></image>
-    </view>
+      <view wx:if="{{showBack}}" class="nav-back-btn" catchtap="goBack">
+        <image class="back-icon" src="{{iconBack}}" mode="aspectFit"></image>
+        <text class="back-text">返回</text>
+      </view>
     
     <!-- 标题 -->
-    <view class="nav-title" style="color: {{textColor}};">{{title}}</view>
+    <view class="nav-center-wrap">
+      <view class="nav-title" style="color: {{textColor}};">{{title}}</view>
+    </view>
     
-    <!-- 右侧占位（保持标题居中） -->
+    <!-- 右侧占位 -->
     <view wx:if="{{showBack}}" class="nav-right-placeholder"></view>
   </view>
 </view>
 
-<!-- 占位视图，避免内容被导航栏遮挡 -->
-<view class="nav-bar-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+<!-- 默认样式占位视图 -->
+<view wx:if="{{!useAuditStyle}}" class="nav-bar-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>

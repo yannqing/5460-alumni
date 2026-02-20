@@ -1,190 +1,197 @@
-<!--pages/alumni/detail/detail.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="校友详情" showBack="{{true}}"></custom-nav-bar>
+<!-- 自定义导航栏包裹器 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友详情">
+  <!-- 消息通知组件 -->
+  <message-notification />
 
-<!-- 消息通知组件 -->
-<message-notification />
-
-<view class="alumni-detail-page">
-  <view wx:if="{{alumniInfo}}">
-    <!-- 背景和头像区域 -->
-    <view class="profile-header">
-      <image class="background-image" src="{{alumniInfo.background || 'https://cdn.example.com/backgrounds/default-bg.jpg'}}" mode="aspectFill"></image>
-      <view class="header-overlay"></view>
-      <view class="profile-left-section">
-        <view class="avatar-nickname-row">
-          <image class="avatar-circle" src="{{alumniInfo.avatarUrl || '/assets/avatar/default_avatar.jpeg'}}" mode="aspectFill"></image>
-          <view class="nickname-text">{{alumniInfo.nickname}}</view>
-        </view>
-        <view class="avatar-info-row">
-          <view class="info-item">
-            <text class="gender-icon {{alumniInfo.gender === 'male' ? 'gender-male' : 'gender-female'}}">{{alumniInfo.gender === 'male' ? '♂' : '♀'}}</text>
-            <text class="info-text">{{alumniInfo.gender === 'male' ? '男' : '女'}}</text>
+  <view class="alumni-detail-page">
+    <view wx:if="{{alumniInfo}}">
+      <!-- 背景和头像区域 -->
+      <view class="profile-header">
+        <image wx:if="{{alumniInfo.bgImg}}" class="background-image" src="{{alumniInfo.bgImg}}" mode="aspectFill"></image>
+        <view wx:else class="default-bg-gradient"></view>
+        <view class="header-overlay"></view>
+        
+        <view class="profile-main-content">
+          <view class="profile-left-section">
+            <view class="avatar-nickname-row">
+              <image class="avatar-circle" src="{{alumniInfo.avatarUrl}}" mode="aspectFill"></image>
+              <view class="name-area">
+                <view class="nickname-wrap">
+                  <view class="nickname-text">{{alumniInfo.nickname.value}}</view>
+                  <image wx:if="{{alumniInfo.isAlumni}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
+                </view>
+                <view class="signature-text {{alumniInfo.signature.isNull ? 'text-null' : ''}}">{{alumniInfo.signature.value}}</view>
+              </view>
+            </view>
+            
+            <view class="quick-info-row">
+              <text class="quick-info-item {{alumniInfo.gender.isNull ? 'text-null' : ''}}">{{alumniInfo.gender.value}}</text>
+              <text class="quick-info-divider"></text>
+              <text class="quick-info-item {{alumniInfo.age.isNull ? 'text-null' : ''}}">{{alumniInfo.age.value}}</text>
+              <text class="quick-info-divider"></text>
+              <text class="quick-info-item {{alumniInfo.zodiac.isNull ? 'text-null' : ''}}">{{alumniInfo.zodiac.value}}</text>
+            </view>
           </view>
-          <view class="info-divider">·</view>
-          <view class="info-item">
-            <text class="info-text">{{alumniInfo.age}}岁</text>
-          </view>
-          <view class="info-divider">·</view>
-          <view class="info-item">
-            <text class="info-text">{{alumniInfo.zodiac}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="profile-right-section">
-        <view class="action-btn message-btn" bindtap="goToChat">私信</view>
-        <view class="action-btn follow-btn {{alumniInfo.isFollowed ? 'followed' : ''}}" bindtap="toggleFollow">
-          {{alumniInfo.isFollowed ? '已关注' : '关注TA'}}
-        </view>
-      </view>
-    </view>
-
-    <!-- 基本信息卡片 -->
-    <view class="info-card">
-      <view class="card-title">基本信息</view>
-      <view class="info-row">
-        <view class="info-label">昵称</view>
-        <view class="info-value">{{alumniInfo.nickname}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">真实姓名</view>
-        <view class="info-value">{{alumniInfo.name}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">出生日期</view>
-        <view class="info-value">{{alumniInfo.birthDate}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">手机号</view>
-        <view class="info-value">{{alumniInfo.phone}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">星座</view>
-        <view class="info-value">{{alumniInfo.constellation}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">个性签名</view>
-        <view class="info-value signature-text">{{alumniInfo.signature || '暂无签名'}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">微信号</view>
-        <view class="info-value">{{alumniInfo.wxNum}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">QQ号</view>
-        <view class="info-value">{{alumniInfo.qqNum}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">邮箱</view>
-        <view class="info-value">{{alumniInfo.email}}</view>
-      </view>
-    </view>
-
-    <!-- 位置信息卡片 -->
-    <view class="info-card">
-      <view class="card-title">位置信息</view>
-      <view class="info-row">
-        <view class="info-label">籍贯</view>
-        <view class="info-value">{{alumniInfo.originProvince}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">当前所在洲</view>
-        <view class="info-value">{{alumniInfo.curContinent}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">当前所在国</view>
-        <view class="info-value">{{alumniInfo.curCountry}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">当前所在省市</view>
-        <view class="info-value">{{alumniInfo.curProvince}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">当前所在市区</view>
-        <view class="info-value">{{alumniInfo.curCity}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">当前所在村/区</view>
-        <view class="info-value">{{alumniInfo.curCounty}}</view>
-      </view>
-      <view class="info-row">
-        <view class="info-label">详细地址</view>
-        <view class="info-value">{{alumniInfo.address}}</view>
-      </view>
-    </view>
-
-    <!-- 教育经历卡片 -->
-    <view class="info-card" wx:if="{{alumniInfo.alumniEducationList && alumniInfo.alumniEducationList.length}}">
-      <view class="card-title">教育经历</view>
-      <block wx:for="{{alumniInfo.alumniEducationList}}" wx:key="index">
-        <view class="education-block" style="{{index > 0 ? 'margin-top: 20rpx; border-top: 1px solid #eee; padding-top: 20rpx;' : ''}}">
-          <view class="info-row">
-            <view class="info-label">学校</view>
-            <view class="info-value">{{item.schoolName}}</view>
-          </view>
-          <view class="info-row">
-            <view class="info-label">入学年份</view>
-            <view class="info-value">{{item.enrollmentYear}}</view>
-          </view>
-          <view class="info-row">
-            <view class="info-label">毕业年份</view>
-            <view class="info-value">{{item.graduationYear}}</view>
-          </view>
-          <view class="info-row">
-            <view class="info-label">院系</view>
-            <view class="info-value">{{item.department}}</view>
-          </view>
-          <view class="info-row">
-            <view class="info-label">专业</view>
-            <view class="info-value">{{item.major}}</view>
-          </view>
-          <view class="info-row">
-            <view class="info-label">班级</view>
-            <view class="info-value">{{item.className}}</view>
-          </view>
-          <view class="info-row">
-            <view class="info-label">学历层次</view>
-            <view class="info-value">{{item.educationLevel}}</view>
+          
+          <view class="profile-right-section">
+            <view class="action-btn message-btn" bindtap="goToChat">私信</view>
+            <view class="action-btn follow-btn {{alumniInfo.isFollowed ? 'followed' : ''}}" bindtap="toggleFollow">
+              {{alumniInfo.isFriend ? '互相关注' : (alumniInfo.isFollowed ? '已关注' : '关注TA')}}
+            </view>
           </view>
         </view>
-      </block>
-    </view>
-
-    <!-- 个人简介卡片 -->
-    <view class="info-card">
-      <view class="card-title">个人简介</view>
-      <view class="bio-content">{{alumniInfo.description || alumniInfo.bio || '暂无简介'}}</view>
-    </view>
-
-    <!-- 爱好卡片 -->
-    <view class="info-card" wx:if="{{alumniInfo.hobbies && alumniInfo.hobbies.length}}">
-      <view class="card-title">兴趣爱好</view>
-      <view class="hobby-list">
-        <view class="hobby-tag" wx:for="{{alumniInfo.hobbies}}" wx:key="*this">{{item}}</view>
       </view>
-    </view>
 
-    <!-- 所属母校卡片 -->
-    <view class="info-card">
-      <view class="card-title">所属母校</view>
-      <view class="school-item" bindtap="viewSchoolDetail" data-id="{{alumniInfo.schoolId}}">
-        <view class="school-name">{{alumniInfo.school}}</view>
-        <text class="school-arrow">›</text>
-      </view>
-    </view>
-
-    <!-- 加入的校友会卡片 -->
-    <view class="info-card" wx:if="{{alumniInfo.associations && alumniInfo.associations.length}}">
-      <view class="card-title">加入的校友会</view>
-      <view class="association-list">
-        <view class="association-item" wx:for="{{alumniInfo.associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
-          <view class="association-info">
-            <view class="association-name">{{item.name}}</view>
-            <view class="association-role">{{item.role}}</view>
+      <!-- 核心信息卡片 -->
+      <view class="info-sections">
+        
+        <!-- 基本资料 -->
+        <view class="info-card">
+          <view class="card-header">
+            <view class="card-title">基本资料</view>
           </view>
-          <text class="association-arrow">›</text>
+          <view class="card-content">
+            <view class="info-item">
+              <view class="info-label">真实姓名</view>
+              <view class="info-value {{alumniInfo.name.isNull ? 'text-null' : ''}}">{{alumniInfo.name.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">性别</view>
+              <view class="info-value {{alumniInfo.gender.isNull ? 'text-null' : ''}}">{{alumniInfo.gender.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">出生日期</view>
+              <view class="info-value {{alumniInfo.birthDate.isNull ? 'text-null' : ''}}">{{alumniInfo.birthDate.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">星座</view>
+              <view class="info-value {{alumniInfo.constellation.isNull ? 'text-null' : ''}}">{{alumniInfo.constellation.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">婚姻状态</view>
+              <view class="info-value {{alumniInfo.maritalStatus.isNull ? 'text-null' : ''}}">{{alumniInfo.maritalStatus.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">个人特长</view>
+              <view class="info-value {{alumniInfo.personalSpecialty.isNull ? 'text-null' : ''}}">{{alumniInfo.personalSpecialty.value}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 联系方式 -->
+        <view class="info-card">
+          <view class="card-header">
+            <view class="card-title">联系方式</view>
+          </view>
+          <view class="card-content">
+            <view class="info-item">
+              <view class="info-label">手机号</view>
+              <view class="info-value {{alumniInfo.phone.isNull ? 'text-null' : ''}}">{{alumniInfo.phone.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">微信号</view>
+              <view class="info-value {{alumniInfo.wxNum.isNull ? 'text-null' : ''}}">{{alumniInfo.wxNum.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">QQ号</view>
+              <view class="info-value {{alumniInfo.qqNum.isNull ? 'text-null' : ''}}">{{alumniInfo.qqNum.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">电子邮箱</view>
+              <view class="info-value {{alumniInfo.email.isNull ? 'text-null' : ''}}">{{alumniInfo.email.value}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 位置信息 -->
+        <view class="info-card">
+          <view class="card-header">
+            <view class="card-title">位置信息</view>
+          </view>
+          <view class="card-content">
+            <view class="info-item">
+              <view class="info-label">籍贯</view>
+              <view class="info-value {{alumniInfo.originProvince.isNull ? 'text-null' : ''}}">{{alumniInfo.originProvince.value}}</view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">常驻地区</view>
+              <view class="info-value {{alumniInfo.curProvince.isNull && alumniInfo.curCity.isNull ? 'text-null' : ''}}">
+                {{alumniInfo.curProvince.isNull ? '' : alumniInfo.curProvince.value}}{{alumniInfo.curCity.isNull ? '' : alumniInfo.curCity.value}}{{alumniInfo.curCounty.isNull ? '' : alumniInfo.curCounty.value}}
+                <block wx:if="{{alumniInfo.curProvince.isNull && alumniInfo.curCity.isNull && alumniInfo.curCounty.isNull}}">不方便透露</block>
+              </view>
+            </view>
+            <view class="info-item">
+              <view class="info-label">详细地址</view>
+              <view class="info-value {{alumniInfo.address.isNull ? 'text-null' : ''}}">{{alumniInfo.address.value}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 学习经历 -->
+        <view class="info-card" wx:if="{{alumniInfo.educationList}}">
+          <view class="card-header">
+            <view class="card-title">教育背景</view>
+          </view>
+          <view class="card-content">
+            <view class="history-item" wx:for="{{alumniInfo.educationList}}" wx:key="index">
+              <view class="history-header">
+                <view class="history-title">{{item.schoolName}}</view>
+                <view class="history-tag">{{item.type}}</view>
+              </view>
+              <view class="history-meta">
+                <block wx:if="{{item.enrollmentYear || item.graduationYear}}">
+                  {{item.enrollmentYear || '?'}} - {{item.graduationYear || '?'}}
+                </block>
+                <block wx:if="{{(item.enrollmentYear || item.graduationYear) && item.educationLevel}}"> · </block>
+                <block wx:if="{{item.educationLevel}}">{{item.educationLevel}}</block>
+              </view>
+              <view class="history-detail">
+                <block wx:if="{{item.department}}">{{item.department}}</block>
+                <block wx:if="{{item.department && item.major}}"> · </block>
+                <block wx:if="{{item.major}}">{{item.major}}</block>
+                <block wx:if="{{(item.department || item.major) && item.className}}"> · </block>
+                <block wx:if="{{item.className}}">{{item.className}}</block>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 工作经历 -->
+        <view class="info-card" wx:if="{{alumniInfo.workExperienceList}}">
+          <view class="card-header">
+            <view class="card-title">工作经历</view>
+          </view>
+          <view class="card-content">
+            <view class="history-item" wx:for="{{alumniInfo.workExperienceList}}" wx:key="index">
+              <view class="history-header">
+                <view class="history-title">{{item.companyName}}</view>
+                <view class="history-tag active" wx:if="{{item.isCurrent}}">在职</view>
+              </view>
+              <view class="history-meta">
+                <block wx:if="{{item.startDate || item.endDate}}">
+                  {{item.startDate || '?'}} - {{item.endDate || '?'}}
+                </block>
+                <block wx:if="{{(item.startDate || item.endDate) && item.industry}}"> · </block>
+                <block wx:if="{{item.industry}}">{{item.industry}}</block>
+              </view>
+              <view class="history-detail">{{item.position}}</view>
+              <view class="history-desc" wx:if="{{item.workDescription}}">{{item.workDescription}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 个人简介 -->
+        <view class="info-card">
+          <view class="card-header">
+            <view class="card-title">个人简介</view>
+          </view>
+          <view class="card-content">
+            <view class="bio-text {{alumniInfo.description.isNull ? 'text-null' : ''}}">
+              {{alumniInfo.description.value}}
+            </view>
+          </view>
         </view>
       </view>
     </view>
   </view>
-</view>
+</custom-nav-bar>

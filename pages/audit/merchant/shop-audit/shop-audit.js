@@ -29,12 +29,26 @@ Page({
     showAuditModal: false,
     currentAuditShop: null,
     auditStatus: 1,
-    auditRemark: ''
+    auditRemark: '',
+    scrollListHeight: 400
   },
 
   onLoad(options) {
-    // 页面加载
+    this.setScrollListHeight()
     this.loadMerchants()
+  },
+
+  setScrollListHeight() {
+    try {
+      const res = wx.getSystemInfoSync()
+      const navRpx = 190.22
+      const navPx = (res.windowWidth * navRpx) / 750
+      const contentH = res.windowHeight - navPx
+      const scrollH = Math.floor(contentH * 0.5)
+      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 })
+    } catch (e) {
+      this.setData({ scrollListHeight: 400 })
+    }
   },
 
   // 加载商户列表

@@ -18,7 +18,8 @@ Page({
     page: 1,
     pageSize: 10,
     hasMore: true,
-    loading: false
+    loading: false,
+    loadingMore: false // 加载更多的防抖标志
   },
 
   onLoad(options) {
@@ -101,8 +102,8 @@ Page({
       }
 
       const params = {
-        page: reset ? 1 : page,
-        size: pageSize
+        current: reset ? 1 : page,
+        pageSize: pageSize
       }
 
       // 如果有类型筛选，添加targetType参数
@@ -110,21 +111,54 @@ Page({
         params.targetType = targetType
       }
 
+      console.log('[MyFollow] loadList 请求参数', {
+        reset,
+        params,
+        currentPage: page,
+        currentListLength: this.data.list.length
+      })
+
       const res = await api(params)
 
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
         const records = data.records || []
+        const hasNext = data.hasNext !== undefined ? data.hasNext : (records.length >= pageSize) // 优先使用后端返回的hasNext，否则根据返回数据量判断
+
+        console.log('[MyFollow] loadList 响应数据', {
+          recordsLength: records.length,
+          hasNext: data.hasNext,
+          calculatedHasNext: hasNext,
+          pageSize
+        })
 
         // 数据映射
         const mappedList = records
           .filter(item => item.followStatus !== 4)  // 过滤掉状态为4（取消关注）的数据
           .map(item => this.mapItem(item))
 
+        // 去重：根据 id 去重，防止重复数据
+        let finalList
+        if (reset) {
+          finalList = mappedList
+        } else {
+          const existingIds = new Set(this.data.list.map(item => item.id))
+          const newItems = mappedList.filter(item => !existingIds.has(item.id))
+          finalList = [...this.data.list, ...newItems]
+        }
+
+        console.log('[MyFollow] loadList 映射后数据', {
+          mappedListLength: mappedList.length,
+          finalListLength: finalList.length,
+          willAppend: !reset,
+          newPage: reset ? 2 : page + 1,
+          newHasMore: hasNext
+        })
+
         this.setData({
-          list: reset ? mappedList : [...this.data.list, ...mappedList],
+          list: finalList,
           page: reset ? 2 : page + 1,
-          hasMore: mappedList.length >= pageSize,
+          hasMore: hasNext, // 使用后端返回的hasNext或根据原始数据量判断
           loading: false
         })
       } else {
@@ -152,8 +186,8 @@ Page({
 
       // 1. 获取粉丝列表（后端只返回用户类型）
       const fansRes = await followApi.getMyFollowerList({
-        page: reset ? 1 : page,
-        size: pageSize * 2 // 获取更多数据，因为需要筛选
+        current: reset ? 1 : page,
+        pageSize: pageSize * 2 // 获取更多数据，因为需要筛选
       })
 
       if (!fansRes.data || fansRes.data.code !== 200) {
@@ -175,10 +209,12 @@ Page({
           .map(item => this.mapItem(item))
           .slice(0, pageSize)
 
+        const fansHasNext = fansData.hasNext !== undefined ? fansData.hasNext : (fansRecords.length >= pageSize * 2) // 因为请求了 pageSize * 2 的数据
+
         this.setData({
           list: reset ? mappedList : [...this.data.list, ...mappedList],
           page: reset ? 2 : page + 1,
-          hasMore: mappedList.length >= pageSize && fansRecords.length >= pageSize * 2,
+          hasMore: fansHasNext, // 使用后端返回的hasNext或根据原始数据量判断
           loading: false
         })
         return
@@ -187,8 +223,8 @@ Page({
       // 3. 如果有类型筛选，需要检查我是否也关注了对方，以及我关注对方的类型
       // 获取我关注的列表（根据筛选类型）
       const followingRes = await followApi.getMyFollowingList({
-        page: 1,
-        size: 999, // 获取所有关注，用于匹配
+        current: 1,
+        pageSize: 999, // 获取所有关注，用于匹配
         targetType: targetType
       })
 
@@ -216,11 +252,12 @@ Page({
 
       // 5. 数据映射
       const mappedList = filteredFans.map(item => this.mapItem(item))
+      const fansHasNext = fansData.hasNext !== undefined ? fansData.hasNext : (fansRecords.length >= pageSize * 2) // 因为请求了 pageSize * 2 的数据
 
       this.setData({
         list: reset ? mappedList : [...this.data.list, ...mappedList],
         page: reset ? 2 : page + 1,
-        hasMore: filteredFans.length >= pageSize && fansRecords.length >= pageSize * 2,
+        hasMore: fansHasNext, // 使用后端返回的hasNext或根据原始数据量判断
         loading: false
       })
     } catch (error) {
@@ -240,8 +277,8 @@ Page({
       
       // 1. 获取"我的关注"列表（只获取用户类型）
       const followingRes = await followApi.getMyFollowingList({
-        page: reset ? 1 : page,
-        size: pageSize * 2, // 获取更多数据，因为需要筛选
+        current: reset ? 1 : page,
+        pageSize: pageSize * 2, // 获取更多数据，因为需要筛选
         targetType: 1 // 只获取用户类型
       })
 
@@ -256,11 +293,12 @@ Page({
 
       const followingData = followingRes.data.data || {}
       const followingRecords = followingData.records || []
+      const followingHasNext = followingData.hasNext !== undefined ? followingData.hasNext : (followingRecords.length >= pageSize * 2) // 因为请求了 pageSize * 2 的数据
 
       // 2. 获取"我的粉丝"列表（用于检查互相关注）
       const followerRes = await followApi.getMyFollowerList({
-        page: 1,
-        size: 999 // 获取所有粉丝，用于检查互相关注
+        current: 1,
+        pageSize: 999 // 获取所有粉丝，用于检查互相关注
       })
 
       const followerData = followerRes.data?.data || {}
@@ -293,7 +331,7 @@ Page({
       this.setData({
         list: reset ? mappedList : [...this.data.list, ...mappedList],
         page: reset ? 2 : page + 1,
-        hasMore: mutualFollowList.length >= pageSize && followingRecords.length >= pageSize * 2,
+        hasMore: followingHasNext, // 使用后端返回的hasNext或根据原始数据量判断
         loading: false
       })
     } catch (error) {
@@ -498,8 +536,27 @@ Page({
 
   // 加载更多
   loadMore() {
-    if (!this.data.hasMore || this.data.loading) return
-    this.loadList(false)
+    console.log('[MyFollow] loadMore 触发', {
+      hasMore: this.data.hasMore,
+      loading: this.data.loading,
+      loadingMore: this.data.loadingMore,
+      currentPage: this.data.page,
+      listLength: this.data.list.length
+    })
+    // 如果正在加载、没有更多数据、或者正在加载更多，则阻止
+    if (this.data.loading || this.data.loadingMore || !this.data.hasMore) {
+      console.log('[MyFollow] loadMore 被阻止', {
+        hasMore: this.data.hasMore,
+        loading: this.data.loading,
+        loadingMore: this.data.loadingMore
+      })
+      return
+    }
+    // 设置加载更多标志，防止重复触发
+    this.setData({ loadingMore: true })
+    this.loadList(false).finally(() => {
+      this.setData({ loadingMore: false })
+    })
   },
 
   // 更新关注状态

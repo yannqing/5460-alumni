@@ -19,7 +19,7 @@ Page({
 
   async loadActivityDetail() {
     const { activityId } = this.data
-    
+
     if (!activityId) {
       this.setData({
         loading: false,
@@ -31,7 +31,7 @@ Page({
     try {
       this.setData({ loading: true, error: '' })
       wx.showLoading({ title: '加载中...' })
-      
+
       // 调用 /alumniAssociationManagement/activity/detail/{activityId} 接口
       const res = await this.getActivityDetail(activityId)
       wx.hideLoading()
@@ -40,12 +40,12 @@ Page({
 
       if (res.data && (res.data.code === 0 || res.data.code === 200) && res.data.data) {
         const activityData = res.data.data
-        
+
         // 处理活动图片
         let activityImages = []
         if (activityData.activityImages) {
           let imagesArray = []
-          
+
           // 处理字符串类型的activityImages
           if (typeof activityData.activityImages === 'string') {
             // 去除反引号
@@ -56,9 +56,9 @@ Page({
             }
             // 去除多余的空格，但保留URL内部的空格
             cleanStr = cleanStr.replace(/\s*([\[\]\",])\s*/g, '$1')
-            
+
             console.log('[ActivityDetail] 清理后的activityImages:', cleanStr)
-            
+
             // 检查是否是JSON数组格式
             if (cleanStr.startsWith('[') && cleanStr.endsWith(']')) {
               try {
@@ -101,7 +101,7 @@ Page({
             // 已经是数组，直接使用
             imagesArray = activityData.activityImages
           }
-          
+
           // 处理图片URL数组
           if (imagesArray.length > 0) {
             // 去除图片URL中的反引号和空格
@@ -110,12 +110,18 @@ Page({
               console.log('[ActivityDetail] 清理后的单个URL:', cleaned)
               return cleaned
             }).filter(url => url && url.startsWith('http')) // 过滤掉无效的URL
-            
+
             console.log('[ActivityDetail] 最终的图片数组:', activityImages)
           }
         }
-        
+
         console.log('[ActivityDetail] 最终要显示的图片数组:', activityImages)
+
+        // 格式化时间字段
+        if (activityData.startTime) activityData.startTime = this.formatDateTime(activityData.startTime)
+        if (activityData.endTime) activityData.endTime = this.formatDateTime(activityData.endTime)
+        if (activityData.registrationStartTime) activityData.registrationStartTime = this.formatDateTime(activityData.registrationStartTime)
+        if (activityData.registrationEndTime) activityData.registrationEndTime = this.formatDateTime(activityData.registrationEndTime)
 
         this.setData({
           activityInfo: activityData,
@@ -214,7 +220,7 @@ Page({
   getOrganizerTypeText(organizerType) {
     const typeMap = {
       1: '校友会',
-      2: '校处会',
+      2: '校促会',
       3: '商铺',
       4: '母校',
       5: '门店'
@@ -268,7 +274,7 @@ Page({
   // 报名活动
   joinActivity() {
     const { activityInfo } = this.data
-    
+
     if (!activityInfo.isSignup || activityInfo.isSignup === 0) {
       wx.showToast({
         title: '该活动无需报名',

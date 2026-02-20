@@ -104,13 +104,19 @@ Page({
             statusText = '待审核'
           }
           
+          // 格式化时间，移除T字符
+          let formattedTime = item.createTime || ''
+          if (formattedTime) {
+            formattedTime = formattedTime.replace('T', ' ')
+          }
+          
           return {
             id: item.homeArticleId,
             articleId: item.homeArticleId,
             nickname: item.articleTitle,
             avatar: item.publisherAvatar,
             school: '', // API返回中没有school字段，暂时为空
-            submitTime: item.createTime,
+            submitTime: formattedTime,
             status: status,
             statusText: statusText,
             userId: currentUserId,

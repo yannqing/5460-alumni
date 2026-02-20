@@ -4,12 +4,13 @@ const config = require('../../../utils/config.js')
 
 const DEFAULT_SCHOOL_AVATAR = config.defaultSchoolAvatar
 const DEFAULT_COVER = config.defaultCover
-const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
+const DEFAULT_ALUMNI_AVATAR = config.defaultAvatar
 
 Page({
   data: {
     // 图标路径
     iconLocation: config.getIconUrl('position.png'),
+    iconPeople: '/assets/icons/people.png',
     schoolId: '',
     schoolInfo: null,
     loading: true,
@@ -93,10 +94,11 @@ Page({
           contactInfo: item.contactInfo,
           location: item.location,
           memberCount: item.memberCount,
+          logo: item.logo,
           // 前端通用字段
           id: item.alumniAssociationId != null ? String(item.alumniAssociationId) : '',
           name: item.associationName || '',
-          icon: DEFAULT_ALUMNI_AVATAR,
+          icon: item.logo || DEFAULT_ALUMNI_AVATAR,
           isCertified: false,
           isJoined: false
         }))

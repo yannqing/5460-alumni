@@ -1,40 +1,64 @@
 /* pages/merchant/my-merchant/my-merchant.wxss */
-.my-merchant-page {
-  min-height: 100vh;
-  background-color: #f8f8f8;
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.page-content {
-  padding: 20px;
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 30rpx 30rpx 30rpx 30rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+  z-index: 0;
 }
 
 
 
 .loading-state {
-  padding: 40px 0;
+  padding: 80rpx 0;
   text-align: center;
   color: #999;
-  font-size: 14px;
+  font-size: 28rpx;
 }
 
 .empty-state {
-  padding: 40px 0;
+  padding: 80rpx 0;
   text-align: center;
   color: #999;
-  font-size: 14px;
+  font-size: 28rpx;
 }
 
 .merchant-list {
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .merchant-item {
   position: relative;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 30rpx;
+  background-color: #F9F9F9;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
@@ -64,23 +88,25 @@
 }
 
 .merchant-name {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 32rpx;
+  font-weight: 600;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
 }
 
 .merchant-details {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
+  line-height: 1.5;
 }
 
-
 .merchant-contact {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
+  line-height: 1.5;
 }
 
 .contact-item {
@@ -88,10 +114,10 @@
 }
 
 .merchant-scope {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #666;
-  margin-bottom: 8px;
-  line-height: 1.4;
+  margin-bottom: 0;
+  line-height: 1.6;
 }
 
 .scope-label {
@@ -104,27 +130,22 @@
 
 /* 申请商户按钮样式 */
 .apply-merchant-btn {
-  margin-top: 30px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #40B2E6;
+  margin-top: 40rpx;
+  margin-bottom: 0;
+  padding: 24rpx;
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
   color: #fff;
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: 500;
   text-align: center;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(64, 178, 230, 0.3);
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(55, 89, 199, 0.3);
   transition: all 0.3s ease;
 }
 
-.apply-merchant-btn:hover {
-  background-color: #33a0d6;
-  box-shadow: 0 6px 12px rgba(64, 178, 230, 0.4);
-  transform: translateY(-2px);
-}
-
 .apply-merchant-btn:active {
-  transform: translateY(0);
+  background: linear-gradient(180deg, #2d4ab3 0%, #4562c0 100%);
+  transform: scale(0.98);
 }
 
 
