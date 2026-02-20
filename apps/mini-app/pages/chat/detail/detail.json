@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "聊天",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "message-notification": "/components/message-notification/message-notification",
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}
+
+

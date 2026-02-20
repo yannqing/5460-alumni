@@ -1,0 +1,269 @@
+<!--pages/enterprise/edit/edit.wxml-->
+<view class="container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 错误状态 -->
+  <view class="error-container" wx:elif="{{error}}">
+    <text>{{error}}</text>
+    <button bindtap="loadPlaceDetail" type="primary">重试</button>
+  </view>
+  
+  <!-- 表单内容 -->
+  <view class="form-content" wx:else>
+    <form bindsubmit="submitForm">
+      <!-- 基本信息 -->
+      <view class="form-section">
+        <view class="section-title">基本信息</view>
+        
+        <view class="form-item">
+          <text class="form-label">企业名称</text>
+          <input 
+            type="text" 
+            placeholder="请输入企业名称" 
+            value="{{formData.placeName}}" 
+            data-field="placeName"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">类型</text>
+          <view class="form-static">企业</view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">校友会</text>
+          <view class="picker-container">
+            <picker 
+              bindchange="bindAssociationChange" 
+              value="{{selectedAssociationIndex}}" 
+              range="{{associations}}" 
+              range-key="associationName"
+              class="form-picker"
+            >
+              <view class="picker-display">
+                {{selectedAssociation ? selectedAssociation.associationName : '请选择校友会'}}
+              </view>
+            </picker>
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">成立时间</text>
+          <input 
+            type="text" 
+            placeholder="请输入成立时间，格式：2024-01-01" 
+            value="{{formData.establishedTime}}" 
+            data-field="establishedTime"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">营业时间</text>
+          <input 
+            type="text" 
+            placeholder="请输入营业时间" 
+            value="{{formData.businessHours}}" 
+            data-field="businessHours"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">运营状态</text>
+          <picker 
+            range="{{pickerOptions.status}}" 
+            range-key="name"
+            value="{{formData.status}}"
+            bindchange="onPickerChange"
+            data-field="status"
+            class="form-picker"
+          >
+            <view class="picker-display">
+              {{formData.status === 1 ? '正常运营' : formData.status === 2 ? '装修中' : '停业'}}
+            </view>
+          </picker>
+        </view>
+        
+
+      </view>
+      
+      <!-- 联系方式 -->
+      <view class="form-section">
+        <view class="section-title">联系方式</view>
+        
+        <view class="form-item">
+          <text class="form-label">联系电话</text>
+          <input 
+            type="text" 
+            placeholder="请输入联系电话" 
+            value="{{formData.contactPhone}}" 
+            data-field="contactPhone"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">联系邮箱</text>
+          <input 
+            type="text" 
+            placeholder="请输入联系邮箱" 
+            value="{{formData.contactEmail}}" 
+            data-field="contactEmail"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+      </view>
+      
+      <!-- 地址信息 -->
+      <view class="form-section">
+        <view class="section-title">地址信息</view>
+        
+        <view class="form-item">
+          <text class="form-label">省份</text>
+          <input 
+            type="text" 
+            placeholder="请输入省份" 
+            value="{{formData.province}}" 
+            data-field="province"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">城市</text>
+          <input 
+            type="text" 
+            placeholder="请输入城市" 
+            value="{{formData.city}}" 
+            data-field="city"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">区县</text>
+          <input 
+            type="text" 
+            placeholder="请输入区县" 
+            value="{{formData.district}}" 
+            data-field="district"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">详细地址</text>
+          <input 
+            type="text" 
+            placeholder="请输入详细地址" 
+            value="{{formData.address}}" 
+            data-field="address"
+            bindinput="onInput"
+            class="form-input"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">企业位置</text>
+          <view class="location-selector">
+            <input 
+              class="form-input location-input" 
+              placeholder="请选择企业位置" 
+              value="{{formData.locationName}}" 
+              disabled 
+            />
+            <button 
+              class="select-location-btn" 
+              bindtap="selectLocation"
+            >选择位置</button>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 其他信息 -->
+      <view class="form-section">
+        <view class="section-title">其他信息</view>
+        
+        <view class="form-item">
+          <text class="form-label">Logo图片</text>
+          <view class="upload-container">
+            <!-- 图片列表 -->
+            <view class="image-list">
+              <!-- 已上传的Logo图片 -->
+              <view class="image-item" wx:for="{{logoImageList}}" wx:key="index">
+                <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
+                <!-- 删除按钮 -->
+                <view class="image-delete-btn" data-type="logo" data-index="{{index}}" bindtap="onDeleteImage">
+                  <text class="delete-icon">×</text>
+                </view>
+              </view>
+              
+              <!-- 上传按钮 -->
+              <view class="upload-btn" bindtap="onLogoImageUpload" wx:if="{{logoImageList.length < 1}}">
+                <text class="upload-icon">+</text>
+                <text class="upload-text">点击上传Logo</text>
+              </view>
+            </view>
+            <text class="image-count">最多上传1张图片</text>
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">企业图片</text>
+          <view class="upload-container">
+            <!-- 图片列表 -->
+            <view class="image-list">
+              <!-- 已上传的企业图片 -->
+              <view class="image-item" wx:for="{{enterpriseImageList}}" wx:key="index">
+                <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
+                <!-- 删除按钮 -->
+                <view class="image-delete-btn" data-type="enterprise" data-index="{{index}}" bindtap="onDeleteImage">
+                  <text class="delete-icon">×</text>
+                </view>
+              </view>
+              
+              <!-- 上传按钮 -->
+              <view class="upload-btn" bindtap="onEnterpriseImageUpload" wx:if="{{enterpriseImageList.length < 9}}">
+                <text class="upload-icon">+</text>
+                <text class="upload-text">上传企业图片</text>
+              </view>
+            </view>
+            <text class="image-count">最多上传9张图片</text>
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">企业描述</text>
+          <textarea 
+            placeholder="请输入企业描述" 
+            value="{{formData.description}}" 
+            data-field="description"
+            bindinput="onInput"
+            class="form-textarea"
+            style="height: 120px;"
+          ></textarea>
+        </view>
+      </view>
+      
+      <!-- 提交按钮 -->
+      <view class="form-submit">
+        <button type="primary" formType="submit" class="submit-button">提交</button>
+      </view>
+    </form>
+  </view>
+  
+
+</view>

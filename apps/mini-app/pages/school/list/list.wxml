@@ -1,0 +1,98 @@
+<!--pages/school/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校友总会" showBack="{{true}}"></custom-nav-bar>
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <input class="search-input" type="text" placeholder="搜索母校名称、曾用名、合并院校名称" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <image class="search-icon" src="{{iconSearch}}" mode="aspectFit" bindtap="onSearch" />
+    </view>
+  </view>
+
+  <!-- 筛选和排序栏 -->
+  <view class="filter-bar">
+    <!-- 第一个：办学层次选择 -->
+    <view class="filter-item">
+      <picker mode="selector" range="{{levelList}}" value="{{levelList.indexOf(selectedLevel) >= 0 ? levelList.indexOf(selectedLevel) : 0}}" bindchange="onLevelChange">
+        <text class="{{selectedLevel && selectedLevel !== '全部' ? 'theme-color' : ''}}">{{selectedLevel === '全部' ? '全部层次' : (selectedLevel || '全部层次')}}</text>
+        <text class="arrow-down">▾</text>
+      </picker>
+    </view>
+    <!-- 第二个：地区选择（自定义省市级选择器，只到市） -->
+    <view class="filter-item">
+      <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+        <text class="{{region && region.length > 0 ? 'theme-color' : ''}}">{{regionDisplayText || '全部城市'}}</text>
+        <text class="arrow-down">▾</text>
+      </picker>
+    </view>
+    <!-- 第三个：排序 -->
+    <view class="filter-item" bindtap="showSortPanel">
+      <text>{{selectedSort}}</text>
+      <text class="arrow-down">▾</text>
+    </view>
+    <!-- 第四个：我的关注 -->
+    <view class="filter-item" bindtap="goToMyFollow">
+      <text>我的关注</text>
+      <text class="arrow-down">▾</text>
+    </view>
+  </view>
+
+  <!-- 学校列表 -->
+  <view class="school-list">
+    <view class="school-item" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <view class="school-header">
+        <image class="school-icon" src="{{item.icon}}" mode="aspectFill" />
+        <view class="school-info">
+          <view class="school-name-row">
+            <text class="school-name">{{item.name}}</text>
+            <view wx:if="{{item.isCertified}}" class="certified-badge">✓ 认证</view>
+          </view>
+          <view wx:if="{{item.level}}" class="school-old-names">
+            <text class="old-name-label">办学层次：</text>
+            <text>{{item.level}}</text>
+          </view>
+          <view class="school-location">
+            <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+            <text>{{item.location}}</text>
+          </view>
+        </view>
+        <view class="school-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+          <view class="btn btn-small {{item.isFollowed ? 'btn-plain' : 'btn-primary'}}">
+            {{item.isFollowed ? '已关注' : '+ 关注'}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <view wx:elif="{{!hasMore}}" class="loading">没有更多了</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && schoolList.length === 0}}" class="empty-state">
+      <view class="empty-placeholder">暂无数据</view>
+      <text>暂无数据</text>
+    </view>
+  </view>
+
+  <!-- 排序弹窗 -->
+  <view class="popup-mask" wx:if="{{showSort}}" bindtap="hideSortPanel" catchtouchmove="true">
+    <view class="popup-content" catchtap="stopPropagation">
+      <view class="popup-header">
+        <text class="popup-title">选择排序</text>
+        <text class="popup-close" bindtap="hideSortPanel">✕</text>
+      </view>
+      <view class="sort-list">
+        <view class="sort-item {{selectedSort === item.label ? 'active' : ''}}" wx:for="{{sortOptions}}" wx:key="value" bindtap="onSortChange" data-value="{{item.value}}" data-label="{{item.label}}">
+          <text>{{item.label}}</text>
+          <text wx:if="{{selectedSort === item.label}}" class="check-icon">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

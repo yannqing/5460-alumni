@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "加载中...",
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#ffffff",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}
+
+
+
+
+

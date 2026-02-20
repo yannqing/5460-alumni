@@ -1,0 +1,7 @@
+{
+    "navigationBarTitleText": "申请创建校友会",
+    "navigationStyle": "custom",
+    "usingComponents": {
+        "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+    }
+}

@@ -1,0 +1,85 @@
+<!--pages/info-maintenance/edit/edit.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="编辑校友会信息" showBack="{{true}}"></custom-nav-bar>
+
+<view class="edit-page">
+  <form bindsubmit="submitForm">
+    <!-- 校友会名称 -->
+    <view class="form-section">
+      <view class="form-label">校友会名称</view>
+      <input 
+        class="form-input" 
+        placeholder="请输入校友会名称" 
+        value="{{formData.associationName}}" 
+        bindinput="handleInput" 
+        data-field="associationName"
+      />
+    </view>
+
+    <!-- 联系信息 -->
+    <view class="form-section">
+      <view class="form-label">联系信息</view>
+      <textarea 
+        class="form-textarea" 
+        placeholder="请输入联系信息" 
+        value="{{formData.contactInfo}}" 
+        bindinput="handleInput" 
+        data-field="contactInfo"
+      />
+    </view>
+
+    <!-- 常驻地点 -->
+    <view class="form-section">
+      <view class="form-label">常驻地点</view>
+      <input 
+        class="form-input" 
+        placeholder="请输入常驻地点" 
+        value="{{formData.location}}" 
+        bindinput="handleInput" 
+        data-field="location"
+      />
+    </view>
+
+    <!-- 校友会logo -->
+    <view class="form-section">
+      <view class="form-label">校友会logo</view>
+      <input 
+        class="form-input" 
+        placeholder="请输入logo URL" 
+        value="{{formData.logo}}" 
+        bindinput="handleInput" 
+        data-field="logo"
+      />
+    </view>
+
+    <!-- 背景图 -->
+    <view class="form-section">
+      <view class="form-label">背景图</view>
+      <textarea 
+        class="form-textarea" 
+        placeholder="请输入背景图JSON数组" 
+        value="{{formData.bgImg}}" 
+        bindinput="handleInput" 
+        data-field="bgImg"
+      />
+    </view>
+
+    <!-- 状态 -->
+    <view class="form-section">
+      <view class="form-label">状态</view>
+      <view class="status-selector">
+        <label class="radio-label">
+          <radio value="1" checked="{{formData.status == 1}}" bindchange="handleStatusChange" />
+          <text>启用</text>
+        </label>
+        <label class="radio-label">
+          <radio value="0" checked="{{formData.status == 0}}" bindchange="handleStatusChange" />
+          <text>禁用</text>
+        </label>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button class="submit-button" form-type="submit" loading="{{submitting}}">保存修改</button>
+  </form>
+</view>

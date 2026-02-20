@@ -1,0 +1,431 @@
+/* pages/audit/merchant/shop-audit/shop-audit.wxss */
+
+/* 页面容器 */
+.shop-audit-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+/* 页面标题 */
+.page-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  text-align: center;
+}
+
+/* 卡片样式 */
+.form-card {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 加载状态 */
+.loading-state {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60rpx 0;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 店铺项 */
+.shop-item {
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  background-color: #fff;
+}
+
+/* 店铺头部 */
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.shop-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.shop-type {
+  font-size: 24rpx;
+  color: #666;
+  background-color: #f0f0f0;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+}
+
+/* 店铺信息 */
+.shop-info {
+  margin-bottom: 20rpx;
+}
+
+.info-item {
+  margin-bottom: 12rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.info-label {
+  color: #999;
+  margin-right: 10rpx;
+}
+
+.info-value {
+  color: #666;
+}
+
+/* 状态文本 */
+.status-text {
+  color: #ff9800;
+}
+
+/* 审核操作 */
+.audit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+}
+
+.approve-btn {
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  padding: 12rpx 24rpx;
+  font-size: 28rpx;
+  line-height: 1.2;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  padding: 12rpx 24rpx;
+  font-size: 28rpx;
+  line-height: 1.2;
+}
+
+/* 审核结果 */
+.audit-result {
+  text-align: right;
+  padding: 8rpx 0;
+}
+
+.result-text {
+  font-size: 28rpx;
+  color: #4caf50;
+}
+
+/* 模态框 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 12rpx;
+  width: 80%;
+  max-width: 600rpx;
+  z-index: 1001;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #e0e0e0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999;
+  cursor: pointer;
+}
+
+.modal-content {
+  padding: 20rpx;
+}
+
+/* 审核店铺名称 */
+.audit-shop-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  text-align: center;
+  padding: 10rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+}
+
+/* 表单样式 */
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+/* 单选组 */
+.radio-group {
+  display: flex;
+  gap: 40rpx;
+  align-items: center;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 文本域 */
+.form-textarea {
+  width: 100%;
+  height: 160rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  resize: none;
+}
+
+/* 商户选择器 */
+.merchant-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  background-color: #fafafa;
+}
+
+.selector-label {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.selector-arrow {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 商户选择器弹窗 */
+.merchant-picker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.picker-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.picker-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 16rpx 16rpx 0 0;
+  padding: 20rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #e0e0e0;
+  margin-bottom: 20rpx;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.picker-cancel {
+  font-size: 28rpx;
+  color: #999;
+  padding: 10rpx 20rpx;
+}
+
+.picker-list {
+  margin-bottom: 20rpx;
+}
+
+.picker-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin-bottom: 10rpx;
+  background-color: #f5f5f5;
+}
+
+.item-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.item-check {
+  font-size: 28rpx;
+  color: #1989fa;
+  font-weight: bold;
+}
+
+.picker-empty {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 分页样式 */
+.pagination {
+  margin-top: 30rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #e0e0e0;
+}
+
+.pagination-info {
+  text-align: center;
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.page-btn {
+  padding: 10rpx 20rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #fff;
+}
+
+.page-btn[disabled] {
+  color: #999;
+  background-color: #f5f5f5;
+}
+
+.page-input {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.page-number {
+  width: 100rpx;
+  height: 60rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  padding: 0 10rpx;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+/* 拒绝原因样式 */
+.reject-reason {
+  color: #f44336;
+  font-weight: bold;
+}
+
+/* 表单操作按钮 */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  margin-top: 30rpx;
+}
+
+.btn-cancel {
+  background-color: #f0f0f0;
+  color: #666;
+  border: none;
+  border-radius: 8rpx;
+  padding: 16rpx 32rpx;
+  font-size: 28rpx;
+  line-height: 1.2;
+}
+
+.btn-submit {
+  background-color: #1989fa;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  padding: 16rpx 32rpx;
+  font-size: 28rpx;
+  line-height: 1.2;
+}

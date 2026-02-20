@@ -1,0 +1,106 @@
+<!--pages/alumni-union/detail/detail.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="校友总会" showBack="{{true}}"></custom-nav-bar>
+
+<view class="container">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <view wx:elif="{{unionInfo}}">
+    <!-- 封面图 -->
+    <view class="cover-section">
+      <image class="cover-image" src="{{unionInfo.cover}}" mode="aspectFill" bindtap="previewImage" data-url="{{unionInfo.cover}}" />
+      <view class="cover-overlay">
+        <view class="union-basic">
+          <image class="union-icon-large avatar avatar-large" src="{{unionInfo.icon}}" mode="aspectFill" />
+          <view class="union-basic-info">
+            <view class="union-name-row">
+              <text class="union-name-large">{{unionInfo.headquartersName}}</text>
+            </view>
+            <view class="union-school">{{unionInfo.schoolName}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="info-section card">
+      <view class="section-title-small">基本信息</view>
+
+      <view class="info-row">
+        <view class="info-label">名称</view>
+        <view class="info-value">{{unionInfo.headquartersName}}</view>
+      </view>
+
+      <view class="info-row">
+        <view class="info-label">所属学校</view>
+        <view class="info-value">{{unionInfo.schoolName}}</view>
+      </view>
+
+      <view wx:if="{{unionInfo.description}}" class="info-row">
+        <view class="info-label">简介</view>
+        <view class="info-value description-text">{{unionInfo.description}}</view>
+      </view>
+
+      <view class="info-row" wx:if="{{unionInfo.memberCount}}">
+        <view class="info-label">下属校友会数</view>
+        <view class="info-value">{{unionInfo.memberCount}}</view>
+      </view>
+
+      <view class="info-row" wx:if="{{unionInfo.establishedDate}}">
+        <view class="info-label">成立日期</view>
+        <view class="info-value">{{unionInfo.establishedDate}}</view>
+      </view>
+
+      <view class="info-row" wx:if="{{unionInfo.level}}">
+        <view class="info-label">级别</view>
+        <view class="info-value">{{unionInfo.level}}</view>
+      </view>
+    </view>
+
+    <!-- 联系方式 -->
+    <view class="contact-section card">
+      <view class="section-title-small">联系方式</view>
+
+      <view class="contact-item" wx:if="{{unionInfo.website}}">
+        <view class="contact-label">官方网站</view>
+        <view class="contact-value link-text" bindtap="copyWebsite">{{unionInfo.website}}</view>
+      </view>
+
+      <view class="contact-item" wx:if="{{unionInfo.phone}}">
+        <view class="contact-label">联系电话</view>
+        <view class="contact-value link-text" bindtap="makeCall" data-phone="{{unionInfo.phone}}">{{unionInfo.phone}}</view>
+      </view>
+
+      <view class="contact-item" wx:if="{{unionInfo.email}}">
+        <view class="contact-label">电子邮箱</view>
+        <view class="contact-value link-text" bindtap="copyEmail" data-email="{{unionInfo.email}}">{{unionInfo.email}}</view>
+      </view>
+
+      <view class="contact-item" wx:if="{{unionInfo.wechatPublicAccount}}">
+        <view class="contact-label">微信公众号</view>
+        <view class="contact-value">{{unionInfo.wechatPublicAccount}}</view>
+      </view>
+
+      <view class="contact-item" wx:if="{{unionInfo.address}}">
+        <view class="contact-label">地址</view>
+        <view class="contact-value">{{unionInfo.address}}</view>
+      </view>
+    </view>
+
+    <!-- 小程序跳转 -->
+    <view wx:if="{{unionInfo.hasApp}}" class="app-section card">
+      <view class="app-tip" catchtap="navigateToMiniProgram">
+        <text class="tip-icon"></text>
+        <text class="tip-text link-text">该校友总会已开通小程序，点击此处跳转</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="empty-state">
+    <image src="{{emptyImage}}" mode="aspectFill" />
+    <text>暂无校友总会信息</text>
+  </view>
+</view>
+

@@ -1,0 +1,10 @@
+<!--pages/chat/settings/settings.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="聊天设置" showBack="{{true}}"></custom-nav-bar>
+
+<view class="settings-page">
+  <view class="settings-content">
+    <text>聊天设置页面</text>
+  </view>
+</view>
+

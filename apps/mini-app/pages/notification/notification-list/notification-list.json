@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "系统通知",
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f8f8f8",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}

@@ -1,0 +1,147 @@
+<!--pages/benefit/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="附近权益" showBack="{{true}}"></custom-nav-bar>
+
+<view class="benefit-page">
+  <view class="hero-card">
+    <view class="hero-top">
+      <view class="hero-location">
+        <text class="hero-label">附近权益</text>
+        <view class="location-row">
+          <text class="location-city">{{location.name}}</text>
+          <text class="location-distance">{{location.distance}}</text>
+        </view>
+      </view>
+      <view class="refresh-btn" bindtap="refreshPage">刷新</view>
+    </view>
+
+    <view class="search-bar">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索商户 / 权益 / 标签"
+        value="{{searchValue}}"
+        confirm-type="search"
+        bindinput="handleSearchInput"
+        bindconfirm="handleSearchConfirm"
+      />
+      <view class="search-action" bindtap="handleSearchConfirm">搜索</view>
+    </view>
+
+    <view class="hero-stats">
+      <view class="stats-item">
+        <text class="stats-value">{{stats.total}}</text>
+        <text class="stats-label">可用权益</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-value">{{stats.newArrivals}}</text>
+        <text class="stats-label">今日上新</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-value">{{stats.remindCount}}</text>
+        <text class="stats-label">已设置提醒</text>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="category-bar" scroll-x enable-flex>
+    <view
+      wx:for="{{categories}}"
+      wx:key="id"
+      wx:for-item="item"
+      class="category-chip {{selectedCategory === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="handleCategoryChange"
+    >
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <view class="sort-row">
+    <view
+      class="sort-option {{sortType === option.id ? 'active' : ''}}"
+      wx:for="{{sortOptions}}"
+      wx:key="id"
+      wx:for-item="option"
+      data-id="{{option.id}}"
+      bindtap="handleSortChange"
+    >
+      {{option.label}}
+    </view>
+    <view class="sort-extra" bindtap="getLocation">重新定位</view>
+  </view>
+
+  <view class="benefit-list">
+    <block wx:if="{{loading}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="skeleton-line wide"></view>
+        <view class="skeleton-line"></view>
+        <view class="skeleton-tags">
+          <view class="skeleton-tag"></view>
+          <view class="skeleton-tag"></view>
+        </view>
+      </view>
+    </block>
+
+    <block wx:elif="{{displayList.length}}">
+      <view class="benefit-card" wx:for="{{displayList}}" wx:key="id">
+        <view class="card-cover" bindtap="viewDetail" data-id="{{item.id}}">
+          <image src="{{item.cover}}" mode="aspectFill"></image>
+          <view wx:if="{{item.isNew}}" class="badge badge-new">上新</view>
+          <view class="badge badge-distance">{{item.distance}}m</view>
+          <view
+            class="favorite {{item.favorite ? 'fav-on' : ''}}"
+            data-id="{{item.id}}"
+            catchtap="toggleFavorite"
+          >
+            {{item.favorite ? '♥' : '♡'}}
+          </view>
+        </view>
+
+        <view class="card-content">
+          <view class="card-title" bindtap="viewDetail" data-id="{{item.id}}">
+            {{item.title}}
+          </view>
+          <view class="card-merchant" data-merchant="{{item.merchant}}" bindtap="goToMerchant">
+            {{item.merchant}}
+          </view>
+          <view class="card-tags">
+            <view class="tag discount">{{item.discount}}</view>
+            <view
+              class="tag"
+              wx:for="{{item.tags}}"
+              wx:for-item="tag"
+              wx:key="*this"
+            >
+              {{tag}}
+            </view>
+          </view>
+          <view class="card-footer">
+            <view class="expire">有效期至 {{item.expireDate}}</view>
+            <view class="popularity">热度 {{item.popularity}}</view>
+          </view>
+        </view>
+
+        <view class="card-actions">
+          <view
+            class="action-btn remind {{item.remindSet ? 'active' : ''}}"
+            catchtap="toggleRemind"
+            data-id="{{item.id}}"
+          >
+            {{item.remindSet ? '取消提醒' : '到期提醒'}}
+          </view>
+          <view class="action-btn detail" bindtap="viewDetail" data-id="{{item.id}}">
+            可享优惠
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view class="empty-state" wx:else>
+      <image class="empty-img" src="https://cdn.example.com/empty-benefit.png" mode="widthFix"></image>
+      <text class="empty-text">暂无符合条件的权益</text>
+      <view class="empty-btn" bindtap="refreshPage">重置筛选</view>
+    </view>
+  </view>
+</view>
+

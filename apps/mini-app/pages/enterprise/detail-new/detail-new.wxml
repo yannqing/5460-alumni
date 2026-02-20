@@ -1,0 +1,131 @@
+<!--pages/enterprise/detail-new/detail-new.wxml-->
+<view class="container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 错误状态 -->
+  <view class="error-container" wx:elif="{{error}}">
+    <text>{{error}}</text>
+    <button bindtap="loadPlaceDetail" type="primary">重试</button>
+  </view>
+  
+  <!-- 详情内容 -->
+  <view class="detail-content" wx:else>
+    <!-- 头部信息 -->
+    <view class="header-section">
+      <view class="place-header">
+        <!-- Logo -->
+        <view class="logo-container" wx:if="{{place.logo}}">
+          <image src="{{place.logo}}" mode="aspectFit" class="place-logo"></image>
+        </view>
+        <view class="header-info">
+          <text class="place-name">{{place.placeName}}</text>
+          <text class="review-status">{{place.reviewStatus === 1 ? '审核通过' : place.reviewStatus === 2 ? '审核失败' : '待审核'}}</text>
+        </view>
+        <!-- 编辑按钮 -->
+        <button bindtap="navigateToEdit" type="primary" size="mini" class="edit-button">编辑</button>
+      </view>
+    </view>
+    
+    <!-- 企业宣传图 -->
+    <view class="images-section" wx:if="{{place.images && place.images.length > 0}}">
+      <view class="section-title">企业宣传</view>
+      <view class="images-container">
+        <swiper indicator-dots="true" autoplay="true" interval="3000" duration="500">
+          <swiper-item wx:for="{{place.images}}" wx:key="{{index}}">
+            <image src="{{item}}" mode="aspectFill" class="promotion-image"></image>
+          </swiper-item>
+        </swiper>
+      </view>
+    </view>
+    
+    <!-- 基本信息 -->
+    <view class="info-section">
+      <view class="section-title">基本信息</view>
+      
+      <view class="info-item">
+        <text class="info-label">运营状态：</text>
+        <text class="info-value">{{place.status === 1 ? '正常运营' : place.status === 2 ? '筹建中' : '停业/关闭'}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">类型：</text>
+        <text class="info-value">{{place.placeType === 1 ? '企业' : '场所'}}</text>
+      </view>
+      
+      <view class="info-item" wx:if="{{place.isRecommended === 1}}">
+        <text class="info-label">推荐状态：</text>
+        <text class="info-value recommended">校友会推荐</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">成立时间：</text>
+        <text class="info-value">{{place.establishedTime || '未设置'}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">营业/办公时间：</text>
+        <text class="info-value">{{place.businessHours || '未设置'}}</text>
+      </view>
+    </view>
+    
+    <!-- 联系方式 -->
+    <view class="info-section">
+      <view class="section-title">联系方式</view>
+      
+      <view class="info-item">
+        <text class="info-label">联系电话：</text>
+        <text class="info-value">{{place.contactPhone || '未设置'}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">联系邮箱：</text>
+        <text class="info-value">{{place.contactEmail || '未设置'}}</text>
+      </view>
+    </view>
+    
+    <!-- 地址信息 -->
+    <view class="info-section">
+      <view class="section-title">地址信息</view>
+      
+      <view class="info-item">
+        <text class="info-label">地址：</text>
+        <text class="info-value">{{place.province}}{{place.city}}{{place.district}}{{place.address}}</text>
+      </view>
+    </view>
+    
+    <!-- 企业简介 -->
+    <view class="info-section" wx:if="{{place.description}}">
+      <view class="section-title">企业简介</view>
+      <view class="description-content">
+        <text>{{place.description}}</text>
+      </view>
+    </view>
+    
+    <!-- 统计信息 -->
+    <view class="info-section">
+      <view class="section-title">统计信息</view>
+      
+      <view class="stats-row">
+        <view class="stat-item">
+          <text class="stat-value">{{place.viewCount || 0}}</text>
+          <text class="stat-label">浏览次数</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{place.clickCount || 0}}</text>
+          <text class="stat-label">点击次数</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{place.ratingScore || 0}}</text>
+          <text class="stat-label">评分</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{place.ratingCount || 0}}</text>
+          <text class="stat-label">评价数量</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

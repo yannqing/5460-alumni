@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "商户申请详情",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}

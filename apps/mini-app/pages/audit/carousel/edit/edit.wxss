@@ -1,0 +1,3 @@
+/* pages/audit/carousel/edit/edit.wxss */
+/* 复用创建页面的样式 */
+@import '../create/create.wxss';

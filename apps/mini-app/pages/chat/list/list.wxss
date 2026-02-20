@@ -1,0 +1,330 @@
+/* pages/chat/list/list.wxss */
+.chat-page {
+  height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* 菜单栏 */
+.menu-bar {
+  background-color: #fff;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  color: #333;
+}
+
+.menu-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 侧边栏 */
+.sidebar-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.sidebar-mask.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 560rpx;
+  max-width: 80%;
+  background-color: #fff;
+  z-index: 201;
+  transform: translateX(-100%);
+  transition: transform 0.3s;
+  box-shadow: 2rpx 0 12rpx rgba(0, 0, 0, 0.1);
+  padding-top: env(safe-area-inset-top);
+}
+
+.sidebar.show {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.sidebar-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.sidebar-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-content {
+  padding: 20rpx 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 40rpx;
+  active-color: #f9f9f9;
+}
+
+.sidebar-item:active {
+  background-color: #f5f5f5;
+}
+
+.sidebar-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+  width: 40rpx;
+  text-align: center;
+}
+
+.sidebar-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.sidebar-arrow {
+  font-size: 32rpx;
+  color: #ccc;
+}
+
+/* 聊天列表 */
+.chat-list {
+  flex: 1;
+  height: 0; /* 配合 flex: 1 实现滚动 */
+}
+
+/* 聊天项容器（支持滑动） */
+.chat-item-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  overflow: hidden;
+  background-color: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: relative;
+}
+
+/* 内容区域包装 */
+.chat-content-wrapper {
+  width: 100%;
+  display: flex;
+  padding: 24rpx 30rpx;
+  box-sizing: border-box;
+  transition: all 0.4s;
+  transform: translateX(0);
+  background-color: #fff;
+  /* 确保在操作按钮之上 */
+  z-index: 2; 
+}
+
+/* 滑动后的状态：内容左移，露出操作按钮 */
+.touch-move-active .chat-content-wrapper {
+  transform: translateX(-420rpx); /* 3个按钮的总宽度 */
+}
+.touch-move-active .action-buttons {
+  transform: translateX(-420rpx); /* 按钮也左移进入可视区 */
+}
+
+.chat-avatar-wrapper {
+  position: relative;
+  margin-right: 24rpx;
+}
+
+.chat-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+}
+
+.system-notification-avatar {
+  width: 65rpx;
+  height: 65rpx;
+}
+
+.online-status {
+  position: absolute;
+  right: -4rpx;
+  bottom: -4rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background-color: #4caf50;
+  border: 4rpx solid #fff;
+}
+
+.unread-badge {
+  position: absolute;
+  right: -10rpx;
+  top: -10rpx;
+  background-color: #ff3b30;
+  color: #fff;
+  font-size: 20rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+  box-sizing: border-box;
+  border: 2rpx solid #fff;
+}
+
+.chat-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.chat-name-wrap {
+  display: flex;
+  align-items: center;
+  max-width: 70%;
+}
+
+.chat-name {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-tag {
+  font-size: 20rpx;
+  color: #fff;
+  background-color: #ccc;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  margin-left: 12rpx;
+}
+
+.chat-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.chat-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-message {
+  font-size: 26rpx;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.chat-mute {
+  font-size: 24rpx;
+  color: #ccc;
+}
+
+/* 操作按钮区域 */
+.action-buttons {
+  width: 420rpx; /* 3个按钮 * 140rpx */
+  display: flex;
+  flex-direction: row;
+  color: #fff;
+  transform: translateX(0); /* 初始隐藏在右侧屏幕外 */
+  transition: all 0.4s;
+  /* 这里的布局有点 tricky，通常是用 absolute 或者 flex-shrink: 0 */
+  /* 使用绝对定位方案更稳妥 */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -420rpx; /* 初始在右侧外面 */
+  z-index: 1;
+}
+
+.action-btn {
+  width: 140rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28rpx;
+}
+
+.action-btn.pin {
+  background-color: #C7C7CC;
+}
+.action-btn.pin.unpin {
+  background-color: #999;
+}
+
+.action-btn.read {
+  background-color: #FF9500;
+}
+
+.action-btn.delete {
+  background-color: #FF3B30;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 20rpx;
+}

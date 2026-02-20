@@ -1,0 +1,19 @@
+<!--pages/circle/list/list.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar title="圈子" showBack="{{true}}"></custom-nav-bar>
+
+<view class="container">
+  <view class="circle-list">
+    <view class="card" wx:for="{{circleList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+      <image class="circle-cover" src="{{item.cover}}" mode="aspectFill" />
+      <view class="circle-info">
+        <view class="circle-name">{{item.name}}</view>
+        <view class="circle-stats">
+          <text>{{item.memberCount}}成员</text>
+          <text class="dot">•</text>
+          <text>{{item.postCount}}帖子</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

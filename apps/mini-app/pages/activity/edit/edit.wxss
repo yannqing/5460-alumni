@@ -1,0 +1,335 @@
+/* pages/activity/edit/edit.wxss */
+.publish-page {
+  padding: 20rpx;
+  background: #f7f8fa;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: 120rpx;
+}
+
+.form-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 20rpx;
+}
+
+.form-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 30rpx;
+  color: #333;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.required {
+  color: #ff4d4f;
+}
+
+.input {
+  border: 1rpx solid #eee;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textarea {
+  border: 1rpx solid #eee;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 160rpx;
+}
+
+.picker-value {
+  border: 1rpx solid #eee;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.form-picker-view {
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.picker-view-item {
+  height: 50rpx;
+  line-height: 50rpx;
+  font-size: 28rpx;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-hint {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  text-align: center;
+}
+/* 上传容器样式 */
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+/* 封面图预览样式 */
+.cover-preview {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.cover-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid #e5e5e5;
+  background-color: #fafafa;
+}
+
+.cover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.change-cover-btn {
+  background-color: #ff4d4f;
+  color: #fff;
+  font-size: 24rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  border: none;
+  transition: all 0.3s ease;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.change-cover-btn:hover {
+  background-color: #ff7875;
+}
+
+.change-cover-btn:active {
+  transform: scale(0.98);
+  background-color: #cf1322;
+}
+
+.delete-cover-btn {
+  background-color: #ff4d4f;
+  color: #fff;
+  font-size: 24rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  border: none;
+  transition: all 0.3s ease;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.delete-cover-btn:hover {
+  background-color: #ff7875;
+}
+
+.delete-cover-btn:active {
+  transform: scale(0.98);
+  background-color: #cf1322;
+}
+
+/* 上传按钮样式 */
+.upload-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 168rpx;
+  height: 168rpx;
+  border: 2rpx dashed #d0d0d0;
+  border-radius: 12rpx;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+  border-color: #ff4d4f;
+  background-color: #fff5f5;
+  transform: scale(1.02);
+}
+
+.upload-btn:active {
+  transform: scale(0.98);
+}
+
+.upload-icon {
+  font-size: 52rpx;
+  color: #888;
+  margin-bottom: 10rpx;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover .upload-icon {
+  color: #ff4d4f;
+  transform: scale(1.1);
+}
+
+.upload-text {
+  font-size: 22rpx;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover .upload-text {
+  color: #ff4d4f;
+}
+
+/* 图片列表样式 */
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+/* 图片项样式 */
+.image-item {
+  position: relative;
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1rpx solid #e5e5e5;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.image-item:active {
+  transform: scale(0.98);
+}
+
+.list-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 图片删除按钮 */
+.image-delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50rpx;
+  height: 50rpx;
+  background-color: rgba(255, 69, 69, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.image-delete-btn:active {
+  transform: scale(0.9);
+  background-color: rgba(255, 69, 69, 1);
+}
+
+.delete-icon {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* 图片数量提示 */
+.image-count {
+  font-size: 24rpx;
+  color: #999;
+  align-self: flex-start;
+}
+
+.submit-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx;
+  background: #fff;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.submit-btn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 32rpx;
+}
+
+.submit-btn[loading] {
+  opacity: 0.7;
+}
+
+/* 位置选择器样式 */
+.location-selector {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.location-input {
+  flex: 1;
+  background-color: #fafafa;
+  color: #999;
+}
+
+.select-location-btn {
+  background-color: #ff4d4f;
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 500;
+  border: none;
+  border-radius: 8rpx;
+  padding: 16rpx 24rpx;
+  transition: all 0.3s ease;
+}
+
+.select-location-btn:hover {
+  background-color: #ff7875;
+}
+
+.select-location-btn:active {
+  background-color: #cf1322;
+  transform: scale(0.98);
+}
