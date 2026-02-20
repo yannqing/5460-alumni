@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.association.mapper.AlumniAssociationApplicationMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.AlumniAssociationApplication">
+        <id property="applicationId" column="application_id" jdbcType="BIGINT"/>
+        <result property="associationName" column="association_name" jdbcType="VARCHAR"/>
+        <result property="schoolId" column="school_id" jdbcType="BIGINT"/>
+        <result property="platformId" column="platform_id" jdbcType="BIGINT"/>
+        <result property="chargeWxId" column="charge_wx_id" jdbcType="BIGINT"/>
+        <result property="chargeName" column="charge_name" jdbcType="VARCHAR"/>
+        <result property="chargeRoleId" column="charge_role_id" jdbcType="VARCHAR"/>
+        <result property="contactInfo" column="contact_info" jdbcType="VARCHAR"/>
+        <result property="location" column="location" jdbcType="VARCHAR"/>
+        <result property="logo" column="logo" jdbcType="VARCHAR"/>
+        <result property="applicationReason" column="application_reason" jdbcType="VARCHAR"/>
+        <result property="initialMembers" column="initial_members" jdbcType="VARCHAR"/>
+        <result property="applicationStatus" column="application_status" jdbcType="TINYINT"/>
+        <result property="reviewerId" column="reviewer_id" jdbcType="BIGINT"/>
+        <result property="reviewTime" column="review_time" jdbcType="TIMESTAMP"/>
+        <result property="reviewComment" column="review_comment" jdbcType="VARCHAR"/>
+        <result property="applyTime" column="apply_time" jdbcType="TIMESTAMP"/>
+        <result property="attachmentIds" column="attachment_ids" jdbcType="VARCHAR"/>
+        <result property="createdAssociationId" column="created_association_id" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        application_id, association_name, school_id, platform_id, charge_wx_id, charge_name, charge_role_id,
+        contact_info, location, logo, application_reason, initial_members, application_status,
+        reviewer_id, review_time, review_comment, apply_time, attachment_ids, created_association_id,
+        create_time, update_time, is_delete
+    </sql>
+
+</mapper>

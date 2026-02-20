@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper">
+
+    <resultMap id="BaseResultMap" type="com.cmswe.alumni.common.entity.AlumniHeadquarters">
+        <id property="headquartersId" column="headquarters_id" jdbcType="BIGINT"/>
+        <result property="headquartersName" column="headquarters_name" jdbcType="VARCHAR"/>
+        <result property="schoolId" column="school_id" jdbcType="BIGINT"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="contactInfo" column="contact_info" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="website" column="website" jdbcType="VARCHAR"/>
+        <result property="wechatPublicAccount" column="wechat_public_account" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="establishedDate" column="established_date" jdbcType="DATE"/>
+        <result property="memberCount" column="member_count" jdbcType="INTEGER"/>
+        <result property="activeStatus" column="active_status" jdbcType="TINYINT"/>
+        <result property="approvalStatus" column="approval_status" jdbcType="TINYINT"/>
+        <result property="level" column="level" jdbcType="TINYINT"/>
+        <result property="createdUserId" column="created_user_id" jdbcType="BIGINT"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedUserId" column="updated_user_id" jdbcType="BIGINT"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        headquarters_id, headquarters_name, school_id, description, contact_info,
+        address, website, wechat_public_account, email, phone, established_date,
+        member_count, active_status, approval_status, level, created_user_id,
+        created_time, updated_user_id, updated_time, is_deleted
+    </sql>
+
+</mapper>

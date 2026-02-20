@@ -1,0 +1,54 @@
+package com.cmswe.alumni.common.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+/**
+ * 更新首页文章请求 DTO
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Schema(name = "UpdateHomePageArticleDto", description = "更新首页文章请求参数")
+public class UpdateHomePageArticleDto implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @NotNull(message = "文章ID不能为空")
+    @Schema(description = "首页文章id", example = "1234567890")
+    private Long homeArticleId;
+
+    @Schema(description = "文章标题", example = "校友会最新动态")
+    private String articleTitle;
+
+    @Schema(description = "封面图文件id", example = "123456")
+    private Long coverImg;
+
+    @Schema(description = "描述", example = "这是一篇关于校友会的文章")
+    private String description;
+
+    @Schema(description = "文章类型（1-公众号，2-内部路径，3-第三方链接）", example = "1")
+    private Integer articleType;
+
+    @Schema(description = "文章链接", example = "https://mp.weixin.qq.com/xxx")
+    private String articleLink;
+
+    @Schema(description = "文章内容文件id", example = "654321")
+    private Long articleFile;
+
+    @Schema(description = "其他信息", example = "{}")
+    private String metaData;
+
+    @Schema(description = "状态：0-禁用 1-启用", example = "1")
+    private Integer articleStatus;
+
+    @Schema(description = "发布者类型枚举（alumni，association）", example = "alumni")
+    private String publishType;
+}

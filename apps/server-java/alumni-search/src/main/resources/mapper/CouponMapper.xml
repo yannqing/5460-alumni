@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.CouponMapper">
+
+    <!-- 根据商户ID查询优惠券列表 -->
+    <select id="selectByMerchantId" resultType="com.cmswe.alumni.common.entity.Coupon">
+        SELECT * FROM coupon
+        WHERE merchant_id = #{merchantId}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+          AND is_delete = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据店铺ID查询优惠券列表 -->
+    <select id="selectByShopId" resultType="com.cmswe.alumni.common.entity.Coupon">
+        SELECT * FROM coupon
+        WHERE (shop_id = #{shopId} OR shop_id IS NULL)
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+          AND is_delete = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 查询有效的优惠券列表（未过期且有库存） -->
+    <select id="selectAvailable" resultType="com.cmswe.alumni.common.entity.Coupon">
+        SELECT * FROM coupon
+        WHERE status = 1
+          AND remain_quantity > 0
+          AND valid_start_time &lt;= #{currentTime}
+          AND valid_end_time &gt;= #{currentTime}
+        <if test="shopId != null">
+            AND (shop_id = #{shopId} OR shop_id IS NULL)
+        </if>
+        <if test="isAlumniOnly != null">
+            AND is_alumni_only = #{isAlumniOnly}
+        </if>
+          AND is_delete = 0
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 扣减优惠券库存（原子操作，防止超卖） -->
+    <update id="decrementStock">
+        UPDATE coupon
+        SET remain_quantity = remain_quantity - 1
+        WHERE coupon_id = #{couponId}
+          AND remain_quantity > 0
+          AND is_delete = 0
+    </update>
+
+    <!-- 增加优惠券已领取数量 -->
+    <update id="incrementReceivedCount">
+        UPDATE coupon
+        SET received_count = received_count + 1
+        WHERE coupon_id = #{couponId}
+    </update>
+
+    <!-- 增加优惠券已使用数量 -->
+    <update id="incrementUsedCount">
+        UPDATE coupon
+        SET used_count = used_count + 1
+        WHERE coupon_id = #{couponId}
+    </update>
+
+    <!-- 增加优惠券浏览次数 -->
+    <update id="incrementViewCount">
+        UPDATE coupon
+        SET view_count = view_count + 1
+        WHERE coupon_id = #{couponId}
+    </update>
+
+    <!-- 查询即将过期的优惠券（用于定时任务） -->
+    <select id="selectExpiringSoon" resultType="com.cmswe.alumni.common.entity.Coupon">
+        SELECT * FROM coupon
+        WHERE status = 1
+          AND valid_end_time BETWEEN #{currentTime} AND DATE_ADD(#{currentTime}, INTERVAL #{hours} HOUR)
+          AND is_delete = 0
+    </select>
+
+</mapper>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.search.mapper.ShopMapper">
+
+    <!-- 根据商户ID查询店铺列表 -->
+    <select id="selectByMerchantId" resultType="com.cmswe.alumni.common.entity.Shop">
+        SELECT * FROM shop
+        WHERE merchant_id = #{merchantId}
+          AND is_delete = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据地理位置查询附近店铺（简单版，生产环境请使用ES） -->
+    <select id="selectNearby" resultType="com.cmswe.alumni.common.entity.Shop">
+        SELECT *,
+               (6371 * ACOS(
+                       COS(RADIANS(#{latitude})) * COS(RADIANS(latitude)) *
+                       COS(RADIANS(longitude) - RADIANS(#{longitude})) +
+                       SIN(RADIANS(#{latitude})) * SIN(RADIANS(latitude))
+                   )) AS distance
+        FROM shop
+        WHERE status = 1
+          AND review_status = 1
+          AND is_delete = 0
+        HAVING distance &lt;= #{radius}
+        ORDER BY distance ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 根据城市和区县查询店铺列表 -->
+    <select id="selectByCityAndDistrict" resultType="com.cmswe.alumni.common.entity.Shop">
+        SELECT * FROM shop
+        WHERE city = #{city}
+        <if test="district != null and district != ''">
+            AND district = #{district}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+          AND is_delete = 0
+        ORDER BY rating_score DESC, create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 查询推荐店铺列表 -->
+    <select id="selectRecommended" resultType="com.cmswe.alumni.common.entity.Shop">
+        SELECT * FROM shop
+        WHERE is_recommended = 1
+          AND status = 1
+          AND review_status = 1
+        <if test="city != null and city != ''">
+            AND city = #{city}
+        </if>
+          AND is_delete = 0
+        ORDER BY rating_score DESC, coupon_verified_count DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 更新店铺统计数据 -->
+    <update id="updateStatistics">
+        UPDATE shop
+        SET coupon_received_count = (SELECT COUNT(*) FROM user_coupon WHERE shop_id = #{shopId}),
+            coupon_verified_count = (SELECT COUNT(*) FROM coupon_verification WHERE shop_id = #{shopId})
+        WHERE shop_id = #{shopId}
+    </update>
+
+    <!-- 增加店铺浏览次数 -->
+    <update id="incrementViewCount">
+        UPDATE shop
+        SET view_count = view_count + 1
+        WHERE shop_id = #{shopId}
+    </update>
+
+    <!-- 增加店铺点击次数 -->
+    <update id="incrementClickCount">
+        UPDATE shop
+        SET click_count = click_count + 1
+        WHERE shop_id = #{shopId}
+    </update>
+
+    <!-- 根据地理位置分页查询附近店铺（带距离计算和条件筛选） -->
+    <select id="selectNearbyWithPage" resultType="com.cmswe.alumni.common.vo.NearbyShopVo">
+        SELECT
+            CAST(s.shop_id AS CHAR) AS shopId,
+            CAST(s.merchant_id AS CHAR) AS merchantId,
+            s.shop_name AS shopName,
+            s.shop_type AS shopType,
+            s.province,
+            s.city,
+            s.district,
+            s.address,
+            s.latitude,
+            s.longitude,
+            s.phone,
+            s.business_hours AS businessHours,
+            s.shop_images AS shopImages,
+            s.description,
+            s.status,
+            s.is_recommended AS isRecommended,
+            CAST(s.view_count AS CHAR) AS viewCount,
+            CAST(s.click_count AS CHAR) AS clickCount,
+            CAST(s.coupon_received_count AS CHAR) AS couponReceivedCount,
+            CAST(s.coupon_verified_count AS CHAR) AS couponVerifiedCount,
+            s.rating_score AS ratingScore,
+            s.rating_count AS ratingCount,
+            ROUND((6371 * ACOS(
+                COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
+                COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
+                SIN(RADIANS(#{latitude})) * SIN(RADIANS(s.latitude))
+            )), 2) AS distance
+        FROM shop s
+        WHERE s.is_delete = 0
+          AND s.review_status = 1
+          AND s.status = 1
+          AND EXISTS (
+              SELECT 1 FROM coupon c
+              WHERE c.shop_id = s.shop_id
+                AND c.is_delete = 0
+                AND c.status = 1
+                AND c.valid_end_time > NOW()
+                AND (c.remain_quantity > 0 OR c.total_quantity = -1)
+          )
+        <if test="shopName != null and shopName != ''">
+            AND s.shop_name LIKE CONCAT('%', #{shopName}, '%')
+        </if>
+        <if test="isRecommended != null">
+            AND s.is_recommended = #{isRecommended}
+        </if>
+        HAVING distance &lt;= #{radius}
+        ORDER BY distance ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计附近店铺总数（用于分页） -->
+    <select id="countNearbyShops" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM (
+            SELECT
+                s.shop_id,
+                (6371 * ACOS(
+                    COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
+                    COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
+                    SIN(RADIANS(#{latitude})) * SIN(RADIANS(s.latitude))
+                )) AS distance
+            FROM shop s
+            WHERE s.is_delete = 0
+              AND s.review_status = 1
+              AND s.status = 1
+              AND EXISTS (
+                  SELECT 1 FROM coupon c
+                  WHERE c.shop_id = s.shop_id
+                    AND c.is_delete = 0
+                    AND c.status = 1
+                    AND c.valid_end_time > NOW()
+                    AND (c.remain_quantity > 0 OR c.total_quantity = -1)
+              )
+            <if test="shopName != null and shopName != ''">
+                AND s.shop_name LIKE CONCAT('%', #{shopName}, '%')
+            </if>
+            <if test="isRecommended != null">
+                AND s.is_recommended = #{isRecommended}
+            </if>
+            HAVING distance &lt;= #{radius}
+        ) AS nearby_shops
+    </select>
+
+    <!-- 查询店铺的有效优惠券列表 -->
+    <select id="selectCouponsByShopId" resultType="com.cmswe.alumni.common.vo.ShopCouponVo">
+        SELECT
+            CAST(coupon_id AS CHAR) AS couponId,
+            coupon_code AS couponCode,
+            coupon_name AS couponName,
+            coupon_type AS couponType,
+            coupon_desc AS couponDesc,
+            coupon_image AS couponImage,
+            discount_type AS discountType,
+            discount_value AS discountValue,
+            min_spend AS minSpend,
+            max_discount AS maxDiscount,
+            remain_quantity AS remainQuantity,
+            per_user_limit AS perUserLimit,
+            is_alumni_only AS isAlumniOnly,
+            valid_start_time AS validStartTime,
+            valid_end_time AS validEndTime,
+            status
+        FROM coupon
+        WHERE shop_id = #{shopId}
+          AND is_delete = 0
+          AND status = 1
+          AND valid_end_time > NOW()
+          AND (remain_quantity > 0 OR total_quantity = -1)
+        ORDER BY valid_end_time ASC
+    </select>
+
+    <!-- 根据店铺ID查询商铺详情 -->
+    <select id="selectShopDetailById" resultType="com.cmswe.alumni.common.vo.ShopDetailVo">
+        SELECT
+            CAST(shop_id AS CHAR) AS shopId,
+            CAST(merchant_id AS CHAR) AS merchantId,
+            shop_name AS shopName,
+            shop_type AS shopType,
+            province,
+            city,
+            district,
+            address,
+            latitude,
+            longitude,
+            phone,
+            business_hours AS businessHours,
+            shop_images AS shopImages,
+            description,
+            status,
+            review_status AS reviewStatus,
+            review_reason AS reviewReason,
+            CAST(reviewer_id AS CHAR) AS reviewerId,
+            review_time AS reviewTime,
+            is_recommended AS isRecommended,
+            CAST(view_count AS CHAR) AS viewCount,
+            CAST(click_count AS CHAR) AS clickCount,
+            CAST(coupon_received_count AS CHAR) AS couponReceivedCount,
+            CAST(coupon_verified_count AS CHAR) AS couponVerifiedCount,
+            rating_score AS ratingScore,
+            rating_count AS ratingCount,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM shop
+        WHERE shop_id = #{shopId}
+          AND is_delete = 0
+    </select>
+
+</mapper>

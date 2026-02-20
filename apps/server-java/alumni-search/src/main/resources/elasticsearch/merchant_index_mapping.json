@@ -1,0 +1,116 @@
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "refresh_interval": "1s",
+    "max_result_window": 10000,
+    "analysis": {
+      "analyzer": {
+        "ik_pinyin_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": ["lowercase", "pinyin_filter"]
+        }
+      },
+      "filter": {
+        "pinyin_filter": {
+          "type": "pinyin",
+          "keep_first_letter": true,
+          "keep_full_pinyin": true,
+          "keep_original": true,
+          "lowercase": true
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "merchantId": {
+        "type": "keyword"
+      },
+      "merchantName": {
+        "type": "text",
+        "analyzer": "ik_pinyin_analyzer",
+        "search_analyzer": "ik_smart",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "merchantType": {
+        "type": "keyword"
+      },
+      "industry": {
+        "type": "keyword"
+      },
+      "ownerName": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "userId": {
+        "type": "keyword"
+      },
+      "businessLicense": {
+        "type": "keyword"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "address": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "province": {
+        "type": "keyword"
+      },
+      "city": {
+        "type": "keyword"
+      },
+      "district": {
+        "type": "keyword"
+      },
+      "contactPhone": {
+        "type": "keyword"
+      },
+      "email": {
+        "type": "keyword"
+      },
+      "memberTier": {
+        "type": "keyword"
+      },
+      "rating": {
+        "type": "float"
+      },
+      "reviewStatus": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "ik_max_word"
+      },
+      "tags": {
+        "type": "keyword"
+      },
+      "logo": {
+        "type": "keyword",
+        "index": false
+      },
+      "banners": {
+        "type": "keyword",
+        "index": false
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "createTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "updateTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      }
+    }
+  }
+}

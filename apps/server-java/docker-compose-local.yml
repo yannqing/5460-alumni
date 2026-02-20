@@ -1,0 +1,265 @@
+# ============================================================
+# CNI 校友系统 - 生产环境 Docker Compose
+# 使用已存在的 MySQL 和 Redis
+# 网络：mynetwork（外部网络，需提前创建）
+# ============================================================
+
+services:
+  # ==================== Zookeeper ====================
+  zookeeper:
+    image: zookeeper:latest
+    container_name: alumni-zookeeper
+    restart: unless-stopped
+    ports:
+     - "2181:2181"  # 仅供 Kafka 内部使用，不需要对外暴露
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+      TZ: Asia/Shanghai
+    volumes:
+      - zk-data:/data
+      - zk-datalog:/datalog
+      - zk-logs:/logs
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD-SHELL", "echo stat | nc localhost 2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==================== Kafka (KRaft 模式) ====================
+  kafka:
+    image: apache/kafka:latest
+    container_name: alumni-kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"  # 外部访问端口
+      - "9093:9093"  # 内部访问端口
+    environment:
+      # KRaft 模式必需配置
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9094
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      # 监听器配置
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,INTERNAL://0.0.0.0:9093,CONTROLLER://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092,INTERNAL://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      # 集群配置
+      CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
+
+      # 其他配置
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_HEAP_OPTS: "-Xmx1G -Xms1G"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      TZ: Asia/Shanghai
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    user: root
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  # ==================== Elasticsearch ====================
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    container_name: alumni-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"  # HTTP REST API（应用访问 + 本地开发）
+#      - "9300:9300"  # TCP Transport 端口（单节点不需要暴露，这个是集群用的）
+    environment:
+      # 集群配置
+      - node.name=es-node-1
+      - cluster.name=alumni-cluster
+      - discovery.type=single-node
+
+      # 内存配置
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+
+      # 安全配置（开发环境关闭）
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+
+      # 其他配置
+      - bootstrap.memory_lock=true
+      - TZ=Asia/Shanghai
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+      - es-logs:/usr/share/elasticsearch/logs
+      # 插件目录（IK 分词器和拼音分词器）
+      - ./elasticsearch/plugins:/usr/share/elasticsearch/plugins:ro
+#        安装 ik 分词器
+#        wget https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-8.12.2.zip
+#        # 解压到当前目录
+      #unzip elasticsearch-analysis-ik-8.12.2.zip
+      #
+      ## 删除压缩包
+      #rm elasticsearch-analysis-ik-8.12.2.zip
+      # 自定义配置（可选）- 使用默认配置即可
+      # - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ==================== Canal Server（数据同步）====================
+  canal-server:
+    image: canal/canal-server:v1.1.8
+    container_name: alumni-canal
+    restart: unless-stopped
+    ports:
+      - "11111:11111"
+      - "8089:8089"
+    environment:
+      # Canal 必需配置
+      - canal.auto.scan=true
+      - canal.destinations=example
+
+      # MySQL 配置
+      - canal.instance.master.address=127.0.0.1:3306
+      - canal.instance.dbUsername=root
+      - canal.instance.dbPassword=${CANAL_DB_PASSWORD}
+      - canal.instance.connectionCharset=UTF-8
+      - canal.instance.filter.regex=cni_alumni\\.wx_users|cni_alumni\\.wx_user_info|cni_alumni\\.alumni_education|cni_alumni\\.alumni_association|cni_alumni\\.merchant
+
+      # 其他配置
+      - canal.instance.tsdb.enable=true
+      - canal.instance.gtidon=false
+      - TZ=Asia/Shanghai
+
+      # 暂时不使用 Kafka，先确保基础功能
+#       - canal.serverMode=kafka
+#       - canal.mq.servers=kafka:9093
+    volumes:
+      # 只挂载日志
+      - canal-data:/home/admin/canal-server/logs
+    networks:
+      - mynetwork
+    depends_on:
+      - kafka
+      - zookeeper
+    # 关键：修复启动脚本
+    command: >
+      /bin/bash -c "
+        echo '=== 修复 Canal 启动 ==='
+        # 1. 修复启动脚本
+        sed -i 's/^start_exporter/# start_exporter/' /home/admin/app.sh
+        sed -i 's/^stop_exporter/# stop_exporter/' /home/admin/app.sh
+        # 2. 执行原启动脚本
+        exec /home/admin/app.sh
+      "
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "11111"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ==================== CNI 校友系统应用 ====================
+#  alumni-app:
+#    image: eclipse-temurin:21-jdk-alpine  # 支持 ARM64 的 JDK 镜像
+#    container_name: alumni-cni
+#    restart: unless-stopped
+#    ports:
+#      - "8080:8080"   # API 端口
+#      - "9100:9100"   # WebSocket 端口
+#    environment:
+#      # Spring Boot 配置
+#      - SPRING_PROFILES_ACTIVE=prod
+#
+#      # 数据库配置（使用已存在的 MySQL）
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/cni_alumni?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+#      - SPRING_DATASOURCE_USERNAME=root
+#      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+#
+#      # Redis 配置（使用已存在的 Redis）
+#      - SPRING_DATA_REDIS_HOST=redis
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - SPRING_DATA_REDIS_PASSWORD=${DB_PASSWORD}
+#
+#      # Elasticsearch 配置
+#      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
+#
+#      # Kafka 配置
+#      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+#      - SPRING_KAFKA_ENABLED=true
+#
+#      # Canal 配置
+#      - CANAL_ENABLED=true
+#      - CANAL_SERVER_HOST=canal-server
+#      - CANAL_SERVER_PORT=11111
+#
+#      - TZ=Asia/Shanghai
+#    volumes:
+#      # 挂载 jar 包（需要提前将 jar 包放到服务器的这个路径）
+#      - ./app.jar:/app/app.jar:ro
+#      # 挂载日志目录
+#      - /yannqing/cni-alumni/logs:/app/logs
+#      - /yannqing:/yannqing
+#    working_dir: /app
+#    command: ["java", "-jar", "/app/app.jar", "--spring.profiles.active=prod"]
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      elasticsearch:
+#        condition: service_healthy
+#    networks:
+#      - mynetwork
+#    healthcheck:
+#      test: ["CMD-SHELL", "wget --spider --quiet http://localhost:8080/actuator/health || exit 1"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 120s
+
+# ==================== 网络配置 ====================
+networks:
+  mynetwork:
+    external: true  # 使用已存在的外部网络
+
+# ==================== 数据卷 ====================
+volumes:
+  # Zookeeper
+  zk-data:
+  zk-datalog:
+  zk-logs:
+
+  # Kafka
+  kafka-data:
+
+  # Elasticsearch
+  es-data:
+  es-logs:
+
+  # Canal
+  canal-data:
+
+  # 应用日志
+  app-logs:
