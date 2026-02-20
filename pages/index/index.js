@@ -37,15 +37,130 @@ Page({
     },
     // 轮播图列表
     bannerList: [],
-    currentBannerIndex: 0
+    currentBannerIndex: 0,
+    // 轮播图 translateY 值
+    bannerTranslateY: 0,
+    // 文章列表 scroll-view 高度
+    articleScrollHeight: 0,
+    // 导航菜单是否固定
+    navFixed: false,
+    // 当前页面滚动位置
+    _scrollTop: 0,
+    // 触摸事件相关
+    _touchStartY: 0,
+    _touchCurrentY: 0,
+    // 状态栏高度
+    statusBarHeight: 20
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    const systemInfo = wx.getSystemInfoSync();
+    this.setData({
+      statusBarHeight: systemInfo.statusBarHeight || 20
+    });
     this.getBannerList();
     this.getArticleList(true);
+    // 添加滚动事件监听
+    wx.pageScrollTo({ scrollTop: 0, duration: 0 });
+    // 计算 scroll-view 高度
+    this.calculateScrollViewHeight();
+  },
+
+  /**
+   * 计算 scroll-view 高度
+   */
+  calculateScrollViewHeight: function () {
+    try {
+      const systemInfo = wx.getSystemInfoSync();
+      const screenHeight = systemInfo.windowHeight;
+      // 计算其他元素的高度（轮播图 + 导航菜单）
+      // 轮播图高度：450rpx 转换为 px
+      const bannerHeight = 450 / 2;
+      // 导航菜单高度：进一步压缩预留空间
+      const navHeight = 80;
+      // 计算 scroll-view 可用高度
+      const scrollViewHeight = screenHeight - (bannerHeight + navHeight);
+      this.setData({
+        articleScrollHeight: Math.max(scrollViewHeight, 300) // 确保最小高度为 300px
+      });
+    } catch (error) {
+      console.error('计算 scroll-view 高度失败:', error);
+      this.setData({
+        articleScrollHeight: 500 // 默认高度
+      });
+    }
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+  },
+
+  /**
+   * 页面滚动事件处理函数
+   */
+  onPageScroll: function (e) {
+    const scrollTop = e.scrollTop;
+    // 保存当前滚动位置
+    this.setData({
+      _scrollTop: scrollTop
+    });
+
+    // 实现导航菜单的固定效果
+    const navFixed = scrollTop > 150;
+
+    // 计算轮播图的 translateY 值
+    // 核心思路：轮播图和导航菜单应该保持相对静止
+    // 当导航菜单固定时，轮播图的位置需要相应调整
+
+    // 导航菜单原始 margin-top 是 -120rpx（约 -60px）
+    const navMarginTop = -60; // 导航菜单原始 margin-top（-120rpx 转换为 px）
+
+    // 计算轮播图位置
+    // 无论导航菜单是否固定，轮播图都应该与导航菜单保持相对静止
+    // 轮播图的位置 = -scrollTop + (导航菜单固定时的位置补偿)
+    let bannerTranslateY;
+
+    if (navFixed) {
+      // 导航菜单固定时
+      // 导航菜单固定后，它的顶部位置变为 0
+      // 为了保持轮播图和导航菜单的相对位置不变
+      // 轮播图需要向上移动 navMarginTop 的距离
+      bannerTranslateY = Math.max(scrollTop * -1 + navMarginTop, -240); // 最大移动距离调整为 -240px
+    } else {
+      // 导航菜单未固定时
+      // 轮播图正常跟随页面滚动
+      bannerTranslateY = Math.max(scrollTop * -1, -180); // 最大移动距离保持 -180px
+    }
+
+    // 更新轮播图位置
+    this.setData({
+      bannerTranslateY: bannerTranslateY
+    });
+
+    if (navFixed !== this.data.navFixed) {
+      this.setData({
+        navFixed: navFixed
+      });
+    }
+  },
+
+  /**
+   * 页面下拉刷新事件处理函数
+   */
+  onPullDownRefresh: async function () {
+    console.log('[Index] 下拉刷新触发');
+    this.setData({ refreshing: true });
+    try {
+      await this.getArticleList(true);
+    } finally {
+      wx.stopPullDownRefresh();
+      this.setData({ refreshing: false });
+    }
   },
 
   /**
@@ -59,6 +174,8 @@ Page({
       // 更新未读消息数
       this.getTabBar().updateUnreadCount();
     }
+    // 重新计算 scroll-view 高度，确保在不同设备上都能正确显示
+    this.calculateScrollViewHeight();
   },
 
   /**
@@ -68,6 +185,66 @@ Page({
     console.log('[Index] 列表下拉刷新触发')
     this.setData({ refreshing: true });
     this.getArticleList(true);
+  },
+
+  /**
+   * scroll-view 触摸开始事件处理函数
+   */
+  onScrollViewTouchStart: function (e) {
+    this.setData({
+      _touchStartY: e.touches[0].pageY
+    });
+  },
+
+  /**
+   * scroll-view 触摸移动事件处理函数
+   * 确保先实现校友功能卡片的滑动极限状态，再进行列表的局部滑动
+   */
+  onScrollViewTouchMove: function (e) {
+    const currentY = e.touches[0].pageY;
+    const deltaY = currentY - this.data._touchStartY;
+
+    // 无论什么位置滑动，都先检查校友功能卡片的状态
+    // 1. 向上滑动（手指向下移动，deltaY > 0）：
+    //    - 首先让校友功能卡片达到固定状态（极限状态）
+    //    - 只有当校友功能卡片完全固定后，才允许列表向上滚动
+    if (deltaY > 0) {
+      // 如果导航区域还没有固定，说明校友功能卡片还未达到极限状态
+      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的固定
+      if (!this.data.navFixed) {
+        return false;
+      }
+    }
+
+    // 2. 向下滑动（手指向上移动，deltaY < 0）：
+    //    - 首先让校友功能卡片回到初始状态（解除固定）
+    //    - 只有当校友功能卡片完全回到初始状态后，才允许列表向下滚动
+    if (deltaY < 0) {
+      // 如果导航区域已经固定，说明校友功能卡片还未回到初始状态
+      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的解除固定
+      if (this.data.navFixed) {
+        return false;
+      }
+    }
+  },
+
+  /**
+   * 触摸开始事件处理函数
+   */
+  onTouchStart: function (e) {
+    this.setData({
+      _touchStartY: e.touches[0].pageY
+    });
+  },
+
+  /**
+   * 触摸结束事件处理函数
+   */
+  onTouchEnd: function () {
+    this.setData({
+      _touchStartY: 0,
+      _touchCurrentY: 0
+    });
   },
 
   /**
@@ -160,12 +337,12 @@ Page({
             }
           }
 
-          // 处理时间：格式化时间，去掉T
+          // 处理时间：格式化时间为 MM-DD HH:MM
           let time = '';
           if (item.createTime) {
-            time = item.createTime.replace('T', ' ');
+            time = item.createTime.replace('T', ' ').substring(5, 16);
           } else if (item.publishTime) {
-            time = item.publishTime.replace('T', ' ');
+            time = item.publishTime.replace('T', ' ').substring(5, 16);
           }
 
           // 处理ID：确保ID存在且有效
@@ -576,7 +753,7 @@ Page({
         // 处理轮播图数据，获取图片URL
         const bannerList = records.map(item => {
           let imageUrl = '';
-          
+
           // 优先处理 bannerImage 字段（后端返回的字段名）
           if (item.bannerImage) {
             if (typeof item.bannerImage === 'object') {

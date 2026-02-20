@@ -32,9 +32,9 @@ Page({
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
 
-      // 查找所有校友会管理员角色（根据roleName或remark）
+      // 查找所有校友会管理员角色（根据roleCode）
       const alumniAdminRoles = roles.filter(role => 
-        role.roleName === '校友会管理员' || role.remark === '校友会管理员'
+        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
       )
       console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
 
@@ -243,8 +243,15 @@ Page({
       
       if (res.data && res.data.code === 200 && res.data.data) {
         console.log('[Debug] 获取校友会详情成功:', res.data.data)
+        
+        // 处理logo字段，去除空格和反引号
+        let processedData = res.data.data
+        if (processedData.logo) {
+          processedData.logo = processedData.logo.trim().replace(/[`\s]/g, '')
+        }
+        
         this.setData({
-          currentAlumniDetail: res.data.data
+          currentAlumniDetail: processedData
         })
       } else {
         console.error('[Debug] 获取校友会详情失败:', res)

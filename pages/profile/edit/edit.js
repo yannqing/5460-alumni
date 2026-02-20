@@ -14,7 +14,7 @@ const USE_MOCK_DATA = false // true: 使用假数据, false: 使用真实接口
 function mapUserInfoToForm(userInfo) {
   // 性别映射：0-未知，1-男，2-女 -> 前端索引
   const genderMap = { 0: 0, 1: 1, 2: 2 }
-  const genderIndex = userInfo.gender !== null && userInfo.gender !== undefined 
+  const genderIndex = userInfo.gender !== null && userInfo.gender !== undefined
     ? (genderMap[userInfo.gender] !== undefined ? genderMap[userInfo.gender] : 0)
     : 0
 
@@ -22,6 +22,12 @@ function mapUserInfoToForm(userInfo) {
   const identifyTypeMap = { 0: 0, 1: 1 }
   const identifyTypeIndex = userInfo.identifyType !== null && userInfo.identifyType !== undefined
     ? (identifyTypeMap[userInfo.identifyType] !== undefined ? identifyTypeMap[userInfo.identifyType] : 0)
+    : 0
+
+  // 婚姻状态映射：0-未知，1-未婚，2-已婚，3-离异，4-丧偶 -> 前端索引
+  const maritalStatusMap = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 4 }
+  const maritalStatusIndex = userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined
+    ? (maritalStatusMap[userInfo.maritalStatus] !== undefined ? maritalStatusMap[userInfo.maritalStatus] : 0)
     : 0
 
   // 星座映射：后端值1-12 -> 前端索引0-11
@@ -51,6 +57,7 @@ function mapUserInfoToForm(userInfo) {
     const schoolName = rawSchoolName ? String(rawSchoolName) : ''
 
     return {
+      alumniEducationId: edu.alumniEducationId || null,
       schoolInfo: edu.schoolInfo || null,
       schoolId: edu.schoolInfo?.schoolId || '',
       schoolName: schoolName,
@@ -60,9 +67,22 @@ function mapUserInfoToForm(userInfo) {
       major: edu.major || '',
       className: edu.className || '',
       educationLevel: edu.educationLevel || '',
-      certificationStatus: edu.certificationStatus !== null && edu.certificationStatus !== undefined ? edu.certificationStatus : null
+      certificationStatus: edu.certificationStatus !== null && edu.certificationStatus !== undefined ? edu.certificationStatus : null,
+      type: edu.type !== null && edu.type !== undefined ? edu.type : 1
     }
   })
+
+  // 工作经历映射
+  const workExperienceList = (userInfo.workExperienceList || []).map(work => ({
+    userWorkId: work.userWorkId ? String(work.userWorkId) : null,
+    companyName: work.companyName || '',
+    position: work.position || '',
+    industry: work.industry || '',
+    startDate: work.startDate || '',
+    endDate: work.endDate || '',
+    isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
+    workDescription: work.workDescription || ''
+  }))
 
   // 处理头像URL，确保使用正确的 baseUrl
   const config = require('../../../utils/config.js')
@@ -74,6 +94,7 @@ function mapUserInfoToForm(userInfo) {
     nickname: userInfo.nickname || '',
     name: userInfo.name || '',
     avatarUrl: avatarUrl,
+    bgImg: userInfo.bgImg ? config.getImageUrl(userInfo.bgImg) : '',
     phone: userInfo.phone || '',
     wxNum: userInfo.wxNum || '',
     qqNum: userInfo.qqNum || '',
@@ -101,8 +122,14 @@ function mapUserInfoToForm(userInfo) {
     identifyTypeIndex: identifyTypeIndex,
     identifyCode: userInfo.identifyCode || '',
     birthDate: birthDateStr,
+    // 婚姻状态和个人特长
+    maritalStatus: userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined ? userInfo.maritalStatus : null,
+    maritalStatusIndex: maritalStatusIndex,
+    personalSpecialty: userInfo.personalSpecialty || '',
     // 教育经历
-    educationList: educationList
+    educationList: educationList,
+    // 工作经历
+    workExperienceList: workExperienceList
   }
 }
 
@@ -113,17 +140,18 @@ function mapUserInfoToForm(userInfo) {
  */
 function mapFormToUpdateData(form) {
   // 如果 form 已经是部分字段的更新数据（直接包含后端字段名），直接返回
-  if (form && typeof form === 'object' && !form.nickname && !form.name && !form.avatarUrl && !form.phone && !form.wxNum && !form.qqNum && !form.email && !form.gender && !form.originProvince && !form.curContinent && !form.curCountry && !form.curProvince && !form.curCity && !form.curCounty && !form.address && !form.constellation && !form.signature && !form.description && !form.identifyType && !form.identifyCode && !form.birthDate && !form.educationList && !form.alumniEducationList) {
+  if (form && typeof form === 'object' && !form.nickname && !form.name && !form.avatarUrl && !form.phone && !form.wxNum && !form.qqNum && !form.email && !form.gender && !form.originProvince && !form.curContinent && !form.curCountry && !form.curProvince && !form.curCity && !form.curCounty && !form.address && !form.constellation && !form.signature && !form.description && !form.identifyType && !form.identifyCode && !form.birthDate && !form.educationList && !form.alumniEducationList && !form.workExperienceList) {
     // 看起来已经是后端格式的数据，直接返回
     return form
   }
-  
+
   const data = {
     // 基础信息
     nickname: form.nickname || null,
     name: form.name || null,
     avatarUrl: form.avatarUrl || null, // 确保 avatarUrl 被包含，即使可能为空
     phone: form.phone || null,
+    bgImg: form.bgImg || null,
     wxNum: form.wxNum || null,
     qqNum: form.qqNum || null,
     email: form.email || null,
@@ -147,6 +175,9 @@ function mapFormToUpdateData(form) {
     identifyType: form.identifyType !== null && form.identifyType !== undefined ? form.identifyType : null,
     identifyCode: form.identifyCode || null,
     birthDate: form.birthDate || null,
+    // 婚姻状态和个人特长
+    maritalStatus: form.maritalStatus !== null && form.maritalStatus !== undefined ? form.maritalStatus : null,
+    personalSpecialty: form.personalSpecialty || null,
     // 教育经历
     // 过滤掉没有有效 schoolId 的教育经历（后端要求 schoolId 不能为 null）
     alumniEducationList: (form.educationList || [])
@@ -158,6 +189,7 @@ function mapFormToUpdateData(form) {
       .map(edu => {
         const schoolId = edu.schoolInfo?.schoolId || edu.schoolId
         return {
+          alumniEducationId: edu.alumniEducationId || null,
           schoolId: schoolId, // 确保 schoolId 不为 null
           enrollmentYear: edu.enrollmentYear || null,
           graduationYear: edu.graduationYear || null,
@@ -165,9 +197,22 @@ function mapFormToUpdateData(form) {
           major: edu.major || null,
           className: edu.className || null,
           educationLevel: edu.educationLevel || null,
-          certificationStatus: edu.certificationStatus !== null && edu.certificationStatus !== undefined ? edu.certificationStatus : null
+          certificationStatus: edu.certificationStatus !== null && edu.certificationStatus !== undefined ? edu.certificationStatus : null,
+          type: edu.type !== null && edu.type !== undefined ? edu.type : 1
         }
-      })
+      }),
+    // 工作经历
+    workExperienceList: (form.workExperienceList || [])
+      .map(work => ({
+        userWorkId: work.userWorkId ? String(work.userWorkId) : null,
+        companyName: work.companyName || null,
+        position: work.position || null,
+        industry: work.industry || null,
+        startDate: work.startDate || null,
+        endDate: work.endDate || null,
+        isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
+        workDescription: work.workDescription || null
+      }))
   }
 
   // 移除空字符串和 null 值，但保留 avatarUrl（即使为空字符串，也允许更新为空）
@@ -196,14 +241,26 @@ Page({
     editingField: null,
     // 记录当前正在编辑的教育经历索引（用于显示确定按钮）
     editingEducationIndex: null,
+    // 记录当前正在编辑的工作经历索引（用于显示确定按钮）
+    editingWorkIndex: null,
     // 记录个人简介是否正在编辑（用于显示确定按钮）
     editingDescription: false,
+    // 控制教育经历是否全部展开
+    showAllEducation: false,
+    // 默认展示的教育经历索引（主要经历优先）
+    defaultEducationIndex: -1,
+    // 控制工作经历是否全部展开
+    showAllWork: false,
+    // 默认展示的工作经历索引（当前在职优先）
+    defaultWorkIndex: -1,
     // 用于防止 blur 事件干扰的标志
     isSaving: false,
     // blur 定时器，用于延迟隐藏保存按钮
     blurTimer: null,
     // 教育经历 blur 定时器
     educationBlurTimer: null,
+    // 工作经历 blur 定时器
+    workBlurTimer: null,
     // 个人简介 blur 定时器
     descriptionBlurTimer: null,
     form: {
@@ -211,6 +268,7 @@ Page({
       nickname: '',
       name: '',
       avatarUrl: '',
+      bgImg: '',
       phone: '',
       wxNum: '',
       qqNum: '',
@@ -238,8 +296,14 @@ Page({
       identifyTypeIndex: 0,
       identifyCode: '',
       birthDate: '',
+      // 婚姻状态和个人特长
+      maritalStatus: null,
+      maritalStatusIndex: 0,
+      personalSpecialty: '',
       // 教育经历列表
-      educationList: []
+      educationList: [],
+      // 工作经历列表
+      workExperienceList: []
     },
     saving: false,
     // 学历层次选项
@@ -252,6 +316,7 @@ Page({
     searchSchoolTimer: {}, // 搜索防抖定时器 { index: timerId }
     genderOptions: ['未知', '男', '女'],
     identifyTypeOptions: ['身份证', '护照'],
+    maritalStatusOptions: ['未知', '未婚', '已婚', '离异', '丧偶'],
     // 星座选项：与后端数据库定义一致（1-摩羯座 2-水瓶座 3-双鱼座 4-白羊座 5-金牛座 6-双子座 7-巨蟹座 8-狮子座 9-处女座 10-天秤座 11-天蝎座 12-射手座）
     constellationOptions: ['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座']
   },
@@ -266,7 +331,7 @@ Page({
   async ensureLogin() {
     const isLogin = app.checkHasLogined()
     const token = wx.getStorageSync('token')
-    
+
     if (!isLogin) {
       console.log('未登录，开始登录...')
       try {
@@ -291,7 +356,7 @@ Page({
 
 
   // ==================== 数据加载逻辑 ====================
-  
+
   /**
    * 加载用户资料
    * 联调时：只需要修改 loadFromApi 函数中的接口调用
@@ -313,6 +378,10 @@ Page({
         this.setData({
           form: formData
         })
+        // 计算默认展示的教育经历索引
+        this.updateDefaultEducationIndex()
+        // 计算默认展示的工作经历索引
+        this.updateDefaultWorkIndex()
       }
     } catch (error) {
       console.error('加载用户资料失败:', error)
@@ -330,7 +399,7 @@ Page({
     // 从全局数据获取用户信息
     const userData = app.globalData.userData || {}
     const globalInfo = app.globalData.userInfo || {}
-    
+
     // 合并用户数据
     return {
       ...userData,
@@ -344,10 +413,10 @@ Page({
    */
   async loadFromApi() {
     const res = await userApi.getUserInfo()
-    
+
     if (res.data && res.data.code === 200) {
       const userInfo = res.data.data || {}
-      
+
       // 同步更新全局数据
       if (userInfo) {
         app.globalData.userData = {
@@ -359,7 +428,7 @@ Page({
           ...userInfo
         }
       }
-      
+
       return userInfo
     } else {
       wx.showToast({
@@ -370,12 +439,87 @@ Page({
     }
   },
 
+  /**
+   * 选择并上传背景图
+   */
+  async chooseBackground() {
+    try {
+      // 选择图片
+      const chooseRes = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: 1,
+          mediaType: ['image'],
+          success: resolve,
+          fail: reject
+        })
+      })
+
+      const tempFilePath = chooseRes.tempFiles?.[0]?.tempFilePath
+      if (!tempFilePath) {
+        return
+      }
+
+      // 检查文件大小 (10MB)
+      const fileSize = chooseRes.tempFiles?.[0]?.size || 0
+      const maxSize = 10 * 1024 * 1024
+      if (fileSize > maxSize) {
+        wx.showToast({
+          title: '图片大小不能超过10MB',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 显示上传中提示
+      wx.showLoading({
+        title: '上传中...',
+        mask: true
+      })
+
+      // 获取原始文件名
+      const originalName = chooseRes.tempFiles?.[0]?.name || 'background.jpg'
+
+      // 调用公共的文件上传方法
+      const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+      wx.hideLoading()
+
+      if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+        const rawImageUrl = uploadRes.data.fileUrl || ''
+        if (rawImageUrl) {
+          const config = require('../../../utils/config.js')
+          const imageUrl = config.getImageUrl(rawImageUrl)
+
+          // 更新表单中的背景图URL
+          this.setData({ 'form.bgImg': imageUrl })
+
+          // 上传成功后自动保存
+          const updateData = { bgImg: imageUrl }
+          await this.saveSingleField(updateData, true)
+        }
+      } else {
+        wx.showToast({
+          title: uploadRes?.msg || '上传失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      if (error.errMsg !== 'chooseMedia:fail cancel') {
+        console.error('选择背景图失败:', error)
+        wx.showToast({
+          title: '选择图片失败',
+          icon: 'none'
+        })
+      }
+    }
+  },
+
   handleInput(e) {
     const { field } = e.currentTarget.dataset
     this.setData({
       [`form.${field}`]: e.detail.value
     })
-    
+
     // 输入过程中，确保保存按钮保持显示
     // 如果当前字段正在编辑，确保 editingField 保持设置
     if (field && this.data.editingField === field) {
@@ -388,7 +532,7 @@ Page({
       }
     }
   },
-  
+
   // 输入框获得焦点
   handleInputFocus(e) {
     const { field } = e.currentTarget.dataset
@@ -398,7 +542,7 @@ Page({
         clearTimeout(this.data.blurTimer)
         this.data.blurTimer = null
       }
-      
+
       // 清除保存标志，设置当前编辑字段
       this.setData({
         editingField: field,
@@ -406,22 +550,22 @@ Page({
       })
     }
   },
-  
+
   // 输入框失去焦点
   handleInputBlur(e) {
     const { field } = e.currentTarget.dataset
-    
+
     // 如果正在保存，不处理 blur 事件
     if (this.data.isSaving) {
       return
     }
-    
+
     // 清除之前的定时器
     if (this.data.blurTimer) {
       clearTimeout(this.data.blurTimer)
       this.data.blurTimer = null
     }
-    
+
     // 只有当失去焦点的字段是当前编辑的字段时，才隐藏保存按钮
     if (field && this.data.editingField === field) {
       // 延迟隐藏，确保点击保存按钮时能触发
@@ -439,37 +583,37 @@ Page({
           })
         }
       }, 500) // 增加到 500ms，确保点击保存按钮时有足够时间
-      
+
       // 保存定时器引用，以便在重新获得焦点时清除
       this.setData({
         blurTimer: timer
       })
     }
   },
-  
+
   // 输入框确认保存（键盘确认）
   async handleInputConfirm(e) {
     const { field } = e.currentTarget.dataset
     const value = e.detail.value
-    
+
     // 更新表单数据
     this.setData({
       [`form.${field}`]: value
     })
-    
+
     // 构建更新数据（直接使用后端字段名）
     const updateData = {}
     updateData[field] = value || null
-    
+
     // 保存单个字段（updateData 已经是后端格式，直接使用）
     await this.saveSingleField(updateData, true)
   },
-  
+
   // 点击勾选按钮保存字段
   async handleSaveField(e) {
     const { field } = e.currentTarget.dataset
     if (!field) return
-    
+
     // 阻止事件冒泡和默认行为
     if (e.stopPropagation) {
       e.stopPropagation()
@@ -477,28 +621,28 @@ Page({
     if (e.preventDefault) {
       e.preventDefault()
     }
-    
+
     // 清除 blur 定时器，防止隐藏保存按钮
     if (this.data.blurTimer) {
       clearTimeout(this.data.blurTimer)
       this.data.blurTimer = null
     }
-    
+
     // 设置保存标志，防止 blur 事件干扰
     this.setData({
       isSaving: true
     })
-    
+
     // 获取当前表单中该字段的值
     const value = this.data.form[field] || ''
-    
+
     // 构建更新数据（直接使用后端字段名）
     const updateData = {}
     updateData[field] = value || null
-    
+
     // 保存单个字段
     await this.saveSingleField(updateData, true)
-    
+
     // 保存完成后，清除编辑状态和保存标志
     this.setData({
       editingField: null,
@@ -512,7 +656,7 @@ Page({
     this.setData({
       [`form.${field}`]: e.detail.value
     })
-    
+
     // 输入过程中，确保确定按钮保持显示
     if (field === 'description' && this.data.editingDescription) {
       // 如果因为某些原因 editingDescription 被清空了，重新设置
@@ -523,7 +667,7 @@ Page({
       }
     }
   },
-  
+
   // 个人简介输入框获得焦点
   handleDescriptionFocus(e) {
     // 清除之前的 blur 定时器
@@ -531,26 +675,26 @@ Page({
       clearTimeout(this.data.descriptionBlurTimer)
       this.data.descriptionBlurTimer = null
     }
-    
+
     // 设置编辑状态
     this.setData({
       editingDescription: true
     })
   },
-  
+
   // 个人简介输入框失去焦点
   handleDescriptionBlur(e) {
     // 如果正在保存，不处理 blur 事件
     if (this.data.isSaving) {
       return
     }
-    
+
     // 清除之前的定时器
     if (this.data.descriptionBlurTimer) {
       clearTimeout(this.data.descriptionBlurTimer)
       this.data.descriptionBlurTimer = null
     }
-    
+
     // 延迟隐藏，确保点击确定按钮时能触发
     const timer = setTimeout(() => {
       // 如果正在保存，不隐藏
@@ -565,13 +709,13 @@ Page({
         })
       }
     }, 500)
-    
+
     // 保存定时器引用
     this.setData({
       descriptionBlurTimer: timer
     })
   },
-  
+
   // 保存个人简介
   async handleSaveDescription(e) {
     // 阻止事件冒泡
@@ -581,27 +725,27 @@ Page({
     if (e.preventDefault) {
       e.preventDefault()
     }
-    
+
     // 清除 blur 定时器
     if (this.data.descriptionBlurTimer) {
       clearTimeout(this.data.descriptionBlurTimer)
       this.data.descriptionBlurTimer = null
     }
-    
+
     // 设置保存标志
     this.setData({
       isSaving: true
     })
-    
+
     // 获取当前个人简介的值
     const value = this.data.form.description || ''
-    
+
     // 构建更新数据
     const updateData = { description: value || null }
-    
+
     // 保存单个字段
     await this.saveSingleField(updateData, true)
-    
+
     // 保存完成后，清除编辑状态和保存标志
     this.setData({
       editingDescription: false,
@@ -616,7 +760,7 @@ Page({
       'form.genderIndex': index,
       'form.gender': index // 0-未知，1-男，2-女
     })
-    
+
     // 选择后自动保存
     const updateData = { gender: index }
     await this.saveSingleField(updateData, true)
@@ -628,7 +772,7 @@ Page({
       'form.identifyTypeIndex': index,
       'form.identifyType': index // 0-身份证，1-护照
     })
-    
+
     // 选择后自动保存
     const updateData = { identifyType: index }
     await this.saveSingleField(updateData, true)
@@ -641,7 +785,7 @@ Page({
       'form.constellationIndex': index,
       'form.constellation': index + 1
     })
-    
+
     // 选择后自动保存
     const updateData = { constellation: index + 1 }
     await this.saveSingleField(updateData, true)
@@ -651,9 +795,21 @@ Page({
     this.setData({
       'form.birthDate': e.detail.value
     })
-    
+
     // 选择后自动保存
     const updateData = { birthDate: e.detail.value }
+    await this.saveSingleField(updateData, true)
+  },
+
+  async handleMaritalStatusChange(e) {
+    const index = Number(e.detail.value)
+    this.setData({
+      'form.maritalStatusIndex': index,
+      'form.maritalStatus': index // 0-未知，1-未婚，2-已婚，3-离异，4-丧偶
+    })
+
+    // 选择后自动保存
+    const updateData = { maritalStatus: index }
     await this.saveSingleField(updateData, true)
   },
 
@@ -710,7 +866,7 @@ Page({
           const imageUrl = config.getImageUrl(rawImageUrl)
           // 更新表单中的头像URL
           this.setData({ 'form.avatarUrl': imageUrl })
-          
+
           // 上传成功后自动保存
           const updateData = { avatarUrl: imageUrl }
           await this.saveSingleField(updateData, true)
@@ -740,20 +896,20 @@ Page({
   },
 
   validateForm() {
-    const { phone, email, identifyCode, educationList } = this.data.form
-    
+    const { phone, email, identifyCode, educationList, workExperienceList } = this.data.form
+
     // 验证手机号
     if (phone && !/^1[3-9]\d{9}$/.test(phone)) {
       wx.showToast({ title: '手机号格式不正确', icon: 'none' })
       return false
     }
-    
+
     // 验证邮箱
     if (email && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) {
       wx.showToast({ title: '邮箱格式不正确', icon: 'none' })
       return false
     }
-    
+
     // 验证证件号
     if (identifyCode) {
       const { identifyType } = this.data.form
@@ -771,18 +927,18 @@ Page({
         }
       }
     }
-    
+
     // 验证教育经历中的学校
     if (educationList && educationList.length > 0) {
       for (let i = 0; i < educationList.length; i++) {
         const edu = educationList[i]
         const schoolName = (edu.schoolName || '').trim()
         const schoolId = edu.schoolInfo?.schoolId || edu.schoolId
-        
+
         // 如果填写了学校名称，必须有有效的 schoolId（说明是从数据库中选择的）
         if (schoolName && (!schoolId || schoolId === '' || schoolId === null || schoolId === undefined)) {
-          wx.showToast({ 
-            title: '没有该学校，请从下拉列表中选择', 
+          wx.showToast({
+            title: '没有该学校，请从下拉列表中选择',
             icon: 'none',
             duration: 3000
           })
@@ -790,12 +946,49 @@ Page({
         }
       }
     }
-    
+
+    // 验证工作经历中的必填字段
+    if (workExperienceList && workExperienceList.length > 0) {
+      for (let i = 0; i < workExperienceList.length; i++) {
+        const work = workExperienceList[i]
+        const companyName = (work.companyName || '').trim()
+        const position = (work.position || '').trim()
+        const startDate = work.startDate || ''
+
+        if (!companyName) {
+          wx.showToast({
+            title: `工作经历 ${i + 1}：公司名称不能为空`,
+            icon: 'none',
+            duration: 3000
+          })
+          return false
+        }
+
+        if (!position) {
+          wx.showToast({
+            title: `工作经历 ${i + 1}：职位不能为空`,
+            icon: 'none',
+            duration: 3000
+          })
+          return false
+        }
+
+        if (!startDate) {
+          wx.showToast({
+            title: `工作经历 ${i + 1}：入职日期不能为空`,
+            icon: 'none',
+            duration: 3000
+          })
+          return false
+        }
+      }
+    }
+
     return true
   },
 
   // ==================== 数据保存逻辑 ====================
-  
+
   /**
    * 保存单个字段（通用方法）
    * @param {Object} updateData - 要更新的字段数据
@@ -805,7 +998,7 @@ Page({
     if (this.data.saving) {
       return false // 如果正在保存，不重复保存
     }
-    
+
     this.setData({ saving: true })
 
     try {
@@ -838,14 +1031,14 @@ Page({
       return false
     }
   },
-  
+
   /**
    * 保存用户资料（完整保存，用于底部保存按钮）
    * 联调时：只需要修改 saveToApi 函数中的接口调用
    */
   async saveProfile() {
     if (!this.validateForm()) return
-    
+
     this.setData({ saving: true })
 
     try {
@@ -901,14 +1094,14 @@ Page({
     const dataToSave = updateData || mapFormToUpdateData(this.data.form)
 
     const res = await userApi.updateUserInfo(dataToSave)
-    
+
     if (res.data && res.data.code === 200) {
       // 保存成功后，重新从后端加载最新数据，确保获取到完整的用户信息（包括头像）
       // 因为后端更新接口返回的 data 是 null，所以需要重新加载
       // 注意：单字段保存时，只更新对应字段，不重新加载全部数据（避免覆盖用户正在编辑的其他字段）
       const fullFormData = mapFormToUpdateData(this.data.form)
       const isFullSave = !updateData || Object.keys(updateData).length >= Object.keys(fullFormData).length * 0.8 // 如果更新字段超过80%，认为是完整保存
-      
+
       if (isFullSave) {
         // 完整保存时才重新加载全部数据
         try {
@@ -923,7 +1116,7 @@ Page({
               ...(app.globalData.userInfo || {}),
               ...latestUserInfo
             }
-            
+
             // 同时更新当前页面的表单数据，确保头像等字段显示正确
             const formData = mapUserInfoToForm(latestUserInfo)
             // genderIndex 已经在 mapUserInfoToForm 中计算好了
@@ -963,7 +1156,7 @@ Page({
           ...updateData
         }
       }
-      
+
       return true
     } else {
       wx.showToast({
@@ -975,6 +1168,34 @@ Page({
   },
 
   // ==================== 教育经历相关方法 ====================
+
+  // 切换教育经历展开/折叠状态
+  toggleEducationExpand() {
+    this.setData({
+      showAllEducation: !this.data.showAllEducation
+    })
+  },
+
+  // 获取默认展示的教育经历索引（主要经历优先，否则随机次要经历）
+  getDefaultEducationIndex() {
+    const educationList = this.data.form.educationList || []
+    if (educationList.length === 0) return -1
+
+    // 先找主要经历（type === 1）
+    const primaryIndex = educationList.findIndex(edu => edu.type === 1)
+    if (primaryIndex !== -1) return primaryIndex
+
+    // 没有主要经历，返回第一个次要经历
+    return 0
+  },
+
+  // 更新默认展示的教育经历索引
+  updateDefaultEducationIndex() {
+    const defaultIndex = this.getDefaultEducationIndex()
+    this.setData({
+      defaultEducationIndex: defaultIndex
+    })
+  },
 
   // 添加教育经历
   addEducation() {
@@ -993,8 +1214,11 @@ Page({
     }
     educationList.push(newItem)
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
+      // 添加教育经历时自动展开所有教育经历
+      showAllEducation: true
     })
+    this.updateDefaultEducationIndex()
   },
 
   // 删除教育经历
@@ -1015,7 +1239,7 @@ Page({
       delete showSchoolDropdown[indexNum]
       delete schoolSearchResults[indexNum]
       delete schoolSearchLoading[indexNum]
-      
+
       // 重新索引（因为删除了一个元素，后面的索引需要减1）
       const newShowSchoolDropdown = {}
       const newSchoolSearchResults = {}
@@ -1044,7 +1268,7 @@ Page({
           newSchoolSearchLoading[keyNum] = schoolSearchLoading[key]
         }
       })
-      
+
       const hasVisible = Object.values(newShowSchoolDropdown).some(v => v === true)
       this.setData({
         'form.educationList': educationList,
@@ -1053,6 +1277,7 @@ Page({
         schoolSearchLoading: newSchoolSearchLoading,
         hasSchoolDropdownVisible: hasVisible
       })
+      this.updateDefaultEducationIndex()
     }
   },
 
@@ -1073,7 +1298,7 @@ Page({
     // 使用与 handleEducationInput 完全相同的方式更新数据
     // 这是微信小程序官方推荐的方式，兼容性最好
     const educationList = this.data.form.educationList || []
-    
+
     // 确保数组项存在
     if (!educationList[indexNum]) {
       educationList[indexNum] = {
@@ -1089,15 +1314,15 @@ Page({
         certificationStatus: null
       }
     }
-    
+
     // 获取当前已有的学校信息
     const currentItem = educationList[indexNum]
     const originalSchoolName = currentItem.schoolInfo?.schoolName || currentItem.schoolName || ''
-    
+
     // 检查新输入的值是否与原来的学校名称匹配
     // 如果不匹配，说明用户手动修改了学校名称，需要清除 schoolInfo 和 schoolId
     const isSchoolNameChanged = safeInputValue.trim() !== originalSchoolName.trim()
-    
+
     // 更新 schoolName，如果学校名称被修改，清除 schoolInfo 和 schoolId
     educationList[indexNum] = {
       ...educationList[indexNum],
@@ -1108,7 +1333,7 @@ Page({
         schoolId: ''
       } : {})
     }
-    
+
     // 整体更新数组，确保数据正确响应
     this.setData({
       'form.educationList': educationList
@@ -1116,12 +1341,12 @@ Page({
 
     // 处理搜索逻辑（使用防抖优化）
     const keyword = safeInputValue.trim()
-    
+
     // 清除之前的搜索定时器
     if (this.searchSchoolTimer && this.searchSchoolTimer[indexNum]) {
       clearTimeout(this.searchSchoolTimer[indexNum])
     }
-    
+
     // 如果关键词为空，隐藏下拉列表
     if (!keyword) {
       const showSchoolDropdown = { ...this.data.showSchoolDropdown }
@@ -1169,11 +1394,11 @@ Page({
         schoolName: keyword.trim()
       }
       const res = await schoolApi.getSchoolPage(params)
-      
+
       if (res.data && res.data.code === 200) {
         const responseData = res.data.data || {}
         const list = responseData.records || responseData.list || []
-        
+
         // 映射学校数据
         const schoolList = list.map(item => ({
           schoolId: item.schoolId || '',
@@ -1209,11 +1434,11 @@ Page({
   async handleSaveEducation(e) {
     const { index } = e.currentTarget.dataset
     const indexNum = parseInt(index)
-    
+
     if (isNaN(indexNum)) {
       return
     }
-    
+
     // 阻止事件冒泡
     if (e.stopPropagation) {
       e.stopPropagation()
@@ -1221,18 +1446,18 @@ Page({
     if (e.preventDefault) {
       e.preventDefault()
     }
-    
+
     // 清除 blur 定时器
     if (this.data.educationBlurTimer) {
       clearTimeout(this.data.educationBlurTimer)
       this.data.educationBlurTimer = null
     }
-    
+
     // 设置保存标志
     this.setData({
       isSaving: true
     })
-    
+
     // 获取当前教育经历列表
     const educationList = this.data.form.educationList || []
     if (!educationList[indexNum]) {
@@ -1242,13 +1467,13 @@ Page({
       })
       return
     }
-    
+
     // 构建更新数据
     const updateData = mapFormToUpdateData({ educationList: educationList })
-    
+
     // 保存该教育经历
     await this.saveSingleField(updateData, true)
-    
+
     // 保存完成后，清除编辑状态和保存标志
     this.setData({
       editingEducationIndex: null,
@@ -1256,18 +1481,18 @@ Page({
       educationBlurTimer: null
     })
   },
-  
+
   // 选择学校（点击下拉列表项）- 完全重构
   async selectSchool(e) {
     const { index, schoolIndex } = e.currentTarget.dataset
     const indexNum = parseInt(index)
     const schoolIndexNum = parseInt(schoolIndex)
-    
+
     if (isNaN(indexNum) || isNaN(schoolIndexNum)) {
       console.error('选择学校失败：索引无效', index, schoolIndex)
       return
     }
-    
+
     const schoolSearchResults = this.data.schoolSearchResults || {}
     const schoolList = schoolSearchResults[indexNum] || []
     const school = schoolList[schoolIndexNum]
@@ -1281,7 +1506,7 @@ Page({
 
     // 使用与 handleEducationInput 完全相同的方式更新数据
     const educationList = this.data.form.educationList || []
-    
+
     if (!educationList[indexNum]) {
       educationList[indexNum] = {
         schoolInfo: null,
@@ -1296,7 +1521,7 @@ Page({
         certificationStatus: null
       }
     }
-    
+
     educationList[indexNum] = {
       ...educationList[indexNum],
       schoolInfo: {
@@ -1312,19 +1537,19 @@ Page({
       schoolId: school.schoolId || '',
       schoolName: schoolName
     }
-    
+
     // 更新数据并隐藏下拉列表
     const showSchoolDropdown = { ...this.data.showSchoolDropdown }
     showSchoolDropdown[indexNum] = false
     const hasVisible = Object.values(showSchoolDropdown).some(v => v === true)
-    
+
     this.setData({
       'form.educationList': educationList,
       [`showSchoolDropdown.${indexNum}`]: false,
       [`schoolSearchResults.${indexNum}`]: [],
       hasSchoolDropdownVisible: hasVisible
     })
-    
+
     // 选择学校后，设置当前编辑的教育经历索引，显示确定按钮
     this.setData({
       editingEducationIndex: indexNum
@@ -1335,33 +1560,33 @@ Page({
   onSchoolFocus(e) {
     const { index } = e.currentTarget.dataset
     const indexNum = parseInt(index)
-    
+
     if (isNaN(indexNum)) {
       return
     }
-    
+
     // 清除之前的 blur 定时器
     if (this.data.educationBlurTimer) {
       clearTimeout(this.data.educationBlurTimer)
       this.data.educationBlurTimer = null
     }
-    
+
     // 设置当前编辑的教育经历索引
     this.setData({
       editingEducationIndex: indexNum
     })
-    
+
     // 获取当前输入的值
     const educationList = this.data.form.educationList || []
     const currentItem = educationList[indexNum]
-    
+
     if (!currentItem) {
       return
     }
-    
+
     const currentValue = currentItem.schoolName || ''
     const keyword = String(currentValue).trim()
-    
+
     // 如果有输入内容，显示搜索下拉框并触发搜索
     if (keyword && keyword.length > 0) {
       this.setData({
@@ -1369,7 +1594,7 @@ Page({
         [`showSchoolDropdown.${indexNum}`]: true,
         hasSchoolDropdownVisible: true
       })
-      
+
       // 执行搜索
       this.performSchoolSearch(indexNum, keyword)
     }
@@ -1398,30 +1623,30 @@ Page({
         clearTimeout(this.data.educationBlurTimer)
         this.data.educationBlurTimer = null
       }
-      
+
       // 设置当前编辑的教育经历索引
       this.setData({
         editingEducationIndex: indexNum
       })
     }
   },
-  
+
   // 教育经历输入框失去焦点
   handleEducationBlur(e) {
     const { index } = e.currentTarget.dataset
     const indexNum = parseInt(index)
-    
+
     // 如果正在保存，不处理 blur 事件
     if (this.data.isSaving) {
       return
     }
-    
+
     // 清除之前的定时器
     if (this.data.educationBlurTimer) {
       clearTimeout(this.data.educationBlurTimer)
       this.data.educationBlurTimer = null
     }
-    
+
     // 只有当失去焦点的教育经历是当前编辑的时，才隐藏确定按钮
     if (!isNaN(indexNum) && this.data.editingEducationIndex === indexNum) {
       // 延迟隐藏，确保点击确定按钮时能触发
@@ -1438,14 +1663,14 @@ Page({
           })
         }
       }, 500)
-      
+
       // 保存定时器引用
       this.setData({
         educationBlurTimer: timer
       })
     }
   },
-  
+
   // 教育经历输入
   handleEducationInput(e) {
     const { index, field } = e.currentTarget.dataset
@@ -1458,7 +1683,7 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
-    
+
     // 输入过程中，确保确定按钮保持显示
     const indexNum = parseInt(index)
     if (!isNaN(indexNum) && this.data.editingEducationIndex === indexNum) {
@@ -1470,7 +1695,7 @@ Page({
       }
     }
   },
-  
+
   // 教育经历输入确认保存
   async handleEducationInputConfirm(e) {
     const { index, field } = e.currentTarget.dataset
@@ -1483,12 +1708,35 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
-    
+
     // 保存该教育经历
     const updateData = mapFormToUpdateData({ educationList: educationList })
     await this.saveSingleField(updateData, true)
   },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+
+  // 处理教育经历类型变化
+  handleEducationTypeChange(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+    const type = parseInt(e.detail.value)
+    const educationList = this.data.form.educationList || []
+    educationList[indexNum] = {
+      ...educationList[indexNum],
+      type: type
+    }
+    this.setData({
+      'form.educationList': educationList
+    })
+
+    // 设置当前编辑的教育经历索引，显示确定按钮
+    this.setData({
+      editingEducationIndex: indexNum
+    })
+
+    // 更新默认展示的教育经历索引
+    this.updateDefaultEducationIndex()
+  },
+
   // 教育经历年份输入
   handleEducationYearInput(e) {
     const { index, field } = e.currentTarget.dataset
@@ -1501,7 +1749,7 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
-    
+
     // 输入过程中，确保确定按钮保持显示
     const indexNum = parseInt(index)
     if (!isNaN(indexNum) && this.data.editingEducationIndex === indexNum) {
@@ -1513,7 +1761,7 @@ Page({
       }
     }
   },
-  
+
   // 教育经历年份输入确认保存
   async handleEducationYearInputConfirm(e) {
     const { index, field } = e.currentTarget.dataset
@@ -1526,7 +1774,7 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
-    
+
     // 保存该教育经历
     const updateData = mapFormToUpdateData({ educationList: educationList })
     await this.saveSingleField(updateData, true)
@@ -1544,7 +1792,7 @@ Page({
     this.setData({
       'form.educationList': educationList
     })
-    
+
     // 选择后自动保存该教育经历
     const updateData = mapFormToUpdateData({ educationList: educationList })
     await this.saveSingleField(updateData, true)
@@ -1561,6 +1809,293 @@ Page({
     }
     this.setData({
       'form.educationList': educationList
+    })
+  },
+
+  // ==================== 工作经历相关方法 ====================
+
+  // 切换工作经历展开/折叠状态
+  toggleWorkExpand() {
+    this.setData({
+      showAllWork: !this.data.showAllWork
+    })
+  },
+
+  // 获取默认展示的工作经历索引（当前在职优先，否则第一个）
+  getDefaultWorkIndex() {
+    const workExperienceList = this.data.form.workExperienceList || []
+    if (workExperienceList.length === 0) return -1
+
+    // 先找当前在职的（isCurrent === 1）
+    const currentIndex = workExperienceList.findIndex(work => work.isCurrent === 1)
+    if (currentIndex !== -1) return currentIndex
+
+    // 没有当前在职的，返回第一个
+    return 0
+  },
+
+  // 更新默认展示的工作经历索引
+  updateDefaultWorkIndex() {
+    const defaultIndex = this.getDefaultWorkIndex()
+    this.setData({
+      defaultWorkIndex: defaultIndex
+    })
+  },
+
+  // 添加工作经历
+  addWorkExperience() {
+    const workExperienceList = this.data.form.workExperienceList || []
+    const newItem = {
+      userWorkId: null,
+      companyName: '',
+      position: '',
+      industry: '',
+      startDate: '',
+      endDate: '',
+      isCurrent: 0,
+      workDescription: ''
+    }
+    workExperienceList.push(newItem)
+    this.setData({
+      'form.workExperienceList': workExperienceList,
+      // 添加工作经历时自动展开所有工作经历
+      showAllWork: true
+    })
+    this.updateDefaultWorkIndex()
+  },
+
+  // 删除工作经历
+  removeWorkExperience(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+    if (isNaN(indexNum) || indexNum < 0) {
+      console.error('删除工作经历失败：索引无效', index)
+      return
+    }
+    const workExperienceList = this.data.form.workExperienceList || []
+    if (indexNum >= 0 && indexNum < workExperienceList.length) {
+      workExperienceList.splice(indexNum, 1)
+      this.setData({
+        'form.workExperienceList': workExperienceList
+      })
+      this.updateDefaultWorkIndex()
+    }
+  },
+
+  // 工作经历输入
+  handleWorkInput(e) {
+    const { index, field } = e.currentTarget.dataset
+    const { value } = e.detail
+    const workExperienceList = this.data.form.workExperienceList || []
+    workExperienceList[index] = {
+      ...workExperienceList[index],
+      [field]: value
+    }
+    this.setData({
+      'form.workExperienceList': workExperienceList
+    })
+
+    // 输入过程中，确保确定按钮保持显示
+    const indexNum = parseInt(index)
+    if (!isNaN(indexNum)) {
+      // 确保 editingWorkIndex 被设置为当前编辑的索引
+      if (this.data.editingWorkIndex !== indexNum) {
+        this.setData({
+          editingWorkIndex: indexNum
+        })
+      }
+    }
+  },
+
+  // 工作经历输入框获得焦点
+  handleWorkFocus(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+    if (!isNaN(indexNum)) {
+      // 清除之前的 blur 定时器
+      if (this.data.workBlurTimer) {
+        clearTimeout(this.data.workBlurTimer)
+        this.data.workBlurTimer = null
+      }
+
+      // 设置当前编辑的工作经历索引
+      this.setData({
+        editingWorkIndex: indexNum
+      })
+    }
+  },
+
+  // 工作经历输入框失去焦点
+  handleWorkBlur(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+
+    // 如果正在保存，不处理 blur 事件
+    if (this.data.isSaving) {
+      return
+    }
+
+    // 清除之前的定时器
+    if (this.data.workBlurTimer) {
+      clearTimeout(this.data.workBlurTimer)
+      this.data.workBlurTimer = null
+    }
+
+    // 只有当失去焦点的工作经历是当前编辑的时，才隐藏确定按钮
+    if (!isNaN(indexNum) && this.data.editingWorkIndex === indexNum) {
+      // 延迟隐藏，确保点击确定按钮时能触发
+      const timer = setTimeout(() => {
+        // 如果正在保存，不隐藏
+        if (this.data.isSaving) {
+          return
+        }
+        // 再次检查，确保当前编辑的工作经历没有变化
+        if (this.data.editingWorkIndex === indexNum) {
+          this.setData({
+            editingWorkIndex: null,
+            workBlurTimer: null
+          })
+        }
+      }, 500)
+
+      // 保存定时器引用
+      this.setData({
+        workBlurTimer: timer
+      })
+    }
+  },
+
+  // 工作经历日期选择
+  async handleWorkDateChange(e) {
+    const { index, field } = e.currentTarget.dataset
+    const value = e.detail.value
+    const workExperienceList = this.data.form.workExperienceList || []
+    workExperienceList[index] = {
+      ...workExperienceList[index],
+      [field]: value
+    }
+    this.setData({
+      'form.workExperienceList': workExperienceList
+    })
+
+    // 选择后，确保确定按钮保持显示
+    const indexNum = parseInt(index)
+    if (!isNaN(indexNum)) {
+      this.setData({
+        editingWorkIndex: indexNum
+      })
+    }
+  },
+
+  // 工作经历当前在职状态选择
+  async handleWorkCurrentChange(e) {
+    const { index } = e.currentTarget.dataset
+    const value = Number(e.detail.value)
+    const workExperienceList = this.data.form.workExperienceList || []
+    workExperienceList[index] = {
+      ...workExperienceList[index],
+      isCurrent: value,
+      // 如果选择当前在职，清空离职日期
+      endDate: value === 1 ? '' : workExperienceList[index].endDate
+    }
+    this.setData({
+      'form.workExperienceList': workExperienceList
+    })
+
+    // 选择后，确保确定按钮保持显示
+    const indexNum = parseInt(index)
+    if (!isNaN(indexNum)) {
+      this.setData({
+        editingWorkIndex: indexNum
+      })
+    }
+
+    // 更新默认展示的工作经历索引
+    this.updateDefaultWorkIndex()
+  },
+
+  // 保存工作经历
+  async handleSaveWorkExperience(e) {
+    const { index } = e.currentTarget.dataset
+    const indexNum = parseInt(index)
+
+    if (isNaN(indexNum)) {
+      return
+    }
+
+    // 阻止事件冒泡
+    if (e.stopPropagation) {
+      e.stopPropagation()
+    }
+    if (e.preventDefault) {
+      e.preventDefault()
+    }
+
+    // 清除 blur 定时器
+    if (this.data.workBlurTimer) {
+      clearTimeout(this.data.workBlurTimer)
+      this.data.workBlurTimer = null
+    }
+
+    // 获取当前工作经历
+    const workExperienceList = this.data.form.workExperienceList || []
+    if (!workExperienceList[indexNum]) {
+      this.setData({
+        isSaving: false,
+        editingWorkIndex: null
+      })
+      return
+    }
+
+    // 验证当前工作经历的必填字段
+    const work = workExperienceList[indexNum]
+    const companyName = (work.companyName || '').trim()
+    const position = (work.position || '').trim()
+    const startDate = work.startDate || ''
+
+    if (!companyName) {
+      wx.showToast({
+        title: `工作经历 ${indexNum + 1}：公司名称不能为空`,
+        icon: 'none',
+        duration: 3000
+      })
+      return
+    }
+
+    if (!position) {
+      wx.showToast({
+        title: `工作经历 ${indexNum + 1}：职位不能为空`,
+        icon: 'none',
+        duration: 3000
+      })
+      return
+    }
+
+    if (!startDate) {
+      wx.showToast({
+        title: `工作经历 ${indexNum + 1}：入职日期不能为空`,
+        icon: 'none',
+        duration: 3000
+      })
+      return
+    }
+
+    // 设置保存标志
+    this.setData({
+      isSaving: true
+    })
+
+    // 构建更新数据
+    const updateData = mapFormToUpdateData({ workExperienceList: workExperienceList })
+
+    // 保存该工作经历
+    await this.saveSingleField(updateData, true)
+
+    // 保存完成后，清除编辑状态和保存标志
+    this.setData({
+      editingWorkIndex: null,
+      isSaving: false,
+      workBlurTimer: null
     })
   },
 

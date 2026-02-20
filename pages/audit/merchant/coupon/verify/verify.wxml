@@ -1,7 +1,5 @@
 <!--pages/audit/merchant/coupon/verify/verify.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="核销优惠券" showBack="{{true}}"></custom-nav-bar>
-
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="核销优惠券">
 <view class="verify-coupon-page">
   <!-- 门店选择 -->
   <view class="shop-selector-container" wx:if="{{shopList.length > 1}}">
@@ -104,3 +102,4 @@
     </view>
   </view>
 </view>
+</custom-nav-bar>

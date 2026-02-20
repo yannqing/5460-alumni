@@ -13,7 +13,7 @@ Page({
     associationId: '',
     associationInfo: null,
     activeTab: 0,
-    tabs: ['基本信息', '成员列表', '组织结构'],//, '关系图谱'],
+    tabs: ['基本信息', '组织架构', '成员列表'],//, '关系图谱'],
     members: [],
     // 图谱数据（预留后端接口）
     graphData: null,
@@ -83,6 +83,18 @@ Page({
     }
   },
 
+  // 格式化时间为 月-日 时:分
+  formatTime(dateString) {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${month}-${day} ${hours}:${minutes}`
+  },
+
   // 加载校友会详情
   async loadAssociationDetail() {
     if (this.data.loading) return
@@ -100,9 +112,22 @@ Page({
         // 实际返回结构中，ID 信息分散在不同对象中：
         // - 校友会主键：alumni_association_id（后端未在 VO 中显式暴露，前端使用请求时的 id）
         // - 母校 ID：data.schoolInfo.schoolId
-        // - 校处会 ID：目前 VO 中未暴露，前端暂不直接使用
+        // - 校促会 ID：目前 VO 中未暴露，前端暂不直接使用
         const schoolInfo = item.schoolInfo || {}
         const platformInfo = item.platform || {}
+
+        // 解析背景图列表
+        let coverList = []
+        try {
+          if (item.bgImg) {
+            const parsed = JSON.parse(item.bgImg)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              coverList = parsed.map(img => config.getImageUrl(img))
+            }
+          }
+        } catch (e) {
+          console.error('Parse bgImg error:', e)
+        }
 
         const mappedInfo = {
           // 使用前端当前请求的 id 作为校友会 ID，避免依赖后端未暴露字段
@@ -116,8 +141,9 @@ Page({
           platformId: platformInfo.platformId || platformInfo.id || null,
           presidentUserId: item.presidentUserId,
           // 优先使用后端返回的 logo 字段，如果没有则使用默认头像，与列表页保持一致
-          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/compressed-avatar.jpg',
-          cover: DEFAULT_COVER, // 后端暂无封面字段，使用默认
+          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/avatar-2.png',
+          cover: coverList.length > 0 ? coverList[0] : DEFAULT_COVER,
+          coverList: coverList.length > 0 ? coverList : [DEFAULT_COVER],
           location: item.location || '',
           memberCount: item.memberCount || 0,
           contactInfo: item.contactInfo || '',
@@ -135,9 +161,15 @@ Page({
           applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null
         }
 
+        // 处理活动列表，格式化时间
+        const formattedActivityList = (item.activityList || []).map(activity => ({
+          ...activity,
+          startTime: this.formatTime(activity.startTime)
+        }))
+
         this.setData({
           associationInfo: mappedInfo,
-          activityList: item.activityList || [],
+          activityList: formattedActivityList,
           enterpriseList: item.enterpriseList || [],
           loading: false
         })
@@ -205,7 +237,8 @@ Page({
           const signature = item.signature || '暂无公司信息'
 
           return {
-            id: item.userId || item.id,
+            id: item.wxId,
+            wxId: item.wxId,
             avatar: avatarUrl,
             nickname: item.nickname || '',
             name: item.name || item.realName || '未知用户',
@@ -239,18 +272,18 @@ Page({
     const index = e.currentTarget.dataset.index
     this.setData({ activeTab: index })
 
-    // 切换到成员列表标签时
-    if (index === 1) {
-      // 如果还没加载过成员数据，则加载
-      if (this.data.members.length === 0) {
-        this.loadMembers()
-      }
-    }
     // 切换到组织结构标签时，加载组织结构数据
-    else if (index === 2) {
+    if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
       if (this.data.roleList.length === 0) {
         this.loadOrganizationTree()
+      }
+    }
+    // 切换到成员列表标签时
+    else if (index === 2) {
+      // 如果还没加载过成员数据，则加载
+      if (this.data.members.length === 0) {
+        this.loadMembers()
       }
     }
     /* // 切换到图谱标签时
@@ -972,15 +1005,7 @@ Page({
           confirmColor: '#40B2E6',
           success: (res) => {
             if (res.confirm) {
-              // TODO: 调用退出校友会接口
-              wx.showToast({
-                title: '已退出',
-                icon: 'success'
-              })
-              // 更新状态
-              this.setData({
-                'associationInfo.applicationStatus': null
-              })
+              this.handleQuitAssociation()
             }
           }
         })
@@ -1017,6 +1042,43 @@ Page({
     wx.navigateTo({
       url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&schoolId=${schoolId}&schoolName=${encodeURIComponent(schoolName)}`
     })
+  },
+
+  // 退出校友会
+  async handleQuitAssociation() {
+    wx.showLoading({ title: '处理中...' })
+    try {
+      const res = await associationApi.quitAssociation({
+        alumniAssociationId: this.data.associationId
+      })
+
+      wx.hideLoading()
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '已成功退出',
+          icon: 'success'
+        })
+
+        // 更新本地状态，改变按钮显示
+        this.setData({
+          'associationInfo.applicationStatus': null,
+          'associationInfo.memberCount': Math.max(0, (this.data.associationInfo.memberCount || 1) - 1)
+        })
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '退出失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('退出校友会失败:', error)
+      wx.showToast({
+        title: '请求失败，请稍后重试',
+        icon: 'none'
+      })
+    }
   },
 
   // 跳转到申请详情页面（查看模式）
@@ -1101,12 +1163,12 @@ Page({
   },
 
   // 查看活动详情
-  // viewActivityDetail(e) {
-  //   const { id } = e.currentTarget.dataset
-  //   wx.navigateTo({
-  //     url: `/pages/activity/detail/detail?id=${id}`
-  //   })
-  // },
+  viewActivityDetail(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/activity/detail-new/detail-new?id=${id}`
+    })
+  },
 
   // 查看权益详情
   viewBenefitDetail(e) {
@@ -1159,18 +1221,18 @@ Page({
   },
 
   // 查看校友企业详情
-  // viewEnterpriseDetail(e) {
-  //   const { id } = e.currentTarget.dataset
-  //   if (id === 'all') {
-  //     wx.navigateTo({
-  //       url: `/pages/enterprise/list/list?associationId=${this.data.associationId}`
-  //     })
-  //   } else {
-  //     wx.navigateTo({
-  //       url: `/pages/enterprise/detail/detail?id=${id}`
-  //     })
-  //   }
-  // },
+  viewEnterpriseDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (id === 'all') {
+      wx.navigateTo({
+        url: `/pages/enterprise/list/list?associationId=${this.data.associationId}`
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/enterprise/detail/detail?id=${id}`
+      })
+    }
+  },
 
   // 查看校友商铺详情
   viewShopDetail(e) {
@@ -1223,6 +1285,14 @@ Page({
       this.setData({
         organizationLoading: false
       })
+    })
+  },
+
+  // 显示“开发中”提示
+  handleDeveloping() {
+    wx.showToast({
+      title: '开发中，敬请期待',
+      icon: 'none'
     })
   }
 })

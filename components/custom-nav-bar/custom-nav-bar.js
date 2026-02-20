@@ -15,9 +15,23 @@ Component({
       type: String,
       value: '#fff'
     },
+    showImage: {
+      type: Boolean,
+      value: true
+    },
     textColor: {
       type: String,
       value: '#000'
+    },
+    /** 是否使用管理入口样式（渐变背景 + 中间 Logo） */
+    useAuditStyle: {
+      type: Boolean,
+      value: false
+    },
+    /** 管理入口样式的标题文字 */
+    auditTitle: {
+      type: String,
+      value: '管理'
     }
   },
 
@@ -25,7 +39,9 @@ Component({
     statusBarHeight: 0,
     navBarHeight: 0,
     iconBack: '',
-    backgroundImage: ''
+    iconBackAudit: '',
+    backgroundImage: '',
+    centerLogo: ''
   },
 
   attached() {
@@ -33,17 +49,23 @@ Component({
     const systemInfo = wx.getSystemInfoSync()
     const statusBarHeight = systemInfo.statusBarHeight || 0
     const navBarHeight = 44 // 导航栏高度固定为44px
-    
+
     // 获取返回按钮图标
-    const iconBack = config.getIconUrl('back@3x.png')
-    
-    // 获取导航栏背景图片
+    const iconBack = '/assets/icons/back.png'
+    // 管理入口样式：返回按钮图标（使用本地图片）
+    const iconBackAudit = '/assets/avatar/back7@2x.png'
+
+    // 管理入口样式：中间 Logo（使用本地图片）
+    const centerLogo = '/assets/avatar/dbdh@2x.png'
+    // 默认样式：背景图
     const backgroundImage = config.getIconUrl('tljb@3x.png')
-    
+
     this.setData({
       statusBarHeight: statusBarHeight,
       navBarHeight: navBarHeight,
       iconBack: iconBack,
+      iconBackAudit: iconBackAudit,
+      centerLogo: centerLogo,
       backgroundImage: backgroundImage
     })
   },

@@ -1,115 +1,62 @@
 <!--pages/audit/index/index.wxml-->
-<!-- 自定义导航栏 -->
-<custom-nav-bar title="管理入口" showBack="{{true}}"></custom-nav-bar>
-
-<view class="audit-index-page">
-  <!-- 管理功能 -->
-  <view class="audit-content" wx:if="{{auditFunctions.length > 0}}">
-    <view class="audit-title">管理功能</view>
-    <view class="audit-grid">
-      <view
-        class="audit-item"
-        wx:for="{{auditFunctions}}"
-        wx:key="id"
-        data-url="{{item.url}}"
-        bindtap="onFunctionTap"
-      >
-        <view class="audit-icon-wrapper">
-          <view class="audit-icon">
-            <block wx:if="{{item.iconType === 'image'}}">
-              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
-            </block>
-            <block wx:else>
-              <text class="audit-icon-text">{{item.icon}}</text>
-            </block>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="管理入口">
+<view class="page">
+    <view class="section_7">
+      <view class="list_1">
+        <!-- 管理功能 -->
+        <view class="list-items_common {{auditFunctions.length > 4 ? 'list-items_multi-row' : ''}}" wx:if="{{auditFunctions.length > 0}}">
+          <view class="text-wrapper_common">
+            <text lines="1" class="text_title_common">管理功能</text>
           </view>
-          <view class="audit-icon-base"></view>
+          <view class="group_items_common">
+            <view class="image-text_item_common" wx:for="{{auditFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
+              <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
+              <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+              <text lines="1" class="text-group_name_common">{{item.name}}</text>
+            </view>
+          </view>
         </view>
-        <view class="audit-name">{{item.name}}</view>
+
+        <!-- 校促会 -->
+        <view class="list-items_common {{schoolOfficeFunctions.length > 4 ? 'list-items_multi-row' : ''}}" wx:if="{{schoolOfficeFunctions.length > 0}}">
+          <view class="text-wrapper_common">
+            <text lines="1" class="text_title_common">城市</text>
+          </view>
+          <view class="group_items_common">
+            <view class="image-text_item_common" wx:for="{{schoolOfficeFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
+              <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
+              <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+              <text lines="1" class="text-group_name_common">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 校友会 -->
+        <view class="list-items_common {{alumniFunctions.length > 4 ? 'list-items_multi-row' : ''}}" wx:if="{{alumniFunctions.length > 0}}">
+          <view class="text-wrapper_common">
+            <text lines="1" class="text_title_common">校友会</text>
+          </view>
+          <view class="group_items_common">
+            <view class="image-text_item_common" wx:for="{{alumniFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
+              <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
+              <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+              <text lines="1" class="text-group_name_common">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 商家 -->
+    <view class="section_8 {{merchantFunctions.length > 4 ? 'section_8_multi-row' : ''}}" wx:if="{{merchantFunctions.length > 0}}">
+      <text lines="1" class="text_18">商家</text>
+      <view class="grid_1">
+        <view class="image-text_3-0" wx:for="{{merchantFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
+          <image src="{{item.icon}}" class="label_3-0" wx:if="{{item.iconType === 'image'}}"></image>
+          <view class="label_3-0" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+          <text lines="1" class="text-group_3-0">{{item.name}}</text>
+        </view>
       </view>
     </view>
   </view>
-
-  <!-- 校处会 -->
-  <view class="audit-content" wx:if="{{schoolOfficeFunctions.length > 0}}">
-    <view class="audit-title">城市</view>
-    <view class="audit-grid">
-      <view
-        class="audit-item"
-        wx:for="{{schoolOfficeFunctions}}"
-        wx:key="id"
-        data-url="{{item.url}}"
-        bindtap="onFunctionTap"
-      >
-        <view class="audit-icon-wrapper">
-          <view class="audit-icon alumni-icon">
-            <block wx:if="{{item.iconType === 'image'}}">
-              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
-            </block>
-            <block wx:else>
-              <text class="audit-icon-text">{{item.icon}}</text>
-            </block>
-          </view>
-          <view class="audit-icon-base alumni-icon-base"></view>
-        </view>
-        <view class="audit-name">{{item.name}}</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 校友会 -->
-  <view class="audit-content" wx:if="{{alumniFunctions.length > 0}}">
-    <view class="audit-title">校友会</view>
-    <view class="audit-grid">
-      <view
-        class="audit-item"
-        wx:for="{{alumniFunctions}}"
-        wx:key="id"
-        data-url="{{item.url}}"
-        bindtap="onFunctionTap"
-      >
-        <view class="audit-icon-wrapper">
-          <view class="audit-icon alumni-icon">
-            <block wx:if="{{item.iconType === 'image'}}">
-              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
-            </block>
-            <block wx:else>
-              <text class="audit-icon-text">{{item.icon}}</text>
-            </block>
-          </view>
-          <view class="audit-icon-base alumni-icon-base"></view>
-        </view>
-        <view class="audit-name">{{item.name}}</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 商户 -->
-  <view class="audit-content" wx:if="{{merchantFunctions.length > 0}}">
-    <view class="audit-title">商家</view>
-    <view class="audit-grid">
-      <view
-        class="audit-item"
-        wx:for="{{merchantFunctions}}"
-        wx:key="id"
-        data-url="{{item.url}}"
-        bindtap="onFunctionTap"
-      >
-        <view class="audit-icon-wrapper">
-          <view class="audit-icon merchant-icon">
-            <block wx:if="{{item.iconType === 'image'}}">
-              <image class="audit-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
-            </block>
-            <block wx:else>
-              <text class="audit-icon-text">{{item.icon}}</text>
-            </block>
-          </view>
-          <view class="audit-icon-base merchant-icon-base"></view>
-        </view>
-        <view class="audit-name">{{item.name}}</view>
-      </view>
-    </view>
-  </view>
-</view>
-
-
+</custom-nav-bar>

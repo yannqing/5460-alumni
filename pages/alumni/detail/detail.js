@@ -6,7 +6,8 @@ const { FollowTargetType, toggleFollow } = require('../../../utils/followHelper.
 Page({
   data: {
     alumniId: '',
-    alumniInfo: null
+    alumniInfo: null,
+    defaultAvatar: config.defaultAvatar
   },
 
   onLoad(options) {
@@ -44,23 +45,43 @@ Page({
   },
 
   // 数据映射：将后端数据映射为前端格式
+  /**
+   * 映射校友数据
+   * 兼容 profile/edit/edit 的字段返回，并处理空值
+   */
   mapAlumniData(data) {
+    const config = require('../../../utils/config.js')
+
+    // 空值处理函数
+    const formatValue = (val) => {
+      if (val === null || val === undefined || val === '' || val === '未设置') {
+        return {
+          value: '不方便透露',
+          isNull: true
+        }
+      }
+      return {
+        value: val,
+        isNull: false
+      }
+    }
+
     // 处理头像
     let avatarUrl = data.avatarUrl || ''
     if (avatarUrl) {
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
       // 使用本地默认头像
-      avatarUrl = '/assets/avatar/default_avatar.jpeg'
+      avatarUrl = config.defaultAvatar
     }
 
     // 处理性别
-    const genderMap = {
-      0: 'unknown',
-      1: 'male',
-      2: 'female'
-    }
-    const gender = genderMap[data.gender] || 'unknown'
+    const genderMap = { 0: '未知', 1: '男', 2: '女' }
+    const gender = genderMap[data.gender] || '未知'
+
+    // 婚姻状态映射
+    const maritalStatusOptions = ['未知', '未婚', '已婚', '离异', '丧偶']
+    const maritalStatus = maritalStatusOptions[data.maritalStatus] || '未知'
 
     // 计算年龄和星座
     let age = ''
@@ -75,58 +96,75 @@ Page({
       constellation = this.getZodiacName(data.constellation, month, day)
     }
 
-    // 构建位置信息
-    let location = data.address || ''
-    if (!location) {
-      const locationParts = []
-      if (data.curProvince) locationParts.push(data.curProvince)
-      if (data.curCity) locationParts.push(data.curCity)
-      if (data.curCounty) locationParts.push(data.curCounty)
-      location = locationParts.join('') || '未设置'
-    }
-
     // 处理教育经历
-    const educationList = (data.alumniEducationList || []).map(edu => ({
-      schoolId: edu.schoolId,
-      logo: edu.logo ? config.getImageUrl(edu.logo) : '',
-      schoolName: edu.schoolName || '',
-      province: edu.province || '',
-      city: edu.city || '',
-      level: edu.level || '',
-      enrollmentYear: edu.enrollmentYear || '',
-      graduationYear: edu.graduationYear || '',
-      department: edu.department || '',
-      major: edu.major || '',
-      className: edu.className || '',
-      educationLevel: edu.educationLevel || '',
+    const educationList = (data.alumniEducationList || []).map(edu => {
+      const schoolName = edu.schoolInfo?.schoolName || edu.schoolName || '未知学校'
+      const rawLogo = edu.schoolInfo?.logo || edu.logo || ''
+
+      return {
+        schoolId: edu.schoolInfo?.schoolId || edu.schoolId,
+        logo: rawLogo ? config.getImageUrl(rawLogo) : '',
+        schoolName: schoolName,
+        enrollmentYear: edu.enrollmentYear || '',
+        graduationYear: edu.graduationYear || '',
+        department: edu.department || '',
+        major: edu.major || '',
+        className: edu.className || '',
+        educationLevel: edu.educationLevel || '',
+        type: edu.type === 1 ? '主要经历' : '次要经历'
+      }
+    })
+
+    // 处理工作经历
+    const workExperienceList = (data.workExperienceList || []).map(work => ({
+      companyName: work.companyName || '未知公司',
+      position: work.position || '',
+      industry: work.industry || '',
+      startDate: work.startDate || '',
+      endDate: work.endDate || (work.isCurrent === 1 ? '至今' : ''),
+      isCurrent: work.isCurrent === 1,
+      workDescription: work.workDescription || ''
     }))
 
+    // 格式化展示字段
     return {
       id: data.id,
-      nickname: data.nickname || data.name || '未知校友',
-      name: data.name || '',
+      nickname: formatValue(data.nickname || data.name),
+      name: formatValue(data.name),
       avatarUrl: avatarUrl,
-      background: data.background ? config.getImageUrl(data.background) : '',
-      gender: gender,
-      age: age || '?',
-      zodiac: constellation || '未知',
-      constellation: constellation || '未知',
-      birthDate: data.birthDate || '未设置',
-      phone: data.phone || '未设置',
-      signature: data.signature || '',
-      wxNum: data.wxNum || '未设置',
-      qqNum: data.qqNum || '未设置',
-      email: data.email || '未设置',
-      originProvince: data.originProvince || '未设置',
-      curContinent: data.curContinent || '未设置',
-      curCountry: data.curCountry || '未设置',
-      curProvince: data.curProvince || '未设置',
-      curCity: data.curCity || '未设置',
-      curCounty: data.curCounty || '未设置',
-      address: data.address || '未设置',
-      educationList: educationList,
+      bgImg: data.bgImg ? config.getImageUrl(data.bgImg) : '',
+      gender: formatValue(gender),
+      age: formatValue(age ? `${age}岁` : ''),
+      zodiac: formatValue(constellation),
+      constellation: formatValue(constellation),
+      birthDate: formatValue(data.birthDate),
+      phone: formatValue(data.phone),
+      signature: formatValue(data.signature),
+      description: formatValue(data.description || data.bio),
+      wxNum: formatValue(data.wxNum),
+      qqNum: formatValue(data.qqNum),
+      email: formatValue(data.email),
+      maritalStatus: formatValue(maritalStatus),
+      personalSpecialty: formatValue(data.personalSpecialty),
+
+      // 位置信息
+      originProvince: formatValue(data.originProvince),
+      curContinent: formatValue(data.curContinent),
+      curCountry: formatValue(data.curCountry),
+      curProvince: formatValue(data.curProvince),
+      curCity: formatValue(data.curCity),
+      curCounty: formatValue(data.curCounty),
+      address: formatValue(data.address),
+
+      educationList: educationList.length > 0 ? educationList : null,
+      workExperienceList: workExperienceList.length > 0 ? workExperienceList : null,
+      isAlumni: data.isAlumni === 1 || data.isAlumni === true,
+      isFriend: data.isFriend === 1 || data.isFriend === true,
       isFollowed: data.isFollowed || false,
-      identifyType: data.identifyType
+      identifyType: data.identifyType,
+      schoolId: data.schoolId,
+      school: data.school || '母校',
+      wxId: data.wxId || data.userId // 确保用于关注的 ID 存在
     }
   },
 
@@ -135,9 +173,18 @@ Page({
     const { alumniInfo, alumniId } = this.data
     if (!alumniInfo) return
 
-    const name = encodeURIComponent(alumniInfo.nickname)
+    // 如果不是好友，提示无法私信（根据用户需求：判断是否可以私信）
+    if (!alumniInfo.isFriend) {
+      wx.showToast({
+        title: '你们双方不是互相关注的好友，无法进行私信',
+        icon: 'none'
+      })
+      return
+    }
+
+    const name = encodeURIComponent(alumniInfo.nickname.value)
     const avatar = encodeURIComponent(alumniInfo.avatarUrl)
-    
+
     wx.navigateTo({
       url: `/pages/chat/detail/detail?id=${alumniId}&name=${name}&avatar=${avatar}&type=chat`
     })
@@ -178,11 +225,11 @@ Page({
       { name: '射手座', start: [11, 23], end: [12, 21] },
       { name: '摩羯座', start: [12, 22], end: [1, 19] }
     ]
-    
+
     for (let zodiac of zodiacDates) {
       const [startMonth, startDay] = zodiac.start
       const [endMonth, endDay] = zodiac.end
-      
+
       if (startMonth === endMonth) {
         if (month === startMonth && day >= startDay && day <= endDay) {
           return zodiac.name
@@ -223,15 +270,29 @@ Page({
 
     if (result.success) {
       // 更新关注状态
+      const newFollowed = !isFollowed
+      const newFollowStatus = newFollowed ? 1 : 4
+
       this.setData({
-        'alumniInfo.isFollowed': !isFollowed,
-        'alumniInfo.followStatus': !isFollowed ? 1 : 4
+        'alumniInfo.isFollowed': newFollowed,
+        'alumniInfo.followStatus': newFollowStatus
       })
 
-    wx.showToast({
+      // 通过 EventChannel 通知上一页（列表页）更新状态
+      const eventChannel = this.getOpenerEventChannel()
+      if (eventChannel && eventChannel.emit) {
+        eventChannel.emit('updateFollowStatus', {
+          id: alumniInfo.wxId,
+          isFollowed: newFollowed,
+          followStatus: newFollowStatus,
+          isFriend: this.data.alumniInfo.isFriend // 保持好友状态一致
+        })
+      }
+
+      wx.showToast({
         title: result.message,
-      icon: 'success'
-    })
+        icon: 'success'
+      })
     } else {
       wx.showToast({
         title: result.message,
