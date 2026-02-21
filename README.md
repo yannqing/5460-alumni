@@ -39,42 +39,51 @@ The **CNI Alumni Management System** is an enterprise-grade full-stack platform 
 
 <div align="center">
 
-### Main Features Overview
+### 📱 Main Features Overview
 
 <table>
   <tr>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/home_page.png" alt="Home Page" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+    <td align="center" width="50%">
+      <img src="docs/screenshots/home_page.png" alt="Home Page" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>🏠 Home Page</b>
       <br>
       <sub>User dashboard with quick access</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/alumni_association.png" alt="Alumni Association" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+    <td align="center" width="50%">
+      <img src="docs/screenshots/alumni_association.png" alt="Alumni Association" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>🎓 Alumni Association</b>
       <br>
       <sub>Browse and join associations</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/local_platform.png" alt="Local Platform" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/local_platform.png" alt="Local Platform" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>📍 Local Platform</b>
       <br>
       <sub>Regional activity discovery</sub>
     </td>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/search.png" alt="Search Function" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <br>
+      <b>🔍 Search Function</b>
+      <br>
+      <sub>Elasticsearch-powered full-text search</sub>
+    </td>
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/screenshots/chat_page.png" alt="Chat Interface" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <img src="docs/screenshots/chat_page.png" alt="Chat Interface" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>💬 Real-time Chat</b>
       <br>
       <sub>WebSocket-powered messaging</sub>
     </td>
     <td align="center" width="50%">
-      <img src="docs/screenshots/user_info.png" alt="User Profile" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <img src="docs/screenshots/user_info.png" alt="User Profile" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>👤 User Profile</b>
       <br>
