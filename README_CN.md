@@ -33,6 +33,60 @@
 
 ---
 
+## 📸 项目截图
+
+> **说明**：本节展示微信小程序界面和核心功能。
+
+<div align="center">
+
+### 主要功能展示
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/home_page.png" alt="首页" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>🏠 首页</b>
+      <br>
+      <sub>用户仪表板与快速访问</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/alumni_association.png" alt="校友会" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>🎓 校友会</b>
+      <br>
+      <sub>浏览并加入校友会</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/local_platform.png" alt="同城平台" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>📍 同城平台</b>
+      <br>
+      <sub>区域活动发现</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/chat_page.png" alt="聊天界面" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>💬 实时聊天</b>
+      <br>
+      <sub>基于 WebSocket 的消息系统</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/user_info.png" alt="用户资料" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>👤 用户资料</b>
+      <br>
+      <sub>个人信息管理</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
 ## 🏛️ 系统架构
 
 ### 高层架构图
@@ -274,11 +328,13 @@ graph LR
 - **Docker** & **Docker Compose**（可选，用于本地服务）
 - **微信开发者工具**（用于小程序开发）
 
+> 💡 **重要提示**：请确保不要提交 `node_modules` 或其他构建产物到代码库。根目录已提供完整的 `.gitignore` 文件以防止意外提交。
+
 ### 安装
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/5460-alumni.git
+git clone https://github.com/yannqing/5460-alumni.git
 cd 5460-alumni
 
 # 使用 pnpm 安装依赖
@@ -344,32 +400,34 @@ pnpm test:watch
 在根目录创建 `.env` 文件：
 
 ```env
-# 数据库配置
+# 数据库配置（必需）
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=cni_alumni
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 
-# Redis 配置
+# Redis 配置（必需）
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
 
-# Kafka 配置
+# Kafka 配置（可选 - 如不需要可在 Spring Profile 中禁用）
 KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 
-# Elasticsearch 配置
+# Elasticsearch 配置（可选 - 如不需要可在 Spring Profile 中禁用）
 ES_HOST=localhost
 ES_PORT=9200
 
-# 微信配置
+# 微信配置（小程序必需）
 WECHAT_APPID=your_appid
 WECHAT_SECRET=your_secret
 
-# 腾讯地图 API
+# 腾讯地图 API（位置功能必需）
 QQMAP_KEY=your_map_key
 ```
+
+> 💡 **快速启动提示**：如果本地没有配置 Elasticsearch 或 Kafka，可以暂时在 `application.yaml` 中注释掉相应的 Spring Boot 自动配置。核心功能（用户、校友会管理）仅需 MySQL 和 Redis 即可运行。
 
 ### 后端配置
 
@@ -533,6 +591,10 @@ graph LR
 **关键技术：**
 
 - **分布式事务** - Kafka 实现最终一致性
+  - **消息幂等性**：每条 Kafka 消息包含唯一 `messageId`，防止重复处理
+  - **最终一致性**：订单创建 → 库存扣减 → 通知发送采用异步处理
+  - **补偿机制**：失败消息采用指数退避重试，超过最大次数后触发人工补偿
+  - **数据一致性**：使用 Saga 模式协调分布式事务
 - **API 幂等性** - 基于 Token 的幂等设计
 - **限流** - Redis + Lua 脚本实现分布式限流
 - **异步处理** - @Async 注解配合自定义线程池
@@ -646,15 +708,24 @@ spring:
 
 ### 贡献者
 
-<a href="https://github.com/yourusername/5460-alumni/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=yourusername/5460-alumni" />
+<a href="https://github.com/yannqing/5460-alumni/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=yannqing/5460-alumni" />
 </a>
 
 **核心团队成员：**
-- 杨序 - 项目负责人 & 全栈架构师
-- 李龙杰 - 后端开发
-- niufan - 前端开发
-- yannqing - DevOps & 基础设施
+- **yannqing** - 项目负责人 & 全栈架构师
+  - 🏗️ 整体架构设计和系统规划
+  - 💻 Spring Boot 微服务后端开发
+  - 🚀 DevOps 和基础设施自动化
+  - ✅ 自动化指标：通过 GitHub Actions 实时追踪项目贡献
+  - ✅ CI/CD 流水线：自动化测试和部署工作流
+  - ✅ 基础设施即代码：Docker & Docker Compose 编排
+- **cheny** - 前端开发
+  - 📱 微信小程序开发
+  - 🎨 UI/UX 实现
+- **lili** - 前端开发
+  - 📱 微信小程序开发
+  - 🔧 组件架构
 
 ---
 
@@ -824,8 +895,9 @@ chore: 更新依赖
 ## 📞 联系方式
 
 - **项目负责人** - [@yannqing](https://github.com/yannqing)
-- **邮箱** - your.email@example.com
-- **项目链接** - [https://github.com/yourusername/5460-alumni](https://github.com/yourusername/5460-alumni)
+- **X (Twitter)** - [@yan_qing02](https://x.com/yan_qing02)
+- **邮箱** - yannqing020803@gmail.com
+- **项目链接** - [https://github.com/yannqing/5460-alumni](https://github.com/yannqing/5460-alumni)
 
 ---
 
