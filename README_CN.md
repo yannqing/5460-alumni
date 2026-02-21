@@ -39,42 +39,51 @@
 
 <div align="center">
 
-### 主要功能展示
+### 📱 主要功能展示
 
 <table>
   <tr>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/home_page.png" alt="首页" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+    <td align="center" width="50%">
+      <img src="docs/screenshots/home_page.png" alt="首页" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>🏠 首页</b>
       <br>
       <sub>用户仪表板与快速访问</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/alumni_association.png" alt="校友会" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+    <td align="center" width="50%">
+      <img src="docs/screenshots/alumni_association.png" alt="校友会" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>🎓 校友会</b>
       <br>
       <sub>浏览并加入校友会</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/local_platform.png" alt="同城平台" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/local_platform.png" alt="同城平台" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>📍 同城平台</b>
       <br>
       <sub>区域活动发现</sub>
     </td>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/search.png" alt="搜索功能" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <br>
+      <b>🔍 搜索功能</b>
+      <br>
+      <sub>Elasticsearch 全文检索</sub>
+    </td>
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/screenshots/chat_page.png" alt="聊天界面" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <img src="docs/screenshots/chat_page.png" alt="聊天界面" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>💬 实时聊天</b>
       <br>
       <sub>基于 WebSocket 的消息系统</sub>
     </td>
     <td align="center" width="50%">
-      <img src="docs/screenshots/user_info.png" alt="用户资料" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <img src="docs/screenshots/user_info.png" alt="用户资料" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>👤 用户资料</b>
       <br>
