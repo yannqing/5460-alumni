@@ -33,6 +33,60 @@ The **CNI Alumni Management System** is an enterprise-grade full-stack platform 
 
 ---
 
+## 📸 Screenshots
+
+> **Note**: This section showcases the WeChat Mini Program interface and key features.
+
+<div align="center">
+
+### Main Features Overview
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/home_page.png" alt="Home Page" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>🏠 Home Page</b>
+      <br>
+      <sub>User dashboard with quick access</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/alumni_association.png" alt="Alumni Association" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>🎓 Alumni Association</b>
+      <br>
+      <sub>Browse and join associations</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/local_platform.png" alt="Local Platform" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>📍 Local Platform</b>
+      <br>
+      <sub>Regional activity discovery</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/chat_page.png" alt="Chat Interface" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>💬 Real-time Chat</b>
+      <br>
+      <sub>WebSocket-powered messaging</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/user_info.png" alt="User Profile" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); max-width: 100%; height: auto;">
+      <br>
+      <b>👤 User Profile</b>
+      <br>
+      <sub>Personal information management</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
 ## 🏛️ System Architecture
 
 ### High-Level Architecture Diagram
@@ -274,11 +328,13 @@ graph LR
 - **Docker** & **Docker Compose** (Optional, for local services)
 - **WeChat DevTools** (for Mini Program development)
 
+> 💡 **Important Note**: Please ensure you don't commit `node_modules` or other build artifacts. A comprehensive `.gitignore` is provided in the root directory to prevent accidental commits.
+
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/5460-alumni.git
+git clone https://github.com/yannqing/5460-alumni.git
 cd 5460-alumni
 
 # Install dependencies using pnpm
@@ -344,32 +400,34 @@ pnpm test:watch
 Create a `.env` file in the root directory:
 
 ```env
-# Database Configuration
+# Database Configuration (Required)
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=cni_alumni
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 
-# Redis Configuration
+# Redis Configuration (Required)
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
 
-# Kafka Configuration
+# Kafka Configuration (Optional - can disable in Spring Profile if not needed)
 KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 
-# Elasticsearch Configuration
+# Elasticsearch Configuration (Optional - can disable in Spring Profile if not needed)
 ES_HOST=localhost
 ES_PORT=9200
 
-# WeChat Configuration
+# WeChat Configuration (Required for Mini Program)
 WECHAT_APPID=your_appid
 WECHAT_SECRET=your_secret
 
-# QQ Map API
+# QQ Map API (Required for location features)
 QQMAP_KEY=your_map_key
 ```
+
+> 💡 **Quick Start Tip**: If you don't have Elasticsearch or Kafka set up locally, you can temporarily disable them by commenting out the corresponding Spring Boot auto-configuration in `application.yaml`. The core features (User, Association management) will still work with just MySQL and Redis.
 
 ### Backend Configuration
 
@@ -533,6 +591,10 @@ graph LR
 **Key Technologies:**
 
 - **Distributed Transactions** - Eventual consistency with Kafka
+  - **Message Idempotency**: Each Kafka message includes a unique `messageId` to prevent duplicate processing
+  - **Eventual Consistency**: Order creation → Inventory reduction → Notification sending are processed asynchronously
+  - **Compensation Mechanism**: Failed messages are retried with exponential backoff, and manual compensation is triggered after max retries
+  - **Data Consistency**: Using Saga pattern for distributed transaction coordination
 - **API Idempotency** - Token-based idempotent design
 - **Rate Limiting** - Redis + Lua script for distributed rate limiting
 - **Async Processing** - @Async annotation with custom thread pool
@@ -646,15 +708,24 @@ spring:
 
 ### Contributors
 
-<a href="https://github.com/yourusername/5460-alumni/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=yourusername/5460-alumni" />
+<a href="https://github.com/yannqing/5460-alumni/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=yannqing/5460-alumni" />
 </a>
 
 **Core Team Members:**
-- 杨序 - Project Lead & Full-Stack Architect
-- 李龙杰 - Backend Development
-- niufan - Frontend Development
-- yannqing - DevOps & Infrastructure
+- **yannqing** - Project Lead & Full-Stack Architect
+  - 🏗️ Overall architecture design and system planning
+  - 💻 Backend development with Spring Boot microservices
+  - 🚀 DevOps & Infrastructure automation
+  - ✅ Automated Metrics: Real-time project contribution tracking via GitHub Actions
+  - ✅ CI/CD Pipeline: Automated testing and deployment workflows
+  - ✅ Infrastructure as Code: Docker & Docker Compose orchestration
+- **cheny** - Frontend Development
+  - 📱 WeChat Mini Program development
+  - 🎨 UI/UX implementation
+- **lili** - Frontend Development
+  - 📱 WeChat Mini Program development
+  - 🔧 Component architecture
 
 ---
 
@@ -824,8 +895,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 - **Project Lead** - [@yannqing](https://github.com/yannqing)
-- **Email** - your.email@example.com
-- **Project Link** - [https://github.com/yourusername/5460-alumni](https://github.com/yourusername/5460-alumni)
+- **X (Twitter)** - [@yan_qing02](https://x.com/yan_qing02)
+- **Email** - yannqing020803@gmail.com
+- **Project Link** - [https://github.com/yannqing/5460-alumni](https://github.com/yannqing/5460-alumni)
 
 ---
 
