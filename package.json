@@ -11,16 +11,8 @@
     "pnpm": ">=8.0.0"
   },
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:mini": "turbo run dev --filter=mini-app",
-    "dev:java": "turbo run dev --filter=server-java",
-    "build": "turbo run build",
-    "build:mini": "turbo run build --filter=mini-app",
-    "build:java": "turbo run build --filter=server-java",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint -- --fix",
-    "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules .turbo"
+    "dev": "turbo dev",
+    "build": "turbo build"
   },
   "keywords": [
     "monorepo",
