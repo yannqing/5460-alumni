@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Turbo
+.turbo/
+
+# Build outputs
+dist/
+build/
+target/
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary
+*.tmp
+.cache/
+.temp/
+
+# Testing
+coverage/
+
+# Package manager
+package-lock.json
+yarn.lock
+
+# Project specific
+PROJECT_EVALUATION.md
