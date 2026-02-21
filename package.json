@@ -1,18 +1,34 @@
 {
   "name": "5460-alumni",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-  "dev": "turbo run dev",
-  "build": "turbo run build",
-  "lint": "turbo run lint",
-  "java:dev": "turbo run dev --filter=server-java"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "private": true,
+  "description": "CNI Alumni Management System - Full-stack Monorepo with WeChat Mini Program and Spring Boot",
+  "author": "Your Team",
+  "license": "MIT",
   "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:mini": "turbo run dev --filter=mini-app",
+    "dev:java": "turbo run dev --filter=server-java",
+    "build": "turbo run build",
+    "build:mini": "turbo run build --filter=mini-app",
+    "build:java": "turbo run build --filter=server-java",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules .turbo"
+  },
+  "keywords": [
+    "monorepo",
+    "alumni-system",
+    "wechat-miniprogram",
+    "spring-boot",
+    "full-stack"
+  ],
   "devDependencies": {
     "turbo": "^2.8.10"
   }
