@@ -375,8 +375,8 @@ Page({
               c.peerId == id || c.userId == id || c.id == id
             )
             if (currentChat) {
-              if (name === '未知用户') name = currentChat.name || currentChat.peerNickname || '未知校友'
-              if (!avatar) avatar = currentChat.avatar || (currentChat.peerAvatar ? config.getImageUrl(currentChat.peerAvatar) : '')
+              if (name === '未知用户') {name = currentChat.name || currentChat.peerNickname || '未知校友'}
+              if (!avatar) {avatar = currentChat.avatar || (currentChat.peerAvatar ? config.getImageUrl(currentChat.peerAvatar) : '')}
             }
           }
         }
@@ -413,7 +413,7 @@ Page({
       console.log('[ChatDetail] 历史消息响应:', res)
 
       if (res.data && res.data.code === 200) {
-        let messages = res.data.data?.records || []
+        const messages = res.data.data?.records || []
 
         console.log('[ChatDetail] 历史消息列表:', messages)
         
@@ -503,7 +503,7 @@ Page({
       const res = await chatApi.getChatHistory(params)
       
       if (res.data && res.data.code === 200) {
-        let messages = res.data.data?.records || []
+        const messages = res.data.data?.records || []
         
         if (messages.length > 0) {
           // 映射消息数据
@@ -1026,7 +1026,7 @@ Page({
   onLongPressMessage(e) {
     const { msg } = e.currentTarget.dataset
     // 只能撤回自己的消息
-    if (!msg.isMe) return
+    if (!msg.isMe) {return}
     
     // 检查时间限制（2分钟内可撤回）
     const now = Date.now()

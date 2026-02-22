@@ -174,7 +174,7 @@ Page({
               if (shop.distance < 1) {
                 distanceText = Math.round(shop.distance * 1000) + 'm'
               } else {
-                let kmValue = shop.distance.toFixed(1)
+                const kmValue = shop.distance.toFixed(1)
                 if (kmValue.endsWith('.0')) {
                   distanceText = Math.round(shop.distance) + 'km'
                 } else {
@@ -251,7 +251,7 @@ Page({
               if (venue.distance < 1) {
                 distanceText = Math.round(venue.distance * 1000) + 'm'
               } else {
-                let kmValue = venue.distance.toFixed(1)
+                const kmValue = venue.distance.toFixed(1)
                 if (kmValue.endsWith('.0')) {
                   distanceText = Math.round(venue.distance) + 'km'
                 } else {
@@ -285,7 +285,7 @@ Page({
               if (alumni.distance < 1) {
                 distanceText = Math.round(alumni.distance * 1000) + 'm'
               } else {
-                let kmValue = alumni.distance.toFixed(1)
+                const kmValue = alumni.distance.toFixed(1)
                 if (kmValue.endsWith('.0')) {
                   distanceText = Math.round(alumni.distance) + 'km'
                 } else {

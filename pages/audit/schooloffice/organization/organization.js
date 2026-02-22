@@ -572,7 +572,7 @@ Page({
   getDescendantIds(movingRole) {
     const ids = []
     const traverse = (children) => {
-      if (!children) return
+      if (!children) {return}
       children.forEach(child => {
         ids.push(String(child.roleOrId))
         if (child.children && child.children.length > 0) {

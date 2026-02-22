@@ -442,7 +442,7 @@ Page({
   // 提交店铺表单（创建或更新）
   async submitShopForm() {
     try {
-      let { formData, uploadedImages, operationType, currentShopId } = this.data
+      const { formData, uploadedImages, operationType, currentShopId } = this.data
       
       // 表单验证
       if (!formData.merchantId) {

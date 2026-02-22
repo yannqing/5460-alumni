@@ -88,7 +88,7 @@ function showMessageNotification(options) {
  */
 function hideMessageNotification() {
   const pages = getCurrentPages()
-  if (pages.length === 0) return
+  if (pages.length === 0) {return}
 
   const currentPage = pages[pages.length - 1]
   if (currentPage.data && currentPage.data.showMessageNotification) {

@@ -112,7 +112,7 @@ Page({
         
         if (res.code === 200) {
           // 确保res.data是对象
-          let fileData = res.data;
+          const fileData = res.data;
           if (typeof fileData !== 'object' || fileData === null) {
             console.error('上传成功，但res.data不是对象:', fileData);
             wx.showToast({
@@ -223,7 +223,7 @@ Page({
 
   // 搜索发布者
   async searchPublisher(keyword) {
-    if (!keyword) return
+    if (!keyword) {return}
     
     const { publishType } = this.data
     try {

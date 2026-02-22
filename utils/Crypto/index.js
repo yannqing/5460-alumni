@@ -18,13 +18,13 @@ export function crypto_param($param, $publicKey) {
   $param.nonce_str = nonce_str;
 
   // 克隆参数
-  var _data = cloneObj($param);
+  const _data = cloneObj($param);
 
   // base64 编码
-  var $param_str = base64.encode(JSON.stringify(_data));
+  const $param_str = base64.encode(JSON.stringify(_data));
 
   // MD5 签名
-  var $sign_str = md5($param_str);
+  const $sign_str = md5($param_str);
 
   return {
     'params': _data,       // 原始参数

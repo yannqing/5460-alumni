@@ -1,0 +1,55 @@
+# 依赖目录
+node_modules/
+miniprogram_npm/
+.pnpm-store/
+
+# 构建产物
+dist/
+build/
+*.log
+logs/
+
+# Turborepo 缓存
+.turbo/
+
+# 微信开发者工具生成的文件
+.vscode/
+.idea/
+project.private.config.json
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.tmp
+.cache/
+.temp/
+
+# 压缩文件
+*.min.js
+*.min.css
+
+# 环境配置文件（包含敏感信息）
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 测试覆盖率报告
+coverage/
+
+# Linter 缓存
+.eslintcache
+.prettiercache
+
+# 文档文件（可选，如果不想提交到 miniapp-master 分支）
+# *.md
+# !README.md

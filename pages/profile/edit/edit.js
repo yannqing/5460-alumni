@@ -612,7 +612,7 @@ Page({
   // 点击勾选按钮保存字段
   async handleSaveField(e) {
     const { field } = e.currentTarget.dataset
-    if (!field) return
+    if (!field) {return}
 
     // 阻止事件冒泡和默认行为
     if (e.stopPropagation) {
@@ -1037,7 +1037,7 @@ Page({
    * 联调时：只需要修改 saveToApi 函数中的接口调用
    */
   async saveProfile() {
-    if (!this.validateForm()) return
+    if (!this.validateForm()) {return}
 
     this.setData({ saving: true })
 
@@ -1179,11 +1179,11 @@ Page({
   // 获取默认展示的教育经历索引（主要经历优先，否则随机次要经历）
   getDefaultEducationIndex() {
     const educationList = this.data.form.educationList || []
-    if (educationList.length === 0) return -1
+    if (educationList.length === 0) {return -1}
 
     // 先找主要经历（type === 1）
     const primaryIndex = educationList.findIndex(edu => edu.type === 1)
-    if (primaryIndex !== -1) return primaryIndex
+    if (primaryIndex !== -1) {return primaryIndex}
 
     // 没有主要经历，返回第一个次要经历
     return 0
@@ -1824,11 +1824,11 @@ Page({
   // 获取默认展示的工作经历索引（当前在职优先，否则第一个）
   getDefaultWorkIndex() {
     const workExperienceList = this.data.form.workExperienceList || []
-    if (workExperienceList.length === 0) return -1
+    if (workExperienceList.length === 0) {return -1}
 
     // 先找当前在职的（isCurrent === 1）
     const currentIndex = workExperienceList.findIndex(work => work.isCurrent === 1)
-    if (currentIndex !== -1) return currentIndex
+    if (currentIndex !== -1) {return currentIndex}
 
     // 没有当前在职的，返回第一个
     return 0
