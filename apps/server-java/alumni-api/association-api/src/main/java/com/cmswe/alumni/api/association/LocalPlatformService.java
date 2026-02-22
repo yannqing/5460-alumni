@@ -139,4 +139,13 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
      */
     boolean removeAdminFromLocalPlatform(Long localPlatformId, Long wxId);
 
+    /**
+     * 绑定校处会组织架构成员与系统用户
+     *
+     * @param memberId 校处会成员表ID
+     * @param wxId 用户微信ID
+     * @return 绑定是否成功
+     */
+    boolean bindMemberToUser(Long memberId, Long wxId);
+
 }

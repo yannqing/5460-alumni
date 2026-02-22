@@ -28,6 +28,18 @@ public class OrganizationMemberResponse extends UserListResponse {
     private OrganizeArchiRoleVo organizeArchiRole;
 
     /**
+     * 成员表中的用户名（来自组织架构成员表）
+     */
+    @Schema(description = "成员表中的用户名（来自组织架构成员表）")
+    private String username;
+
+    /**
+     * 成员表中的角色名称（来自组织架构成员表）
+     */
+    @Schema(description = "成员表中的角色名称（来自组织架构成员表）")
+    private String roleName;
+
+    /**
      * 当前登录用户是否关注了该成员：true-已关注 false-未关注 null-未登录
      */
     @Schema(description = "当前登录用户是否关注了该成员：true-已关注 false-未关注 null-未登录")
