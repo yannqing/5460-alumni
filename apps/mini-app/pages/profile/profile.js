@@ -308,7 +308,7 @@ Page({
 
   navigateTo(e) {
     const { url } = e.currentTarget.dataset
-    if (!url) return
+    if (!url) {return}
 
     wx.navigateTo({ url })
   },

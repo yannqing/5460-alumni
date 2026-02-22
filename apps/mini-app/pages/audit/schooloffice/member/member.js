@@ -273,7 +273,7 @@ Page({
       
       if (res.data && res.data.code === 200) {
         // 获取原始成员列表
-        let memberList = (res.data.data && res.data.data.records) || []
+        const memberList = (res.data.data && res.data.data.records) || []
         
         // 排序成员列表：pid=0的排在前面，然后按角色名称排序
         memberList.sort((a, b) => {
@@ -281,8 +281,8 @@ Page({
           const pidA = a.organizeArchiRole ? a.organizeArchiRole.pid : null
           const pidB = b.organizeArchiRole ? b.organizeArchiRole.pid : null
           
-          if (pidA === '0' && pidB !== '0') return -1
-          if (pidA !== '0' && pidB === '0') return 1
+          if (pidA === '0' && pidB !== '0') {return -1}
+          if (pidA !== '0' && pidB === '0') {return 1}
           
           // 如果pid相同，按角色名称排序
           const roleNameA = a.organizeArchiRole ? a.organizeArchiRole.roleOrName : ''
@@ -460,7 +460,7 @@ Page({
   
   // 搜索校友
   async searchAlumni(keyword) {
-    if (!keyword) return
+    if (!keyword) {return}
     try {
       const res = await alumniApi.queryAlumniList({
         current: 1,

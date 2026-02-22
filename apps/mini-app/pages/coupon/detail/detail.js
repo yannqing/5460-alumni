@@ -38,7 +38,7 @@ Page({
       if (res.data && res.data.code === 200 && res.data.data) {
         const data = res.data.data
         // 处理base64二维码图片，后端返回的base64CodeImg已经是完整的data URI格式
-        let qrCodeImage = data.base64CodeImg || ''
+        const qrCodeImage = data.base64CodeImg || ''
         
         // 格式化时间，去掉T
         const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ') : ''
@@ -94,7 +94,7 @@ Page({
       if (res.data && res.data.code === 200 && res.data.data) {
         const data = res.data.data
         // 处理base64二维码图片，后端返回的base64CodeImg已经是完整的data URI格式
-        let qrCodeImage = data.base64CodeImg || ''
+        const qrCodeImage = data.base64CodeImg || ''
         
         // 格式化时间，去掉T
         const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ') : ''

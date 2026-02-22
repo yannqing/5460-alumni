@@ -291,7 +291,7 @@ Page({
   // 查看优惠券详情
   viewCouponDetail(e) {
     const { id } = e.currentTarget.dataset
-    if (!id) return
+    if (!id) {return}
     wx.navigateTo({
       url: `/pages/coupon/detail/detail?id=${id}`
     })
@@ -300,7 +300,7 @@ Page({
   // 查看动态详情
   viewDynamicDetail(e) {
     const { id } = e.currentTarget.dataset
-    if (!id) return
+    if (!id) {return}
     // 跳转到动态详情页（可以复用活动详情页或创建新的动态详情页）
     wx.navigateTo({
       url: `/pages/activity/detail/detail?id=${id}`
@@ -342,7 +342,7 @@ Page({
   // 跳转到私信页面
   goToChat() {
     const { shopInfo } = this.data
-    if (!shopInfo) return
+    if (!shopInfo) {return}
 
     // 如果有ownerId，跳转到聊天页
     if (shopInfo.ownerId) {
@@ -361,7 +361,7 @@ Page({
   // 联系店铺
   contactShop() {
     const { shopInfo } = this.data
-    if (!shopInfo) return
+    if (!shopInfo) {return}
 
     wx.showActionSheet({
       itemList: shopInfo.wechat ? ['拨打电话', '复制微信号', '复制地址'] : ['拨打电话', '复制地址'],
@@ -421,7 +421,7 @@ Page({
   // 查看门店详情
   viewShopDetail(e) {
     const { id } = e.currentTarget.dataset
-    if (!id) return
+    if (!id) {return}
     wx.navigateTo({
       url: `/pages/shop/shop-detail/shop-detail?id=${id}`
     })

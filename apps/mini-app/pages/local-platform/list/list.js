@@ -29,8 +29,8 @@ Page({
     
 
     async loadPlatformList(reset = false) {
-        if (this.data.loading) return
-        if (!reset && !this.data.hasMore) return
+        if (this.data.loading) {return}
+        if (!reset && !this.data.hasMore) {return}
 
         this.setData({ loading: true })
 

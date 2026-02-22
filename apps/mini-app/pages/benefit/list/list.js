@@ -198,7 +198,7 @@ Page({
 
   handleCategoryChange(e) {
     const { id } = e.currentTarget.dataset
-    if (id === this.data.selectedCategory) return
+    if (id === this.data.selectedCategory) {return}
     this.setData({ selectedCategory: id }, () => {
       this.applyFilterAndSort()
     })
@@ -206,7 +206,7 @@ Page({
 
   handleSortChange(e) {
     const { id } = e.currentTarget.dataset
-    if (id === this.data.sortType) return
+    if (id === this.data.sortType) {return}
     this.setData({ sortType: id }, () => {
       this.applyFilterAndSort()
     })

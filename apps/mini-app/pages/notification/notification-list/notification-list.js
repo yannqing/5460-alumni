@@ -74,7 +74,7 @@ Page({
 
   // 加载通知列表
   async loadNotificationList() {
-    if (this.data.loading) return
+    if (this.data.loading) {return}
 
     this.setData({ loading: true })
 
@@ -160,7 +160,7 @@ Page({
 
   // 格式化时间
   formatTime(timeStr) {
-    if (!timeStr) return ''
+    if (!timeStr) {return ''}
 
     let date
 

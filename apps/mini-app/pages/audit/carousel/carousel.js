@@ -93,7 +93,7 @@ Page({
 
   // 加载轮播图列表
   loadBannerList() {
-    if (this.data.loading) return
+    if (this.data.loading) {return}
     
     this.setData({ loading: true })
     
@@ -189,7 +189,7 @@ Page({
   // 轮播图点击事件
   onBannerTap(e) {
     const banner = e.currentTarget.dataset.banner
-    if (!banner) return
+    if (!banner) {return}
 
     switch (banner.bannerType) {
       case 1:
@@ -227,7 +227,7 @@ Page({
   // 编辑轮播图
   onEditBanner(e) {
     const banner = e.currentTarget.dataset.banner
-    if (!banner) return
+    if (!banner) {return}
     
     // 提取图片的fileId和fileUrl
     const bannerImage = banner.bannerImage || {}
@@ -240,7 +240,7 @@ Page({
   // 删除轮播图
   onDeleteBanner(e) {
     const banner = e.currentTarget.dataset.banner
-    if (!banner) return
+    if (!banner) {return}
     
     // 弹出确认对话框
     wx.showModal({

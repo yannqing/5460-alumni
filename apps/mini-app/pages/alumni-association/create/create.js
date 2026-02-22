@@ -182,7 +182,7 @@ Page({
     },
 
     async searchSchool(keyword) {
-        if (!keyword) return
+        if (!keyword) {return}
         try {
             const res = await schoolApi.getSchoolPage({
                 current: 1,
@@ -282,7 +282,7 @@ Page({
     },
 
     async searchAlumni(keyword, index) {
-        if (!keyword) return
+        if (!keyword) {return}
         try {
             const res = await alumniApi.queryAlumniList({
                 current: 1,
@@ -613,7 +613,7 @@ Page({
     },
 
     async submitForm() {
-        if (this.data.submitting) return
+        if (this.data.submitting) {return}
 
         const { formData, members } = this.data
 
