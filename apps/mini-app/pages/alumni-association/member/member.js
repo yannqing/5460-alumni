@@ -115,7 +115,7 @@ Page({
 
           if (alumniAssociationId) {
             // 获取协会名称（如果直接提供）
-            let associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会'
+            const associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会'
             
             // 创建基本的校友会对象
             const basicAlumniData = {
@@ -449,7 +449,7 @@ Page({
 
   // 搜索校友
   async searchAlumni(keyword) {
-    if (!keyword) return
+    if (!keyword) {return}
     try {
       const res = await alumniApi.queryAlumniList({
         current: 1,

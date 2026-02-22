@@ -46,7 +46,7 @@ Page({
   // 切换Tab（关注/粉丝/好友）
   switchTab(e) {
     const { tab } = e.currentTarget.dataset
-    if (tab === this.data.currentTab) return
+    if (tab === this.data.currentTab) {return}
 
     this.setData({
       currentTab: tab,
@@ -62,7 +62,7 @@ Page({
   // 选择类型筛选
   selectType(e) {
     const { type } = e.currentTarget.dataset
-    if (type === this.data.activeType) return
+    if (type === this.data.activeType) {return}
 
     this.setData({
       activeType: type,
@@ -76,8 +76,8 @@ Page({
 
   // 加载列表
   async loadList(reset = false) {
-    if (this.data.loading) return
-    if (!reset && !this.data.hasMore) return
+    if (this.data.loading) {return}
+    if (!reset && !this.data.hasMore) {return}
 
     this.setData({ loading: true })
 
@@ -243,7 +243,7 @@ Page({
       const filteredFans = fansRecords
         .filter(item => {
           // 过滤掉取消关注的
-          if (item.followStatus === 4) return false
+          if (item.followStatus === 4) {return false}
           // 检查我是否也关注了对方
           const wxId = String(item.wxId || '')
           return followingIdSet.has(wxId)
@@ -316,9 +316,9 @@ Page({
       const mutualFollowList = followingRecords
         .filter(item => {
           // 只处理用户类型
-          if (item.targetType !== 1) return false
+          if (item.targetType !== 1) {return false}
           // 过滤掉取消关注的
-          if (item.followStatus === 4) return false
+          if (item.followStatus === 4) {return false}
           // 检查对方是否也关注了我
           const targetId = String(item.targetId || '')
           return followerWxIdSet.has(targetId)
@@ -524,7 +524,7 @@ Page({
 
   // 格式化时间
   formatTime(timestamp) {
-    if (!timestamp) return ''
+    if (!timestamp) {return ''}
 
     const date = new Date(timestamp)
     const year = date.getFullYear()
@@ -580,7 +580,7 @@ Page({
     wx.showActionSheet({
       itemList: allOptions.map(opt => opt.text),
       success: async (res) => {
-        if (res.cancel) return
+        if (res.cancel) {return}
 
         const selectedOption = allOptions[res.tapIndex]
 

@@ -81,7 +81,7 @@ Page({
 
           if (alumniAssociationId) {
             // 获取协会名称（如果直接提供）
-            let associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
+            const associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
             
             // 创建基本的校友会对象
             const basicAlumniData = {
@@ -245,7 +245,7 @@ Page({
         console.log('[Debug] 获取校友会详情成功:', res.data.data)
         
         // 处理logo字段，去除空格和反引号
-        let processedData = res.data.data
+        const processedData = res.data.data
         if (processedData.logo) {
           processedData.logo = processedData.logo.trim().replace(/[`\s]/g, '')
         }

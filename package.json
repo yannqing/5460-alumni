@@ -12,7 +12,10 @@
   },
   "scripts": {
     "dev": "turbo dev",
-    "build": "turbo build"
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "format": "turbo format"
   },
   "keywords": [
     "monorepo",

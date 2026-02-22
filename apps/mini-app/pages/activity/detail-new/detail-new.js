@@ -118,10 +118,10 @@ Page({
         console.log('[ActivityDetail] 最终要显示的图片数组:', activityImages)
 
         // 格式化时间字段
-        if (activityData.startTime) activityData.startTime = this.formatDateTime(activityData.startTime)
-        if (activityData.endTime) activityData.endTime = this.formatDateTime(activityData.endTime)
-        if (activityData.registrationStartTime) activityData.registrationStartTime = this.formatDateTime(activityData.registrationStartTime)
-        if (activityData.registrationEndTime) activityData.registrationEndTime = this.formatDateTime(activityData.registrationEndTime)
+        if (activityData.startTime) {activityData.startTime = this.formatDateTime(activityData.startTime)}
+        if (activityData.endTime) {activityData.endTime = this.formatDateTime(activityData.endTime)}
+        if (activityData.registrationStartTime) {activityData.registrationStartTime = this.formatDateTime(activityData.registrationStartTime)}
+        if (activityData.registrationEndTime) {activityData.registrationEndTime = this.formatDateTime(activityData.registrationEndTime)}
 
         this.setData({
           activityInfo: activityData,
@@ -188,7 +188,7 @@ Page({
 
   // 格式化日期时间
   formatDateTime(dateTimeString) {
-    if (!dateTimeString) return ''
+    if (!dateTimeString) {return ''}
     try {
       const date = new Date(dateTimeString)
       const year = date.getFullYear()

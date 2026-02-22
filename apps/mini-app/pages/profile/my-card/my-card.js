@@ -28,7 +28,7 @@ Page({
     // 从全局数据获取用户信息，与profile页面保持一致
     const app = getApp();
     let userData = app.globalData.userData || {};
-    let userInfo = app.globalData.userInfo || userData;
+    const userInfo = app.globalData.userInfo || userData;
     
     // 如果全局数据为空，从后端获取
     if (!userData.nickname) {

@@ -110,7 +110,7 @@ Page({
 
           if (alumniAssociationId) {
             // 获取协会名称（如果直接提供）
-            let associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
+            const associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
             
             // 创建基本的校友会对象
             const basicAlumniData = {
@@ -616,7 +616,7 @@ Page({
   getDescendantIds(role) {
     const ids = []
     const traverse = (children) => {
-      if (!children) return
+      if (!children) {return}
       children.forEach(child => {
         ids.push(String(child.roleOrId))
         if (child.children && child.children.length > 0) {

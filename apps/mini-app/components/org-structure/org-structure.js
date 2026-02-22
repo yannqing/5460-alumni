@@ -221,7 +221,7 @@ Component({
 
     // 计算文本宽度（rpx）
     calculateTextWidth(text) {
-      if (!text) return 200 // 默认宽度
+      if (!text) {return 200} // 默认宽度
       // 中文字符约28rpx，英文字符约14rpx，取平均值约20rpx
       // 加上内边距24rpx
       return Math.max(200, text.length * 20 + 24)
@@ -430,11 +430,11 @@ Component({
           const member = (item.members || []).find(m => 
             m.wxId === memberId || m.id === memberId || m.userId === memberId
           )
-          if (member) return member
+          if (member) {return member}
         }
         if (item.children && item.children.length > 0) {
           const member = this.findMemberInList(item.children, roleOrId, memberId)
-          if (member) return member
+          if (member) {return member}
         }
       }
       return null
@@ -640,11 +640,11 @@ Component({
         const itemRoleOrId = item.roleOrId || item.roleId || item.id
         if (itemRoleOrId === roleOrId) {
           const tempMember = (item.members || []).find(m => m.isTemp)
-          if (tempMember) return tempMember
+          if (tempMember) {return tempMember}
         }
         if (item.children && item.children.length > 0) {
           const tempMember = this.findTempMemberInList(item.children, roleOrId)
-          if (tempMember) return tempMember
+          if (tempMember) {return tempMember}
         }
       }
       return null

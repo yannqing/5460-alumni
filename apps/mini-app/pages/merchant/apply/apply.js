@@ -223,7 +223,7 @@ Page({
       const { code, data, msg } = res.data || {}
       
       if (code === 200 && data) {
-        let list = data.records || data.list || []
+        const list = data.records || data.list || []
         
         // 数据映射，与list.js保持一致
         const mappedList = list.map(item => ({
@@ -422,7 +422,7 @@ Page({
       return
     }
     
-    if (!this.validateForm()) return
+    if (!this.validateForm()) {return}
     
     this.setData({ submitting: true })
     

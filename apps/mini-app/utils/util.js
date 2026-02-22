@@ -39,7 +39,7 @@ const formatNumber = n => {
 const throttle = (fn, delay = 1000) => {
   let timer = null
   return function (...args) {
-    if (timer) return
+    if (timer) {return}
     timer = setTimeout(() => {
       fn.apply(this, args)
       timer = null
@@ -53,7 +53,7 @@ const throttle = (fn, delay = 1000) => {
 const debounce = (fn, delay = 500) => {
   let timer = null
   return function (...args) {
-    if (timer) clearTimeout(timer)
+    if (timer) {clearTimeout(timer)}
     timer = setTimeout(() => {
       fn.apply(this, args)
     }, delay)
@@ -64,9 +64,9 @@ const debounce = (fn, delay = 500) => {
  * 深拷贝
  */
 const deepClone = (obj) => {
-  if (obj === null || typeof obj !== 'object') return obj
+  if (obj === null || typeof obj !== 'object') {return obj}
   const clone = Array.isArray(obj) ? [] : {}
-  for (let key in obj) {
+  for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       clone[key] = deepClone(obj[key])
     }
@@ -104,7 +104,7 @@ const formatRelativeTime = (timestamp) => {
  * 手机号脱敏
  */
 const maskPhone = (phone) => {
-  if (!phone) return ''
+  if (!phone) {return ''}
   return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
 }
 

@@ -312,10 +312,10 @@ Page({
     console.log('[Debug] getStatusClass called with status:', status)
     
     // 根据状态值返回对应的样式类
-    if (status === 0) return 'pending'
-    if (status === 1) return 'approved'
-    if (status === 2) return 'rejected'
-    if (status === 3) return 'withdrawn'
+    if (status === 0) {return 'pending'}
+    if (status === 1) {return 'approved'}
+    if (status === 2) {return 'rejected'}
+    if (status === 3) {return 'withdrawn'}
     return ''
   },
 
