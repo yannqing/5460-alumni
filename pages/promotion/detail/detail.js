@@ -39,7 +39,7 @@ Page({
 
   handleCall() {
     const { promotionInfo } = this.data
-    if (!promotionInfo?.contactPhone) return
+    if (!promotionInfo?.contactPhone) {return}
     wx.makePhoneCall({
       phoneNumber: promotionInfo.contactPhone
     })
@@ -47,7 +47,7 @@ Page({
 
   copyValue(e) {
     const value = e.currentTarget.dataset.value
-    if (!value) return
+    if (!value) {return}
     wx.setClipboardData({
       data: value,
       success: () => {

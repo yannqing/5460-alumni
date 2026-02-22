@@ -260,7 +260,7 @@ Page({
    * 获取首页文章列表
    */
   async getArticleList(reset = false) {
-    if (this.data.loading && !reset) return;
+    if (this.data.loading && !reset) {return;}
 
     this.setData({ loading: true });
 
@@ -464,7 +464,7 @@ Page({
    * 异步获取缺失的头像（校友会类型）
    */
   async fetchMissingAvatars(records) {
-    if (!records || records.length === 0) return;
+    if (!records || records.length === 0) {return;}
 
     // 找出需要获取头像的记录
     const needFetchList = records.filter(item =>
@@ -473,7 +473,7 @@ Page({
       (item.publishType === 'association' || item.publishType === 1)
     );
 
-    if (needFetchList.length === 0) return;
+    if (needFetchList.length === 0) {return;}
 
     // 批量获取校友会信息
     const fetchPromises = needFetchList.map(async (item) => {
@@ -556,7 +556,7 @@ Page({
     } else if (articleType === 2) {
       // 内部路径：跳转到小程序内部页面
       if (articleLink) {
-        let path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`;
+        const path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`;
         wx.navigateTo({
           url: path,
           fail: () => {
@@ -668,7 +668,7 @@ Page({
     } else if (articleType === 2) {
       // 内部路径：跳转到小程序内部页面
       if (articleLink) {
-        let path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`
+        const path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`
         wx.navigateTo({
           url: path,
           fail: () => {

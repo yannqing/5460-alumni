@@ -91,13 +91,13 @@ Page({
       console.log('获取企业详情结果:', res)
       
       if (res && (res.data && res.data.code === 200 || res.code === 200)) {
-        let placeData = res.data && res.data.data ? res.data.data : res.data
+        const placeData = res.data && res.data.data ? res.data.data : res.data
         
         // 解析 images 字段（JSON字符串转数组）
         if (placeData.images) {
           try {
             // 解析 JSON 字符串
-            let imagesArray = JSON.parse(placeData.images)
+            const imagesArray = JSON.parse(placeData.images)
             
             // 清理每个 URL，移除反引号和多余的空格
             if (Array.isArray(imagesArray)) {

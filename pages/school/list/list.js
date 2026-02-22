@@ -225,7 +225,7 @@ Page({
 
   // 加载学校列表
   async loadSchoolList(reset = false) {
-    if (this.data.loading) return
+    if (this.data.loading) {return}
 
     this.setData({ loading: true })
 
@@ -568,7 +568,7 @@ Page({
     const { schoolList } = this.data
 
     const index = schoolList.findIndex(item => item.id === id)
-    if (index === -1) return
+    if (index === -1) {return}
 
     // 调用通用关注接口，显示确认框
     const result = await toggleFollow(

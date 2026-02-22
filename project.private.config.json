@@ -1,6 +1,6 @@
 {
   "libVersion": "3.14.1",
-  "projectname": "5460_front",
+  "projectname": "mini-app",
   "setting": {
     "urlCheck": false,
     "coverView": true,
@@ -9,6 +9,13 @@
     "preloadBackgroundData": false,
     "autoAudits": false,
     "showShadowRootInWxmlPanel": true,
-    "compileHotReLoad": true
+    "compileHotReLoad": true,
+    "useApiHook": true,
+    "useStaticServer": false,
+    "useLanDebug": false,
+    "showES6CompileOption": false,
+    "checkInvalidKey": true,
+    "ignoreDevUnusedFiles": true,
+    "bigPackageSizeSupport": false
   }
 }

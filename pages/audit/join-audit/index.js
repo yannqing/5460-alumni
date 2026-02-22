@@ -40,7 +40,7 @@ Page({
 
   // 加载审核列表
   async loadApplicationList(refresh = false) {
-    if (this.data.applicationLoading) return
+    if (this.data.applicationLoading) {return}
     
     if (refresh) {
       this.setData({
@@ -50,7 +50,7 @@ Page({
       })
     }
     
-    if (!this.data.hasMore) return
+    if (!this.data.hasMore) {return}
     
     try {
       this.setData({ applicationLoading: true })
@@ -185,7 +185,7 @@ Page({
 
           if (alumniAssociationId) {
             // 获取协会名称（如果直接提供）
-            let associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
+            const associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
             
             // 创建基本的校友会对象
             const basicAlumniData = {
@@ -335,7 +335,7 @@ Page({
   // 选择状态
   async selectStatus(e) {
     const status = parseInt(e.currentTarget.dataset.status)
-    if (status === this.data.applicationStatus) return
+    if (status === this.data.applicationStatus) {return}
     
     this.setData({ applicationStatus: status })
     await this.loadApplicationList(true)
@@ -343,7 +343,7 @@ Page({
 
   // 滚动触底加载更多
   loadMore() {
-    if (!this.data.hasMore || this.data.applicationLoading) return
+    if (!this.data.hasMore || this.data.applicationLoading) {return}
     this.loadApplicationList()
   },
 
@@ -361,7 +361,7 @@ Page({
 
   // 提交审核
   async submitReview(applicationId, reviewResult) {
-    if (this.data.reviewing) return
+    if (this.data.reviewing) {return}
     
     try {
       this.setData({ reviewing: true })
