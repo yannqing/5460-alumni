@@ -24,10 +24,11 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Slf4j
-@Configuration
+//@Configuration  // 已禁用，改用 NettyWebSocketServletConfig
 public class NettyWebSocketServer {
 
-    public static final int Web_Socket_Port = 9100;  // WebSocket 服务器端口
+    @Deprecated
+    public static final int Web_Socket_Port = 9100;  // WebSocket 服务器端口（已废弃，现在与主应用共用端口）
     public static final NettyWebSocketServerHandler Netty_Web_Socket_Server_Handler = new NettyWebSocketServerHandler();
 
     // 事件循环组，用于处理接入的连接
@@ -36,8 +37,10 @@ public class NettyWebSocketServer {
 
     /**
      * 启动 WebSocket 服务器
+     * @deprecated 已废弃，现在使用 NettyWebSocketServletConfig 启动
      */
-    @PostConstruct
+    @Deprecated
+    //@PostConstruct  // 已禁用
     public void start() throws InterruptedException {
         run();
     }
@@ -57,7 +60,9 @@ public class NettyWebSocketServer {
 
     /**
      * 运行 WebSocket 服务器
+     * @deprecated 已废弃，现在使用 NettyWebSocketServletConfig 启动
      */
+    @Deprecated
     public void run() throws InterruptedException {
         // 服务器启动引导对象
         ServerBootstrap serverBootstrap = new ServerBootstrap();

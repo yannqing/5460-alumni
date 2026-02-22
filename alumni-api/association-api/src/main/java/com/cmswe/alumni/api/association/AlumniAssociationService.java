@@ -203,4 +203,13 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @return 移除是否成功
      */
     boolean removeAdminFromAssociation(Long alumniAssociationId, Long wxId);
+
+    /**
+     * 绑定校友会组织架构成员与系统用户
+     *
+     * @param memberId 校友会成员表ID
+     * @param wxId 用户微信ID
+     * @return 绑定是否成功
+     */
+    boolean bindMemberToUser(Long memberId, Long wxId);
 }
