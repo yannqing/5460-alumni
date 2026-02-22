@@ -365,4 +365,31 @@ public class LocalPlatformManagementController {
                         return ResultUtils.failure(Code.FAILURE, false, "移除失败");
                 }
         }
+
+        /**
+         * 绑定校处会组织架构成员与系统用户
+         *
+         * @param bindDto 绑定请求参数
+         * @return 返回绑定结果
+         */
+        @PutMapping("/bindMemberToUser")
+        @Operation(summary = "绑定校处会组织架构成员与系统用户")
+        public BaseResponse<Boolean> bindMemberToUser(@Valid @RequestBody BindLocalPlatformMemberToUserDto bindDto) {
+                log.info("绑定校处会成员与系统用户，成员 ID: {}, 用户 ID: {}",
+                        bindDto.getMemberId(), bindDto.getWxId());
+
+                boolean result = localPlatformService.bindMemberToUser(
+                        bindDto.getMemberId(),
+                        bindDto.getWxId());
+
+                if (result) {
+                        log.info("绑定校处会成员与系统用户成功，成员 ID: {}, 用户 ID: {}",
+                                bindDto.getMemberId(), bindDto.getWxId());
+                        return ResultUtils.success(Code.SUCCESS, true, "绑定成功");
+                } else {
+                        log.error("绑定校处会成员与系统用户失败，成员 ID: {}, 用户 ID: {}",
+                                bindDto.getMemberId(), bindDto.getWxId());
+                        return ResultUtils.failure(Code.FAILURE, false, "绑定失败");
+                }
+        }
 }

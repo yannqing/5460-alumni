@@ -1,0 +1,159 @@
+app:
+  url: ${APP_URL:https://${API_DOMAIN}}
+spring:
+  application:
+    name: cni-alumni-core
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&connectionTimeZone=Asia/Shanghai&forceConnectionTimeZoneToSession=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    druid:
+      initial-size: 5          # 根据预期并发调整
+      min-idle: 5
+      max-active: 20           # 根据最大并发调整
+      max-wait: 10000          # 生产环境可缩短到10秒
+      filters: stat,wall,log4j2    # 添加日志过滤器
+      connection-properties:
+        druid.stat.mergeSql=true
+        druid.stat.slowSqlMillis=5000
+        druid.stat.logSlowSql=true
+      # Web统计过滤器
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+        session-stat-enable: true
+        session-stat-max-count: 1000
+      # 监控页面Servlet
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false
+        login-username: ${DRUID_USERNAME}
+        login-password: ${DRUID_PASSWORD}
+  # Redis 配置
+  data:
+    redis:
+      database: ${REDIS_DATABASE}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 4
+          max-wait: 1000ms
+          max-idle: 4
+          min-idle: 0
+      password: ${REDIS_PASSWORD}
+  # Kafka 配置
+  kafka:
+    enabled: true
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}  # 使用内部端口
+    producer:
+      # 生产者配置
+      retries: 3
+      batch-size: 16384
+      buffer-memory: 33554432
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      # 消费者配置
+      group-id: alumni-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      auto-commit-interval: 1000
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      # 监听器配置
+      ack-mode: batch
+      concurrency: 3
+# ==================== Elasticsearch 配置 ====================
+  elasticsearch:
+    uris: ${ELASTICSEARCH_HOST}  # Spring Data ES 使用
+
+# ElasticsearchIndexInitializer 使用
+elasticsearch:
+  host: ${ELASTICSEARCH_HOST}
+  auto-init: true  # 开启自动初始化
+
+# ==================== Canal 数据同步配置 ====================
+canal:
+  enabled: ${CANAL_ENABLED:true}  # 生产环境启用 Canal 增量同步
+  server:
+    host: ${CANAL_HOST}  # Canal Server 地址
+    port: ${CANAL_PORT}  # Canal Server 端口
+  destination: ${CANAL_DESTINATION:example}  # Canal Instance 名称
+  username: ${CANAL_USERNAME}
+  password: ${CANAL_PASSWORD}
+  batch:
+    size: 1000  # 每次拉取的 Binlog 条数
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+
+knife4j:
+  enable: ${KNIFE4J_ENABLED:false}
+  setting:
+    language: zh_cn
+  basic:
+    username: ${KNIFE4J_USERNAME:admin}
+    password: ${KNIFE4J_PASSWORD:admin123}
+file:
+  upload-common-url: ${FILE_UPLOAD_COMMON_URL:/yannqing/cni-alumni/java/cdn_statics}  # 文件存储一级目录
+  upload-prefix-url: ${FILE_UPLOAD_PREFIX_URL:/upload}  # 请求路径前缀
+  upload-image-url: ${FILE_UPLOAD_IMAGE_URL:images}     # 图片文件存储的三级目录
+  upload-resume-url: ${FILE_UPLOAD_RESUME_URL:resumes}   # 简历文件存储的三级目录
+  upload-audio-url: ${FILE_UPLOAD_AUDIO_URL:audios}     # 音频文件存储的三级目录
+
+# 雪花算法 id
+snowflake:
+  worker-id: ${SNOWFLAKE_WORKER_ID:0}      # 机器ID，不同服务器设置不同值(0-31)
+  datacenter-id: ${SNOWFLAKE_DATACENTER_ID:0}  # 数据中心ID，不同数据中心设置不同值(0-31)
+
+# 微信小程序配置
+wechat:
+  mini:
+    app-id: ${WECHAT_APP_ID}  # 微信小程序AppID
+    secret: ${WECHAT_SECRET}  # 微信小程序Secret
+
+# 腾讯地图配置
+tencent:
+  map:
+    key: ${TENCENT_MAP_KEY}  # 腾讯地图API Key
+    base-url: ${TENCENT_MAP_BASE_URL}  # 腾讯地图API基础URL
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET}  # JWT密钥，生产环境请使用环境变量
+  expire-times: ${JWT_EXPIRE_TIMES:10800000}  # Token有效期（3h：1000 * 60 * 60 * 3）
+
+# 签名验证配置
+# 注意：白名单路径已统一在 Constant.java 中定义
+api:
+  signature:
+    # 是否启用签名验证（开发环境可设为false）
+    enabled: ${API_SIGNATURE_ENABLED:false}
+    # 签名密钥
+    secret: ${API_SIGNATURE_SECRET}
+    # 时间容差（毫秒），默认5分钟
+    time-tolerance: ${API_SIGNATURE_TIME_TOLERANCE:300000}
+    # 开发模式（允许使用特殊nonce跳过签名验证）
+    dev-mode: true
+    # 开发模式下的特殊nonce值（使用这些值可以跳过签名验证）
+    dev-mode-nonces:
+      - mock
+      - dev
+      - test
+      - local-dev

@@ -790,27 +790,31 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             return emptyPage;
         }
 
-        // 6. 提取所有 wxId
+        // 6. 提取所有非空的 wxId
         List<Long> wxIds = memberResultPage.getRecords().stream()
                 .map(LocalPlatformMember::getWxId)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
 
         // 7. 批量查询用户信息（一次查询，避免 N+1 问题）
-        LambdaQueryWrapper<WxUserInfo> userInfoWrapper = new LambdaQueryWrapper<>();
-        userInfoWrapper
-                .in(WxUserInfo::getWxId, wxIds)
-                .like(StringUtils.isNotBlank(nickname), WxUserInfo::getNickname, nickname)
-                .like(StringUtils.isNotBlank(name), WxUserInfo::getName, name)
-                .eq(gender != null, WxUserInfo::getGender, gender)
-                .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
-                .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity);
+        Map<Long, WxUserInfo> userInfoMap = new HashMap<>();
+        if (!wxIds.isEmpty()) {
+            LambdaQueryWrapper<WxUserInfo> userInfoWrapper = new LambdaQueryWrapper<>();
+            userInfoWrapper
+                    .in(WxUserInfo::getWxId, wxIds)
+                    .like(StringUtils.isNotBlank(nickname), WxUserInfo::getNickname, nickname)
+                    .like(StringUtils.isNotBlank(name), WxUserInfo::getName, name)
+                    .eq(gender != null, WxUserInfo::getGender, gender)
+                    .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
+                    .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity);
 
-        List<WxUserInfo> userInfoList = wxUserInfoService.list(userInfoWrapper);
+            List<WxUserInfo> userInfoList = wxUserInfoService.list(userInfoWrapper);
 
-        // 8. 转成 Map，方便查找（key: wxId, value: WxUserInfo）
-        Map<Long, WxUserInfo> userInfoMap = userInfoList.stream()
-                .collect(Collectors.toMap(WxUserInfo::getWxId, Function.identity(), (v1, v2) -> v1));
+            // 8. 转成 Map，方便查找（key: wxId, value: WxUserInfo）
+            userInfoMap = userInfoList.stream()
+                    .collect(Collectors.toMap(WxUserInfo::getWxId, Function.identity(), (v1, v2) -> v1));
+        }
 
         // 9. 提取所有 roleOrId 并批量查询组织架构角色信息
         List<Long> roleOrIds = memberResultPage.getRecords().stream()
@@ -826,16 +830,28 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     .collect(Collectors.toMap(OrganizeArchiRole::getRoleOrId, Function.identity(), (v1, v2) -> v1));
         }
 
-        // 10. 组装结果（按成员列表的顺序）
+        // 10. 组装结果（按成员列表的顺序，包括wx_id为null的成员）
         Map<Long, OrganizeArchiRole> finalOrganizeArchiRoleMap = organizeArchiRoleMap;
+        Map<Long, WxUserInfo> finalUserInfoMap = userInfoMap;
         List<OrganizationMemberResponse> responseList = memberResultPage.getRecords().stream()
                 .map(member -> {
-                    WxUserInfo userInfo = userInfoMap.get(member.getWxId());
-                    if (userInfo == null) {
-                        return null;
+                    OrganizationMemberResponse response = new OrganizationMemberResponse();
+
+                    // 如果 wx_id 不为空，尝试从用户信息中填充基本字段
+                    if (member.getWxId() != null) {
+                        WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
+                        if (userInfo != null) {
+                            response = OrganizationMemberResponse.objToVo(userInfo);
+                            response.setWxId(String.valueOf(userInfo.getWxId()));
+                        } else {
+                            // wx_id不为空，但没有找到用户信息（可能被查询条件过滤掉了）
+                            return null;
+                        }
                     }
-                    OrganizationMemberResponse response = OrganizationMemberResponse.objToVo(userInfo);
-                    response.setWxId(String.valueOf(userInfo.getWxId()));
+
+                    // 从成员表设置 username 和 roleName（这两个字段总是来自成员表）
+                    response.setUsername(member.getUsername());
+                    response.setRoleName(member.getRoleName());
 
                     // 设置组织架构角色信息
                     if (member.getRoleOrId() != null) {
@@ -1170,6 +1186,58 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         }
 
         return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean bindMemberToUser(Long memberId, Long wxId) {
+        log.info("绑定校处会成员与系统用户 - 成员ID: {}, 用户ID: {}", memberId, wxId);
+
+        // 1. 参数校验
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员表ID不能为空");
+        }
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户微信ID不能为空");
+        }
+
+        // 2. 查询成员记录是否存在
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 校验用户是否存在
+        WxUser wxUser = userService.getById(wxId);
+        if (wxUser == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "用户不存在");
+        }
+
+        // 4. 检查该用户是否已经绑定到该校处会的其他成员记录
+        LambdaQueryWrapper<LocalPlatformMember> existingBindQuery = new LambdaQueryWrapper<>();
+        existingBindQuery
+                .eq(LocalPlatformMember::getWxId, wxId)
+                .eq(LocalPlatformMember::getLocalPlatformId, member.getLocalPlatformId())
+                .ne(LocalPlatformMember::getId, memberId)
+                .eq(LocalPlatformMember::getStatus, 1);
+
+        Long existingBindCount = localPlatformMemberService.count(existingBindQuery);
+        if (existingBindCount > 0) {
+            log.warn("该用户已绑定到该校处会的其他成员记录，用户ID: {}, 校处会ID: {}",
+                    wxId, member.getLocalPlatformId());
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该用户已绑定到该校处会的其他成员记录");
+        }
+
+        // 5. 更新成员记录的 wx_id 字段
+        member.setWxId(wxId);
+        boolean updateResult = localPlatformMemberService.updateById(member);
+
+        if (!updateResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "绑定失败");
+        }
+
+        log.info("绑定校处会成员与系统用户成功 - 成员ID: {}, 用户ID: {}", memberId, wxId);
+        return true;
     }
 
 }
