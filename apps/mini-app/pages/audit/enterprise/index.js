@@ -155,7 +155,7 @@ Page({
           
           if (alumniAssociationId) {
             // 获取协会名称
-            let associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会';
+            const associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会';
             
             // 创建基本的校友会对象
             const basicAlumniData = {
@@ -278,10 +278,10 @@ Page({
     };
     
     // 添加可选参数
-    if (placeName) params.placeName = placeName;
-    if (applicationStatus !== null && applicationStatus !== undefined) params.applicationStatus = applicationStatus;
-    if (selectedAlumniAssociationId) params.alumniAssociationId = selectedAlumniAssociationId;
-    if (applicantName) params.applicantName = applicantName;
+    if (placeName) {params.placeName = placeName;}
+    if (applicationStatus !== null && applicationStatus !== undefined) {params.applicationStatus = applicationStatus;}
+    if (selectedAlumniAssociationId) {params.alumniAssociationId = selectedAlumniAssociationId;}
+    if (applicantName) {params.applicantName = applicantName;}
     
     // 发送POST请求
     const token = wx.getStorageSync('token') || (wx.getStorageSync('userInfo') || {}).token || '';

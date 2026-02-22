@@ -111,7 +111,7 @@ Page({
 
           if (alumniAssociationId) {
             // 获取协会名称（如果直接提供）
-            let associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会'
+            const associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会'
             
             // 创建基本的校友会对象
             const basicAlumniData = {
@@ -419,7 +419,7 @@ Page({
   
   // 格式化日期时间
   formatDateTime(dateTimeString) {
-    if (!dateTimeString) return ''
+    if (!dateTimeString) {return ''}
     const date = new Date(dateTimeString)
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -476,7 +476,7 @@ Page({
 
   handleFilterChange(e) {
     const { id } = e.currentTarget.dataset
-    if (id === this.data.filterStatus) return
+    if (id === this.data.filterStatus) {return}
     this.setData({ filterStatus: id }, () => {
       this.applyFilter()
     })

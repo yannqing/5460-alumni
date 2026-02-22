@@ -3,9 +3,9 @@ const { authApi } = require('../api/api.js')
 
 // 判断时间是否过期
 const judgeTime = (time) => {
-  let strTime = time.replace("/-/g", "/");
-  let date1 = new Date(strTime);
-  let date2 = new Date();
+  const strTime = time.replace("/-/g", "/");
+  const date1 = new Date(strTime);
+  const date2 = new Date();
   return date1 < date2;
 }
 
@@ -90,7 +90,7 @@ async function login(inviter_wx_uuid) {
   
     // 2. 构建请求参数
     // 确保 code 是字符串类型
-    let params = {
+    const params = {
       code: String(wxcode).trim()  // 确保是字符串且去除首尾空格
     }
 
@@ -211,7 +211,7 @@ async function getUserInfo() {
  */
 async function initApp() {
   let uinfoData = {}
-  let isLogin = await checkHasLogined()
+  const isLogin = await checkHasLogined()
 
   if (isLogin) {
     uinfoData = getApp().globalData.userData
@@ -229,7 +229,7 @@ async function initApp() {
 
 // 二次加工用户信息（处理角色等）
 function formatUserInfoData(userData) {
-  let config_roles = {};
+  const config_roles = {};
 
   // 新格式：处理 roles 数组（优先使用）
   if (userData && userData.roles && Array.isArray(userData.roles)) {
@@ -248,7 +248,7 @@ function formatUserInfoData(userData) {
   // 旧格式兼容：处理 wx_roles 数组
   else if (userData && userData.wx_roles && Array.isArray(userData.wx_roles)) {
     userData.wx_roles.forEach(element => {
-      let roleName = element.name
+      const roleName = element.name
       config_roles[roleName] = true;
     });
     console.log('[Auth] 处理旧格式角色数据:', config_roles)
@@ -279,7 +279,7 @@ function checkHasRoles($arr) {
   // 旧格式兼容：检查 wx_roles 数组
   const user_roles = getApp().globalData.userData.wx_roles || []
   for (let i = 0; i < user_roles.length; i++) {
-    let name = user_roles[i].name;
+    const name = user_roles[i].name;
     if ($arr.includes(name)) {
       return true;
     }

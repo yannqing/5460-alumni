@@ -74,7 +74,7 @@ Page({
   },
 
   async loadApplyList() {
-    if (this.data.loading) return
+    if (this.data.loading) {return}
     
     this.setData({ loading: true })
     

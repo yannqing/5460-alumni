@@ -76,7 +76,7 @@ const SignatureUtil = {
    * @returns {boolean} - true 表示需要签名，false 表示不需要
    */
   needSignature(url) {
-    if (!url) return true;
+    if (!url) {return true;}
     
     // 白名单接口不需要签名
     const whitelist = [
@@ -185,7 +185,7 @@ const SignatureUtil = {
       if (queryString) {
         const pairs = queryString.split('&');
         pairs.forEach(pair => {
-          if (!pair) return;
+          if (!pair) {return;}
 
           const [rawKey, rawValue = ''] = pair.split('=');
           if (rawKey) {

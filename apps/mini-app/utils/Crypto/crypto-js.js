@@ -20,7 +20,7 @@
 	 */
 	var CryptoJS = CryptoJS || (function (Math, undefined) {
 
-	    var crypto;
+	    let crypto;
 
 	    // Native crypto from window (Browser)
 	    if (typeof window !== 'undefined' && window.crypto) {
@@ -59,7 +59,7 @@
 	     *
 	     * As Math.random() is cryptographically not safe to use
 	     */
-	    var cryptoSecureRandomInt = function () {
+	    const cryptoSecureRandomInt = function () {
 	        if (crypto) {
 	            // Use getRandomValues method (Browser)
 	            if (typeof crypto.getRandomValues === 'function') {
@@ -83,11 +83,11 @@
 	     * Local polyfill of Object.create
 
 	     */
-	    var create = Object.create || (function () {
+	    const create = Object.create || (function () {
 	        function F() {}
 
 	        return function (obj) {
-	            var subtype;
+	            let subtype;
 
 	            F.prototype = obj;
 
@@ -102,17 +102,17 @@
 	    /**
 	     * CryptoJS namespace.
 	     */
-	    var C = {};
+	    const C = {};
 
 	    /**
 	     * Library namespace.
 	     */
-	    var C_lib = C.lib = {};
+	    const C_lib = C.lib = {};
 
 	    /**
 	     * Base object for prototypal inheritance.
 	     */
-	    var Base = C_lib.Base = (function () {
+	    const Base = C_lib.Base = (function () {
 
 
 	        return {
@@ -136,7 +136,7 @@
 	             */
 	            extend: function (overrides) {
 	                // Spawn
-	                var subtype = create(this);
+	                const subtype = create(this);
 
 	                // Augment
 	                if (overrides) {
@@ -172,7 +172,7 @@
 	             *     var instance = MyType.create();
 	             */
 	            create: function () {
-	                var instance = this.extend();
+	                const instance = this.extend();
 	                instance.init.apply(instance, arguments);
 
 	                return instance;
@@ -205,7 +205,7 @@
 	             *     });
 	             */
 	            mixIn: function (properties) {
-	                for (var propertyName in properties) {
+	                for (const propertyName in properties) {
 	                    if (properties.hasOwnProperty(propertyName)) {
 	                        this[propertyName] = properties[propertyName];
 	                    }
@@ -291,10 +291,10 @@
 	         */
 	        concat: function (wordArray) {
 	            // Shortcuts
-	            var thisWords = this.words;
-	            var thatWords = wordArray.words;
-	            var thisSigBytes = this.sigBytes;
-	            var thatSigBytes = wordArray.sigBytes;
+	            const thisWords = this.words;
+	            const thatWords = wordArray.words;
+	            const thisSigBytes = this.sigBytes;
+	            const thatSigBytes = wordArray.sigBytes;
 
 	            // Clamp excess bits
 	            this.clamp();
@@ -302,13 +302,13 @@
 	            // Concat
 	            if (thisSigBytes % 4) {
 	                // Copy one byte at a time
-	                for (var i = 0; i < thatSigBytes; i++) {
-	                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+	                for (let i = 0; i < thatSigBytes; i++) {
+	                    const thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
 	                    thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
 	                }
 	            } else {
 	                // Copy one word at a time
-	                for (var j = 0; j < thatSigBytes; j += 4) {
+	                for (let j = 0; j < thatSigBytes; j += 4) {
 	                    thisWords[(thisSigBytes + j) >>> 2] = thatWords[j >>> 2];
 	                }
 	            }
@@ -327,8 +327,8 @@
 	         */
 	        clamp: function () {
 	            // Shortcuts
-	            var words = this.words;
-	            var sigBytes = this.sigBytes;
+	            const words = this.words;
+	            const sigBytes = this.sigBytes;
 
 	            // Clamp
 	            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
@@ -345,7 +345,7 @@
 	         *     var clone = wordArray.clone();
 	         */
 	        clone: function () {
-	            var clone = Base.clone.call(this);
+	            const clone = Base.clone.call(this);
 	            clone.words = this.words.slice(0);
 
 	            return clone;
@@ -365,9 +365,9 @@
 	         *     var wordArray = CryptoJS.lib.WordArray.random(16);
 	         */
 	        random: function (nBytes) {
-	            var words = [];
+	            const words = [];
 
-	            for (var i = 0; i < nBytes; i += 4) {
+	            for (let i = 0; i < nBytes; i += 4) {
 	                words.push(cryptoSecureRandomInt());
 	            }
 
@@ -378,7 +378,7 @@
 	    /**
 	     * Encoder namespace.
 	     */
-	    var C_enc = C.enc = {};
+	    const C_enc = C.enc = {};
 
 	    /**
 	     * Hex encoding strategy.
@@ -399,13 +399,13 @@
 	         */
 	        stringify: function (wordArray) {
 	            // Shortcuts
-	            var words = wordArray.words;
-	            var sigBytes = wordArray.sigBytes;
+	            const words = wordArray.words;
+	            const sigBytes = wordArray.sigBytes;
 
 	            // Convert
-	            var hexChars = [];
-	            for (var i = 0; i < sigBytes; i++) {
-	                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+	            const hexChars = [];
+	            for (let i = 0; i < sigBytes; i++) {
+	                const bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
 	                hexChars.push((bite >>> 4).toString(16));
 	                hexChars.push((bite & 0x0f).toString(16));
 	            }
@@ -428,11 +428,11 @@
 	         */
 	        parse: function (hexStr) {
 	            // Shortcut
-	            var hexStrLength = hexStr.length;
+	            const hexStrLength = hexStr.length;
 
 	            // Convert
-	            var words = [];
-	            for (var i = 0; i < hexStrLength; i += 2) {
+	            const words = [];
+	            for (let i = 0; i < hexStrLength; i += 2) {
 	                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
 	            }
 
@@ -443,7 +443,7 @@
 	    /**
 	     * Latin1 encoding strategy.
 	     */
-	    var Latin1 = C_enc.Latin1 = {
+	    const Latin1 = C_enc.Latin1 = {
 	        /**
 	         * Converts a word array to a Latin1 string.
 	         *
@@ -459,13 +459,13 @@
 	         */
 	        stringify: function (wordArray) {
 	            // Shortcuts
-	            var words = wordArray.words;
-	            var sigBytes = wordArray.sigBytes;
+	            const words = wordArray.words;
+	            const sigBytes = wordArray.sigBytes;
 
 	            // Convert
-	            var latin1Chars = [];
-	            for (var i = 0; i < sigBytes; i++) {
-	                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+	            const latin1Chars = [];
+	            for (let i = 0; i < sigBytes; i++) {
+	                const bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
 	                latin1Chars.push(String.fromCharCode(bite));
 	            }
 
@@ -487,11 +487,11 @@
 	         */
 	        parse: function (latin1Str) {
 	            // Shortcut
-	            var latin1StrLength = latin1Str.length;
+	            const latin1StrLength = latin1Str.length;
 
 	            // Convert
-	            var words = [];
-	            for (var i = 0; i < latin1StrLength; i++) {
+	            const words = [];
+	            for (let i = 0; i < latin1StrLength; i++) {
 	                words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
 	            }
 
@@ -502,7 +502,7 @@
 	    /**
 	     * UTF-8 encoding strategy.
 	     */
-	    var Utf8 = C_enc.Utf8 = {
+	    const Utf8 = C_enc.Utf8 = {
 	        /**
 	         * Converts a word array to a UTF-8 string.
 	         *
@@ -549,7 +549,7 @@
 	     *
 	     * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
 	     */
-	    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
+	    const BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
 	        /**
 	         * Resets this block algorithm's data buffer to its initial state.
 	         *
@@ -575,7 +575,7 @@
 	         */
 	        _append: function (data) {
 	            // Convert string to WordArray, else assume WordArray already
-	            if (typeof data == 'string') {
+	            if (typeof data === 'string') {
 	                data = Utf8.parse(data);
 	            }
 
@@ -599,17 +599,17 @@
 	         *     var processedData = bufferedBlockAlgorithm._process(!!'flush');
 	         */
 	        _process: function (doFlush) {
-	            var processedWords;
+	            let processedWords;
 
 	            // Shortcuts
-	            var data = this._data;
-	            var dataWords = data.words;
-	            var dataSigBytes = data.sigBytes;
-	            var blockSize = this.blockSize;
-	            var blockSizeBytes = blockSize * 4;
+	            const data = this._data;
+	            const dataWords = data.words;
+	            const dataSigBytes = data.sigBytes;
+	            const blockSize = this.blockSize;
+	            const blockSizeBytes = blockSize * 4;
 
 	            // Count blocks ready
-	            var nBlocksReady = dataSigBytes / blockSizeBytes;
+	            let nBlocksReady = dataSigBytes / blockSizeBytes;
 	            if (doFlush) {
 	                // Round up to include partial blocks
 	                nBlocksReady = Math.ceil(nBlocksReady);
@@ -620,14 +620,14 @@
 	            }
 
 	            // Count words ready
-	            var nWordsReady = nBlocksReady * blockSize;
+	            const nWordsReady = nBlocksReady * blockSize;
 
 	            // Count bytes ready
-	            var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
+	            const nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
 
 	            // Process blocks
 	            if (nWordsReady) {
-	                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+	                for (let offset = 0; offset < nWordsReady; offset += blockSize) {
 	                    // Perform concrete-algorithm logic
 	                    this._doProcessBlock(dataWords, offset);
 	                }
@@ -651,7 +651,7 @@
 	         *     var clone = bufferedBlockAlgorithm.clone();
 	         */
 	        clone: function () {
-	            var clone = Base.clone.call(this);
+	            const clone = Base.clone.call(this);
 	            clone._data = this._data.clone();
 
 	            return clone;
@@ -665,7 +665,7 @@
 	     *
 	     * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
 	     */
-	    var Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
+	    const Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
 	        /**
 	         * Configuration options.
 	         */
@@ -747,7 +747,7 @@
 	            }
 
 	            // Perform concrete-hasher logic
-	            var hash = this._doFinalize();
+	            const hash = this._doFinalize();
 
 	            return hash;
 	        },
@@ -804,20 +804,20 @@
 
 	(function (undefined) {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var Base = C_lib.Base;
-	    var X32WordArray = C_lib.WordArray;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const Base = C_lib.Base;
+	    const X32WordArray = C_lib.WordArray;
 
 	    /**
 	     * x64 namespace.
 	     */
-	    var C_x64 = C.x64 = {};
+	    const C_x64 = C.x64 = {};
 
 	    /**
 	     * A 64-bit word.
 	     */
-	    var X64Word = C_x64.Word = Base.extend({
+	    const X64Word = C_x64.Word = Base.extend({
 	        /**
 	         * Initializes a newly created 64-bit word.
 	         *
@@ -1005,7 +1005,7 @@
 	     * @property {Array} words The array of CryptoJS.x64.Word objects.
 	     * @property {number} sigBytes The number of significant bytes in this word array.
 	     */
-	    var X64WordArray = C_x64.WordArray = Base.extend({
+	    const X64WordArray = C_x64.WordArray = Base.extend({
 	        /**
 	         * Initializes a newly created word array.
 	         *
@@ -1047,13 +1047,13 @@
 	         */
 	        toX32: function () {
 	            // Shortcuts
-	            var x64Words = this.words;
-	            var x64WordsLength = x64Words.length;
+	            const x64Words = this.words;
+	            const x64WordsLength = x64Words.length;
 
 	            // Convert
-	            var x32Words = [];
-	            for (var i = 0; i < x64WordsLength; i++) {
-	                var x64Word = x64Words[i];
+	            const x32Words = [];
+	            for (let i = 0; i < x64WordsLength; i++) {
+	                const x64Word = x64Words[i];
 	                x32Words.push(x64Word.high);
 	                x32Words.push(x64Word.low);
 	            }
@@ -1071,14 +1071,14 @@
 	         *     var clone = x64WordArray.clone();
 	         */
 	        clone: function () {
-	            var clone = Base.clone.call(this);
+	            const clone = Base.clone.call(this);
 
 	            // Clone "words" array
-	            var words = clone.words = this.words.slice(0);
+	            const words = clone.words = this.words.slice(0);
 
 	            // Clone each X64Word object
-	            var wordsLength = words.length;
-	            for (var i = 0; i < wordsLength; i++) {
+	            const wordsLength = words.length;
+	            for (let i = 0; i < wordsLength; i++) {
 	                words[i] = words[i].clone();
 	            }
 
@@ -1090,20 +1090,20 @@
 
 	(function () {
 	    // Check if typed arrays are supported
-	    if (typeof ArrayBuffer != 'function') {
+	    if (typeof ArrayBuffer !== 'function') {
 	        return;
 	    }
 
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
 
 	    // Reference original init
-	    var superInit = WordArray.init;
+	    const superInit = WordArray.init;
 
 	    // Augment WordArray.init to handle typed arrays
-	    var subInit = WordArray.init = function (typedArray) {
+	    const subInit = WordArray.init = function (typedArray) {
 	        // Convert buffers to uint8
 	        if (typedArray instanceof ArrayBuffer) {
 	            typedArray = new Uint8Array(typedArray);
@@ -1126,11 +1126,11 @@
 	        // Handle Uint8Array
 	        if (typedArray instanceof Uint8Array) {
 	            // Shortcut
-	            var typedArrayByteLength = typedArray.byteLength;
+	            const typedArrayByteLength = typedArray.byteLength;
 
 	            // Extract bytes
-	            var words = [];
-	            for (var i = 0; i < typedArrayByteLength; i++) {
+	            const words = [];
+	            for (let i = 0; i < typedArrayByteLength; i++) {
 	                words[i >>> 2] |= typedArray[i] << (24 - (i % 4) * 8);
 	            }
 
@@ -1148,15 +1148,15 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var C_enc = C.enc;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const C_enc = C.enc;
 
 	    /**
 	     * UTF-16 BE encoding strategy.
 	     */
-	    var Utf16BE = C_enc.Utf16 = C_enc.Utf16BE = {
+	    const Utf16BE = C_enc.Utf16 = C_enc.Utf16BE = {
 	        /**
 	         * Converts a word array to a UTF-16 BE string.
 	         *
@@ -1172,13 +1172,13 @@
 	         */
 	        stringify: function (wordArray) {
 	            // Shortcuts
-	            var words = wordArray.words;
-	            var sigBytes = wordArray.sigBytes;
+	            const words = wordArray.words;
+	            const sigBytes = wordArray.sigBytes;
 
 	            // Convert
-	            var utf16Chars = [];
-	            for (var i = 0; i < sigBytes; i += 2) {
-	                var codePoint = (words[i >>> 2] >>> (16 - (i % 4) * 8)) & 0xffff;
+	            const utf16Chars = [];
+	            for (let i = 0; i < sigBytes; i += 2) {
+	                const codePoint = (words[i >>> 2] >>> (16 - (i % 4) * 8)) & 0xffff;
 	                utf16Chars.push(String.fromCharCode(codePoint));
 	            }
 
@@ -1200,11 +1200,11 @@
 	         */
 	        parse: function (utf16Str) {
 	            // Shortcut
-	            var utf16StrLength = utf16Str.length;
+	            const utf16StrLength = utf16Str.length;
 
 	            // Convert
-	            var words = [];
-	            for (var i = 0; i < utf16StrLength; i++) {
+	            const words = [];
+	            for (let i = 0; i < utf16StrLength; i++) {
 	                words[i >>> 1] |= utf16Str.charCodeAt(i) << (16 - (i % 2) * 16);
 	            }
 
@@ -1231,13 +1231,13 @@
 	         */
 	        stringify: function (wordArray) {
 	            // Shortcuts
-	            var words = wordArray.words;
-	            var sigBytes = wordArray.sigBytes;
+	            const words = wordArray.words;
+	            const sigBytes = wordArray.sigBytes;
 
 	            // Convert
-	            var utf16Chars = [];
-	            for (var i = 0; i < sigBytes; i += 2) {
-	                var codePoint = swapEndian((words[i >>> 2] >>> (16 - (i % 4) * 8)) & 0xffff);
+	            const utf16Chars = [];
+	            for (let i = 0; i < sigBytes; i += 2) {
+	                const codePoint = swapEndian((words[i >>> 2] >>> (16 - (i % 4) * 8)) & 0xffff);
 	                utf16Chars.push(String.fromCharCode(codePoint));
 	            }
 
@@ -1259,11 +1259,11 @@
 	         */
 	        parse: function (utf16Str) {
 	            // Shortcut
-	            var utf16StrLength = utf16Str.length;
+	            const utf16StrLength = utf16Str.length;
 
 	            // Convert
-	            var words = [];
-	            for (var i = 0; i < utf16StrLength; i++) {
+	            const words = [];
+	            for (let i = 0; i < utf16StrLength; i++) {
 	                words[i >>> 1] |= swapEndian(utf16Str.charCodeAt(i) << (16 - (i % 2) * 16));
 	            }
 
@@ -1279,15 +1279,15 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var C_enc = C.enc;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const C_enc = C.enc;
 
 	    /**
 	     * Base64 encoding strategy.
 	     */
-	    var Base64 = C_enc.Base64 = {
+	    const Base64 = C_enc.Base64 = {
 	        /**
 	         * Converts a word array to a Base64 string.
 	         *
@@ -1303,29 +1303,29 @@
 	         */
 	        stringify: function (wordArray) {
 	            // Shortcuts
-	            var words = wordArray.words;
-	            var sigBytes = wordArray.sigBytes;
-	            var map = this._map;
+	            const words = wordArray.words;
+	            const sigBytes = wordArray.sigBytes;
+	            const map = this._map;
 
 	            // Clamp excess bits
 	            wordArray.clamp();
 
 	            // Convert
-	            var base64Chars = [];
-	            for (var i = 0; i < sigBytes; i += 3) {
-	                var byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
-	                var byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
-	                var byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
+	            const base64Chars = [];
+	            for (let i = 0; i < sigBytes; i += 3) {
+	                const byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
+	                const byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
+	                const byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
 
-	                var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
+	                const triplet = (byte1 << 16) | (byte2 << 8) | byte3;
 
-	                for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
+	                for (let j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
 	                    base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
 	                }
 	            }
 
 	            // Add padding
-	            var paddingChar = map.charAt(64);
+	            const paddingChar = map.charAt(64);
 	            if (paddingChar) {
 	                while (base64Chars.length % 4) {
 	                    base64Chars.push(paddingChar);
@@ -1350,21 +1350,21 @@
 	         */
 	        parse: function (base64Str) {
 	            // Shortcuts
-	            var base64StrLength = base64Str.length;
-	            var map = this._map;
-	            var reverseMap = this._reverseMap;
+	            let base64StrLength = base64Str.length;
+	            const map = this._map;
+	            let reverseMap = this._reverseMap;
 
 	            if (!reverseMap) {
 	                    reverseMap = this._reverseMap = [];
-	                    for (var j = 0; j < map.length; j++) {
+	                    for (let j = 0; j < map.length; j++) {
 	                        reverseMap[map.charCodeAt(j)] = j;
 	                    }
 	            }
 
 	            // Ignore padding
-	            var paddingChar = map.charAt(64);
+	            const paddingChar = map.charAt(64);
 	            if (paddingChar) {
-	                var paddingIndex = base64Str.indexOf(paddingChar);
+	                const paddingIndex = base64Str.indexOf(paddingChar);
 	                if (paddingIndex !== -1) {
 	                    base64StrLength = paddingIndex;
 	                }
@@ -1379,13 +1379,13 @@
 	    };
 
 	    function parseLoop(base64Str, base64StrLength, reverseMap) {
-	      var words = [];
-	      var nBytes = 0;
-	      for (var i = 0; i < base64StrLength; i++) {
+	      const words = [];
+	      let nBytes = 0;
+	      for (let i = 0; i < base64StrLength; i++) {
 	          if (i % 4) {
-	              var bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << ((i % 4) * 2);
-	              var bits2 = reverseMap[base64Str.charCodeAt(i)] >>> (6 - (i % 4) * 2);
-	              var bitsCombined = bits1 | bits2;
+	              const bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << ((i % 4) * 2);
+	              const bits2 = reverseMap[base64Str.charCodeAt(i)] >>> (6 - (i % 4) * 2);
+	              const bitsCombined = bits1 | bits2;
 	              words[nBytes >>> 2] |= bitsCombined << (24 - (nBytes % 4) * 8);
 	              nBytes++;
 	          }
@@ -1397,15 +1397,15 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var C_enc = C.enc;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const C_enc = C.enc;
 
 	    /**
 	     * Base64url encoding strategy.
 	     */
-	    var Base64url = C_enc.Base64url = {
+	    const Base64url = C_enc.Base64url = {
 	        /**
 	         * Converts a word array to a Base64url string.
 	         *
@@ -1426,29 +1426,29 @@
 	                urlSafe = true
 	            }
 	            // Shortcuts
-	            var words = wordArray.words;
-	            var sigBytes = wordArray.sigBytes;
-	            var map = urlSafe ? this._safe_map : this._map;
+	            const words = wordArray.words;
+	            const sigBytes = wordArray.sigBytes;
+	            const map = urlSafe ? this._safe_map : this._map;
 
 	            // Clamp excess bits
 	            wordArray.clamp();
 
 	            // Convert
-	            var base64Chars = [];
-	            for (var i = 0; i < sigBytes; i += 3) {
-	                var byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
-	                var byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
-	                var byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
+	            const base64Chars = [];
+	            for (let i = 0; i < sigBytes; i += 3) {
+	                const byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
+	                const byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
+	                const byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
 
-	                var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
+	                const triplet = (byte1 << 16) | (byte2 << 8) | byte3;
 
-	                for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
+	                for (let j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
 	                    base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
 	                }
 	            }
 
 	            // Add padding
-	            var paddingChar = map.charAt(64);
+	            const paddingChar = map.charAt(64);
 	            if (paddingChar) {
 	                while (base64Chars.length % 4) {
 	                    base64Chars.push(paddingChar);
@@ -1479,21 +1479,21 @@
 	            }
 
 	            // Shortcuts
-	            var base64StrLength = base64Str.length;
-	            var map = urlSafe ? this._safe_map : this._map;
-	            var reverseMap = this._reverseMap;
+	            let base64StrLength = base64Str.length;
+	            const map = urlSafe ? this._safe_map : this._map;
+	            let reverseMap = this._reverseMap;
 
 	            if (!reverseMap) {
 	                reverseMap = this._reverseMap = [];
-	                for (var j = 0; j < map.length; j++) {
+	                for (let j = 0; j < map.length; j++) {
 	                    reverseMap[map.charCodeAt(j)] = j;
 	                }
 	            }
 
 	            // Ignore padding
-	            var paddingChar = map.charAt(64);
+	            const paddingChar = map.charAt(64);
 	            if (paddingChar) {
-	                var paddingIndex = base64Str.indexOf(paddingChar);
+	                const paddingIndex = base64Str.indexOf(paddingChar);
 	                if (paddingIndex !== -1) {
 	                    base64StrLength = paddingIndex;
 	                }
@@ -1509,13 +1509,13 @@
 	    };
 
 	    function parseLoop(base64Str, base64StrLength, reverseMap) {
-	        var words = [];
-	        var nBytes = 0;
-	        for (var i = 0; i < base64StrLength; i++) {
+	        const words = [];
+	        let nBytes = 0;
+	        for (let i = 0; i < base64StrLength; i++) {
 	            if (i % 4) {
-	                var bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << ((i % 4) * 2);
-	                var bits2 = reverseMap[base64Str.charCodeAt(i)] >>> (6 - (i % 4) * 2);
-	                var bitsCombined = bits1 | bits2;
+	                const bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << ((i % 4) * 2);
+	                const bits2 = reverseMap[base64Str.charCodeAt(i)] >>> (6 - (i % 4) * 2);
+	                const bitsCombined = bits1 | bits2;
 	                words[nBytes >>> 2] |= bitsCombined << (24 - (nBytes % 4) * 8);
 	                nBytes++;
 	            }
@@ -1527,18 +1527,18 @@
 
 	(function (Math) {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var Hasher = C_lib.Hasher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const Hasher = C_lib.Hasher;
+	    const C_algo = C.algo;
 
 	    // Constants table
-	    var T = [];
+	    const T = [];
 
 	    // Compute constants
 	    (function () {
-	        for (var i = 0; i < 64; i++) {
+	        for (let i = 0; i < 64; i++) {
 	            T[i] = (Math.abs(Math.sin(i + 1)) * 0x100000000) | 0;
 	        }
 	    }());
@@ -1546,7 +1546,7 @@
 	    /**
 	     * MD5 hash algorithm.
 	     */
-	    var MD5 = C_algo.MD5 = Hasher.extend({
+	    const MD5 = C_algo.MD5 = Hasher.extend({
 	        _doReset: function () {
 	            this._hash = new WordArray.init([
 	                0x67452301, 0xefcdab89,
@@ -1556,10 +1556,10 @@
 
 	        _doProcessBlock: function (M, offset) {
 	            // Swap endian
-	            for (var i = 0; i < 16; i++) {
+	            for (let i = 0; i < 16; i++) {
 	                // Shortcuts
-	                var offset_i = offset + i;
-	                var M_offset_i = M[offset_i];
+	                const offset_i = offset + i;
+	                const M_offset_i = M[offset_i];
 
 	                M[offset_i] = (
 	                    (((M_offset_i << 8)  | (M_offset_i >>> 24)) & 0x00ff00ff) |
@@ -1568,30 +1568,30 @@
 	            }
 
 	            // Shortcuts
-	            var H = this._hash.words;
+	            const H = this._hash.words;
 
-	            var M_offset_0  = M[offset + 0];
-	            var M_offset_1  = M[offset + 1];
-	            var M_offset_2  = M[offset + 2];
-	            var M_offset_3  = M[offset + 3];
-	            var M_offset_4  = M[offset + 4];
-	            var M_offset_5  = M[offset + 5];
-	            var M_offset_6  = M[offset + 6];
-	            var M_offset_7  = M[offset + 7];
-	            var M_offset_8  = M[offset + 8];
-	            var M_offset_9  = M[offset + 9];
-	            var M_offset_10 = M[offset + 10];
-	            var M_offset_11 = M[offset + 11];
-	            var M_offset_12 = M[offset + 12];
-	            var M_offset_13 = M[offset + 13];
-	            var M_offset_14 = M[offset + 14];
-	            var M_offset_15 = M[offset + 15];
+	            const M_offset_0  = M[offset + 0];
+	            const M_offset_1  = M[offset + 1];
+	            const M_offset_2  = M[offset + 2];
+	            const M_offset_3  = M[offset + 3];
+	            const M_offset_4  = M[offset + 4];
+	            const M_offset_5  = M[offset + 5];
+	            const M_offset_6  = M[offset + 6];
+	            const M_offset_7  = M[offset + 7];
+	            const M_offset_8  = M[offset + 8];
+	            const M_offset_9  = M[offset + 9];
+	            const M_offset_10 = M[offset + 10];
+	            const M_offset_11 = M[offset + 11];
+	            const M_offset_12 = M[offset + 12];
+	            const M_offset_13 = M[offset + 13];
+	            const M_offset_14 = M[offset + 14];
+	            const M_offset_15 = M[offset + 15];
 
 	            // Working variables
-	            var a = H[0];
-	            var b = H[1];
-	            var c = H[2];
-	            var d = H[3];
+	            let a = H[0];
+	            let b = H[1];
+	            let c = H[2];
+	            let d = H[3];
 
 	            // Computation
 	            a = FF(a, b, c, d, M_offset_0,  7,  T[0]);
@@ -1671,17 +1671,17 @@
 
 	        _doFinalize: function () {
 	            // Shortcuts
-	            var data = this._data;
-	            var dataWords = data.words;
+	            const data = this._data;
+	            const dataWords = data.words;
 
-	            var nBitsTotal = this._nDataBytes * 8;
-	            var nBitsLeft = data.sigBytes * 8;
+	            const nBitsTotal = this._nDataBytes * 8;
+	            const nBitsLeft = data.sigBytes * 8;
 
 	            // Add padding
 	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
 
-	            var nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
-	            var nBitsTotalL = nBitsTotal;
+	            const nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
+	            const nBitsTotalL = nBitsTotal;
 	            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = (
 	                (((nBitsTotalH << 8)  | (nBitsTotalH >>> 24)) & 0x00ff00ff) |
 	                (((nBitsTotalH << 24) | (nBitsTotalH >>> 8))  & 0xff00ff00)
@@ -1697,13 +1697,13 @@
 	            this._process();
 
 	            // Shortcuts
-	            var hash = this._hash;
-	            var H = hash.words;
+	            const hash = this._hash;
+	            const H = hash.words;
 
 	            // Swap endian
-	            for (var i = 0; i < 4; i++) {
+	            for (let i = 0; i < 4; i++) {
 	                // Shortcut
-	                var H_i = H[i];
+	                const H_i = H[i];
 
 	                H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
 	                       (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
@@ -1714,7 +1714,7 @@
 	        },
 
 	        clone: function () {
-	            var clone = Hasher.clone.call(this);
+	            const clone = Hasher.clone.call(this);
 	            clone._hash = this._hash.clone();
 
 	            return clone;
@@ -1722,22 +1722,22 @@
 	    });
 
 	    function FF(a, b, c, d, x, s, t) {
-	        var n = a + ((b & c) | (~b & d)) + x + t;
+	        const n = a + ((b & c) | (~b & d)) + x + t;
 	        return ((n << s) | (n >>> (32 - s))) + b;
 	    }
 
 	    function GG(a, b, c, d, x, s, t) {
-	        var n = a + ((b & d) | (c & ~d)) + x + t;
+	        const n = a + ((b & d) | (c & ~d)) + x + t;
 	        return ((n << s) | (n >>> (32 - s))) + b;
 	    }
 
 	    function HH(a, b, c, d, x, s, t) {
-	        var n = a + (b ^ c ^ d) + x + t;
+	        const n = a + (b ^ c ^ d) + x + t;
 	        return ((n << s) | (n >>> (32 - s))) + b;
 	    }
 
 	    function II(a, b, c, d, x, s, t) {
-	        var n = a + (c ^ (b | ~d)) + x + t;
+	        const n = a + (c ^ (b | ~d)) + x + t;
 	        return ((n << s) | (n >>> (32 - s))) + b;
 	    }
 
@@ -1777,19 +1777,19 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var Hasher = C_lib.Hasher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const Hasher = C_lib.Hasher;
+	    const C_algo = C.algo;
 
 	    // Reusable object
-	    var W = [];
+	    const W = [];
 
 	    /**
 	     * SHA-1 hash algorithm.
 	     */
-	    var SHA1 = C_algo.SHA1 = Hasher.extend({
+	    const SHA1 = C_algo.SHA1 = Hasher.extend({
 	        _doReset: function () {
 	            this._hash = new WordArray.init([
 	                0x67452301, 0xefcdab89,
@@ -1800,25 +1800,25 @@
 
 	        _doProcessBlock: function (M, offset) {
 	            // Shortcut
-	            var H = this._hash.words;
+	            const H = this._hash.words;
 
 	            // Working variables
-	            var a = H[0];
-	            var b = H[1];
-	            var c = H[2];
-	            var d = H[3];
-	            var e = H[4];
+	            let a = H[0];
+	            let b = H[1];
+	            let c = H[2];
+	            let d = H[3];
+	            let e = H[4];
 
 	            // Computation
-	            for (var i = 0; i < 80; i++) {
+	            for (let i = 0; i < 80; i++) {
 	                if (i < 16) {
 	                    W[i] = M[offset + i] | 0;
 	                } else {
-	                    var n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
+	                    const n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
 	                    W[i] = (n << 1) | (n >>> 31);
 	                }
 
-	                var t = ((a << 5) | (a >>> 27)) + e + W[i];
+	                let t = ((a << 5) | (a >>> 27)) + e + W[i];
 	                if (i < 20) {
 	                    t += ((b & c) | (~b & d)) + 0x5a827999;
 	                } else if (i < 40) {
@@ -1846,11 +1846,11 @@
 
 	        _doFinalize: function () {
 	            // Shortcuts
-	            var data = this._data;
-	            var dataWords = data.words;
+	            const data = this._data;
+	            const dataWords = data.words;
 
-	            var nBitsTotal = this._nDataBytes * 8;
-	            var nBitsLeft = data.sigBytes * 8;
+	            const nBitsTotal = this._nDataBytes * 8;
+	            const nBitsLeft = data.sigBytes * 8;
 
 	            // Add padding
 	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
@@ -1866,7 +1866,7 @@
 	        },
 
 	        clone: function () {
-	            var clone = Hasher.clone.call(this);
+	            const clone = Hasher.clone.call(this);
 	            clone._hash = this._hash.clone();
 
 	            return clone;
@@ -1909,21 +1909,21 @@
 
 	(function (Math) {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var Hasher = C_lib.Hasher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const Hasher = C_lib.Hasher;
+	    const C_algo = C.algo;
 
 	    // Initialization and round constants tables
-	    var H = [];
-	    var K = [];
+	    const H = [];
+	    const K = [];
 
 	    // Compute constants
 	    (function () {
 	        function isPrime(n) {
-	            var sqrtN = Math.sqrt(n);
-	            for (var factor = 2; factor <= sqrtN; factor++) {
+	            const sqrtN = Math.sqrt(n);
+	            for (let factor = 2; factor <= sqrtN; factor++) {
 	                if (!(n % factor)) {
 	                    return false;
 	                }
@@ -1936,8 +1936,8 @@
 	            return ((n - (n | 0)) * 0x100000000) | 0;
 	        }
 
-	        var n = 2;
-	        var nPrime = 0;
+	        let n = 2;
+	        let nPrime = 0;
 	        while (nPrime < 64) {
 	            if (isPrime(n)) {
 	                if (nPrime < 8) {
@@ -1953,56 +1953,56 @@
 	    }());
 
 	    // Reusable object
-	    var W = [];
+	    const W = [];
 
 	    /**
 	     * SHA-256 hash algorithm.
 	     */
-	    var SHA256 = C_algo.SHA256 = Hasher.extend({
+	    const SHA256 = C_algo.SHA256 = Hasher.extend({
 	        _doReset: function () {
 	            this._hash = new WordArray.init(H.slice(0));
 	        },
 
 	        _doProcessBlock: function (M, offset) {
 	            // Shortcut
-	            var H = this._hash.words;
+	            const H = this._hash.words;
 
 	            // Working variables
-	            var a = H[0];
-	            var b = H[1];
-	            var c = H[2];
-	            var d = H[3];
-	            var e = H[4];
-	            var f = H[5];
-	            var g = H[6];
-	            var h = H[7];
+	            let a = H[0];
+	            let b = H[1];
+	            let c = H[2];
+	            let d = H[3];
+	            let e = H[4];
+	            let f = H[5];
+	            let g = H[6];
+	            let h = H[7];
 
 	            // Computation
-	            for (var i = 0; i < 64; i++) {
+	            for (let i = 0; i < 64; i++) {
 	                if (i < 16) {
 	                    W[i] = M[offset + i] | 0;
 	                } else {
-	                    var gamma0x = W[i - 15];
-	                    var gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
+	                    const gamma0x = W[i - 15];
+	                    const gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
 	                                  ((gamma0x << 14) | (gamma0x >>> 18)) ^
 	                                   (gamma0x >>> 3);
 
-	                    var gamma1x = W[i - 2];
-	                    var gamma1  = ((gamma1x << 15) | (gamma1x >>> 17)) ^
+	                    const gamma1x = W[i - 2];
+	                    const gamma1  = ((gamma1x << 15) | (gamma1x >>> 17)) ^
 	                                  ((gamma1x << 13) | (gamma1x >>> 19)) ^
 	                                   (gamma1x >>> 10);
 
 	                    W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16];
 	                }
 
-	                var ch  = (e & f) ^ (~e & g);
-	                var maj = (a & b) ^ (a & c) ^ (b & c);
+	                const ch  = (e & f) ^ (~e & g);
+	                const maj = (a & b) ^ (a & c) ^ (b & c);
 
-	                var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
-	                var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
+	                const sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
+	                const sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
 
-	                var t1 = h + sigma1 + ch + K[i] + W[i];
-	                var t2 = sigma0 + maj;
+	                const t1 = h + sigma1 + ch + K[i] + W[i];
+	                const t2 = sigma0 + maj;
 
 	                h = g;
 	                g = f;
@@ -2027,11 +2027,11 @@
 
 	        _doFinalize: function () {
 	            // Shortcuts
-	            var data = this._data;
-	            var dataWords = data.words;
+	            const data = this._data;
+	            const dataWords = data.words;
 
-	            var nBitsTotal = this._nDataBytes * 8;
-	            var nBitsLeft = data.sigBytes * 8;
+	            const nBitsTotal = this._nDataBytes * 8;
+	            const nBitsLeft = data.sigBytes * 8;
 
 	            // Add padding
 	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
@@ -2047,7 +2047,7 @@
 	        },
 
 	        clone: function () {
-	            var clone = Hasher.clone.call(this);
+	            const clone = Hasher.clone.call(this);
 	            clone._hash = this._hash.clone();
 
 	            return clone;
@@ -2090,16 +2090,16 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var C_algo = C.algo;
-	    var SHA256 = C_algo.SHA256;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const C_algo = C.algo;
+	    const SHA256 = C_algo.SHA256;
 
 	    /**
 	     * SHA-224 hash algorithm.
 	     */
-	    var SHA224 = C_algo.SHA224 = SHA256.extend({
+	    const SHA224 = C_algo.SHA224 = SHA256.extend({
 	        _doReset: function () {
 	            this._hash = new WordArray.init([
 	                0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
@@ -2108,7 +2108,7 @@
 	        },
 
 	        _doFinalize: function () {
-	            var hash = SHA256._doFinalize.call(this);
+	            const hash = SHA256._doFinalize.call(this);
 
 	            hash.sigBytes -= 4;
 
@@ -2152,20 +2152,20 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var Hasher = C_lib.Hasher;
-	    var C_x64 = C.x64;
-	    var X64Word = C_x64.Word;
-	    var X64WordArray = C_x64.WordArray;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const Hasher = C_lib.Hasher;
+	    const C_x64 = C.x64;
+	    const X64Word = C_x64.Word;
+	    const X64WordArray = C_x64.WordArray;
+	    const C_algo = C.algo;
 
 	    function X64Word_create() {
 	        return X64Word.create.apply(X64Word, arguments);
 	    }
 
 	    // Constants
-	    var K = [
+	    const K = [
 	        X64Word_create(0x428a2f98, 0xd728ae22), X64Word_create(0x71374491, 0x23ef65cd),
 	        X64Word_create(0xb5c0fbcf, 0xec4d3b2f), X64Word_create(0xe9b5dba5, 0x8189dbbc),
 	        X64Word_create(0x3956c25b, 0xf348b538), X64Word_create(0x59f111f1, 0xb605d019),
@@ -2209,9 +2209,9 @@
 	    ];
 
 	    // Reusable objects
-	    var W = [];
+	    const W = [];
 	    (function () {
-	        for (var i = 0; i < 80; i++) {
+	        for (let i = 0; i < 80; i++) {
 	            W[i] = X64Word_create();
 	        }
 	    }());
@@ -2219,7 +2219,7 @@
 	    /**
 	     * SHA-512 hash algorithm.
 	     */
-	    var SHA512 = C_algo.SHA512 = Hasher.extend({
+	    const SHA512 = C_algo.SHA512 = Hasher.extend({
 	        _doReset: function () {
 	            this._hash = new X64WordArray.init([
 	                new X64Word.init(0x6a09e667, 0xf3bcc908), new X64Word.init(0xbb67ae85, 0x84caa73b),
@@ -2231,59 +2231,59 @@
 
 	        _doProcessBlock: function (M, offset) {
 	            // Shortcuts
-	            var H = this._hash.words;
+	            const H = this._hash.words;
 
-	            var H0 = H[0];
-	            var H1 = H[1];
-	            var H2 = H[2];
-	            var H3 = H[3];
-	            var H4 = H[4];
-	            var H5 = H[5];
-	            var H6 = H[6];
-	            var H7 = H[7];
+	            const H0 = H[0];
+	            const H1 = H[1];
+	            const H2 = H[2];
+	            const H3 = H[3];
+	            const H4 = H[4];
+	            const H5 = H[5];
+	            const H6 = H[6];
+	            const H7 = H[7];
 
-	            var H0h = H0.high;
-	            var H0l = H0.low;
-	            var H1h = H1.high;
-	            var H1l = H1.low;
-	            var H2h = H2.high;
-	            var H2l = H2.low;
-	            var H3h = H3.high;
-	            var H3l = H3.low;
-	            var H4h = H4.high;
-	            var H4l = H4.low;
-	            var H5h = H5.high;
-	            var H5l = H5.low;
-	            var H6h = H6.high;
-	            var H6l = H6.low;
-	            var H7h = H7.high;
-	            var H7l = H7.low;
+	            const H0h = H0.high;
+	            let H0l = H0.low;
+	            const H1h = H1.high;
+	            let H1l = H1.low;
+	            const H2h = H2.high;
+	            let H2l = H2.low;
+	            const H3h = H3.high;
+	            let H3l = H3.low;
+	            const H4h = H4.high;
+	            let H4l = H4.low;
+	            const H5h = H5.high;
+	            let H5l = H5.low;
+	            const H6h = H6.high;
+	            let H6l = H6.low;
+	            const H7h = H7.high;
+	            let H7l = H7.low;
 
 	            // Working variables
-	            var ah = H0h;
-	            var al = H0l;
-	            var bh = H1h;
-	            var bl = H1l;
-	            var ch = H2h;
-	            var cl = H2l;
-	            var dh = H3h;
-	            var dl = H3l;
-	            var eh = H4h;
-	            var el = H4l;
-	            var fh = H5h;
-	            var fl = H5l;
-	            var gh = H6h;
-	            var gl = H6l;
-	            var hh = H7h;
-	            var hl = H7l;
+	            let ah = H0h;
+	            let al = H0l;
+	            let bh = H1h;
+	            let bl = H1l;
+	            let ch = H2h;
+	            let cl = H2l;
+	            let dh = H3h;
+	            let dl = H3l;
+	            let eh = H4h;
+	            let el = H4l;
+	            let fh = H5h;
+	            let fl = H5l;
+	            let gh = H6h;
+	            let gl = H6l;
+	            let hh = H7h;
+	            let hl = H7l;
 
 	            // Rounds
-	            for (var i = 0; i < 80; i++) {
+	            for (let i = 0; i < 80; i++) {
 	                var Wil;
 	                var Wih;
 
 	                // Shortcut
-	                var Wi = W[i];
+	                const Wi = W[i];
 
 	                // Extend message
 	                if (i < 16) {
@@ -2291,27 +2291,27 @@
 	                    Wil = Wi.low  = M[offset + i * 2 + 1] | 0;
 	                } else {
 	                    // Gamma0
-	                    var gamma0x  = W[i - 15];
-	                    var gamma0xh = gamma0x.high;
-	                    var gamma0xl = gamma0x.low;
-	                    var gamma0h  = ((gamma0xh >>> 1) | (gamma0xl << 31)) ^ ((gamma0xh >>> 8) | (gamma0xl << 24)) ^ (gamma0xh >>> 7);
-	                    var gamma0l  = ((gamma0xl >>> 1) | (gamma0xh << 31)) ^ ((gamma0xl >>> 8) | (gamma0xh << 24)) ^ ((gamma0xl >>> 7) | (gamma0xh << 25));
+	                    const gamma0x  = W[i - 15];
+	                    const gamma0xh = gamma0x.high;
+	                    const gamma0xl = gamma0x.low;
+	                    const gamma0h  = ((gamma0xh >>> 1) | (gamma0xl << 31)) ^ ((gamma0xh >>> 8) | (gamma0xl << 24)) ^ (gamma0xh >>> 7);
+	                    const gamma0l  = ((gamma0xl >>> 1) | (gamma0xh << 31)) ^ ((gamma0xl >>> 8) | (gamma0xh << 24)) ^ ((gamma0xl >>> 7) | (gamma0xh << 25));
 
 	                    // Gamma1
-	                    var gamma1x  = W[i - 2];
-	                    var gamma1xh = gamma1x.high;
-	                    var gamma1xl = gamma1x.low;
-	                    var gamma1h  = ((gamma1xh >>> 19) | (gamma1xl << 13)) ^ ((gamma1xh << 3) | (gamma1xl >>> 29)) ^ (gamma1xh >>> 6);
-	                    var gamma1l  = ((gamma1xl >>> 19) | (gamma1xh << 13)) ^ ((gamma1xl << 3) | (gamma1xh >>> 29)) ^ ((gamma1xl >>> 6) | (gamma1xh << 26));
+	                    const gamma1x  = W[i - 2];
+	                    const gamma1xh = gamma1x.high;
+	                    const gamma1xl = gamma1x.low;
+	                    const gamma1h  = ((gamma1xh >>> 19) | (gamma1xl << 13)) ^ ((gamma1xh << 3) | (gamma1xl >>> 29)) ^ (gamma1xh >>> 6);
+	                    const gamma1l  = ((gamma1xl >>> 19) | (gamma1xh << 13)) ^ ((gamma1xl << 3) | (gamma1xh >>> 29)) ^ ((gamma1xl >>> 6) | (gamma1xh << 26));
 
 	                    // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
-	                    var Wi7  = W[i - 7];
-	                    var Wi7h = Wi7.high;
-	                    var Wi7l = Wi7.low;
+	                    const Wi7  = W[i - 7];
+	                    const Wi7h = Wi7.high;
+	                    const Wi7l = Wi7.low;
 
-	                    var Wi16  = W[i - 16];
-	                    var Wi16h = Wi16.high;
-	                    var Wi16l = Wi16.low;
+	                    const Wi16  = W[i - 16];
+	                    const Wi16h = Wi16.high;
+	                    const Wi16l = Wi16.low;
 
 	                    Wil = gamma0l + Wi7l;
 	                    Wih = gamma0h + Wi7h + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0);
@@ -2324,20 +2324,20 @@
 	                    Wi.low  = Wil;
 	                }
 
-	                var chh  = (eh & fh) ^ (~eh & gh);
-	                var chl  = (el & fl) ^ (~el & gl);
-	                var majh = (ah & bh) ^ (ah & ch) ^ (bh & ch);
-	                var majl = (al & bl) ^ (al & cl) ^ (bl & cl);
+	                const chh  = (eh & fh) ^ (~eh & gh);
+	                const chl  = (el & fl) ^ (~el & gl);
+	                const majh = (ah & bh) ^ (ah & ch) ^ (bh & ch);
+	                const majl = (al & bl) ^ (al & cl) ^ (bl & cl);
 
-	                var sigma0h = ((ah >>> 28) | (al << 4))  ^ ((ah << 30)  | (al >>> 2)) ^ ((ah << 25) | (al >>> 7));
-	                var sigma0l = ((al >>> 28) | (ah << 4))  ^ ((al << 30)  | (ah >>> 2)) ^ ((al << 25) | (ah >>> 7));
-	                var sigma1h = ((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9));
-	                var sigma1l = ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9));
+	                const sigma0h = ((ah >>> 28) | (al << 4))  ^ ((ah << 30)  | (al >>> 2)) ^ ((ah << 25) | (al >>> 7));
+	                const sigma0l = ((al >>> 28) | (ah << 4))  ^ ((al << 30)  | (ah >>> 2)) ^ ((al << 25) | (ah >>> 7));
+	                const sigma1h = ((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9));
+	                const sigma1l = ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9));
 
 	                // t1 = h + sigma1 + ch + K[i] + W[i]
-	                var Ki  = K[i];
-	                var Kih = Ki.high;
-	                var Kil = Ki.low;
+	                const Ki  = K[i];
+	                const Kih = Ki.high;
+	                const Kil = Ki.low;
 
 	                var t1l = hl + sigma1l;
 	                var t1h = hh + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0);
@@ -2349,8 +2349,8 @@
 	                var t1h = t1h + Wih + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0);
 
 	                // t2 = sigma0 + maj
-	                var t2l = sigma0l + majl;
-	                var t2h = sigma0h + majh + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0);
+	                const t2l = sigma0l + majl;
+	                const t2h = sigma0h + majh + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0);
 
 	                // Update working variables
 	                hh = gh;
@@ -2392,11 +2392,11 @@
 
 	        _doFinalize: function () {
 	            // Shortcuts
-	            var data = this._data;
-	            var dataWords = data.words;
+	            const data = this._data;
+	            const dataWords = data.words;
 
-	            var nBitsTotal = this._nDataBytes * 8;
-	            var nBitsLeft = data.sigBytes * 8;
+	            const nBitsTotal = this._nDataBytes * 8;
+	            const nBitsLeft = data.sigBytes * 8;
 
 	            // Add padding
 	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
@@ -2408,14 +2408,14 @@
 	            this._process();
 
 	            // Convert hash to 32-bit word array before returning
-	            var hash = this._hash.toX32();
+	            const hash = this._hash.toX32();
 
 	            // Return final computed hash
 	            return hash;
 	        },
 
 	        clone: function () {
-	            var clone = Hasher.clone.call(this);
+	            const clone = Hasher.clone.call(this);
 	            clone._hash = this._hash.clone();
 
 	            return clone;
@@ -2460,17 +2460,17 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_x64 = C.x64;
-	    var X64Word = C_x64.Word;
-	    var X64WordArray = C_x64.WordArray;
-	    var C_algo = C.algo;
-	    var SHA512 = C_algo.SHA512;
+	    const C = CryptoJS;
+	    const C_x64 = C.x64;
+	    const X64Word = C_x64.Word;
+	    const X64WordArray = C_x64.WordArray;
+	    const C_algo = C.algo;
+	    const SHA512 = C_algo.SHA512;
 
 	    /**
 	     * SHA-384 hash algorithm.
 	     */
-	    var SHA384 = C_algo.SHA384 = SHA512.extend({
+	    const SHA384 = C_algo.SHA384 = SHA512.extend({
 	        _doReset: function () {
 	            this._hash = new X64WordArray.init([
 	                new X64Word.init(0xcbbb9d5d, 0xc1059ed8), new X64Word.init(0x629a292a, 0x367cd507),
@@ -2481,7 +2481,7 @@
 	        },
 
 	        _doFinalize: function () {
-	            var hash = SHA512._doFinalize.call(this);
+	            const hash = SHA512._doFinalize.call(this);
 
 	            hash.sigBytes -= 16;
 
@@ -2525,28 +2525,28 @@
 
 	(function (Math) {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var Hasher = C_lib.Hasher;
-	    var C_x64 = C.x64;
-	    var X64Word = C_x64.Word;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const Hasher = C_lib.Hasher;
+	    const C_x64 = C.x64;
+	    const X64Word = C_x64.Word;
+	    const C_algo = C.algo;
 
 	    // Constants tables
-	    var RHO_OFFSETS = [];
-	    var PI_INDEXES  = [];
-	    var ROUND_CONSTANTS = [];
+	    const RHO_OFFSETS = [];
+	    const PI_INDEXES  = [];
+	    const ROUND_CONSTANTS = [];
 
 	    // Compute Constants
 	    (function () {
 	        // Compute rho offset constants
 	        var x = 1, y = 0;
-	        for (var t = 0; t < 24; t++) {
+	        for (let t = 0; t < 24; t++) {
 	            RHO_OFFSETS[x + 5 * y] = ((t + 1) * (t + 2) / 2) % 64;
 
-	            var newX = y % 5;
-	            var newY = (2 * x + 3 * y) % 5;
+	            const newX = y % 5;
+	            const newY = (2 * x + 3 * y) % 5;
 	            x = newX;
 	            y = newY;
 	        }
@@ -2559,14 +2559,14 @@
 	        }
 
 	        // Compute round constants
-	        var LFSR = 0x01;
-	        for (var i = 0; i < 24; i++) {
-	            var roundConstantMsw = 0;
-	            var roundConstantLsw = 0;
+	        let LFSR = 0x01;
+	        for (let i = 0; i < 24; i++) {
+	            let roundConstantMsw = 0;
+	            let roundConstantLsw = 0;
 
-	            for (var j = 0; j < 7; j++) {
+	            for (let j = 0; j < 7; j++) {
 	                if (LFSR & 0x01) {
-	                    var bitPosition = (1 << j) - 1;
+	                    const bitPosition = (1 << j) - 1;
 	                    if (bitPosition < 32) {
 	                        roundConstantLsw ^= 1 << bitPosition;
 	                    } else /* if (bitPosition >= 32) */ {
@@ -2588,9 +2588,9 @@
 	    }());
 
 	    // Reusable objects for temporary values
-	    var T = [];
+	    const T = [];
 	    (function () {
-	        for (var i = 0; i < 25; i++) {
+	        for (let i = 0; i < 25; i++) {
 	            T[i] = X64Word.create();
 	        }
 	    }());
@@ -2598,7 +2598,7 @@
 	    /**
 	     * SHA-3 hash algorithm.
 	     */
-	    var SHA3 = C_algo.SHA3 = Hasher.extend({
+	    const SHA3 = C_algo.SHA3 = Hasher.extend({
 	        /**
 	         * Configuration options.
 	         *
@@ -2612,8 +2612,8 @@
 	        }),
 
 	        _doReset: function () {
-	            var state = this._state = []
-	            for (var i = 0; i < 25; i++) {
+	            const state = this._state = []
+	            for (let i = 0; i < 25; i++) {
 	                state[i] = new X64Word.init();
 	            }
 
@@ -2622,14 +2622,14 @@
 
 	        _doProcessBlock: function (M, offset) {
 	            // Shortcuts
-	            var state = this._state;
-	            var nBlockSizeLanes = this.blockSize / 2;
+	            const state = this._state;
+	            const nBlockSizeLanes = this.blockSize / 2;
 
 	            // Absorb
-	            for (var i = 0; i < nBlockSizeLanes; i++) {
+	            for (let i = 0; i < nBlockSizeLanes; i++) {
 	                // Shortcuts
-	                var M2i  = M[offset + 2 * i];
-	                var M2i1 = M[offset + 2 * i + 1];
+	                let M2i  = M[offset + 2 * i];
+	                let M2i1 = M[offset + 2 * i + 1];
 
 	                // Swap endian
 	                M2i = (
@@ -2648,7 +2648,7 @@
 	            }
 
 	            // Rounds
-	            for (var round = 0; round < 24; round++) {
+	            for (let round = 0; round < 24; round++) {
 	                // Theta
 	                for (var x = 0; x < 5; x++) {
 	                    // Mix column lanes
@@ -2660,16 +2660,16 @@
 	                    }
 
 	                    // Temporary values
-	                    var Tx = T[x];
+	                    const Tx = T[x];
 	                    Tx.high = tMsw;
 	                    Tx.low  = tLsw;
 	                }
 	                for (var x = 0; x < 5; x++) {
 	                    // Shortcuts
-	                    var Tx4 = T[(x + 4) % 5];
-	                    var Tx1 = T[(x + 1) % 5];
-	                    var Tx1Msw = Tx1.high;
-	                    var Tx1Lsw = Tx1.low;
+	                    const Tx4 = T[(x + 4) % 5];
+	                    const Tx1 = T[(x + 1) % 5];
+	                    const Tx1Msw = Tx1.high;
+	                    const Tx1Lsw = Tx1.low;
 
 	                    // Mix surrounding columns
 	                    var tMsw = Tx4.high ^ ((Tx1Msw << 1) | (Tx1Lsw >>> 31));
@@ -2688,9 +2688,9 @@
 
 	                    // Shortcuts
 	                    var lane = state[laneIndex];
-	                    var laneMsw = lane.high;
-	                    var laneLsw = lane.low;
-	                    var rhoOffset = RHO_OFFSETS[laneIndex];
+	                    const laneMsw = lane.high;
+	                    const laneLsw = lane.low;
+	                    const rhoOffset = RHO_OFFSETS[laneIndex];
 
 	                    // Rotate lanes
 	                    if (rhoOffset < 32) {
@@ -2702,14 +2702,14 @@
 	                    }
 
 	                    // Transpose lanes
-	                    var TPiLane = T[PI_INDEXES[laneIndex]];
+	                    const TPiLane = T[PI_INDEXES[laneIndex]];
 	                    TPiLane.high = tMsw;
 	                    TPiLane.low  = tLsw;
 	                }
 
 	                // Rho pi at x = y = 0
-	                var T0 = T[0];
-	                var state0 = state[0];
+	                const T0 = T[0];
+	                const state0 = state[0];
 	                T0.high = state0.high;
 	                T0.low  = state0.low;
 
@@ -2719,9 +2719,9 @@
 	                        // Shortcuts
 	                        var laneIndex = x + 5 * y;
 	                        var lane = state[laneIndex];
-	                        var TLane = T[laneIndex];
-	                        var Tx1Lane = T[((x + 1) % 5) + 5 * y];
-	                        var Tx2Lane = T[((x + 2) % 5) + 5 * y];
+	                        const TLane = T[laneIndex];
+	                        const Tx1Lane = T[((x + 1) % 5) + 5 * y];
+	                        const Tx2Lane = T[((x + 2) % 5) + 5 * y];
 
 	                        // Mix rows
 	                        lane.high = TLane.high ^ (~Tx1Lane.high & Tx2Lane.high);
@@ -2731,7 +2731,7 @@
 
 	                // Iota
 	                var lane = state[0];
-	                var roundConstant = ROUND_CONSTANTS[round];
+	                const roundConstant = ROUND_CONSTANTS[round];
 	                lane.high ^= roundConstant.high;
 	                lane.low  ^= roundConstant.low;
 	            }
@@ -2739,11 +2739,11 @@
 
 	        _doFinalize: function () {
 	            // Shortcuts
-	            var data = this._data;
-	            var dataWords = data.words;
-	            var nBitsTotal = this._nDataBytes * 8;
-	            var nBitsLeft = data.sigBytes * 8;
-	            var blockSizeBits = this.blockSize * 32;
+	            const data = this._data;
+	            const dataWords = data.words;
+	            const nBitsTotal = this._nDataBytes * 8;
+	            const nBitsLeft = data.sigBytes * 8;
+	            const blockSizeBits = this.blockSize * 32;
 
 	            // Add padding
 	            dataWords[nBitsLeft >>> 5] |= 0x1 << (24 - nBitsLeft % 32);
@@ -2754,17 +2754,17 @@
 	            this._process();
 
 	            // Shortcuts
-	            var state = this._state;
-	            var outputLengthBytes = this.cfg.outputLength / 8;
-	            var outputLengthLanes = outputLengthBytes / 8;
+	            const state = this._state;
+	            const outputLengthBytes = this.cfg.outputLength / 8;
+	            const outputLengthLanes = outputLengthBytes / 8;
 
 	            // Squeeze
-	            var hashWords = [];
-	            for (var i = 0; i < outputLengthLanes; i++) {
+	            const hashWords = [];
+	            for (let i = 0; i < outputLengthLanes; i++) {
 	                // Shortcuts
-	                var lane = state[i];
-	                var laneMsw = lane.high;
-	                var laneLsw = lane.low;
+	                const lane = state[i];
+	                let laneMsw = lane.high;
+	                let laneLsw = lane.low;
 
 	                // Swap endian
 	                laneMsw = (
@@ -2786,10 +2786,10 @@
 	        },
 
 	        clone: function () {
-	            var clone = Hasher.clone.call(this);
+	            const clone = Hasher.clone.call(this);
 
-	            var state = clone._state = this._state.slice(0);
-	            for (var i = 0; i < 25; i++) {
+	            const state = clone._state = this._state.slice(0);
+	            for (let i = 0; i < 25; i++) {
 	                state[i] = state[i].clone();
 	            }
 
@@ -2844,45 +2844,45 @@
 
 	(function (Math) {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var Hasher = C_lib.Hasher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const Hasher = C_lib.Hasher;
+	    const C_algo = C.algo;
 
 	    // Constants table
-	    var _zl = WordArray.create([
+	    const _zl = WordArray.create([
 	        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
 	        7,  4, 13,  1, 10,  6, 15,  3, 12,  0,  9,  5,  2, 14, 11,  8,
 	        3, 10, 14,  4,  9, 15,  8,  1,  2,  7,  0,  6, 13, 11,  5, 12,
 	        1,  9, 11, 10,  0,  8, 12,  4, 13,  3,  7, 15, 14,  5,  6,  2,
 	        4,  0,  5,  9,  7, 12,  2, 10, 14,  1,  3,  8, 11,  6, 15, 13]);
-	    var _zr = WordArray.create([
+	    const _zr = WordArray.create([
 	        5, 14,  7,  0,  9,  2, 11,  4, 13,  6, 15,  8,  1, 10,  3, 12,
 	        6, 11,  3,  7,  0, 13,  5, 10, 14, 15,  8, 12,  4,  9,  1,  2,
 	        15,  5,  1,  3,  7, 14,  6,  9, 11,  8, 12,  2, 10,  0,  4, 13,
 	        8,  6,  4,  1,  3, 11, 15,  0,  5, 12,  2, 13,  9,  7, 10, 14,
 	        12, 15, 10,  4,  1,  5,  8,  7,  6,  2, 13, 14,  0,  3,  9, 11]);
-	    var _sl = WordArray.create([
+	    const _sl = WordArray.create([
 	         11, 14, 15, 12,  5,  8,  7,  9, 11, 13, 14, 15,  6,  7,  9,  8,
 	        7, 6,   8, 13, 11,  9,  7, 15,  7, 12, 15,  9, 11,  7, 13, 12,
 	        11, 13,  6,  7, 14,  9, 13, 15, 14,  8, 13,  6,  5, 12,  7,  5,
 	          11, 12, 14, 15, 14, 15,  9,  8,  9, 14,  5,  6,  8,  6,  5, 12,
 	        9, 15,  5, 11,  6,  8, 13, 12,  5, 12, 13, 14, 11,  8,  5,  6 ]);
-	    var _sr = WordArray.create([
+	    const _sr = WordArray.create([
 	        8,  9,  9, 11, 13, 15, 15,  5,  7,  7,  8, 11, 14, 14, 12,  6,
 	        9, 13, 15,  7, 12,  8,  9, 11,  7,  7, 12,  7,  6, 15, 13, 11,
 	        9,  7, 15, 11,  8,  6,  6, 14, 12, 13,  5, 14, 13, 13,  7,  5,
 	        15,  5,  8, 11, 14, 14,  6, 14,  6,  9, 12,  9, 12,  5, 15,  8,
 	        8,  5, 12,  9, 12,  5, 14,  6,  8, 13,  6,  5, 15, 13, 11, 11 ]);
 
-	    var _hl =  WordArray.create([ 0x00000000, 0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xA953FD4E]);
-	    var _hr =  WordArray.create([ 0x50A28BE6, 0x5C4DD124, 0x6D703EF3, 0x7A6D76E9, 0x00000000]);
+	    const _hl =  WordArray.create([ 0x00000000, 0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xA953FD4E]);
+	    const _hr =  WordArray.create([ 0x50A28BE6, 0x5C4DD124, 0x6D703EF3, 0x7A6D76E9, 0x00000000]);
 
 	    /**
 	     * RIPEMD160 hash algorithm.
 	     */
-	    var RIPEMD160 = C_algo.RIPEMD160 = Hasher.extend({
+	    const RIPEMD160 = C_algo.RIPEMD160 = Hasher.extend({
 	        _doReset: function () {
 	            this._hash  = WordArray.create([0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0]);
 	        },
@@ -2892,8 +2892,8 @@
 	            // Swap endian
 	            for (var i = 0; i < 16; i++) {
 	                // Shortcuts
-	                var offset_i = offset + i;
-	                var M_offset_i = M[offset_i];
+	                const offset_i = offset + i;
+	                const M_offset_i = M[offset_i];
 
 	                // Swap
 	                M[offset_i] = (
@@ -2902,17 +2902,17 @@
 	                );
 	            }
 	            // Shortcut
-	            var H  = this._hash.words;
-	            var hl = _hl.words;
-	            var hr = _hr.words;
-	            var zl = _zl.words;
-	            var zr = _zr.words;
-	            var sl = _sl.words;
-	            var sr = _sr.words;
+	            const H  = this._hash.words;
+	            const hl = _hl.words;
+	            const hr = _hr.words;
+	            const zl = _zl.words;
+	            const zr = _zr.words;
+	            const sl = _sl.words;
+	            const sr = _sr.words;
 
 	            // Working variables
-	            var al, bl, cl, dl, el;
-	            var ar, br, cr, dr, er;
+	            let al, bl, cl, dl, el;
+	            let ar, br, cr, dr, er;
 
 	            ar = al = H[0];
 	            br = bl = H[1];
@@ -2920,7 +2920,7 @@
 	            dr = dl = H[3];
 	            er = el = H[4];
 	            // Computation
-	            var t;
+	            let t;
 	            for (var i = 0; i < 80; i += 1) {
 	                t = (al +  M[offset+zl[i]])|0;
 	                if (i<16){
@@ -2975,11 +2975,11 @@
 
 	        _doFinalize: function () {
 	            // Shortcuts
-	            var data = this._data;
-	            var dataWords = data.words;
+	            const data = this._data;
+	            const dataWords = data.words;
 
-	            var nBitsTotal = this._nDataBytes * 8;
-	            var nBitsLeft = data.sigBytes * 8;
+	            const nBitsTotal = this._nDataBytes * 8;
+	            const nBitsLeft = data.sigBytes * 8;
 
 	            // Add padding
 	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
@@ -2993,13 +2993,13 @@
 	            this._process();
 
 	            // Shortcuts
-	            var hash = this._hash;
-	            var H = hash.words;
+	            const hash = this._hash;
+	            const H = hash.words;
 
 	            // Swap endian
-	            for (var i = 0; i < 5; i++) {
+	            for (let i = 0; i < 5; i++) {
 	                // Shortcut
-	                var H_i = H[i];
+	                const H_i = H[i];
 
 	                // Swap
 	                H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
@@ -3011,7 +3011,7 @@
 	        },
 
 	        clone: function () {
-	            var clone = Hasher.clone.call(this);
+	            const clone = Hasher.clone.call(this);
 	            clone._hash = this._hash.clone();
 
 	            return clone;
@@ -3082,17 +3082,17 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var Base = C_lib.Base;
-	    var C_enc = C.enc;
-	    var Utf8 = C_enc.Utf8;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const Base = C_lib.Base;
+	    const C_enc = C.enc;
+	    const Utf8 = C_enc.Utf8;
+	    const C_algo = C.algo;
 
 	    /**
 	     * HMAC algorithm.
 	     */
-	    var HMAC = C_algo.HMAC = Base.extend({
+	    const HMAC = C_algo.HMAC = Base.extend({
 	        /**
 	         * Initializes a newly created HMAC.
 	         *
@@ -3108,13 +3108,13 @@
 	            hasher = this._hasher = new hasher.init();
 
 	            // Convert string to WordArray, else assume WordArray already
-	            if (typeof key == 'string') {
+	            if (typeof key === 'string') {
 	                key = Utf8.parse(key);
 	            }
 
 	            // Shortcuts
-	            var hasherBlockSize = hasher.blockSize;
-	            var hasherBlockSizeBytes = hasherBlockSize * 4;
+	            const hasherBlockSize = hasher.blockSize;
+	            const hasherBlockSizeBytes = hasherBlockSize * 4;
 
 	            // Allow arbitrary length keys
 	            if (key.sigBytes > hasherBlockSizeBytes) {
@@ -3125,15 +3125,15 @@
 	            key.clamp();
 
 	            // Clone key for inner and outer pads
-	            var oKey = this._oKey = key.clone();
-	            var iKey = this._iKey = key.clone();
+	            const oKey = this._oKey = key.clone();
+	            const iKey = this._iKey = key.clone();
 
 	            // Shortcuts
-	            var oKeyWords = oKey.words;
-	            var iKeyWords = iKey.words;
+	            const oKeyWords = oKey.words;
+	            const iKeyWords = iKey.words;
 
 	            // XOR keys with pad constants
-	            for (var i = 0; i < hasherBlockSize; i++) {
+	            for (let i = 0; i < hasherBlockSize; i++) {
 	                oKeyWords[i] ^= 0x5c5c5c5c;
 	                iKeyWords[i] ^= 0x36363636;
 	            }
@@ -3152,7 +3152,7 @@
 	         */
 	        reset: function () {
 	            // Shortcut
-	            var hasher = this._hasher;
+	            const hasher = this._hasher;
 
 	            // Reset
 	            hasher.reset();
@@ -3194,12 +3194,12 @@
 	         */
 	        finalize: function (messageUpdate) {
 	            // Shortcut
-	            var hasher = this._hasher;
+	            const hasher = this._hasher;
 
 	            // Compute HMAC
-	            var innerHash = hasher.finalize(messageUpdate);
+	            const innerHash = hasher.finalize(messageUpdate);
 	            hasher.reset();
-	            var hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
+	            const hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
 
 	            return hmac;
 	        }
@@ -3209,18 +3209,18 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var Base = C_lib.Base;
-	    var WordArray = C_lib.WordArray;
-	    var C_algo = C.algo;
-	    var SHA256 = C_algo.SHA256;
-	    var HMAC = C_algo.HMAC;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const Base = C_lib.Base;
+	    const WordArray = C_lib.WordArray;
+	    const C_algo = C.algo;
+	    const SHA256 = C_algo.SHA256;
+	    const HMAC = C_algo.HMAC;
 
 	    /**
 	     * Password-Based Key Derivation Function 2 algorithm.
 	     */
-	    var PBKDF2 = C_algo.PBKDF2 = Base.extend({
+	    const PBKDF2 = C_algo.PBKDF2 = Base.extend({
 	        /**
 	         * Configuration options.
 	         *
@@ -3263,41 +3263,41 @@
 	         */
 	        compute: function (password, salt) {
 	            // Shortcut
-	            var cfg = this.cfg;
+	            const cfg = this.cfg;
 
 	            // Init HMAC
-	            var hmac = HMAC.create(cfg.hasher, password);
+	            const hmac = HMAC.create(cfg.hasher, password);
 
 	            // Initial values
-	            var derivedKey = WordArray.create();
-	            var blockIndex = WordArray.create([0x00000001]);
+	            const derivedKey = WordArray.create();
+	            const blockIndex = WordArray.create([0x00000001]);
 
 	            // Shortcuts
-	            var derivedKeyWords = derivedKey.words;
-	            var blockIndexWords = blockIndex.words;
-	            var keySize = cfg.keySize;
-	            var iterations = cfg.iterations;
+	            const derivedKeyWords = derivedKey.words;
+	            const blockIndexWords = blockIndex.words;
+	            const keySize = cfg.keySize;
+	            const iterations = cfg.iterations;
 
 	            // Generate key
 	            while (derivedKeyWords.length < keySize) {
-	                var block = hmac.update(salt).finalize(blockIndex);
+	                const block = hmac.update(salt).finalize(blockIndex);
 	                hmac.reset();
 
 	                // Shortcuts
-	                var blockWords = block.words;
-	                var blockWordsLength = blockWords.length;
+	                const blockWords = block.words;
+	                const blockWordsLength = blockWords.length;
 
 	                // Iterations
-	                var intermediate = block;
-	                for (var i = 1; i < iterations; i++) {
+	                let intermediate = block;
+	                for (let i = 1; i < iterations; i++) {
 	                    intermediate = hmac.finalize(intermediate);
 	                    hmac.reset();
 
 	                    // Shortcut
-	                    var intermediateWords = intermediate.words;
+	                    const intermediateWords = intermediate.words;
 
 	                    // XOR intermediate with block
-	                    for (var j = 0; j < blockWordsLength; j++) {
+	                    for (let j = 0; j < blockWordsLength; j++) {
 	                        blockWords[j] ^= intermediateWords[j];
 	                    }
 	                }
@@ -3336,18 +3336,18 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var Base = C_lib.Base;
-	    var WordArray = C_lib.WordArray;
-	    var C_algo = C.algo;
-	    var MD5 = C_algo.MD5;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const Base = C_lib.Base;
+	    const WordArray = C_lib.WordArray;
+	    const C_algo = C.algo;
+	    const MD5 = C_algo.MD5;
 
 	    /**
 	     * This key derivation function is meant to conform with EVP_BytesToKey.
 	     * www.openssl.org/docs/crypto/EVP_BytesToKey.html
 	     */
-	    var EvpKDF = C_algo.EvpKDF = Base.extend({
+	    const EvpKDF = C_algo.EvpKDF = Base.extend({
 	        /**
 	         * Configuration options.
 	         *
@@ -3389,21 +3389,21 @@
 	         *     var key = kdf.compute(password, salt);
 	         */
 	        compute: function (password, salt) {
-	            var block;
+	            let block;
 
 	            // Shortcut
-	            var cfg = this.cfg;
+	            const cfg = this.cfg;
 
 	            // Init hasher
-	            var hasher = cfg.hasher.create();
+	            const hasher = cfg.hasher.create();
 
 	            // Initial values
-	            var derivedKey = WordArray.create();
+	            const derivedKey = WordArray.create();
 
 	            // Shortcuts
-	            var derivedKeyWords = derivedKey.words;
-	            var keySize = cfg.keySize;
-	            var iterations = cfg.iterations;
+	            const derivedKeyWords = derivedKey.words;
+	            const keySize = cfg.keySize;
+	            const iterations = cfg.iterations;
 
 	            // Generate key
 	            while (derivedKeyWords.length < keySize) {
@@ -3414,7 +3414,7 @@
 	                hasher.reset();
 
 	                // Iterations
-	                for (var i = 1; i < iterations; i++) {
+	                for (let i = 1; i < iterations; i++) {
 	                    block = hasher.finalize(block);
 	                    hasher.reset();
 	                }
@@ -3455,16 +3455,16 @@
 	 */
 	CryptoJS.lib.Cipher || (function (undefined) {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var Base = C_lib.Base;
-	    var WordArray = C_lib.WordArray;
-	    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm;
-	    var C_enc = C.enc;
-	    var Utf8 = C_enc.Utf8;
-	    var Base64 = C_enc.Base64;
-	    var C_algo = C.algo;
-	    var EvpKDF = C_algo.EvpKDF;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const Base = C_lib.Base;
+	    const WordArray = C_lib.WordArray;
+	    const BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm;
+	    const C_enc = C.enc;
+	    const Utf8 = C_enc.Utf8;
+	    const Base64 = C_enc.Base64;
+	    const C_algo = C.algo;
+	    const EvpKDF = C_algo.EvpKDF;
 
 	    /**
 	     * Abstract base cipher template.
@@ -3474,7 +3474,7 @@
 	     * @property {number} _ENC_XFORM_MODE A constant representing encryption mode.
 	     * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
 	     */
-	    var Cipher = C_lib.Cipher = BufferedBlockAlgorithm.extend({
+	    const Cipher = C_lib.Cipher = BufferedBlockAlgorithm.extend({
 	        /**
 	         * Configuration options.
 	         *
@@ -3597,7 +3597,7 @@
 	            }
 
 	            // Perform concrete-cipher logic
-	            var finalProcessedData = this._doFinalize();
+	            const finalProcessedData = this._doFinalize();
 
 	            return finalProcessedData;
 	        },
@@ -3625,7 +3625,7 @@
 	         */
 	        _createHelper: (function () {
 	            function selectCipherStrategy(key) {
-	                if (typeof key == 'string') {
+	                if (typeof key === 'string') {
 	                    return PasswordBasedCipher;
 	                } else {
 	                    return SerializableCipher;
@@ -3651,10 +3651,10 @@
 	     *
 	     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 1 (32 bits)
 	     */
-	    var StreamCipher = C_lib.StreamCipher = Cipher.extend({
+	    const StreamCipher = C_lib.StreamCipher = Cipher.extend({
 	        _doFinalize: function () {
 	            // Process partial blocks
-	            var finalProcessedBlocks = this._process(!!'flush');
+	            const finalProcessedBlocks = this._process(!!'flush');
 
 	            return finalProcessedBlocks;
 	        },
@@ -3665,12 +3665,12 @@
 	    /**
 	     * Mode namespace.
 	     */
-	    var C_mode = C.mode = {};
+	    const C_mode = C.mode = {};
 
 	    /**
 	     * Abstract base block cipher mode template.
 	     */
-	    var BlockCipherMode = C_lib.BlockCipherMode = Base.extend({
+	    const BlockCipherMode = C_lib.BlockCipherMode = Base.extend({
 	        /**
 	         * Creates this mode for encryption.
 	         *
@@ -3722,11 +3722,11 @@
 	    /**
 	     * Cipher Block Chaining mode.
 	     */
-	    var CBC = C_mode.CBC = (function () {
+	    const CBC = C_mode.CBC = (function () {
 	        /**
 	         * Abstract base CBC mode.
 	         */
-	        var CBC = BlockCipherMode.extend();
+	        const CBC = BlockCipherMode.extend();
 
 	        /**
 	         * CBC encryptor.
@@ -3744,8 +3744,8 @@
 	             */
 	            processBlock: function (words, offset) {
 	                // Shortcuts
-	                var cipher = this._cipher;
-	                var blockSize = cipher.blockSize;
+	                const cipher = this._cipher;
+	                const blockSize = cipher.blockSize;
 
 	                // XOR and encrypt
 	                xorBlock.call(this, words, offset, blockSize);
@@ -3772,11 +3772,11 @@
 	             */
 	            processBlock: function (words, offset) {
 	                // Shortcuts
-	                var cipher = this._cipher;
-	                var blockSize = cipher.blockSize;
+	                const cipher = this._cipher;
+	                const blockSize = cipher.blockSize;
 
 	                // Remember this block to use with next block
-	                var thisBlock = words.slice(offset, offset + blockSize);
+	                const thisBlock = words.slice(offset, offset + blockSize);
 
 	                // Decrypt and XOR
 	                cipher.decryptBlock(words, offset);
@@ -3788,10 +3788,10 @@
 	        });
 
 	        function xorBlock(words, offset, blockSize) {
-	            var block;
+	            let block;
 
 	            // Shortcut
-	            var iv = this._iv;
+	            const iv = this._iv;
 
 	            // Choose mixing block
 	            if (iv) {
@@ -3804,7 +3804,7 @@
 	            }
 
 	            // XOR blocks
-	            for (var i = 0; i < blockSize; i++) {
+	            for (let i = 0; i < blockSize; i++) {
 	                words[offset + i] ^= block[i];
 	            }
 	        }
@@ -3815,12 +3815,12 @@
 	    /**
 	     * Padding namespace.
 	     */
-	    var C_pad = C.pad = {};
+	    const C_pad = C.pad = {};
 
 	    /**
 	     * PKCS #5/7 padding strategy.
 	     */
-	    var Pkcs7 = C_pad.Pkcs7 = {
+	    const Pkcs7 = C_pad.Pkcs7 = {
 	        /**
 	         * Pads data using the algorithm defined in PKCS #5/7.
 	         *
@@ -3835,20 +3835,20 @@
 	         */
 	        pad: function (data, blockSize) {
 	            // Shortcut
-	            var blockSizeBytes = blockSize * 4;
+	            const blockSizeBytes = blockSize * 4;
 
 	            // Count padding bytes
-	            var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
+	            const nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
 
 	            // Create padding word
-	            var paddingWord = (nPaddingBytes << 24) | (nPaddingBytes << 16) | (nPaddingBytes << 8) | nPaddingBytes;
+	            const paddingWord = (nPaddingBytes << 24) | (nPaddingBytes << 16) | (nPaddingBytes << 8) | nPaddingBytes;
 
 	            // Create padding
-	            var paddingWords = [];
-	            for (var i = 0; i < nPaddingBytes; i += 4) {
+	            const paddingWords = [];
+	            for (let i = 0; i < nPaddingBytes; i += 4) {
 	                paddingWords.push(paddingWord);
 	            }
-	            var padding = WordArray.create(paddingWords, nPaddingBytes);
+	            const padding = WordArray.create(paddingWords, nPaddingBytes);
 
 	            // Add padding
 	            data.concat(padding);
@@ -3867,7 +3867,7 @@
 	         */
 	        unpad: function (data) {
 	            // Get number of padding bytes from last byte
-	            var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+	            const nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
 
 	            // Remove padding
 	            data.sigBytes -= nPaddingBytes;
@@ -3879,7 +3879,7 @@
 	     *
 	     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
 	     */
-	    var BlockCipher = C_lib.BlockCipher = Cipher.extend({
+	    const BlockCipher = C_lib.BlockCipher = Cipher.extend({
 	        /**
 	         * Configuration options.
 	         *
@@ -3892,15 +3892,15 @@
 	        }),
 
 	        reset: function () {
-	            var modeCreator;
+	            let modeCreator;
 
 	            // Reset cipher
 	            Cipher.reset.call(this);
 
 	            // Shortcuts
-	            var cfg = this.cfg;
-	            var iv = cfg.iv;
-	            var mode = cfg.mode;
+	            const cfg = this.cfg;
+	            const iv = cfg.iv;
+	            const mode = cfg.mode;
 
 	            // Reset block mode
 	            if (this._xformMode == this._ENC_XFORM_MODE) {
@@ -3924,10 +3924,10 @@
 	        },
 
 	        _doFinalize: function () {
-	            var finalProcessedBlocks;
+	            let finalProcessedBlocks;
 
 	            // Shortcut
-	            var padding = this.cfg.padding;
+	            const padding = this.cfg.padding;
 
 	            // Finalize
 	            if (this._xformMode == this._ENC_XFORM_MODE) {
@@ -3963,7 +3963,7 @@
 	     * @property {number} blockSize The block size of the cipher.
 	     * @property {Format} formatter The default formatting strategy to convert this cipher params object to a string.
 	     */
-	    var CipherParams = C_lib.CipherParams = Base.extend({
+	    const CipherParams = C_lib.CipherParams = Base.extend({
 	        /**
 	         * Initializes a newly created cipher params object.
 	         *
@@ -4010,12 +4010,12 @@
 	    /**
 	     * Format namespace.
 	     */
-	    var C_format = C.format = {};
+	    const C_format = C.format = {};
 
 	    /**
 	     * OpenSSL formatting strategy.
 	     */
-	    var OpenSSLFormatter = C_format.OpenSSL = {
+	    const OpenSSLFormatter = C_format.OpenSSL = {
 	        /**
 	         * Converts a cipher params object to an OpenSSL-compatible string.
 	         *
@@ -4030,11 +4030,11 @@
 	         *     var openSSLString = CryptoJS.format.OpenSSL.stringify(cipherParams);
 	         */
 	        stringify: function (cipherParams) {
-	            var wordArray;
+	            let wordArray;
 
 	            // Shortcuts
-	            var ciphertext = cipherParams.ciphertext;
-	            var salt = cipherParams.salt;
+	            const ciphertext = cipherParams.ciphertext;
+	            const salt = cipherParams.salt;
 
 	            // Format
 	            if (salt) {
@@ -4060,13 +4060,13 @@
 	         *     var cipherParams = CryptoJS.format.OpenSSL.parse(openSSLString);
 	         */
 	        parse: function (openSSLStr) {
-	            var salt;
+	            let salt;
 
 	            // Parse base64
-	            var ciphertext = Base64.parse(openSSLStr);
+	            const ciphertext = Base64.parse(openSSLStr);
 
 	            // Shortcut
-	            var ciphertextWords = ciphertext.words;
+	            const ciphertextWords = ciphertext.words;
 
 	            // Test for salt
 	            if (ciphertextWords[0] == 0x53616c74 && ciphertextWords[1] == 0x65645f5f) {
@@ -4118,11 +4118,11 @@
 	            cfg = this.cfg.extend(cfg);
 
 	            // Encrypt
-	            var encryptor = cipher.createEncryptor(key, cfg);
-	            var ciphertext = encryptor.finalize(message);
+	            const encryptor = cipher.createEncryptor(key, cfg);
+	            const ciphertext = encryptor.finalize(message);
 
 	            // Shortcut
-	            var cipherCfg = encryptor.cfg;
+	            const cipherCfg = encryptor.cfg;
 
 	            // Create and return serializable cipher params
 	            return CipherParams.create({
@@ -4162,7 +4162,7 @@
 	            ciphertext = this._parse(ciphertext, cfg.format);
 
 	            // Decrypt
-	            var plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
+	            const plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
 
 	            return plaintext;
 	        },
@@ -4183,7 +4183,7 @@
 	         *     var ciphertextParams = CryptoJS.lib.SerializableCipher._parse(ciphertextStringOrParams, format);
 	         */
 	        _parse: function (ciphertext, format) {
-	            if (typeof ciphertext == 'string') {
+	            if (typeof ciphertext === 'string') {
 	                return format.parse(ciphertext, this);
 	            } else {
 	                return ciphertext;
@@ -4194,12 +4194,12 @@
 	    /**
 	     * Key derivation function namespace.
 	     */
-	    var C_kdf = C.kdf = {};
+	    const C_kdf = C.kdf = {};
 
 	    /**
 	     * OpenSSL key derivation function.
 	     */
-	    var OpenSSLKdf = C_kdf.OpenSSL = {
+	    const OpenSSLKdf = C_kdf.OpenSSL = {
 	        /**
 	         * Derives a key and IV from a password.
 	         *
@@ -4232,7 +4232,7 @@
 
 
 	            // Separate key and IV
-	            var iv = WordArray.create(key.words.slice(keySize), ivSize * 4);
+	            const iv = WordArray.create(key.words.slice(keySize), ivSize * 4);
 	            key.sigBytes = keySize * 4;
 
 	            // Return params
@@ -4276,13 +4276,13 @@
 	            cfg = this.cfg.extend(cfg);
 
 	            // Derive key and other params
-	            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, cfg.salt, cfg.hasher);
+	            const derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, cfg.salt, cfg.hasher);
 
 	            // Add IV to config
 	            cfg.iv = derivedParams.iv;
 
 	            // Encrypt
-	            var ciphertext = SerializableCipher.encrypt.call(this, cipher, message, derivedParams.key, cfg);
+	            const ciphertext = SerializableCipher.encrypt.call(this, cipher, message, derivedParams.key, cfg);
 
 	            // Mix in derived params
 	            ciphertext.mixIn(derivedParams);
@@ -4315,13 +4315,13 @@
 	            ciphertext = this._parse(ciphertext, cfg.format);
 
 	            // Derive key and other params
-	            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, ciphertext.salt, cfg.hasher);
+	            const derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, ciphertext.salt, cfg.hasher);
 
 	            // Add IV to config
 	            cfg.iv = derivedParams.iv;
 
 	            // Decrypt
-	            var plaintext = SerializableCipher.decrypt.call(this, cipher, ciphertext, derivedParams.key, cfg);
+	            const plaintext = SerializableCipher.decrypt.call(this, cipher, ciphertext, derivedParams.key, cfg);
 
 	            return plaintext;
 	        }
@@ -4333,13 +4333,13 @@
 	 * Cipher Feedback block mode.
 	 */
 	CryptoJS.mode.CFB = (function () {
-	    var CFB = CryptoJS.lib.BlockCipherMode.extend();
+	    const CFB = CryptoJS.lib.BlockCipherMode.extend();
 
 	    CFB.Encryptor = CFB.extend({
 	        processBlock: function (words, offset) {
 	            // Shortcuts
-	            var cipher = this._cipher;
-	            var blockSize = cipher.blockSize;
+	            const cipher = this._cipher;
+	            const blockSize = cipher.blockSize;
 
 	            generateKeystreamAndEncrypt.call(this, words, offset, blockSize, cipher);
 
@@ -4351,11 +4351,11 @@
 	    CFB.Decryptor = CFB.extend({
 	        processBlock: function (words, offset) {
 	            // Shortcuts
-	            var cipher = this._cipher;
-	            var blockSize = cipher.blockSize;
+	            const cipher = this._cipher;
+	            const blockSize = cipher.blockSize;
 
 	            // Remember this block to use with next block
-	            var thisBlock = words.slice(offset, offset + blockSize);
+	            const thisBlock = words.slice(offset, offset + blockSize);
 
 	            generateKeystreamAndEncrypt.call(this, words, offset, blockSize, cipher);
 
@@ -4365,10 +4365,10 @@
 	    });
 
 	    function generateKeystreamAndEncrypt(words, offset, blockSize, cipher) {
-	        var keystream;
+	        let keystream;
 
 	        // Shortcut
-	        var iv = this._iv;
+	        const iv = this._iv;
 
 	        // Generate keystream
 	        if (iv) {
@@ -4382,7 +4382,7 @@
 	        cipher.encryptBlock(keystream, 0);
 
 	        // Encrypt
-	        for (var i = 0; i < blockSize; i++) {
+	        for (let i = 0; i < blockSize; i++) {
 	            words[offset + i] ^= keystream[i];
 	        }
 	    }
@@ -4395,15 +4395,15 @@
 	 * Counter block mode.
 	 */
 	CryptoJS.mode.CTR = (function () {
-	    var CTR = CryptoJS.lib.BlockCipherMode.extend();
+	    const CTR = CryptoJS.lib.BlockCipherMode.extend();
 
-	    var Encryptor = CTR.Encryptor = CTR.extend({
+	    const Encryptor = CTR.Encryptor = CTR.extend({
 	        processBlock: function (words, offset) {
 	            // Shortcuts
-	            var cipher = this._cipher
-	            var blockSize = cipher.blockSize;
-	            var iv = this._iv;
-	            var counter = this._counter;
+	            const cipher = this._cipher
+	            const blockSize = cipher.blockSize;
+	            const iv = this._iv;
+	            let counter = this._counter;
 
 	            // Generate keystream
 	            if (iv) {
@@ -4412,14 +4412,14 @@
 	                // Remove IV for subsequent blocks
 	                this._iv = undefined;
 	            }
-	            var keystream = counter.slice(0);
+	            const keystream = counter.slice(0);
 	            cipher.encryptBlock(keystream, 0);
 
 	            // Increment counter
 	            counter[blockSize - 1] = (counter[blockSize - 1] + 1) | 0
 
 	            // Encrypt
-	            for (var i = 0; i < blockSize; i++) {
+	            for (let i = 0; i < blockSize; i++) {
 	                words[offset + i] ^= keystream[i];
 	            }
 	        }
@@ -4437,14 +4437,14 @@
 	 * Jan Hruby jhruby.web@gmail.com
 	 */
 	CryptoJS.mode.CTRGladman = (function () {
-	    var CTRGladman = CryptoJS.lib.BlockCipherMode.extend();
+	    const CTRGladman = CryptoJS.lib.BlockCipherMode.extend();
 
 		function incWord(word)
 		{
 			if (((word >> 24) & 0xff) === 0xff) { //overflow
-			var b1 = (word >> 16)&0xff;
-			var b2 = (word >> 8)&0xff;
-			var b3 = word & 0xff;
+			let b1 = (word >> 16)&0xff;
+			let b2 = (word >> 8)&0xff;
+			let b3 = word & 0xff;
 
 			if (b1 === 0xff) // overflow b1
 			{
@@ -4493,13 +4493,13 @@
 			return counter;
 		}
 
-	    var Encryptor = CTRGladman.Encryptor = CTRGladman.extend({
+	    const Encryptor = CTRGladman.Encryptor = CTRGladman.extend({
 	        processBlock: function (words, offset) {
 	            // Shortcuts
-	            var cipher = this._cipher
-	            var blockSize = cipher.blockSize;
-	            var iv = this._iv;
-	            var counter = this._counter;
+	            const cipher = this._cipher
+	            const blockSize = cipher.blockSize;
+	            const iv = this._iv;
+	            let counter = this._counter;
 
 	            // Generate keystream
 	            if (iv) {
@@ -4511,11 +4511,11 @@
 
 				incCounter(counter);
 
-				var keystream = counter.slice(0);
+				const keystream = counter.slice(0);
 	            cipher.encryptBlock(keystream, 0);
 
 	            // Encrypt
-	            for (var i = 0; i < blockSize; i++) {
+	            for (let i = 0; i < blockSize; i++) {
 	                words[offset + i] ^= keystream[i];
 	            }
 	        }
@@ -4533,15 +4533,15 @@
 	 * Output Feedback block mode.
 	 */
 	CryptoJS.mode.OFB = (function () {
-	    var OFB = CryptoJS.lib.BlockCipherMode.extend();
+	    const OFB = CryptoJS.lib.BlockCipherMode.extend();
 
-	    var Encryptor = OFB.Encryptor = OFB.extend({
+	    const Encryptor = OFB.Encryptor = OFB.extend({
 	        processBlock: function (words, offset) {
 	            // Shortcuts
-	            var cipher = this._cipher
-	            var blockSize = cipher.blockSize;
-	            var iv = this._iv;
-	            var keystream = this._keystream;
+	            const cipher = this._cipher
+	            const blockSize = cipher.blockSize;
+	            const iv = this._iv;
+	            let keystream = this._keystream;
 
 	            // Generate keystream
 	            if (iv) {
@@ -4553,7 +4553,7 @@
 	            cipher.encryptBlock(keystream, 0);
 
 	            // Encrypt
-	            for (var i = 0; i < blockSize; i++) {
+	            for (let i = 0; i < blockSize; i++) {
 	                words[offset + i] ^= keystream[i];
 	            }
 	        }
@@ -4569,7 +4569,7 @@
 	 * Electronic Codebook block mode.
 	 */
 	CryptoJS.mode.ECB = (function () {
-	    var ECB = CryptoJS.lib.BlockCipherMode.extend();
+	    const ECB = CryptoJS.lib.BlockCipherMode.extend();
 
 	    ECB.Encryptor = ECB.extend({
 	        processBlock: function (words, offset) {
@@ -4593,14 +4593,14 @@
 	CryptoJS.pad.AnsiX923 = {
 	    pad: function (data, blockSize) {
 	        // Shortcuts
-	        var dataSigBytes = data.sigBytes;
-	        var blockSizeBytes = blockSize * 4;
+	        const dataSigBytes = data.sigBytes;
+	        const blockSizeBytes = blockSize * 4;
 
 	        // Count padding bytes
-	        var nPaddingBytes = blockSizeBytes - dataSigBytes % blockSizeBytes;
+	        const nPaddingBytes = blockSizeBytes - dataSigBytes % blockSizeBytes;
 
 	        // Compute last byte position
-	        var lastBytePos = dataSigBytes + nPaddingBytes - 1;
+	        const lastBytePos = dataSigBytes + nPaddingBytes - 1;
 
 	        // Pad
 	        data.clamp();
@@ -4610,7 +4610,7 @@
 
 	    unpad: function (data) {
 	        // Get number of padding bytes from last byte
-	        var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+	        const nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
 
 	        // Remove padding
 	        data.sigBytes -= nPaddingBytes;
@@ -4624,10 +4624,10 @@
 	CryptoJS.pad.Iso10126 = {
 	    pad: function (data, blockSize) {
 	        // Shortcut
-	        var blockSizeBytes = blockSize * 4;
+	        const blockSizeBytes = blockSize * 4;
 
 	        // Count padding bytes
-	        var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
+	        const nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
 
 	        // Pad
 	        data.concat(CryptoJS.lib.WordArray.random(nPaddingBytes - 1)).
@@ -4636,7 +4636,7 @@
 
 	    unpad: function (data) {
 	        // Get number of padding bytes from last byte
-	        var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+	        const nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
 
 	        // Remove padding
 	        data.sigBytes -= nPaddingBytes;
@@ -4672,7 +4672,7 @@
 	CryptoJS.pad.ZeroPadding = {
 	    pad: function (data, blockSize) {
 	        // Shortcut
-	        var blockSizeBytes = blockSize * 4;
+	        const blockSizeBytes = blockSize * 4;
 
 	        // Pad
 	        data.clamp();
@@ -4681,7 +4681,7 @@
 
 	    unpad: function (data) {
 	        // Shortcut
-	        var dataWords = data.words;
+	        const dataWords = data.words;
 
 	        // Unpad
 	        var i = data.sigBytes - 1;
@@ -4709,14 +4709,14 @@
 
 	(function (undefined) {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var CipherParams = C_lib.CipherParams;
-	    var C_enc = C.enc;
-	    var Hex = C_enc.Hex;
-	    var C_format = C.format;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const CipherParams = C_lib.CipherParams;
+	    const C_enc = C.enc;
+	    const Hex = C_enc.Hex;
+	    const C_format = C.format;
 
-	    var HexFormatter = C_format.Hex = {
+	    const HexFormatter = C_format.Hex = {
 	        /**
 	         * Converts the ciphertext of a cipher params object to a hexadecimally encoded string.
 	         *
@@ -4748,7 +4748,7 @@
 	         *     var cipherParams = CryptoJS.format.Hex.parse(hexString);
 	         */
 	        parse: function (input) {
-	            var ciphertext = Hex.parse(input);
+	            const ciphertext = Hex.parse(input);
 	            return CipherParams.create({ ciphertext: ciphertext });
 	        }
 	    };
@@ -4757,27 +4757,27 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var BlockCipher = C_lib.BlockCipher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const BlockCipher = C_lib.BlockCipher;
+	    const C_algo = C.algo;
 
 	    // Lookup tables
-	    var SBOX = [];
-	    var INV_SBOX = [];
-	    var SUB_MIX_0 = [];
-	    var SUB_MIX_1 = [];
-	    var SUB_MIX_2 = [];
-	    var SUB_MIX_3 = [];
-	    var INV_SUB_MIX_0 = [];
-	    var INV_SUB_MIX_1 = [];
-	    var INV_SUB_MIX_2 = [];
-	    var INV_SUB_MIX_3 = [];
+	    const SBOX = [];
+	    const INV_SBOX = [];
+	    const SUB_MIX_0 = [];
+	    const SUB_MIX_1 = [];
+	    const SUB_MIX_2 = [];
+	    const SUB_MIX_3 = [];
+	    const INV_SUB_MIX_0 = [];
+	    const INV_SUB_MIX_1 = [];
+	    const INV_SUB_MIX_2 = [];
+	    const INV_SUB_MIX_3 = [];
 
 	    // Compute lookup tables
 	    (function () {
 	        // Compute double table
-	        var d = [];
+	        const d = [];
 	        for (var i = 0; i < 256; i++) {
 	            if (i < 128) {
 	                d[i] = i << 1;
@@ -4787,19 +4787,19 @@
 	        }
 
 	        // Walk GF(2^8)
-	        var x = 0;
-	        var xi = 0;
+	        let x = 0;
+	        let xi = 0;
 	        for (var i = 0; i < 256; i++) {
 	            // Compute sbox
-	            var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
+	            let sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
 	            sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
 	            SBOX[x] = sx;
 	            INV_SBOX[sx] = x;
 
 	            // Compute multiplication
-	            var x2 = d[x];
-	            var x4 = d[x2];
-	            var x8 = d[x4];
+	            const x2 = d[x];
+	            const x4 = d[x2];
+	            const x8 = d[x4];
 
 	            // Compute sub bytes, mix columns tables
 	            var t = (d[sx] * 0x101) ^ (sx * 0x1010100);
@@ -4826,12 +4826,12 @@
 	    }());
 
 	    // Precomputed Rcon lookup
-	    var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+	    const RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
 
 	    /**
 	     * AES block cipher algorithm.
 	     */
-	    var AES = C_algo.AES = BlockCipher.extend({
+	    const AES = C_algo.AES = BlockCipher.extend({
 	        _doReset: function () {
 	            var t;
 
@@ -4841,18 +4841,18 @@
 	            }
 
 	            // Shortcuts
-	            var key = this._keyPriorReset = this._key;
-	            var keyWords = key.words;
-	            var keySize = key.sigBytes / 4;
+	            const key = this._keyPriorReset = this._key;
+	            const keyWords = key.words;
+	            const keySize = key.sigBytes / 4;
 
 	            // Compute number of rounds
-	            var nRounds = this._nRounds = keySize + 6;
+	            const nRounds = this._nRounds = keySize + 6;
 
 	            // Compute number of key schedule rows
-	            var ksRows = (nRounds + 1) * 4;
+	            const ksRows = (nRounds + 1) * 4;
 
 	            // Compute key schedule
-	            var keySchedule = this._keySchedule = [];
+	            const keySchedule = this._keySchedule = [];
 	            for (var ksRow = 0; ksRow < ksRows; ksRow++) {
 	                if (ksRow < keySize) {
 	                    keySchedule[ksRow] = keyWords[ksRow];
@@ -4878,8 +4878,8 @@
 	            }
 
 	            // Compute inv key schedule
-	            var invKeySchedule = this._invKeySchedule = [];
-	            for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
+	            const invKeySchedule = this._invKeySchedule = [];
+	            for (let invKsRow = 0; invKsRow < ksRows; invKsRow++) {
 	                var ksRow = ksRows - invKsRow;
 
 	                if (invKsRow % 4) {
@@ -4917,19 +4917,19 @@
 
 	        _doCryptBlock: function (M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
 	            // Shortcut
-	            var nRounds = this._nRounds;
+	            const nRounds = this._nRounds;
 
 	            // Get input, add round key
-	            var s0 = M[offset]     ^ keySchedule[0];
-	            var s1 = M[offset + 1] ^ keySchedule[1];
-	            var s2 = M[offset + 2] ^ keySchedule[2];
-	            var s3 = M[offset + 3] ^ keySchedule[3];
+	            let s0 = M[offset]     ^ keySchedule[0];
+	            let s1 = M[offset + 1] ^ keySchedule[1];
+	            let s2 = M[offset + 2] ^ keySchedule[2];
+	            let s3 = M[offset + 3] ^ keySchedule[3];
 
 	            // Key schedule row counter
-	            var ksRow = 4;
+	            let ksRow = 4;
 
 	            // Rounds
-	            for (var round = 1; round < nRounds; round++) {
+	            for (let round = 1; round < nRounds; round++) {
 	                // Shift rows, sub bytes, mix columns, add round key
 	                var t0 = SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^ SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++];
 	                var t1 = SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^ SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++];
@@ -4973,14 +4973,14 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var WordArray = C_lib.WordArray;
-	    var BlockCipher = C_lib.BlockCipher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const WordArray = C_lib.WordArray;
+	    const BlockCipher = C_lib.BlockCipher;
+	    const C_algo = C.algo;
 
 	    // Permuted Choice 1 constants
-	    var PC1 = [
+	    const PC1 = [
 	        57, 49, 41, 33, 25, 17, 9,  1,
 	        58, 50, 42, 34, 26, 18, 10, 2,
 	        59, 51, 43, 35, 27, 19, 11, 3,
@@ -4991,7 +4991,7 @@
 	    ];
 
 	    // Permuted Choice 2 constants
-	    var PC2 = [
+	    const PC2 = [
 	        14, 17, 11, 24, 1,  5,
 	        3,  28, 15, 6,  21, 10,
 	        23, 19, 12, 4,  26, 8,
@@ -5003,10 +5003,10 @@
 	    ];
 
 	    // Cumulative bit shift constants
-	    var BIT_SHIFTS = [1,  2,  4,  6,  8,  10, 12, 14, 15, 17, 19, 21, 23, 25, 27, 28];
+	    const BIT_SHIFTS = [1,  2,  4,  6,  8,  10, 12, 14, 15, 17, 19, 21, 23, 25, 27, 28];
 
 	    // SBOXes and round permutation constants
-	    var SBOX_P = [
+	    const SBOX_P = [
 	        {
 	            0x0: 0x808200,
 	            0x10000000: 0x8000,
@@ -5538,7 +5538,7 @@
 	    ];
 
 	    // Masks that select the SBOX input
-	    var SBOX_MASK = [
+	    const SBOX_MASK = [
 	        0xf8000001, 0x1f800000, 0x01f80000, 0x001f8000,
 	        0x0001f800, 0x00001f80, 0x000001f8, 0x8000001f
 	    ];
@@ -5546,27 +5546,27 @@
 	    /**
 	     * DES block cipher algorithm.
 	     */
-	    var DES = C_algo.DES = BlockCipher.extend({
+	    const DES = C_algo.DES = BlockCipher.extend({
 	        _doReset: function () {
 	            // Shortcuts
-	            var key = this._key;
-	            var keyWords = key.words;
+	            const key = this._key;
+	            const keyWords = key.words;
 
 	            // Select 56 bits according to PC1
-	            var keyBits = [];
+	            const keyBits = [];
 	            for (var i = 0; i < 56; i++) {
-	                var keyBitPos = PC1[i] - 1;
+	                const keyBitPos = PC1[i] - 1;
 	                keyBits[i] = (keyWords[keyBitPos >>> 5] >>> (31 - keyBitPos % 32)) & 1;
 	            }
 
 	            // Assemble 16 subkeys
-	            var subKeys = this._subKeys = [];
-	            for (var nSubKey = 0; nSubKey < 16; nSubKey++) {
+	            const subKeys = this._subKeys = [];
+	            for (let nSubKey = 0; nSubKey < 16; nSubKey++) {
 	                // Create subkey
-	                var subKey = subKeys[nSubKey] = [];
+	                const subKey = subKeys[nSubKey] = [];
 
 	                // Shortcut
-	                var bitShift = BIT_SHIFTS[nSubKey];
+	                const bitShift = BIT_SHIFTS[nSubKey];
 
 	                // Select 48 bits according to PC2
 	                for (var i = 0; i < 24; i++) {
@@ -5588,7 +5588,7 @@
 	            }
 
 	            // Compute inverse subkeys
-	            var invSubKeys = this._invSubKeys = [];
+	            const invSubKeys = this._invSubKeys = [];
 	            for (var i = 0; i < 16; i++) {
 	                invSubKeys[i] = subKeys[15 - i];
 	            }
@@ -5615,15 +5615,15 @@
 	            exchangeLR.call(this, 1,  0x55555555);
 
 	            // Rounds
-	            for (var round = 0; round < 16; round++) {
+	            for (let round = 0; round < 16; round++) {
 	                // Shortcuts
-	                var subKey = subKeys[round];
-	                var lBlock = this._lBlock;
-	                var rBlock = this._rBlock;
+	                const subKey = subKeys[round];
+	                const lBlock = this._lBlock;
+	                const rBlock = this._rBlock;
 
 	                // Feistel function
-	                var f = 0;
-	                for (var i = 0; i < 8; i++) {
+	                let f = 0;
+	                for (let i = 0; i < 8; i++) {
 	                    f |= SBOX_P[i][((rBlock ^ subKey[i]) & SBOX_MASK[i]) >>> 0];
 	                }
 	                this._lBlock = rBlock;
@@ -5631,7 +5631,7 @@
 	            }
 
 	            // Undo swap from last round
-	            var t = this._lBlock;
+	            const t = this._lBlock;
 	            this._lBlock = this._rBlock;
 	            this._rBlock = t;
 
@@ -5656,13 +5656,13 @@
 
 	    // Swap bits across the left and right words
 	    function exchangeLR(offset, mask) {
-	        var t = ((this._lBlock >>> offset) ^ this._rBlock) & mask;
+	        const t = ((this._lBlock >>> offset) ^ this._rBlock) & mask;
 	        this._rBlock ^= t;
 	        this._lBlock ^= t << offset;
 	    }
 
 	    function exchangeRL(offset, mask) {
-	        var t = ((this._rBlock >>> offset) ^ this._lBlock) & mask;
+	        const t = ((this._rBlock >>> offset) ^ this._lBlock) & mask;
 	        this._lBlock ^= t;
 	        this._rBlock ^= t << offset;
 	    }
@@ -5680,20 +5680,20 @@
 	    /**
 	     * Triple-DES block cipher algorithm.
 	     */
-	    var TripleDES = C_algo.TripleDES = BlockCipher.extend({
+	    const TripleDES = C_algo.TripleDES = BlockCipher.extend({
 	        _doReset: function () {
 	            // Shortcuts
-	            var key = this._key;
-	            var keyWords = key.words;
+	            const key = this._key;
+	            const keyWords = key.words;
 	            // Make sure the key length is valid (64, 128 or >= 192 bit)
 	            if (keyWords.length !== 2 && keyWords.length !== 4 && keyWords.length < 6) {
 	                throw new Error('Invalid key length - 3DES requires the key length to be 64, 128, 192 or >192.');
 	            }
 
 	            // Extend the key according to the keying options defined in 3DES standard
-	            var key1 = keyWords.slice(0, 2);
-	            var key2 = keyWords.length < 4 ? keyWords.slice(0, 2) : keyWords.slice(2, 4);
-	            var key3 = keyWords.length < 6 ? keyWords.slice(0, 2) : keyWords.slice(4, 6);
+	            const key1 = keyWords.slice(0, 2);
+	            const key2 = keyWords.length < 4 ? keyWords.slice(0, 2) : keyWords.slice(2, 4);
+	            const key3 = keyWords.length < 6 ? keyWords.slice(0, 2) : keyWords.slice(4, 6);
 
 	            // Create DES instances
 	            this._des1 = DES.createEncryptor(WordArray.create(key1));
@@ -5734,36 +5734,36 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var StreamCipher = C_lib.StreamCipher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const StreamCipher = C_lib.StreamCipher;
+	    const C_algo = C.algo;
 
 	    /**
 	     * RC4 stream cipher algorithm.
 	     */
-	    var RC4 = C_algo.RC4 = StreamCipher.extend({
+	    const RC4 = C_algo.RC4 = StreamCipher.extend({
 	        _doReset: function () {
 	            // Shortcuts
-	            var key = this._key;
-	            var keyWords = key.words;
-	            var keySigBytes = key.sigBytes;
+	            const key = this._key;
+	            const keyWords = key.words;
+	            const keySigBytes = key.sigBytes;
 
 	            // Init sbox
-	            var S = this._S = [];
+	            const S = this._S = [];
 	            for (var i = 0; i < 256; i++) {
 	                S[i] = i;
 	            }
 
 	            // Key setup
 	            for (var i = 0, j = 0; i < 256; i++) {
-	                var keyByteIndex = i % keySigBytes;
-	                var keyByte = (keyWords[keyByteIndex >>> 2] >>> (24 - (keyByteIndex % 4) * 8)) & 0xff;
+	                const keyByteIndex = i % keySigBytes;
+	                const keyByte = (keyWords[keyByteIndex >>> 2] >>> (24 - (keyByteIndex % 4) * 8)) & 0xff;
 
 	                j = (j + S[i] + keyByte) % 256;
 
 	                // Swap
-	                var t = S[i];
+	                const t = S[i];
 	                S[i] = S[j];
 	                S[j] = t;
 	            }
@@ -5783,18 +5783,18 @@
 
 	    function generateKeystreamWord() {
 	        // Shortcuts
-	        var S = this._S;
-	        var i = this._i;
-	        var j = this._j;
+	        const S = this._S;
+	        let i = this._i;
+	        let j = this._j;
 
 	        // Generate keystream word
-	        var keystreamWord = 0;
-	        for (var n = 0; n < 4; n++) {
+	        let keystreamWord = 0;
+	        for (let n = 0; n < 4; n++) {
 	            i = (i + 1) % 256;
 	            j = (j + S[i]) % 256;
 
 	            // Swap
-	            var t = S[i];
+	            const t = S[i];
 	            S[i] = S[j];
 	            S[j] = t;
 
@@ -5821,7 +5821,7 @@
 	    /**
 	     * Modified RC4 stream cipher algorithm.
 	     */
-	    var RC4Drop = C_algo.RC4Drop = RC4.extend({
+	    const RC4Drop = C_algo.RC4Drop = RC4.extend({
 	        /**
 	         * Configuration options.
 	         *
@@ -5835,7 +5835,7 @@
 	            RC4._doReset.call(this);
 
 	            // Drop
-	            for (var i = this.cfg.drop; i > 0; i--) {
+	            for (let i = this.cfg.drop; i > 0; i--) {
 	                generateKeystreamWord.call(this);
 	            }
 	        }
@@ -5855,24 +5855,24 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var StreamCipher = C_lib.StreamCipher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const StreamCipher = C_lib.StreamCipher;
+	    const C_algo = C.algo;
 
 	    // Reusable objects
-	    var S  = [];
-	    var C_ = [];
-	    var G  = [];
+	    const S  = [];
+	    const C_ = [];
+	    const G  = [];
 
 	    /**
 	     * Rabbit stream cipher algorithm
 	     */
-	    var Rabbit = C_algo.Rabbit = StreamCipher.extend({
+	    const Rabbit = C_algo.Rabbit = StreamCipher.extend({
 	        _doReset: function () {
 	            // Shortcuts
-	            var K = this._key.words;
-	            var iv = this.cfg.iv;
+	            const K = this._key.words;
+	            const iv = this.cfg.iv;
 
 	            // Swap endian
 	            for (var i = 0; i < 4; i++) {
@@ -5881,7 +5881,7 @@
 	            }
 
 	            // Generate initial state values
-	            var X = this._X = [
+	            const X = this._X = [
 	                K[0], (K[3] << 16) | (K[2] >>> 16),
 	                K[1], (K[0] << 16) | (K[3] >>> 16),
 	                K[2], (K[1] << 16) | (K[0] >>> 16),
@@ -5889,7 +5889,7 @@
 	            ];
 
 	            // Generate initial counter values
-	            var C = this._C = [
+	            const C = this._C = [
 	                (K[2] << 16) | (K[2] >>> 16), (K[0] & 0xffff0000) | (K[1] & 0x0000ffff),
 	                (K[3] << 16) | (K[3] >>> 16), (K[1] & 0xffff0000) | (K[2] & 0x0000ffff),
 	                (K[0] << 16) | (K[0] >>> 16), (K[2] & 0xffff0000) | (K[3] & 0x0000ffff),
@@ -5912,15 +5912,15 @@
 	            // IV setup
 	            if (iv) {
 	                // Shortcuts
-	                var IV = iv.words;
-	                var IV_0 = IV[0];
-	                var IV_1 = IV[1];
+	                const IV = iv.words;
+	                const IV_0 = IV[0];
+	                const IV_1 = IV[1];
 
 	                // Generate four subvectors
-	                var i0 = (((IV_0 << 8) | (IV_0 >>> 24)) & 0x00ff00ff) | (((IV_0 << 24) | (IV_0 >>> 8)) & 0xff00ff00);
-	                var i2 = (((IV_1 << 8) | (IV_1 >>> 24)) & 0x00ff00ff) | (((IV_1 << 24) | (IV_1 >>> 8)) & 0xff00ff00);
-	                var i1 = (i0 >>> 16) | (i2 & 0xffff0000);
-	                var i3 = (i2 << 16)  | (i0 & 0x0000ffff);
+	                const i0 = (((IV_0 << 8) | (IV_0 >>> 24)) & 0x00ff00ff) | (((IV_0 << 24) | (IV_0 >>> 8)) & 0xff00ff00);
+	                const i2 = (((IV_1 << 8) | (IV_1 >>> 24)) & 0x00ff00ff) | (((IV_1 << 24) | (IV_1 >>> 8)) & 0xff00ff00);
+	                const i1 = (i0 >>> 16) | (i2 & 0xffff0000);
+	                const i3 = (i2 << 16)  | (i0 & 0x0000ffff);
 
 	                // Modify counter values
 	                C[0] ^= i0;
@@ -5941,7 +5941,7 @@
 
 	        _doProcessBlock: function (M, offset) {
 	            // Shortcut
-	            var X = this._X;
+	            const X = this._X;
 
 	            // Iterate the system
 	            nextState.call(this);
@@ -5952,7 +5952,7 @@
 	            S[2] = X[4] ^ (X[1] >>> 16) ^ (X[7] << 16);
 	            S[3] = X[6] ^ (X[3] >>> 16) ^ (X[1] << 16);
 
-	            for (var i = 0; i < 4; i++) {
+	            for (let i = 0; i < 4; i++) {
 	                // Swap endian
 	                S[i] = (((S[i] << 8)  | (S[i] >>> 24)) & 0x00ff00ff) |
 	                       (((S[i] << 24) | (S[i] >>> 8))  & 0xff00ff00);
@@ -5969,8 +5969,8 @@
 
 	    function nextState() {
 	        // Shortcuts
-	        var X = this._X;
-	        var C = this._C;
+	        const X = this._X;
+	        const C = this._C;
 
 	        // Save old counter values
 	        for (var i = 0; i < 8; i++) {
@@ -5990,15 +5990,15 @@
 
 	        // Calculate the g-values
 	        for (var i = 0; i < 8; i++) {
-	            var gx = X[i] + C[i];
+	            const gx = X[i] + C[i];
 
 	            // Construct high and low argument for squaring
-	            var ga = gx & 0xffff;
-	            var gb = gx >>> 16;
+	            const ga = gx & 0xffff;
+	            const gb = gx >>> 16;
 
 	            // Calculate high and low result of squaring
-	            var gh = ((((ga * ga) >>> 17) + ga * gb) >>> 15) + gb * gb;
-	            var gl = (((gx & 0xffff0000) * gx) | 0) + (((gx & 0x0000ffff) * gx) | 0);
+	            const gh = ((((ga * ga) >>> 17) + ga * gb) >>> 15) + gb * gb;
+	            const gl = (((gx & 0xffff0000) * gx) | 0) + (((gx & 0x0000ffff) * gx) | 0);
 
 	            // High XOR low
 	            G[i] = gh ^ gl;
@@ -6029,15 +6029,15 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var StreamCipher = C_lib.StreamCipher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const StreamCipher = C_lib.StreamCipher;
+	    const C_algo = C.algo;
 
 	    // Reusable objects
-	    var S  = [];
-	    var C_ = [];
-	    var G  = [];
+	    const S  = [];
+	    const C_ = [];
+	    const G  = [];
 
 	    /**
 	     * Rabbit stream cipher algorithm.
@@ -6046,14 +6046,14 @@
 	     * This error doesn't affect the cipher's security,
 	     * but it does affect its compatibility with other implementations.
 	     */
-	    var RabbitLegacy = C_algo.RabbitLegacy = StreamCipher.extend({
+	    const RabbitLegacy = C_algo.RabbitLegacy = StreamCipher.extend({
 	        _doReset: function () {
 	            // Shortcuts
-	            var K = this._key.words;
-	            var iv = this.cfg.iv;
+	            const K = this._key.words;
+	            const iv = this.cfg.iv;
 
 	            // Generate initial state values
-	            var X = this._X = [
+	            const X = this._X = [
 	                K[0], (K[3] << 16) | (K[2] >>> 16),
 	                K[1], (K[0] << 16) | (K[3] >>> 16),
 	                K[2], (K[1] << 16) | (K[0] >>> 16),
@@ -6061,7 +6061,7 @@
 	            ];
 
 	            // Generate initial counter values
-	            var C = this._C = [
+	            const C = this._C = [
 	                (K[2] << 16) | (K[2] >>> 16), (K[0] & 0xffff0000) | (K[1] & 0x0000ffff),
 	                (K[3] << 16) | (K[3] >>> 16), (K[1] & 0xffff0000) | (K[2] & 0x0000ffff),
 	                (K[0] << 16) | (K[0] >>> 16), (K[2] & 0xffff0000) | (K[3] & 0x0000ffff),
@@ -6084,15 +6084,15 @@
 	            // IV setup
 	            if (iv) {
 	                // Shortcuts
-	                var IV = iv.words;
-	                var IV_0 = IV[0];
-	                var IV_1 = IV[1];
+	                const IV = iv.words;
+	                const IV_0 = IV[0];
+	                const IV_1 = IV[1];
 
 	                // Generate four subvectors
-	                var i0 = (((IV_0 << 8) | (IV_0 >>> 24)) & 0x00ff00ff) | (((IV_0 << 24) | (IV_0 >>> 8)) & 0xff00ff00);
-	                var i2 = (((IV_1 << 8) | (IV_1 >>> 24)) & 0x00ff00ff) | (((IV_1 << 24) | (IV_1 >>> 8)) & 0xff00ff00);
-	                var i1 = (i0 >>> 16) | (i2 & 0xffff0000);
-	                var i3 = (i2 << 16)  | (i0 & 0x0000ffff);
+	                const i0 = (((IV_0 << 8) | (IV_0 >>> 24)) & 0x00ff00ff) | (((IV_0 << 24) | (IV_0 >>> 8)) & 0xff00ff00);
+	                const i2 = (((IV_1 << 8) | (IV_1 >>> 24)) & 0x00ff00ff) | (((IV_1 << 24) | (IV_1 >>> 8)) & 0xff00ff00);
+	                const i1 = (i0 >>> 16) | (i2 & 0xffff0000);
+	                const i3 = (i2 << 16)  | (i0 & 0x0000ffff);
 
 	                // Modify counter values
 	                C[0] ^= i0;
@@ -6113,7 +6113,7 @@
 
 	        _doProcessBlock: function (M, offset) {
 	            // Shortcut
-	            var X = this._X;
+	            const X = this._X;
 
 	            // Iterate the system
 	            nextState.call(this);
@@ -6124,7 +6124,7 @@
 	            S[2] = X[4] ^ (X[1] >>> 16) ^ (X[7] << 16);
 	            S[3] = X[6] ^ (X[3] >>> 16) ^ (X[1] << 16);
 
-	            for (var i = 0; i < 4; i++) {
+	            for (let i = 0; i < 4; i++) {
 	                // Swap endian
 	                S[i] = (((S[i] << 8)  | (S[i] >>> 24)) & 0x00ff00ff) |
 	                       (((S[i] << 24) | (S[i] >>> 8))  & 0xff00ff00);
@@ -6141,8 +6141,8 @@
 
 	    function nextState() {
 	        // Shortcuts
-	        var X = this._X;
-	        var C = this._C;
+	        const X = this._X;
+	        const C = this._C;
 
 	        // Save old counter values
 	        for (var i = 0; i < 8; i++) {
@@ -6162,15 +6162,15 @@
 
 	        // Calculate the g-values
 	        for (var i = 0; i < 8; i++) {
-	            var gx = X[i] + C[i];
+	            const gx = X[i] + C[i];
 
 	            // Construct high and low argument for squaring
-	            var ga = gx & 0xffff;
-	            var gb = gx >>> 16;
+	            const ga = gx & 0xffff;
+	            const gb = gx >>> 16;
 
 	            // Calculate high and low result of squaring
-	            var gh = ((((ga * ga) >>> 17) + ga * gb) >>> 15) + gb * gb;
-	            var gl = (((gx & 0xffff0000) * gx) | 0) + (((gx & 0x0000ffff) * gx) | 0);
+	            const gh = ((((ga * ga) >>> 17) + ga * gb) >>> 15) + gb * gb;
+	            const gl = (((gx & 0xffff0000) * gx) | 0) + (((gx & 0x0000ffff) * gx) | 0);
 
 	            // High XOR low
 	            G[i] = gh ^ gl;
@@ -6201,10 +6201,10 @@
 
 	(function () {
 	    // Shortcuts
-	    var C = CryptoJS;
-	    var C_lib = C.lib;
-	    var BlockCipher = C_lib.BlockCipher;
-	    var C_algo = C.algo;
+	    const C = CryptoJS;
+	    const C_lib = C.lib;
+	    const BlockCipher = C_lib.BlockCipher;
+	    const C_algo = C.algo;
 
 	    const N = 16;
 
@@ -6476,16 +6476,16 @@
 	            0xB74E6132, 0xCE77E25B, 0x578FDFE3, 0x3AC372E6  ]
 	    ];
 
-	    var BLOWFISH_CTX = {
+	    const BLOWFISH_CTX = {
 	        pbox: [],
 	        sbox: []
 	    }
 
 	    function F(ctx, x){
-	        let a = (x >> 24) & 0xFF;
-	        let b = (x >> 16) & 0xFF;
-	        let c = (x >> 8) & 0xFF;
-	        let d = x & 0xFF;
+	        const a = (x >> 24) & 0xFF;
+	        const b = (x >> 16) & 0xFF;
+	        const c = (x >> 8) & 0xFF;
+	        const d = x & 0xFF;
 
 	        let y = ctx.sbox[0][a] + ctx.sbox[1][b];
 	        y = y ^ ctx.sbox[2][c];
@@ -6605,7 +6605,7 @@
 	    /**
 	     * Blowfish block cipher algorithm.
 	     */
-	    var Blowfish = C_algo.Blowfish = BlockCipher.extend({
+	    const Blowfish = C_algo.Blowfish = BlockCipher.extend({
 	        _doReset: function () {
 	            // Skip reset of nRounds has been set before and key did not change
 	            if (this._keyPriorReset === this._key) {
@@ -6613,22 +6613,22 @@
 	            }
 
 	            // Shortcuts
-	            var key = this._keyPriorReset = this._key;
-	            var keyWords = key.words;
-	            var keySize = key.sigBytes / 4;
+	            const key = this._keyPriorReset = this._key;
+	            const keyWords = key.words;
+	            const keySize = key.sigBytes / 4;
 
 	            //Initialization pbox and sbox
 	            BlowFishInit(BLOWFISH_CTX, keyWords, keySize);
 	        },
 
 	        encryptBlock: function (M, offset) {
-	            var res = BlowFish_Encrypt(BLOWFISH_CTX, M[offset], M[offset + 1]);
+	            const res = BlowFish_Encrypt(BLOWFISH_CTX, M[offset], M[offset + 1]);
 	            M[offset] = res.left;
 	            M[offset + 1] = res.right;
 	        },
 
 	        decryptBlock: function (M, offset) {
-	            var res = BlowFish_Decrypt(BLOWFISH_CTX, M[offset], M[offset + 1]);
+	            const res = BlowFish_Decrypt(BLOWFISH_CTX, M[offset], M[offset + 1]);
 	            M[offset] = res.left;
 	            M[offset + 1] = res.right;
 	        },
