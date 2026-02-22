@@ -1,12 +1,12 @@
-  package com.cmswe.alumni.common.websocket;
+package com.cmswe.alumni.common.websocket;
 
-  import io.netty.channel.Channel;
+import io.netty.channel.Channel;
 
-  /**
-   * WebSocket 业务处理接口
-   * 由具体业务模块实现
-   */
-  public interface IWebSocketHandler {
+/**
+ * WebSocket 业务处理接口
+ * 由具体业务模块实现
+ */
+public interface IWebSocketHandler {
 
       /**
        * 用户上线处理

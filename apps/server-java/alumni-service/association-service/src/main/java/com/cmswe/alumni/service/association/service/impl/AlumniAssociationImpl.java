@@ -1666,4 +1666,56 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         return result;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean bindMemberToUser(Long memberId, Long wxId) {
+        log.info("绑定校友会成员与系统用户 - 成员ID: {}, 用户ID: {}", memberId, wxId);
+
+        // 1. 参数校验
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员表ID不能为空");
+        }
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户微信ID不能为空");
+        }
+
+        // 2. 查询成员记录是否存在
+        AlumniAssociationMember member = alumniAssociationMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 校验用户是否存在
+        WxUser wxUser = userService.getById(wxId);
+        if (wxUser == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "用户不存在");
+        }
+
+        // 4. 检查该用户是否已经绑定到该校友会的其他成员记录
+        LambdaQueryWrapper<AlumniAssociationMember> existingBindQuery = new LambdaQueryWrapper<>();
+        existingBindQuery
+                .eq(AlumniAssociationMember::getWxId, wxId)
+                .eq(AlumniAssociationMember::getAlumniAssociationId, member.getAlumniAssociationId())
+                .ne(AlumniAssociationMember::getId, memberId)
+                .eq(AlumniAssociationMember::getStatus, 1);
+
+        Long existingBindCount = alumniAssociationMemberService.count(existingBindQuery);
+        if (existingBindCount > 0) {
+            log.warn("该用户已绑定到该校友会的其他成员记录，用户ID: {}, 校友会ID: {}",
+                    wxId, member.getAlumniAssociationId());
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该用户已绑定到该校友会的其他成员记录");
+        }
+
+        // 5. 更新成员记录的 wx_id 字段
+        member.setWxId(wxId);
+        boolean updateResult = alumniAssociationMemberService.updateById(member);
+
+        if (!updateResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "绑定失败");
+        }
+
+        log.info("绑定校友会成员与系统用户成功 - 成员ID: {}, 用户ID: {}", memberId, wxId);
+        return true;
+    }
+
 }

@@ -112,14 +112,14 @@ public class AlumniAssociationApplicationServiceImpl
         }
 
         // 4. 检查是否已有相同学校和地点的待审核申请
-        LambdaQueryWrapper<AlumniAssociationApplication> checkQuery = new LambdaQueryWrapper<>();
-        checkQuery.eq(AlumniAssociationApplication::getSchoolId, applyDto.getSchoolId())
-                .eq(AlumniAssociationApplication::getLocation, applyDto.getLocation())
-                .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
-        Long existingCount = this.count(checkQuery);
-        if (existingCount > 0) {
-            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校和地点已有待审核的校友会创建申请，请勿重复提交");
-        }
+//        LambdaQueryWrapper<AlumniAssociationApplication> checkQuery = new LambdaQueryWrapper<>();
+//        checkQuery.eq(AlumniAssociationApplication::getSchoolId, applyDto.getSchoolId())
+//                .eq(AlumniAssociationApplication::getLocation, applyDto.getLocation())
+//                .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
+//        Long existingCount = this.count(checkQuery);
+//        if (existingCount > 0) {
+//            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校和地点已有待审核的校友会创建申请，请勿重复提交");
+//        }
 
         // 4. 创建申请记录
         AlumniAssociationApplication application = new AlumniAssociationApplication();
