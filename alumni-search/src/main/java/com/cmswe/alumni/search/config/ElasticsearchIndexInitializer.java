@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 
 import java.nio.file.Files;
 
@@ -36,7 +38,13 @@ public class ElasticsearchIndexInitializer {
     @Value("${elasticsearch.host:http://localhost:9200}")
     private String elasticsearchHost;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${elasticsearch.username:}")
+    private String elasticsearchUsername;
+
+    @Value("${elasticsearch.password:}")
+    private String elasticsearchPassword;
+
+    private RestTemplate restTemplate;
 
     /**
      * 应用启动时自动初始化索引
@@ -47,6 +55,9 @@ public class ElasticsearchIndexInitializer {
         log.info("Elasticsearch 索引自动初始化");
         log.info("========================================");
         log.info("ES 地址: {}", elasticsearchHost);
+
+        // 初始化 RestTemplate 并添加认证
+        initRestTemplate();
 
         try {
             // 1. 检查 ES 连接
@@ -67,6 +78,26 @@ public class ElasticsearchIndexInitializer {
             log.warn("  1. ES 是否已启动: {}", elasticsearchHost);
             log.warn("  2. JSON 映射文件是否存在");
             log.warn("  3. 或手动执行: cd alumni-search/src/main/resources/elasticsearch && ./init_indices.sh");
+        }
+    }
+
+    /**
+     * 初始化 RestTemplate 并添加认证
+     */
+    private void initRestTemplate() {
+        restTemplate = new RestTemplate();
+
+        // 如果配置了用户名和密码，添加 Basic Auth 认证
+        if (elasticsearchUsername != null && !elasticsearchUsername.isEmpty() &&
+            elasticsearchPassword != null && !elasticsearchPassword.isEmpty()) {
+
+            restTemplate.getInterceptors().add(
+                new BasicAuthenticationInterceptor(elasticsearchUsername, elasticsearchPassword)
+            );
+
+            log.info("[✓] Elasticsearch 认证已配置 (用户: {})", elasticsearchUsername);
+        } else {
+            log.warn("[!] Elasticsearch 未配置认证信息");
         }
     }
 
