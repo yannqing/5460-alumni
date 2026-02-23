@@ -476,7 +476,7 @@ class SocketManager {
    * 刷新消息队列（发送缓存的消息）
    */
   flushMessageQueue() {
-    if (this.messageQueue.length === 0) return
+    if (this.messageQueue.length === 0) {return}
 
     console.log(`[WebSocket] 发送缓存消息，共 ${this.messageQueue.length} 条`)
     

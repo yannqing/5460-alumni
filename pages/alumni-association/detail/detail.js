@@ -85,9 +85,9 @@ Page({
 
   // 格式化时间为 月-日 时:分
   formatTime(dateString) {
-    if (!dateString) return ''
+    if (!dateString) {return ''}
     const date = new Date(dateString)
-    if (isNaN(date.getTime())) return ''
+    if (isNaN(date.getTime())) {return ''}
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
     const hours = String(date.getHours()).padStart(2, '0')
@@ -97,7 +97,7 @@ Page({
 
   // 加载校友会详情
   async loadAssociationDetail() {
-    if (this.data.loading) return
+    if (this.data.loading) {return}
 
     this.setData({ loading: true })
 
@@ -195,7 +195,7 @@ Page({
 
   // 加载成员列表
   async loadMembers() {
-    if (this.data.loading) return
+    if (this.data.loading) {return}
 
     this.setData({ loading: true })
 
@@ -215,8 +215,8 @@ Page({
           const aPid = a.organizeArchiRole ? a.organizeArchiRole.pid : undefined
           const bPid = b.organizeArchiRole ? b.organizeArchiRole.pid : undefined
 
-          if (aPid === null && bPid !== null) return -1
-          if (aPid !== null && bPid === null) return 1
+          if (aPid === null && bPid !== null) {return -1}
+          if (aPid !== null && bPid === null) {return 1}
           return 0
         })
 
@@ -423,7 +423,7 @@ Page({
   // 渲染图谱
   renderGraph(canvas, ctx, width, height) {
     const { graphData } = this.data
-    if (!graphData) return
+    if (!graphData) {return}
 
     const that = this
 
@@ -436,10 +436,10 @@ Page({
     let animationId = null
     let isDragging = false
     let dragNode = null
-    let highlightedNodes = new Set()
-    let highlightedLinks = new Set()
-    let linkAnimProgress = {} // 连线动画进度
-    let nodeScales = {} // 节点缩放
+    const highlightedNodes = new Set()
+    const highlightedLinks = new Set()
+    const linkAnimProgress = {} // 连线动画进度
+    const nodeScales = {} // 节点缩放
 
     // 初始化节点位置和速度
     const nodes = graphData.nodes.map(node => ({
@@ -483,7 +483,7 @@ Page({
       // 斥力
       for (let i = 0; i < nodes.length; i++) {
         // 如果节点被固定（拖动中），跳过
-        if (nodes[i].fx !== null && nodes[i].fx !== undefined) continue
+        if (nodes[i].fx !== null && nodes[i].fx !== undefined) {continue}
 
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[j].x - nodes[i].x
@@ -753,7 +753,7 @@ Page({
 
       // 随机选择一条连线
       const linkKeys = Object.keys(linksMap)
-      if (linkKeys.length === 0) return
+      if (linkKeys.length === 0) {return}
 
       const randomLinkKey = linkKeys[Math.floor(Math.random() * linkKeys.length)]
       const link = linksMap[randomLinkKey]
@@ -798,7 +798,7 @@ Page({
 
   // Canvas 触摸开始
   onGraphTouchStart(e) {
-    if (!this.canvasInfo || !this.graphContext) return
+    if (!this.canvasInfo || !this.graphContext) {return}
 
     const touch = e.touches[0]
     const { x, y } = this.getTouchPosition(touch)
@@ -835,10 +835,10 @@ Page({
 
   // Canvas 触摸移动
   onGraphTouchMove(e) {
-    if (!this.canvasInfo || !this.graphContext) return
+    if (!this.canvasInfo || !this.graphContext) {return}
 
     const { isDragging, dragNode } = this.graphContext
-    if (!isDragging() || !dragNode()) return
+    if (!isDragging() || !dragNode()) {return}
 
     const touch = e.touches[0]
     const { x, y } = this.getTouchPosition(touch)
@@ -855,7 +855,7 @@ Page({
 
   // Canvas 触摸结束
   onGraphTouchEnd(e) {
-    if (!this.canvasInfo || !this.graphContext) return
+    if (!this.canvasInfo || !this.graphContext) {return}
 
     const { isDragging, dragNode, setDragging, setDragNode, nodes, linksMap, highlightedNodes, highlightedLinks } = this.graphContext
 
@@ -903,7 +903,7 @@ Page({
 
   // 高亮关联网络
   highlightNetwork(node) {
-    if (!this.graphContext) return
+    if (!this.graphContext) {return}
 
     const { nodes, linksMap, highlightedNodes, highlightedLinks } = this.graphContext
 
@@ -953,7 +953,7 @@ Page({
 
   // 关闭节点卡片
   closeNodeCard() {
-    if (!this.graphContext) return
+    if (!this.graphContext) {return}
 
     const { highlightedNodes, highlightedLinks } = this.graphContext
     highlightedNodes.clear()
@@ -1090,7 +1090,7 @@ Page({
 
   // 关闭申请弹窗
   closeJoinModal() {
-    if (this.data.joinSubmitting) return
+    if (this.data.joinSubmitting) {return}
     this.setData({ showJoinModal: false })
   },
 
@@ -1109,7 +1109,7 @@ Page({
   // 提交加入申请
   async submitJoinApplication() {
     const { associationId, joinForm, joinSubmitting, associationInfo } = this.data
-    if (joinSubmitting) return
+    if (joinSubmitting) {return}
 
     if (!joinForm.realName) {
       wx.showToast({ title: '请输入真实姓名', icon: 'none' })
@@ -1187,7 +1187,7 @@ Page({
   // 认证标签点击
   handleCertificationTap(e) {
     const { type, id } = e.currentTarget.dataset
-    if (!type || !id) return
+    if (!type || !id) {return}
 
     if (type === 'union') {
       wx.navigateTo({

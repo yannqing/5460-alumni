@@ -12,14 +12,14 @@ const getHeaders = (url) => {
     // 登录接口，不设置 Authorization 头
   } else {
     // 获取 token 并设置请求头
-    let gtoken = wx.getStorageSync('token')
+    const gtoken = wx.getStorageSync('token')
     if (gtoken && gtoken.trim() !== '') {
       // 根据文档，token 直接放在 header 中，不使用 Bearer 前缀
       headers.token = gtoken
       // 兼容部分接口使用 x-token
       headers['x-token'] = gtoken
     } else {
-      let uinfo = wx.getStorageSync('userInfo') || {}
+      const uinfo = wx.getStorageSync('userInfo') || {}
       if (uinfo.token && uinfo.token.trim() !== '') {
         headers.token = uinfo.token
         headers['x-token'] = uinfo.token
@@ -33,8 +33,8 @@ const getHeaders = (url) => {
 const request = (params) => {
   const app = getApp()
 
-  let data = params.data || {}
-  let baseUrl = app.globalData.baseUrl
+  const data = params.data || {}
+  const baseUrl = app.globalData.baseUrl
   const fullUrl = data.isAllUrl ? params.url : baseUrl + params.url
   
   // 获取基础请求头（包含 token）
@@ -72,8 +72,8 @@ const request = (params) => {
       header: finalHeaders,
       success: async function (res) {
         // 无论状态码如何，都尝试解析响应数据
-        let responseData = res.data || {}
-        let { code, msg } = responseData
+        const responseData = res.data || {}
+        const { code, msg } = responseData
 
         // 后端约定的 token 相关错误码：
         // 401                 - 兼容 HTTP 风格

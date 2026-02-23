@@ -171,7 +171,7 @@ Page({
   // 跳转到私信页面
   goToChat() {
     const { alumniInfo, alumniId } = this.data
-    if (!alumniInfo) return
+    if (!alumniInfo) {return}
 
     // 如果不是好友，提示无法私信（根据用户需求：判断是否可以私信）
     if (!alumniInfo.isFriend) {
@@ -226,7 +226,7 @@ Page({
       { name: '摩羯座', start: [12, 22], end: [1, 19] }
     ]
 
-    for (let zodiac of zodiacDates) {
+    for (const zodiac of zodiacDates) {
       const [startMonth, startDay] = zodiac.start
       const [endMonth, endDay] = zodiac.end
 

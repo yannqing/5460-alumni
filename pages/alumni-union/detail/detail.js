@@ -69,7 +69,6 @@ Page({
           memberCount: data.memberCount || 0,
           activeStatus: data.activeStatus,
           approvalStatus: data.approvalStatus,
-          level: data.level,
           createdUser: data.createdUser || null,
           updatedUser: data.updatedUser || null,
 
@@ -119,7 +118,7 @@ Page({
   // 拨打电话
   makeCall(e) {
     const phone = e.currentTarget.dataset.phone
-    if (!phone) return
+    if (!phone) {return}
     wx.makePhoneCall({
       phoneNumber: phone
     })
@@ -128,7 +127,7 @@ Page({
   // 复制邮箱
   copyEmail(e) {
     const email = e.currentTarget.dataset.email
-    if (!email) return
+    if (!email) {return}
     wx.setClipboardData({
       data: email,
       success: () => {
