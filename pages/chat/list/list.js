@@ -153,7 +153,7 @@ Page({
 
   refreshOnlineStatus() {
     const { allChatList, onlineUsers } = this.data
-    if (!allChatList || allChatList.length === 0) return
+    if (!allChatList || allChatList.length === 0) {return}
 
     const newList = allChatList.map(item => ({
       ...item,
@@ -167,12 +167,12 @@ Page({
   },
 
   isUserOnline(userId) {
-    if (!userId) return false
+    if (!userId) {return false}
     return this.data.onlineUsers.some(u => String(u.userId) === String(userId))
   },
 
   formatTime(timeStr) {
-    if (!timeStr) return ''
+    if (!timeStr) {return ''}
     
     let date;
     
@@ -416,7 +416,7 @@ Page({
   },
 
   touchmove: function (e) {
-    let index = e.currentTarget.dataset.index,
+    const index = e.currentTarget.dataset.index,
       startX = this.data.startX,
       startY = this.data.startY,
       touchMoveX = e.changedTouches[0].clientX,
@@ -428,12 +428,12 @@ Page({
     this.data.allChatList.forEach(function (v, i) {
       v.isTouchMove = false
       // 滑动超过30度角 return
-      if (Math.abs(angle) > 30) return;
+      if (Math.abs(angle) > 30) {return;}
       if (i == index) {
         if (touchMoveX > startX) // 右滑
-          v.isTouchMove = false
+          {v.isTouchMove = false}
         else // 左滑
-          v.isTouchMove = true
+          {v.isTouchMove = true}
       }
     })
 
@@ -449,7 +449,7 @@ Page({
    * @param {Object} end 终点
    */
   angle: function (start, end) {
-    var _X = end.X - start.X,
+    const _X = end.X - start.X,
       _Y = end.Y - start.Y
     // 返回角度 /Math.atan()返回数字的反正切值
     return 360 * Math.atan(_Y / _X) / (2 * Math.PI);
@@ -518,7 +518,7 @@ Page({
   async pinConversation(e) {
     const { id, index, ispinned } = e.currentTarget.dataset
     // id 即 conversationId
-    if (!id) return
+    if (!id) {return}
 
     // dataset 中的值是字符串，需要正确转换为布尔值
     // ispinned 可能是 "true"、"false"、true、false 或 undefined
@@ -536,8 +536,8 @@ Page({
         
         // 重新排序：置顶的在前面
         list.sort((a, b) => {
-          if (a.isPinned && !b.isPinned) return -1
-          if (!a.isPinned && b.isPinned) return 1
+          if (a.isPinned && !b.isPinned) {return -1}
+          if (!a.isPinned && b.isPinned) {return 1}
           // 如果置顶状态相同，按时间倒序（假设时间已处理好，或者用原始时间戳）
           // 这里简化，假设列表本来就是按时间排好的，只是置顶改变了顺序
           return 0 

@@ -129,7 +129,7 @@ Page({
       console.log('获取企业详情结果:', res)
       
       if (res && (res.data && res.data.code === 200 || res.code === 200)) {
-        let placeData = res.data && res.data.data ? res.data.data : res.data
+        const placeData = res.data && res.data.data ? res.data.data : res.data
         
         // 清理 logo 数据
         let cleanedLogo = placeData.logo || ''
@@ -213,7 +213,7 @@ Page({
         if (formData.images) {
           try {
             // 清理 images 数据，移除多余的引号和反引号
-            let cleanedImages = formData.images.trim().replace(/^["'`]+|["'`]+$/g, '')
+            const cleanedImages = formData.images.trim().replace(/^["'`]+|["'`]+$/g, '')
             const parsedImages = JSON.parse(cleanedImages)
             if (Array.isArray(parsedImages)) {
               // 清理数组中的每个 URL
@@ -230,7 +230,7 @@ Page({
             console.error('解析图片数据失败:', e)
             // 尝试作为单个 URL 处理
             try {
-              let cleanedImages = formData.images.trim().replace(/^["'`]+|["'`]+$/g, '')
+              const cleanedImages = formData.images.trim().replace(/^["'`]+|["'`]+$/g, '')
               enterpriseImageList = [{ url: cleanedImages }]
             } catch (e2) {
               console.error('处理单个图片 URL 失败:', e2)
@@ -240,7 +240,7 @@ Page({
         
         // 获取校友会对象
         let selectedAssociation = null
-        let selectedAssociationIndex = 0
+        const selectedAssociationIndex = 0
         
         
         // 如果本地列表中没有找到，尝试通过ID获取校友会详情

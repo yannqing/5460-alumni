@@ -40,7 +40,7 @@ Page({
    * 处理URL，添加来源标识
    */
   processUrl(url) {
-    if (!url) return url;
+    if (!url) {return url;}
     
     // 如果是公众号文章链接，确保参数正确
     if (url.includes('mp.weixin.qq.com')) {

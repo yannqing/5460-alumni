@@ -52,7 +52,7 @@ Page({
 
   // 加载审核列表数据
   async loadData(reset = false) {
-    if (this.data.loading && !reset) return
+    if (this.data.loading && !reset) {return}
     this.setData({ loading: true })
 
     try {

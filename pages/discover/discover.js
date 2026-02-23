@@ -299,7 +299,7 @@ Page({
               if (shop.distance < 1) {
                 distanceText = Math.round(shop.distance * 1000) + 'm'
               } else {
-                let kmValue = shop.distance.toFixed(1)
+                const kmValue = shop.distance.toFixed(1)
                 if (kmValue.endsWith('.0')) {
                   distanceText = Math.round(shop.distance) + 'km'
                 } else {
@@ -423,7 +423,7 @@ Page({
               if (venue.distance < 1) {
                 distanceText = Math.round(venue.distance * 1000) + 'm'
               } else {
-                let kmValue = venue.distance.toFixed(1)
+                const kmValue = venue.distance.toFixed(1)
                 if (kmValue.endsWith('.0')) {
                   distanceText = Math.round(venue.distance) + 'km'
                 } else {
@@ -446,10 +446,10 @@ Page({
             let address = venue.address || ''
             if (!address && (venue.province || venue.city || venue.district)) {
               const addressParts = []
-              if (venue.province) addressParts.push(venue.province)
-              if (venue.city && venue.city !== venue.province) addressParts.push(venue.city)
-              if (venue.district) addressParts.push(venue.district)
-              if (venue.address) addressParts.push(venue.address)
+              if (venue.province) {addressParts.push(venue.province)}
+              if (venue.city && venue.city !== venue.province) {addressParts.push(venue.city)}
+              if (venue.district) {addressParts.push(venue.district)}
+              if (venue.address) {addressParts.push(venue.address)}
               address = addressParts.join('')
             }
 
@@ -510,7 +510,7 @@ Page({
               if (alumni.distance < 1) {
                 distanceText = Math.round(alumni.distance * 1000) + 'm'
               } else {
-                let kmValue = alumni.distance.toFixed(1)
+                const kmValue = alumni.distance.toFixed(1)
                 if (kmValue.endsWith('.0')) {
                   distanceText = Math.round(alumni.distance) + 'km'
                 } else {

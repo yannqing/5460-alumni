@@ -64,7 +64,7 @@ Page({
 
   // 加载用户信息
   async loadUserInfo() {
-    if (this.data.loadingUserInfo) return
+    if (this.data.loadingUserInfo) {return}
 
     this.setData({ loadingUserInfo: true })
 
@@ -322,7 +322,7 @@ Page({
 
   // 提交申请
   async submitApplication() {
-    if (this.data.submitting) return
+    if (this.data.submitting) {return}
 
     // 验证表单
     if (!this.validateForm()) {
@@ -402,7 +402,7 @@ Page({
 
   // 加载申请详情（查看模式或编辑已有申请）
   async loadApplicationDetail() {
-    if (this.data.loadingDetail) return
+    if (this.data.loadingDetail) {return}
 
     this.setData({ loadingDetail: true })
 

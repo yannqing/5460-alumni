@@ -92,7 +92,7 @@ Page({
 
   handleFilterChange(e) {
     const { id } = e.currentTarget.dataset
-    if (id === this.data.filterType) return
+    if (id === this.data.filterType) {return}
     this.setData({ filterType: id }, () => {
       this.applyFilter()
     })
