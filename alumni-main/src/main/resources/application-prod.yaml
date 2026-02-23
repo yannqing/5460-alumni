@@ -76,10 +76,14 @@ spring:
 # ==================== Elasticsearch 配置 ====================
   elasticsearch:
     uris: ${ELASTICSEARCH_HOST}  # Spring Data ES 使用
+    username: ${ELASTICSEARCH_USERNAME}  # ES 用户名
+    password: ${ELASTICSEARCH_PASSWORD}  # ES 密码
 
 # ElasticsearchIndexInitializer 使用
 elasticsearch:
   host: ${ELASTICSEARCH_HOST}
+  username: ${ELASTICSEARCH_USERNAME}
+  password: ${ELASTICSEARCH_PASSWORD}
   auto-init: true  # 开启自动初始化
 
 # ==================== Canal 数据同步配置 ====================
