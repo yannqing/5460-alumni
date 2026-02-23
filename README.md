@@ -44,14 +44,14 @@ The **CNI Alumni Management System** is an enterprise-grade full-stack platform 
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/screenshots/home_page.png" alt="Home Page" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <img src="docs/assets/screenshots/home_page.png" alt="Home Page" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>🏠 Home Page</b>
       <br>
       <sub>User dashboard with quick access</sub>
     </td>
     <td align="center" width="50%">
-      <img src="docs/screenshots/alumni_association.png" alt="Alumni Association" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <img src="docs/assets/screenshots/alumni_association.png" alt="Alumni Association" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>🎓 Alumni Association</b>
       <br>
@@ -60,14 +60,14 @@ The **CNI Alumni Management System** is an enterprise-grade full-stack platform 
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/screenshots/local_platform.png" alt="Local Platform" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <img src="docs/assets/screenshots/local_platform.png" alt="Local Platform" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>📍 Local Platform</b>
       <br>
       <sub>Regional activity discovery</sub>
     </td>
     <td align="center" width="50%">
-      <img src="docs/screenshots/search.png" alt="Search Function" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <img src="docs/assets/screenshots/search.png" alt="Search Function" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>🔍 Search Function</b>
       <br>
@@ -76,14 +76,14 @@ The **CNI Alumni Management System** is an enterprise-grade full-stack platform 
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/screenshots/chat_page.png" alt="Chat Interface" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <img src="docs/assets/screenshots/chat_page.png" alt="Chat Interface" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>💬 Real-time Chat</b>
       <br>
       <sub>WebSocket-powered messaging</sub>
     </td>
     <td align="center" width="50%">
-      <img src="docs/screenshots/user_info.png" alt="User Profile" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
+      <img src="docs/assets/screenshots/user_info.png" alt="User Profile" style="border: 6px solid #1a1a1a; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 85%;">
       <br>
       <b>👤 User Profile</b>
       <br>
