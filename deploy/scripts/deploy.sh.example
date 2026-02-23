@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Alumni Platform - Server Deployment Script
+# Copy this file and rename to deploy.sh, then configure the variables below
+# 在服务器上运行此脚本进行部署
+
+set -e  # 遇到错误立即退出
+
+# ============================================
+# Configuration - Please modify these values
+# ============================================
+CONTAINER_NAME="alumni-app"
+IMAGE_NAME="alumni-app:latest"
+SERVER_DIR="/path/to/your/project"          # 项目部署目录
+JAR_SOURCE_PATH="/path/to/your/app.jar"     # JAR 包来源路径
+VOLUME_MOUNT="/your/data/path"              # 数据卷挂载路径
+APP_PORT="8080"                             # 应用端口
+MONITOR_PORT="9100"                         # 监控端口
+NETWORK_NAME="your-network"                 # Docker 网络名称
+
+# ============================================
+# Deployment Script - Do not modify below
+# ============================================
+echo "🚀 开始部署 ${CONTAINER_NAME}..."
+
+cd $SERVER_DIR
+
+mv $JAR_SOURCE_PATH .
+
+echo "🛑 停止现有容器..."
+docker stop $CONTAINER_NAME 2>/dev/null || true
+
+echo "🗑️  删除现有容器..."
+docker rm $CONTAINER_NAME 2>/dev/null || true
+
+echo "🗑️  删除现有镜像..."
+docker rmi $IMAGE_NAME 2>/dev/null || true
+
+echo "🔨 构建新镜像..."
+docker build -f ./Dockerfile -t $IMAGE_NAME .
+
+echo "🚀 启动新容器..."
+docker run -it --name $CONTAINER_NAME \
+    --network $NETWORK_NAME \
+    -v $VOLUME_MOUNT:$VOLUME_MOUNT \
+    -p $APP_PORT:8080 \
+    -p $MONITOR_PORT:9100 \
+    -d $IMAGE_NAME
+
+echo "📋 检查容器状态..."
+sleep 3
+docker ps | grep $CONTAINER_NAME
+
+echo "📝 显示容器日志（前30行）..."
+docker logs --tail 30 $CONTAINER_NAME
+
+echo "✅ 部署完成！"
+echo "🌐 API地址: http://YOUR_SERVER_IP:$APP_PORT"
+echo "📊 查看日志: docker logs -f $CONTAINER_NAME"

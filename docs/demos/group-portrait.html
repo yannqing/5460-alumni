@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>群画像 - 持续粒子流演示</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* --- 基础样式保持不变 --- */
+        body { margin: 0; background-color: #020617; font-family: 'Inter', sans-serif; overflow: hidden; color: #fff; width: 100vw; height: 100vh; }
+        .grid-bg {
+            position: absolute; width: 200%; height: 200%;
+            background-image: linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px; pointer-events: none; z-index: 0;
+            transform: perspective(800px) rotateX(20deg) translateY(-150px);
+        }
+        #chart-container { position: absolute; width: 100%; height: 100%; z-index: 1; }
+
+        /* 样式微调 */
+        .node text { font-size: 10px; fill: #94a3b8; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.8); transition: opacity 0.3s; }
+        .link { stroke: #1e293b; stroke-opacity: 0.6; transition: all 0.3s; }
+
+        /* 高亮态 */
+        .node.active circle.core { stroke: #fff; stroke-width: 3px; filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.8)); }
+        .node.dimmed { opacity: 0.1; }
+        .link.dimmed { opacity: 0.05; }
+        .link.active { stroke: #22d3ee; stroke-opacity: 0.6; stroke-width: 1.5px; filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.3)); }
+
+        /* 粒子样式 - 增加发光效果 */
+        .flow-particle {
+            fill: #fff;
+            filter: drop-shadow(0 0 4px #22d3ee); /* 粒子自带霓虹光晕 */
+            pointer-events: none;
+        }
+
+        /* 底部面板样式 */
+        .bottom-panel {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px 24px 0 0;
+            padding: 24px; box-sizing: border-box; transform: translateY(110%);
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1); z-index: 10;
+        }
+        .bottom-panel.show { transform: translateY(0); }
+        .panel-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .panel-title h2 { margin: 0; font-size: 20px; color: #f1f5f9; }
+        .close-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+        .stat-num { font-size: 24px; font-weight: 700; color: #22d3ee; font-family: monospace; }
+        .label { font-size: 12px; color: #64748b; margin-top: 4px; display: block; }
+
+        /* 为了演示，简单布局 */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card-bg { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; }
+
+    </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div id="chart-container"></div>
+
+<div class="bottom-panel" id="detail-panel">
+    <div class="panel-header">
+        <div class="panel-title"><h2 id="p-name">名称</h2></div>
+        <button class="close-btn" onclick="closePanel()">×</button>
+    </div>
+    <div class="grid-2">
+        <div class="card-bg">
+            <div class="stat-num" id="p-count">0</div>
+            <span class="label">关联热度</span>
+        </div>
+        <div class="card-bg">
+            <div class="stat-num" style="color:#a78bfa">Top 1</div>
+            <span class="label">排名情况</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const nodesData = [
+        { id: "00后", group: 1, val: 55 }, { id: "搞钱", group: 2, val: 45 }, { id: "躺平", group: 3, val: 25 },
+        { id: "广东", group: 1, val: 40 }, { id: "程序员", group: 1, val: 50 }, { id: "撸猫", group: 2, val: 30 },
+        { id: "早C晚A", group: 2, val: 35 }, { id: "二次元", group: 2, val: 42 }, { id: "游戏", group: 2, val: 38 },
+        { id: "养生", group: 3, val: 20 }, { id: "脱发", group: 3, val: 15 }, { id: "咖啡", group: 3, val: 22 },
+        { id: "基金", group: 3, val: 18 }, { id: "加班", group: 3, val: 12 }, { id: "夜宵", group: 3, val: 16 }
+    ];
+
+    const linksData = [
+        { source: "00后", target: "二次元" }, { source: "00后", target: "游戏" }, { source: "00后", target: "搞钱" }, { source: "00后", target: "躺平" },
+        { source: "00后", target: "早C晚A" }, { source: "程序员", target: "脱发" }, { source: "程序员", target: "加班" }, { source: "程序员", target: "搞钱" },
+        { source: "程序员", target: "咖啡" }, { source: "广东", target: "早C晚A" }, { source: "广东", target: "夜宵" }, { source: "广东", target: "搞钱" },
+        { source: "搞钱", target: "基金" }, { source: "撸猫", target: "躺平" }, { source: "二次元", target: "游戏" }, { source: "养生", target: "早C晚A" }
+    ];
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const svg = d3.select("#chart-container").append("svg").attr("width", width).attr("height", height).attr("viewBox", [0, 0, width, height]);
+
+    const colorScale = d3.scaleOrdinal().domain([1, 2, 3]).range(["#22d3ee", "#a78bfa", "#94a3b8"]);
+    const sizeScale = d3.scaleSqrt().domain([0, 60]).range([8, 30]);
+
+    const g = svg.append("g");
+    const zoom = d3.zoom().scaleExtent([0.5, 3]).on("zoom", (e) => g.attr("transform", e.transform));
+    svg.call(zoom);
+
+    // --- 物理引擎 ---
+    const simulation = d3.forceSimulation(nodesData)
+        .force("link", d3.forceLink(linksData).id(d => d.id).distance(110))
+        .force("charge", d3.forceManyBody().strength(-350))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius(d => sizeScale(d.val) + 10));
+
+    // --- 绘制 ---
+    const link = g.append("g").selectAll(".link")
+        .data(linksData).join("line")
+        .attr("class", "link").attr("stroke-width", 1);
+
+    const node = g.append("g").selectAll(".node")
+        .data(nodesData).join("g").attr("class", "node")
+        .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+    node.append("circle").attr("r", d => sizeScale(d.val) * 1.5).attr("fill", d => colorScale(d.group)).attr("opacity", 0.1); // 光晕
+    node.append("circle").attr("class", "core").attr("r", d => sizeScale(d.val)).attr("fill", "#020617").attr("stroke", d => colorScale(d.group)).attr("stroke-width", 2);
+    node.append("text").text(d => d.id).attr("dy", d => sizeScale(d.val) + 14).attr("text-anchor", "middle");
+
+    simulation.on("tick", () => {
+        link.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+        // 注意：这里不再调用粒子生成函数
+    });
+
+    // --- 交互 ---
+    node.on("click", (event, d) => {
+        event.stopPropagation();
+        // 高亮逻辑
+        node.classed("dimmed", n => n.id !== d.id).classed("active", n => n.id === d.id);
+        const neighbors = linksData.filter(l => l.source.id === d.id || l.target.id === d.id);
+        link.classed("dimmed", true).classed("active", false);
+        link.filter(l => l.source.id === d.id || l.target.id === d.id).classed("active", true).classed("dimmed", false);
+        neighbors.forEach(l => {
+            const nNode = l.source.id === d.id ? l.target : l.source;
+            node.filter(n => n.id === nNode.id).classed("dimmed", false);
+        });
+        // 运镜
+        const scale = 2;
+        svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(-d.x * scale + width / 2, -d.y * scale + height * 0.4).scale(scale));
+        // 弹窗
+        document.getElementById("p-name").innerText = d.id;
+        document.getElementById("p-count").innerText = Math.floor(Math.random() * 1000 + 500);
+        document.getElementById("detail-panel").classList.add("show");
+    });
+
+    window.closePanel = function() {
+        document.getElementById("detail-panel").classList.remove("show");
+        node.classed("dimmed", false).classed("active", false);
+        link.classed("dimmed", false).classed("active", false);
+        svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(1));
+    };
+    svg.on("click", () => window.closePanel());
+
+    // --- 🔥 关键修改：独立的粒子引擎 (Independent Particle Engine) ---
+    // 单独创建一个图层用于画粒子，避免影响其他元素
+    const particleLayer = g.append("g").attr("class", "particle-layer");
+
+    // 持续计时器：完全独立于物理引擎
+    // 设置间隔 150ms 生成一个粒子 (可以调小数字让粒子更密集)
+    d3.interval(() => {
+        // 如果页面被隐藏（用户切换了Tab），暂停生成以省电
+        if(document.hidden) return;
+
+        // 1. 随机选一条线
+        if (linksData.length === 0) return;
+        const l = linksData[Math.floor(Math.random() * linksData.length)];
+
+        // 2. 随机决定粒子的方向 (source->target 或 target->source)
+        const reverse = Math.random() > 0.5;
+        const startNode = reverse ? l.target : l.source;
+        const endNode = reverse ? l.source : l.target;
+
+        // 3. 生成粒子
+        const pSize = Math.random() * 2 + 1.5; // 随机大小 1.5px ~ 3.5px
+        const pSpeed = Math.random() * 500 + 1000; // 随机速度 1000ms ~ 1500ms
+
+        const particle = particleLayer.append("circle")
+            .attr("class", "flow-particle")
+            .attr("r", pSize)
+            .attr("cx", startNode.x)
+            .attr("cy", startNode.y);
+
+        // 4. 发射动画
+        particle.transition()
+            .duration(pSpeed)
+            .ease(d3.easeLinear) // 匀速运动更像数据流
+            .attrTween("cx", () => d3.interpolateNumber(startNode.x, endNode.x))
+            .attrTween("cy", () => d3.interpolateNumber(startNode.y, endNode.y))
+            .remove(); // 动画结束销毁DOM，防止内存泄漏
+
+    }, 150);
+
+    function dragstarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }
+    function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+    function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }
+
+</script>
+</body>
+</html>
