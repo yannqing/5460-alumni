@@ -8,7 +8,8 @@ LABEL description="cni-alumni"
 
 # 设置时区为上海 (Alpine 需要安装 tzdata)
 ENV TZ=Asia/Shanghai
-RUN apk add --no-cache tzdata && \
+RUN apk add --no-cache tzdata ca-certificates && \
+    update-ca-certificates && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 
