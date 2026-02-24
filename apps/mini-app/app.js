@@ -14,16 +14,27 @@ App({
 
     // 从配置文件读取环境配置
     const config = require('./utils/config.js')
-    
+
+    // 如果使用云托管，初始化云环境
+    if (config.IS_CLOUD_HOST) {
+      wx.cloud.init({
+        env: config.cloud.env,
+        traceUser: true  // 是否在将用户访问记录到用户管理中
+      })
+      console.log('=== 云托管模式 ===')
+      console.log('云环境 ID:', config.cloud.env)
+      console.log('服务名称:', config.cloud.serviceName)
+    }
+
     // 完全手动切换环境，从本地存储读取
     const manualEnv = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
-    
+
     // 获取当前环境的配置
     const envConfig = config.getEnvConfig(manualEnv)
-    
+
     console.log('=== 环境配置（手动切换） ===')
     console.log('手动设置的环境:', manualEnv)
-    console.log('当前API地址:', envConfig.apiBaseUrl)
+    console.log('当前API地址:', config.IS_CLOUD_HOST ? '云托管' : envConfig.apiBaseUrl)
     
     // 设置全局配置（完整的API基础地址，包含前缀）
     this.globalData.baseUrl = envConfig.apiBaseUrl
