@@ -14,7 +14,7 @@
   <view class="group_7">
     <view class="group_19">
       <text class="text_25">校促会角色列表</text>
-      <view class="text-wrapper_13" bindtap="openAddModal">+新增角色</view>
+      <view class="text-wrapper_13" bindtap="openAddModal">+新增分支</view>
     </view>
     <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
       <view wx:if="{{roleLoading}}" class="loading-state">

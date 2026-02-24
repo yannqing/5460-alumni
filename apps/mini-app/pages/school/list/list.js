@@ -34,9 +34,9 @@ Page({
 
     // 筛选器配置
     filters: [
-      { label: '类型', options: ['全部学校', '本科', '专科'], selected: 0 },
+      { label: '类型', options: ['办学层次', '本科', '专科'], selected: 0 },
       { label: '城市', options: ['全部城市'], selected: 0 },
-      { label: '排序', options: ['默认排序', '校友数量', '校友会数量', '名称排序'], selected: 0 },
+     
       { label: '关注', options: ['全部', '我的关注'], selected: 0 }
     ],
     showFilterOptions: false,

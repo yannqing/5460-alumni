@@ -12,9 +12,9 @@ Page({
     loading: true,
     // 校友会列表
     associations: [],
-    // 顶部标签：基本信息 / 组织结构 / 会员列表
+    // 顶部标签：基本信息 / 组织结构 / 会员单位
     activeTab: 0,
-    tabs: ['基本信息', '组织架构', '会员列表'],
+    tabs: ['基本信息', '组织架构', '会员单位'],
     // 组织结构数据
     roleList: [], // 存储角色列表
     organizationLoading: false, // 组织结构加载状态
@@ -81,20 +81,20 @@ Page({
 
   // 下拉刷新
   onPullDownRefresh() {
-    // 如果当前是会员列表标签页，刷新校友会列表
+    // 如果当前单位标签页，刷新校友会列表
     if (this.data.activeTab === 2) {
       this.loadAssociations(true).finally(() => {
         wx.stopPullDownRefresh()
       })
     } else {
-      // 不是会员列表时，直接停止下拉刷新
+      // 不是会员单位时，直接停止下拉刷新
       wx.stopPullDownRefresh()
     }
   },
 
   // 上拉加载更多
   onReachBottom() {
-    // 如果当前是会员列表标签页且有更多数据，加载更多
+    // 如果当前是会员单位标签页且有更多数据，加载更多
     if (this.data.activeTab === 2 && this.data.hasMore) {
       this.loadAssociations()
     }
@@ -189,9 +189,9 @@ Page({
         this.loadOrganizationTree()
       }
     }
-    // 切换到会员列表时加载数据
+    // 切换到会员单位时加载数据
     else if (index === 2) {
-      // 如果是首次切换到会员列表，重新加载数据
+      // 如果是首次切换到会员单位，重新加载数据
       if (this.data.associations.length === 0) {
         this.loadAssociations(true)
       }
