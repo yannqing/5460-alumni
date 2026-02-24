@@ -1,5 +1,17 @@
 // API配置文件 - 统一管理所有配置
 const config = {
+  // ==================== 云托管配置 ====================
+  // 是否使用微信云托管（一键切换开关）
+  // true: 使用 wx.cloud.callContainer
+  // false: 使用传统 wx.request
+  IS_CLOUD_HOST: false,
+
+  // 云托管环境配置
+  cloud: {
+    env: 'prod-2gtjr12j6ab77902',  // 云环境 ID
+    serviceName: 'core',            // 服务名称
+  },
+
   // ==================== 环境配置 ====================
   // 开发环境
   dev: {
@@ -8,7 +20,7 @@ const config = {
     iconPathPrefix: '/upload/images', // 图标路径前缀，如 'dev' 或 'dev/upload'，如果不需要前缀则留空
     wsUrl: 'wss://cni-alumni.yannqing.com/ws', // WebSocket 地址
   },
-  
+
   // 测试环境
   test: {
     baseUrl: 'https://cni-alumni.yannqing.com',
@@ -16,7 +28,7 @@ const config = {
     iconPathPrefix: 'upload/images', // 图标路径前缀，如 'test' 或 'test/upload'，如果不需要前缀则留空
     wsUrl: 'wss://cni-alumni.yannqing.com/ws', // WebSocket 地址
   },
-  
+
   // 生产环境
   prod: {
     baseUrl: 'https://api.example.com',
@@ -37,7 +49,7 @@ const config = {
 
   // 默认校友会头像
   defaultAlumniAvatar: 'https://cni-alumni.yannqing.com/upload/images/assets/logo/njdxxyh.jpg',
-  
+
   // 默认背景图
   defaultCover: 'https://cni-alumni.yannqing.com/upload/images/assets/images/njdxbjt.jpg',
 
@@ -53,7 +65,7 @@ const config = {
   // ==================== 图标路径配置 ====================
   // 图标固定路径（assets/icons/ 这个路径不会变）
   iconFixedPath: 'assets/icons',
-  
+
   // 图片固定路径（assets/images/ 这个路径不会变）
   imageFixedPath: 'assets/images',
 
@@ -76,16 +88,16 @@ const config = {
     if (!iconName) {
       return ''
     }
-    
+
     // 如果没有传入环境参数，从本地存储读取
     if (!env) {
       env = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
     }
-    
+
     const envConfig = this[env] || this.test // 默认使用测试环境
     const baseUrl = envConfig.baseUrl
     const iconPathPrefix = envConfig.iconPathPrefix || '' // 获取环境配置的图标路径前缀
-    
+
     // 拼接完整路径
     // 如果有前缀：baseUrl + iconPathPrefix + iconFixedPath + iconName
     // 如果没有前缀：baseUrl + iconFixedPath + iconName
@@ -108,16 +120,16 @@ const config = {
     if (!imageName) {
       return ''
     }
-    
+
     // 如果没有传入环境参数，从本地存储读取
     if (!env) {
       env = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
     }
-    
+
     const envConfig = this[env] || this.test // 默认使用测试环境
     const baseUrl = envConfig.baseUrl
     const iconPathPrefix = envConfig.iconPathPrefix || '' // 获取环境配置的图标路径前缀
-    
+
     // 拼接完整路径：baseUrl + iconPathPrefix + imageFixedPath + imageName
     if (iconPathPrefix) {
       return `${baseUrl}/${iconPathPrefix}/${this.imageFixedPath}/${imageName}`
@@ -137,10 +149,10 @@ const config = {
     if (!env) {
       env = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
     }
-    
+
     const envConfig = this[env] || this.test // 默认使用测试环境
     const apiPrefix = envConfig.apiPrefix || ''
-    
+
     return {
       baseUrl: envConfig.baseUrl,
       apiPrefix: apiPrefix,
@@ -178,7 +190,7 @@ const config = {
     if (!env) {
       env = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
     }
-    
+
     const envConfig = this[env] || this.test // 默认使用测试环境
     const baseUrl = envConfig.baseUrl
 
@@ -190,7 +202,7 @@ const config = {
         'https://222.191.253.58:8000',
         'http://localhost:8086'
       ]
-      
+
       for (const oldBaseUrl of oldBaseUrls) {
         if (imageUrl.startsWith(oldBaseUrl)) {
           // 提取路径部分（去掉旧 baseUrl）
@@ -199,12 +211,12 @@ const config = {
           return baseUrl + path
         }
       }
-      
+
       // 如果已经是当前环境的 baseUrl，直接返回
       if (imageUrl.startsWith(baseUrl)) {
         return imageUrl
       }
-      
+
       // 其他完整URL，直接返回（可能是外部图片）
       return imageUrl
     }
