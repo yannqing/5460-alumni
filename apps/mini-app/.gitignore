@@ -44,6 +44,9 @@ Thumbs.db
 .env.test.local
 .env.production.local
 
+# 应用配置文件（包含敏感信息，需要从 .example 复制并填入真实值）
+utils/config.js
+
 # 测试覆盖率报告
 coverage/
 
