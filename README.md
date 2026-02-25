@@ -858,6 +858,48 @@ Content-Type: application/json
 
 ---
 
+## 🔐 Environment Setup
+
+> **Security Notice**: This repository has been sanitized to remove all sensitive information from the git history. All credentials, API keys, and environment-specific configurations have been replaced with environment variable placeholders.
+
+### Before You Begin
+
+1. **Copy environment template files:**
+   ```bash
+   # For Mini Program
+   cp apps/mini-app/project.config.json.example apps/mini-app/project.config.json
+   cp apps/mini-app/.env.example apps/mini-app/.env
+
+   # For Backend (if applicable)
+   cp .env.example .env
+   ```
+
+2. **Fill in your own credentials:**
+   - WeChat Mini Program AppID
+   - Cloud Environment ID (if using WeChat Cloud Hosting)
+   - Database credentials
+   - API keys and secrets
+
+### Required Environment Variables
+
+| Variable | Description | Where to Get |
+|----------|-------------|--------------|
+| `WECHAT_MINI_APP_ID` | WeChat Mini Program AppID | [WeChat MP Platform](https://mp.weixin.qq.com/) |
+| `WECHAT_SECRET` | WeChat Mini Program Secret | WeChat MP Platform → Development → Settings |
+| `CLOUD_ENV_ID` | Cloud Environment ID | WeChat Cloud Hosting Console |
+| `API_DOMAIN` | Backend API Domain | Your deployed server domain |
+| `JWT_SECRET` | JWT signing secret | Generate a secure random string |
+| `DB_PASSWORD` | Database password | Your database configuration |
+
+### Important Notes
+
+- **Never commit** `project.config.json`, `.env`, or any file containing real credentials
+- All sensitive files are already listed in `.gitignore`
+- For team collaboration, share credentials through secure channels (not git)
+- Rotate credentials immediately if accidentally exposed
+
+---
+
 ## 📝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.

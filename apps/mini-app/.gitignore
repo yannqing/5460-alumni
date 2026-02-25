@@ -15,6 +15,7 @@ logs/
 # 微信开发者工具生成的文件
 .vscode/
 .idea/
+project.config.json
 project.private.config.json
 
 # 操作系统文件
