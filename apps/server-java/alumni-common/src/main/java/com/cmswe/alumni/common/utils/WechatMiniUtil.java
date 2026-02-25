@@ -24,6 +24,10 @@ public class WechatMiniUtil {
     @Value("${wechat.mini.secret}")
     private String secret;
 
+    // 微信API基础URL（云托管环境使用 http，其他环境使用 https）
+    @Value("${wechat.api.base-url:https://api.weixin.qq.com}")
+    private String wechatApiBaseUrl;
+
     @Resource
     private HttpClientUtil httpClientUtil;
 
@@ -43,8 +47,8 @@ public class WechatMiniUtil {
     public Map<String, Object> code2session(String code) {
         // 构建请求URL
         String url = String.format(
-                "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
-                appId, secret, code);
+                "%s/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
+                wechatApiBaseUrl, appId, secret, code);
 
         try {
             log.info("调用微信code2session接口, code={}", code);
@@ -90,7 +94,7 @@ public class WechatMiniUtil {
             throw new BusinessException(500, "获取微信Access Token失败");
         }
 
-        String url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + accessToken;
+        String url = wechatApiBaseUrl + "/wxa/getwxacodeunlimit?access_token=" + accessToken;
 
         try {
             // 构建请求参数
@@ -155,8 +159,8 @@ public class WechatMiniUtil {
         }
 
         String url = String.format(
-                "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
-                appId, secret);
+                "%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+                wechatApiBaseUrl, appId, secret);
 
         try {
             log.info("获取微信Access Token");

@@ -63,14 +63,14 @@
 
     <!-- 教育经历 -->
     <view class="form-section">
-      <view class="section-title">教育经历（选填）</view>
+      <view class="section-title">教育经历（必填）</view>
 
       <view wx:if="{{schoolName}}" class="form-item">
         <view class="form-label">学校</view>
         <view class="form-display">{{schoolName}}</view>
       </view>
 
-      <view class="form-item">
+      <view class="form-item required">
         <view class="form-label">入学年份</view>
         <picker
           mode="date"
@@ -86,7 +86,7 @@
         </picker>
       </view>
 
-      <view class="form-item">
+      <view class="form-item required">
         <view class="form-label">毕业年份</view>
         <picker
           mode="date"
@@ -102,7 +102,7 @@
         </picker>
       </view>
 
-      <view class="form-item">
+      <view class="form-item required">
         <view class="form-label">院系</view>
         <input
           class="form-input"
@@ -115,7 +115,7 @@
         />
       </view>
 
-      <view class="form-item">
+      <view class="form-item required">
         <view class="form-label">专业</view>
         <input
           class="form-input"
@@ -128,7 +128,7 @@
         />
       </view>
 
-      <view class="form-item">
+      <view class="form-item required">
         <view class="form-label">班级</view>
         <input
           class="form-input"
@@ -141,7 +141,7 @@
         />
       </view>
 
-      <view class="form-item">
+      <view class="form-item required">
         <view class="form-label">学历层次</view>
         <picker
           mode="selector"

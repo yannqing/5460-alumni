@@ -7,7 +7,7 @@
     <scroll-view scroll-y class="form-scroll">
       <view class="avatar-card card">
         <view class="avatar-wrap" bindtap="chooseAvatar">
-          <image class="avatar" src="{{form.avatarUrl}}" mode="aspectFill" />
+          <image class="avatar" src="{{form.avatarUrl || defaultAvatar}}" mode="aspectFill" />
           <view class="avatar-mask">
             <text>更换头像</text>
           </view>

@@ -15,6 +15,7 @@ logs/
 # 微信开发者工具生成的文件
 .vscode/
 .idea/
+project.config.json
 project.private.config.json
 
 # 操作系统文件
@@ -42,6 +43,9 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+# 应用配置文件（包含敏感信息，需要从 .example 复制并填入真实值）
+utils/config.js
 
 # 测试覆盖率报告
 coverage/

@@ -1,6 +1,27 @@
 // utils/auth.js
 const { authApi } = require('../api/api.js')
 
+// ==================== 登录锁机制 ====================
+// 防止多个请求并发触发登录，导致 "code been used" 错误
+let isLoggingIn = false        // 是否正在登录中
+let loginPromise = null        // 当前登录的 Promise（供其他请求等待）
+
+/**
+ * 获取登录锁状态
+ * @returns {boolean} 是否正在登录中
+ */
+function isLoginInProgress() {
+  return isLoggingIn
+}
+
+/**
+ * 等待当前登录完成
+ * @returns {Promise} 当前登录的 Promise
+ */
+function waitForLogin() {
+  return loginPromise
+}
+
 // 判断时间是否过期
 const judgeTime = (time) => {
   const strTime = time.replace("/-/g", "/");
@@ -61,13 +82,39 @@ async function checkSession() {
 }
 
 /**
- * 核心登录函数
+ * 核心登录函数（带锁机制，防止并发登录）
  * @param {string} inviter_wx_uuid - 可选，邀请人的 UUID
  * @returns {object} 用户数据
  */
 async function login(inviter_wx_uuid) {
-  console.log('=== 开始登录流程 ===')
-  console.log('邀请人的uuid', inviter_wx_uuid)
+  // ========== 登录锁检查 ==========
+  // 如果已有登录正在进行，等待它完成而不是发起新的登录
+  if (isLoggingIn && loginPromise) {
+    console.log('[Auth] 检测到登录正在进行中，等待当前登录完成...')
+    try {
+      const result = await loginPromise
+      console.log('[Auth] 等待的登录已完成')
+      return result
+    } catch (e) {
+      console.warn('[Auth] 等待的登录失败，将发起新的登录')
+      // 继续执行新的登录
+    }
+  }
+
+  // 设置登录锁
+  isLoggingIn = true
+  console.log('[Auth] 获取登录锁，开始登录流程')
+
+  // 创建一个新的 Promise 供其他请求等待
+  let resolveLogin, rejectLogin
+  loginPromise = new Promise((resolve, reject) => {
+    resolveLogin = resolve
+    rejectLogin = reject
+  })
+
+  try {
+    console.log('=== 开始登录流程 ===')
+    console.log('邀请人的uuid', inviter_wx_uuid)
 
   // 1. 调用 wx.login 获取 code
   const wxcode = await wxaCode();
@@ -185,11 +232,28 @@ async function login(inviter_wx_uuid) {
     // 二次加工用户信息（包括角色处理）
     formatUserInfoData(data)
 
+    // 释放登录锁，通知等待者成功
+    isLoggingIn = false
+    resolveLogin(data)
+    console.log('[Auth] 登录成功，释放登录锁')
+
     return data
   } else {
+    // 释放登录锁，通知等待者失败
+    isLoggingIn = false
+    rejectLogin(new Error(msg || '登录失败'))
+    console.log('[Auth] 登录失败，释放登录锁')
+
     wx.showToast({
       title: '登陆失败',
     })
+  }
+  } catch (error) {
+    // 异常时也要释放登录锁
+    isLoggingIn = false
+    rejectLogin(error)
+    console.error('[Auth] 登录异常，释放登录锁:', error)
+    throw error
   }
 }
 
@@ -376,5 +440,8 @@ module.exports = {
   hasRoleName,
   getUserRoleCodes,
   getUserRoleNames,
-  hasManagementPermission
+  hasManagementPermission,
+  // 登录锁相关
+  isLoginInProgress,
+  waitForLogin
 };

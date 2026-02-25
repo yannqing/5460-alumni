@@ -34,10 +34,10 @@ Page({
 
     // 筛选器配置
     filters: [
-      { label: '类型', options: ['全部学校', '本科', '专科'], selected: 0 },
+      { label: '类型', options: ['办学层次', '本科', '专科'], selected: 0 },
       { label: '城市', options: ['全部城市'], selected: 0 },
-      { label: '排序', options: ['默认排序', '校友数量', '校友会数量', '名称排序'], selected: 0 },
-      { label: '关注', options: ['全部', '我的关注'], selected: 0 }
+     
+      { label: '关注', options: [ '我的关注'], selected: 0 }
     ],
     showFilterOptions: false,
     activeFilterIndex: -1,
@@ -659,13 +659,9 @@ Page({
 
   // 关注筛选变更
   onFollowChange(e) {
-    const optionIndex = e.detail.value
-    const { filters } = this.data
-    filters[3].selected = optionIndex
-
-    this.setData({ filters, current: 1 })
-    // 这里可以根据需要实现关注筛选逻辑
-    this.loadSchoolList(true)
+    wx.navigateTo({
+      url: '/pages/my-follow/my-follow'
+    })
   }
 })
 
