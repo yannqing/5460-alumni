@@ -115,11 +115,20 @@ knife4j:
     username: ${KNIFE4J_USERNAME:admin}
     password: ${KNIFE4J_PASSWORD:admin123}
 file:
-  upload-common-url: ${FILE_UPLOAD_COMMON_URL:/yannqing/cni-alumni/java/cdn_statics}  # 文件存储一级目录
-  upload-prefix-url: ${FILE_UPLOAD_PREFIX_URL:/upload}  # 请求路径前缀
+  upload-common-url: ${FILE_UPLOAD_COMMON_URL:/yannqing/cni-alumni/java/cdn_statics}  # 文件存储一级目录（本地存储使用）
+  upload-prefix-url: ${FILE_UPLOAD_PREFIX_URL:/upload}  # 请求路径前缀（本地存储使用）
   upload-image-url: ${FILE_UPLOAD_IMAGE_URL:images}     # 图片文件存储的三级目录
   upload-resume-url: ${FILE_UPLOAD_RESUME_URL:resumes}   # 简历文件存储的三级目录
   upload-audio-url: ${FILE_UPLOAD_AUDIO_URL:audios}     # 音频文件存储的三级目录
+  storage-type: cos  # 文件存储类型: local(本地存储) 或 cos(微信云托管对象存储)
+
+# 微信云托管对象存储配置
+cloudbase:
+  cos:
+    region: ap-shanghai  # 存储桶地域
+    bucket-name: 7072-prod-2gtjr12j6ab77902-1373505745  # 存储桶名称
+    base-url: https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la  # 访问域名（tcb.qcloud.la）
+    upload-path: cni-alumni  # 文件上传路径前缀
 
 # 雪花算法 id
 snowflake:
@@ -131,6 +140,9 @@ wechat:
   mini:
     app-id: ${WECHAT_APP_ID}  # 微信小程序AppID
     secret: ${WECHAT_SECRET}  # 微信小程序Secret
+  api:
+    # 云托管环境使用 http 内网链路，无需 SSL 证书验证，速度更快
+    base-url: http://api.weixin.qq.com
 
 # 腾讯地图配置
 tencent:

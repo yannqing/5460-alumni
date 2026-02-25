@@ -1,30 +1,45 @@
 // utils/fileUpload.js
 // 文件上传和下载工具 - 严格区分文件类型
+// 支持云托管模式和传统模式
+
+const config = require('./config.js')
 
 /**
  * 获取请求头（包含 token）
  */
 function getHeaders() {
   const headers = {}
-  
+
   // 获取 token
   let token = wx.getStorageSync('token') || ''
   if (!token) {
     const uinfo = wx.getStorageSync('userInfo') || {}
     token = uinfo.token || ''
   }
-  
+
   if (token) {
     headers.token = token
   }
-  
+
+  // 云托管模式需要添加服务标识
+  if (config.IS_CLOUD_HOST) {
+    headers['X-WX-SERVICE'] = config.cloud.serviceName
+  }
+
   return headers
 }
 
 /**
- * 获取 baseUrl
+ * 获取文件上传的 baseUrl
+ * 云托管模式使用云托管公网地址，传统模式使用 app.globalData.baseUrl
  */
-function getBaseUrl() {
+function getUploadBaseUrl() {
+  // 云托管模式：使用云托管公网访问地址
+  if (config.IS_CLOUD_HOST && config.cloud.publicUrl) {
+    return config.cloud.publicUrl
+  }
+
+  // 传统模式：使用 app.globalData.baseUrl
   try {
     const app = getApp()
     if (app && app.globalData && app.globalData.baseUrl) {
@@ -33,9 +48,16 @@ function getBaseUrl() {
   } catch (error) {
     // getApp() 可能失败
   }
-  
+
   // 如果获取失败，返回默认值或从配置中读取
   return ''
+}
+
+/**
+ * 获取 baseUrl（兼容旧代码）
+ */
+function getBaseUrl() {
+  return getUploadBaseUrl()
 }
 
 /**
@@ -48,17 +70,31 @@ function getBaseUrl() {
  * @returns {Promise} 返回上传结果
  */
 function uploadFile(filePath, uploadUrl, fileFieldName, originalName = '', extraFormData = {}) {
-  const baseUrl = getBaseUrl()
+  const baseUrl = getUploadBaseUrl()
+
+  console.log('[FileUpload] ========== 文件上传调试信息 ==========')
+  console.log('[FileUpload] 云托管模式:', config.IS_CLOUD_HOST)
+  console.log('[FileUpload] baseUrl:', baseUrl)
+  console.log('[FileUpload] uploadUrl:', uploadUrl)
+  console.log('[FileUpload] filePath:', filePath)
+  console.log('[FileUpload] fileFieldName:', fileFieldName)
+
   if (!baseUrl) {
+    const errorMsg = config.IS_CLOUD_HOST
+      ? 'baseUrl 为空，请在 config.js 中配置 cloud.publicUrl（云托管公网访问地址）'
+      : 'baseUrl 未配置，请检查 app.globalData.baseUrl'
+    console.error('[FileUpload] ' + errorMsg)
     return Promise.reject({
       code: -1,
-      msg: 'baseUrl 未配置，请检查 app.globalData.baseUrl'
+      msg: errorMsg
     })
   }
-  
+
   const url = baseUrl + uploadUrl
-  
+  console.log('[FileUpload] 完整上传URL:', url)
+
   const headers = getHeaders()
+  console.log('[FileUpload] 请求头:', headers)
   
   // 构建表单数据
   const formData = {
@@ -69,6 +105,8 @@ function uploadFile(filePath, uploadUrl, fileFieldName, originalName = '', extra
     formData.originalName = originalName
   }
   
+  console.log('[FileUpload] 开始调用 wx.uploadFile...')
+
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: url,
@@ -77,22 +115,31 @@ function uploadFile(filePath, uploadUrl, fileFieldName, originalName = '', extra
       formData: formData,
       header: headers,
       success: (res) => {
+        console.log('[FileUpload] wx.uploadFile success 回调')
+        console.log('[FileUpload] HTTP状态码:', res.statusCode)
+        console.log('[FileUpload] 响应数据:', res.data)
+
         // 检查 HTTP 状态码
         if (res.statusCode !== 200) {
           const error = {
             code: res.statusCode,
             msg: `上传失败，HTTP状态码：${res.statusCode}`
           }
+          console.error('[FileUpload] HTTP状态码错误:', error)
           reject(error)
           return
         }
 
         try {
           const data = JSON.parse(res.data)
+          console.log('[FileUpload] 解析后的数据:', data)
+
           if (data.code === 200) {
+            console.log('[FileUpload] 上传成功!')
             resolve(data)
           } else {
             // 返回错误信息，不在这里显示 toast，由调用方处理
+            console.error('[FileUpload] 业务错误:', data)
             reject({
               code: data.code,
               msg: data.msg || '上传失败',
@@ -101,6 +148,7 @@ function uploadFile(filePath, uploadUrl, fileFieldName, originalName = '', extra
           }
         } catch (error) {
           // JSON 解析失败
+          console.error('[FileUpload] JSON解析失败:', error)
           reject({
             code: -1,
             msg: '响应解析失败',
@@ -111,6 +159,8 @@ function uploadFile(filePath, uploadUrl, fileFieldName, originalName = '', extra
       },
       fail: (error) => {
         // 网络错误，返回错误信息，不在这里显示 toast
+        console.error('[FileUpload] wx.uploadFile fail 回调')
+        console.error('[FileUpload] 错误信息:', error)
         reject({
           code: -1,
           msg: '网络错误，请检查网络连接',

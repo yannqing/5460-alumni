@@ -3,16 +3,20 @@ package com.cmswe.alumni.service.user.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.user.FileService;
 import com.cmswe.alumni.common.entity.Files;
+import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.utils.CosUtils;
 import com.cmswe.alumni.common.utils.FileUtils;
 import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.common.vo.FilesVo;
 import com.cmswe.alumni.service.user.mapper.FilesMapper;
+import com.cmswe.alumni.service.user.mapper.WxUserMapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.CacheControl;
@@ -47,11 +51,20 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
     @Value("${file.upload-audio-url}")
     private String uploadAudioPath;
 
+    @Value("${file.storage-type:local}")
+    private String storageType;
+
     @Resource
     private JwtUtils jwtUtils;
 
     @Resource
     private FileUtils fileUtils;
+
+    @Autowired(required = false)
+    private CosUtils cosUtils;
+
+    @Resource
+    private WxUserMapper wxUserMapper;
 
     @Override
     public FilesVo uploadImageAndReturnVo(MultipartFile image, HttpServletRequest request) throws IOException {
@@ -108,20 +121,43 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
         UUID uuid = UUID.randomUUID();
         String newFilename = replaceFilename(fileName, uuid.toString());
 
-        String accessUrl = fileUtils.uploadFile(file, subPath, type, fileName, newFilename, fileExtension);
+        // 获取用户 ID 和 openid
+        Long wxId = jwtUtils.getUserIdFromToken(request.getHeader("token"));
+        String openid = null;
+
+        // 如果使用云托管 COS，需要获取用户的 openid
+        if ("cos".equalsIgnoreCase(storageType) && wxId != null) {
+            WxUser wxUser = wxUserMapper.selectById(wxId);
+            if (wxUser != null) {
+                openid = wxUser.getOpenid();
+                log.info("获取到用户 openid: {}", openid);
+            }
+        }
+
+        String accessUrl = fileUtils.uploadFile(file, subPath, type, fileName, newFilename, fileExtension, openid);
 
         // 获取文件 md5 和 SHA-256
         String fileMd5 = DigestUtils.md5Hex(file.getInputStream());
         String fileHash = DigestUtils.sha256Hex(file.getInputStream());
 
+        // 根据存储类型生成完整的访问 URL
+        String fullUrl;
+        if ("cos".equalsIgnoreCase(storageType)) {
+            // COS 存储：使用 COS 域名
+            fullUrl = cosUtils.getFileUrl(accessUrl);
+        } else {
+            // 本地存储：使用应用域名
+            fullUrl = appUrl + accessUrl;
+        }
+
         // 保存文件信息到数据库并返回FilesVo
         FilesVo filesVo = saveFileRecord(
-            jwtUtils.getUserIdFromToken(request.getHeader("token")),
+            wxId,
             newFilename,
             fileName,
             fileExtension,
             accessUrl,
-            appUrl + accessUrl,
+            fullUrl,
             fileMd5,
             fileHash,
             file.getSize(),

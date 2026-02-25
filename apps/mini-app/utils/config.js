@@ -10,6 +10,8 @@ const config = {
   cloud: {
     env: 'prod-2gtjr12j6ab77902',  // 云环境 ID
     serviceName: 'core',            // 服务名称
+    // 云托管公网访问地址（用于文件上传等不支持 callContainer 的场景）
+    publicUrl: 'https://core-178924-5-1373505745.sh.run.tcloudbase.com',
   },
 
   // ==================== 环境配置 ====================

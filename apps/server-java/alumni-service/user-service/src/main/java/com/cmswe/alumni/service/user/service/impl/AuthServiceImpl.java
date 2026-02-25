@@ -75,20 +75,27 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> sessionInfo = wechatMiniUtil.code2session(code);
         log.info("微信code2session返回结果: {}", sessionInfo);
 
-        //3. 验证unionid是否存在（防止非法访问）
-        if (!sessionInfo.containsKey("unionid") || sessionInfo.get("unionid") == null) {
-            log.error("微信返回结果中不包含unionid，可能小程序未绑定到开放平台");
-            throw new BusinessException(401, "非法访问：请确保小程序已绑定到微信开放平台");
-        }
-
+        //3. 获取微信用户标识信息
         String unionId = (String) sessionInfo.get("unionid");
         String openid = (String) sessionInfo.get("openid");
+
+        // 未绑定开放平台时没有unionid，此时使用openid作为唯一标识
+        if (unionId == null || unionId.trim().isEmpty()) {
+            log.warn("微信返回结果中不包含unionid，小程序可能未绑定到开放平台，将使用openid作为唯一标识");
+        }
+
         log.info("获取到微信用户信息: unionId={}, openid={}", unionId, openid);
 
         // ===== 以下为后续步骤，需要你自己实现 =====
 
-        //4. 判断用户是否存在数据库（通过unionid查询）
-        WxUser loginUser = wxUserMapper.selectOne(new LambdaQueryWrapper<WxUser>().eq(WxUser::getUnionId, unionId));
+        //4. 判断用户是否存在数据库
+        // 优先通过unionid查询（如果有），否则通过openid查询
+        WxUser loginUser;
+        if (unionId != null && !unionId.trim().isEmpty()) {
+            loginUser = wxUserMapper.selectOne(new LambdaQueryWrapper<WxUser>().eq(WxUser::getUnionId, unionId));
+        } else {
+            loginUser = wxUserMapper.selectOne(new LambdaQueryWrapper<WxUser>().eq(WxUser::getOpenid, openid));
+        }
         if (loginUser == null) {
             //4.1 首次登录 - 创建新用户
             loginUser = new WxUser();
@@ -103,11 +110,12 @@ public class AuthServiceImpl implements AuthService {
             //4.2 初始化用户信息
             initData(loginUser.getWxId());
         } else {
-            //4.2 非首次登录
+            //4.2 非首次登录 - 更新登录时间和IP
             wxUserMapper.update(
                     new LambdaUpdateWrapper<WxUser>()
                             .set(WxUser::getLastLoginTime, LocalDateTime.now())
                             .set(WxUser::getLastLoginIp, getRealClientIp(request))
+                            .eq(WxUser::getWxId, loginUser.getWxId())
             );
         }
 
