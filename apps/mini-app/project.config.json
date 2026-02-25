@@ -30,7 +30,7 @@
     "ignore": [],
     "include": []
   },
-  "appid": "${WECHAT_MINI_APP_ID_OLD}",
+  "appid": "${WECHAT_MINI_APP_ID}",
   "editorSetting": {},
   "libVersion": "3.14.1"
 }
