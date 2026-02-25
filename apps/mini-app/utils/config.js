@@ -4,7 +4,7 @@ const config = {
   // 是否使用微信云托管（一键切换开关）
   // true: 使用 wx.cloud.callContainer
   // false: 使用传统 wx.request
-  IS_CLOUD_HOST: true,
+  IS_CLOUD_HOST: false,
 
   // 云托管环境配置
   cloud: {
