@@ -8,6 +8,7 @@ Page({
     iconSearch: config.getIconUrl('sslss.png'),
     iconCategory: config.getIconUrl('xx.png'),
     iconStar: config.getIconUrl('star.png'),
+    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/ec78b300-ab01-470d-a504-97eb149caf24.png`,
     keyword: '',
     filters: [
       { label: '商铺类型', options: ['全部类型', '校友商铺', '普通商铺'], selected: 0 },
@@ -37,8 +38,8 @@ Page({
   },
 
   async loadMerchantList(reset = false) {
-    if (this.data.loading) {return}
-    if (!reset && !this.data.hasMore) {return}
+    if (this.data.loading) { return }
+    if (!reset && !this.data.hasMore) { return }
 
     this.setData({ loading: true })
 

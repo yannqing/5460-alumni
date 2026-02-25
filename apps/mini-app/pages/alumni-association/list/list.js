@@ -11,6 +11,7 @@ Page({
     iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
+    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png`,
     keyword: '',
     filters: [
       { label: '类型', options: ['全部校友会', '地方校友会', '行业校友会', '海外校友会'], selected: 0 },
@@ -208,7 +209,7 @@ Page({
 
   // 加载校友会列表
   async loadAssociationList(refresh = false) {
-    if (this.data.loading) {return}
+    if (this.data.loading) { return }
 
     this.setData({ loading: true })
 
@@ -229,9 +230,9 @@ Page({
         // 联系信息（暂不使用）
         contactInfo: undefined,
         // 排序字段：注册时间
-      sortField: 'createTime',
-      // 排序顺序：根据筛选选择，默认升序
-      sortOrder: sortFilter.selected == 1 ? 'descend' : 'ascend'
+        sortField: 'createTime',
+        // 排序顺序：根据筛选选择，默认升序
+        sortOrder: sortFilter.selected == 1 ? 'descend' : 'ascend'
       }
 
       // 移除 undefined 参数
@@ -292,7 +293,7 @@ Page({
 
           // 过滤：location 字段包含该省份下的任何城市名称，或包含省份名称
           finalList = mappedList.filter(item => {
-            if (!item.location) {return false}
+            if (!item.location) { return false }
 
             const location = item.location
 
