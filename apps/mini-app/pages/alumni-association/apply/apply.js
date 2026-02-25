@@ -306,15 +306,62 @@ Page({
       }
     }
 
+    // 验证教育经历必填字段
+    if (!formData.enrollmentYear) {
+      wx.showToast({
+        title: '请选择入学年份',
+        icon: 'none'
+      })
+      return false
+    }
+
+    if (!formData.graduationYear) {
+      wx.showToast({
+        title: '请选择毕业年份',
+        icon: 'none'
+      })
+      return false
+    }
+
+    if (!formData.department || !formData.department.trim()) {
+      wx.showToast({
+        title: '请输入院系',
+        icon: 'none'
+      })
+      return false
+    }
+
+    if (!formData.major || !formData.major.trim()) {
+      wx.showToast({
+        title: '请输入专业',
+        icon: 'none'
+      })
+      return false
+    }
+
+    if (!formData.className || !formData.className.trim()) {
+      wx.showToast({
+        title: '请输入班级',
+        icon: 'none'
+      })
+      return false
+    }
+
+    if (!formData.educationLevel) {
+      wx.showToast({
+        title: '请选择学历层次',
+        icon: 'none'
+      })
+      return false
+    }
+
     // 验证入学和毕业年份的合理性
-    if (formData.enrollmentYear && formData.graduationYear) {
-      if (formData.enrollmentYear >= formData.graduationYear) {
-        wx.showToast({
-          title: '毕业年份应晚于入学年份',
-          icon: 'none'
-        })
-        return false
-      }
+    if (formData.enrollmentYear >= formData.graduationYear) {
+      wx.showToast({
+        title: '毕业年份应晚于入学年份',
+        icon: 'none'
+      })
+      return false
     }
 
     return true
