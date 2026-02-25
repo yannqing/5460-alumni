@@ -46,11 +46,9 @@
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
-      <!-- 校友认证筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onCertChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
-          <text>{{filters[3].options[filters[3].selected]}}</text>
-        </picker>
+      <!-- 关注筛选 -->
+      <view class="filter-item" bindtap="onFollowChange">
+        <text>{{filters[3].options[0]}}</text>
         <text class="filter-arrow">▾</text>
       </view>
     </view>
