@@ -1,7 +1,7 @@
 <custom-nav-bar useAuditStyle="{{true}}" auditTitle="创建校友会" showBack="{{true}}">
   <view class="white-background-content">
     <view class="container" bindtap="closeAllDropdowns">
-  <image src="https://${API_DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png" class="header-image" mode="aspectFit"></image>
+  <image src="{{headerImageUrl}}" class="header-image" mode="aspectFit"></image>
   <view class="form-card">
     <view class="form-title">基本信息</view>
 

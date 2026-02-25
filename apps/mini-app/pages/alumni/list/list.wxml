@@ -9,7 +9,7 @@
   <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
   <!-- 顶部图片 -->
   <view class="top-image-container">
-    <image class="top-image" src="https://${API_DOMAIN}/upload/images/2026/02/06/64fc16d0-fb12-4e63-b7a0-8638b532c45a.png" mode="aspectFit" />
+    <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
   </view>
   
   <!-- 搜索栏和筛选条件容器 -->

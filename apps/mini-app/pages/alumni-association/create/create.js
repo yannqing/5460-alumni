@@ -44,19 +44,20 @@ Page({
 
         // 其他成员列表
         members: [],
-        
+
         // 成员搜索结果
         memberSearchResults: [],
-        
+
         // 申请材料
         attachments: [],
-        
+
         // 背景图
         bgImages: [],
 
         loading: false,
         submitting: false,
-        defaultAvatar: config.defaultAvatar
+        defaultAvatar: config.defaultAvatar,
+        headerImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png`
     },
 
     onLoad(options) {
@@ -118,11 +119,11 @@ Page({
             if (res.data && res.data.code === 200) {
                 const userInfo = res.data.data
                 console.log('获取到的用户信息:', userInfo)
-                
+
                 // 尝试获取用户的 wx_id，检查所有可能的字段名
                 const userId = userInfo.wxId || userInfo.wx_id || userInfo.userId || userInfo.user_id || userInfo.id
                 console.log('获取到的用户ID:', userId)
-                
+
                 this.setData({
                     'formData.chargeName': userInfo.name || userInfo.realName || userInfo.nickname || '',
                     'formData.contactInfo': userInfo.phone || userInfo.mobile || '',
@@ -182,7 +183,7 @@ Page({
     },
 
     async searchSchool(keyword) {
-        if (!keyword) {return}
+        if (!keyword) { return }
         try {
             const res = await schoolApi.getSchoolPage({
                 current: 1,
@@ -240,14 +241,14 @@ Page({
         const value = e.detail.value
         const members = this.data.members
         members[index].name = value
-        
+
         // 确保memberSearchResults数组长度足够
         const memberSearchResults = [...this.data.memberSearchResults]
         while (memberSearchResults.length <= index) {
             memberSearchResults.push([])
         }
-        
-        this.setData({ 
+
+        this.setData({
             members,
             memberSearchResults
         })
@@ -264,13 +265,13 @@ Page({
         const { index } = e.currentTarget.dataset
         const members = this.data.members
         const memberName = members[index].name
-        
+
         // 确保memberSearchResults数组长度足够
         const memberSearchResults = [...this.data.memberSearchResults]
         while (memberSearchResults.length <= index) {
             memberSearchResults.push([])
         }
-        
+
         this.setData({ memberSearchResults })
 
         if (memberName) {
@@ -282,7 +283,7 @@ Page({
     },
 
     async searchAlumni(keyword, index) {
-        if (!keyword) {return}
+        if (!keyword) { return }
         try {
             const res = await alumniApi.queryAlumniList({
                 current: 1,
@@ -308,16 +309,16 @@ Page({
         const { index, userIndex } = e.currentTarget.dataset
         const memberSearchResults = this.data.memberSearchResults
         const selectedAlumni = memberSearchResults[index][userIndex]
-        
+
         if (selectedAlumni) {
             const members = this.data.members
             members[index].name = selectedAlumni.name
             members[index].wxId = selectedAlumni.wxId || selectedAlumni.id || selectedAlumni.userId || selectedAlumni.user_id || selectedAlumni.wx_id || 0
-            
+
             // 清空搜索结果，关闭下拉框
             memberSearchResults[index] = []
-            
-            this.setData({ 
+
+            this.setData({
                 members,
                 memberSearchResults
             })
@@ -456,7 +457,7 @@ Page({
                     // 获取返回的文件信息，确保获取到fileId
                     const fileId = uploadRes.data.fileId || uploadRes.data.id || uploadRes.data.file_id || uploadRes.data.id || ''
                     console.log('获取到的fileId:', fileId)
-                    
+
                     if (fileId) {
                         attachments.push({
                             id: fileId,
@@ -560,7 +561,7 @@ Page({
                     // 获取返回的文件信息，确保获取到fileUrl
                     const fileUrl = uploadRes.data.fileUrl || ''
                     console.log('获取到的fileUrl:', fileUrl)
-                    
+
                     if (fileUrl) {
                         bgImages.push({
                             url: fileUrl,
@@ -613,7 +614,7 @@ Page({
     },
 
     async submitForm() {
-        if (this.data.submitting) {return}
+        if (this.data.submitting) { return }
 
         const { formData, members } = this.data
 
@@ -697,7 +698,7 @@ Page({
         if (bgImg !== undefined) {
             submitData.bgImg = bgImg
         }
-        
+
         console.log('最终提交数据:', submitData)
 
         this.setData({ submitting: true })

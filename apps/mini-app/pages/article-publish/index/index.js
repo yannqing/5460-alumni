@@ -42,7 +42,8 @@ Page({
     showPublisherPicker: false,
     publisherSearchKeyword: '',
     showPublisherSearchResults: false,
-    defaultAvatar: config.defaultAvatar
+    defaultAvatar: config.defaultAvatar,
+    defaultUserAvatarUrl: `https://${config.DOMAIN}/upload/images/assets/images/avatar.png`
   },
 
   onLoad(options) {
@@ -86,7 +87,7 @@ Page({
         this.setData({
           coverImage: tempFilePath
         })
-        
+
         // 上传图片到服务器
         this.uploadCoverImage(tempFilePath)
       }
@@ -98,18 +99,18 @@ Page({
     wx.showLoading({
       title: '上传中...'
     })
-    
+
     // 使用文件上传工具上传图片
     const { fileApi } = require('../../../api/api')
     fileApi.uploadImage(filePath)
       .then(res => {
         wx.hideLoading()
-        
+
         // 详细日志，用于调试
         console.log('上传图片返回完整数据:', JSON.stringify(res))
         console.log('res.code:', res.code)
         console.log('res.data:', JSON.stringify(res.data))
-        
+
         if (res.code === 200) {
           // 确保res.data是对象
           const fileData = res.data;
@@ -121,26 +122,26 @@ Page({
             });
             return;
           }
-          
+
           // 直接从res.data获取fileId，根据接口文档这是正确的格式
           const fileId = fileData.fileId !== undefined && fileData.fileId !== null ? fileData.fileId : 0;
           console.log('直接获取fileId:', fileId, '类型:', typeof fileId);
-          
+
           // 保存为字符串类型，避免超大整数精度丢失
           // JavaScript的number类型精度有限，超大整数会丢失精度
           const stringFileId = String(fileId);
           console.log('转换为string后:', stringFileId, '类型:', typeof stringFileId);
-          
+
           if (stringFileId && stringFileId !== '0') {
             // 保存封面图文件ID，使用字符串类型避免精度丢失
             this.setData({
               coverImgId: stringFileId
             })
-            
+
             // 立即打印保存后的值，用于调试
             console.log('保存后的coverImgId:', this.data.coverImgId)
             console.log('coverImgId类型:', typeof this.data.coverImgId)
-            
+
             wx.showToast({
               title: '上传成功',
               icon: 'success'
@@ -223,12 +224,12 @@ Page({
 
   // 搜索发布者
   async searchPublisher(keyword) {
-    if (!keyword) {return}
-    
+    if (!keyword) { return }
+
     const { publishType } = this.data
     try {
       let res
-      
+
       // 根据发布者类型调用不同的API
       if (publishType === 'ALUMNI') {
         // 搜索校友
@@ -237,7 +238,7 @@ Page({
           pageSize: 10,
           name: keyword.trim()
         })
-        
+
         if (res.data && res.data.code === 200) {
           // 处理校友搜索结果，保留完整信息
           const alumniList = res.data.data.records || []
@@ -247,7 +248,7 @@ Page({
             avatarUrl: alumni.avatarUrl,
             school: alumni.school
           }))
-          
+
           this.setData({ publisherList })
         }
       } else if (publishType === 'ASSOCIATION') {
@@ -257,7 +258,7 @@ Page({
           pageSize: 10,
           associationName: keyword.trim()
         })
-        
+
         if (res.data && res.data.code === 200) {
           // 处理校友会搜索结果
           const associationList = res.data.data.records || []
@@ -265,7 +266,7 @@ Page({
             id: association.id || association.associationId || '',
             name: association.associationName || '未命名'
           }))
-          
+
           this.setData({ publisherList })
         }
       } else if (publishType === 'LOCAL_PLATFORM') {
@@ -275,7 +276,7 @@ Page({
           pageSize: 10,
           platformName: keyword.trim()
         })
-        
+
         if (res.data && res.data.code === 200) {
           // 处理校促会搜索结果
           const platformList = res.data.data.records || []
@@ -283,7 +284,7 @@ Page({
             id: platform.id || platform.platformId || '',
             name: platform.platformName || '未命名'
           }))
-          
+
           this.setData({ publisherList })
         }
       }
@@ -308,7 +309,7 @@ Page({
   // 发布文章
   publishArticle() {
     const { title, content, articleLink, coverImgId, articleType, publishType, selectedPublisherId, selectedPublisherName } = this.data
-    
+
     if (!title.trim()) {
       wx.showToast({
         title: '请输入文章标题',
@@ -316,7 +317,7 @@ Page({
       })
       return
     }
-    
+
     if (!articleLink.trim()) {
       wx.showToast({
         title: '请输入文章链接',
@@ -324,7 +325,7 @@ Page({
       })
       return
     }
-    
+
     if (!coverImgId || coverImgId === '0') {
       wx.showToast({
         title: '请上传封面图',
@@ -332,11 +333,11 @@ Page({
       })
       return
     }
-    
+
     wx.showLoading({
       title: '发布中...'
     })
-    
+
     // 详细日志，用于调试
     console.log('发布文章前的数据:', {
       title: title.trim(),
@@ -349,43 +350,43 @@ Page({
       selectedPublisherId: selectedPublisherId,
       selectedPublisherName: selectedPublisherName
     })
-    
+
     // 获取用户信息
     const app = getApp()
     const userData = app.globalData.userData || {}
     const userInfo = wx.getStorageSync('userInfo') || {}
-    
+
     // 构建请求参数
     const requestData = {
       articleTitle: title.trim(),
       description: content.trim(),
       articleStatus: 1, // 默认启用状态
     }
-    
+
     // 固定文章类型为第三方链接
     requestData.articleType = 3
     requestData.publishType = publishType
-    
+
     // 添加文章链接
     if (articleLink.trim()) {
       requestData.articleLink = articleLink.trim()
     }
-    
+
     // 添加封面图文件ID：直接使用字符串类型，避免超大整数精度丢失
     if (coverImgId !== undefined && coverImgId !== null && coverImgId !== '' && coverImgId !== '0') {
       // 直接使用字符串类型，不要转换为number
       // 超大整数转换为number会丢失精度
       console.log('添加封面图ID:', coverImgId, '类型:', typeof coverImgId)
-      
+
       // 直接将字符串作为值传入，后端会自动处理
       requestData.coverImg = coverImgId
     } else {
       console.log('未添加封面图ID，coverImgId:', coverImgId, '类型:', typeof coverImgId)
     }
-    
+
     // 打印最终请求数据，便于调试
     console.log('最终发布请求数据:', JSON.stringify(requestData))
-    
+
     // 添加发布者信息
     if (selectedPublisherId) {
       // 使用选择的发布者信息，直接使用字符串类型，避免超大整数精度丢失
@@ -397,12 +398,12 @@ Page({
       requestData.publishWxId = userId
       requestData.publishUsername = selectedPublisherName || userData.nickname || userData.nickName || userInfo.nickname || userInfo.nickName || ''
     }
-    
+
     // 调用API发布文章
     homeArticleApi.createArticle(requestData)
       .then(res => {
         wx.hideLoading()
-        
+
         if (res.data.code === 200) {
           wx.showToast({
             title: '发布成功',
