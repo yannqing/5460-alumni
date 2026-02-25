@@ -9,6 +9,7 @@ Page({
         iconLocation: config.getIconUrl('position.png'),
         iconScope: config.getIconUrl('xx.png'),
         iconContact: config.getIconUrl('phone.png'),
+        topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png`,
         keyword: '',
         filters: [
             { label: '城市', options: ['全部城市'], selected: 0 },
@@ -144,11 +145,11 @@ Page({
         })
     },
 
-    
+
 
     async loadPlatformList(reset = false) {
-        if (this.data.loading) {return}
-        if (!reset && !this.data.hasMore) {return}
+        if (this.data.loading) { return }
+        if (!reset && !this.data.hasMore) { return }
 
         this.setData({ loading: true })
 
@@ -196,7 +197,7 @@ Page({
 
                     // 过滤：city 字段包含该省份下的任何城市名称，或包含省份名称
                     finalList = mappedList.filter(item => {
-                        if (!item.city) {return false}
+                        if (!item.city) { return false }
 
                         const city = item.city
 
@@ -249,7 +250,7 @@ Page({
             // 使用默认头像
             avatar = config.defaultAvatar
         }
-        
+
         // 处理背景图片
         let bgImg = item.bgImg || ''
         if (bgImg) {

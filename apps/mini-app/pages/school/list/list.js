@@ -10,6 +10,7 @@ Page({
     // 图标路径
     iconSearch: '../../../assets/icons/magnifying glass.png',
     iconLocation: config.getIconUrl('position.png'),
+    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png`,
     // 是否为选择模式
     selectMode: false,
     // 搜索关键词
@@ -36,8 +37,8 @@ Page({
     filters: [
       { label: '类型', options: ['办学层次', '本科', '专科'], selected: 0 },
       { label: '城市', options: ['全部城市'], selected: 0 },
-     
-      { label: '关注', options: [ '我的关注'], selected: 0 }
+
+      { label: '关注', options: ['我的关注'], selected: 0 }
     ],
     showFilterOptions: false,
     activeFilterIndex: -1,
@@ -225,7 +226,7 @@ Page({
 
   // 加载学校列表
   async loadSchoolList(reset = false) {
-    if (this.data.loading) {return}
+    if (this.data.loading) { return }
 
     this.setData({ loading: true })
 
@@ -568,7 +569,7 @@ Page({
     const { schoolList } = this.data
 
     const index = schoolList.findIndex(item => item.id === id)
-    if (index === -1) {return}
+    if (index === -1) { return }
 
     // 调用通用关注接口，显示确认框
     const result = await toggleFollow(

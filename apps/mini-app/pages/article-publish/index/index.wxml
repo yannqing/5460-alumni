@@ -121,7 +121,7 @@
               />
               <image 
                 wx:else 
-                src="https://${API_DOMAIN}/upload/images/assets/images/avatar.png" 
+                src="{{defaultUserAvatarUrl}}" 
                 class="alumni-avatar" 
                 mode="aspectFill" 
               />
