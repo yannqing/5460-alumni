@@ -46,6 +46,7 @@ elasticsearch/**/**/**
 # Environment variables (keep .env.example for reference)
 .env
 .env.local
+.env.prod
 .env.*.local
 
 docker-compose-kafka.yml
