@@ -28,6 +28,10 @@ public class WechatApiServiceImpl implements WechatApiService {
     @Value("${wechat.appSecret:52ec76cee5cf6537bbe9c253fa54ced5}")
     private String secret;
 
+    // 微信API基础URL（云托管环境使用 http，其他环境使用 https）
+    @Value("${wechat.api.base-url:https://api.weixin.qq.com}")
+    private String wechatApiBaseUrl;
+
     @Resource
     private ObjectMapper objectMapper;
 
@@ -61,8 +65,8 @@ public class WechatApiServiceImpl implements WechatApiService {
 
             // API接口地址 - 2024年微信官方确认的地址
             String url = String.format(
-                    "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=%s",
-                    accessToken
+                    "%s/wxa/business/getuserphonenumber?access_token=%s",
+                    wechatApiBaseUrl, accessToken
             );
 
             // 使用原生HTTP连接调用微信API（解决RestTemplate兼容性问题）
@@ -144,8 +148,8 @@ public class WechatApiServiceImpl implements WechatApiService {
                 log.info("获取微信session信息，code: {}", code);
 
                 String url = String.format(
-                        "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
-                        appId, secret, code
+                        "%s/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
+                        wechatApiBaseUrl, appId, secret, code
                 );
 
                 String response = httpClientUtil.get(url, String.class);
@@ -214,8 +218,8 @@ public class WechatApiServiceImpl implements WechatApiService {
             log.info("获取新的access_token");
 
             String url = String.format(
-                    "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
-                    appId, secret
+                    "%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+                    wechatApiBaseUrl, appId, secret
             );
 
             String response = httpClientUtil.get(url, String.class);
@@ -264,8 +268,8 @@ public class WechatApiServiceImpl implements WechatApiService {
 
             // 使用一个简单的API来测试token是否有效
             String url = String.format(
-                    "https://api.weixin.qq.com/cgi-bin/get_api_domain_ip?access_token=%s",
-                    accessToken
+                    "%s/cgi-bin/get_api_domain_ip?access_token=%s",
+                    wechatApiBaseUrl, accessToken
             );
 
             String response = httpClientUtil.get(url, String.class);

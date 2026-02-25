@@ -2,7 +2,9 @@ package com.cmswe.alumni.common.utils;
 
 import com.cmswe.alumni.common.entity.Files;
 import com.cmswe.alumni.common.exception.BusinessException;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.CacheControl;
@@ -39,6 +41,21 @@ public class FileUtils {
     @Value("${file.upload-prefix-url}")
     private String uploadPrefixPath;
 
+    @Value("${file.storage-type:local}")
+    private String storageType;
+
+    @Autowired(required = false)
+    private CosUtils cosUtils;
+
+    @PostConstruct
+    public void init() {
+        log.info("========================================");
+        log.info("FileUtils 初始化");
+        log.info("storage-type: {}", storageType);
+        log.info("cosUtils 是否注入: {}", cosUtils != null);
+        log.info("========================================");
+    }
+
     /**
      * 上传文件通用工具类 TODO 缺少大文件处理（分片处理）
      * @param file
@@ -47,10 +64,11 @@ public class FileUtils {
      * @param fileName
      * @param newFileName
      * @param fileExtension
+     * @param openid 用户 openid（云托管需要，本地存储忽略）
      * @return
      * @throws IOException
      */
-    public String uploadFile(MultipartFile file, String subPath, String type, String fileName, String newFileName, String fileExtension) throws IOException {
+    public String uploadFile(MultipartFile file, String subPath, String type, String fileName, String newFileName, String fileExtension, String openid) throws IOException {
 
         // 验证文件的一级类型
         switch (type) {
@@ -73,15 +91,31 @@ public class FileUtils {
             }
         }
 
+        // 根据存储类型选择存储方式
+        if ("cos".equalsIgnoreCase(storageType)) {
+            // 使用微信云托管对象存储
+            if (cosUtils == null) {
+                throw new BusinessException("微信云托管 COS 未配置或初始化失败");
+            }
+            log.info("使用微信云托管 COS 上传文件: {}", newFileName);
+            return cosUtils.uploadFile(file, subPath, newFileName, openid);
+        } else {
+            // 使用本地文件存储
+            log.info("使用本地存储上传文件: {}", newFileName);
+            return uploadFileToLocal(file, subPath, newFileName);
+        }
+    }
+
+    /**
+     * 上传文件到本地服务器
+     */
+    private String uploadFileToLocal(MultipartFile file, String subPath, String newFileName) throws IOException {
         // 生成基于日期的目录结构
         LocalDate now = LocalDate.now();
         String datePath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
         // 构建完整的目录路径
         String fullDirectoryPath = uploadCommonPath + File.separator + subPath + File.separator + datePath;
-
-        // 生成新 UUID 文件名
-        UUID uuid = UUID.randomUUID();
 
         // 创建目录（如果不存在）
         File uploadDir = new File(fullDirectoryPath);
@@ -112,6 +146,20 @@ public class FileUtils {
      * @return 返回文件
      */
     public ResponseEntity<FileSystemResource> downloadFile(Files files) {
+        // 如果使用 COS 存储，则重定向到 COS URL
+        if ("cos".equalsIgnoreCase(storageType)) {
+            if (cosUtils == null) {
+                throw new BusinessException("腾讯云 COS 未配置或初始化失败");
+            }
+            // COS 文件直接通过 URL 访问，这里返回重定向
+            // 前端可以直接使用 fileUrl 访问，不需要经过服务器下载
+            log.info("COS 文件访问，文件路径: {}", files.getFilePath());
+            // 对于 COS 文件，建议前端直接使用 fileUrl 访问
+            // 如果必须通过服务器，可以使用 HTTP 302 重定向
+            throw new BusinessException("COS 文件请直接使用文件 URL 访问");
+        }
+
+        // 本地文件下载
         File imageFile = new File(uploadCommonPath + files.getFilePath().replace(uploadPrefixPath, ""));
 
         if (imageFile.exists()) {
