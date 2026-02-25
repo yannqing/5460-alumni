@@ -51,6 +51,7 @@ public class SchoolImpl extends ServiceImpl<SchoolMapper, School> implements Sch
         }
 
         //2.获取参数
+        String keyword = schoolListDto.getKeyword();
         String schoolName = schoolListDto.getSchoolName();
         String location = schoolListDto.getLocation();
         String description = schoolListDto.getDescription();
@@ -70,11 +71,22 @@ public class SchoolImpl extends ServiceImpl<SchoolMapper, School> implements Sch
 
         //3.构造查询条件
         LambdaQueryWrapper<School> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 如果传入了 keyword，在多个字段上进行 OR 搜索
+        if (StringUtils.isNotBlank(keyword)) {
+            queryWrapper.and(wrapper -> wrapper
+                    .like(School::getSchoolName, keyword)
+                    .or()
+                    .like(School::getPreviousName, keyword)
+                    .or()
+                    .like(School::getMergedInstitutions, keyword)
+            );
+        }
+
+        // 如果传入了具体字段，使用 AND 连接（用于精确筛选）
         queryWrapper
                 .like(StringUtils.isNotBlank(schoolName), School::getSchoolName, schoolName)
-                .or()
                 .like(StringUtils.isNotBlank(previousName), School::getPreviousName, previousName)
-                .or()
                 .like(StringUtils.isNotBlank(mergedInstitutions), School::getMergedInstitutions, mergedInstitutions)
                 .like(StringUtils.isNotBlank(location), School::getLocation, location)
                 .like(StringUtils.isNotBlank(level), School::getLevel, level)
