@@ -35,7 +35,7 @@
 
     <!-- 头像 -->
     <view class="image-wrapper_7" bindtap="editProfile">
-      <image src="{{userInfo.avatarUrl || '/assets/default-avatar.png'}}" class="image_12"></image>
+      <image src="{{userInfo.avatarUrl || defaultAvatar}}" class="image_12"></image>
     </view>
 
   </view>
@@ -137,7 +137,7 @@
       <text class="close-btn" bindtap="hideAlumniCard">×</text>
     </view>
     <view class="alumni-card-body">
-      <image class="card-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+      <image class="card-avatar" src="{{userInfo.avatarUrl || defaultAvatar}}" mode="aspectFill"></image>
       <view class="card-name">{{userInfo.nickname}}</view>
       <view class="card-school">{{userInfo.school}} · {{userInfo.graduateYear}}级</view>
       <view class="card-qrcode">
