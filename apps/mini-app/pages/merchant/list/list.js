@@ -10,14 +10,14 @@ Page({
     iconStar: config.getIconUrl('star.png'),
     keyword: '',
     filters: [
-      { label: '商铺类型', options: ['全部类型', '个体商户', '企业'], selected: 0 },
+      { label: '商铺类型', options: ['全部类型', '校友商铺', '普通商铺'], selected: 0 },
       { label: '会员等级', options: ['全部等级', '普通会员', '银卡会员', '金卡会员', '钻石会员'], selected: 0 },
       { label: '业务类别', options: ['全部类别', '餐饮', '零售', '服务', '娱乐'], selected: 0 },
-      { label: '校友认证', options: ['全部', '已认证'], selected: 0 }
+      { label: '关注', options: ['我的关注'], selected: 0 }
     ],
     merchantList: [],
     current: 1,
-    pageSize: 10,
+    pageSize: 9999,
     hasMore: true,
     loading: false
   },
@@ -59,10 +59,10 @@ Page({
     }
 
     // 商铺类型筛选
-    if (typeFilter.selected === 1) {
-      params.merchantType = 0 // 个体商户
-    } else if (typeFilter.selected === 2) {
-      params.merchantType = 1 // 企业
+    if (Number(typeFilter.selected) === 1) {
+      params.merchantType = 1 // 校友商铺
+    } else if (Number(typeFilter.selected) === 2) {
+      params.merchantType = 2 // 普通商铺
     }
 
     // 会员等级筛选
@@ -75,10 +75,7 @@ Page({
       params.businessCategory = categoryFilter.options[categoryFilter.selected]
     }
 
-    // 校友认证筛选
-    if (certFilter.selected === 1) {
-      params.isAlumniCertified = 1
-    }
+    // 关注筛选：点击"我的关注"时会跳转到关注页面，这里不需要设置参数
 
     try {
       const res = await merchantApi.getMerchantPage(params)
@@ -187,12 +184,11 @@ Page({
     this.loadMerchantList(true)
   },
 
-  // 校友认证筛选
-  onCertChange(e) {
-    const filters = this.data.filters
-    filters[3].selected = e.detail.value
-    this.setData({ filters })
-    this.loadMerchantList(true)
+  // 关注筛选
+  onFollowChange(e) {
+    wx.navigateTo({
+      url: '/pages/my-follow/my-follow?type=merchant'
+    })
   },
 
   viewDetail(e) {
