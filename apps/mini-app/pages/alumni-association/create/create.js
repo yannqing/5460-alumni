@@ -65,6 +65,11 @@ Page({
         this.searchSchoolDebounced = debounce(this.searchSchool, 500)
         this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
 
+        // 处理从列表页面传递过来的platformName参数
+        console.log('接收到的参数:', options)
+        this.platformNameFromList = options.platformName ? decodeURIComponent(options.platformName) : null
+        console.log('处理后的platformNameFromList:', this.platformNameFromList)
+
         this.loadInitialData()
         this.loadPlatformList()
     },
@@ -78,9 +83,30 @@ Page({
                 platformName: '' // 空关键词加载所有平台
             })
             if (res.data && res.data.code === 200) {
+                const platformList = res.data.data.records || []
                 this.setData({
-                    platformList: res.data.data.records || []
+                    platformList: platformList
                 })
+                
+                // 如果有从列表页面传递过来的platformName，查找并设置对应的平台信息
+                if (this.platformNameFromList) {
+                    const platformIndex = platformList.findIndex(item => item.platformName === this.platformNameFromList)
+                    if (platformIndex !== -1) {
+                        const platform = platformList[platformIndex]
+                        this.setData({
+                            platformIndex: platformIndex,
+                            'formData.platformId': platform.platformId,
+                            'formData.platformName': platform.platformName,
+                            'formData.location': this.platformNameFromList // 直接使用传递过来的platformName作为location
+                        })
+                    } else {
+                        // 如果找不到对应的平台，仍然设置platformName和location
+                        this.setData({
+                            'formData.platformName': this.platformNameFromList,
+                            'formData.location': this.platformNameFromList
+                        })
+                    }
+                }
             }
         } catch (e) {
             console.error('加载平台列表失败', e)

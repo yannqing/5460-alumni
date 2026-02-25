@@ -54,7 +54,7 @@
       <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
         <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
         <!-- 右上角图标 -->
-        <image class="platform-crate-icon" src="/assets/icons/crate.png" />
+        <image class="platform-crate-icon" src="/assets/icons/crate.png" bindtap="goToCreate" data-platform-name="{{item.platformName}}" />
         <!-- 头像 -->
         <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" />
         <!-- 名称、城市 -->

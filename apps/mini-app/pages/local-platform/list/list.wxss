@@ -543,7 +543,7 @@ view, text, picker, input, button, image, navigator {
 .platform-crate-icon {
   position: absolute;
   top: 16rpx;
-  right: 16rpx;
+  right: 27rpx;
   width: 198rpx;
   height: 80rpx;
   flex-shrink: 0;
