@@ -490,10 +490,7 @@ Page({
       avatarUrl = config.getImageUrl(avatarUrl)
     } else {
       // 使用默认头像
-      avatarUrl = targetType === 1 ? config.defaultAvatar :
-                  targetType === 2 ? config.defaultAlumniAvatar :
-                  targetType === 3 ? config.defaultSchoolAvatar :
-                  config.defaultAvatar
+      avatarUrl = config.defaultAvatar
     }
 
     // 处理关注时间

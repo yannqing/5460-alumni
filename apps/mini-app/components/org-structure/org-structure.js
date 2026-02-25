@@ -665,6 +665,14 @@ Component({
         }
         return item
       })
+    },
+
+    // 点击成员跳转到个人详情页
+    onMemberClick(e) {
+      const { wxid, username } = e.currentTarget.dataset
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=${wxid || ''}&username=${encodeURIComponent(username || '匿名用户')}`
+      })
     }
   }
 })

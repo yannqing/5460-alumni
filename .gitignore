@@ -57,3 +57,6 @@ PROJECT_EVALUATION.md
 deploy/**/*.sh
 deploy/**/*.conf
 !deploy/**/*.example
+
+# WeChat Mini Program
+**/project.private.config.json

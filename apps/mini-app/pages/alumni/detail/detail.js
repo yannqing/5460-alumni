@@ -11,8 +11,63 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ alumniId: options.id })
-    this.loadAlumniDetail()
+    const { wxid, username, id } = options
+    
+    // 解码username参数，解决中文乱码问题
+    const decodedUsername = username ? decodeURIComponent(username) : ''
+    
+    // 如果通过组织架构跳转（有wxid或username参数）
+    if (wxid !== undefined || decodedUsername) {
+      if (wxid) {
+        // 有wxid时，使用wxid作为alumniId加载详情
+        this.setData({ alumniId: wxid })
+        this.loadAlumniDetail()
+      } else {
+        // wxid为空时，创建一个临时的alumniInfo对象，显示默认信息
+        const config = require('../../../utils/config.js')
+        const tempAlumniInfo = {
+          id: '',
+          nickname: { value: decodedUsername || '匿名用户', isNull: false },
+          name: { value: '不方便透露', isNull: true },
+          avatarUrl: config.defaultAvatar,
+          bgImg: '',
+          gender: { value: '未知', isNull: true },
+          age: { value: '不方便透露', isNull: true },
+          zodiac: { value: '不方便透露', isNull: true },
+          constellation: { value: '不方便透露', isNull: true },
+          birthDate: { value: '不方便透露', isNull: true },
+          phone: { value: '不方便透露', isNull: true },
+          signature: { value: '不方便透露', isNull: true },
+          description: { value: '不方便透露', isNull: true },
+          wxNum: { value: '不方便透露', isNull: true },
+          qqNum: { value: '不方便透露', isNull: true },
+          email: { value: '不方便透露', isNull: true },
+          maritalStatus: { value: '不方便透露', isNull: true },
+          personalSpecialty: { value: '不方便透露', isNull: true },
+          originProvince: { value: '不方便透露', isNull: true },
+          curContinent: { value: '不方便透露', isNull: true },
+          curCountry: { value: '不方便透露', isNull: true },
+          curProvince: { value: '不方便透露', isNull: true },
+          curCity: { value: '不方便透露', isNull: true },
+          curCounty: { value: '不方便透露', isNull: true },
+          address: { value: '不方便透露', isNull: true },
+          educationList: null,
+          workExperienceList: null,
+          isAlumni: false,
+          isFriend: false,
+          isFollowed: false,
+          identifyType: 0,
+          schoolId: '',
+          school: '母校',
+          wxId: ''
+        }
+        this.setData({ alumniInfo: tempAlumniInfo })
+      }
+    } else if (id) {
+      // 传统的通过id加载详情的方式
+      this.setData({ alumniId: id })
+      this.loadAlumniDetail()
+    }
   },
 
   async loadAlumniDetail() {
