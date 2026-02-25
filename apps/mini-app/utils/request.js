@@ -4,6 +4,17 @@
 const SignatureUtil = require('./signature.js')
 const config = require('./config.js')
 
+// 注意：不能在顶部静态导入 auth.js，会造成循环依赖
+// auth.js -> api.js -> request.js -> auth.js
+// 改为在使用时动态获取
+let authModule = null
+function getAuthModule() {
+  if (!authModule) {
+    authModule = require('./auth.js')
+  }
+  return authModule
+}
+
 const getHeaders = (url) => {
   const headers = {
     'content-type': 'application/json',
@@ -84,6 +95,14 @@ const request = (params) => {
         // 直接使用返回数据（不再使用 base64 解密）
         resolve(res)
       } else if (TOKEN_INVALID_CODES.includes(code)) {
+        // ========== 登录接口特殊处理 ==========
+        // 登录接口本身不应该触发静默重新登录，否则会死循环
+        if (params.url && params.url.includes('/auth/login')) {
+          console.warn('登录接口返回 token 错误码(', code, '), 直接返回结果')
+          resolve(res)
+          return
+        }
+
         // token 相关错误：过期 / 非法 / 认证失败 => 自动静默重新登录（仅重试一次）
         console.warn('请求返回 token 相关错误码(', code, '), 准备进行静默重新登录...')
 
@@ -102,6 +121,27 @@ const request = (params) => {
         wx.setStorageSync('expire_time', '')
 
         try {
+          // ========== 登录锁检查 ==========
+          // 如果已有登录正在进行，等待它完成而不是发起新的登录
+          const auth = getAuthModule()
+          if (auth.isLoginInProgress()) {
+            console.log('[Request] 检测到登录正在进行中，等待当前登录完成...')
+            try {
+              await auth.waitForLogin()
+              console.log('[Request] 等待的登录已完成，准备重试原始请求')
+              // 重新发起原始请求
+              request({
+                ...params,
+                _retry: true
+              }).then(resolve).catch(reject)
+              return
+            } catch (e) {
+              console.warn('[Request] 等待的登录失败:', e)
+              resolve(res)
+              return
+            }
+          }
+
           // 使用全局的 initApp 进行静默登录（auth.js 已混入到 App 实例）
           if (typeof app.initApp === 'function') {
             await app.initApp()

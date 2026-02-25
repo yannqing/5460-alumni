@@ -10,6 +10,8 @@ const config = {
   cloud: {
     env: '${CLOUD_ENV_ID}',  // 云环境 ID
     serviceName: 'core',            // 服务名称
+    // 云托管公网访问地址（用于文件上传等不支持 callContainer 的场景）
+    publicUrl: 'https://${CLOUD_PUBLIC_DOMAIN}',
   },
 
   // ==================== 环境配置 ====================
