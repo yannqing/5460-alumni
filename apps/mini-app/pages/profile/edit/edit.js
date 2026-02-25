@@ -87,7 +87,7 @@ function mapUserInfoToForm(userInfo) {
   // 处理头像URL，确保使用正确的 baseUrl
   const config = require('../../../utils/config.js')
   const rawAvatarUrl = userInfo.avatarUrl || ''
-  const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : ''
+  const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : config.defaultAvatar
 
   return {
     // 基础信息
@@ -263,6 +263,8 @@ Page({
     workBlurTimer: null,
     // 个人简介 blur 定时器
     descriptionBlurTimer: null,
+    // 默认头像
+    defaultAvatar: require('../../../utils/config.js').defaultAvatar,
     form: {
       // 基础信息
       nickname: '',

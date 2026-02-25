@@ -1,4 +1,5 @@
 {
+  "cloudbaseRoot": "",
   "setting": {
     "es6": true,
     "postcss": true,
@@ -29,7 +30,7 @@
     "ignore": [],
     "include": []
   },
-  "appid": "${WECHAT_MINI_APP_ID}",
+  "appid": "YOUR_WECHAT_APP_ID",
   "editorSetting": {},
   "libVersion": "3.14.1"
 }

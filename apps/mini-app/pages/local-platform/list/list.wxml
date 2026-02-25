@@ -18,7 +18,7 @@
     <view class="search-bar">
       <view class="search-input-wrap">
         <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
-        <input class="search-input" type="text" placeholder="搜索校促会名称或城市" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+        <input class="search-input" type="text" placeholder="搜索校促会名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
         <view class="search-button" bindtap="onSearch">搜索</view>
       </view>
     </view>
@@ -27,23 +27,21 @@
     <view class="filter-section">
       <!-- 城市筛选 -->
       <view class="filter-item">
-        <picker bindchange="onCityChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
-          <text>{{filters[0].options[filters[0].selected]}}</text>
+        <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+          <text>{{regionDisplayText || '全部城市'}}</text>
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
-      <!-- 状态筛选 -->
+      <!-- 注册时间筛选 -->
       <view class="filter-item">
-        <picker bindchange="onStatusChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
-          <text>{{filters[1].options[filters[1].selected]}}</text>
+        <picker bindchange="onSortChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+          <text>{{filters[1].selected === 0 ? '注册时间' : filters[1].options[filters[1].selected]}}</text>
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
-      <!-- 排序筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
-          <text>{{filters[2].options[filters[2].selected]}}</text>
-        </picker>
+      <!-- 关注筛选 -->
+      <view class="filter-item" bindtap="onFollowChange">
+        <text>我的关注</text>
         <text class="filter-arrow">▾</text>
       </view>
     </view>

@@ -39,18 +39,9 @@
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
-      <!-- 排序筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
-          <text>{{filters[2].options[filters[2].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
       <!-- 关注筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onFollowChange" range="{{filters[3].options}}" value="{{filters[3].selected}}">
-          <text>{{filters[3].options[filters[3].selected]}}</text>
-        </picker>
+      <view class="filter-item" bindtap="onFollowChange">
+        <text>我的关注</text>
         <text class="filter-arrow">▾</text>
       </view>
     </view>

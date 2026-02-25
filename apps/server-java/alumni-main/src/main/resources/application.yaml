@@ -1,5 +1,5 @@
 app:
-  url: http://localhost:8080
+  url: ${APP_URL:http://localhost:8080}
 spring:
   application:
     name: cni-alumni-core
@@ -8,9 +8,9 @@ spring:
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/cni_alumni?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&connectionTimeZone=Asia/Shanghai&forceConnectionTimeZoneToSession=true&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:cni_alumni}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&connectionTimeZone=Asia/Shanghai&forceConnectionTimeZoneToSession=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD}
     druid:
       initial-size: 5          # 根据预期并发调整
       min-idle: 5
@@ -138,6 +138,15 @@ file:
   upload-image-url: images     # 图片文件存储的三级目录  eg: /yannqing/upload/images/**     对应 url 路径：127.0.0.1:8080/upload/images/**
   upload-resume-url: resumes   # 简历文件存储的三级目录  eg: /yannqing/upload/resumes/**    对应 url 路径：127.0.0.1:8080/upload/resumes/**
   upload-audio-url: audios     # 音频文件存储的三级目录  eg: /yannqing/upload/audios/**     对应 url 路径：127.0.0.1:8080/upload/audios/**
+  storage-type: local  # 文件存储类型: local(本地存储) 或 cos(微信云托管对象存储)
+
+# 微信云托管对象存储配置（本地开发不需要配置）
+cloudbase:
+  cos:
+    region: ap-shanghai
+    bucket-name: ""
+    base-url: ""
+    upload-path: cni-alumni
 
 # 雪花算法 id
 snowflake:
@@ -149,6 +158,8 @@ wechat:
   mini:
     app-id: ${WECHAT_MINI_APP_ID:your_app_id_here}  # 微信小程序AppID
     secret: ${WECHAT_MINI_SECRET:your_secret_here}  # 微信小程序Secret
+  api:
+    base-url: https://api.weixin.qq.com  # 微信API基础URL（非云托管环境使用 https）
 
 # JWT配置
 jwt:

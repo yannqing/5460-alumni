@@ -858,6 +858,40 @@ Content-Type: application/json
 
 ---
 
+## 🔐 Environment Setup
+
+> **Security Notice**: This repository has been sanitized to remove all sensitive information from the git history. All credentials, API keys, and environment-specific configurations have been replaced with environment variable placeholders.
+
+### Before You Begin
+
+1. **Copy configuration template files:**
+   ```bash
+   # For Mini Program
+   cp apps/mini-app/project.config.json.example apps/mini-app/project.config.json
+   cp apps/mini-app/utils/config.js.example apps/mini-app/utils/config.js
+   ```
+
+2. **Fill in your own credentials in the copied files:**
+   - `project.config.json`: WeChat Mini Program AppID
+   - `config.js`: API domain, Cloud Environment ID, etc.
+
+### Configuration Variables (in config.js)
+
+| Variable | Description | Where to Get |
+|----------|-------------|--------------|
+| `API_DOMAIN` | Backend API Domain | Your deployed server domain |
+| `CLOUD_ENV_ID` | Cloud Environment ID | WeChat Cloud Hosting Console |
+| `CLOUD_PUBLIC_DOMAIN` | Cloud Public URL | WeChat Cloud Hosting Console |
+
+### Important Notes
+
+- **Never commit** `project.config.json`, `config.js`, or any file containing real credentials
+- All sensitive files are already listed in `.gitignore`
+- For team collaboration, share credentials through secure channels (not git)
+- Rotate credentials immediately if accidentally exposed
+
+---
+
 ## 📝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
