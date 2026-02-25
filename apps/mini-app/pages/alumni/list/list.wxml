@@ -27,14 +27,14 @@
     <view class="filter-section">
       <!-- 注册时间筛选 -->
       <view class="filter-item">
-        <picker bindchange="onCityChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+        <picker bindchange="onSortChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
           <text>{{filters[0].selected === 0 ? '注册时间' : filters[0].options[filters[0].selected]}}</text>
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
       <!-- 性别筛选 -->
       <view class="filter-item">
-        <picker bindchange="onSortChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+        <picker bindchange="onGenderChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
           <text>{{filters[1].selected === 0 ? '性别' : filters[1].options[filters[1].selected]}}</text>
         </picker>
         <text class="filter-arrow">▾</text>

@@ -54,7 +54,7 @@ Page({
     // 注册时间排序
     if (sortFilter.selected >= 0) {
       params.sortField = 'createTime'
-      params.sortOrder = sortFilter.selected === 0 ? 'ascend' : 'descend'
+      params.sortOrder = sortFilter.selected == 1 ? 'descend' : 'ascend'
     }
 
     // 性别筛选
@@ -255,16 +255,8 @@ Page({
     this.loadAlumniList(true)
   },
 
-  // 身份筛选
-  onIdentityChange(e) {
-    const filters = this.data.filters
-    filters[0].selected = e.detail.value
-    this.setData({ filters })
-    this.loadAlumniList(true)
-  },
-
   // 注册时间筛选
-  onCityChange(e) {
+  onSortChange(e) {
     const filters = this.data.filters
     filters[0].selected = e.detail.value
     this.setData({ filters })
@@ -272,7 +264,7 @@ Page({
   },
 
   // 性别筛选
-  onSortChange(e) {
+  onGenderChange(e) {
     const filters = this.data.filters
     filters[1].selected = e.detail.value
     this.setData({ filters })

@@ -15,8 +15,8 @@ Page({
     filters: [
       { label: '类型', options: ['全部校友会', '地方校友会', '行业校友会', '海外校友会'], selected: 0 },
       { label: '城市', options: ['全部城市'], selected: 0 },
-      { label: '排序', options: ['默认排序', '最新成立', '成员最多'], selected: 0 },
-      { label: '关注', options: ['全部', '我的关注'], selected: 0 }
+      { label: '注册时间', options: ['升序', '降序'], selected: 0 },
+      { label: '关注', options: ['我的关注'], selected: 0 }
     ],
     associationList: [],
     current: 1,
@@ -219,17 +219,19 @@ Page({
       // 准备请求参数
       const params = {
         current: refresh ? 1 : this.data.current,
-        size: this.data.pageSize,
+        pageSize: this.data.pageSize,
         // 搜索关键词：校友会名称
         associationName: keyword || undefined,
         // 地区筛选：如果选择了具体城市，传 location；如果只选了省份，不传（在前端过滤）
         location: (this.data.selectedCity && this.data.selectedCity !== '全部') ? this.data.location : undefined,
         // 会长名称（暂不使用）
         presidentUsername: undefined,
-        // 排序字段：根据筛选选择
-        sortField: sortFilter.selected === 1 ? 'createTime' : (sortFilter.selected === 2 ? 'memberCount' : undefined),
-        // 排序顺序
-        sortOrder: sortFilter.selected > 0 ? 'descend' : undefined
+        // 联系信息（暂不使用）
+        contactInfo: undefined,
+        // 排序字段：注册时间
+      sortField: 'createTime',
+      // 排序顺序：根据筛选选择，默认升序
+      sortOrder: sortFilter.selected == 1 ? 'descend' : 'ascend'
       }
 
       // 移除 undefined 参数
@@ -300,8 +302,8 @@ Page({
               return true
             }
 
-            // 检查是否包含该省份下的任何城市名称
-            return provinceCities.some(city => location.includes(city))
+            // 检查是否包含该省份下的任何城市名称（同时检查带"市"和不带"市"的情况）
+            return provinceCities.some(city => location.includes(city) || location.includes(city.replace('市', '')))
           })
         }
 
@@ -393,12 +395,9 @@ Page({
 
   // 关注筛选变更
   onFollowChange(e) {
-    const optionIndex = e.detail.value
-    const { filters } = this.data
-    filters[3].selected = optionIndex
-
-    this.setData({ filters, current: 1 })
-    this.loadAssociationList(true)
+    wx.navigateTo({
+      url: '/pages/my-follow/my-follow'
+    })
   },
 
   // 地区选择器列改变（联动选择）- 与母校列表页完全一致
@@ -494,9 +493,9 @@ Page({
         // 选择了具体城市
         region.push(selectedCity)
         regionDisplayText = `${selectedProvinceWithSuffix}${selectedCity}` // 显示时使用带单位的省份名称，不添加空格避免换行
-        // location 只传城市名称（数据库中存储的是城市名称，如 "无锡市"）
+        // location 只传城市名称，移除"市"字
         // 不传省份名称，因为数据库中可能只存储城市名称
-        location = selectedCity
+        location = selectedCity.replace('市', '')
       }
     }
 
