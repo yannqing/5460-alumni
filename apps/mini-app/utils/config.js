@@ -4,12 +4,14 @@ const config = {
   // 是否使用微信云托管（一键切换开关）
   // true: 使用 wx.cloud.callContainer
   // false: 使用传统 wx.request
-  IS_CLOUD_HOST: false,
+  IS_CLOUD_HOST: true,
 
   // 云托管环境配置
   cloud: {
     env: '${CLOUD_ENV_ID}',  // 云环境 ID
     serviceName: 'core',            // 服务名称
+    // 云托管公网访问地址（用于文件上传等不支持 callContainer 的场景）
+    publicUrl: 'https://${CLOUD_PUBLIC_DOMAIN}',
   },
 
   // ==================== 环境配置 ====================
