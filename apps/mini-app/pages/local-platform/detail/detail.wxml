@@ -76,7 +76,7 @@
                         />
                     </view>
                 </view>
-                <!-- Tab 内容：会员列表 -->
+                <!-- Tab 内容：会员单位 -->
                 <view wx:if="{{activeTab === 2}}">
                     <view class="member-list">
                         <!-- 骨架屏 -->
