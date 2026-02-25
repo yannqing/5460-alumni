@@ -410,6 +410,12 @@
   color: #40B2E6;
 }
 
+.org-member-name.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #40B2E6;
+}
+
 .add-member-section {
   margin-top: 20rpx;
   padding: 0 28rpx;
