@@ -39,7 +39,6 @@ build/
 logs/**
 
 alumni-main/logs/**
-alumni-main/src/main/resources/application-local.yaml
 
 elasticsearch/**/**/**
 
@@ -47,6 +46,7 @@ elasticsearch/**/**/**
 .env
 .env.local
 .env.prod
+.env.test
 .env.*.local
 
 docker-compose-kafka.yml

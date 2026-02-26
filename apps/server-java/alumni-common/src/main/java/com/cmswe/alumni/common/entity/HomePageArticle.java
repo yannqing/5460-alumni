@@ -8,16 +8,16 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 首页公众号文章表
- * @TableName home_page_article
+ * 文章表
+ * @TableName article
  */
-@TableName(value = "home_page_article")
+@TableName(value = "article")
 @Data
 public class HomePageArticle implements Serializable {
     /**
-     * 首页文章 id
+     * 文章 id
      */
-    @TableId(value = "home_article_id", type = IdType.ASSIGN_ID)
+    @TableId(value = "article_id", type = IdType.ASSIGN_ID)
     private Long homeArticleId;
 
     /**
@@ -73,6 +73,36 @@ public class HomePageArticle implements Serializable {
      */
     @TableField(value = "article_status")
     private Integer articleStatus;
+
+    /**
+     * 审核状态：0-待审核，1-审核通过，2-审核拒绝
+     */
+    @TableField(value = "apply_status")
+    private Integer applyStatus;
+
+    /**
+     * 审核人 id
+     */
+    @TableField(value = "reviewer_wx_id")
+    private Long reviewerWxId;
+
+    /**
+     * 审核人名称
+     */
+    @TableField(value = "reviewer_name")
+    private String reviewerName;
+
+    /**
+     * 审核意见
+     */
+    @TableField(value = "review_opinion")
+    private String reviewOpinion;
+
+    /**
+     * 审核完成时间
+     */
+    @TableField(value = "reviewed_time")
+    private LocalDateTime reviewedTime;
 
     /**
      * 发布者 id
