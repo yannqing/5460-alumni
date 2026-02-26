@@ -19,8 +19,8 @@ Page({
     // 如果通过组织架构跳转（有wxid或username参数）
     if (wxid !== undefined || decodedUsername) {
       if (wxid) {
-        // 有wxid时，使用wxid作为alumniId加载详情
-        this.setData({ alumniId: wxid })
+        // 有wxid时，使用wxid作为alumniId加载详情，确保转换为字符串以防止数字精度丢失
+        this.setData({ alumniId: String(wxid) })
         this.loadAlumniDetail()
       } else {
         // wxid为空时，创建一个临时的alumniInfo对象，显示默认信息
@@ -64,8 +64,8 @@ Page({
         this.setData({ alumniInfo: tempAlumniInfo })
       }
     } else if (id) {
-      // 传统的通过id加载详情的方式
-      this.setData({ alumniId: id })
+      // 传统的通过id加载详情的方式，确保转换为字符串以防止数字精度丢失
+      this.setData({ alumniId: String(id) })
       this.loadAlumniDetail()
     }
   },
