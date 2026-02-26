@@ -1,19 +1,18 @@
 package com.cmswe.alumni.search.config;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.indices.ExistsRequest;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 
+import java.io.StringReader;
 import java.nio.file.Files;
 
 /**
@@ -25,8 +24,9 @@ import java.nio.file.Files;
  * - 替代手动执行 init_indices.sh 脚本
  *
  * 配置：
- * - elasticsearch.auto-init: true/false（是否启用自动初始化）
- * - elasticsearch.host: ES 服务器地址
+ * - spring.elasticsearch.uris: ES 服务器地址
+ * - spring.elasticsearch.username: ES 用户名
+ * - spring.elasticsearch.password: ES 密码
  *
  * @author CNI Alumni System
  */
@@ -35,16 +35,14 @@ import java.nio.file.Files;
 @ConditionalOnProperty(name = "elasticsearch.auto-init", havingValue = "true", matchIfMissing = false)
 public class ElasticsearchIndexInitializer {
 
-    @Value("${elasticsearch.host:http://localhost:9200}")
-    private String elasticsearchHost;
+    @Autowired
+    private ElasticsearchClient elasticsearchClient;
 
-    @Value("${elasticsearch.username:}")
+    @Value("${spring.elasticsearch.uris:http://localhost:9200}")
+    private String elasticsearchUris;
+
+    @Value("${spring.elasticsearch.username:}")
     private String elasticsearchUsername;
-
-    @Value("${elasticsearch.password:}")
-    private String elasticsearchPassword;
-
-    private RestTemplate restTemplate;
 
     /**
      * 应用启动时自动初始化索引
@@ -54,10 +52,11 @@ public class ElasticsearchIndexInitializer {
         log.info("========================================");
         log.info("Elasticsearch 索引自动初始化");
         log.info("========================================");
-        log.info("ES 地址: {}", elasticsearchHost);
+        log.info("ES 地址: {}", elasticsearchUris);
 
-        // 初始化 RestTemplate 并添加认证
-        initRestTemplate();
+        if (elasticsearchUsername != null && !elasticsearchUsername.isEmpty()) {
+            log.info("[✓] Elasticsearch 认证已配置 (用户: {})", elasticsearchUsername);
+        }
 
         try {
             // 1. 检查 ES 连接
@@ -75,29 +74,9 @@ public class ElasticsearchIndexInitializer {
         } catch (Exception e) {
             log.error("Elasticsearch 索引初始化失败", e);
             log.warn("请检查：");
-            log.warn("  1. ES 是否已启动: {}", elasticsearchHost);
+            log.warn("  1. ES 是否已启动: {}", elasticsearchUris);
             log.warn("  2. JSON 映射文件是否存在");
             log.warn("  3. 或手动执行: cd alumni-search/src/main/resources/elasticsearch && ./init_indices.sh");
-        }
-    }
-
-    /**
-     * 初始化 RestTemplate 并添加认证
-     */
-    private void initRestTemplate() {
-        restTemplate = new RestTemplate();
-
-        // 如果配置了用户名和密码，添加 Basic Auth 认证
-        if (elasticsearchUsername != null && !elasticsearchUsername.isEmpty() &&
-            elasticsearchPassword != null && !elasticsearchPassword.isEmpty()) {
-
-            restTemplate.getInterceptors().add(
-                new BasicAuthenticationInterceptor(elasticsearchUsername, elasticsearchPassword)
-            );
-
-            log.info("[✓] Elasticsearch 认证已配置 (用户: {})", elasticsearchUsername);
-        } else {
-            log.warn("[!] Elasticsearch 未配置认证信息");
         }
     }
 
@@ -106,11 +85,10 @@ public class ElasticsearchIndexInitializer {
      */
     private void checkElasticsearchConnection() {
         try {
-            String healthUrl = elasticsearchHost + "/_cluster/health";
-            restTemplate.getForObject(healthUrl, String.class);
-            log.info("[✓] Elasticsearch 连接正常");
+            HealthStatus status = elasticsearchClient.cluster().health().status();
+            log.info("[✓] Elasticsearch 连接正常 (状态: {})", status);
         } catch (Exception e) {
-            throw new RuntimeException("无法连接到 Elasticsearch: " + elasticsearchHost, e);
+            throw new RuntimeException("无法连接到 Elasticsearch: " + elasticsearchUris, e);
         }
     }
 
@@ -123,26 +101,21 @@ public class ElasticsearchIndexInitializer {
     private void createIndex(String indexName, String mappingFile) {
         try {
             // 1. 检查索引是否已存在
-            String checkUrl = elasticsearchHost + "/" + indexName;
-            try {
-                restTemplate.headForHeaders(checkUrl);
+            boolean exists = elasticsearchClient.indices().exists(ExistsRequest.of(e -> e.index(indexName))).value();
+            if (exists) {
                 log.info("[SKIP] 索引已存在: {}", indexName);
                 return;
-            } catch (Exception e) {
-                // 索引不存在，继续创建
             }
 
             // 2. 读取 JSON 映射文件
             ClassPathResource resource = new ClassPathResource(mappingFile);
             String mappingJson = new String(Files.readAllBytes(resource.getFile().toPath()));
 
-            // 3. 发送创建索引请求
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<String> request = new HttpEntity<>(mappingJson, headers);
-
-            String createUrl = elasticsearchHost + "/" + indexName;
-            restTemplate.exchange(createUrl, HttpMethod.PUT, request, String.class);
+            // 3. 创建索引
+            elasticsearchClient.indices().create(CreateIndexRequest.of(builder ->
+                builder.index(indexName)
+                       .withJson(new StringReader(mappingJson))
+            ));
 
             log.info("[✓] 索引创建成功: {}", indexName);
 

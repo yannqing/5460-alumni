@@ -39,7 +39,6 @@ build/
 logs/**
 
 alumni-main/logs/**
-alumni-main/src/main/resources/application-local.yaml
 
 elasticsearch/**/**/**
 

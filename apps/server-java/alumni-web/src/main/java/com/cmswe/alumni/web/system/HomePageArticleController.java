@@ -34,7 +34,7 @@ public class HomePageArticleController {
      * 分页查询首页文章列表
      * @param queryDto 查询参数
      * @return 分页结果
-     */
+ */
     @PostMapping("/page")
     @Operation(summary = "分页查询首页文章列表")
     public BaseResponse<PageVo<HomePageArticleVo>> getArticlePage(@RequestBody QueryHomePageArticleListDto queryDto) {
