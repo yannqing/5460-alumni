@@ -120,7 +120,7 @@
                       <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
                       <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
                     </view>
-                    <view class="activity-participants">
+                    <view wx:if="{{item.maxParticipants !== null}}" class="activity-participants">
                       <image class="participants-icon" src="/assets/icons/people.png" mode="aspectFit" />
                       <text>{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
                     </view>
