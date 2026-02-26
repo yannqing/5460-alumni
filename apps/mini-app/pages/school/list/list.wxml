@@ -28,7 +28,7 @@
       <!-- 类型筛选 -->
       <view class="filter-item">
         <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
-          <text>{{filters[0].options[filters[0].selected]}}</text>
+          <text>{{filters[0].selected === 0 ? '办学层次' : filters[0].options[filters[0].selected]}}</text>
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
