@@ -202,6 +202,11 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         String sortField = queryLocalPlatformListDto.getSortField();
         String sortOrder = queryLocalPlatformListDto.getSortOrder();
 
+        // 设置默认排序字段
+        if (sortField == null) {
+            sortField = "createTime";
+        }
+
         // 3.构建查询条件（强制只查询启用状态的校处会）
         LambdaQueryWrapper<LocalPlatform> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
@@ -212,18 +217,11 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 .like(StringUtils.isNotBlank(city), LocalPlatform::getCity, city)
                 .like(StringUtils.isNotBlank(scope), LocalPlatform::getScope, scope);
 
-        // 4.添加排序
-        if (StringUtils.isNotBlank(sortField)) {
-            boolean isAsc = CommonConstant.SORT_ORDER_ASC.equals(sortOrder);
-            if ("createTime".equals(sortField)) {
-                queryWrapper.orderBy(true, isAsc, LocalPlatform::getCreateTime);
-            } else {
-                queryWrapper.orderByDesc(LocalPlatform::getCreateTime);
-            }
-        } else {
-            // 默认按创建时间降序
-            queryWrapper.orderByDesc(LocalPlatform::getCreateTime);
+        // 4.添加排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
+        if ("createTime".equals(sortField)) {
+            queryWrapper.orderBy(true, CommonConstant.SORT_ORDER_ASC.equals(sortOrder), LocalPlatform::getCreateTime);
         }
+        queryWrapper.orderByDesc(LocalPlatform::getPlatformId);
 
         // 5.执行分页查询
         Page<LocalPlatform> localPlatformPage = this.page(new Page<>(current, pageSize), queryWrapper);

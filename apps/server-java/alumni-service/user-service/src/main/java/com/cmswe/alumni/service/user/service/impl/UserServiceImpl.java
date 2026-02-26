@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.user.UserPrivacySettingService;
+import com.cmswe.alumni.common.constant.CommonConstant;
 import com.cmswe.alumni.common.constant.KafkaTopicConstants;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
@@ -462,22 +463,62 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         String sortField = queryAlumniListDto.getSortField();
         String sortOrder = queryAlumniListDto.getSortOrder();
 
-        Page<WxUserInfo> wxUserInfoPage = wxUserInfoMapper.selectPage(new Page<>(current, pageSize),
-                new LambdaQueryWrapper<WxUserInfo>()
-                        .like(StringUtils.isNotBlank(nickname), WxUserInfo::getNickname, nickname)
-                        .like(StringUtils.isNotBlank(phone), WxUserInfo::getPhone, phone)
-                        .like(StringUtils.isNotBlank(name), WxUserInfo::getName, name)
-                        .like(StringUtils.isNotBlank(email), WxUserInfo::getEmail, email)
-                        .like(StringUtils.isNotBlank(curContinent), WxUserInfo::getCurContinent, curContinent)
-                        .like(StringUtils.isNotBlank(curCountry), WxUserInfo::getCurCountry, curCountry)
-                        .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
-                        .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity)
-                        .like(StringUtils.isNotBlank(signature), WxUserInfo::getSignature, signature)
-                        .eq(birthDate != null, WxUserInfo::getBirthDate, birthDate)
-                        .eq(gender != null, WxUserInfo::getGender, gender)
-                        .eq(constellation != null, WxUserInfo::getConstellation, constellation)
-                        .like(StringUtils.isNotBlank(identifyCode), WxUserInfo::getIdentifyCode, identifyCode)
-        );
+        // 设置默认排序字段
+        if (sortField == null) {
+            sortField = "createdTime";
+        }
+
+        // 检查是否有 OR 字段有值
+        boolean hasOrCondition = StringUtils.isNotBlank(nickname)
+                || StringUtils.isNotBlank(name)
+                || StringUtils.isNotBlank(phone);
+
+        LambdaQueryWrapper<WxUserInfo> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 用户名称、昵称、手机号使用 OR 连接（用户可能输入的内容）
+        if (hasOrCondition) {
+            queryWrapper.and(wrapper -> {
+                boolean hasCondition = false;
+
+                if (StringUtils.isNotBlank(nickname)) {
+                    wrapper.like(WxUserInfo::getNickname, nickname);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(name)) {
+                    if (hasCondition) wrapper.or();
+                    wrapper.like(WxUserInfo::getName, name);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(phone)) {
+                    if (hasCondition) wrapper.or();
+                    wrapper.like(WxUserInfo::getPhone, phone);
+                }
+            });
+        }
+
+        // 其他筛选条件使用 AND 连接
+        queryWrapper
+                .like(StringUtils.isNotBlank(email), WxUserInfo::getEmail, email)
+                .like(StringUtils.isNotBlank(curContinent), WxUserInfo::getCurContinent, curContinent)
+                .like(StringUtils.isNotBlank(curCountry), WxUserInfo::getCurCountry, curCountry)
+                .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
+                .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity)
+                .like(StringUtils.isNotBlank(signature), WxUserInfo::getSignature, signature)
+                .eq(birthDate != null, WxUserInfo::getBirthDate, birthDate)
+                .eq(gender != null, WxUserInfo::getGender, gender)
+                .eq(constellation != null, WxUserInfo::getConstellation, constellation)
+                .like(StringUtils.isNotBlank(identifyCode), WxUserInfo::getIdentifyCode, identifyCode);
+
+        // 过滤：name 和 nickname 不能同时为空（至少有一个不为空）
+        queryWrapper.and(wrapper -> wrapper.isNotNull(WxUserInfo::getName).or().isNotNull(WxUserInfo::getNickname));
+
+        // 排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
+        if ("createdTime".equals(sortField)) {
+            queryWrapper.orderBy(true, CommonConstant.SORT_ORDER_ASC.equals(sortOrder), WxUserInfo::getCreatedTime);
+        }
+        queryWrapper.orderByDesc(WxUserInfo::getWxId);
+
+        Page<WxUserInfo> wxUserInfoPage = wxUserInfoMapper.selectPage(new Page<>(current, pageSize), queryWrapper);
 
         // 批量查询主要教育经历和校友状态
         Map<Long, AlumniEducationListVo> primaryEducationMap = new HashMap<>();

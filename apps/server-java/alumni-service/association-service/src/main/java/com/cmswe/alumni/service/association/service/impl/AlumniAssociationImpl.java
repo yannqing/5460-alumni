@@ -118,14 +118,21 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         String sortField = alumniAssociationListDto.getSortField();
         String sortOrder = alumniAssociationListDto.getSortOrder();
 
+        // 设置默认排序字段
+        if (sortField == null) {
+            sortField = "createTime";
+        }
+
         // 3.构建查询条件
         LambdaQueryWrapper<AlumniAssociation> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .like(StringUtils.isNotBlank(associationName), AlumniAssociation::getAssociationName, associationName)
                 .like(StringUtils.isNotBlank(contactInfo), AlumniAssociation::getContactInfo, contactInfo)
                 .like(StringUtils.isNotBlank(location), AlumniAssociation::getLocation, location)
+                // 排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
                 .orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
-                        AlumniAssociation.getSortMethod(sortField));
+                        AlumniAssociation.getSortMethod(sortField))
+                .orderByDesc(AlumniAssociation::getAlumniAssociationId);
 
         // 4.执行分页查询
         Page<AlumniAssociation> alumniAssociationPage = this.page(new Page<>(current, pageSize), queryWrapper);
