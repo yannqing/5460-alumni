@@ -15,6 +15,7 @@ Page({
       { label: '性别', options: ['全部', '男', '女'], selected: 0 },
       { label: '关注', options: ['我的关注'], selected: 0 }
     ],
+    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/26/1fbd821e-3a41-41eb-b284-d11d0296a2dc.png`,
     alumniList: [],
     current: 1,
     pageSize: 10,
