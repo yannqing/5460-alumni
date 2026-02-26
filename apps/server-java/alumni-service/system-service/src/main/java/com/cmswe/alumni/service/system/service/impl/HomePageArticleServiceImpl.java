@@ -183,8 +183,9 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         HomePageArticle article = new HomePageArticle();
         BeanUtils.copyProperties(createDto, article);
 
-        // 3.设置默认值，状态强制为 -1（待审核）
-        article.setArticleStatus(-1);
+        // 3.设置默认值
+        article.setArticleStatus(0); // 0-禁用（待审核通过后启用）
+        article.setApplyStatus(0);   // 0-待审核
 
         // 4.保存到数据库
         boolean saveResult = this.save(article);
@@ -192,21 +193,7 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
             throw new BusinessException("新增文章失败");
         }
 
-        log.info("新增首页文章成功 - ArticleId: {}, Title: {}", article.getHomeArticleId(), article.getArticleTitle());
-
-        // 5.创建审核申请记录
-        HomePageArticleApply apply = new HomePageArticleApply();
-        apply.setHomeArticleId(article.getHomeArticleId());
-        apply.setApplyStatus(0); // 0-审核中
-        apply.setCreateTime(LocalDateTime.now());
-        apply.setUpdateTime(LocalDateTime.now());
-
-        boolean applyResult = homePageArticleApplyService.save(apply);
-        if (!applyResult) {
-            throw new BusinessException("创建审核记录失败");
-        }
-
-        log.info("创建审核记录成功 - ArticleId: {}, ApplyId: {}", article.getHomeArticleId(), apply.getHomeArticleApplyId());
+        log.info("新增首页文章成功（待审核）- ArticleId: {}, Title: {}", article.getHomeArticleId(), article.getArticleTitle());
 
         return article.getHomeArticleId();
     }
@@ -229,8 +216,14 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         HomePageArticle article = new HomePageArticle();
         BeanUtils.copyProperties(updateDto, article);
 
-        // 4.修改文章后重新提交审核，状态设置为 -1（待审核）
-        article.setArticleStatus(-1);
+        // 4.修改文章后重新提交审核
+        article.setArticleStatus(0);  // 0-禁用（待审核通过后启用）
+        article.setApplyStatus(0);    // 0-待审核
+        // 清空之前的审核信息
+        article.setReviewerWxId(null);
+        article.setReviewerName(null);
+        article.setReviewOpinion(null);
+        article.setReviewedTime(null);
 
         // 5.更新数据库
         boolean updateResult = this.updateById(article);
@@ -238,21 +231,7 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
             throw new BusinessException("更新文章失败");
         }
 
-        log.info("更新首页文章成功 - ArticleId: {}, Title: {}", article.getHomeArticleId(), article.getArticleTitle());
-
-        // 6.创建审核申请记录
-        HomePageArticleApply apply = new HomePageArticleApply();
-        apply.setHomeArticleId(article.getHomeArticleId());
-        apply.setApplyStatus(0); // 0-审核中
-        apply.setCreateTime(LocalDateTime.now());
-        apply.setUpdateTime(LocalDateTime.now());
-
-        boolean applyResult = homePageArticleApplyService.save(apply);
-        if (!applyResult) {
-            throw new BusinessException("创建审核记录失败");
-        }
-
-        log.info("创建审核记录成功 - ArticleId: {}, ApplyId: {}", article.getHomeArticleId(), apply.getHomeArticleApplyId());
+        log.info("更新首页文章成功（重新提交审核）- ArticleId: {}, Title: {}", article.getHomeArticleId(), article.getArticleTitle());
 
         return true;
     }

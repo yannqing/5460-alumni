@@ -53,9 +53,9 @@ spring:
 
   # Elasticsearch 配置（Spring Data ES）
   elasticsearch:
-    uris: http://localhost:9200
-    username: ${ES_USERNAME:}
-    password: ${ES_PASSWORD:}
+    uris: ${ELASTICSEARCH_HOST:http://localhost:9200}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
     connection-timeout: 10s
     socket-timeout: 30s
 
@@ -179,7 +179,6 @@ api:
 
 # ==================== Elasticsearch 自动初始化配置 ====================
 elasticsearch:
-  host: http://localhost:9200
   auto-init: true  # 开启自动初始化（应用启动时自动创建索引）
   # 设置为 false 则需要手动执行 init_indices.sh 创建索引
 

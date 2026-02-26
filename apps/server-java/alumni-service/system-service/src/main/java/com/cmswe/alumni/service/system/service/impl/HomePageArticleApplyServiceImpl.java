@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 首页公众号文章审核 Service 实现类
+ * 首页公众号文章审核 Service 实现类（已合并审核表到文章表）
  */
 @Slf4j
 @Service
@@ -56,7 +56,8 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
             throw new BusinessException("参数不能为空");
         }
 
-        Long applyId = approveDto.getHomeArticleApplyId();
+        // 注意：这里的 homeArticleApplyId 现在实际上是文章ID
+        Long articleId = approveDto.getHomeArticleApplyId();
         Integer applyStatus = approveDto.getApplyStatus();
 
         // 校验审核状态
@@ -64,40 +65,40 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
             throw new BusinessException("审核状态不正确，必须为1（通过）或2（拒绝）");
         }
 
-        // 2. 查询审核记录
-        HomePageArticleApply apply = this.getById(applyId);
-        if (apply == null) {
-            throw new BusinessException("审核记录不存在");
+        // 2. 查询文章
+        HomePageArticle article = homePageArticleService.getById(articleId);
+        if (article == null) {
+            throw new BusinessException("文章不存在");
         }
 
         // 3. 检查审核状态
-        if (apply.getApplyStatus() != 0) {
-            throw new BusinessException("该申请已被审核，无法重复审核");
+        if (article.getApplyStatus() != null && article.getApplyStatus() != 0) {
+            throw new BusinessException("该文章已被审核，无法重复审核");
         }
 
-        // 4. 更新审核记录
-        apply.setApplyStatus(applyStatus);
-        apply.setAppliedWxId(approverWxId);
-        apply.setAppliedName(approverName);
-        apply.setAppliedDescription(approveDto.getAppliedDescription());
-        apply.setCompletedTime(LocalDateTime.now());
-        apply.setUpdateTime(LocalDateTime.now());
+        // 4. 更新文章的审核信息
+        article.setApplyStatus(applyStatus);
+        article.setReviewerWxId(approverWxId);
+        article.setReviewerName(approverName);
+        article.setReviewOpinion(approveDto.getAppliedDescription());
+        article.setReviewedTime(LocalDateTime.now());
+        article.setUpdateTime(LocalDateTime.now());
 
-        boolean result = this.updateById(apply);
-
-        // 5. 如果审核通过，更新文章状态为启用
-        if (result && applyStatus == 1) {
-            HomePageArticle article = homePageArticleService.getById(apply.getHomeArticleId());
-            if (article != null) {
-                article.setArticleStatus(1); // 1-启用
-                homePageArticleService.updateById(article);
-                log.info("审核通过，文章已启用 - ArticleId: {}", article.getHomeArticleId());
-            }
+        // 5. 如果审核通过，同时更新文章状态为启用
+        if (applyStatus == 1) {
+            article.setArticleStatus(1); // 1-启用
+            log.info("审核通过，文章已启用 - ArticleId: {}", articleId);
+        } else {
+            // 审核拒绝，设置文章状态为禁用
+            article.setArticleStatus(0); // 0-禁用
+            log.info("审核拒绝，文章已禁用 - ArticleId: {}", articleId);
         }
+
+        boolean result = homePageArticleService.updateById(article);
 
         if (result) {
-            log.info("审核文章成功 - ApplyId: {}, Status: {}, Approver: {}",
-                    applyId, applyStatus, approverName);
+            log.info("审核文章成功 - ArticleId: {}, Status: {}, Approver: {}",
+                    articleId, applyStatus, approverName);
         }
 
         return result;
@@ -122,59 +123,70 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
             size = 10L;
         }
 
-        // 3. 构造查询条件
-        LambdaQueryWrapper<HomePageArticleApply> queryWrapper = new LambdaQueryWrapper<>();
+        // 3. 构造查询条件 - 从文章表查询
+        LambdaQueryWrapper<HomePageArticle> queryWrapper = new LambdaQueryWrapper<>();
 
         // 如果指定了状态，则按状态筛选；否则查询所有状态
         if (applyStatus != null) {
-            queryWrapper.eq(HomePageArticleApply::getApplyStatus, applyStatus);
+            queryWrapper.eq(HomePageArticle::getApplyStatus, applyStatus);
+        } else {
+            // 查询所有审核状态（包括待审核、通过、拒绝）
+            queryWrapper.in(HomePageArticle::getApplyStatus, 0, 1, 2);
         }
 
-        // 根据状态排序：待审核按创建时间降序，已审核按完成时间降序
+        // 根据状态排序：待审核按创建时间降序，已审核按审核完成时间降序
         if (applyStatus != null && applyStatus == 0) {
-            queryWrapper.orderByDesc(HomePageArticleApply::getCreateTime);
+            queryWrapper.orderByDesc(HomePageArticle::getCreateTime);
         } else if (applyStatus != null && (applyStatus == 1 || applyStatus == 2)) {
-            queryWrapper.orderByDesc(HomePageArticleApply::getCompletedTime);
+            queryWrapper.orderByDesc(HomePageArticle::getReviewedTime);
         } else {
             // 查询所有状态时，按创建时间降序
-            queryWrapper.orderByDesc(HomePageArticleApply::getCreateTime);
+            queryWrapper.orderByDesc(HomePageArticle::getCreateTime);
         }
 
+        // 添加主键排序，避免分页重复
+        queryWrapper.orderByDesc(HomePageArticle::getHomeArticleId);
+
         // 4. 执行分页查询
-        Page<HomePageArticleApply> applyPage = this.page(new Page<>(current, size), queryWrapper);
-        List<HomePageArticleApplyVo> list = applyPage.getRecords().stream()
-                .map(apply -> {
-                    HomePageArticleApplyVo vo = HomePageArticleApplyVo.objToVo(apply);
+        Page<HomePageArticle> articlePage = homePageArticleService.page(new Page<>(current, size), queryWrapper);
+        List<HomePageArticleApplyVo> list = articlePage.getRecords().stream()
+                .map(article -> {
+                    // 将文章转换为审核VO
+                    HomePageArticleApplyVo vo = new HomePageArticleApplyVo();
+                    vo.setHomeArticleApplyId(article.getHomeArticleId()); // 使用文章ID作为审核ID
+                    vo.setApplyStatus(article.getApplyStatus());
+                    vo.setAppliedWxId(article.getReviewerWxId()); // Long 类型直接设置
+                    vo.setAppliedName(article.getReviewerName());
+                    vo.setAppliedDescription(article.getReviewOpinion());
+                    vo.setCompletedTime(article.getReviewedTime());
+                    vo.setCreateTime(article.getCreateTime());
+
                     // 填充文章信息
-                    if (apply.getHomeArticleId() != null) {
-                        HomePageArticle article = homePageArticleService.getById(apply.getHomeArticleId());
-                        if (article != null) {
-                            HomePageArticleVo articleVo = HomePageArticleVo.objToVo(article);
-                            // 填充封面图信息
-                            if (article.getCoverImg() != null) {
-                                try {
-                                    Files file = fileService.getById(article.getCoverImg());
-                                    if (file != null) {
-                                        articleVo.setCoverImg(FilesVo.objToVo(file));
-                                    }
-                                } catch (Exception e) {
-                                    log.warn("查询文章封面图失败 - ArticleId: {}, Error: {}",
-                                            article.getHomeArticleId(), e.getMessage());
-                                }
+                    HomePageArticleVo articleVo = HomePageArticleVo.objToVo(article);
+                    // 填充封面图信息
+                    if (article.getCoverImg() != null) {
+                        try {
+                            Files file = fileService.getById(article.getCoverImg());
+                            if (file != null) {
+                                articleVo.setCoverImg(FilesVo.objToVo(file));
                             }
-                            vo.setArticleInfo(articleVo);
+                        } catch (Exception e) {
+                            log.warn("查询文章封面图失败 - ArticleId: {}, Error: {}",
+                                    article.getHomeArticleId(), e.getMessage());
                         }
                     }
+                    vo.setArticleInfo(articleVo);
+
                     // 填充审批人信息
-                    if (apply.getAppliedWxId() != null) {
+                    if (article.getReviewerWxId() != null) {
                         try {
-                            WxUserInfo user = wxUserInfoService.getById(apply.getAppliedWxId());
+                            WxUserInfo user = wxUserInfoService.getById(article.getReviewerWxId());
                             if (user != null) {
                                 vo.setAppliedUserInfo(WxUserInfoVo.objToVo(user));
                             }
                         } catch (Exception e) {
-                            log.warn("查询审批人信息失败 - AppliedWxId: {}, Error: {}",
-                                    apply.getAppliedWxId(), e.getMessage());
+                            log.warn("查询审批人信息失败 - ReviewerWxId: {}, Error: {}",
+                                    article.getReviewerWxId(), e.getMessage());
                         }
                     }
                     return vo;
@@ -184,9 +196,9 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
         String statusDesc = applyStatus == null ? "全部"
                 : (applyStatus == 0 ? "待审核" : (applyStatus == 1 ? "审核通过" : "审核拒绝"));
         log.info("分页查询审核记录列表 - Current: {}, Size: {}, Status: {}, Total: {}",
-                current, size, statusDesc, applyPage.getTotal());
+                current, size, statusDesc, articlePage.getTotal());
 
-        Page<HomePageArticleApplyVo> resultPage = new Page<HomePageArticleApplyVo>(current, size, applyPage.getTotal())
+        Page<HomePageArticleApplyVo> resultPage = new Page<HomePageArticleApplyVo>(current, size, articlePage.getTotal())
                 .setRecords(list);
         return PageVo.of(resultPage);
     }

@@ -72,28 +72,53 @@ public class SchoolImpl extends ServiceImpl<SchoolMapper, School> implements Sch
         //3.构造查询条件
         LambdaQueryWrapper<School> queryWrapper = new LambdaQueryWrapper<>();
 
-        // 如果传入了 keyword，在多个字段上进行 OR 搜索
-        if (StringUtils.isNotBlank(keyword)) {
-            queryWrapper.and(wrapper -> wrapper
-                    .like(School::getSchoolName, keyword)
-                    .or()
-                    .like(School::getPreviousName, keyword)
-                    .or()
-                    .like(School::getMergedInstitutions, keyword)
-            );
+        // 检查是否有 OR 字段有值
+        boolean hasOrCondition = StringUtils.isNotBlank(schoolName)
+                || StringUtils.isNotBlank(location)
+                || StringUtils.isNotBlank(description)
+                || StringUtils.isNotBlank(mergedInstitutions)
+                || StringUtils.isNotBlank(previousName);
+
+        // 输入框字段使用 OR 连接（用户可能输入的内容）
+        if (hasOrCondition) {
+            queryWrapper.and(wrapper -> {
+                boolean hasCondition = false;
+
+                if (StringUtils.isNotBlank(schoolName)) {
+                    wrapper.like(School::getSchoolName, schoolName);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(location)) {
+                    if (hasCondition) wrapper.or();
+                    wrapper.like(School::getLocation, location);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(description)) {
+                    if (hasCondition) wrapper.or();
+                    wrapper.like(School::getDescription, description);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(mergedInstitutions)) {
+                    if (hasCondition) wrapper.or();
+                    wrapper.like(School::getMergedInstitutions, mergedInstitutions);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(previousName)) {
+                    if (hasCondition) wrapper.or();
+                    wrapper.like(School::getPreviousName, previousName);
+                }
+            });
         }
 
-        // 如果传入了具体字段，使用 AND 连接（用于精确筛选）
+        // 筛选条件使用 AND 连接
         queryWrapper
-                .like(StringUtils.isNotBlank(schoolName), School::getSchoolName, schoolName)
-                .like(StringUtils.isNotBlank(previousName), School::getPreviousName, previousName)
-                .like(StringUtils.isNotBlank(mergedInstitutions), School::getMergedInstitutions, mergedInstitutions)
-                .like(StringUtils.isNotBlank(location), School::getLocation, location)
                 .like(StringUtils.isNotBlank(level), School::getLevel, level)
                 .like(StringUtils.isNotBlank(province), School::getProvince, province)
-                .like(StringUtils.isNotBlank(city), School::getCity, city)
-                .like(StringUtils.isNotBlank(description), School::getDescription, description)
-                .orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), School.getSchoolSortMethod(sortField));
+                .like(StringUtils.isNotBlank(city), School::getCity, city);
+
+        // 排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
+        queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), School.getSchoolSortMethod(sortField))
+                .orderByDesc(School::getSchoolId);
 
         //4.执行分页查询
         Page<School> schoolPage = this.page(new Page<>(current, pageSize), queryWrapper);
