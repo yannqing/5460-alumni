@@ -54,7 +54,7 @@ Page({
 
     // 注册时间排序
     if (sortFilter.selected >= 0) {
-      params.sortField = 'createTime'
+      // params.sortField = 'createTime'
       params.sortOrder = sortFilter.selected == 1 ? 'descend' : 'ascend'
     }
 

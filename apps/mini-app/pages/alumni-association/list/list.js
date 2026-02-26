@@ -11,6 +11,7 @@ Page({
     iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
+    iconPeople: '../../../assets/icons/people.png',
     topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png`,
     keyword: '',
     filters: [
