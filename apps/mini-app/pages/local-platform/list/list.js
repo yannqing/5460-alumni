@@ -414,5 +414,13 @@ Page({
         wx.navigateTo({
             url: `/pages/local-platform/detail/detail?id=${e.currentTarget.dataset.id}`
         })
+    },
+
+    goToCreate(e) {
+        const platformName = e.currentTarget.dataset.platformName
+        console.log('传递的平台名称:', platformName)
+        wx.navigateTo({
+            url: `/pages/alumni-association/create/create?platformName=${encodeURIComponent(platformName)}`
+        })
     }
 })

@@ -53,11 +53,15 @@
       <!-- 背景图片 -->
       <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
         <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
+        <!-- 右上角图标 -->
+        <image class="platform-crate-icon" src="/assets/icons/crate.png" bindtap="goToCreate" data-platform-name="{{item.platformName}}" />
         <!-- 头像 -->
         <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" />
-        <!-- 名称和城市 -->
+        <!-- 名称、城市 -->
         <view class="info-on-bg">
-          <text class="card-title-on-bg">{{item.platformName}}</text>
+          <view class="title-row">
+            <text class="card-title-on-bg">{{item.platformName}}</text>
+          </view>
           <view class="card-subtitle-on-bg">
             <image class="subtitle-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
             <text>{{item.city}}</text>

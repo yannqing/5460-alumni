@@ -51,8 +51,11 @@
         <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
         <text class="nav-text">校友</text>
       </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list">
-        <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
+      <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list" data-disabled="true">
+        <view class="nav-icon-wrapper">
+          <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
+          <view class="nav-construction-tag">建设中</view>
+        </view>
         <text class="nav-text">商户</text>
       </view>
       <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">

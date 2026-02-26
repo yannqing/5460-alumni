@@ -120,7 +120,7 @@
                       <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
                       <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
                     </view>
-                    <view class="activity-participants">
+                    <view wx:if="{{item.maxParticipants !== null}}" class="activity-participants">
                       <image class="participants-icon" src="/assets/icons/people.png" mode="aspectFit" />
                       <text>{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
                     </view>
@@ -131,7 +131,7 @@
           </view>
 
           <!-- 附近权益列表 -->
-          <view class="card mt-20 dashboard-card">
+          <!-- <view class="card mt-20 dashboard-card">
             <view class="section-header">
               <view class="section-title">
                 <view class="text-bold">附近权益</view>
@@ -160,10 +160,10 @@
                 </view>
               </view>
             </view>
-          </view>
+          </view> -->
 
           <!-- 校友企业列表 -->
-          <view class="card mt-20 dashboard-card">
+          <!-- <view class="card mt-20 dashboard-card">
             <view class="section-header">
               <view class="section-title">
                 <view class="text-bold">校友企业</view>
@@ -189,10 +189,10 @@
                 </view>
               </view>
             </view>
-          </view>
+          </view> -->
 
           <!-- 校友商铺列表 -->
-          <view class="card mt-20 dashboard-card">
+          <!-- <view class="card mt-20 dashboard-card">
             <view class="section-header">
               <view class="section-title">
                 <view class="text-bold">校友商铺</view>
@@ -221,7 +221,7 @@
                 </view>
               </view>
             </view>
-          </view>
+          </view> -->
         </view>
 
         <!-- 组织结构标签页 -->

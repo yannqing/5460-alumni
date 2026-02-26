@@ -25,13 +25,6 @@
     
     <!-- 筛选区域 -->
     <view class="filter-section">
-      <!-- 类型筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
-          <text>{{filters[0].options[filters[0].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
       <!-- 城市筛选 -->
       <view class="filter-item">
         <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
@@ -39,10 +32,10 @@
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
-      <!-- 排序筛选 -->
+      <!-- 条件筛选 -->
       <view class="filter-item">
-        <picker bindchange="onSortChange" range="{{filters[2].options}}" value="{{filters[2].selected}}">
-          <text>{{filters[2].selected === 0 ? '注册时间' : filters[2].options[filters[2].selected]}}</text>
+        <picker mode="multiSelector" range="{{conditionData}}" value="{{conditionIndex}}" bindchange="onConditionChange" bindcolumnchange="onConditionColumnChange">
+          <text>{{filters[1].selected === -1 ? '条件筛选' : filters[1].options[filters[1].selected]}}</text>
         </picker>
         <text class="filter-arrow">▾</text>
       </view>
@@ -78,8 +71,16 @@
             </view>
           </view>
 
-          <!-- 关注和加入按钮在城市和地点下面一行展示 -->
-          <view class="action-row">
+          <!-- 人数信息在学校和地点下面一行展示 -->
+          <view class="meta-row">
+            <view wx:if="{{item.memberCount > 0}}" class="meta-item">
+              <image class="location-icon" src="{{iconPeople}}" mode="aspectFit" />
+              <text>{{item.memberCount}}人</text>
+            </view>
+          </view>
+
+          <!-- 关注和加入按钮在人数信息下面一行展示 -->
+          <view class="action-row" style="margin-top: 20rpx;">
             <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
               <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
                 {{item.isFollowed ? '已关注' : '+ 关注'}}
@@ -105,6 +106,7 @@
         <view class="card-stats">
           <text wx:if="{{item.associationCount > 0}}" class="stat-item">校友会 {{item.associationCount}}</text>
           <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
+          <text wx:if="{{item.createTime}}" class="stat-item">注册时间 {{item.createTime}}</text>
         </view>
       </view>
     </view>

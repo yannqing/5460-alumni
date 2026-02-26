@@ -369,7 +369,7 @@ view, text, picker, input, button, image, navigator {
 .meta-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 12rpx;
   margin-bottom: 12rpx;
   width: 100%;
   overflow: hidden;
@@ -392,6 +392,10 @@ view, text, picker, input, button, image, navigator {
 
 .location-item {
   flex: 0.8;
+}
+
+.member-count-item {
+  margin-left: -5rpx;
 }
 
 .truncate {

@@ -11,14 +11,17 @@ Page({
     iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
+    iconPeople: '../../../assets/icons/people.png',
     topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png`,
     keyword: '',
     filters: [
-      { label: '类型', options: ['全部校友会', '地方校友会', '行业校友会', '海外校友会'], selected: 0 },
       { label: '城市', options: ['全部城市'], selected: 0 },
-      { label: '注册时间', options: ['升序', '降序'], selected: 0 },
+      { label: '条件筛选', options: ['会员人数-升序', '会员人数-降序', '注册时间-升序', '注册时间-降序'], selected: -1 },
       { label: '关注', options: ['我的关注'], selected: 0 }
     ],
+    // 条件筛选多列选择器数据
+    conditionData: [['会员人数', '注册时间'], ['升序', '降序']],
+    conditionIndex: [0, 0],
     associationList: [],
     current: 1,
     pageSize: 50, // 增大每页大小，一次加载更多数据
@@ -215,9 +218,26 @@ Page({
 
     try {
       const { keyword, filters, current, pageSize } = this.data
-      const [typeFilter, cityFilter, sortFilter, followFilter] = filters
+      const [cityFilter, conditionFilter, followFilter] = filters
 
       // 准备请求参数
+      let sortField = undefined
+      let sortOrder = undefined
+      
+      // 确定排序字段和顺序
+      if (conditionFilter.selected >= 0) {
+        const selectedOption = conditionFilter.options[conditionFilter.selected]
+        if (selectedOption) {
+          if (selectedOption.includes('会员人数')) {
+            sortField = 'memberCount'
+            sortOrder = selectedOption.includes('升序') ? 'ascend' : 'descend'
+          } else if (selectedOption.includes('注册时间')) {
+            sortField = 'createTime'
+            sortOrder = selectedOption.includes('升序') ? 'ascend' : 'descend'
+          }
+        }
+      }
+      
       const params = {
         current: refresh ? 1 : this.data.current,
         pageSize: this.data.pageSize,
@@ -229,10 +249,10 @@ Page({
         presidentUsername: undefined,
         // 联系信息（暂不使用）
         contactInfo: undefined,
-        // 排序字段：注册时间
-        sortField: 'createTime',
-        // 排序顺序：根据筛选选择，默认升序
-        sortOrder: sortFilter.selected == 1 ? 'descend' : 'ascend'
+        // 排序字段：根据选择
+        sortField: sortField,
+        // 排序顺序：根据筛选选择
+        sortOrder: sortOrder
       }
 
       // 移除 undefined 参数
@@ -374,23 +394,54 @@ Page({
     this.loadAssociationList(true)
   },
 
-  // 类型筛选变更
-  onTypeChange(e) {
-    const optionIndex = e.detail.value
-    const { filters } = this.data
-    filters[0].selected = optionIndex
+  // 条件筛选列变更
+  onConditionColumnChange(e) {
+    const column = e.detail.column
+    const value = e.detail.value
 
-    this.setData({ filters, current: 1 })
-    this.loadAssociationList(true)
+    const { conditionData, conditionIndex } = this.data
+    const newConditionIndex = [...conditionIndex]
+    newConditionIndex[column] = value
+
+    // 当切换左侧的会员人数和注册时间时，重置右侧的升序和降序为升序
+    if (column === 0) {
+      newConditionIndex[1] = 0
+    }
+
+    this.setData({
+      conditionIndex: newConditionIndex
+    })
   },
 
-  // 排序筛选变更
-  onSortChange(e) {
-    const optionIndex = e.detail.value
-    const { filters } = this.data
-    filters[2].selected = optionIndex
+  // 条件筛选变更
+  onConditionChange(e) {
+    const index = e.detail.value // [条件类型索引, 排序方式索引]
+    const { conditionData, filters } = this.data
 
-    this.setData({ filters, current: 1 })
+    const conditionType = conditionData[0][index[0]]
+    const sortType = conditionData[1][index[1]]
+    const selectedOption = `${conditionType}-${sortType}`
+
+    // 查找对应的选项索引
+    let optionIndex = 0
+    const options = filters[1].options
+    for (let i = 0; i < options.length; i++) {
+      if (options[i] === selectedOption) {
+        optionIndex = i
+        break
+      }
+    }
+
+    this.setData({
+      filters: [
+        filters[0],
+        { ...filters[1], selected: optionIndex },
+        filters[2]
+      ],
+      conditionIndex: index,
+      current: 1
+    })
+
     this.loadAssociationList(true)
   },
 
