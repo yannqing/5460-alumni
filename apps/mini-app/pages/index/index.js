@@ -440,6 +440,10 @@ Page({
    * 页面导航
    */
   navTo(e) {
+    const disabled = e.currentTarget.dataset.disabled;
+    if (disabled) {
+      return;
+    }
     const url = e.currentTarget.dataset.url;
     if (url) {
       wx.navigateTo({
