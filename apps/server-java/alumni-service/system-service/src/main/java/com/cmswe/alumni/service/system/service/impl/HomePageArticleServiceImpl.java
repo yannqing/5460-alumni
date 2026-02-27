@@ -58,6 +58,7 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         // 2.获取参数
         Long current = queryDto.getCurrent();
         Long size = queryDto.getSize();
+        Integer showOnHomepage = queryDto.getShowOnHomepage();
 
         if (current == null || current < 1) {
             current = 1L;
@@ -71,6 +72,11 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
 
         // 只查询启用状态的文章
         queryWrapper.eq(HomePageArticle::getArticleStatus, 1);
+
+        // 根据是否展示在首页查询（可选）
+        if (showOnHomepage != null) {
+            queryWrapper.eq(HomePageArticle::getShowOnHomepage, showOnHomepage);
+        }
 
         // 按创建时间倒序排序
         queryWrapper.orderByDesc(HomePageArticle::getCreateTime);
@@ -173,7 +179,7 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long createArticle(CreateHomePageArticleDto createDto) {
+    public Long createArticle(CreateHomePageArticleDto createDto, Long actualPublisherWxId) {
         // 1.参数校验
         if (createDto == null) {
             throw new BusinessException("参数为空");
@@ -186,6 +192,12 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         // 3.设置默认值
         article.setArticleStatus(0); // 0-禁用（待审核通过后启用）
         article.setApplyStatus(0);   // 0-待审核
+        article.setActualPublisherWxId(actualPublisherWxId); // 设置实际发布用户ID
+
+        // 设置是否展示在首页，如果前端未传递则默认为0（不展示）
+        if (article.getShowOnHomepage() == null) {
+            article.setShowOnHomepage(0);
+        }
 
         // 4.保存到数据库
         boolean saveResult = this.save(article);
@@ -193,7 +205,8 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
             throw new BusinessException("新增文章失败");
         }
 
-        log.info("新增首页文章成功（待审核）- ArticleId: {}, Title: {}", article.getHomeArticleId(), article.getArticleTitle());
+        log.info("新增首页文章成功（待审核）- ArticleId: {}, Title: {}, ActualPublisher: {}",
+                article.getHomeArticleId(), article.getArticleTitle(), actualPublisherWxId);
 
         return article.getHomeArticleId();
     }

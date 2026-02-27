@@ -1,6 +1,7 @@
 package com.cmswe.alumni.web.system;
 
 import com.cmswe.alumni.api.system.HomePageArticleService;
+import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.CreateHomePageArticleDto;
 import com.cmswe.alumni.common.dto.QueryHomePageArticleListDto;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -56,13 +58,18 @@ public class HomePageArticleController {
 
     /**
      * 新增首页文章
+     * @param securityUser 当前登录用户
      * @param createDto 新增文章参数
      * @return 文章ID
      */
     @PostMapping("/create")
     @Operation(summary = "新增首页文章")
-    public BaseResponse<String> createArticle(@Valid @RequestBody CreateHomePageArticleDto createDto) {
-        Long articleId = homePageArticleService.createArticle(createDto);
+    public BaseResponse<String> createArticle(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody CreateHomePageArticleDto createDto) {
+        // 从 token 中获取实际发布用户 ID
+        Long actualPublisherWxId = securityUser.getWxUser().getWxId();
+        Long articleId = homePageArticleService.createArticle(createDto, actualPublisherWxId);
         return ResultUtils.success(Code.SUCCESS, String.valueOf(articleId), "新增成功");
     }
 

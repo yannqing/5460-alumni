@@ -32,9 +32,10 @@ public interface HomePageArticleService extends IService<HomePageArticle> {
     /**
      * 新增首页文章
      * @param createDto 新增文章参数
+     * @param actualPublisherWxId 实际发布用户ID（从token解析获取）
      * @return 文章ID
      */
-    Long createArticle(CreateHomePageArticleDto createDto);
+    Long createArticle(CreateHomePageArticleDto createDto, Long actualPublisherWxId);
 
     /**
      * 更新首页文章

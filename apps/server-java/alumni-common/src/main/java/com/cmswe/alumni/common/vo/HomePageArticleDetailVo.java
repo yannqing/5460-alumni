@@ -67,6 +67,13 @@ public class HomePageArticleDetailVo implements Serializable {
     @Schema(description = "发布者类型枚举（alumni，association）")
     private String publishType;
 
+    @Schema(description = "实际发布用户ID（通过token解析获取的操作者ID）")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long actualPublisherWxId;
+
+    @Schema(description = "是否展示在首页（0-不展示，1-展示）")
+    private Integer showOnHomepage;
+
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 

@@ -53,4 +53,7 @@ public class CreateHomePageArticleDto implements Serializable {
 
     @Schema(description = "发布者类型枚举（alumni，association）", example = "alumni")
     private String publishType;
+
+    @Schema(description = "是否展示在首页（0-不展示，1-展示）", example = "0")
+    private Integer showOnHomepage;
 }

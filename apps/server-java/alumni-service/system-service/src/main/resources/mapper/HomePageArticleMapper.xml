@@ -19,6 +19,8 @@
         <result property="publishUsername" column="publish_username" jdbcType="VARCHAR"/>
         <result property="publishType" column="publish_type" jdbcType="VARCHAR"/>
         <result property="publisherAvatar" column="publisher_avatar" jdbcType="VARCHAR"/>
+        <result property="actualPublisherWxId" column="actual_publisher_wx_id" jdbcType="BIGINT"/>
+        <result property="showOnHomepage" column="show_on_homepage" jdbcType="TINYINT"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
         <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
@@ -27,7 +29,8 @@
     <sql id="Base_Column_List">
         home_article_id, pid, article_title, cover_img, description, article_type,
         article_link, article_file, meta_data, article_status, publish_wx_id,
-        publish_username, publish_type, publisher_avatar, create_time, update_time, is_delete
+        publish_username, publish_type, publisher_avatar, actual_publisher_wx_id,
+        show_on_homepage, create_time, update_time, is_delete
     </sql>
 
 </mapper>
