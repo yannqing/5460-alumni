@@ -1,4 +1,5 @@
 // pages/enterprise/detail/detail.js
+const { placeApi } = require('../../../api/api.js')
 const app = getApp()
 
 Page({
@@ -15,16 +16,8 @@ Page({
   },
 
   loadEnterpriseDetail() {
-    const token = wx.getStorageSync('token') || (wx.getStorageSync('userInfo') || {}).token || ''
-    
-    wx.request({
-      url: `${app.globalData.baseUrl}/alumni-place/management/${this.data.enterpriseId}`,
-      method: 'GET',
-      header: {
-        'Content-Type': 'application/json',
-        ...(token ? { token, 'x-token': token } : {})
-      },
-      success: (res) => {
+    placeApi.getPlaceManagementDetail(this.data.enterpriseId)
+      .then((res) => {
         if (res.data && res.data.code === 200 && res.data.data) {
           this.setData({ 
             enterpriseInfo: res.data.data,
@@ -35,13 +28,12 @@ Page({
           this.setData({ loading: false })
           wx.showToast({ title: '获取企业详情失败', icon: 'none' })
         }
-      },
-      fail: (error) => {
+      })
+      .catch((error) => {
         console.error('获取企业详情异常:', error)
         this.setData({ loading: false })
         wx.showToast({ title: '网络错误，请稍后重试', icon: 'none' })
-      }
-    })
+      })
   },
 
   makeCall(e) {

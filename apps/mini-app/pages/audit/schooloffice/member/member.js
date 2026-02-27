@@ -1,5 +1,5 @@
 // pages/audit/schooloffice/member/member.js
-const { alumniApi } = require('../../../../api/api.js')
+const { alumniApi, localPlatformManagementApi, localPlatformApi } = require('../../../../api/api.js')
 const app = getApp()
 const config = require('../../../../utils/config.js')
 
@@ -315,61 +315,12 @@ Page({
 
   // 调用查询成员列表接口
   queryMemberList(localPlatformId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/localPlatform/members/page`,
-        method: 'POST',
-        data: { localPlatformId: localPlatformId },
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return localPlatformManagementApi.getMemberPage(localPlatformId)
   },
 
   // 调用校促会详情接口
   getSchoolOfficeDetail(schoolOfficeId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/localPlatform/${schoolOfficeId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return localPlatformApi.getLocalPlatformDetail(schoolOfficeId)
   },
 
   // 取消选择校促会
@@ -601,69 +552,12 @@ Page({
 
   // 调用获取角色列表接口
   getRoleList(organizeId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/localPlatformManagement/role/list`,
-        method: 'POST',
-        data: {
-          organizeId: organizeId,
-          organizeType: 1 // 1-校促会
-        },
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return localPlatformManagementApi.getRoleList(organizeId, 1)
   },
 
   // 调用邀请成员接口
   inviteMemberAPI(localPlatformId, wxId, roleOrId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/localPlatformManagement/inviteMember`,
-        method: 'POST',
-        data: {
-          localPlatformId,
-          wxId,
-          roleOrId
-        },
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId)
   },
 
   // 打开编辑成员弹窗
@@ -807,68 +701,11 @@ Page({
 
   // 调用删除成员接口
   deleteMemberAPI(localPlatformId, wxId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/localPlatformManagement/deleteMember`,
-        method: 'DELETE',
-        data: {
-          localPlatformId,
-          wxId
-        },
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return localPlatformManagementApi.deleteMember(localPlatformId, wxId)
   },
 
   // 调用更新成员角色接口
   updateMemberRoleAPI(localPlatformId, wxId, roleOrId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/localPlatformManagement/updateMemberRole`,
-        method: 'PUT',
-        data: {
-          localPlatformId,
-          wxId,
-          roleOrId
-        },
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId)
   }
 })

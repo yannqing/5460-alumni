@@ -1,5 +1,6 @@
 // pages/activity/detail-new/detail-new.js
 const app = getApp()
+const { alumniAssociationManagementApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -159,31 +160,7 @@ Page({
 
   // 调用活动详情接口
   getActivityDetail(activityId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/activity/detail/${activityId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.getActivityDetail(activityId)
   },
 
   // 格式化日期时间
