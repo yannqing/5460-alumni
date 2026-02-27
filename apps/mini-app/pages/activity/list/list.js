@@ -1,5 +1,6 @@
 // pages/activity/list/list.js
 const app = getApp()
+const { associationApi, alumniAssociationManagementApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -287,31 +288,7 @@ Page({
   
   // 调用校友会详情接口
   getAlumniAssociationDetail(alumniAssociationId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/AlumniAssociation/${alumniAssociationId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return associationApi.getAssociationDetail(alumniAssociationId)
   },
 
   // 取消选择校友会
@@ -390,31 +367,7 @@ Page({
   
   // 调用活动列表接口
   getActivityList(alumniAssociationId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/activities/${alumniAssociationId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.getActivities(alumniAssociationId)
   },
   
   // 格式化日期时间
@@ -555,39 +508,19 @@ Page({
   // 调用删除活动接口
   deleteActivityById(activityId) {
     return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/activity/delete/${activityId}`,
-        method: 'DELETE',
-        header: headers,
-        success: (res) => {
+      alumniAssociationManagementApi.deleteActivity(activityId)
+        .then((res) => {
           console.log('删除活动接口返回:', res)
           if (res.data && res.data.code === 200 && res.data.data === true) {
             resolve({ success: true, message: '删除成功' })
           } else {
             resolve({ success: false, message: res.data && res.data.msg || '删除失败' })
           }
-        },
-        fail: (err) => {
+        })
+        .catch((err) => {
           console.error('删除活动接口调用失败:', err)
           reject(err)
-        }
-      })
+        })
     })
   }
 })

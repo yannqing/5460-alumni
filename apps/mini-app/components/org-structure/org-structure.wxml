@@ -94,7 +94,7 @@
                     wx:else 
                     class="org-member-name clickable" 
                     bindtap="onMemberClick" 
-                    data-wxid="{{member.wxId}}" 
+                    data-wxid="{{member.wxId ? String(member.wxId) : ''}}" 
                     data-username="{{member.username || '匿名用户'}}"
                   >{{member.username || '匿名用户'}}</text>
                   <text wx:if="{{member.roleName}}" class="org-member-role">{{member.roleName}}</text>
@@ -224,7 +224,7 @@
                         wx:else 
                         class="org-member-name clickable" 
                         bindtap="onMemberClick" 
-                        data-wxid="{{member.wxId}}" 
+                        data-wxid="{{member.wxId ? String(member.wxId) : ''}}" 
                         data-username="{{member.username || '匿名用户'}}"
                       >{{member.username || '匿名用户'}}</text>
                         <text wx:if="{{member.roleName}}" class="org-member-role">{{member.roleName}}</text>
@@ -354,7 +354,7 @@
                                 wx:else 
                                 class="org-member-name clickable" 
                                 bindtap="onMemberClick" 
-                                data-wxid="{{member.wxId}}" 
+                                data-wxid="{{member.wxId ? String(member.wxId) : ''}}" 
                                 data-username="{{member.username || '匿名用户'}}"
                               >{{member.username || '匿名用户'}}</text>
                               <text wx:if="{{member.roleName}}" class="org-member-role">{{member.roleName}}</text>
