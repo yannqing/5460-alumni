@@ -670,8 +670,9 @@ Component({
     // 点击成员跳转到个人详情页
   onMemberClick(e) {
     const { wxid, username } = e.currentTarget.dataset
+    const wxidValue = wxid === null || wxid === undefined || wxid === '' ? '' : String(wxid)
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${String(wxid) || ''}&username=${encodeURIComponent(username || '匿名用户')}`
+      url: `/pages/alumni/detail/detail?wxid=${wxidValue}&username=${encodeURIComponent(username || '匿名用户')}`
     })
   }
   }

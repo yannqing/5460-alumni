@@ -1,5 +1,6 @@
 // pages/alumni-association/organization/organization.js
 const app = getApp()
+const { associationApi, alumniAssociationManagementApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -328,33 +329,7 @@ Page({
   getRoleList(organizeId) {
     // 保持organizeId为字符串形式，避免数字精度丢失
     console.log('[Debug] 调用角色列表接口，organizeId:', organizeId, '类型:', typeof organizeId)
-
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/list`,
-        method: 'POST',
-        data: { organizeId: organizeId }, // 保持字符串形式，避免数字精度丢失
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.getRoleList(organizeId)
   },
 
   // 取消选择校友会
@@ -873,32 +848,7 @@ Page({
     }
 
     console.log('[Debug] 调用新增角色接口，请求数据:', requestData)
-
-    return new Promise((resolve, reject) => {
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/add`,
-        method: 'POST',
-        data: requestData,
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.addRole(requestData)
   },
 
   // 调用更新角色接口
@@ -918,61 +868,12 @@ Page({
     }
 
     console.log('[Debug] 调用更新角色接口，请求数据:', requestData)
-
-    return new Promise((resolve, reject) => {
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/update`,
-        method: 'PUT',
-        data: requestData,
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.updateRole(requestData)
   },
 
   // 调用校友会详情接口
   getAlumniAssociationDetail(alumniAssociationId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/AlumniAssociation/${alumniAssociationId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return associationApi.getAssociationDetail(alumniAssociationId)
   },
 
   // 删除角色
@@ -1033,35 +934,6 @@ Page({
     const strOrganizeId = String(organizeId)
     console.log('[Debug] 调用删除角色接口，roleOrId:', strRoleOrId, '类型:', typeof strRoleOrId)
     console.log('[Debug] organizeId:', strOrganizeId, '类型:', typeof strOrganizeId)
-
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/role/delete`,
-        method: 'DELETE',
-        data: {
-          roleOrId: strRoleOrId, // 保持字符串格式，避免精度丢失
-          organizeId: strOrganizeId // 保持字符串格式，避免精度丢失
-        },
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.deleteRole(strRoleOrId, strOrganizeId)
   }
 })

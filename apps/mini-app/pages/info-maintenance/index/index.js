@@ -1,4 +1,5 @@
 // pages/info-maintenance/index/index.js
+const { alumniAssociationManagementApi } = require('../../../api/api.js')
 const app = getApp()
 
 Page({
@@ -274,31 +275,7 @@ Page({
 
   // 调用校友会详情接口（新接口）
   getAlumniAssociationDetail(alumniAssociationId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/detail/${alumniAssociationId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.getActivityDetail(alumniAssociationId)
   },
 
   // 跳转到编辑页面
