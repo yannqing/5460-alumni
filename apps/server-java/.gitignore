@@ -49,5 +49,7 @@ elasticsearch/**/**/**
 .env.test
 .env.*.local
 
+.infisical.json
+
 docker-compose-kafka.yml
 docker-compose-kafka-prod.yml
