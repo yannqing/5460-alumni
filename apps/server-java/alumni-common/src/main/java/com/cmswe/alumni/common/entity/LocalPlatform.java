@@ -57,6 +57,18 @@ public class LocalPlatform implements Serializable {
     private String description;
 
     /**
+     * 会员数量
+     */
+    @TableField(value = "member_count")
+    private Integer memberCount;
+
+    /**
+     * 当月可发布到首页的文章数量（配额）
+     */
+    @TableField(value = "monthly_homepage_article_quota")
+    private Integer monthlyHomepageArticleQuota;
+
+    /**
      * 背景图片
      */
     @TableField(value = "bg_img")

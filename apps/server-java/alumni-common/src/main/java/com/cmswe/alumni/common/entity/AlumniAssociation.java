@@ -58,6 +58,12 @@ public class AlumniAssociation implements Serializable {
     private Integer memberCount;
 
     /**
+     * 当月可发布到首页的文章数量（配额）
+     */
+    @TableField(value = "monthly_homepage_article_quota")
+    private Integer monthlyHomepageArticleQuota;
+
+    /**
      * 校友会logo
      */
     @TableField(value = "logo")

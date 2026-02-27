@@ -1,17 +1,23 @@
 package com.cmswe.alumni.web.system;
 
+import com.cmswe.alumni.api.association.AlumniAssociationService;
+import com.cmswe.alumni.api.association.LocalPlatformService;
 import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.CreateHomePageArticleDto;
 import com.cmswe.alumni.common.dto.QueryHomePageArticleListDto;
+import com.cmswe.alumni.common.dto.QueryManagedOrganizationsDto;
 import com.cmswe.alumni.common.dto.QueryMyHomePageArticleListDto;
 import com.cmswe.alumni.common.dto.UpdateHomePageArticleDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.HomePageArticleDetailVo;
 import com.cmswe.alumni.common.vo.HomePageArticleVo;
+import com.cmswe.alumni.common.vo.ManagedOrganizationVo;
 import com.cmswe.alumni.common.vo.PageVo;
+
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -31,6 +37,12 @@ public class HomePageArticleController {
 
     @Resource
     private HomePageArticleService homePageArticleService;
+
+    @Resource
+    private AlumniAssociationService alumniAssociationService;
+
+    @Resource
+    private LocalPlatformService localPlatformService;
 
     /**
      * 分页查询首页文章列表
@@ -107,5 +119,33 @@ public class HomePageArticleController {
     public BaseResponse<Boolean> deleteArticle(@PathVariable Long id) {
         Boolean result = homePageArticleService.deleteArticle(id);
         return ResultUtils.success(Code.SUCCESS, result, "删除成功");
+    }
+
+    /**
+     * 获取用户管理的组织列表（用于文章发布）
+     * @param securityUser 当前登录用户
+     * @param queryDto 查询参数
+     * @return 组织列表
+     */
+    @PostMapping("/managed-organizations")
+    @Operation(summary = "获取用户管理的组织列表（用于文章发布）")
+    public BaseResponse<List<ManagedOrganizationVo>> getManagedOrganizations(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody QueryManagedOrganizationsDto queryDto) {
+
+        Long wxId = securityUser.getWxUser().getWxId();
+        List<ManagedOrganizationVo> result;
+
+        if (queryDto.getOrganizationType() == 0) {
+            // 查询校友会
+            result = alumniAssociationService.getManagedAssociations(wxId);
+        } else if (queryDto.getOrganizationType() == 1) {
+            // 查询校促会
+            result = localPlatformService.getManagedPlatforms(wxId);
+        } else {
+            throw new IllegalArgumentException("组织类型参数错误，只能是 0（校友会）或 1（校促会）");
+        }
+
+        return ResultUtils.success(Code.SUCCESS, result, "查询成功");
     }
 }

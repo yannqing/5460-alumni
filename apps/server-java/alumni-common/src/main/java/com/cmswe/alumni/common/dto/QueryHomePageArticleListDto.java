@@ -25,7 +25,4 @@ public class QueryHomePageArticleListDto implements Serializable {
 
     @Schema(description = "每页大小", example = "10")
     private Long size;
-
-    @Schema(description = "是否展示在首页（0-不展示，1-展示）", example = "1")
-    private Integer showOnHomepage;
 }
