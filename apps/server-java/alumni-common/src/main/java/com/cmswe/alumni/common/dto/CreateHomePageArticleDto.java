@@ -55,6 +55,9 @@ public class CreateHomePageArticleDto implements Serializable {
     @Schema(description = "发布者类型枚举（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）", example = "ASSOCIATION")
     private String publishType;
 
+    @Schema(description = "发布者头像", example = "https://example.com/avatar.jpg")
+    private String publisherAvatar;
+
     @Schema(description = "是否展示在首页（0-不展示，1-展示）", example = "0")
     private Integer showOnHomepage;
 
