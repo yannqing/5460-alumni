@@ -20,14 +20,40 @@ Page({
     current: 1,
     pageSize: 10,
     hasMore: true,
-    loading: false
+    loading: false,
+    refreshing: false,
+    fixedHeaderHeight: 300 // 固定顶部区域高度，用于计算滚动区域
   },
 
   onLoad() {
+    // 计算固定头部高度
+    this.calculateFixedHeaderHeight()
     this.loadAlumniList(true)
   },
 
+  // 计算固定头部高度
+  calculateFixedHeaderHeight() {
+    setTimeout(() => {
+      const query = wx.createSelectorQuery()
+      query.select('.fixed-header').boundingClientRect()
+      query.exec((res) => {
+        if (res && res[0]) {
+          this.setData({
+            fixedHeaderHeight: res[0].height
+          })
+        }
+      })
+    }, 100)
+  },
+
   onPullDownRefresh() {
+    // 页面级下拉刷新已禁用，直接停止
+    wx.stopPullDownRefresh()
+  },
+
+  // scroll-view 下拉刷新
+  onScrollViewRefresh() {
+    this.setData({ refreshing: true })
     this.loadAlumniList(true)
   },
 
@@ -136,35 +162,30 @@ Page({
           alumniList: finalList,
           current: reset ? 2 : current + 1,
           hasMore: records.length >= pageSize,
-          loading: false
+          loading: false,
+          refreshing: false
         })
 
-        if (reset) {
-          wx.stopPullDownRefresh()
-        }
+        wx.stopPullDownRefresh()
 
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'alumniList', FollowTargetType.USER)
       } else {
-        this.setData({ loading: false })
+        this.setData({ loading: false, refreshing: false })
         wx.showToast({
           title: res.data?.msg || '加载失败',
           icon: 'none'
         })
-        if (reset) {
-          wx.stopPullDownRefresh()
-        }
+        wx.stopPullDownRefresh()
       }
     } catch (error) {
       console.error('加载校友列表失败:', error)
-      this.setData({ loading: false })
+      this.setData({ loading: false, refreshing: false })
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'
       })
-      if (reset) {
-        wx.stopPullDownRefresh()
-      }
+      wx.stopPullDownRefresh()
     }
   },
 
