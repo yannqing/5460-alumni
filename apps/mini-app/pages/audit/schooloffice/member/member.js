@@ -42,8 +42,7 @@ Page({
     showEditModal: false,
     editingMember: {},
     roleList: [],
-    defaultAvatar: config.defaultAvatar,
-    defaultUserAvatarUrl: `https://${config.DOMAIN}/upload/images/assets/images/avatar.png`
+    defaultUserAvatarUrl: config.defaultAvatar
   },
 
   onLoad(options) {

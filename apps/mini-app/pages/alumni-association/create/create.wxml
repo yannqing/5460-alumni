@@ -49,10 +49,28 @@
 
     <view class="form-item">
       <text class="label">校友会logo</text>
-      <view class="upload-container">
-        <input class="input" placeholder="请输入校友会logo" value="{{formData.logo}}" data-field="logo" bindinput="handleInput" style="display: none;" />
-        <button class="upload-btn" bindtap="chooseLogo">选择图片</button>
-        <image wx:if="{{formData.logo}}" src="{{formData.logo}}" class="uploaded-image" mode="aspectFit" />
+      <view class="logo-options">
+        <radio-group class="radio-group" bindchange="handleLogoTypeChange">
+          <label class="radio-label">
+            <radio value="default" checked="{{formData.logoType === 'default'}}" color="#3F61CA" /> 使用平台默认logo
+          </label>
+          <label class="radio-label">
+            <radio value="school" checked="{{formData.logoType === 'school'}}" color="#3F61CA" /> 使用学校logo
+          </label>
+          <label class="radio-label">
+            <radio value="upload" checked="{{formData.logoType === 'upload'}}" color="#3F61CA" /> 自己上传校友会logo
+          </label>
+        </radio-group>
+        
+        <view class="logo-preview-box">
+          <view wx:if="{{formData.logoType === 'upload'}}" class="upload-action">
+            <button class="upload-btn" bindtap="chooseLogo">选择图片</button>
+          </view>
+          <view wx:if="{{formData.logo}}" class="logo-preview-wrapper">
+            <image src="{{formData.logo}}" class="logo-preview" mode="aspectFit" />
+            <view wx:if="{{formData.logoType === 'upload'}}" class="logo-delete" bindtap="deleteLogo">×</view>
+          </view>
+        </view>
       </view>
     </view>
 
