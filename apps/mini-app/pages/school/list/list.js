@@ -18,6 +18,8 @@ Page({
     // 导航栏高度
     statusBarHeight: 0,
     navBarHeight: 0,
+    // 固定头部高度
+    fixedHeaderHeight: 300,
 
     // 筛选条件
     sortType: 'default', // default: 默认, alumni: 校友数, association: 校友会数, name: 名称
@@ -74,6 +76,24 @@ Page({
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadSchoolList(true)
+
+    // 计算固定头部高度
+    this.calculateFixedHeaderHeight()
+  },
+
+  // 计算固定头部高度
+  calculateFixedHeaderHeight() {
+    setTimeout(() => {
+      const query = wx.createSelectorQuery()
+      query.select('.fixed-header').boundingClientRect()
+      query.exec((res) => {
+        if (res && res[0]) {
+          this.setData({
+            fixedHeaderHeight: res[0].height
+          })
+        }
+      })
+    }, 100)
   },
 
   // 初始化省市级数据
@@ -213,7 +233,13 @@ Page({
     this.loadSchoolList(true)
   },
 
+  // 页面级下拉刷新（已禁用）
   onPullDownRefresh() {
+    wx.stopPullDownRefresh()
+  },
+
+  // scroll-view 下拉刷新
+  onScrollViewRefresh() {
     this.setData({ refreshing: true, current: 1 })
     this.loadSchoolList(true)
   },

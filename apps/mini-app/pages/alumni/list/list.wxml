@@ -3,17 +3,17 @@
 <message-notification />
 
 <view class="container">
-  <!-- 固定顶部背景 -->
-  <view class="fixed-top-bg"></view>
-  <!-- 自定义导航栏 -->
-  <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
-  <!-- 顶部图片 -->
-  <view class="top-image-container">
-    <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
-  </view>
-  
-  <!-- 搜索栏和筛选条件容器 -->
-  <view class="header-container">
+  <!-- 固定顶部区域（包含背景、导航栏、图片、搜索框、筛选） -->
+  <view class="fixed-header">
+    <!-- 固定顶部背景 -->
+    <view class="fixed-top-bg"></view>
+    <!-- 自定义导航栏 -->
+    <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
+    <!-- 顶部图片 -->
+    <view class="top-image-container">
+      <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
+    </view>
+
     <!-- 搜索栏 -->
     <view class="search-bar">
       <view class="search-input-wrap">
@@ -22,7 +22,7 @@
         <view class="search-button" bindtap="onSearch">搜索</view>
       </view>
     </view>
-    
+
     <!-- 筛选区域 -->
     <view class="filter-section">
       <!-- 注册时间筛选 -->
@@ -47,57 +47,77 @@
     </view>
   </view>
 
-  <!-- 校友列表 -->
-  <view class="alumni-list">
-    <view class="alumni-card" wx:for="{{alumniList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-      <!-- 头部：头像、名称和认证标识 -->
-      <view class="card-header">
-        <view class="card-info">
-          <view class="card-title-row">
-            <text class="card-title">{{item.name}}</text>
-            <image wx:if="{{item.isAlumni}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
-          </view>
-
-          <!-- 学校和地点信息展示 -->
-          <view class="meta-row">
-            <view wx:if="{{item.school}}" class="meta-item">
-              <image class="location-icon" src="{{iconSchool}}" mode="aspectFit" />
-              <text class="truncate">{{item.school}}</text>
+  <!-- 校友列表（使用 scroll-view 实现下拉刷新） -->
+  <scroll-view
+    class="list-scroll-view"
+    style="height: calc(100vh - {{fixedHeaderHeight}}px);"
+    scroll-y="{{true}}"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{refreshing}}"
+    refresher-threshold="{{80}}"
+    refresher-default-style="black"
+    refresher-background="#F5F5F5"
+    bindrefresherrefresh="onScrollViewRefresh"
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <view class="alumni-list">
+      <view class="alumni-card" wx:for="{{alumniList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+        <!-- 头部：头像、名称和认证标识 -->
+        <view class="card-header">
+          <view class="card-info">
+            <view class="card-title-row">
+              <text class="card-title">{{item.name}}</text>
+              <image wx:if="{{item.isAlumni}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
             </view>
-            <view wx:if="{{item.location}}" class="meta-item location-item">
-              <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-              <text class="truncate">{{item.location}}</text>
-            </view>
-          </view>
 
-          <!-- 关注按钮在城市和地点下面一行展示 -->
-          <view class="action-row">
-            <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-              <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
-                {{item.isFollowed ? '已关注' : '+ 关注'}}
+            <!-- 学校和地点信息展示 -->
+            <view class="meta-row">
+              <view wx:if="{{item.school}}" class="meta-item">
+                <image class="location-icon" src="{{iconSchool}}" mode="aspectFit" />
+                <text class="truncate">{{item.school}}</text>
+              </view>
+              <view wx:if="{{item.location}}" class="meta-item location-item">
+                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                <text class="truncate">{{item.location}}</text>
+              </view>
+            </view>
+
+            <!-- 关注按钮在城市和地点下面一行展示 -->
+            <view class="action-row">
+              <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+                <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+                  {{item.isFollowed ? '已关注' : '+ 关注'}}
+                </view>
               </view>
             </view>
           </view>
+          <image class="alumni-avatar {{item.isDefaultAvatar ? 'default-avatar' : ''}}" src="{{item.avatarUrl}}" mode="aspectFill" />
         </view>
-        <image class="alumni-avatar {{item.isDefaultAvatar ? 'default-avatar' : ''}}" src="{{item.avatarUrl}}" mode="aspectFill" />
+
+        <!-- 底部：统计数据 -->
+        <view class="card-footer">
+          <view class="card-stats">
+            <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
+          </view>
+        </view>
       </view>
 
-      <!-- 底部：统计数据 -->
-      <view class="card-footer">
-        <view class="card-stats">
-          <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
-        </view>
+      <!-- 加载状态 -->
+      <view wx:if="{{loading && !refreshing}}" class="loading-text">加载中...</view>
+
+      <!-- 没有更多数据 -->
+      <view wx:if="{{!loading && !hasMore && alumniList.length > 0}}" class="loading-text">没有更多了</view>
+
+      <!-- 空状态 -->
+      <view wx:if="{{!loading && alumniList.length === 0}}" class="empty-state">
+        <text>暂无数据</text>
       </view>
+
+      <!-- 底部安全区域 -->
+      <view class="bottom-safe-area"></view>
     </view>
-
-    <!-- 加载状态 -->
-    <view wx:if="{{loading}}" class="loading-text">加载中...</view>
- 
-
-    <!-- 空状态 -->
-    <view wx:if="{{!loading && alumniList.length === 0}}" class="empty-state">
-
-      <text>暂无数据</text>
-    </view>
-  </view>
+  </scroll-view>
 </view>

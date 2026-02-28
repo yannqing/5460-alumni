@@ -58,8 +58,9 @@ Page({
 
   // 检查审核权限
   checkReviewPermission() {
-    // 只有拥有文章审核权限的用户才能看到通过/拒绝按钮
-    const canReview = this.hasPermission('HOME_PAGE_ARTICLE_REVIEW')
+    // 拥有文章审核或文章管理权限的用户才能看到通过/拒绝按钮
+    const canReview = this.hasPermission('HOME_PAGE_ARTICLE_REVIEW') ||
+                      this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
     this.setData({ canReview })
   },
 

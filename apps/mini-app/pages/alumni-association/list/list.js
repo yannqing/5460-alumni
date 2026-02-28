@@ -28,6 +28,7 @@ Page({
     hasMore: true,
     loading: false,
     refreshing: false,
+    fixedHeaderHeight: 300, // 固定顶部区域高度，用于计算滚动区域
 
     // 地区筛选（与母校列表页一致）- 自定义省市级选择器（只到市）
     region: [], // 地区选择器的值 [省, 市]
@@ -57,9 +58,27 @@ Page({
     // 初始化省市级数据
     this.initRegionData()
 
+    // 计算固定头部高度
+    this.calculateFixedHeaderHeight()
+
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadAssociationList(true)
+  },
+
+  // 计算固定头部高度
+  calculateFixedHeaderHeight() {
+    setTimeout(() => {
+      const query = wx.createSelectorQuery()
+      query.select('.fixed-header').boundingClientRect()
+      query.exec((res) => {
+        if (res && res[0]) {
+          this.setData({
+            fixedHeaderHeight: res[0].height
+          })
+        }
+      })
+    }, 100)
   },
 
   // 初始化省市级数据（与母校列表页完全一致）
@@ -200,6 +219,12 @@ Page({
   },
 
   onPullDownRefresh() {
+    // 页面级下拉刷新已禁用，直接停止
+    wx.stopPullDownRefresh()
+  },
+
+  // scroll-view 下拉刷新
+  onScrollViewRefresh() {
     this.setData({ refreshing: true, current: 1 })
     this.loadAssociationList(true)
   },
