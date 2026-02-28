@@ -143,7 +143,7 @@ Page({
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
     wx.navigateTo({
-      url: `/pages/audit/user/detail/detail?id=${id}`
+      url: `/pages/article-publish/detail/detail?id=${id}`
     })
   },
 
@@ -168,6 +168,17 @@ Page({
       
       if (res.data && res.data.code === 200) {
         const article = res.data.data
+        // 处理封面图URL
+        let coverImgUrl = '';
+        if (article.coverImg) {
+          if (typeof article.coverImg === 'object') {
+            coverImgUrl = article.coverImg.fileUrl || '';
+          } else {
+            // 如果是数字类型的fileId，使用config.getImageUrl获取完整URL
+            coverImgUrl = config.getImageUrl(`/file/download/${article.coverImg}`);
+          }
+        }
+        
         // 填充编辑表单
         this.setData({
           currentArticle: article,
@@ -175,7 +186,7 @@ Page({
             homeArticleId: article.homeArticleId,
             articleTitle: article.articleTitle || '',
             coverImg: article.coverImg || '',
-            coverImgUrl: article.coverImg?.fileUrl || '', // 设置封面图预览URL
+            coverImgUrl: coverImgUrl, // 设置封面图预览URL
             description: article.description || '',
             articleType: article.articleType || '',
             articleLink: article.articleLink || '',
@@ -356,5 +367,51 @@ Page({
     } finally {
       this.setData({ loading: false })
     }
+  },
+
+  // 点击删除按钮
+  onDeleteTap(e) {
+    const { id } = e.currentTarget.dataset
+    
+    // 显示确认删除对话框
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这篇文章吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            this.setData({ loading: true })
+            
+            // 调用删除文章接口
+            const deleteRes = await homeArticleApi.deleteArticle(id)
+            
+            // 详细日志，用于调试
+            console.log('删除文章返回完整数据:', JSON.stringify(deleteRes))
+            
+            if (deleteRes.data && deleteRes.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+              this.loadMyArticles() // 重新加载列表
+            } else {
+              console.error('删除失败:', deleteRes.data?.msg || '未知错误');
+              wx.showToast({
+                title: deleteRes.data?.msg || '删除失败',
+                icon: 'none'
+              })
+            }
+          } catch (error) {
+            console.error('删除文章失败:', error)
+            wx.showToast({
+              title: '删除失败，请重试',
+              icon: 'none'
+            })
+          } finally {
+            this.setData({ loading: false })
+          }
+        }
+      }
+    })
   }
 })

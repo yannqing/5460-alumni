@@ -1,0 +1,52 @@
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="文章详情">
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<view class="container">
+  <block wx:if="{{article}}">
+    <!-- 发布者信息 -->
+    <view class="article-header">
+      <view class="user-info-wrapper">
+        <image class="user-avatar" src="{{article.publisherAvatar}}" mode="aspectFill" wx:if="{{article.publisherAvatar}}"></image>
+        <view class="user-info">
+          <text class="user-name">{{article.publishUsername || article.author || '官方发布'}}</text>
+          <text class="publish-time">{{article.createTime || article.time}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 文章标题 -->
+    <view class="article-title-wrapper" wx:if="{{article.title}}">
+      <text class="article-title">{{article.title}}</text>
+    </view>
+    
+    <!-- 封面图片 -->
+    <view class="article-cover-wrapper" wx:if="{{article.cover}}">
+      <image class="article-cover" src="{{article.cover}}" mode="widthFix" bindtap="previewImage" data-url="{{article.cover}}"></image>
+    </view>
+    
+    <!-- 文章内容 -->
+    <view class="article-content">
+      <rich-text nodes="{{article.content || article.description}}"></rich-text>
+    </view>
+    
+    <!-- 文章链接（如果有） -->
+    <view class="article-link-wrapper" wx:if="{{article.articleLink}}">
+      <text class="article-link-label">相关链接：</text>
+      <text class="article-link" bindtap="openLink" data-link="{{article.articleLink}}">{{article.articleLink}}</text>
+    </view>
+  </block>
+  <view wx:elif="{{loading}}" class="loading-state">
+    <view class="loading-text">加载中...</view>
+  </view>
+  <view wx:else class="error-state">
+    <view class="error-text">文章不存在或已删除</view>
+  </view>
+
+  <button class="edit-btn" wx:if="{{canEdit}}" bindtap="goToEdit">
+    <text>修改</text>
+  </button>
+</view>
+</custom-nav-bar>

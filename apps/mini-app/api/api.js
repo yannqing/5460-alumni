@@ -492,6 +492,8 @@ const homeArticleApi = {
   updateArticle: (data) => put('/home-page-article/update', data),
   // 删除文章
   deleteArticle: (id) => del(`/home-page-article/${id}`),
+  // 获取管理的组织列表
+  getManagedOrganizations: (params) => post('/home-page-article/managed-organizations', params),
 }
 
 // ==================== 文章审核相关接口 ====================
