@@ -57,6 +57,9 @@ public class HomePageArticleDetailVo implements Serializable {
     @Schema(description = "状态：0-禁用 1-启用")
     private Integer articleStatus;
 
+    @Schema(description = "审核状态：0-待审核 1-审核通过 2-审核拒绝")
+    private Integer applyStatus;
+
     @Schema(description = "发布者id")
     @JsonSerialize(using = ToStringSerializer.class)
     private Long publishWxId;
@@ -82,6 +85,9 @@ public class HomePageArticleDetailVo implements Serializable {
 
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
+
+    @Schema(description = "子文章列表")
+    private java.util.List<HomePageArticleVo> children;
 
     public static HomePageArticleDetailVo objToVo(HomePageArticle article) {
         if (article == null) {

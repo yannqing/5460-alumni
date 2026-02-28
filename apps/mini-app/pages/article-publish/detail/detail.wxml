@@ -4,49 +4,165 @@
 <!-- 消息通知组件 -->
 <message-notification />
 
-<view class="container">
-  <block wx:if="{{article}}">
-    <!-- 发布者信息 -->
-    <view class="article-header">
-      <view class="user-info-wrapper">
-        <image class="user-avatar" src="{{article.publisherAvatar}}" mode="aspectFill" wx:if="{{article.publisherAvatar}}"></image>
-        <view class="user-info">
-          <text class="user-name">{{article.publishUsername || article.author || '官方发布'}}</text>
+<scroll-view class="container" scroll-y enable-back-to-top>
+  <!-- 骨架屏加载状态 -->
+  <view class="skeleton-container" wx:if="{{loading}}">
+    <view class="skeleton-header">
+      <view class="skeleton-avatar skeleton-animate"></view>
+      <view class="skeleton-user-info">
+        <view class="skeleton-name skeleton-animate"></view>
+        <view class="skeleton-time skeleton-animate"></view>
+      </view>
+    </view>
+    <view class="skeleton-title skeleton-animate"></view>
+    <view class="skeleton-cover skeleton-animate"></view>
+    <view class="skeleton-content">
+      <view class="skeleton-line skeleton-animate"></view>
+      <view class="skeleton-line skeleton-animate" style="width: 85%;"></view>
+      <view class="skeleton-line skeleton-animate" style="width: 70%;"></view>
+    </view>
+  </view>
+
+  <!-- 文章内容 -->
+  <block wx:elif="{{article}}">
+    <!-- 主卡片 -->
+    <view class="main-card">
+      <!-- 发布者信息 -->
+      <view class="publisher-section">
+        <image class="publisher-avatar" src="{{article.publisherAvatar}}" mode="aspectFill" wx:if="{{article.publisherAvatar}}"></image>
+        <view class="publisher-avatar placeholder" wx:else>
+          <text class="placeholder-icon">U</text>
+        </view>
+        <view class="publisher-info">
+          <text class="publisher-name">{{article.publishUsername || article.author || '官方发布'}}</text>
           <text class="publish-time">{{article.createTime || article.time}}</text>
+        </view>
+        <!-- 审核状态标签 -->
+        <view class="status-tag {{article.applyStatusClass}}" wx:if="{{article.applyStatusText}}">
+          <text class="status-text">{{article.applyStatusText}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider"></view>
+
+      <!-- 文章标题 -->
+      <view class="title-section" wx:if="{{article.title}}">
+        <text class="article-title">{{article.title}}</text>
+      </view>
+
+      <!-- 封面图片 -->
+      <view class="cover-section" wx:if="{{article.cover}}">
+        <image class="article-cover" src="{{article.cover}}" mode="widthFix" bindtap="previewImage" data-url="{{article.cover}}"></image>
+      </view>
+
+      <!-- 文章描述/内容 -->
+      <view class="content-section" wx:if="{{article.content || article.description}}">
+        <rich-text nodes="{{article.content || article.description}}"></rich-text>
+      </view>
+
+      <!-- 文章链接 -->
+      <view class="link-section" wx:if="{{article.articleLink}}">
+        <view class="link-icon-wrapper">
+          <text class="link-icon">🔗</text>
+        </view>
+        <view class="link-content">
+          <text class="link-label">相关链接</text>
+          <text class="link-url" bindtap="openLink" data-link="{{article.articleLink}}">{{article.articleLink}}</text>
         </view>
       </view>
     </view>
-    
-    <!-- 文章标题 -->
-    <view class="article-title-wrapper" wx:if="{{article.title}}">
-      <text class="article-title">{{article.title}}</text>
+
+    <!-- 子文章列表 -->
+    <view class="children-section" wx:if="{{article.children && article.children.length > 0}}">
+      <view class="section-header">
+        <view class="section-title-wrapper">
+          <view class="section-indicator"></view>
+          <text class="section-title">子文章列表</text>
+        </view>
+        <text class="section-count">共 {{article.children.length}} 篇</text>
+      </view>
+
+      <view class="children-list">
+        <view class="child-card" wx:for="{{article.children}}" wx:key="homeArticleId" bindtap="viewChildDetail" data-id="{{item.homeArticleId}}">
+          <view class="child-content">
+            <text class="child-title">{{item.articleTitle || '无标题'}}</text>
+            <text class="child-desc" wx:if="{{item.description}}">{{item.description}}</text>
+            <view class="child-meta">
+              <text class="child-time">{{item.createTimeFormatted || item.createTime}}</text>
+              <view class="child-status {{item.applyStatusClass}}" wx:if="{{item.applyStatusText}}">
+                <text class="child-status-text">{{item.applyStatusText}}</text>
+              </view>
+            </view>
+          </view>
+          <image class="child-cover" src="{{item.coverUrl}}" mode="aspectFill" wx:if="{{item.coverUrl}}"></image>
+          <view class="child-cover placeholder" wx:else></view>
+        </view>
+      </view>
     </view>
-    
-    <!-- 封面图片 -->
-    <view class="article-cover-wrapper" wx:if="{{article.cover}}">
-      <image class="article-cover" src="{{article.cover}}" mode="widthFix" bindtap="previewImage" data-url="{{article.cover}}"></image>
-    </view>
-    
-    <!-- 文章内容 -->
-    <view class="article-content">
-      <rich-text nodes="{{article.content || article.description}}"></rich-text>
-    </view>
-    
-    <!-- 文章链接（如果有） -->
-    <view class="article-link-wrapper" wx:if="{{article.articleLink}}">
-      <text class="article-link-label">相关链接：</text>
-      <text class="article-link" bindtap="openLink" data-link="{{article.articleLink}}">{{article.articleLink}}</text>
+
+    <!-- 更新时间 -->
+    <view class="update-info" wx:if="{{article.updateTime}}">
+      <text class="update-label">最后更新：{{article.updateTime}}</text>
     </view>
   </block>
-  <view wx:elif="{{loading}}" class="loading-state">
-    <view class="loading-text">加载中...</view>
-  </view>
+
+  <!-- 错误状态 -->
   <view wx:else class="error-state">
+    <view class="error-icon">📄</view>
     <view class="error-text">文章不存在或已删除</view>
+    <view class="error-btn" bindtap="goBack">返回上一页</view>
   </view>
 
-  <button class="edit-btn" wx:if="{{canEdit}}" bindtap="goToEdit">
-    <text>修改</text>
-  </button>
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder" wx:if="{{canEdit && article}}"></view>
+</scroll-view>
+
+<!-- 底部操作按钮区域 -->
+<view class="action-btn-container" wx:if="{{canEdit && article}}">
+  <!-- 待审核状态且有审核权限：显示通过和拒绝按钮 -->
+  <block wx:if="{{article.applyStatus === 0 && canReview}}">
+    <view class="action-btn approve-btn" bindtap="onApproveTap">
+      <text class="action-btn-text approve-text">通过</text>
+    </view>
+    <view class="action-btn reject-btn" bindtap="onRejectTap">
+      <text class="action-btn-text reject-text">拒绝</text>
+    </view>
+  </block>
+  <!-- 非待审核状态或没有审核权限：显示编辑和删除按钮 -->
+  <block wx:else>
+    <view class="action-btn edit-action-btn" bindtap="onEditTap">
+      <text class="action-btn-text edit-text">编辑</text>
+    </view>
+    <view class="action-btn delete-btn" bindtap="onDeleteTap">
+      <text class="action-btn-text delete-text">删除</text>
+    </view>
+  </block>
 </view>
+
+<!-- 审核弹框 -->
+<view class="modal-overlay" wx:if="{{isApprovalModalVisible}}" bindtap="hideApprovalModal"></view>
+<view class="approval-modal" wx:if="{{isApprovalModalVisible}}">
+  <view class="modal-header">
+    <text class="modal-title">{{approvalAction === 1 ? '审核通过' : '审核拒绝'}}</text>
+    <text class="modal-close" bindtap="hideApprovalModal">×</text>
+  </view>
+  <view class="modal-content">
+    <view class="form-item">
+      <text class="form-label">审核说明</text>
+      <textarea
+        class="form-textarea"
+        placeholder="请输入审核说明（可选）"
+        value="{{approvalForm.appliedDescription}}"
+        data-field="appliedDescription"
+        bindinput="onApprovalInput"
+      ></textarea>
+    </view>
+  </view>
+  <view class="modal-footer">
+    <button class="modal-btn cancel-btn" bindtap="hideApprovalModal">取消</button>
+    <button class="modal-btn confirm-btn {{approvalAction === 2 ? 'reject-confirm-btn' : ''}}" bindtap="submitApproval">确定</button>
+  </view>
+</view>
+
 </custom-nav-bar>

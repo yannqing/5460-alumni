@@ -109,6 +109,36 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
 
         boolean result = homePageArticleService.updateById(article);
 
+        // 6. 如果是父文章（pid=0），同步更新所有子文章的审核状态
+        if (result && article.getPid() == 0L) {
+            List<HomePageArticle> childArticles = homePageArticleService.list(
+                    new LambdaQueryWrapper<HomePageArticle>()
+                            .eq(HomePageArticle::getPid, articleId)
+            );
+
+            if (!childArticles.isEmpty()) {
+                // 批量更新子文章状态
+                for (HomePageArticle child : childArticles) {
+                    child.setApplyStatus(applyStatus);
+                    child.setArticleStatus(article.getArticleStatus()); // 与父文章保持一致
+                    child.setReviewerWxId(approverWxId);
+                    child.setReviewerName(approverName);
+                    child.setReviewOpinion(approveDto.getAppliedDescription());
+                    child.setReviewedTime(LocalDateTime.now());
+                    child.setUpdateTime(LocalDateTime.now());
+                }
+
+                boolean batchResult = homePageArticleService.updateBatchById(childArticles);
+                if (batchResult) {
+                    log.info("已同步更新子文章审核状态 - ParentArticleId: {}, ChildCount: {}, Status: {}",
+                            articleId, childArticles.size(), applyStatus);
+                } else {
+                    log.error("同步更新子文章审核状态失败 - ParentArticleId: {}", articleId);
+                    throw new BusinessException("父文章审核成功，但子文章同步失败");
+                }
+            }
+        }
+
         if (result) {
             log.info("审核文章成功 - ArticleId: {}, Status: {}, Approver: {}",
                     articleId, applyStatus, approverName);

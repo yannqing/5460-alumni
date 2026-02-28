@@ -189,6 +189,41 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         // 4.转 vo
         HomePageArticleDetailVo detailVo = HomePageArticleDetailVo.objToVo(article);
 
+        // 5.查询子文章列表（如果是父文章）
+        if (article.getPid() == 0L) {
+            List<HomePageArticle> childArticles = this.list(
+                    new LambdaQueryWrapper<HomePageArticle>()
+                            .eq(HomePageArticle::getPid, homeArticleId)
+                            .orderByAsc(HomePageArticle::getCreateTime)
+            );
+
+            if (!childArticles.isEmpty()) {
+                List<HomePageArticleVo> childrenVoList = childArticles.stream()
+                        .map(childArticle -> {
+                            HomePageArticleVo childVo = HomePageArticleVo.objToVo(childArticle);
+
+                            // 查询并设置封面图信息
+                            if (childArticle.getCoverImg() != null) {
+                                try {
+                                    Files file = fileService.getById(childArticle.getCoverImg());
+                                    if (file != null) {
+                                        childVo.setCoverImg(FilesVo.objToVo(file));
+                                    }
+                                } catch (Exception e) {
+                                    log.warn("查询子文章封面图失败 - ArticleId: {}, CoverImgId: {}, Error: {}",
+                                            childArticle.getHomeArticleId(), childArticle.getCoverImg(), e.getMessage());
+                                }
+                            }
+
+                            return childVo;
+                        })
+                        .toList();
+
+                detailVo.setChildren(childrenVoList);
+                log.info("查询到子文章 - ParentArticleId: {}, ChildCount: {}", homeArticleId, childrenVoList.size());
+            }
+        }
+
         log.info("根据id查询首页文章详情 id:{}", homeArticleId);
 
         return detailVo;
@@ -442,6 +477,9 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
 
         // 5.构造查询条件
         LambdaQueryWrapper<HomePageArticle> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 只查询父文章（pid=0）
+        queryWrapper.eq(HomePageArticle::getPid, 0L);
 
         if (isSystemAdmin) {
             // 系统管理员：查询所有文章（不添加发布者限制）
