@@ -1,6 +1,7 @@
 // pages/alumni-association/detail/detail.js
 const { associationApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
+const auth = require('../../../utils/auth.js')
 
 const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 const DEFAULT_COVER = config.defaultCover
@@ -45,7 +46,11 @@ Page({
 
     // 组织结构数据
     roleList: [], // 存储角色列表
-    organizationLoading: false // 组织结构加载状态
+    organizationLoading: false, // 组织结构加载状态
+
+    // 悬浮按钮和弹窗
+    showFab: false,
+    showAction: false
   },
 
   async onLoad(options) {
@@ -53,11 +58,14 @@ Page({
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadAssociationDetail()
+    this.checkPermission()
   },
 
   onShow() {
     // 页面显示时重新检查登录状态并刷新数据
     this.ensureLogin().then(() => {
+      // 检查权限
+      this.checkPermission()
       // 重新加载详情数据以获取最新的申请状态
       if (this.data.associationId) {
         this.loadAssociationDetail()
@@ -85,9 +93,9 @@ Page({
 
   // 格式化时间为 月-日 时:分
   formatTime(dateString) {
-    if (!dateString) {return ''}
+    if (!dateString) { return '' }
     const date = new Date(dateString)
-    if (isNaN(date.getTime())) {return ''}
+    if (isNaN(date.getTime())) { return '' }
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
     const hours = String(date.getHours()).padStart(2, '0')
@@ -97,105 +105,134 @@ Page({
 
   // 加载校友会详情
   async loadAssociationDetail() {
-    if (this.data.loading) {return}
+    if (this.data.loading) return;
 
-    this.setData({ loading: true })
+    this.setData({ loading: true });
 
     try {
-      const res = await associationApi.getAssociationDetail(this.data.associationId)
+      const res = await associationApi.getAssociationDetail(this.data.associationId);
 
       if (res.data && res.data.code === 200) {
-        const item = res.data.data || {}
+        const item = res.data.data || {};
 
-        // 数据映射（与后端字段保持同步）
-        // 后端字段示例（AlumniAssociationListVo）：
-        // 实际返回结构中，ID 信息分散在不同对象中：
-        // - 校友会主键：alumni_association_id（后端未在 VO 中显式暴露，前端使用请求时的 id）
-        // - 母校 ID：data.schoolInfo.schoolId
-        // - 校促会 ID：目前 VO 中未暴露，前端暂不直接使用
-        const schoolInfo = item.schoolInfo || {}
-        const platformInfo = item.platform || {}
+        const schoolInfo = item.schoolInfo || {};
+        const platformInfo = item.platform || {};
 
-        // 解析背景图列表
-        let coverList = []
+        let coverList = [];
         try {
           if (item.bgImg) {
-            const parsed = JSON.parse(item.bgImg)
+            const parsed = JSON.parse(item.bgImg);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              coverList = parsed.map(img => config.getImageUrl(img))
+              coverList = parsed.map(img => config.getImageUrl(img));
             }
           }
         } catch (e) {
-          console.error('Parse bgImg error:', e)
+          console.error('Parse bgImg error:', e);
         }
 
         const mappedInfo = {
-          // 使用前端当前请求的 id 作为校友会 ID，避免依赖后端未暴露字段
           id: this.data.associationId,
           associationId: this.data.associationId,
           name: item.associationName,
           associationName: item.associationName,
-          // 从 schoolInfo 中读取真正的母校 ID，避免为 null/undefined
           schoolId: schoolInfo.schoolId || null,
-          // 平台 ID 后端当前未直接返回，这里预留字段，兼容后续扩展
           platformId: platformInfo.platformId || platformInfo.id || null,
           presidentUserId: item.presidentUserId,
-          // 优先使用后端返回的 logo 字段，如果没有则使用默认头像，与列表页保持一致
-          icon: item.logo ? config.getImageUrl(item.logo) : '/assets/avatar/avatar-2.png',
+          icon: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar,
           cover: coverList.length > 0 ? coverList[0] : DEFAULT_COVER,
           coverList: coverList.length > 0 ? coverList : [DEFAULT_COVER],
           location: item.location || '',
           memberCount: item.memberCount || 0,
           contactInfo: item.contactInfo || '',
-          // 预留字段（后端暂无，使用默认值）
-          schoolName: schoolInfo.schoolName || '', // 优先使用返回的学校名称
-          address: item.location || '', // 使用 location 作为地址
-          isJoined: false, // 后端暂无此字段
-          isCertified: false, // 后端暂无此字段
-          president: '', // 需要根据 presidentUserId 查询，或后端返回
-          vicePresidents: [], // 后端暂无此字段
-          establishedYear: null, // 后端暂无此字段
-          description: '', // 后端暂无此字段
-          certifications: [], // 后端暂无此字段
-          // 申请状态：0-待审核, 1-已通过, 2-已拒绝, 3-已撤销, null-未申请
+          schoolName: schoolInfo.schoolName || '',
+          address: item.location || '',
+          isJoined: false,
+          isCertified: false,
+          president: '',
+          vicePresidents: [],
+          establishedYear: null,
+          description: '',
+          certifications: [],
           applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null
-        }
+        };
 
-        // 处理活动列表，格式化时间
         const formattedActivityList = (item.activityList || []).map(activity => ({
           ...activity,
           startTime: this.formatTime(activity.startTime)
-        }))
+        }));
 
         this.setData({
           associationInfo: mappedInfo,
           activityList: formattedActivityList,
           enterpriseList: item.enterpriseList || [],
           loading: false
-        })
-
-        // 加载其他相关数据（成员、活动等，这些接口可能还未实现）
-        // this.loadActivities()
-        // this.loadNotifications()
+        });
       } else {
-        this.setData({ loading: false })
+        this.setData({ loading: false });
         wx.showToast({
           title: res.data?.msg || '加载失败',
           icon: 'none'
-        })
+        });
       }
     } catch (error) {
-      this.setData({ loading: false })
+      this.setData({ loading: false });
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'
-      })
+      });
     }
+  },
+
+  // 权限检查：只有超级管理员或当前校友会的管理员才能看到悬浮按钮
+  checkPermission() {
+    const roles = auth.getUserRoles()
+    if (!roles || roles.length === 0) {
+      this.setData({ showFab: false })
+      return
+    }
+
+    const isSuperAdmin = roles.some(role => role.roleCode === 'SYSTEM_SUPER_ADMIN')
+    if (isSuperAdmin) {
+      this.setData({ showFab: true })
+      return
+    }
+
+    const currentAssociationId = String(this.data.associationId)
+    const isAssociationAdmin = roles.some(role =>
+      role.roleCode === 'ORGANIZE_ALUMNI_ADMIN' &&
+      (String(role.organizeId) === currentAssociationId || (role.organization && String(role.organization.organizeId) === currentAssociationId))
+    )
+
+    this.setData({ showFab: isAssociationAdmin })
+  },
+
+  // 显示操作面板
+  showActionSheet() {
+    this.setData({ showAction: true })
+  },
+
+  // 隐藏操作面板
+  hideActionSheet() {
+    this.setData({ showAction: false })
+  },
+
+  // 跳转到新增活动
+  navToAddActivity() {
+    this.hideActionSheet()
+    wx.navigateTo({
+      url: `/pages/activity/publish/publish?associationId=${this.data.associationId}`
+    })
+  },
+
+  // 跳转到新增资讯（暂未开放）
+  navToAddNews() {
+    this.hideActionSheet()
+    this.handleDeveloping()
   },
 
   // 加载成员列表
   async loadMembers() {
-    if (this.data.loading) {return}
+    if (this.data.loading) { return }
 
     this.setData({ loading: true })
 
@@ -215,8 +252,8 @@ Page({
           const aPid = a.organizeArchiRole ? a.organizeArchiRole.pid : undefined
           const bPid = b.organizeArchiRole ? b.organizeArchiRole.pid : undefined
 
-          if (aPid === null && bPid !== null) {return -1}
-          if (aPid !== null && bPid === null) {return 1}
+          if (aPid === null && bPid !== null) { return -1 }
+          if (aPid !== null && bPid === null) { return 1 }
           return 0
         })
 
@@ -423,7 +460,7 @@ Page({
   // 渲染图谱
   renderGraph(canvas, ctx, width, height) {
     const { graphData } = this.data
-    if (!graphData) {return}
+    if (!graphData) { return }
 
     const that = this
 
@@ -483,7 +520,7 @@ Page({
       // 斥力
       for (let i = 0; i < nodes.length; i++) {
         // 如果节点被固定（拖动中），跳过
-        if (nodes[i].fx !== null && nodes[i].fx !== undefined) {continue}
+        if (nodes[i].fx !== null && nodes[i].fx !== undefined) { continue }
 
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[j].x - nodes[i].x
@@ -753,7 +790,7 @@ Page({
 
       // 随机选择一条连线
       const linkKeys = Object.keys(linksMap)
-      if (linkKeys.length === 0) {return}
+      if (linkKeys.length === 0) { return }
 
       const randomLinkKey = linkKeys[Math.floor(Math.random() * linkKeys.length)]
       const link = linksMap[randomLinkKey]
@@ -798,7 +835,7 @@ Page({
 
   // Canvas 触摸开始
   onGraphTouchStart(e) {
-    if (!this.canvasInfo || !this.graphContext) {return}
+    if (!this.canvasInfo || !this.graphContext) { return }
 
     const touch = e.touches[0]
     const { x, y } = this.getTouchPosition(touch)
@@ -835,10 +872,10 @@ Page({
 
   // Canvas 触摸移动
   onGraphTouchMove(e) {
-    if (!this.canvasInfo || !this.graphContext) {return}
+    if (!this.canvasInfo || !this.graphContext) { return }
 
     const { isDragging, dragNode } = this.graphContext
-    if (!isDragging() || !dragNode()) {return}
+    if (!isDragging() || !dragNode()) { return }
 
     const touch = e.touches[0]
     const { x, y } = this.getTouchPosition(touch)
@@ -855,7 +892,7 @@ Page({
 
   // Canvas 触摸结束
   onGraphTouchEnd(e) {
-    if (!this.canvasInfo || !this.graphContext) {return}
+    if (!this.canvasInfo || !this.graphContext) { return }
 
     const { isDragging, dragNode, setDragging, setDragNode, nodes, linksMap, highlightedNodes, highlightedLinks } = this.graphContext
 
@@ -903,7 +940,7 @@ Page({
 
   // 高亮关联网络
   highlightNetwork(node) {
-    if (!this.graphContext) {return}
+    if (!this.graphContext) { return }
 
     const { nodes, linksMap, highlightedNodes, highlightedLinks } = this.graphContext
 
@@ -953,7 +990,7 @@ Page({
 
   // 关闭节点卡片
   closeNodeCard() {
-    if (!this.graphContext) {return}
+    if (!this.graphContext) { return }
 
     const { highlightedNodes, highlightedLinks } = this.graphContext
     highlightedNodes.clear()
@@ -1090,7 +1127,7 @@ Page({
 
   // 关闭申请弹窗
   closeJoinModal() {
-    if (this.data.joinSubmitting) {return}
+    if (this.data.joinSubmitting) { return }
     this.setData({ showJoinModal: false })
   },
 
@@ -1109,7 +1146,7 @@ Page({
   // 提交加入申请
   async submitJoinApplication() {
     const { associationId, joinForm, joinSubmitting, associationInfo } = this.data
-    if (joinSubmitting) {return}
+    if (joinSubmitting) { return }
 
     if (!joinForm.realName) {
       wx.showToast({ title: '请输入真实姓名', icon: 'none' })
@@ -1187,7 +1224,7 @@ Page({
   // 认证标签点击
   handleCertificationTap(e) {
     const { type, id } = e.currentTarget.dataset
-    if (!type || !id) {return}
+    if (!type || !id) { return }
 
     if (type === 'union') {
       wx.navigateTo({

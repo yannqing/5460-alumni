@@ -68,8 +68,8 @@
             <view wx:if="{{associationInfo.contactInfo}}" class="text-secondary mt-10">联系信息：{{associationInfo.contactInfo}}</view>
           </view>
 
-          <!-- 通知列表 -->
-          <view class="card mt-20 dashboard-card">
+          <!-- 通知列表 (暂时注销) -->
+          <!-- <view class="card mt-20 dashboard-card">
             <view class="section-header">
               <view class="section-title">
                 <view class="text-bold">通知</view>
@@ -95,7 +95,7 @@
                 </view>
               </view>
             </view>
-          </view>
+          </view> -->
 
           <!-- 活动列表 -->
           <view class="card mt-20 dashboard-card">
@@ -300,3 +300,37 @@
     </view>
   </view>
 </custom-nav-bar>
+
+<!-- 悬浮添加按钮 (FAB) -->
+<view class="fab-btn" wx:if="{{showFab}}" bindtap="showActionSheet">
+  <view class="fab-icon">+</view>
+</view>
+
+<!-- 弹窗/动作面板 -->
+<view class="action-sheet-mask {{showAction ? 'show' : ''}}" bindtap="hideActionSheet">
+  <view class="action-sheet {{showAction ? 'show' : ''}}" catchtap="true">
+    <view class="action-header">
+      <view class="action-title">快捷管理</view>
+      <view class="action-subtitle">选择您要执行的操作</view>
+    </view>
+    <view class="action-body">
+      <view class="action-item" bindtap="navToAddActivity">
+        <view class="item-icon-wrap activity-bg">
+          <text class="action-emoji">🏃</text>
+        </view>
+        <view class="item-info">
+          <text class="item-name">新增活动</text>
+        </view>
+      </view>
+      <view class="action-item" bindtap="navToAddNews">
+        <view class="item-icon-wrap news-bg">
+          <text class="action-emoji">📰</text>
+        </view>
+        <view class="item-info">
+          <text class="item-name">新增资讯</text>
+        </view>
+      </view>
+    </view>
+    <view class="action-footer" bindtap="hideActionSheet">取消</view>
+  </view>
+</view>
