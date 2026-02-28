@@ -737,7 +737,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     // 设置加入状态和关注状态
                     if (currentUserId != null) {
                         vo.setIsMember(finalMemberStatusMap.getOrDefault(association.getAlumniAssociationId(), false));
-                        vo.setIsFollowed(finalFollowStatusMap.getOrDefault(association.getAlumniAssociationId(), false));
+                        vo.setIsFollowed(
+                                finalFollowStatusMap.getOrDefault(association.getAlumniAssociationId(), false));
                     } else {
                         vo.setIsMember(null); // 未登录
                         vo.setIsFollowed(null); // 未登录
@@ -784,11 +785,13 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         String sortField = queryDto.getSortField();
         String sortOrder = queryDto.getSortOrder();
 
-        // 4. 先查询成员表，获取该校处会的所有成员
+        // 4. 先查询成员表，获取该校处会的所有成员（此处必须过滤掉 wx_id 为空的记录，只展示真实绑定的校友）
         Page<LocalPlatformMember> memberPage = new Page<>(current, pageSize);
         LambdaQueryWrapper<LocalPlatformMember> memberWrapper = new LambdaQueryWrapper<>();
         memberWrapper
                 .eq(LocalPlatformMember::getLocalPlatformId, localPlatformId)
+                .isNotNull(LocalPlatformMember::getWxId) // 过滤 null
+                .ne(LocalPlatformMember::getWxId, 0L) // 过滤 0
                 .eq(LocalPlatformMember::getStatus, 1); // 状态：1-正常
 
         // 添加排序
@@ -816,7 +819,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         // 6. 提取所有非空的 wxId
         List<Long> wxIds = memberResultPage.getRecords().stream()
                 .map(LocalPlatformMember::getWxId)
-                .filter(Objects::nonNull)
+                .filter(id -> id != null && id != 0L)
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -853,30 +856,31 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     .collect(Collectors.toMap(OrganizeArchiRole::getRoleOrId, Function.identity(), (v1, v2) -> v1));
         }
 
-        // 10. 组装结果（按成员列表的顺序，包括wx_id为null的成员）
+        // 10. 组装结果（直接检测输出中的 wxId，如果为 null 则剔除该记录）
         Map<Long, OrganizeArchiRole> finalOrganizeArchiRoleMap = organizeArchiRoleMap;
         Map<Long, WxUserInfo> finalUserInfoMap = userInfoMap;
         List<OrganizationMemberResponse> responseList = memberResultPage.getRecords().stream()
                 .map(member -> {
-                    OrganizationMemberResponse response = new OrganizationMemberResponse();
-
-                    // 如果 wx_id 不为空，尝试从用户信息中填充基本字段
-                    if (member.getWxId() != null) {
-                        WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
-                        if (userInfo != null) {
-                            response = OrganizationMemberResponse.objToVo(userInfo);
-                            response.setWxId(String.valueOf(userInfo.getWxId()));
-                        } else {
-                            // wx_id不为空，但没有找到用户信息（可能被查询条件过滤掉了）
-                            return null;
-                        }
+                    // 再次检查校验，双重保险
+                    if (member.getWxId() == null || member.getWxId() == 0) {
+                        log.debug("过滤成员: {} - wxId 为空或为0", member.getUsername());
+                        return null;
                     }
 
-                    // 从成员表设置 username 和 roleName（这两个字段总是来自成员表）
+                    // 获取对应的真实用户信息
+                    WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
+                    if (userInfo == null) {
+                        log.debug("过滤成员: {} - 找不到对应的 WxUserInfo (wxId: {})", member.getUsername(), member.getWxId());
+                        return null;
+                    }
+
+                    // 构建 VO 响应结果
+                    OrganizationMemberResponse response = OrganizationMemberResponse.objToVo(userInfo);
+                    response.setWxId(String.valueOf(userInfo.getWxId()));
                     response.setUsername(member.getUsername());
                     response.setRoleName(member.getRoleName());
 
-                    // 设置组织架构角色信息
+                    // 设置架构详细信息
                     if (member.getRoleOrId() != null) {
                         OrganizeArchiRole role = finalOrganizeArchiRoleMap.get(member.getRoleOrId());
                         if (role != null) {
@@ -884,16 +888,23 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                         }
                     }
 
+                    // 最终检测：如果 response 的 wxId 为空或者为 "null" 字符串，彻底不展示
+                    if (StringUtils.isBlank(response.getWxId()) || "null".equals(response.getWxId())) {
+                        log.debug("过滤成员: {} - 最终生成的 wxId 无效 (wxId: {})", member.getUsername(), response.getWxId());
+                        return null;
+                    }
+
+                    log.debug("保留成员: {} (wxId: {})", member.getUsername(), response.getWxId());
                     return response;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        log.info("根据校处会ID分页查询成员列表，校处会ID：{}，当前页：{}，每页数量：{}，总记录数：{}",
-                localPlatformId, current, pageSize, memberResultPage.getTotal());
+        log.info("DEBUG: 查询校处会成员列表 - 校处会ID: {}, 原始记录数: {}, 过滤后记录数: {}, 最终total: {}",
+                localPlatformId, memberResultPage.getTotal(), responseList.size(), responseList.size());
 
         // 11. 构建分页结果
-        Page<OrganizationMemberResponse> resultPage = new Page<>(current, pageSize, memberResultPage.getTotal());
+        Page<OrganizationMemberResponse> resultPage = new Page<>(current, pageSize, (long) responseList.size());
         resultPage.setRecords(responseList);
         return resultPage;
     }
@@ -1068,7 +1079,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         LambdaQueryWrapper<RoleUser> roleUserQueryWrapper = new LambdaQueryWrapper<>();
         roleUserQueryWrapper
                 .eq(RoleUser::getRoleId, adminRole.getRoleId())
-                .eq(RoleUser::getType, 1)  // type=1 表示校处会
+                .eq(RoleUser::getType, 1) // type=1 表示校处会
                 .eq(RoleUser::getOrganizeId, localPlatformId);
 
         List<RoleUser> roleUserList = roleUserService.list(roleUserQueryWrapper);
@@ -1120,8 +1131,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
 
         // 3. 校验用户是否存在
         WxUserInfo userInfo = wxUserInfoService.getOne(
-                new LambdaQueryWrapper<WxUserInfo>().eq(WxUserInfo::getWxId, wxId)
-        );
+                new LambdaQueryWrapper<WxUserInfo>().eq(WxUserInfo::getWxId, wxId));
         if (userInfo == null) {
             log.error("用户不存在，用户 ID: {}", wxId);
             throw new BusinessException(ErrorType.SYSTEM_ERROR, "用户不存在");
@@ -1139,7 +1149,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         checkWrapper
                 .eq(RoleUser::getWxId, wxId)
                 .eq(RoleUser::getRoleId, adminRole.getRoleId())
-                .eq(RoleUser::getType, 1)  // type=1 表示校处会
+                .eq(RoleUser::getType, 1) // type=1 表示校处会
                 .eq(RoleUser::getOrganizeId, localPlatformId);
 
         RoleUser existingRoleUser = roleUserService.getOne(checkWrapper);
@@ -1152,7 +1162,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         RoleUser roleUser = new RoleUser();
         roleUser.setWxId(wxId);
         roleUser.setRoleId(adminRole.getRoleId());
-        roleUser.setType(1);  // 1-校处会
+        roleUser.setType(1); // 1-校处会
         roleUser.setOrganizeId(localPlatformId);
         roleUser.setCreateTime(LocalDateTime.now());
         roleUser.setUpdateTime(LocalDateTime.now());
@@ -1190,7 +1200,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         queryWrapper
                 .eq(RoleUser::getWxId, wxId)
                 .eq(RoleUser::getRoleId, adminRole.getRoleId())
-                .eq(RoleUser::getType, 1)  // type=1 表示校处会
+                .eq(RoleUser::getType, 1) // type=1 表示校处会
                 .eq(RoleUser::getOrganizeId, localPlatformId);
 
         RoleUser roleUser = roleUserService.getOne(queryWrapper);
@@ -1284,8 +1294,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             List<LocalPlatform> allPlatforms = this.list(
                     new LambdaQueryWrapper<LocalPlatform>()
                             .eq(LocalPlatform::getStatus, 1) // 只返回启用的
-                            .orderByDesc(LocalPlatform::getCreateTime)
-            );
+                            .orderByDesc(LocalPlatform::getCreateTime));
 
             result = allPlatforms.stream()
                     .map(platform -> {
@@ -1307,8 +1316,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     new LambdaQueryWrapper<RoleUser>()
                             .eq(RoleUser::getWxId, wxId)
                             .eq(RoleUser::getType, 1) // 1-校促会
-                            .isNotNull(RoleUser::getOrganizeId)
-            );
+                            .isNotNull(RoleUser::getOrganizeId));
 
             if (roleUsers.isEmpty()) {
                 log.info("用户无管理的校促会 - 用户ID: {}", wxId);
