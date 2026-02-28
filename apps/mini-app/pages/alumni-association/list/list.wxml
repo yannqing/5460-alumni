@@ -113,11 +113,11 @@
 
     <!-- 加载状态 -->
     <view wx:if="{{loading}}" class="loading-text">加载中...</view>
-    <view wx:elif="{{!hasMore}}" class="loading-text">没有更多了</view>
+ 
 
     <!-- 空状态 -->
     <view wx:if="{{!loading && associationList.length === 0}}" class="empty-state">
-      <view class="empty-placeholder">暂无数据</view>
+
       <text>暂无数据</text>
     </view>
   </view>
