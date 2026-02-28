@@ -25,7 +25,7 @@
         SELECT r.*
         FROM role r
                  JOIN role_user ru ON r.role_id = ru.role_id
-        WHERE ru.user_id = #{userId}
+        WHERE ru.wx_id = #{userId}
           AND r.is_delete = 0
           AND ru.is_delete = 0
     </select>

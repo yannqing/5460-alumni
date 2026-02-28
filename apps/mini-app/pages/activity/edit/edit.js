@@ -1,7 +1,7 @@
 // pages/activity/edit/edit.js
 const app = getApp()
 const fileUploadUtil = require('../../../utils/fileUpload.js')
-const { fileApi } = require('../../../api/api.js')
+const { fileApi, alumniAssociationManagementApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -191,30 +191,7 @@ Page({
 
   // 调用活动详情接口
   getActivityDetail(activityId) {
-    return new Promise((resolve, reject) => {
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/activity/detail/${activityId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.getActivityDetail(activityId)
   },
 
   onInput(e) {
@@ -473,31 +450,7 @@ Page({
 
   // 更新活动
   updateActivity(data) {
-    return new Promise((resolve, reject) => {
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/alumniAssociationManagement/activity/update`,
-        method: 'PUT',
-        data: data,
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return alumniAssociationManagementApi.updateActivity(data)
   },
 
   // 上传封面图

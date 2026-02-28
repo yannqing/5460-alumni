@@ -1,4 +1,5 @@
 // pages/audit/join-audit/index.js
+const { joinApplicationApi, associationApi } = require('../../../api/api.js')
 const app = getApp()
 
 Page({
@@ -99,32 +100,7 @@ Page({
 
   // 调用审核列表接口
   getApplicationList(params) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/AlumniAssociationJoinApplication/page`,
-        method: 'POST',
-        data: params,
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return joinApplicationApi.getApplicationPage(params)
   },
 
   // 加载校友会列表（从缓存中获取校友会管理员的alumniAssociationId，然后调用接口）
@@ -406,60 +382,11 @@ Page({
 
   // 调用审核接口
   reviewApplication(params) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/AlumniAssociationJoinApplication/review`,
-        method: 'POST',
-        data: params,
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return joinApplicationApi.reviewApplication(params)
   },
 
   // 调用校友会详情接口
   getAlumniAssociationDetail(alumniAssociationId) {
-    return new Promise((resolve, reject) => {
-      // 获取 token
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      if (token) {
-        headers.token = token
-        headers['x-token'] = token
-      }
-
-      wx.request({
-        url: `${app.globalData.baseUrl}/AlumniAssociation/${alumniAssociationId}`,
-        method: 'GET',
-        header: headers,
-        success: resolve,
-        fail: reject
-      })
-    })
+    return associationApi.getAssociationDetail(alumniAssociationId)
   }
 })

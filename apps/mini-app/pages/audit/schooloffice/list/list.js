@@ -346,34 +346,8 @@ Page({
       
       console.log('[Debug] 审核参数:', reviewData)
       
-      // 获取 token 并设置请求头（按照项目约定格式）
-      let token = wx.getStorageSync('token')
-      if (!token) {
-        const userInfo = wx.getStorageSync('userInfo') || {}
-        token = userInfo.token || ''
-      }
-      
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-      
-      if (token) {
-        // 按照项目约定，token 直接放在 header 中，不使用 Bearer 前缀
-        headers.token = token
-        headers['x-token'] = token
-      }
-      
-      // 直接使用 wx.request 调用审核接口
-      const res = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${app.globalData.baseUrl}/localPlatformManagement/reviewAssociationApplication`,
-          method: 'POST',
-          data: reviewData,
-          header: headers,
-          success: resolve,
-          fail: reject
-        })
-      })
+      // 使用封装的 API 方法，确保云托管环境下的正确处理
+      const res = await app.api.localPlatformApi.reviewAssociationApplication(reviewData)
       
       console.log('[Debug] 批准申请结果:', res)
       
@@ -438,34 +412,8 @@ Page({
             
             console.log('[Debug] 拒绝审核参数:', reviewData)
             
-            // 获取 token 并设置请求头（按照项目约定格式）
-            let token = wx.getStorageSync('token')
-            if (!token) {
-              const userInfo = wx.getStorageSync('userInfo') || {}
-              token = userInfo.token || ''
-            }
-            
-            const headers = {
-              'Content-Type': 'application/json'
-            }
-            
-            if (token) {
-              // 按照项目约定，token 直接放在 header 中，不使用 Bearer 前缀
-              headers.token = token
-              headers['x-token'] = token
-            }
-            
-            // 直接使用 wx.request 调用审核接口
-            const apiRes = await new Promise((resolve, reject) => {
-              wx.request({
-                url: `${app.globalData.baseUrl}/localPlatformManagement/reviewAssociationApplication`,
-                method: 'POST',
-                data: reviewData,
-                header: headers,
-                success: resolve,
-                fail: reject
-              })
-            })
+            // 使用封装的 API 方法，确保云托管环境下的正确处理
+            const apiRes = await app.api.localPlatformApi.reviewAssociationApplication(reviewData)
             
             console.log('[Debug] 拒绝申请结果:', apiRes)
             

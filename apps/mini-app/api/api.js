@@ -492,6 +492,8 @@ const homeArticleApi = {
   updateArticle: (data) => put('/home-page-article/update', data),
   // 删除文章
   deleteArticle: (id) => del(`/home-page-article/${id}`),
+  // 获取管理的组织列表
+  getManagedOrganizations: (params) => post('/home-page-article/managed-organizations', params),
 }
 
 // ==================== 文章审核相关接口 ====================
@@ -530,14 +532,78 @@ const placeApi = {
   applyForPlace: (params) => post('/alumni-place/apply', params),
   // 更新企业/场所信息
   updatePlace: (params) => post('/alumni-place/management/update', params),
+  // 获取企业详情（管理端）
+  getPlaceManagementDetail: (id) => get(`/alumni-place/management/${id}`),
+  // 获取企业申请列表
+  getPlaceApplicationPage: (params) => post('/alumni-place/management/application/page', params),
+  // 审核企业申请
+  approvePlaceApplication: (data) => post('/alumni-place/management/application/approve', data),
 }
 
+// ==================== 校促会管理相关接口 ====================
+const localPlatformManagementApi = {
+  // 获取校促会成员列表
+  getMemberPage: (localPlatformId) => post('/localPlatform/members/page', { localPlatformId }),
+  // 获取校促会角色列表
+  getRoleList: (organizeId, organizeType = 1) => post('/localPlatformManagement/role/list', { organizeId, organizeType }),
+  // 新增校促会角色
+  addRole: (data) => post('/localPlatformManagement/role/add', data),
+  // 更新校促会角色
+  updateRole: (data) => put('/localPlatformManagement/role/update', data),
+  // 删除校促会角色
+  deleteRole: (roleOrId, organizeId) => del('/localPlatformManagement/role/delete', { roleOrId, organizeId }),
+  // 邀请校促会成员
+  inviteMember: (localPlatformId, wxId, roleOrId) => post('/localPlatformManagement/inviteMember', { localPlatformId, wxId, roleOrId }),
+  // 删除校促会成员
+  deleteMember: (localPlatformId, wxId) => del('/localPlatformManagement/deleteMember', { localPlatformId, wxId }),
+  // 更新校促会成员角色
+  updateMemberRole: (localPlatformId, wxId, roleOrId) => put('/localPlatformManagement/updateMemberRole', { localPlatformId, wxId, roleOrId }),
+}
+
+// ==================== 校友会管理相关接口 ====================
+const alumniAssociationManagementApi = {
+  // 获取校友会成员列表
+  getMemberList: (alumniAssociationId) => post('/alumniAssociationManagement/queryMemberList', { alumniAssociationId }),
+  // 获取校友会角色列表
+  getRoleList: (organizeId) => post('/alumniAssociationManagement/role/list', { organizeId }),
+  // 新增校友会角色
+  addRole: (data) => post('/alumniAssociationManagement/role/add', data),
+  // 更新校友会角色
+  updateRole: (data) => put('/alumniAssociationManagement/role/update', data),
+  // 删除校友会角色
+  deleteRole: (roleOrId, organizeId) => del('/alumniAssociationManagement/role/delete', { roleOrId, organizeId }),
+  // 邀请校友会成员
+  inviteMember: (alumniAssociationId, wxId, roleOrId) => post('/alumniAssociationManagement/inviteMember', { alumniAssociationId, wxId, roleOrId }),
+  // 删除校友会成员
+  deleteMember: (alumniAssociationId, wxId) => del('/alumniAssociationManagement/deleteMember', { alumniAssociationId, wxId }),
+  // 更新校友会成员角色
+  updateMemberRole: (alumniAssociationId, wxId, roleOrId) => put('/alumniAssociationManagement/updateMemberRole', { alumniAssociationId, wxId, roleOrId }),
+  // 发布活动
+  publishActivity: (data) => post('/alumniAssociationManagement/activity/publish', data),
+  // 获取活动详情
+  getActivityDetail: (activityId) => get(`/alumniAssociationManagement/activity/detail/${activityId}`),
+  // 更新活动
+  updateActivity: (data) => put('/alumniAssociationManagement/activity/update', data),
+  // 删除活动
+  deleteActivity: (activityId) => del(`/alumniAssociationManagement/activity/delete/${activityId}`),
+  // 获取校友会活动列表
+  getActivities: (alumniAssociationId) => get(`/alumniAssociationManagement/activities/${alumniAssociationId}`),
+}
+
+// ==================== 校友会加入申请相关接口 ====================
+const joinApplicationApi = {
+  // 获取加入申请列表
+  getApplicationPage: (params) => post('/AlumniAssociationJoinApplication/page', params),
+  // 审核加入申请
+  reviewApplication: (params) => post('/AlumniAssociationJoinApplication/review', params),
+}
 
 module.exports = {
   schoolApi,
   associationApi,
   unionApi,
   localPlatformApi,
+  localPlatformManagementApi,
   alumniApi,
   couponApi,
   circleApi,
@@ -545,6 +611,8 @@ module.exports = {
   shopApi,
   nearbyApi,
   activityApi,
+  alumniAssociationManagementApi,
+  joinApplicationApi,
   userApi,
   searchApi,
   followApi,

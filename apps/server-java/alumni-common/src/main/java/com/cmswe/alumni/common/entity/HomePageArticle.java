@@ -117,7 +117,7 @@ public class HomePageArticle implements Serializable {
     private String publishUsername;
 
     /**
-     * 发布者类型枚举（alumni，association）
+     * 发布者类型（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）
      */
     @TableField(value = "publish_type")
     private String publishType;
@@ -127,6 +127,18 @@ public class HomePageArticle implements Serializable {
      */
     @TableField(value = "publisher_avatar")
     private String publisherAvatar;
+
+    /**
+     * 实际发布用户ID（通过token解析获取的操作者ID）
+     */
+    @TableField(value = "actual_publisher_wx_id")
+    private Long actualPublisherWxId;
+
+    /**
+     * 是否展示在首页（0-不展示，1-展示）
+     */
+    @TableField(value = "show_on_homepage")
+    private Integer showOnHomepage;
 
     /**
      * 创建时间

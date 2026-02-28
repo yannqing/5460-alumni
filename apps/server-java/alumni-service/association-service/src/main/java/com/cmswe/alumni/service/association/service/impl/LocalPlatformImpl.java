@@ -10,6 +10,7 @@ import com.cmswe.alumni.api.association.AlumniAssociationMemberService;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.association.LocalPlatformMemberService;
 import com.cmswe.alumni.api.association.LocalPlatformService;
+import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.RoleUserService;
@@ -23,6 +24,7 @@ import com.cmswe.alumni.common.dto.QueryLocalPlatformListDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformMemberListDto;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationMember;
+import com.cmswe.alumni.common.entity.HomePageArticle;
 import com.cmswe.alumni.common.entity.LocalPlatform;
 
 import com.cmswe.alumni.common.entity.LocalPlatformMember;
@@ -36,8 +38,10 @@ import com.cmswe.alumni.common.entity.WxUserInfo;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
+import com.cmswe.alumni.common.vo.HomePageArticleVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
 import com.cmswe.alumni.common.vo.LocalPlatformListVo;
+import com.cmswe.alumni.common.vo.ManagedOrganizationVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberV2Vo;
 import com.cmswe.alumni.common.vo.OrganizationTreeVo;
@@ -100,6 +104,10 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     @Resource
     private SchoolMapper schoolMapper;
 
+    @Lazy
+    @Resource
+    private HomePageArticleService homePageArticleService;
+
     @Override
     public LocalPlatformDetailVo getLocalPlatformById(Long id) {
         // 1.校验id
@@ -153,7 +161,24 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             }
         }
 
-        log.info("根据id获取校处会详情id:{}", id);
+        // 4.4 查询该校促会的文章列表
+        LambdaQueryWrapper<HomePageArticle> articleQueryWrapper = new LambdaQueryWrapper<>();
+        articleQueryWrapper
+                .eq(HomePageArticle::getPublishType, "LOCAL_PLATFORM") // 发布者类型：校促会
+                .eq(HomePageArticle::getPublishWxId, id) // 发布者ID等于当前校促会ID
+                .eq(HomePageArticle::getArticleStatus, 1) // 状态：1-启用
+                .eq(HomePageArticle::getApplyStatus, 1) // 审核状态：1-审核通过
+                .eq(HomePageArticle::getPid, 0L) // 只查询父文章（pid=0）
+                .orderByDesc(HomePageArticle::getCreateTime); // 按创建时间倒序
+
+        List<HomePageArticle> articleList = homePageArticleService.list(articleQueryWrapper);
+        List<HomePageArticleVo> articleListVos = articleList.stream()
+                .map(HomePageArticleVo::objToVo)
+                .collect(Collectors.toList());
+        localPlatformDetailVo.setArticleList(articleListVos);
+
+        log.info("根据id获取校处会详情id:{}, 会员数:{}, 校友会数:{}, 文章数:{}",
+                id, memberCount, associationCount, articleListVos.size());
 
         return localPlatformDetailVo;
     }
@@ -1236,6 +1261,85 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
 
         log.info("绑定校处会成员与系统用户成功 - 成员ID: {}, 用户ID: {}", memberId, wxId);
         return true;
+    }
+
+    @Override
+    public List<ManagedOrganizationVo> getManagedPlatforms(Long wxId) {
+        // 1. 参数校验
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+
+        // 2. 查询用户的角色
+        List<Role> userRoles = roleService.getRolesByUserId(wxId);
+
+        // 3. 判断是否是系统管理员
+        boolean isSystemAdmin = userRoles.stream()
+                .anyMatch(role -> "SYSTEM_ADMIN".equals(role.getRoleCode()));
+
+        List<ManagedOrganizationVo> result = new ArrayList<>();
+
+        if (isSystemAdmin) {
+            // 4. 系统管理员：返回所有校促会
+            List<LocalPlatform> allPlatforms = this.list(
+                    new LambdaQueryWrapper<LocalPlatform>()
+                            .eq(LocalPlatform::getStatus, 1) // 只返回启用的
+                            .orderByDesc(LocalPlatform::getCreateTime)
+            );
+
+            result = allPlatforms.stream()
+                    .map(platform -> {
+                        ManagedOrganizationVo vo = new ManagedOrganizationVo();
+                        vo.setOrganizationId(String.valueOf(platform.getPlatformId()));
+                        vo.setOrganizationName(platform.getPlatformName());
+                        vo.setAvatar(platform.getAvatar());
+                        vo.setMemberCount(platform.getMemberCount());
+                        vo.setMonthlyHomepageArticleQuota(platform.getMonthlyHomepageArticleQuota());
+                        return vo;
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("系统管理员查询所有校促会 - 用户ID: {}, 校促会数量: {}", wxId, result.size());
+
+        } else {
+            // 5. 组织管理员：查询有权限管理的校促会
+            List<RoleUser> roleUsers = roleUserService.list(
+                    new LambdaQueryWrapper<RoleUser>()
+                            .eq(RoleUser::getWxId, wxId)
+                            .eq(RoleUser::getType, 1) // 1-校促会
+                            .isNotNull(RoleUser::getOrganizeId)
+            );
+
+            if (roleUsers.isEmpty()) {
+                log.info("用户无管理的校促会 - 用户ID: {}", wxId);
+                return result;
+            }
+
+            // 提取校促会ID列表
+            List<Long> platformIds = roleUsers.stream()
+                    .map(RoleUser::getOrganizeId)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            // 批量查询校促会信息
+            List<LocalPlatform> platforms = this.listByIds(platformIds);
+            result = platforms.stream()
+                    .filter(platform -> platform.getStatus() == 1) // 过滤启用的
+                    .map(platform -> {
+                        ManagedOrganizationVo vo = new ManagedOrganizationVo();
+                        vo.setOrganizationId(String.valueOf(platform.getPlatformId()));
+                        vo.setOrganizationName(platform.getPlatformName());
+                        vo.setAvatar(platform.getAvatar());
+                        vo.setMemberCount(platform.getMemberCount());
+                        vo.setMonthlyHomepageArticleQuota(platform.getMonthlyHomepageArticleQuota());
+                        return vo;
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("组织管理员查询管理的校促会 - 用户ID: {}, 校促会数量: {}", wxId, result.size());
+        }
+
+        return result;
     }
 
 }

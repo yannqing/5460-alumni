@@ -1,5 +1,6 @@
 // pages/audit/enterprise/index.js
 const app = getApp();
+const { placeApi } = require('../../../api/api.js');
 
 Page({
 
@@ -283,18 +284,9 @@ Page({
     if (selectedAlumniAssociationId) {params.alumniAssociationId = selectedAlumniAssociationId;}
     if (applicantName) {params.applicantName = applicantName;}
     
-    // 发送POST请求
-    const token = wx.getStorageSync('token') || (wx.getStorageSync('userInfo') || {}).token || '';
-    
-    wx.request({
-      url: `${app.globalData.baseUrl}/alumni-place/management/application/page`,
-      method: 'POST',
-      header: {
-        'Content-Type': 'application/json',
-        ...(token ? { token, 'x-token': token } : {})
-      },
-      data: params,
-      success: (res) => {
+    // 使用封装后的 API
+    placeApi.getPlaceApplicationPage(params)
+      .then((res) => {
         if (res.data && res.data.code === 200 && res.data.data) {
           const newData = res.data.data.records || [];
           const total = res.data.data.total || 0;
@@ -312,18 +304,17 @@ Page({
             loading: false
           });
         }
-      },
-      fail: (error) => {
+      })
+      .catch((error) => {
         console.error('获取企业列表异常:', error);
         this.setData({
           enterpriseList: loadMore ? this.data.enterpriseList : [],
           loading: false
         });
-      },
-      complete: () => {
+      })
+      .finally(() => {
         wx.stopPullDownRefresh();
-      }
-    });
+      });
   },
 
   /**
@@ -383,8 +374,6 @@ Page({
    * 提交审核
    */
   submitAudit(applicationId, applicationStatus, reviewRemark) {
-    const token = wx.getStorageSync('token') || (wx.getStorageSync('userInfo') || {}).token || '';
-    
     // Build request data with required parameters
     const requestData = {
       applicationId: applicationId,
@@ -396,16 +385,9 @@ Page({
       requestData.reviewRemark = reviewRemark;
     }
     
-    // Use the exact endpoint provided
-    wx.request({
-      url: `${app.globalData.baseUrl}/alumni-place/management/application/approve`,
-      method: 'POST',
-      header: {
-        'Content-Type': 'application/json',
-        ...(token ? { token, 'x-token': token } : {})
-      },
-      data: requestData,
-      success: (res) => {
+    // 使用封装后的 API
+    placeApi.approvePlaceApplication(requestData)
+      .then((res) => {
         if (res.data && res.data.code === 200) {
           wx.showToast({
             title: applicationStatus === 1 ? '审核通过成功' : '审核拒绝成功',
@@ -421,14 +403,13 @@ Page({
             icon: 'none'
           });
         }
-      },
-      fail: (error) => {
+      })
+      .catch((error) => {
         console.error('审核异常:', error);
         wx.showToast({
           title: '网络错误，请重试',
           icon: 'none'
         });
-      }
-    });
+      });
   }
 })

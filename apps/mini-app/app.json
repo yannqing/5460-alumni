@@ -86,6 +86,7 @@
     "pages/article/audit-list/audit-list",
     "pages/article/web-view/web-view",
     "pages/article-publish/index/index",
+    "pages/article-publish/detail/detail",
     "pages/activity/publish/publish",
     "pages/activity/edit/edit",
     "pages/info-maintenance/index/index",

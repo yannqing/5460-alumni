@@ -299,19 +299,18 @@ Page({
           // 处理作者名：使用 publishUsername 字段
           const username = item.publishUsername || '官方发布';
 
-          // 处理头像：使用 publisherAvatar 字段
+          // 处理头像：直接使用 publisherAvatar 字段
           // 如果都没有且是校友会类型，使用 publishWxId 获取校友会头像
           let avatar = '';
           if (item.publisherAvatar) {
-            // 如果 publisherAvatar 是对象，提取 URL
-            if (typeof item.publisherAvatar === 'object') {
-              avatar = item.publisherAvatar.fileUrl || item.publisherAvatar.thumbnailUrl || item.publisherAvatar.url || '';
-            } else {
-              // 如果是字符串，直接使用
-              avatar = item.publisherAvatar;
-            }
+            // 直接使用 publisherAvatar 字段
+            avatar = item.publisherAvatar;
             // 处理头像 URL
             if (avatar) {
+              // 清理字符串中的额外空格和反引号
+              if (typeof avatar === 'string') {
+                avatar = avatar.trim().replace(/`/g, '');
+              }
               avatar = config.getImageUrl(avatar);
             }
           } else {
@@ -326,8 +325,18 @@ Page({
           let cover = '';
           if (item.coverImg) {
             if (typeof item.coverImg === 'object') {
-              // 如果是对象，使用 thumbnailUrl 或 fileUrl
-              cover = item.coverImg.thumbnailUrl || item.coverImg.fileUrl || '';
+              // 优先使用 fileUrl 作为图片路径直接访问
+              if (item.coverImg.fileUrl) {
+                cover = item.coverImg.fileUrl;
+              }
+              // 如果 fileUrl 不存在，使用 filePath
+              else if (item.coverImg.filePath) {
+                cover = item.coverImg.filePath;
+              }
+              // 兼容其他情况
+              else {
+                cover = item.coverImg.thumbnailUrl || '';
+              }
               if (cover) {
                 cover = config.getImageUrl(cover);
               }
@@ -363,7 +372,18 @@ Page({
               let childCover = '';
               if (child.coverImg) {
                 if (typeof child.coverImg === 'object') {
-                  childCover = child.coverImg.thumbnailUrl || child.coverImg.fileUrl || '';
+                  // 优先使用 fileUrl 作为图片路径直接访问
+                  if (child.coverImg.fileUrl) {
+                    childCover = child.coverImg.fileUrl;
+                  }
+                  // 如果 fileUrl 不存在，使用 filePath
+                  else if (child.coverImg.filePath) {
+                    childCover = child.coverImg.filePath;
+                  }
+                  // 兼容其他情况
+                  else {
+                    childCover = child.coverImg.thumbnailUrl || '';
+                  }
                   if (childCover) {
                     childCover = config.getImageUrl(childCover);
                   }
@@ -596,10 +616,7 @@ Page({
             }
           });
         } else {
-          wx.showToast({
-            title: '链接格式错误',
-            icon: 'none'
-          });
+          // 链接格式错误，不提示，直接无反应
         }
       } else {
         wx.showToast({
@@ -708,10 +725,7 @@ Page({
             }
           })
         } else {
-          wx.showToast({
-            title: '链接格式错误',
-            icon: 'none'
-          })
+          // 链接格式错误，不提示，直接无反应
         }
       } else {
         wx.showToast({
@@ -761,12 +775,19 @@ Page({
           // 优先处理 bannerImage 字段（后端返回的字段名）
           if (item.bannerImage) {
             if (typeof item.bannerImage === 'object') {
-              // 如果是对象，提取 fileId 或 fileUrl
-              const fileId = item.bannerImage.fileId;
-              if (fileId) {
-                imageUrl = config.getImageUrl(`/file/download/${fileId}`);
+              // 优先使用 fileUrl 作为图片路径直接访问
+              if (item.bannerImage.fileUrl) {
+                imageUrl = config.getImageUrl(item.bannerImage.fileUrl);
+              } 
+              // 如果 fileUrl 不存在，使用 baseUrl + filePath
+              else if (item.bannerImage.filePath) {
+                imageUrl = config.getImageUrl(item.bannerImage.filePath);
+              }
+              // 兼容其他情况
+              else if (item.bannerImage.fileId) {
+                imageUrl = config.getImageUrl(`/file/download/${item.bannerImage.fileId}`);
               } else {
-                imageUrl = item.bannerImage.fileUrl || item.bannerImage.thumbnailUrl || item.bannerImage.url || '';
+                imageUrl = item.bannerImage.thumbnailUrl || item.bannerImage.url || '';
                 if (imageUrl) {
                   imageUrl = config.getImageUrl(imageUrl);
                 }

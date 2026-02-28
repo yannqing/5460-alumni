@@ -59,12 +59,23 @@
 
 
 
+  <!-- 是否在首页展示 -->
+  <view class="form-item">
+    <view class="section-title">是否在首页展示</view>
+    <radio-group class="radio-group" bindchange="onShowOnHomepageChange">
+      <label class="radio-item" wx:for="{{showOnHomepageOptions}}" wx:key="value">
+        <radio value="{{item.value}}" checked="{{showOnHomepage === item.value}}" />
+        <text class="radio-label">{{item.label}}</text>
+      </label>
+    </radio-group>
+  </view>
+
   <!-- 发布者类型选择 -->
   <view class="form-item">
     <view class="section-title">发布者类型</view>
     <radio-group class="radio-group" bindchange="onPublishTypeChange">
       <label class="radio-item" wx:for="{{publishTypes}}" wx:key="value">
-        <radio value="{{item.value}}" checked="{{publishType === item.value}}" />
+        <radio value="{{item.value}}" checked="{{publishType == item.value}}" />
         <text class="radio-label">{{item.label}}</text>
       </label>
     </radio-group>
@@ -79,6 +90,90 @@
     </view>
   </view>
 
+  <!-- 子文章管理 -->
+  <view class="form-item">
+    <view class="section-title">
+      <text>子文章</text>
+    </view>
+    
+    <!-- 子文章列表 -->
+    <view class="child-articles-list">
+      <view class="child-article-item" wx:for="{{childArticles}}" wx:key="index">
+        <view class="child-article-header">
+          <text class="child-article-title">子文章 {{index + 1}}</text>
+          <button class="delete-child-article-btn" bindtap="deleteChildArticle" data-index="{{index}}">删除</button>
+        </view>
+        
+        <!-- 子文章标题 -->
+        <view class="form-item">
+          <input 
+            class="title-input" 
+            placeholder="请输入子文章标题" 
+            placeholder-class="placeholder" 
+            value="{{item.articleTitle}}"
+            bindinput="onChildArticleInput" 
+            data-index="{{index}}" 
+            data-field="articleTitle"
+            maxlength="100"
+          />
+        </view>
+
+        <!-- 子文章封面图选择 -->
+        <view class="form-item">
+          <view class="section-title">封面图</view>
+          <view class="cover-image-container" bindtap="chooseChildArticleCoverImage" data-index="{{index}}">
+            <image 
+              class="cover-image" 
+              src="{{item.coverImage || '/images/default-cover.png'}}" 
+              mode="aspectFill"
+            ></image>
+            <view class="add-cover-icon">+</view>
+          </view>
+          <view class="tip-text">点击上传封面图</view>
+        </view>
+        
+        <!-- 子文章链接 -->
+        <view class="form-item">
+          <view class="section-title">文章链接</view>
+          <input 
+            class="link-input" 
+            placeholder="请输入子文章链接" 
+            placeholder-class="placeholder" 
+            value="{{item.articleLink}}"
+            bindinput="onChildArticleInput" 
+            data-index="{{index}}" 
+            data-field="articleLink"
+            maxlength="500"
+            type="text"
+          />
+        </view>
+        
+        <!-- 子文章描述 -->
+        <view class="form-item">
+          <view class="section-title">文章描述</view>
+          <textarea 
+            class="content-textarea" 
+            placeholder="请输入子文章描述" 
+            placeholder-class="placeholder" 
+            value="{{item.description}}"
+            bindinput="onChildArticleInput" 
+            data-index="{{index}}" 
+            data-field="description"
+            maxlength="5000"
+            auto-height
+          ></textarea>
+        </view>
+      </view>
+      
+      <view class="empty-child-articles" wx:if="{{childArticles.length === 0}}">
+        <text>暂无子文章，点击添加按钮添加</text>
+      </view>
+      
+      <!-- 添加子文章按钮 -->
+      <button class="add-child-article-btn" bindtap="addChildArticle">添加子文章</button>
+    </view>
+  </view>
+
   <!-- 发布者选择器弹窗 -->
   <view class="publisher-picker" wx:if="{{showPublisherPicker}}">
     <view class="picker-overlay" bindtap="cancelPublisherSelect"></view>
@@ -87,67 +182,39 @@
         <text class="picker-title">选择发布者</text>
         <text class="picker-cancel" bindtap="cancelPublisherSelect">取消</text>
       </view>
-      
-      <!-- 搜索框 -->
-      <view class="search-group">
-        <input 
-          class="search-input" 
-          placeholder="请输入关键词搜索" 
-          placeholder-class="search-placeholder"
-          bindinput="onPublisherSearchInput"
-          bindfocus="onPublisherSearchFocus"
-          value="{{publisherSearchKeyword}}"
-        />
-      </view>
-      
-      <!-- 搜索结果 -->
-      <scroll-view scroll-y class="picker-list">
-        <!-- 遍历所有发布者 -->
-        <block wx:for="{{publisherList}}" wx:key="id">
-          <!-- 根据发布者类型显示不同的结果 -->
-          <view 
-            class="picker-item {{publishType === 'ALUMNI' ? 'alumni-item' : ''}}" 
-            data-publisher-id="{{item.id}}"
-            data-publisher-name="{{item.name}}"
-            bindtap="selectPublisher"
-          >
-            <!-- 校友类型显示头像和学校 -->
-            <block wx:if="{{publishType === 'ALUMNI'}}">
-              <image 
-                wx:if="{{item.avatarUrl}}" 
-                src="{{item.avatarUrl}}" 
-                class="alumni-avatar" 
-                mode="aspectFill" 
-              />
-              <image 
-                wx:else 
-                src="{{defaultUserAvatarUrl}}" 
-                class="alumni-avatar" 
-                mode="aspectFill" 
-              />
-              <view class="alumni-info">
-                <text class="alumni-name">{{item.name}}</text>
-                <text class="alumni-school">{{item.school || '暂无学校信息'}}</text>
-              </view>
-            </block>
-            
-            <!-- 其他类型只显示名称 -->
-            <block wx:else>
+      <view class="picker-list">
+        <view
+          class="picker-item"
+          wx:for="{{publisherList}}"
+          wx:key="id"
+          data-publisher-id="{{item.id}}"
+          data-publisher-name="{{item.name}}"
+          bindtap="selectPublisher"
+        >
+          <view class="publisher-info">
+            <image 
+              wx:if="{{item.avatar}}" 
+              src="{{item.avatar}}" 
+              class="publisher-avatar" 
+              mode="aspectFill" 
+            />
+            <image 
+              wx:else 
+              src="{{defaultUserAvatarUrl}}" 
+              class="publisher-avatar" 
+              mode="aspectFill" 
+            />
+            <view class="name-with-quota">
               <text class="item-name">{{item.name}}</text>
-            </block>
-            
-            <!-- 选中状态 -->
-            <text class="item-check" wx:if="{{selectedPublisherId == item.id}}">✓</text>
+              <text class="quota-count" wx:if="{{showOnHomepage === 1}}">（{{item.monthlyHomepageArticleQuota}}）</text>
+            </view>
           </view>
-        </block>
-        
-        <view class="picker-empty" wx:if="{{publisherList.length === 0 && publisherSearchKeyword}}">
-          <text>暂无匹配的发布者数据</text>
+          <text class="item-check" wx:if="{{selectedPublisherId == item.id}}">✓</text>
         </view>
-        <view class="picker-empty" wx:if="{{publisherList.length === 0 && !publisherSearchKeyword}}">
-          <text>请输入关键词搜索</text>
+        <view class="picker-empty" wx:if="{{publisherList.length === 0}}">
+          <text>暂无可用的发布者数据</text>
         </view>
-      </scroll-view>
+      </view>
     </view>
   </view>
 

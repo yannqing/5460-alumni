@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -96,6 +97,12 @@ public class LocalPlatformDetailVo implements Serializable {
      */
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
+
+    /**
+     * 文章列表
+     */
+    @Schema(description = "文章列表（已发布的文章）")
+    private List<HomePageArticleVo> articleList;
 
     @Serial
     private static final long serialVersionUID = 1L;

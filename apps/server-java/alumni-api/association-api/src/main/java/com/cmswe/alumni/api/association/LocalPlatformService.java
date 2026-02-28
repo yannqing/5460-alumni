@@ -10,6 +10,7 @@ import com.cmswe.alumni.common.entity.LocalPlatform;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
 import com.cmswe.alumni.common.vo.LocalPlatformListVo;
+import com.cmswe.alumni.common.vo.ManagedOrganizationVo;
 import com.cmswe.alumni.common.vo.OrganizationTreeVo;
 import com.cmswe.alumni.common.vo.OrganizationTreeV2Vo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -148,4 +149,11 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
      */
     boolean bindMemberToUser(Long memberId, Long wxId);
 
+    /**
+     * 根据用户权限获取管理的校促会列表
+     *
+     * @param wxId 当前用户ID
+     * @return 管理的校促会列表
+     */
+    List<ManagedOrganizationVo> getManagedPlatforms(Long wxId);
 }

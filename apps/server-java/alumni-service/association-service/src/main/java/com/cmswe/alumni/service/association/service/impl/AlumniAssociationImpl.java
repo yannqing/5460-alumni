@@ -24,6 +24,7 @@ import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.AlumniAssociationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
+import com.cmswe.alumni.common.vo.ManagedOrganizationVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberV2Vo;
 import com.cmswe.alumni.common.vo.OrganizationTreeVo;
@@ -40,7 +41,10 @@ import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplicat
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationMapper;
 import com.cmswe.alumni.service.association.mapper.SchoolMapper;
 import com.cmswe.alumni.api.system.ActivityService;
+import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.api.search.AlumniPlaceService;
+import com.cmswe.alumni.common.entity.HomePageArticle;
+import com.cmswe.alumni.common.vo.HomePageArticleVo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -97,6 +101,10 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     @Resource
     @Lazy
     private AlumniPlaceService alumniPlaceService;
+
+    @Resource
+    @Lazy
+    private HomePageArticleService homePageArticleService;
 
     @Resource
     private UserFollowService userFollowService;
@@ -313,8 +321,24 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                 .collect(Collectors.toList());
         alumniAssociationDetailVo.setEnterpriseList(placeListVos);
 
-        log.info("根据id查询校友会信息 id:{}, wxId:{}, 活动数量:{}, 企业数量:{}",
-                id, wxId, activityListVos.size(), placeListVos.size());
+        // 4.7 查询该校友会的文章列表
+        LambdaQueryWrapper<HomePageArticle> articleQueryWrapper = new LambdaQueryWrapper<>();
+        articleQueryWrapper
+                .eq(HomePageArticle::getPublishType, "ASSOCIATION") // 发布者类型：校友会
+                .eq(HomePageArticle::getPublishWxId, id) // 发布者ID等于当前校友会ID
+                .eq(HomePageArticle::getArticleStatus, 1) // 状态：1-启用
+                .eq(HomePageArticle::getApplyStatus, 1) // 审核状态：1-审核通过
+                .eq(HomePageArticle::getPid, 0L) // 只查询父文章（pid=0）
+                .orderByDesc(HomePageArticle::getCreateTime); // 按创建时间倒序
+
+        List<HomePageArticle> articleList = homePageArticleService.list(articleQueryWrapper);
+        List<HomePageArticleVo> articleListVos = articleList.stream()
+                .map(HomePageArticleVo::objToVo)
+                .collect(Collectors.toList());
+        alumniAssociationDetailVo.setArticleList(articleListVos);
+
+        log.info("根据id查询校友会信息 id:{}, wxId:{}, 活动数量:{}, 企业数量:{}, 文章数量:{}",
+                id, wxId, activityListVos.size(), placeListVos.size(), articleListVos.size());
 
         return alumniAssociationDetailVo;
 
@@ -1723,6 +1747,85 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         log.info("绑定校友会成员与系统用户成功 - 成员ID: {}, 用户ID: {}", memberId, wxId);
         return true;
+    }
+
+    @Override
+    public List<ManagedOrganizationVo> getManagedAssociations(Long wxId) {
+        // 1. 参数校验
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+
+        // 2. 查询用户的角色
+        List<Role> userRoles = roleService.getRolesByUserId(wxId);
+
+        // 3. 判断是否是系统管理员
+        boolean isSystemAdmin = userRoles.stream()
+                .anyMatch(role -> "SYSTEM_ADMIN".equals(role.getRoleCode()));
+
+        List<ManagedOrganizationVo> result = new ArrayList<>();
+
+        if (isSystemAdmin) {
+            // 4. 系统管理员：返回所有校友会
+            List<AlumniAssociation> allAssociations = this.list(
+                    new LambdaQueryWrapper<AlumniAssociation>()
+                            .eq(AlumniAssociation::getStatus, 1) // 只返回启用的
+                            .orderByDesc(AlumniAssociation::getCreateTime)
+            );
+
+            result = allAssociations.stream()
+                    .map(association -> {
+                        ManagedOrganizationVo vo = new ManagedOrganizationVo();
+                        vo.setOrganizationId(String.valueOf(association.getAlumniAssociationId()));
+                        vo.setOrganizationName(association.getAssociationName());
+                        vo.setAvatar(association.getLogo());
+                        vo.setMemberCount(association.getMemberCount());
+                        vo.setMonthlyHomepageArticleQuota(association.getMonthlyHomepageArticleQuota());
+                        return vo;
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("系统管理员查询所有校友会 - 用户ID: {}, 校友会数量: {}", wxId, result.size());
+
+        } else {
+            // 5. 组织管理员：查询有权限管理的校友会
+            List<RoleUser> roleUsers = roleUserService.list(
+                    new LambdaQueryWrapper<RoleUser>()
+                            .eq(RoleUser::getWxId, wxId)
+                            .eq(RoleUser::getType, 2) // 2-校友会
+                            .isNotNull(RoleUser::getOrganizeId)
+            );
+
+            if (roleUsers.isEmpty()) {
+                log.info("用户无管理的校友会 - 用户ID: {}", wxId);
+                return result;
+            }
+
+            // 提取校友会ID列表
+            List<Long> associationIds = roleUsers.stream()
+                    .map(RoleUser::getOrganizeId)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            // 批量查询校友会信息
+            List<AlumniAssociation> associations = this.listByIds(associationIds);
+            result = associations.stream()
+                    .filter(association -> association.getStatus() == 1) // 过滤启用的
+                    .map(association -> {
+                        ManagedOrganizationVo vo = new ManagedOrganizationVo();
+                        vo.setOrganizationId(String.valueOf(association.getAlumniAssociationId()));
+                        vo.setOrganizationName(association.getAssociationName());
+                        vo.setAvatar(association.getLogo());
+                        vo.setMemberCount(association.getMemberCount());
+                        vo.setMonthlyHomepageArticleQuota(association.getMonthlyHomepageArticleQuota());
+                        return vo;
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("组织管理员查询管理的校友会 - 用户ID: {}, 校友会数量: {}", wxId, result.size());
+        }
+
+        return result;
     }
 
 }
