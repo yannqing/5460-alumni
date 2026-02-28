@@ -616,10 +616,7 @@ Page({
             }
           });
         } else {
-          wx.showToast({
-            title: '链接格式错误',
-            icon: 'none'
-          });
+          // 链接格式错误，不提示，直接无反应
         }
       } else {
         wx.showToast({
@@ -728,10 +725,7 @@ Page({
             }
           })
         } else {
-          wx.showToast({
-            title: '链接格式错误',
-            icon: 'none'
-          })
+          // 链接格式错误，不提示，直接无反应
         }
       } else {
         wx.showToast({
