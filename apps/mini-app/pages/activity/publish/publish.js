@@ -63,25 +63,32 @@ Page({
   },
 
   onLoad(options) {
+    // 优先从路由参数获取 associationId
+    if (options.associationId) {
+      this.setData({
+        alumniAssociationId: options.associationId
+      })
+    }
+
     const pages = getCurrentPages()
     const prevPage = pages[pages.length - 2]
     if (prevPage) {
       this.setData({
-        alumniAssociationId: prevPage.data.selectedAlumniAssociationId,
-        alumniAssociationName: prevPage.data.selectedAlumniAssociationName
+        alumniAssociationId: this.data.alumniAssociationId || prevPage.data.selectedAlumniAssociationId || prevPage.data.associationId,
+        alumniAssociationName: prevPage.data.selectedAlumniAssociationName || (prevPage.data.associationInfo ? prevPage.data.associationInfo.name : '')
       })
     }
-    
+
     // 初始化时间选择器的列数据
     this.initTimePickerData();
     // 初始化默认时间
     const now = new Date();
     const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    
+
     // 格式化时间（用于前端展示）
     const nowDisplay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const endDisplay = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')} ${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
-    
+
     // 设置默认时间
     this.setData({
       'formData.startTime': this.formatDateToPicker(now),
@@ -110,9 +117,9 @@ Page({
   onPickerChange(e) {
     const { field } = e.currentTarget.dataset
     const { value } = e.detail
-    
+
     let selectedValue = value
-    
+
     // 根据不同字段获取对应的id值
     if (field === 'isNeedReview') {
       const option = this.data.isNeedReviewOptions[value]
@@ -121,7 +128,7 @@ Page({
       const option = this.data.isPublicOptions[value]
       selectedValue = option ? option.id : value
     }
-    
+
     this.setData({
       [`formData.${field}`]: selectedValue
     })
@@ -283,52 +290,52 @@ Page({
 
   async submitForm() {
     const { formData, alumniAssociationId } = this.data
-    
+
     if (!formData.activityTitle || formData.activityTitle.trim() === '') {
       wx.showToast({ title: '请输入活动标题', icon: 'none' })
       return
     }
-    
+
     if (!formData.coverImage || formData.coverImage.trim() === '') {
       wx.showToast({ title: '请上传活动封面图', icon: 'none' })
       return
     }
-    
+
     if (!formData.description || formData.description.trim() === '') {
       wx.showToast({ title: '请输入活动详情描述', icon: 'none' })
       return
     }
-    
+
     if (!formData.startTime || formData.startTime.trim() === '') {
       wx.showToast({ title: '请选择活动开始时间', icon: 'none' })
       return
     }
-    
+
     if (!formData.endTime || formData.endTime.trim() === '') {
       wx.showToast({ title: '请选择活动结束时间', icon: 'none' })
       return
     }
-    
+
     this.setData({ submitting: true })
-    
+
     try {
       const activityImages = formData.activityImages.trim() || '[]'
-      
+
       // 构建提交数据，不需要报名时移除报名时间字段
       const submitData = {
         ...formData,
         activityImages,
         alumniAssociationId
       }
-      
+
       // 如果不需要报名，删除报名时间相关字段
       if (submitData.isSignup === 0) {
         delete submitData.registrationStartTime
         delete submitData.registrationEndTime
       }
-      
+
       const res = await this.publishActivity(submitData)
-      
+
       if (res.data && res.data.code === 200) {
         wx.showToast({ title: '发布成功', icon: 'success' })
         setTimeout(() => {
@@ -361,13 +368,13 @@ Page({
       sourceType: ['album', 'camera'],
       success: (res) => {
         const tempFilePath = res.tempFilePaths[0]
-        
+
         // 显示加载状态
         wx.showLoading({
           title: '上传中...',
           mask: true
         })
-        
+
         // 上传图片
         fileUploadUtil.uploadImage(tempFilePath, '/file/upload/images')
           .then(res => {
@@ -376,7 +383,7 @@ Page({
               this.setData({
                 [`formData.coverImage`]: res.data.fileUrl
               })
-              
+
               wx.showToast({
                 title: '封面图上传成功',
                 icon: 'success'
@@ -419,32 +426,32 @@ Page({
       sourceType: ['album', 'camera'],
       success: (res) => {
         const tempFilePaths = res.tempFilePaths
-        
+
         // 显示加载状态
         wx.showLoading({
           title: '上传中...',
           mask: true
         })
-        
+
         // 上传多张图片
         const uploadPromises = tempFilePaths.map(filePath => {
           return fileApi.uploadImage(filePath)
         })
-        
+
         Promise.all(uploadPromises)
           .then(results => {
             // 处理上传结果
             const uploadedUrls = results
               .filter(res => res.code === 200 && res.data && res.data.fileUrl)
               .map(res => res.data.fileUrl)
-            
+
             if (uploadedUrls.length > 0) {
               // 更新图片URL数组
               this.setData({
                 activityImagesList: [...this.data.activityImagesList, ...uploadedUrls],
                 'formData.activityImages': JSON.stringify([...this.data.activityImagesList, ...uploadedUrls])
               })
-              
+
               wx.showToast({
                 title: `上传成功 ${uploadedUrls.length} 张`,
                 icon: 'success'
@@ -516,7 +523,7 @@ Page({
           [`formData.latitude`]: res.latitude,
           [`formData.longitude`]: res.longitude
         })
-        
+
         wx.showToast({
           title: '位置选择成功',
           icon: 'success'
