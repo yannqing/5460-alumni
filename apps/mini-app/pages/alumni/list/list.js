@@ -22,40 +22,100 @@ Page({
     hasMore: true,
     loading: false,
     refreshing: false,
-    fixedHeaderHeight: 300 // 固定顶部区域高度，用于计算滚动区域
+    scrollTop: 0,
+    refresherHeight: 0,
+    scrollThreshold: 100
+
   },
 
   onLoad() {
-    // 计算固定头部高度
-    this.calculateFixedHeaderHeight()
+    // 计算图片区域高度用于吸顶阈值
+    this.initMeasurements()
+
     this.loadAlumniList(true)
   },
 
-  // 计算固定头部高度
-  calculateFixedHeaderHeight() {
+  // 初始化测量数据
+  initMeasurements() {
     setTimeout(() => {
       const query = wx.createSelectorQuery()
-      query.select('.fixed-header').boundingClientRect()
+      query.select('.banner-area').boundingClientRect()
       query.exec((res) => {
         if (res && res[0]) {
           this.setData({
-            fixedHeaderHeight: res[0].height
+            scrollThreshold: res[0].height
           })
         }
       })
-    }, 100)
+    }, 300)
   },
+
 
   onPullDownRefresh() {
     // 页面级下拉刷新已禁用，直接停止
     wx.stopPullDownRefresh()
   },
 
-  // scroll-view 下拉刷新
+  /**
+   * 滚动事件
+   */
+  onScroll: function (e) {
+    this.setData({ scrollTop: e.detail.scrollTop });
+  },
+
+  /**
+   * 触摸开始事件
+   */
+  onTouchStart: function (e) {
+    if (this.data.scrollTop <= 5) {
+      this.startY = e.touches[0].pageY;
+      this.canPull = true;
+    } else {
+      this.canPull = false;
+    }
+  },
+
+  /**
+   * 触摸移动事件
+   */
+  onTouchMove: function (e) {
+    if (!this.canPull || this.data.refreshing) return;
+
+    const moveY = e.touches[0].pageY;
+    const diff = (moveY - this.startY) * 0.5; // 阻尼效果
+
+    if (diff > 0) {
+      this.setData({
+        refresherHeight: Math.min(diff, 80)
+      });
+    }
+  },
+
+  /**
+   * 触摸结束事件
+   */
+  onTouchEnd: function () {
+    if (!this.canPull || this.data.refreshing) return;
+
+    if (this.data.refresherHeight >= 40) {
+      this.setData({
+        refreshing: true,
+        refresherHeight: 60
+      });
+      this.loadAlumniList(true);
+    } else {
+      this.setData({
+        refresherHeight: 0
+      });
+    }
+  },
+
+  // scroll-view 下拉刷新（保留兼容接口，主要走 onTouchEnd）
   onScrollViewRefresh() {
     this.setData({ refreshing: true })
     this.loadAlumniList(true)
   },
+
 
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
@@ -64,8 +124,8 @@ Page({
   },
 
   async loadAlumniList(reset = false) {
-    if (this.data.loading) {return}
-    if (!reset && !this.data.hasMore) {return}
+    if (this.data.loading) { return }
+    if (!reset && !this.data.hasMore) { return }
 
     this.setData({ loading: true })
 
@@ -163,7 +223,8 @@ Page({
           current: reset ? 2 : current + 1,
           hasMore: records.length >= pageSize,
           loading: false,
-          refreshing: false
+          refreshing: false,
+          refresherHeight: 0
         })
 
         wx.stopPullDownRefresh()
@@ -171,7 +232,7 @@ Page({
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'alumniList', FollowTargetType.USER)
       } else {
-        this.setData({ loading: false, refreshing: false })
+        this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
         wx.showToast({
           title: res.data?.msg || '加载失败',
           icon: 'none'
@@ -180,7 +241,7 @@ Page({
       }
     } catch (error) {
       console.error('加载校友列表失败:', error)
-      this.setData({ loading: false, refreshing: false })
+      this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'

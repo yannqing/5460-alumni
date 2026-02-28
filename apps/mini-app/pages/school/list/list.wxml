@@ -3,117 +3,109 @@
 <message-notification />
 
 <view class="container">
-  <!-- 固定顶部区域（包含背景、导航栏、图片、搜索框、筛选） -->
-  <view class="fixed-header">
-    <!-- 固定顶部背景 -->
-    <view class="fixed-top-bg"></view>
-    <!-- 自定义导航栏 -->
-    <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
-    <!-- 顶部图片 -->
-    <view class="top-image-container">
-      <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
-    </view>
+  <!-- 自定义导航栏：真正固定不动 -->
+  <custom-nav-bar id="school-nav-bar" showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
 
-    <!-- 搜索栏 -->
-    <view class="search-bar">
-      <view class="search-input-wrap">
-        <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
-        <input class="search-input" type="text" placeholder="搜索母校、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-        <view class="search-button" bindtap="onSearch">搜索</view>
-      </view>
-    </view>
-
-    <!-- 筛选区域 -->
-    <view class="filter-section">
-      <!-- 类型筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
-          <text>{{filters[0].selected === 0 ? '办学层次' : filters[0].options[filters[0].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 城市筛选 -->
-      <view class="filter-item">
-        <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
-          <text>{{regionDisplayText || '全部城市'}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 关注筛选 -->
-      <view class="filter-item" bindtap="onFollowChange">
-        <text>我的关注</text>
-        <text class="filter-arrow">▾</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 学校列表（使用 scroll-view 实现下拉刷新） -->
+  <!-- 全局滚动容器 -->
   <scroll-view
-    class="list-scroll-view"
-    style="height: calc(100vh - {{fixedHeaderHeight}}px);"
+    class="main-scroller"
     scroll-y="{{true}}"
-    refresher-enabled="{{true}}"
-    refresher-triggered="{{refreshing}}"
-    refresher-threshold="{{80}}"
-    refresher-default-style="black"
-    refresher-background="#F5F5F5"
-    bindrefresherrefresh="onScrollViewRefresh"
-    bindscrolltolower="onReachBottom"
-    lower-threshold="100"
     enhanced="{{true}}"
+    bounces="{{false}}"
     show-scrollbar="{{false}}"
+    bindscroll="onScroll"
+    bindscrolltolower="onReachBottom"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    lower-threshold="100"
   >
-    <view class="association-list">
-      <view class="association-card" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
-        <!-- 头部：图标、名称和认证标识 -->
-        <view class="card-header">
-          <view class="card-info">
-            <view class="card-title-row">
-              <text class="card-title">{{item.name}}</text>
-              <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
-            </view>
+    <!-- 顶部非吸顶区域：只有图片 -->
+    <view class="banner-area">
+      <view class="top-image-container">
+        <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
+      </view>
+    </view>
 
-            <!-- 学校信息 -->
-            <view class="card-meta-row">
-              <text wx:if="{{item.level}}" class="card-level">办学层次：{{item.level}}</text>
-              <view class="card-location-wrap">
-                <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                <text class="location-text">{{item.location}}</text>
-              </view>
-            </view>
-
-            <!-- 关注按钮 -->
-            <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-              <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
-                {{item.isFollowed ? '已关注' : '+ 关注'}}
-              </view>
-            </view>
+    <!-- 核心布局：把吸顶 Header 和 列表内容放在同一个容器下，确保吸顶边界涵盖整个列表 -->
+    <view class="sticky-wrapper">
+      <!-- 真正吸顶的组件：使用 native sticky -->
+      <view class="sticky-header-container" style="position: sticky; top: 0; z-index: 100;">
+        <!-- 搜索栏 -->
+        <view class="search-bar">
+          <view class="search-input-wrap">
+            <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
+            <input class="search-input" type="text" placeholder="搜索母校、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+            <view class="search-button" bindtap="onSearch">搜索</view>
           </view>
-          <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
         </view>
 
-        <!-- 底部：统计数据 -->
-        <view class="card-footer">
-          <view class="card-stats">
-            <text wx:if="{{item.associationCount > 0}}" class="stat-item">校友会 {{item.associationCount}}</text>
-            <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
+        <!-- 筛选区域 -->
+        <view class="filter-section">
+          <view class="filter-item">
+            <picker bindchange="onTypeChange" range="{{filters[0].options}}" value="{{filters[0].selected}}">
+              <text>{{filters[0].selected === 0 ? '办学层次' : filters[0].options[filters[0].selected]}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
+          </view>
+          <view class="filter-item">
+            <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+              <text>{{regionDisplayText || '全部城市'}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
+          </view>
+          <view class="filter-item" bindtap="onFollowChange">
+            <text>我的关注</text>
+            <text class="filter-arrow">▾</text>
           </view>
         </view>
       </view>
 
-      <!-- 加载状态 -->
-      <view wx:if="{{loading && !refreshing}}" class="loading-text">加载中...</view>
-
-      <!-- 没有更多数据 -->
-      <view wx:if="{{!loading && !hasMore && schoolList.length > 0}}" class="loading-text">没有更多了</view>
-
-      <!-- 空状态 -->
-      <view wx:if="{{!loading && schoolList.length === 0}}" class="empty-state">
-        <text>暂无数据</text>
+      <!-- 手动下拉刷新区域 -->
+      <view class="manual-refresher" style="height: {{refresherHeight}}px; opacity: {{refresherHeight > 0 ? 1 : 0}};">
+        <view class="dot-container">
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+        </view>
       </view>
 
-      <!-- 底部安全区域 -->
-      <view class="bottom-safe-area"></view>
+      <view class="association-list" id="school-list-start">
+        <view class="association-card" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+          <view class="card-header">
+            <view class="card-info">
+              <view class="card-title-row">
+                <text class="card-title">{{item.name}}</text>
+                <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
+              </view>
+              <view class="card-meta-row">
+                <text wx:if="{{item.level}}" class="card-level">办学层次：{{item.level}}</text>
+                <view class="card-location-wrap">
+                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                  <text class="location-text">{{item.location}}</text>
+                </view>
+              </view>
+              <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+                <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+                  {{item.isFollowed ? '已关注' : '+ 关注'}}
+                </view>
+              </view>
+            </view>
+            <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
+          </view>
+          <view class="card-footer">
+            <view class="card-stats">
+              <text wx:if="{{item.associationCount > 0}}" class="stat-item">校友会 {{item.associationCount}}</text>
+              <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{loading && !refreshing}}" class="loading-text">加载中...</view>
+        <view wx:if="{{!loading && !hasMore && schoolList.length > 0}}" class="loading-text">没有更多了</view>
+        <view wx:if="{{!loading && schoolList.length === 0}}" class="empty-state"><text>暂无数据</text></view>
+        <view class="bottom-safe-area"></view>
+      </view>
     </view>
   </scroll-view>
 </view>

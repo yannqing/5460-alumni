@@ -26,33 +26,41 @@ view, text, scroll-view, picker, input, button, image {
   overflow: hidden;
 }
 
-/* 固定顶部区域 */
-.fixed-header {
-  position: relative;
+/* 屏蔽旧的固定高度逻辑 */
+.main-scroller {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-area {
+  background: #3F61CA;
+  width: 100%;
+}
+
+.sticky-header-container {
+  background: #3F61CA;
+  width: 100%;
   z-index: 100;
-  background: #3F61CA;
-  flex-shrink: 0;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
 }
 
-/* 固定顶部背景 */
-.fixed-top-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #3F61CA;
-  z-index: -1;
+.sticky-wrapper {
+  position: relative;
+  width: 100%;
+  background: #F5F5F5;
 }
 
-/* 顶部图片 */
+
+
+
+/* 顶部图片区域 */
 .top-image-container {
   width: 100%;
-  padding: 20rpx 30rpx;
+  padding: 20rpx 30rpx 10rpx;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 8;
   position: relative;
 }
 
@@ -62,19 +70,10 @@ view, text, scroll-view, picker, input, button, image {
   border-radius: 12rpx;
 }
 
-/* 列表滚动区域 */
-.list-scroll-view {
-  flex: 1;
-  width: 100%;
-  background: #F5F5F5;
-}
-
-/* 搜索栏 */
 .search-bar {
-  padding: 20rpx 26rpx;
+  padding: 10rpx 26rpx 20rpx;
   box-shadow: none;
   border-bottom: none !important;
-  margin-bottom: 30rpx;
 }
 
 .search-input-wrap {
@@ -133,24 +132,64 @@ view, text, scroll-view, picker, input, button, image {
   justify-content: center;
 }
 
-/* 筛选区域 */
+
+
+/* 筛选区域：让背景与列表一致 */
 .filter-section {
   display: flex;
   align-items: center;
   padding: 0 30rpx 20rpx;
-  margin-bottom: 0;
   background: #F5F5F5;
   border-top-left-radius: 30rpx;
   border-top-right-radius: 30rpx;
   overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-  border-bottom: none !important;
-  border-top: none !important;
   position: relative;
   z-index: 1;
   min-height: 85rpx;
   justify-content: space-around;
 }
+
+/* 手动下拉刷新 */
+.manual-refresher {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #F5F5F5;
+  transition: height 0.2s ease-out, opacity 0.2s;
+}
+
+.dot-container {
+  display: flex;
+  gap: 12rpx;
+  padding: 20rpx 0;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #38C7D4;
+}
+
+.dot.animating {
+  animation: dot-pulse 1s infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
 
 .filter-item {
   flex: 1;

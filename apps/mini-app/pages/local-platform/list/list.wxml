@@ -3,132 +3,138 @@
 <message-notification />
 
 <view class="container">
-  <!-- 固定顶部区域（包含背景、导航栏、图片、搜索框、筛选） -->
-  <view class="fixed-header">
-    <!-- 固定顶部背景 -->
-    <view class="fixed-top-bg"></view>
-    <!-- 自定义导航栏 -->
-    <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
-    <!-- 顶部图片 -->
-    <view class="top-image-container">
-      <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
-    </view>
+  <!-- 自定义导航栏：真正固定不动 -->
+  <custom-nav-bar id="local-platform-nav-bar" showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
 
-    <!-- 搜索栏 -->
-    <view class="search-bar">
-      <view class="search-input-wrap">
-        <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
-        <input class="search-input" type="text" placeholder="搜索校促会名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-        <view class="search-button" bindtap="onSearch">搜索</view>
-      </view>
-    </view>
-
-    <!-- 筛选区域 -->
-    <view class="filter-section">
-      <!-- 城市筛选 -->
-      <view class="filter-item">
-        <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
-          <text>{{regionDisplayText || '全部城市'}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 注册时间筛选 -->
-      <view class="filter-item">
-        <picker bindchange="onSortChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
-          <text>{{filters[1].selected === 0 ? '注册时间' : filters[1].options[filters[1].selected]}}</text>
-        </picker>
-        <text class="filter-arrow">▾</text>
-      </view>
-      <!-- 关注筛选 -->
-      <view class="filter-item" bindtap="onFollowChange">
-        <text>我的关注</text>
-        <text class="filter-arrow">▾</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 校促会列表（使用 scroll-view 实现下拉刷新） -->
+  <!-- 全局滚动容器 -->
   <scroll-view
-    class="list-scroll-view"
-    style="height: calc(100vh - {{fixedHeaderHeight}}px);"
+    class="main-scroller"
     scroll-y="{{true}}"
-    refresher-enabled="{{true}}"
-    refresher-triggered="{{refreshing}}"
-    refresher-threshold="{{80}}"
-    refresher-default-style="black"
-    refresher-background="#F5F5F5"
-    bindrefresherrefresh="onScrollViewRefresh"
-    bindscrolltolower="onReachBottom"
-    lower-threshold="100"
     enhanced="{{true}}"
+    bounces="{{false}}"
     show-scrollbar="{{false}}"
+    bindscroll="onScroll"
+    bindscrolltolower="onReachBottom"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    lower-threshold="100"
   >
-    <view class="platform-list">
-      <view class="platform-card" wx:for="{{platformList}}" wx:key="platformId" bindtap="viewDetail" data-id="{{item.platformId}}">
-        <!-- 背景图片 -->
-        <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
-          <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
-          <!-- 右上角图标 -->
-          <image class="platform-crate-icon" src="/assets/icons/crate.png" catchtap="goToCreate" data-platform-name="{{item.platformName}}" />
-          <!-- 头像 -->
-          <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" />
-          <!-- 名称、城市 -->
-          <view class="info-on-bg">
-            <view class="title-row">
-              <text class="card-title-on-bg">{{item.platformName}}</text>
-            </view>
-            <view class="card-subtitle-on-bg">
-              <image class="subtitle-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
-              <text>{{item.city}}</text>
-            </view>
+    <!-- 顶部非吸顶区域：只有图片 -->
+    <view class="banner-area">
+      <view class="top-image-container">
+        <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
+      </view>
+    </view>
+
+    <!-- 核心布局：把吸顶 Header 和 列表内容放在同一个容器下，确保吸顶边界涵盖整个列表 -->
+    <view class="sticky-wrapper">
+      <!-- 真正吸顶的组件：使用 native sticky -->
+      <view class="sticky-header-container" style="position: sticky; top: 0; z-index: 100;">
+        <!-- 搜索栏 -->
+        <view class="search-bar">
+          <view class="search-input-wrap">
+            <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
+            <input class="search-input" type="text" placeholder="搜索校促会名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+            <view class="search-button" bindtap="onSearch">搜索</view>
           </view>
         </view>
 
-        <!-- 无背景图片时的布局 -->
-        <view wx:else class="no-bg-header">
-          <image class="platform-avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="card-info">
-            <view class="card-title-row">
-              <text class="card-title">{{item.platformName}}</text>
-            </view>
-            <view class="card-subtitle">
-              <image class="subtitle-icon" src="{{iconLocation}}" mode="aspectFit" />
-              <text>{{item.city}}</text>
-            </view>
+        <!-- 筛选区域 -->
+        <view class="filter-section">
+          <!-- 城市筛选 -->
+          <view class="filter-item">
+            <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
+              <text>{{regionDisplayText || '全部城市'}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
           </view>
-        </view>
-
-        <!-- 头部：范围和联系方式 -->
-        <view class="card-header">
-          <view class="card-info">
-            <!-- 范围信息 -->
-            <view class="card-scope" wx:if="{{item.scope}}">
-              <image class="scope-icon" src="{{iconScope}}" mode="aspectFit" />
-              <text>{{item.scope}}</text>
-            </view>
-
-            <!-- 联系方式 -->
-            <view class="card-contact" wx:if="{{item.contactInfo}}">
-              <image class="contact-icon" src="{{iconContact}}" mode="aspectFit" />
-              <text>{{item.contactInfo}}</text>
-            </view>
+          <!-- 注册时间筛选 -->
+          <view class="filter-item">
+            <picker bindchange="onSortChange" range="{{filters[1].options}}" value="{{filters[1].selected}}">
+              <text>{{filters[1].selected === 0 ? '注册时间' : filters[1].options[filters[1].selected]}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
+          </view>
+          <!-- 关注筛选 -->
+          <view class="filter-item" bindtap="onFollowChange">
+            <text>我的关注</text>
+            <text class="filter-arrow">▾</text>
           </view>
         </view>
       </view>
 
-      <!-- 加载状态 -->
-      <view wx:if="{{loading && !refreshing}}" class="loading-text">加载中...</view>
-
-      <!-- 没有更多数据 -->
-      <view wx:if="{{!loading && !hasMore && platformList.length > 0}}" class="loading-text">没有更多了</view>
-
-      <!-- 空状态 -->
-      <view wx:if="{{!loading && platformList.length === 0}}" class="empty-state">
-        <text>暂无数据</text>
+      <!-- 手动下拉刷新区域 -->
+      <view class="manual-refresher" style="height: {{refresherHeight}}px; opacity: {{refresherHeight > 0 ? 1 : 0}};">
+        <view class="dot-container">
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+        </view>
       </view>
 
-      <!-- 底部安全区域 -->
-      <view class="bottom-safe-area"></view>
+      <view class="platform-list" id="school-list-start">
+        <view class="platform-card" wx:for="{{platformList}}" wx:key="platformId" bindtap="viewDetail" data-id="{{item.platformId}}">
+          <!-- 背景图片 -->
+          <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
+            <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
+            <!-- 右上角图标 -->
+            <image class="platform-crate-icon" src="/assets/icons/crate.png" catchtap="goToCreate" data-platform-name="{{item.platformName}}" />
+            <!-- 头像 -->
+            <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" />
+            <!-- 名称、城市 -->
+            <view class="info-on-bg">
+              <view class="title-row">
+                <text class="card-title-on-bg">{{item.platformName}}</text>
+              </view>
+              <view class="card-subtitle-on-bg">
+                <image class="subtitle-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
+                <text>{{item.city}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 无背景图片时的布局 -->
+          <view wx:else class="no-bg-header">
+            <image class="platform-avatar" src="{{item.avatar}}" mode="aspectFill" />
+            <view class="card-info">
+              <view class="card-title-row">
+                <text class="card-title">{{item.platformName}}</text>
+              </view>
+              <view class="card-subtitle">
+                <image class="subtitle-icon" src="{{iconLocation}}" mode="aspectFit" />
+                <text>{{item.city}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 头部：范围和联系方式 -->
+          <view class="card-header">
+            <view class="card-info">
+              <!-- 范围信息 -->
+              <view class="card-scope" wx:if="{{item.scope}}">
+                <image class="scope-icon" src="{{iconScope}}" mode="aspectFit" />
+                <text>{{item.scope}}</text>
+              </view>
+
+              <!-- 联系方式 -->
+              <view class="card-contact" wx:if="{{item.contactInfo}}">
+                <image class="contact-icon" src="{{iconContact}}" mode="aspectFit" />
+                <text>{{item.contactInfo}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 加载状态 -->
+        <view wx:if="{{loading && !refreshing}}" class="loading-text">加载中...</view>
+        <view wx:if="{{!loading && !hasMore && platformList.length > 0}}" class="loading-text">没有更多了</view>
+        <view wx:if="{{!loading && platformList.length === 0}}" class="empty-state">
+          <text>暂无数据</text>
+        </view>
+
+        <view class="bottom-safe-area"></view>
+      </view>
     </view>
   </scroll-view>
 </view>
