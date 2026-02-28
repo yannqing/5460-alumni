@@ -14,7 +14,7 @@
     <view class="article-list">
     <block wx:for="{{articleList}}" wx:key="id">
       <!-- 文章卡片 -->
-      <view class="block_9">
+      <view class="block_9" bindtap="viewDetail" data-id="{{item.id}}">
         <view class="section_7">
           <view class="box_9">
             <text lines="1" class="text_24">{{item.nickname}}</text>
@@ -29,6 +29,9 @@
           <view class="edit-action">
             <view class="edit-btn-wrapper" catchtap="onEditTap" data-id="{{item.id}}">
               <text lines="1" class="edit-btn-text">编辑</text>
+            </view>
+            <view class="delete-btn-wrapper" catchtap="onDeleteTap" data-id="{{item.id}}">
+              <text lines="1" class="delete-btn-text">删除</text>
             </view>
           </view>
         </view>

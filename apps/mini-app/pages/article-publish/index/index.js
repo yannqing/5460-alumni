@@ -24,16 +24,21 @@ Page({
     coverImage: '',
     coverImgId: '', // 封面图文件ID，用于发布文章时传给后端
     articleType: 3, // 默认第三方链接类型，固定值：3-第三方链接
-    publishType: 'ALUMNI', // 默认校友发布类型，可选：ALUMNI-校友，ASSOCIATION-校友会，LOCAL_PLATFORM-校促会
+    publishType: 0, // 默认校友会发布类型，可选：0-校友会，1-校促会
+    showOnHomepage: 0, // 是否在首页展示：0-不展示，1-展示
+    childArticles: [], // 子文章列表
     articleTypes: [
       { value: 1, label: '公众号' },
       { value: 2, label: '内部路径' },
       { value: 3, label: '第三方链接' }
     ],
     publishTypes: [
-      { value: 'ALUMNI', label: '校友' },
-      { value: 'ASSOCIATION', label: '校友会' },
-      { value: 'LOCAL_PLATFORM', label: '校促会' }
+      { value: 0, label: '校友会' },
+      { value: 1, label: '校促会' }
+    ],
+    showOnHomepageOptions: [
+      { value: 0, label: '不展示' },
+      { value: 1, label: '展示' }
     ],
     // 发布者选择相关数据
     selectedPublisherId: '',
@@ -47,8 +52,6 @@ Page({
   },
 
   onLoad(options) {
-    // 创建搜索防抖函数
-    this.searchPublisherDebounced = debounce(this.searchPublisher, 500)
   },
 
   onShow() {
@@ -176,18 +179,190 @@ Page({
 
   // 发布者类型选择变化
   onPublishTypeChange(e) {
+    const publishType = parseInt(e.detail.value)
     this.setData({
-      publishType: e.detail.value
+      publishType: publishType
+    })
+    
+    // 选择发布者类型后，自动获取组织列表
+    this.getManagedOrganizations()
+  },
+
+  // 是否在首页展示选择变化
+  onShowOnHomepageChange(e) {
+    this.setData({
+      showOnHomepage: parseInt(e.detail.value)
     })
   },
 
+  // 添加子文章
+  addChildArticle() {
+    const { childArticles, articleType } = this.data
+    const newChildArticle = {
+      articleTitle: '',
+      coverImage: '',
+      coverImgId: '',
+      coverImg: null,
+      description: '',
+      articleType: articleType, // 与主文章类型一致
+      articleLink: '',
+      articleFile: null,
+      metaData: '{}'
+    }
+    childArticles.push(newChildArticle)
+    this.setData({
+      childArticles: childArticles
+    })
+  },
+
+  // 删除子文章
+  deleteChildArticle(e) {
+    const { index } = e.currentTarget.dataset
+    const childArticles = this.data.childArticles || []
+    if (index >= 0 && index < childArticles.length) {
+      childArticles.splice(index, 1)
+      this.setData({
+        childArticles: childArticles
+      })
+    }
+  },
+
+  // 子文章输入
+  onChildArticleInput(e) {
+    const { index, field } = e.currentTarget.dataset
+    const { value } = e.detail
+    const childArticles = this.data.childArticles || []
+    if (index >= 0 && index < childArticles.length) {
+      childArticles[index] = {
+        ...childArticles[index],
+        [field]: value
+      }
+      this.setData({
+        childArticles: childArticles
+      })
+    }
+  },
+
+  // 选择子文章封面图
+  chooseChildArticleCoverImage(e) {
+    const { index } = e.currentTarget.dataset
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFiles[0].tempFilePath
+        const childArticles = this.data.childArticles || []
+        if (index >= 0 && index < childArticles.length) {
+          childArticles[index] = {
+            ...childArticles[index],
+            coverImage: tempFilePath
+          }
+          this.setData({
+            childArticles: childArticles
+          })
+
+          // 上传图片到服务器
+          this.uploadChildArticleCoverImage(tempFilePath, index)
+        }
+      }
+    })
+  },
+
+  // 上传子文章封面图到服务器
+  uploadChildArticleCoverImage(filePath, index) {
+    wx.showLoading({
+      title: '上传中...'
+    })
+
+    // 使用文件上传工具上传图片
+    const { fileApi } = require('../../../api/api')
+    fileApi.uploadImage(filePath)
+      .then(res => {
+        wx.hideLoading()
+
+        // 详细日志，用于调试
+        console.log('上传子文章图片返回完整数据:', JSON.stringify(res))
+        console.log('res.code:', res.code)
+        console.log('res.data:', JSON.stringify(res.data))
+
+        if (res.code === 200) {
+          // 确保res.data是对象
+          const fileData = res.data;
+          if (typeof fileData !== 'object' || fileData === null) {
+            console.error('上传成功，但res.data不是对象:', fileData);
+            wx.showToast({
+              title: '数据格式错误',
+              icon: 'none'
+            });
+            return;
+          }
+
+          // 直接从res.data获取fileId，根据接口文档这是正确的格式
+          const fileId = fileData.fileId !== undefined && fileData.fileId !== null ? fileData.fileId : 0;
+          console.log('直接获取fileId:', fileId, '类型:', typeof fileId);
+
+          // 保存为字符串类型，避免超大整数精度丢失
+          // JavaScript的number类型精度有限，超大整数会丢失精度
+          const stringFileId = String(fileId);
+          console.log('转换为string后:', stringFileId, '类型:', typeof stringFileId);
+
+          if (stringFileId && stringFileId !== '0') {
+            // 保存封面图文件ID，使用字符串类型避免精度丢失
+            const childArticles = this.data.childArticles || []
+            if (index >= 0 && index < childArticles.length) {
+              childArticles[index] = {
+                ...childArticles[index],
+                coverImgId: stringFileId,
+                coverImg: stringFileId
+              }
+              this.setData({
+                childArticles: childArticles
+              })
+
+              // 立即打印保存后的值，用于调试
+              console.log('保存后的子文章coverImgId:', childArticles[index].coverImgId)
+              console.log('coverImgId类型:', typeof childArticles[index].coverImgId)
+
+              wx.showToast({
+                title: '上传成功',
+                icon: 'success'
+              })
+            }
+          } else {
+            console.error('上传成功，但fileId无效:', fileId);
+            wx.showToast({
+              title: '未获取到有效的文件ID',
+              icon: 'none'
+            })
+          }
+        } else {
+          console.error('上传失败:', res.msg || '未知错误');
+          wx.showToast({
+            title: res.msg || '上传失败',
+            icon: 'none'
+          })
+        }
+      })
+      .catch(err => {
+        wx.hideLoading()
+        console.error('上传子文章封面图失败:', err)
+        wx.showToast({
+          title: '网络错误，请稍后重试',
+          icon: 'none'
+        })
+      })
+  },
+
+
+
   // 显示发布者选择器
   showPublisherSelector() {
-    this.setData({
-      showPublisherPicker: true,
-      publisherSearchKeyword: '',
-      publisherList: [],
-      showPublisherSearchResults: false
+    // 先获取组织列表，然后再显示选择器
+    this.getManagedOrganizations().then(() => {
+      this.setData({
+        showPublisherPicker: true
+      })
     })
   },
 
@@ -195,102 +370,50 @@ Page({
   cancelPublisherSelect() {
     this.setData({
       showPublisherPicker: false,
-      publisherSearchKeyword: '',
-      publisherList: [],
-      showPublisherSearchResults: false
+      publisherList: []
     })
   },
 
-  // 处理发布者搜索输入
-  onPublisherSearchInput(e) {
-    const value = e.detail.value
-    this.setData({
-      publisherSearchKeyword: value
-    })
 
-    if (value.trim()) {
-      this.searchPublisherDebounced(value)
-    } else {
-      this.setData({ publisherList: [] })
-    }
-  },
 
-  // 处理发布者搜索输入框聚焦
-  onPublisherSearchFocus() {
-    if (this.data.publisherSearchKeyword) {
-      this.searchPublisher(this.data.publisherSearchKeyword)
-    }
-  },
-
-  // 搜索发布者
-  async searchPublisher(keyword) {
-    if (!keyword) { return }
-
+  // 获取组织列表
+  async getManagedOrganizations() {
     const { publishType } = this.data
     try {
-      let res
+      // 使用新的接口获取管理的组织列表
+      const { homeArticleApi } = require('../../../api/api')
+      const res = await homeArticleApi.getManagedOrganizations({
+        organizationType: publishType
+      })
 
-      // 根据发布者类型调用不同的API
-      if (publishType === 'ALUMNI') {
-        // 搜索校友
-        res = await alumniApi.queryAlumniList({
-          current: 1,
-          pageSize: 10,
-          name: keyword.trim()
-        })
+      console.log('获取组织列表接口返回:', JSON.stringify(res))
 
-        if (res.data && res.data.code === 200) {
-          // 处理校友搜索结果，保留完整信息
-          const alumniList = res.data.data.records || []
-          const publisherList = alumniList.map(alumni => ({
-            id: alumni.wxId || alumni.id || alumni.userId || '',
-            name: alumni.name || alumni.nickname || alumni.realName || '未命名',
-            avatarUrl: alumni.avatarUrl,
-            school: alumni.school
-          }))
+      // 检查接口返回格式（与 publishArticle 方法保持一致）
+      if (res.data && res.data.code === 200) {
+        // 处理结果
+        const organizationList = res.data.data || []
+        console.log('组织列表:', JSON.stringify(organizationList))
+        // 转换为发布者列表格式
+        const publisherList = organizationList.map(org => ({
+          id: org.organizationId || '',
+          name: org.organizationName || '未命名',
+          avatar: org.avatar || '',
+          memberCount: org.memberCount || 0,
+          monthlyHomepageArticleQuota: org.monthlyHomepageArticleQuota || 0
+        }))
 
-          this.setData({ publisherList })
-        }
-      } else if (publishType === 'ASSOCIATION') {
-        // 搜索校友会
-        res = await associationApi.getAssociationList({
-          current: 1,
-          pageSize: 10,
-          associationName: keyword.trim()
-        })
-
-        if (res.data && res.data.code === 200) {
-          // 处理校友会搜索结果
-          const associationList = res.data.data.records || []
-          const publisherList = associationList.map(association => ({
-            id: association.id || association.associationId || '',
-            name: association.associationName || '未命名'
-          }))
-
-          this.setData({ publisherList })
-        }
-      } else if (publishType === 'LOCAL_PLATFORM') {
-        // 搜索校促会
-        res = await localPlatformApi.getLocalPlatformPage({
-          current: 1,
-          pageSize: 10,
-          platformName: keyword.trim()
-        })
-
-        if (res.data && res.data.code === 200) {
-          // 处理校促会搜索结果
-          const platformList = res.data.data.records || []
-          const publisherList = platformList.map(platform => ({
-            id: platform.id || platform.platformId || '',
-            name: platform.platformName || '未命名'
-          }))
-
-          this.setData({ publisherList })
-        }
+        console.log('发布者列表:', JSON.stringify(publisherList))
+        this.setData({ publisherList })
+        return publisherList
+      } else {
+        console.error('获取组织列表失败:', res.data?.msg || res.msg || '未知错误')
+        this.setData({ publisherList: [] })
+        return []
       }
     } catch (e) {
-      console.error('搜索发布者失败:', e)
+      console.error('获取组织列表失败:', e)
       this.setData({ publisherList: [] })
+      return []
     }
   },
 
@@ -308,7 +431,7 @@ Page({
 
   // 发布文章
   publishArticle() {
-    const { title, content, articleLink, coverImgId, articleType, publishType, selectedPublisherId, selectedPublisherName } = this.data
+    const { title, content, articleLink, coverImgId, articleType, publishType, selectedPublisherId, selectedPublisherName, showOnHomepage, childArticles } = this.data
 
     if (!title.trim()) {
       wx.showToast({
@@ -332,6 +455,25 @@ Page({
         icon: 'none'
       })
       return
+    }
+
+    // 验证子文章
+    for (let i = 0; i < childArticles.length; i++) {
+      const childArticle = childArticles[i]
+      if (!childArticle.articleTitle || !childArticle.articleTitle.trim()) {
+        wx.showToast({
+          title: `子文章 ${i + 1}：请输入文章标题`,
+          icon: 'none'
+        })
+        return
+      }
+      if (!childArticle.articleType) {
+        wx.showToast({
+          title: `子文章 ${i + 1}：请选择文章类型`,
+          icon: 'none'
+        })
+        return
+      }
     }
 
     wx.showLoading({
@@ -361,11 +503,14 @@ Page({
       articleTitle: title.trim(),
       description: content.trim(),
       articleStatus: 1, // 默认启用状态
+      showOnHomepage: showOnHomepage, // 是否在首页展示：0-不展示，1-展示
+      childArticles: childArticles // 子文章列表
     }
 
     // 固定文章类型为第三方链接
     requestData.articleType = 3
-    requestData.publishType = publishType
+    // 将 publishType 转换为对应的字符串类型
+    requestData.publishType = publishType === 0 ? 'ASSOCIATION' : 'LOCAL_PLATFORM'
 
     // 添加文章链接
     if (articleLink.trim()) {
