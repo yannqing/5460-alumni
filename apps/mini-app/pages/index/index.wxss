@@ -1,29 +1,28 @@
 /* pages/index/index.wxss */
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: #f8f8f8;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.main-scroller {
+  flex: 1;
+  height: 100%;
+  width: 100%;
 }
 
 /* 顶部 Banner */
 .header-banner {
   height: 450rpx;
   position: relative;
-  left: 0;
-  right: 0;
   z-index: 10;
-  overflow: hidden;
 }
 
 .banner-swiper {
   width: 100%;
   height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
 }
 
 .banner-image {
@@ -36,10 +35,6 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(180deg, #40B2E6 0%, #6BC5ED 100%);
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
 }
 
 .banner-content {
@@ -55,11 +50,11 @@
   flex-direction: column;
   align-items: center;
   z-index: 1;
-  pointer-events: none; /* 允许触摸事件穿透到 swiper */
+  pointer-events: none;
 }
 
 .platform-tag {
-  pointer-events: auto; /* logo 区域恢复触摸事件 */
+  pointer-events: auto;
 }
 
 /* 轮播图指示器样式 */
@@ -86,56 +81,47 @@
   display: block;
 }
 
-.slogan-container {
-  margin-top: 180rpx;
-  display: flex;
-  align-items: baseline;
-  gap: 20rpx;
+/* 把 Banner 和 Nav 组合在一起的容器 */
+.sticky-header-group {
+  width: 100%;
+  pointer-events: none; /* 穿透到内部元素 */
 }
 
-.slogan-main {
-  font-size: 56rpx;
-  font-weight: bold;
-  font-style: italic;
-  letter-spacing: 4rpx;
-}
-
-.slogan-side {
-  font-size: 28rpx;
-  opacity: 0.8;
-}
-
-.sub-slogan {
-  font-size: 32rpx;
-  margin-top: 24rpx;
-  opacity: 0.95;
-  font-weight: 500;
+.sticky-header-group > view {
+  pointer-events: auto; /* 内部元素恢复交互 */
 }
 
 /* 导航区域 */
 .nav-container {
   margin: -120rpx 15rpx 0;
   background-color: #fff;
-  border-radius: 20rpx;
+  border-top-left-radius: 20rpx;
+  border-top-right-radius: 20rpx;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   padding: 60rpx 20rpx 35rpx;
+  /* 显式提升层级，确保在轮播图之上 */
   position: relative;
-  left: 0;
-  right: 0;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
   z-index: 20;
-  transition: all 0.3s ease;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  transition: all 0.25s ease-out;
 }
 
-/* 导航区域固定在顶部的样式 */
+/* 导航区域被吸顶时的状态 (已取消扩展示效，保持卡片感) */
 .nav-container.fixed {
-  position: fixed;
-  top: 0;
-  left: 15rpx;
-  right: 15rpx;
-  margin-top: 0;
-  border-radius: 0 0 20rpx 20rpx;
-  z-index: 999;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  margin-left: 15rpx;
+  margin-right: 15rpx;
+  border-top-left-radius: 20rpx;
+  border-top-right-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  background-color: #fff;
+}
+
+.scroll-sentinel {
+  height: 1rpx;
+  width: 100%;
+  visibility: hidden;
 }
 
 .nav-header {
@@ -216,36 +202,18 @@
   font-weight: 500;
 }
 
-/* 文章列表容器 */
+/* 文章列表容器：这就相当于"局部滑动"的负载区域 */
 .article-container {
   background-color: #f8f8f8;
   margin-top: 0;
   position: relative;
   z-index: 5;
-  height: calc(100vh - 220rpx);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-/* 文章列表 scroll-view */
-.article-scroll-view {
-  width: 100%;
-  background-color: #f8f8f8;
-  margin-top: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  height: 100%;
-}
-
-/* 滚动条样式 */
-.article-scroll-view::-webkit-scrollbar {
-  width: 0;
-  display: none;
+  min-height: calc(100vh - 200rpx); /* 确保哪怕列表短，也能触发有惯性的滑动感 */
 }
 
 /* 文章列表 */
 .article-list {
-  padding: 0 0 20rpx 0;
+  padding: 0 0 100rpx 0; /* 增加底部内边距，确保最下方内容显示全（不被底部导航遮挡） */
   background-color: #f8f8f8;
   margin-top: 0;
 }
