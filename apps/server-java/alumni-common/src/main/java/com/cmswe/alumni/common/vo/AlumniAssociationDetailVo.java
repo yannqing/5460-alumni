@@ -84,6 +84,12 @@ public class AlumniAssociationDetailVo implements Serializable {
     @Schema(description = "企业列表")
     private List<AlumniPlaceListVo> enterpriseList;
 
+    /**
+     * 文章列表
+     */
+    @Schema(description = "文章列表（已发布的文章）")
+    private List<HomePageArticleVo> articleList;
+
 
     @Serial
     private static final long serialVersionUID = 1L;

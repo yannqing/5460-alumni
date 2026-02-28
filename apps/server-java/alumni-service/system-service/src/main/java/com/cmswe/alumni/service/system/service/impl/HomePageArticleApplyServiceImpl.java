@@ -84,9 +84,22 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
         article.setReviewedTime(LocalDateTime.now());
         article.setUpdateTime(LocalDateTime.now());
 
-        // 5. 如果审核通过，同时更新文章状态为启用
+        // 5. 如果审核通过，同时更新文章状态为启用，并扣除首页配额
         if (applyStatus == 1) {
             article.setArticleStatus(1); // 1-启用
+
+            // 如果文章要展示在首页，扣除对应组织的配额
+            if (article.getShowOnHomepage() != null && article.getShowOnHomepage() == 1) {
+                try {
+                    homePageArticleService.checkAndDeductQuota(article.getPublishType(), article.getPublishWxId());
+                    log.info("审核通过，已扣除首页文章配额 - ArticleId: {}, PublishType: {}, PublishId: {}",
+                            articleId, article.getPublishType(), article.getPublishWxId());
+                } catch (Exception e) {
+                    log.error("扣除首页文章配额失败 - ArticleId: {}, Error: {}", articleId, e.getMessage());
+                    throw new BusinessException("审核通过但配额扣除失败: " + e.getMessage());
+                }
+            }
+
             log.info("审核通过，文章已启用 - ArticleId: {}", articleId);
         } else {
             // 审核拒绝，设置文章状态为禁用
@@ -95,6 +108,36 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
         }
 
         boolean result = homePageArticleService.updateById(article);
+
+        // 6. 如果是父文章（pid=0），同步更新所有子文章的审核状态
+        if (result && article.getPid() == 0L) {
+            List<HomePageArticle> childArticles = homePageArticleService.list(
+                    new LambdaQueryWrapper<HomePageArticle>()
+                            .eq(HomePageArticle::getPid, articleId)
+            );
+
+            if (!childArticles.isEmpty()) {
+                // 批量更新子文章状态
+                for (HomePageArticle child : childArticles) {
+                    child.setApplyStatus(applyStatus);
+                    child.setArticleStatus(article.getArticleStatus()); // 与父文章保持一致
+                    child.setReviewerWxId(approverWxId);
+                    child.setReviewerName(approverName);
+                    child.setReviewOpinion(approveDto.getAppliedDescription());
+                    child.setReviewedTime(LocalDateTime.now());
+                    child.setUpdateTime(LocalDateTime.now());
+                }
+
+                boolean batchResult = homePageArticleService.updateBatchById(childArticles);
+                if (batchResult) {
+                    log.info("已同步更新子文章审核状态 - ParentArticleId: {}, ChildCount: {}, Status: {}",
+                            articleId, childArticles.size(), applyStatus);
+                } else {
+                    log.error("同步更新子文章审核状态失败 - ParentArticleId: {}", articleId);
+                    throw new BusinessException("父文章审核成功，但子文章同步失败");
+                }
+            }
+        }
 
         if (result) {
             log.info("审核文章成功 - ArticleId: {}, Status: {}, Approver: {}",

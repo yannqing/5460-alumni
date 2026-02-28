@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 新增首页文章请求 DTO
@@ -51,6 +52,15 @@ public class CreateHomePageArticleDto implements Serializable {
     @Schema(description = "发布者名称", example = "张三")
     private String publishUsername;
 
-    @Schema(description = "发布者类型枚举（alumni，association）", example = "alumni")
+    @Schema(description = "发布者类型枚举（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）", example = "ASSOCIATION")
     private String publishType;
+
+    @Schema(description = "发布者头像", example = "https://example.com/avatar.jpg")
+    private String publisherAvatar;
+
+    @Schema(description = "是否展示在首页（0-不展示，1-展示）", example = "0")
+    private Integer showOnHomepage;
+
+    @Schema(description = "子文章列表（可选，子文章会继承父文章的发布者信息）")
+    private List<CreateChildArticleDto> childArticles;
 }

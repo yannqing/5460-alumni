@@ -75,6 +75,13 @@ Page({
       iconType: 'image',
       url: '/pages/audit/schooloffice/organization/organization'
     },
+    {
+      id: 4,
+      name: '文章管理',
+      icon: config.getIconUrl('xyhsh@3x.png'),
+      iconType: 'image',
+      url: '/pages/audit/article/manage/manage'
+    },
       // {
       //   id: 4,
       //   name: '资料库',
@@ -163,6 +170,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/info-maintenance/index/index'
+      },
+      {
+        id: 9,
+        name: '文章管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/article/manage/manage'
       },
       // {
       //   id: 4,
@@ -371,6 +385,8 @@ Page({
         return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
       } else if (item.name === '架构管理') {
         return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
+      } else if (item.name === '文章管理') {
+        return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
       }
       return false
     })
@@ -394,6 +410,8 @@ Page({
         return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT')
       } else if (item.name === '信息维护') {
         return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION')
+      } else if (item.name === '文章管理') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_ARTICLE_MANAGEMENT')
       }
       return false
     })
