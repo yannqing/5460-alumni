@@ -1,97 +1,106 @@
 <view class="container">
-  <!-- 使用 scroll-view 代替页面原生滚动，以获得更流畅的"局部滑动"感和更丰富的控制 -->
+  <!-- 顶部 Logo：外置到 scroll-view 之外，实现真正的全场固定 -->
+  <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
+    <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
+  </view>
+
+  <!-- 使用 scroll-view 代替页面原生滚动 -->
   <scroll-view 
     class="main-scroller" 
     scroll-y 
     enhanced 
+    bounces="{{false}}"
     show-scrollbar="{{false}}" 
     fast-deceleration="{{true}}"
     scroll-anchoring="{{true}}"
     bindscrolltolower="onReachBottom"
     bindscroll="onScroll"
     scroll-with-animation
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    lower-threshold="200"
   >
-    <!-- 把 Banner 和校友功能卡片包在一起，实现"相对静止"移动 -->
-    <view class="sticky-header-group" style="position: sticky; top: {{stickyGroupTop}}px; z-index: 200;">
-      <!-- 顶部 Banner 区域 -->
-      <view class="header-banner">
-        <swiper 
-          wx:if="{{bannerList.length > 0}}"
-          class="banner-swiper" 
-          indicator-dots="{{bannerList.length > 1}}"
-          autoplay="{{bannerList.length > 1}}"
-          interval="3000"
-          duration="500"
-          circular="{{bannerList.length > 1}}"
-          bindchange="onBannerChange"
-        >
-          <swiper-item wx:for="{{bannerList}}" wx:key="bannerId" wx:for-item="banner">
-            <image class="banner-image" src="{{banner.imageUrl}}" mode="aspectFill" lazy-load></image>
-          </swiper-item>
-        </swiper>
-        <view wx:else class="banner-default-bg"></view>
-        
-        <view class="banner-content">
-          <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
-            <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
-          </view>
-        </view>
-      </view>
 
-      <!-- 导航菜单区域：校友功能容器 -->
-      <!-- 它们在同一个组合里，相对静止，一起由组合的 sticky top 控制位置 -->
-      <view class="nav-container {{navFixed ? 'fixed' : ''}}">
-        <view class="nav-header">
-          <view class="nav-title-tag">校友功能</view>
+
+    <!-- 核心布局建议：将吸顶 Header 和 列表内容放在同一个容器下，确保吸顶边界涵盖整个列表 -->
+    <view class="sticky-wrapper">
+      <!-- 把 Banner 和校友功能卡片包在一起，实现"相对静止"移动 -->
+      <view class="sticky-header-group" style="position: sticky; top: {{stickyGroupTop}}px; z-index: 200;">
+        <!-- 顶部 Banner 区域 -->
+        <view class="header-banner">
+          <swiper 
+            wx:if="{{bannerList.length > 0}}"
+            class="banner-swiper" 
+            indicator-dots="{{bannerList.length > 1}}"
+            autoplay="{{bannerList.length > 1}}"
+            interval="3000"
+            duration="500"
+            circular="{{bannerList.length > 1}}"
+            bindchange="onBannerChange"
+          >
+            <swiper-item wx:for="{{bannerList}}" wx:key="bannerId" wx:for-item="banner">
+              <image class="banner-image" src="{{banner.imageUrl}}" mode="aspectFill" lazy-load></image>
+            </swiper-item>
+          </swiper>
+          <view wx:else class="banner-default-bg"></view>
+          
+          <view class="banner-content">
+            <!-- 原本在这里的 logo 已移出 -->
+          </view>
         </view>
-        <view class="nav-grid">
-          <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
-            <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
-            <text class="nav-text">校友总会</text>
+
+        <!-- 导航菜单区域：校友功能容器 -->
+        <!-- 它们在同一个组合里，相对静止，一起由组合的 sticky top 控制位置 -->
+        <view class="nav-container {{navFixed ? 'fixed' : ''}}">
+          <view class="nav-header">
+            <view class="nav-title-tag">校友功能</view>
           </view>
-          <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
-            <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
-            <text class="nav-text">校友会</text>
-          </view>
-          <view class="nav-item" bindtap="navTo" data-url="/pages/alumni/list/list">
-            <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
-            <text class="nav-text">校友</text>
-          </view>
-          <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list" data-disabled="true">
-            <view class="nav-icon-wrapper">
-              <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
-              <view class="nav-construction-tag">建设中</view>
+          <view class="nav-grid">
+            <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
+              <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
+              <text class="nav-text">校友总会</text>
             </view>
-            <text class="nav-text">商户</text>
-          </view>
-          <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
-            <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
-            <text class="nav-text">城市</text>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
+              <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
+              <text class="nav-text">校友会</text>
+            </view>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/alumni/list/list">
+              <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
+              <text class="nav-text">校友</text>
+            </view>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list" data-disabled="true">
+              <view class="nav-icon-wrapper">
+                <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
+                <view class="nav-construction-tag">建设中</view>
+              </view>
+              <text class="nav-text">商户</text>
+            </view>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
+              <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
+              <text class="nav-text">城市</text>
+            </view>
           </view>
         </view>
       </view>
-    </view>
 
-    <!-- 哨兵节点 -->
-    <view class="scroll-sentinel" id="post-header"></view>
+      <!-- 哨兵节点 -->
+      <view class="scroll-sentinel" id="post-header"></view>
 
-    <!-- 文章列表容器：这就相当于"局部滑动"的负载区域 -->
-    <scroll-view 
-      class="article-container"
-      scroll-y
-      enhanced
-      show-scrollbar="{{false}}"
-      refresher-enabled="{{true}}"
-      refresher-triggered="{{refreshing}}"
-      refresher-threshold="{{50}}"
-      refresher-default-style="black"
-      refresher-background="#f8f8f8"
-      bindrefresherrefresh="onPullDownRefresh"
-    >
-      <view class="article-list">
+      <!-- 手动下拉刷新区域：位于菜单下，文章列表上 -->
+      <view class="manual-refresher" style="height: {{refresherHeight}}px; opacity: {{refresherHeight > 0 ? 1 : 0}};">
+        <view class="dot-container">
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+        </view>
+      </view>
+
+
+      <view class="article-list" id="article-list-start">
         <view class="article-item" wx:for="{{articleList}}" wx:key="id" wx:for-index="idx" bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
           <view class="article-header">
-            <view class="user-info">
+            <view class="user-info" catchtap="onPublisherTap" data-index="{{idx}}">
               <view class="user-avatar-wrapper">
                 <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}" lazy-load></image>
               </view>
@@ -138,7 +147,8 @@
           <text>暂无内容</text>
         </view>
       </view>
-    </scroll-view>
+    </view>
+
   </scroll-view>
 </view>
 <message-notification />

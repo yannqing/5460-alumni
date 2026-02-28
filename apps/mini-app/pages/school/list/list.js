@@ -51,8 +51,17 @@ Page({
     pageSize: 10,
     hasMore: true,
     loading: false,
-    refreshing: false
+    refreshing: false,
+    // 手动刷新相关
+    refresherHeight: 0,
+    scrollTop: 0,
+    // 吸顶相关
+    navFixed: false,
+    scrollThreshold: 100, // 初始高度，后续动态计算
+    headerHeight: 120 // 初始高度，后续动态计算
   },
+
+
 
   async onLoad(options) {
     // 获取系统信息
@@ -77,24 +86,50 @@ Page({
     await this.ensureLogin()
     this.loadSchoolList(true)
 
-    // 计算固定头部高度
-    this.calculateFixedHeaderHeight()
+    // 计算关键高度以用于吸顶和下拉判定
+    this.initMeasurements()
   },
 
-  // 计算固定头部高度
-  calculateFixedHeaderHeight() {
+  /**
+   * 初始化高度测量
+   */
+  initMeasurements() {
     setTimeout(() => {
       const query = wx.createSelectorQuery()
-      query.select('.fixed-header').boundingClientRect()
+      query.select('.banner-area').boundingClientRect()
+      query.select('.sticky-header-container').boundingClientRect()
       query.exec((res) => {
         if (res && res[0]) {
           this.setData({
-            fixedHeaderHeight: res[0].height
+            scrollThreshold: res[0].height
+          })
+        }
+        if (res && res[1]) {
+          this.setData({
+            headerHeight: res[1].height
           })
         }
       })
-    }, 100)
+    }, 500) // 延迟确保布局完成
   },
+
+
+  // 手动计算吸顶阈值
+  initMeasurements() {
+    setTimeout(() => {
+      const query = wx.createSelectorQuery()
+      query.select('.banner-area').boundingClientRect()
+      query.exec((res) => {
+        if (res && res[0]) {
+          this.setData({
+            scrollThreshold: res[0].height
+          })
+          console.log('[SchoolList] measurement result - scrollThreshold:', res[0].height);
+        }
+      })
+    }, 500)
+  },
+
 
   // 初始化省市级数据
   initRegionData() {
@@ -233,16 +268,96 @@ Page({
     this.loadSchoolList(true)
   },
 
+  /**
+   * 滚动事件
+   */
+  onScroll: function (e) {
+    const scrollTop = e.detail.scrollTop;
+    this.setData({ scrollTop: scrollTop });
+
+    // 状态判定：使用一个小偏移量（2px）增加稳定性
+    const threshold = this.data.scrollThreshold || 100;
+    const isFixed = scrollTop >= threshold - 2;
+
+    if (this.data.navFixed !== isFixed) {
+      this.setData({ navFixed: isFixed });
+    }
+  },
+
+
+  /**
+   * 触摸开始事件
+   */
+  onTouchStart: function (e) {
+    this.touchStartX = e.touches[0].clientX;
+    this.touchStartY = e.touches[0].clientY;
+    this.isPullDown = false;
+    this.canPullDown = false;
+
+    // 判定逻辑：只有在顶部且触摸点在吸顶/Header区域下方时才允许
+    const navAndHeaderHeight = this.data.statusBarHeight + this.data.navBarHeight + (this.data.navFixed ? this.data.headerHeight : (this.data.scrollThreshold + this.data.headerHeight));
+
+    // 增加一点偏移容错
+    if (this.data.scrollTop <= 10 && this.touchStartY > navAndHeaderHeight) {
+      this.canPullDown = true;
+      console.log('[SchoolList] PullDown enabled. touchStartY:', this.touchStartY, 'boundary:', navAndHeaderHeight);
+    }
+  },
+
+
+  /**
+   * 触摸移动事件
+   */
+  onTouchMove: function (e) {
+    if (!this.canPullDown || this.data.refreshing) return;
+
+    const touchY = e.touches[0].clientY;
+    const moveY = touchY - this.touchStartY;
+
+    if (moveY > 0) {
+      const height = Math.min(80, moveY * 0.4);
+      this.setData({
+        refresherHeight: height
+      });
+      this.isPullDown = true;
+    }
+  },
+
+  /**
+   * 触摸结束事件
+   */
+  onTouchEnd: function (e) {
+    if (!this.isPullDown) {
+      this.canPullDown = false;
+      return;
+    }
+
+    if (this.data.refresherHeight >= 45) {
+      this.setData({
+        refresherHeight: 50,
+        refreshing: true
+      });
+      this.loadSchoolList(true);
+    } else {
+      this.setData({
+        refresherHeight: 0
+      });
+    }
+    this.isPullDown = false;
+    this.canPullDown = false;
+  },
+
   // 页面级下拉刷新（已禁用）
   onPullDownRefresh() {
     wx.stopPullDownRefresh()
   },
 
-  // scroll-view 下拉刷新
+
+  // scroll-view 下拉刷新 (重写)
   onScrollViewRefresh() {
-    this.setData({ refreshing: true, current: 1 })
     this.loadSchoolList(true)
   },
+
 
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
@@ -351,7 +466,8 @@ Page({
             current: 2, // 下次加载第2页
             hasMore: mappedList.length >= pageSize,
             loading: false,
-            refreshing: false
+            refreshing: false,
+            refresherHeight: 0 // 重置手动刷新高度
           })
         } else {
           this.setData({
@@ -361,6 +477,7 @@ Page({
             loading: false
           })
         }
+
 
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'schoolList', FollowTargetType.SCHOOL)

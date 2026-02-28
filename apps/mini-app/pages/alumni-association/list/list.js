@@ -28,7 +28,10 @@ Page({
     hasMore: true,
     loading: false,
     refreshing: false,
-    fixedHeaderHeight: 300, // 固定顶部区域高度，用于计算滚动区域
+    scrollTop: 0,
+    refresherHeight: 0,
+    scrollThreshold: 100,
+
 
     // 地区筛选（与母校列表页一致）- 自定义省市级选择器（只到市）
     region: [], // 地区选择器的值 [省, 市]
@@ -58,28 +61,30 @@ Page({
     // 初始化省市级数据
     this.initRegionData()
 
-    // 计算固定头部高度
-    this.calculateFixedHeaderHeight()
+    // 计算图片区域高度用于吸顶阈值
+    this.initMeasurements()
+
 
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadAssociationList(true)
   },
 
-  // 计算固定头部高度
-  calculateFixedHeaderHeight() {
+  // 初始化测量数据
+  initMeasurements() {
     setTimeout(() => {
       const query = wx.createSelectorQuery()
-      query.select('.fixed-header').boundingClientRect()
+      query.select('.banner-area').boundingClientRect()
       query.exec((res) => {
         if (res && res[0]) {
           this.setData({
-            fixedHeaderHeight: res[0].height
+            scrollThreshold: res[0].height
           })
         }
       })
-    }, 100)
+    }, 300)
   },
+
 
   // 初始化省市级数据（与母校列表页完全一致）
   initRegionData() {
@@ -223,11 +228,67 @@ Page({
     wx.stopPullDownRefresh()
   },
 
-  // scroll-view 下拉刷新
+  /**
+   * 滚动事件
+   */
+  onScroll: function (e) {
+    this.setData({ scrollTop: e.detail.scrollTop });
+  },
+
+  /**
+   * 触摸开始事件
+   */
+  onTouchStart: function (e) {
+    if (this.data.scrollTop <= 5) {
+      this.startY = e.touches[0].pageY;
+      this.canPull = true;
+    } else {
+      this.canPull = false;
+    }
+  },
+
+  /**
+   * 触摸移动事件
+   */
+  onTouchMove: function (e) {
+    if (!this.canPull || this.data.refreshing) return;
+
+    const moveY = e.touches[0].pageY;
+    const diff = (moveY - this.startY) * 0.5; // 阻尼效果
+
+    if (diff > 0) {
+      this.setData({
+        refresherHeight: Math.min(diff, 80)
+      });
+    }
+  },
+
+  /**
+   * 触摸结束事件
+   */
+  onTouchEnd: function () {
+    if (!this.canPull || this.data.refreshing) return;
+
+    if (this.data.refresherHeight >= 40) {
+      this.setData({
+        refreshing: true,
+        refresherHeight: 60,
+        current: 1
+      });
+      this.loadAssociationList(true);
+    } else {
+      this.setData({
+        refresherHeight: 0
+      });
+    }
+  },
+
+  // scroll-view 下拉刷新（保留兼容接口，主要走 onTouchEnd）
   onScrollViewRefresh() {
     this.setData({ refreshing: true, current: 1 })
     this.loadAssociationList(true)
   },
+
 
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
@@ -248,7 +309,7 @@ Page({
       // 准备请求参数
       let sortField = undefined
       let sortOrder = undefined
-      
+
       // 确定排序字段和顺序
       if (conditionFilter.selected >= 0) {
         const selectedOption = conditionFilter.options[conditionFilter.selected]
@@ -262,7 +323,7 @@ Page({
           }
         }
       }
-      
+
       const params = {
         current: refresh ? 1 : this.data.current,
         pageSize: this.data.pageSize,
@@ -363,7 +424,8 @@ Page({
             current: 1,
             hasMore: list.length >= this.data.pageSize,
             loading: false,
-            refreshing: false
+            refreshing: false,
+            refresherHeight: 0
           })
         } else {
           this.setData({
@@ -381,6 +443,7 @@ Page({
         this.setData({
           loading: false,
           refreshing: false,
+          refresherHeight: 0,
           hasMore: false
         })
         wx.showToast({
@@ -394,6 +457,7 @@ Page({
       this.setData({
         loading: false,
         refreshing: false,
+        refresherHeight: 0,
         hasMore: false
       })
       wx.stopPullDownRefresh()

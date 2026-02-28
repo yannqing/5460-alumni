@@ -42,8 +42,16 @@ Page({
     // 导航菜单是否固定
     navFixed: false,
     // 状态栏高度
-    statusBarHeight: 20
+    statusBarHeight: 20,
+    // 下拉刷新是否启用
+    refresherEnabled: false,
+    // 手动刷新高度
+    refresherHeight: 0,
+    // 当前滚动位置
+    scrollTop: 0
   },
+
+
 
   /**
    * 生命周期函数--监听页面加载
@@ -101,17 +109,18 @@ Page({
    */
   onScroll: function (e) {
     const scrollTop = e.detail.scrollTop;
+    this.setData({ scrollTop: scrollTop }); // 关键：更新当前滚动高度
     const threshold = this.data.scrollThreshold || 77;
 
-    // 增加逻辑判断：仅当跨越临界点一定范围（±5px）时才切换状态，减少 iOS 卡顿
+    // 增加逻辑判断
     if (this.data.navFixed) {
-      if (scrollTop < threshold - 5) {
+      if (scrollTop < threshold) {
         this.setData({
           navFixed: false
         });
       }
     } else {
-      if (scrollTop > threshold + 5) {
+      if (scrollTop >= threshold) {
         this.setData({
           navFixed: true
         });
@@ -120,13 +129,77 @@ Page({
   },
 
   /**
-   * 页面下拉刷新事件处理函数
+   * 触摸开始事件
    */
-  onPullDownRefresh: async function () {
-    console.log('[Index] 下拉刷新触发');
-    this.setData({ refreshing: true });
+  onTouchStart: function (e) {
+    this.touchStartX = e.touches[0].clientX;
+    this.touchStartY = e.touches[0].clientY;
+    this.isPullDown = false;
+    this.canPullDown = false; // 重置标记
+
+    // 获取文章列表的起始位置，判断触摸起点是否在文章列表区域
+    const query = wx.createSelectorQuery();
+    query.select('#article-list-start').boundingClientRect((rect) => {
+      if (rect) {
+        // 只有触摸点在列表开始位置下方，且页面处于顶部（scrollTop很小）时，才允许下拉
+        // 这里用 10 作为容错
+        this.canPullDown = this.touchStartY > rect.top && this.data.scrollTop <= 10;
+        console.log('[Index] TouchStart rect.top:', rect.top, 'touchStartY:', this.touchStartY, 'scrollTop:', this.data.scrollTop, 'canPullDown:', this.canPullDown);
+      }
+    }).exec();
+  },
+
+  /**
+   * 触摸移动事件
+   */
+  onTouchMove: function (e) {
+    if (!this.canPullDown || this.data.refreshing) return;
+
+    const touchY = e.touches[0].clientY;
+    const moveY = touchY - this.touchStartY;
+
+    if (moveY > 0) {
+      // 下拉阻尼感
+      const height = Math.min(80, moveY * 0.4);
+      this.setData({
+        refresherHeight: height
+      });
+      this.isPullDown = true;
+    }
+  },
+
+  /**
+   * 触摸结束事件
+   */
+  onTouchEnd: function (e) {
+    if (!this.isPullDown) {
+      this.canPullDown = false;
+      return;
+    }
+
+    if (this.data.refresherHeight >= 45) {
+      // 达到触发阈值，执行刷新
+      this.setData({
+        refresherHeight: 50,
+        refreshing: true
+      });
+      this.onPullDownRefreshInternal();
+    } else {
+      // 未达到阈值，回弹
+      this.setData({
+        refresherHeight: 0
+      });
+    }
+    this.isPullDown = false;
+    this.canPullDown = false;
+  },
+
+  /**
+   * 内部触发下拉刷新
+   */
+  async onPullDownRefreshInternal() {
+    console.log('[Index] 手动下拉刷新开始');
     try {
-      // 同时刷新轮播图和文章列表
       await Promise.all([
         this.getBannerList(),
         this.getArticleList(true)
@@ -134,9 +207,23 @@ Page({
     } catch (err) {
       console.error('[Index] 刷新异常:', err);
     } finally {
-      this.setData({ refreshing: false });
+      // 延迟关闭，让动画显示完整
+      setTimeout(() => {
+        this.setData({
+          refreshing: false,
+          refresherHeight: 0
+        });
+      }, 500);
     }
   },
+
+  /**
+   * 页面下拉刷新重定向
+   */
+  onPullDownRefresh: function () {
+    this.onPullDownRefreshInternal();
+  },
+
 
   /**
    * 生命周期函数--监听页面显示
@@ -316,10 +403,10 @@ Page({
             cover: cover,
             time: time,
             publishType: publishType, // 保存 publishType 字段
-            publishWxId: item.publishWxId || item.publish_wx_id || null, // 保存 publishWxId，用于获取校友会头像
+            publishWxId: item.publishWxId || item.publish_wx_id || null, // 优先使用后端返回的组织 ID
             articleType: item.articleType || item.article_type || 1, // 保存文章类型：1-公众号，2-内部路径，3-第三方链接
             articleLink: item.articleLink || item.article_link || '', // 保存文章链接
-            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 1) && (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
+            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 'ASSOCIATION' || publishType === 1) && (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
             hasChildren: hasChildren, // 是否有子文章
             children: children // 子文章列表
           };
@@ -332,10 +419,18 @@ Page({
         this.setData({
           articleList: reset ? newList : this.data.articleList.concat(newList),
           page: nextPage,
-          hasMore: currentTotal < total && newList.length > 0, // 如果返回的数据为空，说明没有更多了
+          hasMore: newList.length >= size, // 只要返回的数据达到一页数量，就认为可能有下一页
           loading: false,
           refreshing: false
         });
+
+        // 如果不是重置加载，且返回结果少于一页大小，说明已经到末尾了
+        if (!reset && newList.length < size) {
+          wx.showToast({
+            title: '没有数据啦～',
+            icon: 'none'
+          });
+        }
 
         // 异步获取缺失的头像（校友会类型）
         this.fetchMissingAvatars(newList);
@@ -389,6 +484,39 @@ Page({
   },
 
   /**
+   * 点击发布者（校友会/校促会）跳转详情
+   */
+  onPublisherTap(e) {
+    const { index } = e.currentTarget.dataset;
+    const item = this.data.articleList[index];
+
+    if (!item || !item.publishWxId) {
+      console.warn('[Index] 发布者 ID 为空，无法跳转', { item });
+      return;
+    }
+
+    const { publishType, publishWxId } = item;
+    let url = '';
+
+    // publishType 处理逻辑（支持大写、小写及数字）
+    const typeStr = String(publishType || '').toUpperCase();
+
+    if (typeStr === 'ASSOCIATION' || publishType === 1) {
+      url = `/pages/alumni-association/detail/detail?id=${publishWxId}`;
+    } else if (typeStr === 'LOCAL_PLATFORM' || publishType === 2) {
+      url = `/pages/local-platform/detail/detail?id=${publishWxId}`;
+    } else if (typeStr === 'ALUMNI' || typeStr === 'USER') {
+      url = `/pages/alumni/detail/detail?id=${publishWxId}`;
+    }
+
+    if (url) {
+      wx.navigateTo({ url });
+    } else {
+      console.log('[Index] 未知的发布者类型或 ID 为空:', { publishType, publishWxId });
+    }
+  },
+
+  /**
    * 异步获取缺失的头像（校友会类型）
    */
   async fetchMissingAvatars(records) {
@@ -398,7 +526,7 @@ Page({
     const needFetchList = records.filter(item =>
       item.needFetchAvatar &&
       item.publishWxId &&
-      (item.publishType === 'association' || item.publishType === 1)
+      (item.publishType === 'association' || item.publishType === 'ASSOCIATION' || item.publishType === 1)
     );
 
     if (needFetchList.length === 0) { return; }

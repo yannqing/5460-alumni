@@ -18,6 +18,7 @@
   height: 450rpx;
   position: relative;
   z-index: 10;
+  background-color: #f8f8f8; /* 兜底背景色，防止图片加载时透明 */
 }
 
 .banner-swiper {
@@ -69,11 +70,13 @@
 }
 
 .platform-tag {
-  position: absolute;
+  position: fixed;
   left: 30rpx;
-  background-color: rgba(255, 255, 255, 0.0);
+  background-color: transparent;
   border-radius: 30rpx;
+  z-index: 1000; /* 确保在所有内容（包括吸顶菜单）之上 */
 }
+
 
 .platform-logo {
   width: 130rpx;
@@ -81,10 +84,17 @@
   display: block;
 }
 
+/* 核心吸顶包裹容器：为内部的 sticky 元素提供边界 */
+.sticky-wrapper {
+  position: relative;
+  width: 100%;
+}
+
 /* 把 Banner 和 Nav 组合在一起的容器 */
 .sticky-header-group {
   width: 100%;
   pointer-events: none; /* 穿透到内部元素 */
+  background-color: #f8f8f8; /* 关键：吸顶组合增加实体背景，防止滚动穿透 */
 }
 
 .sticky-header-group > view {
@@ -106,6 +116,7 @@
   box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
   transition: all 0.25s ease-out;
+  background-color: #fff; /* 确保背景不透明 */
 }
 
 /* 导航区域被吸顶时的状态 (已取消扩展示效，保持卡片感) */
@@ -202,21 +213,58 @@
   font-weight: 500;
 }
 
-/* 文章列表容器：这就相当于"局部滑动"的负载区域 */
-.article-container {
+/* 手动下拉刷新 */
+.manual-refresher {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f8f8;
+  transition: height 0.2s ease-out, opacity 0.2s;
+}
+
+.dot-container {
+  display: flex;
+  gap: 12rpx;
+  padding: 20rpx 0;
+}
+
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #38C7D4;
+}
+
+.dot.animating {
+  animation: dot-pulse 1s infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
+/* 文章列表容器 */
+.article-list {
   background-color: #f8f8f8;
   margin-top: 0;
   position: relative;
   z-index: 5;
-  min-height: calc(100vh - 200rpx); /* 确保哪怕列表短，也能触发有惯性的滑动感 */
+  min-height: calc(100vh - 200rpx);
+  padding: 0 0 100rpx 0;
 }
 
-/* 文章列表 */
-.article-list {
-  padding: 0 0 100rpx 0; /* 增加底部内边距，确保最下方内容显示全（不被底部导航遮挡） */
-  background-color: #f8f8f8;
-  margin-top: 0;
-}
 
 .article-item {
   background-color: #fff;
