@@ -29,9 +29,11 @@ Page({
 
             applicationReason: '',
             presidentWxId: '',
-            location: ''
+            location: '',
+            logoType: 'default' // logo来源类型: default, school, upload
         },
-
+        schoolLogoUrl: '',
+        defaultAlumniLogo: config.defaultAvatar,
         // 搜索结果列表
         schoolList: [],
         platformList: [],
@@ -72,6 +74,11 @@ Page({
 
         this.loadInitialData()
         this.loadPlatformList()
+
+        // 默认初始化logo为平台默认logo
+        this.setData({
+            'formData.logo': this.data.defaultAlumniLogo
+        })
     },
 
     // 加载平台列表
@@ -87,7 +94,7 @@ Page({
                 this.setData({
                     platformList: platformList
                 })
-                
+
                 // 如果有从列表页面传递过来的platformName，查找并设置对应的平台信息
                 if (this.platformNameFromList) {
                     const platformIndex = platformList.findIndex(item => item.platformName === this.platformNameFromList)
@@ -181,6 +188,31 @@ Page({
         })
     },
 
+    // 处理校友会Logo类型切换
+    handleLogoTypeChange(e) {
+        const type = e.detail.value
+        let logo = ''
+
+        if (type === 'default') {
+            logo = this.data.defaultAlumniLogo
+        } else if (type === 'school') {
+            // 只有当有 schoolId 时才展示相应学校的 logo，否则为空
+            if (this.data.formData.schoolId) {
+                logo = this.data.schoolLogoUrl || config.defaultSchoolAvatar
+            } else {
+                logo = '' // 未选学校时不展示预览
+            }
+        } else if (type === 'upload') {
+            // 如果切到上传,保留原来的logo或者为空
+            logo = this.data.formData.logoType === 'upload' ? this.data.formData.logo : ''
+        }
+
+        this.setData({
+            'formData.logoType': type,
+            'formData.logo': logo
+        })
+    },
+
     // --- 学校搜索处理 ---
 
     handleSchoolInput(e) {
@@ -229,12 +261,24 @@ Page({
     selectSchool(e) {
         const index = e.currentTarget.dataset.index
         const school = this.data.schoolList[index]
-        this.setData({
+
+        // 提取学校Logo，如果学校没有Logo则使用系统默认母校图标
+        const schoolLogo = school.logo ? config.getImageUrl(school.logo) : config.defaultSchoolAvatar
+
+        const updateData = {
             'formData.schoolId': school.schoolId,
             'formData.schoolName': school.schoolName,
             'formData.associationName': school.schoolName, // 自动填充校友会名称为学校名称
+            'schoolLogoUrl': schoolLogo,
             showSchoolResults: false
-        })
+        }
+
+        // 如果当前选中的是"使用学校logo", 则实时更新预览图和提交用的logo地址
+        if (this.data.formData.logoType === 'school') {
+            updateData['formData.logo'] = schoolLogo
+        }
+
+        this.setData(updateData)
     },
 
     // --- 成员和其他逻辑 ---
@@ -354,6 +398,12 @@ Page({
     // --- 校友会logo上传处理 ---
 
     async chooseLogo() {
+        // 如果当前不是上传模式,点击选择图片会自动切到上传模式
+        if (this.data.formData.logoType !== 'upload') {
+            this.setData({
+                'formData.logoType': 'upload'
+            })
+        }
         try {
             // 选择图片
             const chooseRes = await new Promise((resolve, reject) => {
@@ -429,6 +479,13 @@ Page({
         } finally {
             wx.hideLoading()
         }
+    },
+
+    // 删除已上传的logo
+    deleteLogo() {
+        this.setData({
+            'formData.logo': ''
+        })
     },
 
     // --- 申请材料上传处理 ---
@@ -710,7 +767,7 @@ Page({
             chargeRole: '成员',
             contactInfo: formData.contactInfo || undefined,
             location: formData.location || formData.platformName || undefined,
-            logo: formData.logo || undefined,
+            logo: formData.logoType === 'default' ? undefined : (formData.logo || undefined),
             applicationReason: formData.applicationReason,
             attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
             initialMembers: members.length > 0 ? members.map(m => ({
