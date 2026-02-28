@@ -5,7 +5,9 @@ const { homeArticleApi, articleApplyApi, fileApi } = require('../../../../api/ap
 
 Page({
   data: {
+    currentTab: 'all', // 当前选中的tab: 'all'、'pending' 或 'reviewed'
     articleList: [],
+    filteredArticleList: [], // 根据tab过滤后的列表
     loading: false,
     // 编辑弹框相关
     isEditModalVisible: false,
@@ -22,6 +24,15 @@ Page({
       metaData: '',
       articleStatus: '',
       publishType: ''
+    },
+    // 审核弹框相关
+    isApprovalModalVisible: false,
+    approvalAction: 1, // 1-通过，2-拒绝
+    currentApprovalId: null,
+    approvalForm: {
+      homeArticleApplyId: '',
+      applyStatus: 1,
+      appliedDescription: ''
     }
   },
 
@@ -51,9 +62,17 @@ Page({
       // 获取本人创建的所有文章
       const articlePageParams = {
         current: 1, // 当前页码，后续可以添加分页功能
-        size: 10, // 每页大小
-        publishWxId: currentUserId // 发布者ID，使用当前用户ID
+        size: 10 // 每页大小
       }
+
+      // 根据当前 tab 添加筛选参数
+      const { currentTab } = this.data
+      if (currentTab === 'pending') {
+        articlePageParams.applyStatusList = [0] // 0-待审核
+      } else if (currentTab === 'reviewed') {
+        articlePageParams.applyStatusList = [1, 2] // 1-审核通过, 2-审核拒绝
+      }
+      // 'all' 不传 applyStatusList，查询所有状态
       
       // 调用API获取本人首页文章列表
       const articleRes = await homeArticleApi.getMyArticlePage(articlePageParams)
@@ -113,6 +132,7 @@ Page({
           return {
             id: item.homeArticleId,
             articleId: item.homeArticleId,
+            applyId: applyRecord?.homeArticleApplyId || '', // 审核记录ID，用于审核操作
             nickname: item.articleTitle,
             avatar: item.publisherAvatar,
             school: '', // API返回中没有school字段，暂时为空
@@ -127,6 +147,7 @@ Page({
       
       this.setData({
         articleList: articleList,
+        filteredArticleList: articleList,
         loading: false
       })
     } catch (error) {
@@ -136,6 +157,15 @@ Page({
         icon: 'none'
       })
       this.setData({ loading: false })
+    }
+  },
+
+  // Tab 切换
+  onTabChange(e) {
+    const tab = e.currentTarget.dataset.tab
+    if (tab !== this.data.currentTab) {
+      this.setData({ currentTab: tab })
+      this.loadMyArticles() // 重新调用接口获取数据
     }
   },
 
@@ -413,5 +443,92 @@ Page({
         }
       }
     })
+  },
+
+  // 点击通过按钮
+  onApproveTap(e) {
+    const { id } = e.currentTarget.dataset
+    this.showApprovalModal(id, 1) // 1表示通过
+  },
+
+  // 点击拒绝按钮
+  onRejectTap(e) {
+    const { id } = e.currentTarget.dataset
+    this.showApprovalModal(id, 2) // 2表示拒绝
+  },
+
+  // 显示审核弹框
+  showApprovalModal(id, action) {
+    this.setData({
+      isApprovalModalVisible: true,
+      approvalAction: action,
+      currentApprovalId: id,
+      approvalForm: {
+        homeArticleApplyId: id,
+        applyStatus: action,
+        appliedDescription: ''
+      }
+    })
+  },
+
+  // 隐藏审核弹框
+  hideApprovalModal() {
+    this.setData({
+      isApprovalModalVisible: false,
+      currentApprovalId: null,
+      approvalForm: {
+        homeArticleApplyId: '',
+        applyStatus: 1,
+        appliedDescription: ''
+      }
+    })
+  },
+
+  // 处理审核表单输入
+  onApprovalInput(e) {
+    const { field } = e.currentTarget.dataset
+    const { value } = e.detail
+
+    this.setData({
+      [`approvalForm.${field}`]: value
+    })
+  },
+
+  // 提交审核
+  async submitApproval() {
+    try {
+      this.setData({ loading: true })
+
+      const { approvalForm } = this.data
+
+      // 调用审核API
+      const res = await articleApplyApi.approveArticle(approvalForm)
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: approvalForm.applyStatus === 1 ? '审核通过成功' : '审核拒绝成功',
+          icon: 'success'
+        })
+
+        // 隐藏弹框
+        this.hideApprovalModal()
+
+        // 重新加载列表
+        this.loadMyArticles()
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '审核失败，请重试',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('提交审核失败:', error)
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ loading: false })
+    }
   }
 })

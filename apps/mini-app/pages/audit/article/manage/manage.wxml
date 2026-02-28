@@ -1,6 +1,22 @@
 <!-- pages/audit/article/manage/manage.wxml -->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="文章管理">
 <view class="article-management-list-page">
+  <!-- Tab 切换 -->
+  <view class="tab-container">
+    <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="onTabChange" data-tab="all">
+      <text class="tab-text">全部文章</text>
+      <view class="tab-underline" wx:if="{{currentTab === 'all'}}"></view>
+    </view>
+    <view class="tab-item {{currentTab === 'pending' ? 'active' : ''}}" bindtap="onTabChange" data-tab="pending">
+      <text class="tab-text">待审核</text>
+      <view class="tab-underline" wx:if="{{currentTab === 'pending'}}"></view>
+    </view>
+    <view class="tab-item {{currentTab === 'reviewed' ? 'active' : ''}}" bindtap="onTabChange" data-tab="reviewed">
+      <text class="tab-text">已审核</text>
+      <view class="tab-underline" wx:if="{{currentTab === 'reviewed'}}"></view>
+    </view>
+  </view>
+
   <!-- 可滚动列表区域 -->
   <scroll-view 
     class="scroll-list" 
@@ -10,9 +26,27 @@
     enable-back-to-top
     show-scrollbar="{{false}}"
   >
+    <!-- 骨架屏加载状态 -->
+    <view class="article-list" wx:if="{{loading}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+        <view class="skeleton-content">
+          <view class="skeleton-header">
+            <view class="skeleton-title skeleton-animate"></view>
+            <view class="skeleton-tag skeleton-animate"></view>
+          </view>
+          <view class="skeleton-time skeleton-animate"></view>
+          <view class="skeleton-actions">
+            <view class="skeleton-btn skeleton-animate"></view>
+            <view class="skeleton-btn skeleton-animate"></view>
+          </view>
+        </view>
+        <view class="skeleton-image skeleton-animate"></view>
+      </view>
+    </view>
+
     <!-- 文章列表 -->
-    <view class="article-list">
-    <block wx:for="{{articleList}}" wx:key="id">
+    <view class="article-list" wx:if="{{!loading}}">
+    <block wx:for="{{filteredArticleList}}" wx:key="id">
       <!-- 文章卡片 -->
       <view class="block_9" bindtap="viewDetail" data-id="{{item.id}}">
         <view class="section_7">
@@ -27,12 +61,24 @@
             <text lines="1" class="text_27">{{item.submitTime}}</text>
           </view>
           <view class="edit-action">
-            <view class="edit-btn-wrapper" catchtap="onEditTap" data-id="{{item.id}}">
-              <text lines="1" class="edit-btn-text">编辑</text>
-            </view>
-            <view class="delete-btn-wrapper" catchtap="onDeleteTap" data-id="{{item.id}}">
-              <text lines="1" class="delete-btn-text">删除</text>
-            </view>
+            <!-- 待审核状态：显示通过和拒绝按钮 -->
+            <block wx:if="{{item.status === 'pending'}}">
+              <view class="approve-btn-wrapper" catchtap="onApproveTap" data-id="{{item.applyId}}">
+                <text lines="1" class="approve-btn-text">通过</text>
+              </view>
+              <view class="reject-btn-wrapper" catchtap="onRejectTap" data-id="{{item.applyId}}">
+                <text lines="1" class="reject-btn-text">拒绝</text>
+              </view>
+            </block>
+            <!-- 非待审核状态：显示编辑和删除按钮 -->
+            <block wx:else>
+              <view class="edit-btn-wrapper" catchtap="onEditTap" data-id="{{item.id}}">
+                <text lines="1" class="edit-btn-text">编辑</text>
+              </view>
+              <view class="delete-btn-wrapper" catchtap="onDeleteTap" data-id="{{item.id}}">
+                <text lines="1" class="delete-btn-text">删除</text>
+              </view>
+            </block>
           </view>
         </view>
         <image class="image_7" src="{{item.coverImg}}" mode="aspectFill" wx:if="{{item.coverImg}}"></image>
@@ -41,12 +87,12 @@
     </block>
 
     <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
+    <view class="empty-state" wx:if="{{!loading && filteredArticleList.length === 0}}">
       <text class="empty-text">暂无数据</text>
     </view>
 
     <!-- 没有更多数据 -->
-    <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">
+    <view class="no-more" wx:if="{{!loading && !hasMore && filteredArticleList.length > 0}}">
       <text>没有更多数据了</text>
     </view>
     </view>
@@ -118,6 +164,31 @@
     <view class="modal-footer">
       <button class="modal-btn cancel-btn" bindtap="hideEditModal">取消</button>
       <button class="modal-btn confirm-btn" bindtap="onSubmitEdit">确定</button>
+    </view>
+  </view>
+
+  <!-- 审核弹框 -->
+  <view class="modal-overlay" wx:if="{{isApprovalModalVisible}}" bindtap="hideApprovalModal"></view>
+  <view class="edit-modal" wx:if="{{isApprovalModalVisible}}">
+    <view class="modal-header">
+      <text class="modal-title">{{approvalAction === 1 ? '审核通过' : '审核拒绝'}}</text>
+      <text class="modal-close" bindtap="hideApprovalModal">×</text>
+    </view>
+    <view class="modal-content">
+      <view class="form-item">
+        <text class="form-label">审核说明</text>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入审核说明（可选）"
+          value="{{approvalForm.appliedDescription}}"
+          data-field="appliedDescription"
+          bindinput="onApprovalInput"
+        ></textarea>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="hideApprovalModal">取消</button>
+      <button class="modal-btn confirm-btn {{approvalAction === 2 ? 'reject-confirm-btn' : ''}}" bindtap="submitApproval">确定</button>
     </view>
   </view>
 </view>

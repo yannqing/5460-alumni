@@ -422,7 +422,9 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         // 2.获取参数
         Long current = queryDto.getCurrent();
         Long size = queryDto.getSize();
+        String articleTitle = queryDto.getArticleTitle();
         Integer articleStatus = queryDto.getArticleStatus();
+        List<Integer> applyStatusList = queryDto.getApplyStatusList();
 
         if (current == null || current < 1) {
             current = 1L;
@@ -461,9 +463,19 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
                     currentUserWxId, authorizedOrganizationIds);
         }
 
+        // 根据文章标题模糊搜索（可选）
+        if (articleTitle != null && !articleTitle.trim().isEmpty()) {
+            queryWrapper.like(HomePageArticle::getArticleTitle, articleTitle.trim());
+        }
+
         // 根据文章状态查询（可选）
         if (articleStatus != null) {
             queryWrapper.eq(HomePageArticle::getArticleStatus, articleStatus);
+        }
+
+        // 根据审核状态查询（可选，支持多选）
+        if (applyStatusList != null && !applyStatusList.isEmpty()) {
+            queryWrapper.in(HomePageArticle::getApplyStatus, applyStatusList);
         }
 
         // 按创建时间倒序排序
