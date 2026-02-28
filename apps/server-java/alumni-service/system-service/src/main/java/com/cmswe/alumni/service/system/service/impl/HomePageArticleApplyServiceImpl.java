@@ -84,9 +84,22 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
         article.setReviewedTime(LocalDateTime.now());
         article.setUpdateTime(LocalDateTime.now());
 
-        // 5. 如果审核通过，同时更新文章状态为启用
+        // 5. 如果审核通过，同时更新文章状态为启用，并扣除首页配额
         if (applyStatus == 1) {
             article.setArticleStatus(1); // 1-启用
+
+            // 如果文章要展示在首页，扣除对应组织的配额
+            if (article.getShowOnHomepage() != null && article.getShowOnHomepage() == 1) {
+                try {
+                    homePageArticleService.checkAndDeductQuota(article.getPublishType(), article.getPublishWxId());
+                    log.info("审核通过，已扣除首页文章配额 - ArticleId: {}, PublishType: {}, PublishId: {}",
+                            articleId, article.getPublishType(), article.getPublishWxId());
+                } catch (Exception e) {
+                    log.error("扣除首页文章配额失败 - ArticleId: {}, Error: {}", articleId, e.getMessage());
+                    throw new BusinessException("审核通过但配额扣除失败: " + e.getMessage());
+                }
+            }
+
             log.info("审核通过，文章已启用 - ArticleId: {}", articleId);
         } else {
             // 审核拒绝，设置文章状态为禁用

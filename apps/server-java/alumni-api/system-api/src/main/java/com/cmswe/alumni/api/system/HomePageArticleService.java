@@ -45,11 +45,12 @@ public interface HomePageArticleService extends IService<HomePageArticle> {
     Boolean updateArticle(UpdateHomePageArticleDto updateDto);
 
     /**
-     * 分页查询本人创建的文章列表
+     * 分页查询本人有权限管理的文章列表
      * @param queryDto 查询参数
+     * @param currentUserWxId 当前用户ID
      * @return 分页结果
      */
-    PageVo<HomePageArticleVo> getMyArticlePage(QueryMyHomePageArticleListDto queryDto);
+    PageVo<HomePageArticleVo> getMyArticlePage(QueryMyHomePageArticleListDto queryDto, Long currentUserWxId);
 
     /**
      * 删除首页文章
@@ -57,4 +58,11 @@ public interface HomePageArticleService extends IService<HomePageArticle> {
      * @return 是否删除成功
      */
     Boolean deleteArticle(Long homeArticleId);
+
+    /**
+     * 检查并扣减首页文章发布配额
+     * @param publishType 发布者类型（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）
+     * @param publishWxId 发布者ID
+     */
+    void checkAndDeductQuota(String publishType, Long publishWxId);
 }

@@ -117,7 +117,7 @@ public class HomePageArticle implements Serializable {
     private String publishUsername;
 
     /**
-     * 发布者类型枚举（alumni，association）
+     * 发布者类型（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）
      */
     @TableField(value = "publish_type")
     private String publishType;

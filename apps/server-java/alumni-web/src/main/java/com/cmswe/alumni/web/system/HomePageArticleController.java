@@ -98,14 +98,19 @@ public class HomePageArticleController {
     }
 
     /**
-     * 分页查询本人创建的文章列表
+     * 分页查询本人有权限管理的文章列表
+     * @param securityUser 当前登录用户
      * @param queryDto 查询参数
      * @return 分页结果
      */
     @PostMapping("/my-page")
-    @Operation(summary = "分页查询本人创建的文章列表")
-    public BaseResponse<PageVo<HomePageArticleVo>> getMyArticlePage(@RequestBody QueryMyHomePageArticleListDto queryDto) {
-        PageVo<HomePageArticleVo> articlePage = homePageArticleService.getMyArticlePage(queryDto);
+    @Operation(summary = "分页查询本人有权限管理的文章列表")
+    public BaseResponse<PageVo<HomePageArticleVo>> getMyArticlePage(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @RequestBody QueryMyHomePageArticleListDto queryDto) {
+        // 从 token 中获取当前用户 ID
+        Long currentUserWxId = securityUser.getWxUser().getWxId();
+        PageVo<HomePageArticleVo> articlePage = homePageArticleService.getMyArticlePage(queryDto, currentUserWxId);
         return ResultUtils.success(Code.SUCCESS, articlePage, "查询成功");
     }
 

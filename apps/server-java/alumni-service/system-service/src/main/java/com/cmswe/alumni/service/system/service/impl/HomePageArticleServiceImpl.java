@@ -8,6 +8,8 @@ import com.cmswe.alumni.api.association.LocalPlatformService;
 import com.cmswe.alumni.api.system.HomePageArticleApplyService;
 import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.api.user.FileService;
+import com.cmswe.alumni.api.user.RoleService;
+import com.cmswe.alumni.api.user.RoleUserService;
 import com.cmswe.alumni.common.dto.CreateChildArticleDto;
 import com.cmswe.alumni.common.dto.CreateHomePageArticleDto;
 import com.cmswe.alumni.common.dto.QueryHomePageArticleListDto;
@@ -59,6 +61,12 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
 
     @Resource
     private LocalPlatformService localPlatformService;
+
+    @Resource
+    private RoleService roleService;
+
+    @Resource
+    private RoleUserService roleUserService;
 
     @Override
     public PageVo<HomePageArticleVo> getArticlePage(QueryHomePageArticleListDto queryDto) {
@@ -210,8 +218,9 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         }
 
         // 3.5 检查首页发布配额（如果选择展示在首页）
+        // 注意：这里只检查配额是否足够，不扣除。配额将在审核通过时扣除
         if (parentArticle.getShowOnHomepage() != null && parentArticle.getShowOnHomepage() == 1) {
-            checkAndDeductQuota(parentArticle.getPublishType(), parentArticle.getPublishWxId());
+            checkQuotaAvailable(parentArticle.getPublishType(), parentArticle.getPublishWxId());
         }
 
         // 4.保存父文章到数据库
@@ -292,16 +301,17 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         article.setReviewedTime(null);
 
         // 4.5 处理首页展示配额变更（如果从不展示改为展示）
-        boolean needDeductQuota = false;
+        // 注意：这里只检查配额是否足够，不扣除。配额将在审核通过时扣除
+        boolean needCheckQuota = false;
         if (updateDto.getShowOnHomepage() != null && updateDto.getShowOnHomepage() == 1) {
-            // 如果原来不展示，现在要展示，需要扣除配额
+            // 如果原来不展示，现在要展示，需要检查配额
             if (existingArticle.getShowOnHomepage() == null || existingArticle.getShowOnHomepage() == 0) {
-                needDeductQuota = true;
+                needCheckQuota = true;
             }
         }
 
-        if (needDeductQuota) {
-            checkAndDeductQuota(article.getPublishType(), article.getPublishWxId());
+        if (needCheckQuota) {
+            checkQuotaAvailable(article.getPublishType(), article.getPublishWxId());
         }
 
         // 5.更新父文章到数据库
@@ -400,16 +410,18 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
     }
 
     @Override
-    public PageVo<HomePageArticleVo> getMyArticlePage(QueryMyHomePageArticleListDto queryDto) {
+    public PageVo<HomePageArticleVo> getMyArticlePage(QueryMyHomePageArticleListDto queryDto, Long currentUserWxId) {
         // 1.参数校验
         if (queryDto == null) {
             throw new BusinessException("参数为空");
+        }
+        if (currentUserWxId == null) {
+            throw new BusinessException("当前用户ID不能为空");
         }
 
         // 2.获取参数
         Long current = queryDto.getCurrent();
         Long size = queryDto.getSize();
-        Long publishWxId = queryDto.getPublishWxId();
         Integer articleStatus = queryDto.getArticleStatus();
 
         if (current == null || current < 1) {
@@ -419,12 +431,34 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
             size = 10L;
         }
 
-        // 3.构造查询条件
+        // 3.查询用户的角色
+        List<Role> userRoles = roleService.getRolesByUserId(currentUserWxId);
+
+        // 4.判断是否是系统管理员
+        boolean isSystemAdmin = userRoles.stream()
+                .anyMatch(role -> "SYSTEM_ADMIN".equals(role.getRoleCode()));
+
+        // 5.构造查询条件
         LambdaQueryWrapper<HomePageArticle> queryWrapper = new LambdaQueryWrapper<>();
 
-        // 根据发布者id查询
-        if (publishWxId != null) {
-            queryWrapper.eq(HomePageArticle::getPublishWxId, publishWxId);
+        if (isSystemAdmin) {
+            // 系统管理员：查询所有文章（不添加发布者限制）
+            log.info("系统管理员查询所有文章 - UserId: {}", currentUserWxId);
+        } else {
+            // 非系统管理员：查询有权限管理的组织的文章
+            List<Long> authorizedOrganizationIds = getAuthorizedOrganizationIds(currentUserWxId);
+
+            if (authorizedOrganizationIds.isEmpty()) {
+                // 没有管理任何组织，返回空列表
+                log.info("用户无管理权限的组织 - UserId: {}", currentUserWxId);
+                Page<HomePageArticleVo> emptyPage = new Page<>(current, size, 0);
+                return PageVo.of(emptyPage);
+            }
+
+            // 限制查询有权限的组织的文章
+            queryWrapper.in(HomePageArticle::getPublishWxId, authorizedOrganizationIds);
+            log.info("查询有权限管理的组织的文章 - UserId: {}, OrganizationIds: {}",
+                    currentUserWxId, authorizedOrganizationIds);
         }
 
         // 根据文章状态查询（可选）
@@ -435,10 +469,10 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
         // 按创建时间倒序排序
         queryWrapper.orderByDesc(HomePageArticle::getCreateTime);
 
-        // 4.执行分页查询
+        // 6.执行分页查询
         Page<HomePageArticle> articlePage = this.page(new Page<>(current, size), queryWrapper);
 
-        // 5.转换为VO并查询封面图信息
+        // 7.转换为VO并查询封面图信息
         List<HomePageArticleVo> list = articlePage.getRecords().stream()
                 .map(article -> {
                     HomePageArticleVo vo = HomePageArticleVo.objToVo(article);
@@ -457,19 +491,69 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
                         }
                     }
 
-                    // 直接从文章表中获取发布者头像
-                    // publisherAvatar 字段已在 objToVo 中通过 BeanUtils.copyProperties 自动复制
-
                     return vo;
                 })
                 .toList();
 
-        log.info("分页查询本人首页文章列表 - PublishWxId: {}, Current: {}, Size: {}, Total: {}",
-                publishWxId, current, size, articlePage.getTotal());
+        log.info("分页查询有权限管理的文章列表 - UserId: {}, Current: {}, Size: {}, Total: {}",
+                currentUserWxId, current, size, articlePage.getTotal());
 
         Page<HomePageArticleVo> resultPage = new Page<HomePageArticleVo>(current, size, articlePage.getTotal())
                 .setRecords(list);
         return PageVo.of(resultPage);
+    }
+
+    /**
+     * 获取用户有权限管理的组织ID列表
+     *
+     * @param wxId 用户ID
+     * @return 组织ID列表（包括校友会和校促会）
+     */
+    private List<Long> getAuthorizedOrganizationIds(Long wxId) {
+        List<Long> organizationIds = new ArrayList<>();
+
+        // 查询用户管理的所有组织（从 role_user 表）
+        List<RoleUser> roleUsers = roleUserService.list(
+                new LambdaQueryWrapper<RoleUser>()
+                        .eq(RoleUser::getWxId, wxId)
+                        .isNotNull(RoleUser::getOrganizeId)
+        );
+
+        // 按组织类型分组
+        Map<Integer, List<Long>> organizationsByType = roleUsers.stream()
+                .collect(Collectors.groupingBy(
+                        RoleUser::getType,
+                        Collectors.mapping(RoleUser::getOrganizeId, Collectors.toList())
+                ));
+
+        // 处理校友会（type=2）
+        List<Long> associationIds = organizationsByType.getOrDefault(2, new ArrayList<>());
+        organizationIds.addAll(associationIds);
+
+        // 处理校促会（type=1）
+        List<Long> platformIds = organizationsByType.getOrDefault(1, new ArrayList<>());
+        organizationIds.addAll(platformIds);
+
+        // 如果用户管理校促会，还需要包括该校促会下所有校友会的ID
+        if (!platformIds.isEmpty()) {
+            List<AlumniAssociation> associationsUnderPlatforms = alumniAssociationService.list(
+                    new LambdaQueryWrapper<AlumniAssociation>()
+                            .in(AlumniAssociation::getPlatformId, platformIds)
+                            .eq(AlumniAssociation::getStatus, 1) // 只查询启用的校友会
+            );
+
+            List<Long> associationIdsUnderPlatforms = associationsUnderPlatforms.stream()
+                    .map(AlumniAssociation::getAlumniAssociationId)
+                    .collect(Collectors.toList());
+
+            organizationIds.addAll(associationIdsUnderPlatforms);
+
+            log.info("用户管理的校促会及其下校友会 - UserId: {}, PlatformIds: {}, AssociationIds: {}",
+                    wxId, platformIds, associationIdsUnderPlatforms);
+        }
+
+        // 去重
+        return organizationIds.stream().distinct().collect(Collectors.toList());
     }
 
     @Override
@@ -498,17 +582,70 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
     }
 
     /**
+     * 检查首页文章发布配额是否可用（不扣除）
+     *
+     * @param publishType 发布者类型（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）
+     * @param publishWxId 发布者ID
+     */
+    private void checkQuotaAvailable(String publishType, Long publishWxId) {
+        if (publishType == null || publishWxId == null) {
+            throw new BusinessException("发布者类型和ID不能为空");
+        }
+
+        // 统一转换为大写，支持大小写不敏感
+        String normalizedPublishType = publishType.toUpperCase();
+
+        if ("ASSOCIATION".equals(normalizedPublishType)) {
+            // 校友会
+            AlumniAssociation association = alumniAssociationService.getById(publishWxId);
+            if (association == null) {
+                throw new BusinessException("校友会不存在");
+            }
+
+            Integer quota = association.getMonthlyHomepageArticleQuota();
+            if (quota == null || quota <= 0) {
+                throw new BusinessException("首页文章发布次数不足，请联系管理员增加配额");
+            }
+
+            log.info("校友会首页文章配额检查通过 - AssociationId: {}, 当前配额: {}",
+                    publishWxId, quota);
+
+        } else if ("LOCAL_PLATFORM".equals(normalizedPublishType)) {
+            // 校促会
+            LocalPlatform platform = localPlatformService.getById(publishWxId);
+            if (platform == null) {
+                throw new BusinessException("校促会不存在");
+            }
+
+            Integer quota = platform.getMonthlyHomepageArticleQuota();
+            if (quota == null || quota <= 0) {
+                throw new BusinessException("首页文章发布次数不足，请联系管理员增加配额");
+            }
+
+            log.info("校促会首页文章配额检查通过 - PlatformId: {}, 当前配额: {}",
+                    publishWxId, quota);
+
+        } else {
+            // 不支持的发布者类型，抛出异常
+            throw new BusinessException("不支持的发布者类型: " + publishType + "，仅支持 ASSOCIATION（校友会）或 LOCAL_PLATFORM（校促会）");
+        }
+    }
+
+    /**
      * 检查并扣减首页文章发布配额
      *
      * @param publishType 发布者类型（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）
      * @param publishWxId 发布者ID
      */
-    private void checkAndDeductQuota(String publishType, Long publishWxId) {
+    public void checkAndDeductQuota(String publishType, Long publishWxId) {
         if (publishType == null || publishWxId == null) {
             throw new BusinessException("发布者类型和ID不能为空");
         }
 
-        if ("ASSOCIATION".equals(publishType)) {
+        // 统一转换为大写，支持大小写不敏感
+        String normalizedPublishType = publishType.toUpperCase();
+
+        if ("ASSOCIATION".equals(normalizedPublishType)) {
             // 校友会
             AlumniAssociation association = alumniAssociationService.getById(publishWxId);
             if (association == null) {
@@ -530,7 +667,7 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
             log.info("校友会首页文章配额扣减成功 - AssociationId: {}, 剩余配额: {}",
                     publishWxId, quota - 1);
 
-        } else if ("LOCAL_PLATFORM".equals(publishType)) {
+        } else if ("LOCAL_PLATFORM".equals(normalizedPublishType)) {
             // 校促会
             LocalPlatform platform = localPlatformService.getById(publishWxId);
             if (platform == null) {
@@ -553,8 +690,8 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
                     publishWxId, quota - 1);
 
         } else {
-            // 其他类型（如 alumni）不需要检查配额
-            log.info("发布者类型为 {}，无需检查配额", publishType);
+            // 不支持的发布者类型，抛出异常
+            throw new BusinessException("不支持的发布者类型: " + publishType + "，仅支持 ASSOCIATION（校友会）或 LOCAL_PLATFORM（校促会）");
         }
     }
 }

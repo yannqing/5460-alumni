@@ -64,7 +64,7 @@ public class HomePageArticleDetailVo implements Serializable {
     @Schema(description = "发布者名称")
     private String publishUsername;
 
-    @Schema(description = "发布者类型枚举（alumni，association）")
+    @Schema(description = "发布者类型（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）")
     private String publishType;
 
     @Schema(description = "发布者头像")
