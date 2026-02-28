@@ -1,113 +1,117 @@
-<!--pages/index/index.wxml-->
-<!-- 消息通知组件 -->
-<message-notification />
-
-<view class="container" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
-  <!-- 顶部 Banner 区域 -->
-  <view class="header-banner" style="transform: translateY({{bannerTranslateY}}px); transition: transform 0.1s ease-out;">
-    <!-- 轮播图背景 -->
-    <swiper 
-      wx:if="{{bannerList.length > 0}}"
-      class="banner-swiper" 
-      indicator-dots="{{bannerList.length > 1}}"
-      autoplay="{{bannerList.length > 1}}"
-      interval="3000"
-      duration="500"
-      circular="{{bannerList.length > 1}}"
-      bindchange="onBannerChange"
-      touchable="{{true}}"
-      disable-touch="{{false}}"
-    >
-      <swiper-item wx:for="{{bannerList}}" wx:key="bannerId" wx:for-item="banner">
-        <image class="banner-image" src="{{banner.imageUrl}}" mode="aspectFill"></image>
-      </swiper-item>
-    </swiper>
-    <!-- 如果没有轮播图，显示默认背景 -->
-    <view wx:else class="banner-default-bg"></view>
-    
-    <!-- 内容层（文字等） -->
-    <view class="banner-content">
-      <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
-        <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
-      </view>
-    </view>
-  </view>
-
-  <!-- 导航菜单区域 -->
-  <view class="nav-container {{navFixed ? 'fixed' : ''}}">
-    <view class="nav-header">
-      <view class="nav-title-tag">校友功能</view>
-    </view>
-    <view class="nav-grid">
-      <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
-        <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
-        <text class="nav-text">校友总会</text>
-      </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
-        <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
-        <text class="nav-text">校友会</text>
-      </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/alumni/list/list">
-        <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
-        <text class="nav-text">校友</text>
-      </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list" data-disabled="true">
-        <view class="nav-icon-wrapper">
-          <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
-          <view class="nav-construction-tag">建设中</view>
+<view class="container">
+  <!-- 使用 scroll-view 代替页面原生滚动，以获得更流畅的"局部滑动"感和更丰富的控制 -->
+  <scroll-view 
+    class="main-scroller" 
+    scroll-y 
+    enhanced 
+    show-scrollbar="{{false}}" 
+    fast-deceleration="{{true}}"
+    scroll-anchoring="{{true}}"
+    bindscrolltolower="onReachBottom"
+    bindscroll="onScroll"
+    scroll-with-animation
+  >
+    <!-- 把 Banner 和校友功能卡片包在一起，实现"相对静止"移动 -->
+    <view class="sticky-header-group" style="position: sticky; top: {{stickyGroupTop}}px; z-index: 200;">
+      <!-- 顶部 Banner 区域 -->
+      <view class="header-banner">
+        <swiper 
+          wx:if="{{bannerList.length > 0}}"
+          class="banner-swiper" 
+          indicator-dots="{{bannerList.length > 1}}"
+          autoplay="{{bannerList.length > 1}}"
+          interval="3000"
+          duration="500"
+          circular="{{bannerList.length > 1}}"
+          bindchange="onBannerChange"
+        >
+          <swiper-item wx:for="{{bannerList}}" wx:key="bannerId" wx:for-item="banner">
+            <image class="banner-image" src="{{banner.imageUrl}}" mode="aspectFill" lazy-load></image>
+          </swiper-item>
+        </swiper>
+        <view wx:else class="banner-default-bg"></view>
+        
+        <view class="banner-content">
+          <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
+            <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
+          </view>
         </view>
-        <text class="nav-text">商户</text>
       </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
-        <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
-        <text class="nav-text">城市</text>
+
+      <!-- 导航菜单区域：校友功能容器 -->
+      <!-- 它们在同一个组合里，相对静止，一起由组合的 sticky top 控制位置 -->
+      <view class="nav-container {{navFixed ? 'fixed' : ''}}">
+        <view class="nav-header">
+          <view class="nav-title-tag">校友功能</view>
+        </view>
+        <view class="nav-grid">
+          <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
+            <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
+            <text class="nav-text">校友总会</text>
+          </view>
+          <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
+            <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
+            <text class="nav-text">校友会</text>
+          </view>
+          <view class="nav-item" bindtap="navTo" data-url="/pages/alumni/list/list">
+            <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
+            <text class="nav-text">校友</text>
+          </view>
+          <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list" data-disabled="true">
+            <view class="nav-icon-wrapper">
+              <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
+              <view class="nav-construction-tag">建设中</view>
+            </view>
+            <text class="nav-text">商户</text>
+          </view>
+          <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
+            <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
+            <text class="nav-text">城市</text>
+          </view>
+        </view>
       </view>
     </view>
-  </view>
 
-  <!-- 文章列表容器 -->
-  <view class="article-container">
-    <!-- 文章列表区域 - 使用 scroll-view 实现局部滚动 -->
+    <!-- 哨兵节点 -->
+    <view class="scroll-sentinel" id="post-header"></view>
+
+    <!-- 文章列表容器：这就相当于"局部滑动"的负载区域 -->
     <scroll-view 
-      class="article-scroll-view"
-      scroll-y="true"
-      bindscrolltolower="onReachBottom"
+      class="article-container"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
       refresher-enabled="{{true}}"
       refresher-triggered="{{refreshing}}"
-      bindrefresherrefresh="onListRefresh"
-      scroll-with-animation="true"
-      style="height: {{articleScrollHeight}}px;"
-      bindtouchstart="onScrollViewTouchStart"
-      catchtouchmove="onScrollViewTouchMove"
+      refresher-threshold="{{50}}"
+      refresher-default-style="black"
+      refresher-background="#f8f8f8"
+      bindrefresherrefresh="onPullDownRefresh"
     >
       <view class="article-list">
         <view class="article-item" wx:for="{{articleList}}" wx:key="id" wx:for-index="idx" bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
           <view class="article-header">
             <view class="user-info">
               <view class="user-avatar-wrapper">
-                <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+                <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}" lazy-load></image>
               </view>
               <text class="user-name">{{item.username}}</text>
             </view>
             <text class="publish-time">{{item.time}}</text>
           </view>
           <view class="article-body">
-            <!-- 封面图：始终显示图片框 -->
             <view class="article-cover-wrapper {{item.hasChildren ? 'with-title-overlay' : ''}}">
-              <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
-              <!-- 如果有子文章，标题显示在图片上 -->
+              <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}" lazy-load></image>
               <view wx:if="{{item.hasChildren}}" class="cover-title-overlay">
                 <view class="overlay-title">{{item.title}}</view>
               </view>
             </view>
 
-            <!-- 如果没有子文章，正常显示标题和描述 -->
             <view wx:if="{{!item.hasChildren}}" class="article-content">
               <view class="article-title">{{item.title}}</view>
               <view class="article-desc">{{item.description}}</view>
             </view>
 
-            <!-- 如果有子文章，显示子文章列表 -->
             <view wx:if="{{item.hasChildren}}" class="children-list">
               <view
                 wx:for="{{item.children}}"
@@ -121,14 +125,13 @@
                   <view class="child-title">{{child.title}}</view>
                 </view>
                 <view class="child-cover-wrapper">
-                  <image wx:if="{{child.cover}}" class="child-cover" src="{{child.cover}}" mode="aspectFill"></image>
+                  <image wx:if="{{child.cover}}" class="child-cover" src="{{child.cover}}" mode="aspectFill" lazy-load></image>
                 </view>
               </view>
             </view>
           </view>
         </view>
 
-        <!-- 加载更多/无数据提示 -->
         <view class="loading-more" wx:if="{{loading}}">加载中...</view>
         <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">没有更多了</view>
         <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
@@ -136,5 +139,7 @@
         </view>
       </view>
     </scroll-view>
-  </view>
+  </scroll-view>
 </view>
+<message-notification />
+

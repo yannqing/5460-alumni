@@ -37,18 +37,10 @@ Page({
     },
     // 轮播图列表
     bannerList: [],
-    currentBannerIndex: 0,
-    // 轮播图 translateY 值
+    // 轮播图 translateY 值 (已由 sticky 替代)
     bannerTranslateY: 0,
-    // 文章列表 scroll-view 高度
-    articleScrollHeight: 0,
     // 导航菜单是否固定
     navFixed: false,
-    // 当前页面滚动位置
-    _scrollTop: 0,
-    // 触摸事件相关
-    _touchStartY: 0,
-    _touchCurrentY: 0,
     // 状态栏高度
     statusBarHeight: 20
   },
@@ -58,94 +50,72 @@ Page({
    */
   onLoad: function (options) {
     const systemInfo = wx.getSystemInfoSync();
+    const rpxRatio = systemInfo.windowWidth / 750;
+
+    // 获取胶囊按钮位置，用于精准对齐
+    const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+    const navBarHeight = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height;
+
+    const statusBarHeight = systemInfo.statusBarHeight || 20;
+    const navStickyTop = statusBarHeight + (navBarHeight || 44);
+
+    // 关键计算：
+    // 轮播图高度 450rpx，导航栏向上偏移 120rpx
+    // 导航栏在 Header 组合内的相对起始位置 = 450rpx - 120rpx = 330rpx
+    const bannerHeightPx = 450 * rpxRatio;
+    const navOverlapPx = 120 * rpxRatio;
+    const navTopInGroupPx = bannerHeightPx - navOverlapPx;
+
+    // 当导航栏到达 navStickyTop 时，Header 组合的 top 值应该是：
+    // stickyGroupTop = navStickyTop - navTopInGroupPx
+    const stickyGroupTop = navStickyTop - navTopInGroupPx;
+
     this.setData({
-      statusBarHeight: systemInfo.statusBarHeight || 20
+      statusBarHeight: statusBarHeight,
+      navBarHeight: navBarHeight || 44,
+      navStickyTop: navStickyTop,
+      stickyGroupTop: stickyGroupTop,
+      // 触发状态切换的滚动距离：就是 Header 组合从初始位置（0）滚动到 stickyGroupTop 位置的距离
+      // 初始时 HeaderTop=0，我们要让它停在 stickyGroupTop。
+      // 因为 sticky 是相对于视口的，当容器 top < stickyGroupTop 时，它会停在 stickyGroupTop。
+      // 所以滚动距离阈值 = -stickyGroupTop
+      scrollThreshold: -stickyGroupTop,
+      rpxRatio: rpxRatio
     });
+
     this.getBannerList();
     this.getArticleList(true);
-    // 添加滚动事件监听
-    wx.pageScrollTo({ scrollTop: 0, duration: 0 });
-    // 计算 scroll-view 高度
-    this.calculateScrollViewHeight();
-  },
-
-  /**
-   * 计算 scroll-view 高度
-   */
-  calculateScrollViewHeight: function () {
-    try {
-      const systemInfo = wx.getSystemInfoSync();
-      const screenHeight = systemInfo.windowHeight;
-      // 计算其他元素的高度（轮播图 + 导航菜单）
-      // 轮播图高度：450rpx 转换为 px
-      const bannerHeight = 450 / 2;
-      // 导航菜单高度：进一步压缩预留空间
-      const navHeight = 80;
-      // 计算 scroll-view 可用高度
-      const scrollViewHeight = screenHeight - (bannerHeight + navHeight);
-      this.setData({
-        articleScrollHeight: Math.max(scrollViewHeight, 300) // 确保最小高度为 300px
-      });
-    } catch (error) {
-      console.error('计算 scroll-view 高度失败:', error);
-      this.setData({
-        articleScrollHeight: 500 // 默认高度
-      });
-    }
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
+    if (this._observer) {
+      this._observer.disconnect();
+    }
   },
 
   /**
-   * 页面滚动事件处理函数
+   * 滚动事件处理函数 (由 scroll-view 触发)
    */
-  onPageScroll: function (e) {
-    const scrollTop = e.scrollTop;
-    // 保存当前滚动位置
-    this.setData({
-      _scrollTop: scrollTop
-    });
+  onScroll: function (e) {
+    const scrollTop = e.detail.scrollTop;
+    const threshold = this.data.scrollThreshold || 77;
 
-    // 实现导航菜单的固定效果
-    const navFixed = scrollTop > 150;
-
-    // 计算轮播图的 translateY 值
-    // 核心思路：轮播图和导航菜单应该保持相对静止
-    // 当导航菜单固定时，轮播图的位置需要相应调整
-
-    // 导航菜单原始 margin-top 是 -120rpx（约 -60px）
-    const navMarginTop = -60; // 导航菜单原始 margin-top（-120rpx 转换为 px）
-
-    // 计算轮播图位置
-    // 无论导航菜单是否固定，轮播图都应该与导航菜单保持相对静止
-    // 轮播图的位置 = -scrollTop + (导航菜单固定时的位置补偿)
-    let bannerTranslateY;
-
-    if (navFixed) {
-      // 导航菜单固定时
-      // 导航菜单固定后，它的顶部位置变为 0
-      // 为了保持轮播图和导航菜单的相对位置不变
-      // 轮播图需要向上移动 navMarginTop 的距离
-      bannerTranslateY = Math.max(scrollTop * -1 + navMarginTop, -240); // 最大移动距离调整为 -240px
+    // 增加逻辑判断：仅当跨越临界点一定范围（±5px）时才切换状态，减少 iOS 卡顿
+    if (this.data.navFixed) {
+      if (scrollTop < threshold - 5) {
+        this.setData({
+          navFixed: false
+        });
+      }
     } else {
-      // 导航菜单未固定时
-      // 轮播图正常跟随页面滚动
-      bannerTranslateY = Math.max(scrollTop * -1, -180); // 最大移动距离保持 -180px
-    }
-
-    // 更新轮播图位置
-    this.setData({
-      bannerTranslateY: bannerTranslateY
-    });
-
-    if (navFixed !== this.data.navFixed) {
-      this.setData({
-        navFixed: navFixed
-      });
+      if (scrollTop > threshold + 5) {
+        this.setData({
+          navFixed: true
+        });
+      }
     }
   },
 
@@ -156,9 +126,14 @@ Page({
     console.log('[Index] 下拉刷新触发');
     this.setData({ refreshing: true });
     try {
-      await this.getArticleList(true);
+      // 同时刷新轮播图和文章列表
+      await Promise.all([
+        this.getBannerList(),
+        this.getArticleList(true)
+      ]);
+    } catch (err) {
+      console.error('[Index] 刷新异常:', err);
     } finally {
-      wx.stopPullDownRefresh();
       this.setData({ refreshing: false });
     }
   },
@@ -174,77 +149,6 @@ Page({
       // 更新未读消息数
       this.getTabBar().updateUnreadCount();
     }
-    // 重新计算 scroll-view 高度，确保在不同设备上都能正确显示
-    this.calculateScrollViewHeight();
-  },
-
-  /**
-   * 列表下拉刷新处理函数
-   */
-  onListRefresh: function () {
-    console.log('[Index] 列表下拉刷新触发')
-    this.setData({ refreshing: true });
-    this.getArticleList(true);
-  },
-
-  /**
-   * scroll-view 触摸开始事件处理函数
-   */
-  onScrollViewTouchStart: function (e) {
-    this.setData({
-      _touchStartY: e.touches[0].pageY
-    });
-  },
-
-  /**
-   * scroll-view 触摸移动事件处理函数
-   * 确保先实现校友功能卡片的滑动极限状态，再进行列表的局部滑动
-   */
-  onScrollViewTouchMove: function (e) {
-    const currentY = e.touches[0].pageY;
-    const deltaY = currentY - this.data._touchStartY;
-
-    // 无论什么位置滑动，都先检查校友功能卡片的状态
-    // 1. 向上滑动（手指向下移动，deltaY > 0）：
-    //    - 首先让校友功能卡片达到固定状态（极限状态）
-    //    - 只有当校友功能卡片完全固定后，才允许列表向上滚动
-    if (deltaY > 0) {
-      // 如果导航区域还没有固定，说明校友功能卡片还未达到极限状态
-      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的固定
-      if (!this.data.navFixed) {
-        return false;
-      }
-    }
-
-    // 2. 向下滑动（手指向上移动，deltaY < 0）：
-    //    - 首先让校友功能卡片回到初始状态（解除固定）
-    //    - 只有当校友功能卡片完全回到初始状态后，才允许列表向下滚动
-    if (deltaY < 0) {
-      // 如果导航区域已经固定，说明校友功能卡片还未回到初始状态
-      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的解除固定
-      if (this.data.navFixed) {
-        return false;
-      }
-    }
-  },
-
-  /**
-   * 触摸开始事件处理函数
-   */
-  onTouchStart: function (e) {
-    this.setData({
-      _touchStartY: e.touches[0].pageY
-    });
-  },
-
-  /**
-   * 触摸结束事件处理函数
-   */
-  onTouchEnd: function () {
-    this.setData({
-      _touchStartY: 0,
-      _touchCurrentY: 0
-    });
   },
 
   /**
@@ -260,7 +164,7 @@ Page({
    * 获取首页文章列表
    */
   async getArticleList(reset = false) {
-    if (this.data.loading && !reset) {return;}
+    if (this.data.loading && !reset) { return; }
 
     this.setData({ loading: true });
 
@@ -488,7 +392,7 @@ Page({
    * 异步获取缺失的头像（校友会类型）
    */
   async fetchMissingAvatars(records) {
-    if (!records || records.length === 0) {return;}
+    if (!records || records.length === 0) { return; }
 
     // 找出需要获取头像的记录
     const needFetchList = records.filter(item =>
@@ -497,7 +401,7 @@ Page({
       (item.publishType === 'association' || item.publishType === 1)
     );
 
-    if (needFetchList.length === 0) {return;}
+    if (needFetchList.length === 0) { return; }
 
     // 批量获取校友会信息
     const fetchPromises = needFetchList.map(async (item) => {
@@ -778,7 +682,7 @@ Page({
               // 优先使用 fileUrl 作为图片路径直接访问
               if (item.bannerImage.fileUrl) {
                 imageUrl = config.getImageUrl(item.bannerImage.fileUrl);
-              } 
+              }
               // 如果 fileUrl 不存在，使用 baseUrl + filePath
               else if (item.bannerImage.filePath) {
                 imageUrl = config.getImageUrl(item.bannerImage.filePath);
