@@ -63,10 +63,6 @@ public class HomePageArticleVo implements Serializable {
     @Schema(description = "发布者名称")
     private String publishUsername;
 
-    @Schema(description = "发布者 id")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long publishWxId;
-
     @Schema(description = "发布者类型（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）")
     private String publishType;
 

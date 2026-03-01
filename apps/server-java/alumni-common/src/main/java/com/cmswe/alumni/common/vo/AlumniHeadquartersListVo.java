@@ -101,6 +101,12 @@ public class AlumniHeadquartersListVo implements Serializable {
     @Schema(description = "级别：1-校级 2-省级 3-国家级 4-国际级")
     private Integer level;
 
+    /**
+     * 创建码
+     */
+    @Schema(description = "创建码")
+    private Integer createCode;
+
     @Serial
     private static final long serialVersionUID = 1L;
 
