@@ -44,6 +44,7 @@ import com.cmswe.alumni.api.system.ActivityService;
 import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.api.search.AlumniPlaceService;
 import com.cmswe.alumni.common.entity.HomePageArticle;
+import com.cmswe.alumni.common.vo.FilesVo;
 import com.cmswe.alumni.common.vo.HomePageArticleVo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -105,6 +106,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     @Resource
     @Lazy
     private HomePageArticleService homePageArticleService;
+
+    @Resource
+    private FileService fileService;
 
     @Resource
     private UserFollowService userFollowService;
@@ -321,7 +325,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                 .collect(Collectors.toList());
         alumniAssociationDetailVo.setEnterpriseList(placeListVos);
 
-        // 4.7 查询该校友会的文章列表
+        // 4.7 查询该校友会的文章列表（最新6篇）
         LambdaQueryWrapper<HomePageArticle> articleQueryWrapper = new LambdaQueryWrapper<>();
         articleQueryWrapper
                 .eq(HomePageArticle::getPublishType, "ASSOCIATION") // 发布者类型：校友会
@@ -329,11 +333,29 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                 .eq(HomePageArticle::getArticleStatus, 1) // 状态：1-启用
                 .eq(HomePageArticle::getApplyStatus, 1) // 审核状态：1-审核通过
                 .eq(HomePageArticle::getPid, 0L) // 只查询父文章（pid=0）
-                .orderByDesc(HomePageArticle::getCreateTime); // 按创建时间倒序
+                .orderByDesc(HomePageArticle::getCreateTime) // 按创建时间倒序
+                .last("LIMIT 6"); // 限制返回6篇
 
         List<HomePageArticle> articleList = homePageArticleService.list(articleQueryWrapper);
         List<HomePageArticleVo> articleListVos = articleList.stream()
-                .map(HomePageArticleVo::objToVo)
+                .map(article -> {
+                    HomePageArticleVo vo = HomePageArticleVo.objToVo(article);
+
+                    // 查询并设置封面图信息
+                    if (article.getCoverImg() != null) {
+                        try {
+                            Files file = fileService.getById(article.getCoverImg());
+                            if (file != null) {
+                                vo.setCoverImg(FilesVo.objToVo(file));
+                            }
+                        } catch (Exception e) {
+                            log.warn("查询封面图失败 - ArticleId: {}, CoverImgId: {}, Error: {}",
+                                    article.getHomeArticleId(), article.getCoverImg(), e.getMessage());
+                        }
+                    }
+
+                    return vo;
+                })
                 .collect(Collectors.toList());
         alumniAssociationDetailVo.setArticleList(articleListVos);
 
@@ -1761,7 +1783,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         // 3. 判断是否是系统管理员
         boolean isSystemAdmin = userRoles.stream()
-                .anyMatch(role -> "SYSTEM_ADMIN".equals(role.getRoleCode()));
+                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
 
         List<ManagedOrganizationVo> result = new ArrayList<>();
 

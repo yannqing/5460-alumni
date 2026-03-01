@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationMemberListRequest;
+import com.cmswe.alumni.common.dto.QueryOrganizationArticleListDto;
 import com.cmswe.alumni.common.dto.QueryOrganizationTreeDto;
 import com.cmswe.alumni.common.entity.Activity;
 import com.cmswe.alumni.common.entity.ActivityRegistration;
@@ -13,12 +14,14 @@ import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
+import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationListDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.AlumniAssociationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
+import com.cmswe.alumni.common.vo.HomePageArticleVo;
 
 import com.cmswe.alumni.common.vo.OrganizationTreeVo;
 import com.cmswe.alumni.common.vo.OrganizationTreeV2Vo;
@@ -45,6 +48,9 @@ public class AlumniAssociationController {
 
     @Resource
     private AlumniAssociationService alumniAssociationService;
+
+    @Resource
+    private HomePageArticleService homePageArticleService;
 
     @Resource
     private ActivityMapper activityMapper;
@@ -340,5 +346,21 @@ public class AlumniAssociationController {
             log.error("取消报名失败，用户 ID: {}, 活动 ID: {}", userId, activityId);
             throw new BusinessException("取消报名失败，请重试");
         }
+    }
+
+    /**
+     * 分页查询校友会的文章列表
+     * @param queryDto 查询参数
+     * @return 文章列表
+     */
+    @PostMapping("/{id}/articles")
+    @Operation(summary = "分页查询校友会的文章列表")
+    public BaseResponse<PageVo<HomePageArticleVo>> getAssociationArticles(
+            @PathVariable Long id,
+            @RequestBody QueryOrganizationArticleListDto queryDto) {
+        // 设置组织ID
+        queryDto.setOrganizationId(id);
+        PageVo<HomePageArticleVo> articlePage = homePageArticleService.getAssociationArticlePage(queryDto);
+        return ResultUtils.success(Code.SUCCESS, articlePage, "查询成功");
     }
 }

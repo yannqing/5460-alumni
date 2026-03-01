@@ -102,7 +102,7 @@
           <view class="article-header">
             <view class="user-info" catchtap="onPublisherTap" data-index="{{idx}}">
               <view class="user-avatar-wrapper">
-                <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}" lazy-load></image>
+                <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" lazy-load></image>
               </view>
               <text class="user-name">{{item.username}}</text>
             </view>

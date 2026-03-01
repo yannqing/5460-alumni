@@ -290,8 +290,6 @@ Page({
           // 处理作者名：使用 publishUsername 字段
           const username = item.publishUsername || '官方发布';
 
-          // 处理头像：直接使用 publisherAvatar 字段
-          // 如果都没有且是校友会类型，使用 publishWxId 获取校友会头像
           let avatar = '';
           if (item.publisherAvatar) {
             // 直接使用 publisherAvatar 字段
@@ -305,8 +303,8 @@ Page({
               avatar = config.getImageUrl(avatar);
             }
           } else {
-            // 如果头像为空，且发布类型是校友会，且 publishWxId 存在，标记需要异步获取
-            avatar = null; // 保持为 null，后续异步获取
+            // 如果头像为空，使用默认头像（与校友会列表保持一致）
+            avatar = config.getImageUrl(config.defaultAvatar);
           }
 
           // 处理发布类型

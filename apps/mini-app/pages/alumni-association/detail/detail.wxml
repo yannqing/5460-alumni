@@ -130,6 +130,33 @@
             </view>
           </view>
 
+          <!-- 资讯列表 -->
+          <view class="card mt-20 dashboard-card" wx:if="{{articleList && articleList.length > 0}}">
+            <view class="section-header">
+              <view class="section-title">
+                <view class="text-bold">资讯</view>
+                <view class="section-subtitle">最新动态与通知</view>
+              </view>
+            </view>
+            <view class="dashboard-list news">
+              <view class="dashboard-item news-item" wx:for="{{articleList}}" wx:key="id" bindtap="goToArticleDetail" data-id="{{item.id}}">
+                <view class="item-leading">
+                  <image class="item-cover" src="{{item.cover}}" mode="aspectFill" />
+                </view>
+                <view class="item-content">
+                  <view class="news-header">
+                    <view class="item-title">{{item.title}}</view>
+                  </view>
+                  <view class="news-footer">
+                    <view class="item-meta">
+                      <text class="news-time">{{item.time}}</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+
           <!-- 附近权益列表 -->
           <!-- <view class="card mt-20 dashboard-card">
             <view class="section-header">

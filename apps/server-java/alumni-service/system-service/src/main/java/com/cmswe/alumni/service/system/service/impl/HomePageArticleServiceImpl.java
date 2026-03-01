@@ -14,6 +14,7 @@ import com.cmswe.alumni.common.dto.CreateChildArticleDto;
 import com.cmswe.alumni.common.dto.CreateHomePageArticleDto;
 import com.cmswe.alumni.common.dto.QueryHomePageArticleListDto;
 import com.cmswe.alumni.common.dto.QueryMyHomePageArticleListDto;
+import com.cmswe.alumni.common.dto.QueryOrganizationArticleListDto;
 import com.cmswe.alumni.common.dto.UpdateChildArticleDto;
 import com.cmswe.alumni.common.dto.UpdateHomePageArticleDto;
 import com.cmswe.alumni.common.entity.*;
@@ -473,7 +474,7 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
 
         // 4.判断是否是系统管理员
         boolean isSystemAdmin = userRoles.stream()
-                .anyMatch(role -> "SYSTEM_ADMIN".equals(role.getRoleCode()));
+                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
 
         // 5.构造查询条件
         LambdaQueryWrapper<HomePageArticle> queryWrapper = new LambdaQueryWrapper<>();
@@ -743,5 +744,213 @@ public class HomePageArticleServiceImpl extends ServiceImpl<HomePageArticleMappe
             // 不支持的发布者类型，抛出异常
             throw new BusinessException("不支持的发布者类型: " + publishType + "，仅支持 ASSOCIATION（校友会）或 LOCAL_PLATFORM（校促会）");
         }
+    }
+
+    @Override
+    public PageVo<HomePageArticleVo> getAssociationArticlePage(QueryOrganizationArticleListDto queryDto) {
+        // 1.参数校验
+        if (queryDto == null || queryDto.getOrganizationId() == null) {
+            throw new BusinessException("参数不能为空");
+        }
+
+        // 2.获取参数
+        Long current = queryDto.getCurrent();
+        Long size = queryDto.getSize();
+        Long organizationId = queryDto.getOrganizationId();
+        String articleTitle = queryDto.getArticleTitle();
+
+        if (current == null || current < 1) {
+            current = 1L;
+        }
+        if (size == null || size < 1) {
+            size = 10L;
+        }
+
+        // 3.构造查询条件
+        LambdaQueryWrapper<HomePageArticle> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(HomePageArticle::getPublishType, "ASSOCIATION") // 发布者类型：校友会
+                .eq(HomePageArticle::getPublishWxId, organizationId) // 发布者ID
+                .eq(HomePageArticle::getArticleStatus, 1) // 状态：1-启用
+                .eq(HomePageArticle::getApplyStatus, 1) // 审核状态：1-审核通过
+                .eq(HomePageArticle::getPid, 0L); // 只查询父文章
+
+        // 根据文章标题模糊搜索（可选）
+        if (articleTitle != null && !articleTitle.trim().isEmpty()) {
+            queryWrapper.like(HomePageArticle::getArticleTitle, articleTitle.trim());
+        }
+
+        // 按创建时间倒序排序
+        queryWrapper.orderByDesc(HomePageArticle::getCreateTime);
+
+        // 4.执行分页查询
+        Page<HomePageArticle> articlePage = this.page(new Page<>(current, size), queryWrapper);
+
+        // 5.转换为VO并查询封面图信息
+        List<HomePageArticleVo> list = articlePage.getRecords().stream()
+                .map(article -> {
+                    HomePageArticleVo vo = HomePageArticleVo.objToVo(article);
+
+                    // 查询并设置封面图信息
+                    if (article.getCoverImg() != null) {
+                        try {
+                            Files file = fileService.getById(article.getCoverImg());
+                            if (file != null) {
+                                vo.setCoverImg(FilesVo.objToVo(file));
+                            }
+                        } catch (Exception e) {
+                            log.warn("查询封面图失败 - ArticleId: {}, CoverImgId: {}, Error: {}",
+                                    article.getHomeArticleId(), article.getCoverImg(), e.getMessage());
+                        }
+                    }
+
+                    return vo;
+                })
+                .toList();
+
+        log.info("分页查询校友会文章列表 - OrganizationId: {}, Current: {}, Size: {}, Total: {}",
+                organizationId, current, size, articlePage.getTotal());
+
+        Page<HomePageArticleVo> resultPage = new Page<HomePageArticleVo>(current, size, articlePage.getTotal())
+                .setRecords(list);
+        return PageVo.of(resultPage);
+    }
+
+    @Override
+    public PageVo<HomePageArticleVo> getPlatformArticlePage(QueryOrganizationArticleListDto queryDto) {
+        // 1.参数校验
+        if (queryDto == null || queryDto.getOrganizationId() == null) {
+            throw new BusinessException("参数不能为空");
+        }
+
+        // 2.获取参数
+        Long current = queryDto.getCurrent();
+        Long size = queryDto.getSize();
+        Long organizationId = queryDto.getOrganizationId();
+        String articleTitle = queryDto.getArticleTitle();
+
+        if (current == null || current < 1) {
+            current = 1L;
+        }
+        if (size == null || size < 1) {
+            size = 10L;
+        }
+
+        // 3.构造查询条件
+        LambdaQueryWrapper<HomePageArticle> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(HomePageArticle::getPublishType, "LOCAL_PLATFORM") // 发布者类型：校促会
+                .eq(HomePageArticle::getPublishWxId, organizationId) // 发布者ID
+                .eq(HomePageArticle::getArticleStatus, 1) // 状态：1-启用
+                .eq(HomePageArticle::getApplyStatus, 1) // 审核状态：1-审核通过
+                .eq(HomePageArticle::getPid, 0L); // 只查询父文章
+
+        // 根据文章标题模糊搜索（可选）
+        if (articleTitle != null && !articleTitle.trim().isEmpty()) {
+            queryWrapper.like(HomePageArticle::getArticleTitle, articleTitle.trim());
+        }
+
+        // 按创建时间倒序排序
+        queryWrapper.orderByDesc(HomePageArticle::getCreateTime);
+
+        // 4.执行分页查询
+        Page<HomePageArticle> articlePage = this.page(new Page<>(current, size), queryWrapper);
+
+        // 5.转换为VO并查询封面图信息
+        List<HomePageArticleVo> list = articlePage.getRecords().stream()
+                .map(article -> {
+                    HomePageArticleVo vo = HomePageArticleVo.objToVo(article);
+
+                    // 查询并设置封面图信息
+                    if (article.getCoverImg() != null) {
+                        try {
+                            Files file = fileService.getById(article.getCoverImg());
+                            if (file != null) {
+                                vo.setCoverImg(FilesVo.objToVo(file));
+                            }
+                        } catch (Exception e) {
+                            log.warn("查询封面图失败 - ArticleId: {}, CoverImgId: {}, Error: {}",
+                                    article.getHomeArticleId(), article.getCoverImg(), e.getMessage());
+                        }
+                    }
+
+                    return vo;
+                })
+                .toList();
+
+        log.info("分页查询校促会文章列表 - OrganizationId: {}, Current: {}, Size: {}, Total: {}",
+                organizationId, current, size, articlePage.getTotal());
+
+        Page<HomePageArticleVo> resultPage = new Page<HomePageArticleVo>(current, size, articlePage.getTotal())
+                .setRecords(list);
+        return PageVo.of(resultPage);
+    }
+
+    @Override
+    public HomePageArticleDetailVo getPublishedArticleDetailById(Long homeArticleId) {
+        // 1.校验id
+        if (homeArticleId == null) {
+            throw new BusinessException("参数不能为空，请重试");
+        }
+
+        // 2.查询数据库
+        HomePageArticle article = homePageArticleMapper.selectById(homeArticleId);
+
+        // 3.返回校验值
+        if (article == null) {
+            throw new BusinessException("文章不存在，请重试");
+        }
+
+        // 4.校验文章状态（必须是已发布且审核通过的）
+        if (article.getArticleStatus() == null || article.getArticleStatus() != 1) {
+            throw new BusinessException("文章未发布或已禁用");
+        }
+        if (article.getApplyStatus() == null || article.getApplyStatus() != 1) {
+            throw new BusinessException("文章未通过审核");
+        }
+
+        // 5.转 vo
+        HomePageArticleDetailVo detailVo = HomePageArticleDetailVo.objToVo(article);
+
+        // 6.查询子文章列表（如果是父文章）
+        if (article.getPid() == 0L) {
+            List<HomePageArticle> childArticles = this.list(
+                    new LambdaQueryWrapper<HomePageArticle>()
+                            .eq(HomePageArticle::getPid, homeArticleId)
+                            .eq(HomePageArticle::getArticleStatus, 1) // 子文章也必须是已发布的
+                            .eq(HomePageArticle::getApplyStatus, 1) // 子文章也必须是审核通过的
+                            .orderByAsc(HomePageArticle::getCreateTime)
+            );
+
+            if (!childArticles.isEmpty()) {
+                List<HomePageArticleVo> childrenVoList = childArticles.stream()
+                        .map(childArticle -> {
+                            HomePageArticleVo childVo = HomePageArticleVo.objToVo(childArticle);
+
+                            // 查询并设置封面图信息
+                            if (childArticle.getCoverImg() != null) {
+                                try {
+                                    Files file = fileService.getById(childArticle.getCoverImg());
+                                    if (file != null) {
+                                        childVo.setCoverImg(FilesVo.objToVo(file));
+                                    }
+                                } catch (Exception e) {
+                                    log.warn("查询子文章封面图失败 - ArticleId: {}, CoverImgId: {}, Error: {}",
+                                            childArticle.getHomeArticleId(), childArticle.getCoverImg(), e.getMessage());
+                                }
+                            }
+
+                            return childVo;
+                        })
+                        .toList();
+
+                detailVo.setChildren(childrenVoList);
+                log.info("查询到已发布子文章 - ParentArticleId: {}, ChildCount: {}", homeArticleId, childrenVoList.size());
+            }
+        }
+
+        log.info("根据id查询已发布文章详情 id:{}", homeArticleId);
+
+        return detailVo;
     }
 }

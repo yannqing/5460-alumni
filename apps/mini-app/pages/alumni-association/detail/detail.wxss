@@ -665,6 +665,31 @@ page {
   align-items: center;
 }
 
+/* 资讯列表样式 */
+.news-item .item-content {
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 90rpx;
+}
+
+.news-header {
+  margin-bottom: 8rpx;
+}
+
+.news-footer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.news-time {
+  font-size: 20rpx;
+  color: #9a9a9a;
+  white-space: nowrap;
+}
+
 .activity-footer .item-desc {
   flex: 1;
   margin-right: 12rpx;

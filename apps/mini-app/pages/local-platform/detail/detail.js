@@ -25,7 +25,8 @@ Page({
     associationLoading: false,
     // 组织结构编辑相关
     canEditOrg: false, // 是否有编辑权限
-    isEditOrgMode: false // 是否处于编辑模式
+    isEditOrgMode: false, // 是否处于编辑模式
+    articleList: [] // 资讯列表
   },
 
   onLoad(options) {
@@ -106,7 +107,7 @@ Page({
 
     try {
       const res = await localPlatformApi.getLocalPlatformDetail(this.data.platformId)
-
+      console.log("local platform:", res)
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
 
@@ -151,8 +152,46 @@ Page({
           memberCount: data.memberCount || 0
         }
 
+        // 处理并格式化文章列表 (资讯部分)
+        const formattedArticleList = (data.articleList || []).map(article => {
+          // 处理封面图：极其稳健逻辑，兼容对象、URL字符串、路径及 ID
+          let cover = '';
+          const rawCover = article.coverImg || article.cover_img;
+
+          if (rawCover) {
+            if (typeof rawCover === 'object') {
+              cover = rawCover.fileUrl || rawCover.filePath || rawCover.thumbnailUrl || '';
+            } else if (typeof rawCover === 'string') {
+              // 包含斜杠或以http开头则视为路径/URL，否则视为 ID
+              if (rawCover.startsWith('http') || rawCover.indexOf('/') !== -1) {
+                cover = rawCover;
+              } else {
+                cover = `/file/download/${rawCover}`;
+              }
+            } else {
+              cover = `/file/download/${rawCover}`;
+            }
+          }
+
+          // 顶级字段兜底
+          if (!cover) {
+            cover = article.fileUrl || article.thumbnailUrl || article.coverImage || article.cover_image || '';
+          }
+
+          const finalCover = cover ? config.getImageUrl(cover) : config.getImageUrl(config.defaultCover);
+
+          return {
+            ...article,
+            id: article.homeArticleId || article.id,
+            title: article.articleTitle || '无标题',
+            cover: finalCover,
+            time: this.formatDate(article.createTime)
+          }
+        })
+
         this.setData({
           platformInfo,
+          articleList: formattedArticleList,
           loading: false
         })
 
@@ -337,6 +376,81 @@ Page({
     wx.navigateTo({
       url: '/pages/alumni-association/create/create'
     })
+  },
+
+  // 格式化日期 (月-日 时:分)
+  formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString.replace('T', ' '));
+    if (isNaN(date.getTime())) return '';
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${month}-${day} ${hours}:${minutes}`;
+  },
+
+  // 跳转到文章详情
+  goToArticleDetail(e) {
+    const id = e.currentTarget.dataset.id;
+    const article = this.data.articleList.find(a => a.id === id);
+
+    if (!article) {
+      wx.showToast({
+        title: '文章数据不存在',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const articleType = article.articleType || 1;
+    const articleLink = article.articleLink || '';
+    const articleTitle = article.title || '资讯详情';
+
+    // 1: 公众号文章
+    if (articleType === 1) {
+      if (articleLink) {
+        wx.openOfficialAccountArticle({
+          url: articleLink,
+          fail() {
+            wx.showToast({
+              title: '无法打开文章',
+              icon: 'none'
+            });
+          }
+        });
+      } else {
+        wx.showToast({
+          title: '文章链接为空',
+          icon: 'none'
+        });
+      }
+    }
+    // 2: 内部路径
+    else if (articleType === 2) {
+      if (articleLink) {
+        wx.navigateTo({
+          url: articleLink,
+          fail() {
+            wx.navigateTo({
+              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
+            });
+          }
+        });
+      }
+    }
+    // 3: 第三方链接
+    else if (articleType === 3) {
+      wx.navigateTo({
+        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
+      });
+    }
+    // 默认跳转到普通详情页
+    else {
+      wx.navigateTo({
+        url: `/pages/article/detail/detail?id=${id}`
+      });
+    }
   }
 })
 
