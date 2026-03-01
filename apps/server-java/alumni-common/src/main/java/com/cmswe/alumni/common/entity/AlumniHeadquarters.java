@@ -37,6 +37,12 @@ public class AlumniHeadquarters implements Serializable {
     private Long schoolId;
 
     /**
+     * logo
+     */
+    @TableField(value = "logo")
+    private String logo;
+
+    /**
      * 校友总会描述
      */
     @TableField(value = "description")

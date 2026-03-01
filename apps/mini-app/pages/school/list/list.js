@@ -699,10 +699,10 @@ Page({
         wx.navigateBack()
       }
     } else {
-      // 普通模式：跳转到详情页
-      wx.navigateTo({
-        url: `/pages/school/detail/detail?id=${id}`
-      })
+      // 普通模式：跳转到详情页（暂时注释）
+      // wx.navigateTo({
+      //   url: `/pages/school/detail/detail?id=${id}`
+      // })
     }
   },
 
