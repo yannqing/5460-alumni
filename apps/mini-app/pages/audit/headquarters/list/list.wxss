@@ -1,0 +1,436 @@
+/* pages/audit/headquarters/list/list.wxss */
+
+.headquarters-management-list-page {
+  background-color: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 可滚动列表区域 */
+.scroll-list {
+  width: 750rpx;
+  height: 0;
+  flex: 1;
+  position: relative;
+  z-index: 0;
+}
+
+/* 校友总会列表 */
+.headquarters-list {
+  padding: 20rpx;
+  padding-bottom: 160rpx;
+}
+
+/* 骨架屏样式 */
+.skeleton-card {
+  width: 710rpx;
+  min-height: 180rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20rpx;
+  padding: 30rpx 20rpx;
+  box-sizing: border-box;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.skeleton-title {
+  width: 200rpx;
+  height: 36rpx;
+  background-color: #f0f0f0;
+  border-radius: 8rpx;
+  margin-right: 16rpx;
+}
+
+.skeleton-tag {
+  width: 80rpx;
+  height: 32rpx;
+  background-color: #f0f0f0;
+  border-radius: 16rpx;
+}
+
+.skeleton-info {
+  width: 100%;
+  height: 28rpx;
+  background-color: #f0f0f0;
+  border-radius: 6rpx;
+  margin-bottom: 16rpx;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.skeleton-btn {
+  width: 120rpx;
+  height: 48rpx;
+  background-color: #f0f0f0;
+  border-radius: 16rpx;
+}
+
+.skeleton-image {
+  width: 145rpx;
+  height: 145rpx;
+  background-color: #f0f0f0;
+  border-radius: 8rpx;
+  margin-left: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 骨架屏闪烁动画 */
+.skeleton-animate {
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-color: #f0f0f0;
+  }
+  50% {
+    background-color: #e0e0e0;
+  }
+  100% {
+    background-color: #f0f0f0;
+  }
+}
+
+/* 校友总会卡片 */
+.block_9 {
+  width: 710rpx;
+  min-height: 228rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  flex-direction: row;
+  display: flex;
+  margin-bottom: 20rpx;
+  padding: 30rpx 20rpx;
+  box-sizing: border-box;
+}
+
+.section_7 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.box_9 {
+  width: 100%;
+  height: 65rpx;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.text_24 {
+  height: 45rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 32rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 45rpx;
+  margin-right: 16rpx;
+  max-width: 300rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-wrapper_12 {
+  border-radius: 18rpx;
+  height: 36rpx;
+  display: flex;
+  flex-direction: column;
+  width: 94rpx;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-wrapper_12.pending {
+  background-color: rgba(250,156,0,1.000000);
+}
+
+.text-wrapper_12.approved {
+  background-color: rgba(80,200,32,1.000000);
+}
+
+.text-wrapper_12.rejected {
+  background-color: rgba(154,154,154,1.000000);
+}
+
+.text_25 {
+  width: 67rpx;
+  height: 31rpx;
+  overflow-wrap: break-word;
+  color: rgba(255,255,255,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 31rpx;
+}
+
+.text-wrapper_16 {
+  width: 100%;
+  height: 36rpx;
+  flex-direction: row;
+  display: flex;
+  margin-top: 8rpx;
+}
+
+.text_26 {
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.6);
+  font-size: 26rpx;
+  font-family: PingFangSC-Regular;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+}
+
+.text_27 {
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.85);
+  font-size: 26rpx;
+  font-family: PingFangSC-Regular;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+}
+
+.image_7 {
+  width: 145rpx;
+  height: 145rpx;
+  border-radius: 8rpx;
+  margin-left: 20rpx;
+  flex-shrink: 0;
+  display: block;
+  object-fit: cover;
+}
+
+.image_7.placeholder {
+  background-color: #F0F0F0;
+}
+
+/* 空状态样式 */
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.empty-text {
+  display: block;
+}
+
+/* 加载更多样式 */
+.loading-more {
+  text-align: center;
+  padding: 20rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.no-more {
+  text-align: center;
+  padding: 16px 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 审核按钮 */
+.edit-action {
+  width: 100%;
+  margin-top: 16rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.approve-btn-wrapper {
+  background-color: rgba(255,255,255,1);
+  border-radius: 18rpx;
+  height: 54rpx;
+  border: 1px solid rgba(80,200,32,1);
+  display: flex;
+  flex-direction: column;
+  width: 145rpx;
+  align-items: center;
+  justify-content: center;
+}
+
+.approve-btn-text {
+  height: 29rpx;
+  overflow-wrap: break-word;
+  color: rgba(80,200,32,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 29rpx;
+}
+
+.reject-btn-wrapper {
+  background-color: rgba(255,255,255,1);
+  border-radius: 18rpx;
+  height: 54rpx;
+  border: 1px solid rgba(255,77,79,1);
+  display: flex;
+  flex-direction: column;
+  width: 145rpx;
+  align-items: center;
+  justify-content: center;
+}
+
+.reject-btn-text {
+  height: 29rpx;
+  overflow-wrap: break-word;
+  color: rgba(255,77,79,1);
+  font-size: 22rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 29rpx;
+}
+
+/* 拒绝确认按钮样式 */
+.reject-confirm-btn {
+  background-color: rgba(255,77,79,1) !important;
+}
+
+/* 弹框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.edit-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 20rpx;
+  width: 90%;
+  max-width: 600rpx;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999;
+  cursor: pointer;
+}
+
+.modal-content {
+  padding: 30rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 20rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+  min-height: 150rpx;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 20rpx;
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  margin: 0;
+  line-height: normal;
+  height: auto;
+}
+
+.modal-btn::after {
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666;
+  border: none;
+}
+
+.confirm-btn {
+  background-color: #4A8BF5;
+  color: #fff;
+  border: none;
+}

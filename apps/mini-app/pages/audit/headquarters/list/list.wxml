@@ -1,0 +1,127 @@
+<!-- pages/audit/headquarters/list/list.wxml -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="审核校友总会">
+<view class="headquarters-management-list-page">
+  <!-- 可滚动列表区域 -->
+  <scroll-view 
+    class="scroll-list" 
+    scroll-y 
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+    enable-back-to-top
+    show-scrollbar="{{false}}"
+  >
+    <!-- 骨架屏加载状态 -->
+    <view class="headquarters-list" wx:if="{{loading}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+        <view class="skeleton-content">
+          <view class="skeleton-header">
+            <view class="skeleton-title skeleton-animate"></view>
+            <view class="skeleton-tag skeleton-animate"></view>
+          </view>
+          <view class="skeleton-info skeleton-animate"></view>
+          <view class="skeleton-info skeleton-animate"></view>
+          <view class="skeleton-actions">
+            <view class="skeleton-btn skeleton-animate"></view>
+            <view class="skeleton-btn skeleton-animate"></view>
+          </view>
+        </view>
+        <view class="skeleton-image skeleton-animate"></view>
+      </view>
+    </view>
+
+    <!-- 校友总会列表 -->
+    <view class="headquarters-list" wx:if="{{!loading}}">
+    <block wx:for="{{headquartersList}}" wx:key="id">
+      <!-- 校友总会卡片 -->
+      <view class="block_9" bindtap="viewDetail" data-id="{{item.id}}">
+        <view class="section_7">
+          <!-- 校友总会名称和状态 -->
+          <view class="box_9">
+            <text lines="1" class="text_24">{{item.name}}</text>
+            <view class="text-wrapper_12 {{item.approvalStatus === 0 ? 'pending' : item.approvalStatus === 1 ? 'approved' : 'rejected'}}">
+              <text lines="1" class="text_25">{{item.approvalStatusText}}</text>
+            </view>
+          </view>
+          <!-- 校友总会信息 -->
+          <view class="text-wrapper_16">
+            <text lines="1" class="text_26">级别：</text>
+            <text lines="1" class="text_27">{{item.levelText}}</text>
+          </view>
+          <view class="text-wrapper_16">
+            <text lines="1" class="text_26">成立日期：</text>
+            <text lines="1" class="text_27">{{item.establishedDate}}</text>
+          </view>
+          <view class="text-wrapper_16">
+            <text lines="1" class="text_26">下属校友会：</text>
+            <text lines="1" class="text_27">{{item.memberCount}}个</text>
+          </view>
+          <view class="text-wrapper_16">
+            <text lines="1" class="text_26">联系电话：</text>
+            <text lines="1" class="text_27">{{item.phone}}</text>
+          </view>
+          <view class="text-wrapper_16">
+            <text lines="1" class="text_26">联系邮箱：</text>
+            <text lines="1" class="text_27">{{item.email}}</text>
+          </view>
+          <view class="text-wrapper_16">
+            <text lines="1" class="text_26">地址：</text>
+            <text lines="1" class="text_27">{{item.address}}</text>
+          </view>
+          <!-- 审核按钮 -->
+          <view class="edit-action" wx:if="{{item.approvalStatus === 0}}">
+            <view class="approve-btn-wrapper" catchtap="onApproveTap" data-id="{{item.id}}">
+              <text lines="1" class="approve-btn-text">通过</text>
+            </view>
+            <view class="reject-btn-wrapper" catchtap="onRejectTap" data-id="{{item.id}}">
+              <text lines="1" class="reject-btn-text">拒绝</text>
+            </view>
+          </view>
+        </view>
+        <image class="image_7" src="{{item.logo}}" mode="aspectFill" wx:if="{{item.logo}}"></image>
+        <view class="image_7 placeholder" wx:else></view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && headquartersList.length === 0}}">
+      <text class="empty-text">暂无数据</text>
+    </view>
+
+    <!-- 加载更多中 -->
+    <view class="loading-more" wx:if="{{loadingMore}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 没有更多数据 -->
+    <view class="no-more" wx:if="{{!loading && !loadingMore && !hasMore && headquartersList.length > 0}}">
+      <text>没有更多数据了</text>
+    </view>
+    </view>
+  </scroll-view>
+
+  <!-- 审核弹框 -->
+  <view class="modal-overlay" wx:if="{{isApprovalModalVisible}}" bindtap="hideApprovalModal"></view>
+  <view class="edit-modal" wx:if="{{isApprovalModalVisible}}">
+    <view class="modal-header">
+      <text class="modal-title">{{approvalAction === 1 ? '审核通过' : '审核拒绝'}}</text>
+      <text class="modal-close" bindtap="hideApprovalModal">×</text>
+    </view>
+    <view class="modal-content">
+      <view class="form-item">
+        <text class="form-label">审核说明</text>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入审核说明（可选）"
+          value="{{approvalForm.approvalRemark}}"
+          data-field="approvalRemark"
+          bindinput="onApprovalInput"
+        ></textarea>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="hideApprovalModal">取消</button>
+      <button class="modal-btn confirm-btn {{approvalAction === 2 ? 'reject-confirm-btn' : ''}}" bindtap="submitApproval">确定</button>
+    </view>
+  </view>
+</view>
+</custom-nav-bar>
