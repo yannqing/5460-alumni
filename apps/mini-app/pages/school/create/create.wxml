@@ -1,0 +1,128 @@
+<custom-nav-bar useAuditStyle="{{true}}" auditTitle="申请创建校友总会" showBack="{{true}}">
+  <view class="white-background-content">
+    <view class="container" bindtap="closeAllDropdowns">
+      <image src="{{headerImageUrl}}" class="header-image" mode="aspectFit"></image>
+      <view class="form-card">
+        <view class="form-title">基本信息</view>
+
+        <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
+          <text class="label">申请学校</text>
+          <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
+          <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
+            <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
+            <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
+              {{item.schoolName}}
+            </view>
+          </scroll-view>
+        </view>
+        
+        <view class="form-item required">
+          <text class="label">选择校友总会</text>
+          <picker 
+            mode="selector" 
+            range="{{inactiveUnionList}}" 
+            range-key="headquartersName" 
+            value="{{inactiveUnionIndex}}" 
+            bindchange="handleUnionChange"
+            class="input"
+          >
+            <view class="picker-content">
+              {{formData.headquartersName || '请选择校友总会'}}
+            </view>
+          </picker>
+        </view>
+        
+        <view class="form-item required">
+          <text class="label">创建码/邀请码</text>
+          <input class="input" placeholder="请输入创建码/邀请码" value="{{formData.createCode}}" data-field="createCode" bindinput="handleInput" />
+        </view>
+        
+        <view class="form-item">
+          <text class="label">校友总会描述</text>
+          <textarea class="textarea" placeholder="请输入校友总会描述" value="{{formData.description}}" data-field="description" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">联系信息</text>
+          <input class="input" placeholder="请输入联系信息" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">办公地址</text>
+          <input class="input" placeholder="请输入办公地址" value="{{formData.address}}" data-field="address" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">官方网站</text>
+          <input class="input" placeholder="请输入官方网站" value="{{formData.website}}" data-field="website" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">微信公众号</text>
+          <input class="input" placeholder="请输入微信公众号" value="{{formData.wechatPublicAccount}}" data-field="wechatPublicAccount" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">联系邮箱</text>
+          <input class="input" placeholder="请输入联系邮箱" value="{{formData.email}}" data-field="email" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">联系电话</text>
+          <input class="input" placeholder="请输入联系电话" value="{{formData.phone}}" data-field="phone" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">成立日期</text>
+          <input class="input" placeholder="请输入成立日期 (YYYY-MM-DD)" value="{{formData.establishedDate}}" data-field="establishedDate" bindinput="handleInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="label">级别</text>
+          <picker 
+            mode="selector" 
+            range="{{levelList}}" 
+            value="{{levelIndex}}" 
+            bindchange="handleLevelChange"
+            class="input"
+          >
+            <view class="picker-content">
+              {{formData.levelName || '请选择级别'}}
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-item">
+          <text class="label">校友总会logo</text>
+          <view class="logo-options">
+            <radio-group class="radio-group" bindchange="handleLogoTypeChange">
+              <label class="radio-label">
+                <radio value="default" checked="{{formData.logoType === 'default'}}" color="#3F61CA" /> 使用平台默认logo
+              </label>
+              <label class="radio-label">
+                <radio value="school" checked="{{formData.logoType === 'school'}}" color="#3F61CA" /> 使用学校logo
+              </label>
+              <label class="radio-label">
+                <radio value="upload" checked="{{formData.logoType === 'upload'}}" color="#3F61CA" /> 自己上传logo
+              </label>
+            </radio-group>
+            
+            <view class="logo-preview-box">
+              <view wx:if="{{formData.logoType === 'upload'}}" class="upload-action">
+                <button class="upload-btn" bindtap="chooseLogo">选择图片</button>
+              </view>
+              <view wx:if="{{formData.logo}}" class="logo-preview-wrapper">
+                <image src="{{formData.logo}}" class="logo-preview" mode="aspectFit" />
+                <view wx:if="{{formData.logoType === 'upload'}}" class="logo-delete" bindtap="deleteLogo">×</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-actions">
+        <button class="submit-btn" bindtap="submitForm">提交申请</button>
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>

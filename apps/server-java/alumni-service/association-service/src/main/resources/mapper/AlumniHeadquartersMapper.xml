@@ -8,6 +8,7 @@
         <id property="headquartersId" column="headquarters_id" jdbcType="BIGINT"/>
         <result property="headquartersName" column="headquarters_name" jdbcType="VARCHAR"/>
         <result property="schoolId" column="school_id" jdbcType="BIGINT"/>
+        <result property="logo" column="logo" jdbcType="VARCHAR"/>
         <result property="description" column="description" jdbcType="VARCHAR"/>
         <result property="contactInfo" column="contact_info" jdbcType="VARCHAR"/>
         <result property="address" column="address" jdbcType="VARCHAR"/>
@@ -20,6 +21,7 @@
         <result property="activeStatus" column="active_status" jdbcType="TINYINT"/>
         <result property="approvalStatus" column="approval_status" jdbcType="TINYINT"/>
         <result property="level" column="level" jdbcType="TINYINT"/>
+        <result property="createCode" column="create_code" jdbcType="INTEGER"/>
         <result property="createdUserId" column="created_user_id" jdbcType="BIGINT"/>
         <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
         <result property="updatedUserId" column="updated_user_id" jdbcType="BIGINT"/>
@@ -28,9 +30,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        headquarters_id, headquarters_name, school_id, description, contact_info,
+        headquarters_id, headquarters_name, school_id, logo, description, contact_info,
         address, website, wechat_public_account, email, phone, established_date,
-        member_count, active_status, approval_status, level, created_user_id,
+        member_count, active_status, approval_status, level, create_code, created_user_id,
         created_time, updated_user_id, updated_time, is_deleted
     </sql>
 
