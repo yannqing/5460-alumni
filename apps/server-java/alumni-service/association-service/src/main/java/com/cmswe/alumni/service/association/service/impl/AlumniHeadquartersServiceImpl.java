@@ -156,6 +156,9 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
         }
 
         // 3. 更新其他描述信息（非必填）
+        if (StringUtils.isNotBlank(request.getLogo())) {
+            alumniHeadquarters.setLogo(request.getLogo());
+        }
         if (StringUtils.isNotBlank(request.getDescription())) {
             alumniHeadquarters.setDescription(request.getDescription());
         }
@@ -295,6 +298,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
             LambdaUpdateWrapper<AlumniHeadquarters> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(AlumniHeadquarters::getHeadquartersId, headquartersId)
                     .set(AlumniHeadquarters::getApprovalStatus, 2)
+                    .set(AlumniHeadquarters::getLogo, null)
                     .set(AlumniHeadquarters::getDescription, null)
                     .set(AlumniHeadquarters::getContactInfo, null)
                     .set(AlumniHeadquarters::getAddress, null)
