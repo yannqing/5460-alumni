@@ -87,7 +87,7 @@ Page({
       if (res.data && res.data.code === 200) {
         const records = res.data.data?.records || []
         const total = res.data.data?.total || 0
-        
+
         const newList = records.map(item => ({
           id: item.headquartersId,
           name: item.headquartersName,

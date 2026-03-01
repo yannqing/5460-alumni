@@ -163,11 +163,11 @@ Page({
             this.setData({ filteredUnionList: this.data.inactiveUnionList })
             return
         }
-        
-        const filtered = this.data.inactiveUnionList.filter(union => 
+
+        const filtered = this.data.inactiveUnionList.filter(union =>
             union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
         )
-        
+
         this.setData({ filteredUnionList: filtered })
     },
 
@@ -185,12 +185,12 @@ Page({
         if (union.logo) {
             updateData.unionLogoUrl = union.logo
         }
-        
+
         // 如果当前选中的是"使用学校logo", 则实时更新预览图和提交用的logo地址
         if (this.data.formData.logoType === 'school' && union.logo) {
             updateData['formData.logo'] = union.logo
         }
-        
+
         this.setData(updateData)
     },
 
@@ -435,7 +435,7 @@ Page({
             headquartersId: formData.headquartersId,
             createCode: formData.createCode,
             description: formData.description || undefined,
-            contactInfo: formData.contactInfo ? JSON.stringify({content: formData.contactInfo}) : undefined,
+            contactInfo: formData.contactInfo ? JSON.stringify({ content: formData.contactInfo }) : undefined,
             address: formData.address || undefined,
             website: formData.website || undefined,
             wechatPublicAccount: formData.wechatPublicAccount || undefined,
