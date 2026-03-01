@@ -274,8 +274,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                 userPrivacySettingServiceOne.setFieldName(sysConfig.getConfigName());
                 userPrivacySettingServiceOne.setFieldCode(sysConfig.getConfigKey());
                 userPrivacySettingServiceOne.setType(1);            // 用户配置
-                userPrivacySettingServiceOne.setVisibility(1);      // 默认可见
-                userPrivacySettingServiceOne.setSearchable(1);      // 默认可见
+                userPrivacySettingServiceOne.setVisibility(0);      // 默认可见
+                userPrivacySettingServiceOne.setSearchable(0);      // 默认可见
 
                 userPrivacySettingService.save(userPrivacySettingServiceOne);
             }
