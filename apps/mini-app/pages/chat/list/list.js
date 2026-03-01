@@ -12,16 +12,16 @@ Page({
     socketConnected: false,
     onlineUsers: [],
     unreadTotal: 0,
-    
+
     // 滑动操作相关
     startX: 0,
     startY: 0,
-    
+
     // 消息通知相关
     showMessageNotification: false,
     messageNotificationData: {
-      peerNickname : '',
-      peerAvatar : '',
+      peerNickname: '',
+      peerAvatar: '',
       messageContent: ''
     },
     statusBarHeight: 0,
@@ -110,7 +110,7 @@ Page({
 
     // 获取当前连接状态
     const status = socketManager.getStatus()
-    this.setData({ 
+    this.setData({
       socketConnected: status.isConnected,
       onlineUsers: socketManager.getOnlineUsers()
     })
@@ -153,39 +153,39 @@ Page({
 
   refreshOnlineStatus() {
     const { allChatList, onlineUsers } = this.data
-    if (!allChatList || allChatList.length === 0) {return}
+    if (!allChatList || allChatList.length === 0) { return }
 
     const newList = allChatList.map(item => ({
       ...item,
       isOnline: this.isUserOnline(item.userId)
     }))
 
-    this.setData({ 
+    this.setData({
       allChatList: newList,
       chatList: newList
     })
   },
 
   isUserOnline(userId) {
-    if (!userId) {return false}
+    if (!userId) { return false }
     return this.data.onlineUsers.some(u => String(u.userId) === String(userId))
   },
 
   formatTime(timeStr) {
-    if (!timeStr) {return ''}
-    
+    if (!timeStr) { return '' }
+
     let date;
-    
+
     try {
       // 1. 如果是数组形式 [2023, 12, 17, 10, 0, 0]
       if (Array.isArray(timeStr)) {
         // new Date(year, monthIndex, day, hour, minute, second)
         // 注意 monthIndex 从 0 开始，所以需要减 1
         if (timeStr.length >= 3) {
-           date = new Date(timeStr[0], timeStr[1] - 1, timeStr[2], 
-                           timeStr[3] || 0, timeStr[4] || 0, timeStr[5] || 0);
+          date = new Date(timeStr[0], timeStr[1] - 1, timeStr[2],
+            timeStr[3] || 0, timeStr[4] || 0, timeStr[5] || 0);
         }
-      } 
+      }
       // 2. 如果是数字（时间戳）
       else if (typeof timeStr === 'number') {
         date = new Date(timeStr);
@@ -221,7 +221,7 @@ Page({
 
     const now = new Date()
     const diff = now - date
-    
+
     // 小于1分钟
     if (diff < 60000) {
       return '刚刚'
@@ -251,14 +251,14 @@ Page({
 
   async loadChatList() {
     this.setData({ loading: true })
-    
+
     try {
       // 从后端获取会话列表
       const res = await chatApi.getConversations({})
-      
+
       if (res.data && res.data.code === 200) {
         const chatList = res.data.data?.records || res.data.data || []
-        
+
         // 映射聊天列表数据
         const mappedChatList = chatList.map(chat => {
           const conversationId = chat.conversationId || chat.id
@@ -269,7 +269,7 @@ Page({
           if (isSystemNotification) {
             avatar = config.getAssetImageUrl('xttzavartar@2x.png')
           } else {
-            avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : config.defaultAvatar)
+            avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : config.getImageUrl(config.defaultAvatar))
           }
 
           return {
@@ -293,20 +293,20 @@ Page({
             isTouchMove: false // 初始不显示滑动菜单
           }
         })
-        
+
         this.setData({
           chatList: mappedChatList,
           allChatList: mappedChatList,
           loading: false
         })
-        
+
         return
       }
     } catch (error) {
       console.error('[ChatList] 加载聊天列表失败:', error)
       // 如果报错，可能是接口问题，不弹窗，避免刷屏
     }
-    
+
     this.setData({ loading: false })
   },
 
@@ -421,19 +421,19 @@ Page({
       startY = this.data.startY,
       touchMoveX = e.changedTouches[0].clientX,
       touchMoveY = e.changedTouches[0].clientY,
-      
+
       // 计算角度
       angle = this.angle({ X: startX, Y: startY }, { X: touchMoveX, Y: touchMoveY });
 
     this.data.allChatList.forEach(function (v, i) {
       v.isTouchMove = false
       // 滑动超过30度角 return
-      if (Math.abs(angle) > 30) {return;}
+      if (Math.abs(angle) > 30) { return; }
       if (i == index) {
         if (touchMoveX > startX) // 右滑
-          {v.isTouchMove = false}
+        { v.isTouchMove = false }
         else // 左滑
-          {v.isTouchMove = true}
+        { v.isTouchMove = true }
       }
     })
 
@@ -462,17 +462,17 @@ Page({
    */
   async markRead(e) {
     const { peerid, index, unreadcount } = e.currentTarget.dataset
-    
+
     if (!peerid) {
       console.error('[ChatList] 标记已读失败：缺少 peerid')
       wx.showToast({ title: '操作失败', icon: 'none' })
       return
     }
-    
+
     const list = this.data.allChatList
     const currentUnreadCount = parseInt(unreadcount) || list[index].unreadCount || 0
     const originalUnreadCount = list[index].unreadCount
-    
+
     // 如果有未读消息，标记为已读；如果没有未读消息，恢复为未读状态
     if (currentUnreadCount > 0) {
       // 标记为已读
@@ -483,7 +483,7 @@ Page({
       try {
         // 调用后端接口标记已读
         const res = await chatApi.markConversationRead(peerid)
-        
+
         if (res.data && res.data.code === 200) {
           // 更新未读总数
           this.loadUnreadTotal()
@@ -505,7 +505,7 @@ Page({
       list[index].unreadCount = 1 // 恢复为1条未读
       list[index].isTouchMove = false // 关闭滑动菜单
       this.setData({ allChatList: list })
-      
+
       // 更新未读总数（增加1）
       const currentTotal = this.data.unreadTotal || 0
       this.setData({ unreadTotal: currentTotal + 1 })
@@ -518,31 +518,31 @@ Page({
   async pinConversation(e) {
     const { id, index, ispinned } = e.currentTarget.dataset
     // id 即 conversationId
-    if (!id) {return}
+    if (!id) { return }
 
     // dataset 中的值是字符串，需要正确转换为布尔值
     // ispinned 可能是 "true"、"false"、true、false 或 undefined
     const currentIsPinned = ispinned === true || ispinned === 'true'
     const newIsPinned = !currentIsPinned
-    
+
     try {
       // 调用 API，注意传递 isPinned 参数
       const res = await chatApi.pinConversation(id, newIsPinned)
-      
+
       if (res.data && res.data.code === 200) {
         const list = this.data.allChatList
         list[index].isPinned = newIsPinned
         list[index].isTouchMove = false
-        
+
         // 重新排序：置顶的在前面
         list.sort((a, b) => {
-          if (a.isPinned && !b.isPinned) {return -1}
-          if (!a.isPinned && b.isPinned) {return 1}
+          if (a.isPinned && !b.isPinned) { return -1 }
+          if (!a.isPinned && b.isPinned) { return 1 }
           // 如果置顶状态相同，按时间倒序（假设时间已处理好，或者用原始时间戳）
           // 这里简化，假设列表本来就是按时间排好的，只是置顶改变了顺序
-          return 0 
+          return 0
         })
-        
+
         this.setData({ allChatList: list })
       } else {
         wx.showToast({ title: '操作失败', icon: 'none' })
@@ -559,13 +559,13 @@ Page({
   async deleteConversation(e) {
     const { id, index } = e.currentTarget.dataset
     // id 是 conversationId
-    
+
     if (!id) {
       console.error('[ChatList] 删除会话失败：缺少 conversationId')
       wx.showToast({ title: '操作失败', icon: 'none' })
       return
     }
-    
+
     wx.showModal({
       title: '提示',
       content: '确定要删除该会话吗？',
@@ -588,10 +588,10 @@ Page({
             wx.showToast({ title: '删除失败', icon: 'none' })
           }
         } else {
-           // 取消删除，关闭滑动
-           const list = this.data.allChatList
-           list[index].isTouchMove = false
-           this.setData({ allChatList: list })
+          // 取消删除，关闭滑动
+          const list = this.data.allChatList
+          list[index].isTouchMove = false
+          this.setData({ allChatList: list })
         }
       }
     })

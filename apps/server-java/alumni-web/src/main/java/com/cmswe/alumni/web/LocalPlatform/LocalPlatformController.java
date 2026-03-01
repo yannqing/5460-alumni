@@ -2,15 +2,18 @@ package com.cmswe.alumni.web.LocalPlatform;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cmswe.alumni.api.association.LocalPlatformService;
+import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationByPlatformDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformListDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformMemberListDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformTreeDto;
+import com.cmswe.alumni.common.dto.QueryOrganizationArticleListDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
+import com.cmswe.alumni.common.vo.HomePageArticleVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
 import com.cmswe.alumni.common.vo.LocalPlatformListVo;
 import com.cmswe.alumni.common.vo.OrganizationTreeVo;
@@ -36,6 +39,9 @@ public class LocalPlatformController {
 
         @Resource
         private LocalPlatformService localPlatformService;
+
+        @Resource
+        private HomePageArticleService homePageArticleService;
 
         @PostMapping("/page")
         @Operation(summary = "分页查询校处会列表")
@@ -108,5 +114,22 @@ public class LocalPlatformController {
                 log.info("根据校处会ID分页查询成员列表，查询条件：{}", queryDto);
                 Page<OrganizationMemberResponse> memberPage = localPlatformService.getLocalPlatformMemberPage(queryDto);
                 return ResultUtils.success(Code.SUCCESS, memberPage, "查询成功");
+        }
+
+        /**
+         * 分页查询校促会的文章列表
+         * @param id 校促会ID
+         * @param queryDto 查询参数
+         * @return 文章列表
+         */
+        @PostMapping("/{id}/articles")
+        @Operation(summary = "分页查询校促会的文章列表")
+        public BaseResponse<PageVo<HomePageArticleVo>> getPlatformArticles(
+                        @PathVariable Long id,
+                        @RequestBody QueryOrganizationArticleListDto queryDto) {
+                // 设置组织ID
+                queryDto.setOrganizationId(id);
+                PageVo<HomePageArticleVo> articlePage = homePageArticleService.getPlatformArticlePage(queryDto);
+                return ResultUtils.success(Code.SUCCESS, articlePage, "查询成功");
         }
 }

@@ -1,6 +1,7 @@
 // pages/audit/article/manage/manage.js
 const app = getApp()
 const { homeArticleApi, articleApplyApi } = require('../../../../api/api.js')
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
@@ -60,7 +61,7 @@ Page({
   checkReviewPermission() {
     // 拥有文章审核或文章管理权限的用户才能看到通过/拒绝按钮
     const canReview = this.hasPermission('HOME_PAGE_ARTICLE_REVIEW') ||
-                      this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
+      this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
     this.setData({ canReview })
   },
 
@@ -103,91 +104,65 @@ Page({
     }
 
     const page = isLoadMore ? currentPage + 1 : 1
+    const { currentTab } = this.data
 
     try {
-      // 获取当前用户ID
-      const currentUserId = app.globalData.userData?.userId || app.globalData.userData?.wxId || 'user123' // 默认用户ID用于测试
-
-      let newArticleList = []
-
-      // 获取本人创建的所有文章
-      const articlePageParams = {
+      // 构造查询参数
+      const applyPageParams = {
         current: page,
         size: pageSize
       }
 
       // 根据当前 tab 添加筛选参数
-      const { currentTab } = this.data
       if (currentTab === 'pending') {
-        articlePageParams.applyStatusList = [0] // 0-待审核
+        applyPageParams.applyStatus = 0 // 0-待审核
       } else if (currentTab === 'reviewed') {
-        articlePageParams.applyStatusList = [1, 2] // 1-审核通过, 2-审核拒绝
+        // 如果后端支持 applyStatusList，则传 [1, 2]
+        // 如果不支持，可能需要分别处理或依赖后端默认返回
+        applyPageParams.applyStatusList = [1, 2] // 1-审核通过, 2-审核拒绝
       }
-      // 'all' 不传 applyStatusList，查询所有状态
 
-      // 调用API获取本人首页文章列表
-      const articleRes = await homeArticleApi.getMyArticlePage(articlePageParams)
+      // 直接调用审核申请接口作为主数据源
+      const applyRes = await articleApplyApi.getApplyPage(applyPageParams)
 
-      if (articleRes.data && articleRes.data.code === 200) {
-        const articleRecords = articleRes.data.data?.records || []
-        const total = articleRes.data.data?.total || 0
+      console.log("[ArticleManage] applyRes:", applyRes)
 
-        // 获取所有文章的审核记录
-        const applyPageParams = {
-          current: 1,
-          size: 100, // 获取足够多的审核记录，确保能匹配上所有文章
-          // 不传递applyStatus，获取所有状态的审核记录
-        }
+      if (applyRes.data && applyRes.data.code === 200) {
+        const applyRecords = applyRes.data.data?.records || []
+        const total = applyRes.data.data?.total || 0
+        let newArticleList = []
 
-        const applyRes = await articleApplyApi.getApplyPage(applyPageParams)
-        const applyRecords = applyRes.data && applyRes.data.code === 200 ? applyRes.data.data?.records || [] : []
-
-        // 创建审核记录映射表，key为homeArticleId
-        const applyMap = new Map()
-        applyRecords.forEach(apply => {
-          applyMap.set(apply.articleInfo?.homeArticleId, apply)
-        })
-
-        // 将API返回的数据转换为页面需要的格式
-        newArticleList = articleRecords.map(item => {
-          // 获取对应的审核记录
-          const applyRecord = applyMap.get(item.homeArticleId)
+        // 将审核记录转换为页面需要的格式
+        newArticleList = applyRecords.map(apply => {
+          const item = apply.articleInfo || {}
 
           // 根据审核记录确定状态
           let status = 'pending'
           let statusText = '待审核'
 
-          if (applyRecord) {
-            // 有审核记录，使用审核记录的状态
-            if (applyRecord.applyStatus === 1) {
-              status = 'approved'
-              statusText = '已通过'
-            } else if (applyRecord.applyStatus === 2) {
-              status = 'rejected'
-              statusText = '已拒绝'
-            } else {
-              status = 'pending'
-              statusText = '待审核'
-            }
-          } else {
-            // 没有审核记录，默认显示待审核
-            status = 'pending'
-            statusText = '待审核'
+          if (apply.applyStatus === 1) {
+            status = 'approved'
+            statusText = '已通过'
+          } else if (apply.applyStatus === 2) {
+            status = 'rejected'
+            statusText = '已拒绝'
           }
 
           // 格式化时间，移除T字符
-          let formattedTime = item.createTime || ''
+          let formattedTime = apply.createTime || item.createTime || ''
           if (formattedTime) {
             formattedTime = formattedTime.replace('T', ' ')
           }
 
           // 处理发布者头像
           let publisherAvatarUrl = ''
-          if (item.publisherAvatar) {
-            if (typeof item.publisherAvatar === 'object') {
-              publisherAvatarUrl = item.publisherAvatar.fileUrl || item.publisherAvatar.thumbnailUrl || ''
+          const avatarSource = item.publisherAvatar || apply.appliedUserInfo?.avatarUrl
+
+          if (avatarSource) {
+            if (typeof avatarSource === 'object') {
+              publisherAvatarUrl = avatarSource.fileUrl || avatarSource.thumbnailUrl || ''
             } else {
-              publisherAvatarUrl = item.publisherAvatar
+              publisherAvatarUrl = avatarSource
             }
             // 使用 config.getImageUrl 处理相对路径
             if (publisherAvatarUrl && !publisherAvatarUrl.startsWith('http')) {
@@ -196,24 +171,25 @@ Page({
           }
 
           return {
-            id: item.homeArticleId,
+            id: item.homeArticleId || apply.homeArticleApplyId, // 使用文章ID作为导航ID
             articleId: item.homeArticleId,
-            applyId: applyRecord?.homeArticleApplyId || '', // 审核记录ID，用于审核操作
-            articleTitle: item.articleTitle, // 文章标题
-            publishUsername: item.publishUsername || '未知发布者', // 发布者昵称
-            publisherAvatar: publisherAvatarUrl, // 发布者头像
-            publishType: item.publishType || '', // 发布者类型
+            applyId: apply.homeArticleApplyId, // 审核记录ID，用于审核操作
+            articleTitle: item.articleTitle || '无标题',
+            publishUsername: item.publishUsername || apply.appliedUserInfo?.nickname || '未知发布者',
+            publisherAvatar: publisherAvatarUrl,
+            publishType: item.publishType || '',
             submitTime: formattedTime,
             status: status,
             statusText: statusText,
-            userId: currentUserId,
-            coverImg: item.coverImg?.fileUrl?.replace(/`/g, '') || '' // 使用coverImg对象中的fileUrl字段，并移除可能存在的反引号
+            userId: apply.appliedWxId,
+            coverImg: item.coverImg?.fileUrl?.replace(/`/g, '') || ''
           }
         })
 
         // 计算是否还有更多数据
-        const currentTotal = isLoadMore ? this.data.articleList.length + newArticleList.length : newArticleList.length
-        const newHasMore = currentTotal < total
+        const currentCount = isLoadMore ? this.data.articleList.length + newArticleList.length : newArticleList.length
+        const totalNum = parseInt(total)
+        const newHasMore = currentCount < totalNum
 
         // 合并或替换列表
         const finalList = isLoadMore ? [...this.data.articleList, ...newArticleList] : newArticleList
@@ -222,7 +198,7 @@ Page({
           articleList: finalList,
           filteredArticleList: finalList,
           currentPage: page,
-          total: total,
+          total: totalNum,
           hasMore: newHasMore,
           loading: false,
           loadingMore: false
@@ -287,7 +263,7 @@ Page({
   // 点击删除按钮
   onDeleteTap(e) {
     const { id } = e.currentTarget.dataset
-    
+
     // 显示确认删除对话框
     wx.showModal({
       title: '确认删除',
@@ -296,13 +272,13 @@ Page({
         if (res.confirm) {
           try {
             this.setData({ loading: true })
-            
+
             // 调用删除文章接口
             const deleteRes = await homeArticleApi.deleteArticle(id)
-            
+
             // 详细日志，用于调试
             console.log('删除文章返回完整数据:', JSON.stringify(deleteRes))
-            
+
             if (deleteRes.data && deleteRes.data.code === 200) {
               wx.showToast({
                 title: '删除成功',

@@ -95,18 +95,108 @@ function uploadFile(filePath, uploadUrl, fileFieldName, originalName = '', extra
 
   const headers = getHeaders()
   console.log('[FileUpload] 请求头:', headers)
-  
+
   // 构建表单数据
   const formData = {
     ...extraFormData
   }
-  
+
   if (originalName) {
     formData.originalName = originalName
   }
-  
-  console.log('[FileUpload] 开始调用 wx.uploadFile...')
 
+  // 云托管模式：使用 wx.cloud.callContainer (情况A)
+  if (config.IS_CLOUD_HOST) {
+    console.log('[FileUpload] 云托管模式：使用 wx.cloud.callContainer 上传文件')
+    const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2, 12)
+
+    return new Promise((resolve, reject) => {
+      try {
+        const fs = wx.getFileSystemManager()
+        const fileContent = fs.readFileSync(filePath)
+
+        // 获取文件后缀名推导 Content-Type
+        const ext = filePath.split('.').pop().toLowerCase()
+        const mimeMap = {
+          'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'gif': 'image/gif',
+          'mp3': 'audio/mpeg', 'wav': 'audio/wav', 'mp4': 'video/mp4'
+        }
+        const contentType = mimeMap[ext] || 'application/octet-stream'
+
+        // 构造二进制 body
+        const body = buildMultipartBody(
+          formData,
+          [{
+            name: fileFieldName,
+            buffer: fileContent,
+            fileName: originalName || `file.${ext}`,
+            contentType: contentType
+          }],
+          boundary
+        )
+
+        wx.cloud.callContainer({
+          config: {
+            env: config.cloud.env
+          },
+          path: uploadUrl,
+          method: 'POST',
+          header: {
+            'X-WX-SERVICE': config.cloud.serviceName,
+            ...headers,
+            'content-type': `multipart/form-data; boundary=${boundary}`
+          },
+          data: body,
+          success: (res) => {
+            console.log('[FileUpload] wx.cloud.callContainer success 回调')
+            console.log('[FileUpload] 状态码:', res.statusCode)
+            console.log('[FileUpload] 响应数据:', res.data)
+
+            if (res.statusCode === 200) {
+              const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data
+              if (data.code === 200) {
+                console.log('[FileUpload] 上传成功!')
+                resolve(data)
+              } else {
+                console.error('[FileUpload] 业务错误:', data)
+                reject({
+                  code: data.code,
+                  msg: data.msg || '上传失败',
+                  data: data
+                })
+              }
+            } else {
+              const error = {
+                code: res.statusCode,
+                msg: `上传失败，状态码：${res.statusCode}`
+              }
+              console.error('[FileUpload] 状态码错误:', error)
+              reject(error)
+            }
+          },
+          fail: (error) => {
+            console.error('[FileUpload] wx.cloud.callContainer fail 回调')
+            console.error('[FileUpload] 错误信息:', error)
+            reject({
+              code: -1,
+              msg: '云托管上传失败，请检查网络',
+              error: error
+            })
+          }
+        })
+      } catch (err) {
+        console.error('[FileUpload] 构建上传数据失败:', err)
+        reject({
+          code: -1,
+          msg: '构建上传数据失败',
+          error: err
+        })
+      }
+    })
+  }
+
+  // 传统模式：使用 wx.uploadFile
+  console.log('[FileUpload] 传统模式：开始调用 wx.uploadFile...')
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: url,
@@ -230,12 +320,12 @@ function downloadFile(fileId, downloadPath, savePath = '') {
       msg: 'baseUrl 未配置，请检查 app.globalData.baseUrl'
     })
   }
-  
+
   // 替换路径中的 {fileId} 占位符
   const url = baseUrl + downloadPath.replace('{fileId}', fileId)
-  
+
   const headers = getHeaders()
-  
+
   return new Promise((resolve, reject) => {
     wx.downloadFile({
       url: url,
@@ -264,6 +354,71 @@ function downloadFile(fileId, downloadPath, savePath = '') {
       }
     })
   })
+}
+
+/**
+ * 构造 multipart/form-data 二进制数据
+ * @param {Object} fields 文本字段
+ * @param {Array} files 文件列表 [{ name, buffer, fileName, contentType }]
+ * @param {string} boundary 边界字符串
+ */
+function buildMultipartBody(fields, files, boundary) {
+  const binaryParts = []
+
+  // 模拟 TextEncoder 的简单实现（处理 ASCII/UTF-8）
+  const strToUint8Array = (str) => {
+    const arr = []
+    for (let i = 0; i < str.length; i++) {
+      const code = str.charCodeAt(i)
+      if (code < 0x80) {
+        arr.push(code)
+      } else if (code < 0x800) {
+        arr.push(0xc0 | (code >> 6))
+        arr.push(0x80 | (code & 0x3f))
+      } else {
+        arr.push(0xe0 | (code >> 12))
+        arr.push(0x80 | ((code >> 6) & 0x3f))
+        arr.push(0x80 | (code & 0x3f))
+      }
+    }
+    return new Uint8Array(arr)
+  }
+
+  // 添加文本字段
+  for (const key in fields) {
+    if (fields[key] !== undefined && fields[key] !== null) {
+      binaryParts.push(strToUint8Array(`--${boundary}\r\n`))
+      binaryParts.push(strToUint8Array(`Content-Disposition: form-data; name="${key}"\r\n\r\n`))
+      binaryParts.push(strToUint8Array(`${fields[key]}\r\n`))
+    }
+  }
+
+  // 添加文件字段
+  files.forEach(file => {
+    const header = `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="${file.name}"; filename="${file.fileName}"\r\n` +
+      `Content-Type: ${file.contentType || 'application/octet-stream'}\r\n\r\n`
+
+    binaryParts.push(strToUint8Array(header))
+    binaryParts.push(new Uint8Array(file.buffer))
+    binaryParts.push(strToUint8Array('\r\n'))
+  })
+
+  // 结束边界
+  binaryParts.push(strToUint8Array(`--${boundary}--\r\n`))
+
+  // 合并所有内容
+  let totalLength = 0
+  binaryParts.forEach(p => totalLength += p.length)
+
+  const result = new Uint8Array(totalLength)
+  let offset = 0
+  binaryParts.forEach(p => {
+    result.set(p, offset)
+    offset += p.length
+  })
+
+  return result.buffer
 }
 
 /**

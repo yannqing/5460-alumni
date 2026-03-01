@@ -50,7 +50,8 @@ Page({
 
     // 悬浮按钮和弹窗
     showFab: false,
-    showAction: false
+    showAction: false,
+    articleList: []
   },
 
   async onLoad(options) {
@@ -161,9 +162,47 @@ Page({
           startTime: this.formatTime(activity.startTime)
         }));
 
+        // 处理并格式化文章列表 (资讯部分)
+        const formattedArticleList = (item.articleList || []).map(article => {
+          // 处理封面图：极其稳健逻辑，兼容对象、URL字符串、路径及 ID
+          let cover = '';
+          const rawCover = article.coverImg || article.cover_img;
+
+          if (rawCover) {
+            if (typeof rawCover === 'object') {
+              cover = rawCover.fileUrl || rawCover.filePath || rawCover.thumbnailUrl || '';
+            } else if (typeof rawCover === 'string') {
+              // 包含斜杠或以http开头则视为路径/URL，否则视为 ID
+              if (rawCover.startsWith('http') || rawCover.indexOf('/') !== -1) {
+                cover = rawCover;
+              } else {
+                cover = `/file/download/${rawCover}`;
+              }
+            } else {
+              cover = `/file/download/${rawCover}`;
+            }
+          }
+
+          // 顶级字段兜底
+          if (!cover) {
+            cover = article.fileUrl || article.thumbnailUrl || article.coverImage || article.cover_image || '';
+          }
+
+          const finalCover = cover ? config.getImageUrl(cover) : config.getImageUrl(config.defaultCover);
+
+          return {
+            ...article,
+            id: article.homeArticleId || article.id,
+            title: article.articleTitle || '无标题',
+            cover: finalCover,
+            time: this.formatTime(article.createTime)
+          }
+        })
+
         this.setData({
           associationInfo: mappedInfo,
           activityList: formattedActivityList,
+          articleList: formattedArticleList,
           enterpriseList: item.enterpriseList || [],
           loading: false
         });
@@ -224,10 +263,12 @@ Page({
     })
   },
 
-  // 跳转到新增资讯（暂未开放）
+  // 跳转到新增资讯
   navToAddNews() {
     this.hideActionSheet()
-    this.handleDeveloping()
+    wx.navigateTo({
+      url: '/pages/article-publish/index/index'
+    })
   },
 
   // 加载成员列表
@@ -1241,20 +1282,76 @@ Page({
     }
   },
 
-  // 查看母校详情
-  viewSchoolDetail() {
-    const { associationInfo } = this.data
-    if (!associationInfo || !associationInfo.schoolId) {
+  // 跳转到文章详情
+  goToArticleDetail(e) {
+    const id = e.currentTarget.dataset.id;
+    const article = this.data.articleList.find(a => a.id === id);
+
+    if (!article) {
       wx.showToast({
-        title: '暂无母校信息',
+        title: '文章数据不存在',
         icon: 'none'
-      })
-      return
+      });
+      return;
     }
 
-    wx.navigateTo({
-      url: `/pages/school/detail/detail?id=${associationInfo.schoolId}`
-    })
+    const articleType = article.articleType || 1;
+    const articleLink = article.articleLink || '';
+    const articleTitle = article.title || '资讯详情';
+
+    // 1: 公众号文章
+    if (articleType === 1) {
+      if (articleLink) {
+        wx.openOfficialAccountArticle({
+          url: articleLink,
+          fail() {
+            wx.showToast({
+              title: '无法打开文章',
+              icon: 'none'
+            });
+          }
+        });
+      } else {
+        wx.showToast({
+          title: '文章链接为空',
+          icon: 'none'
+        });
+      }
+    }
+    // 2: 内部路径
+    else if (articleType === 2) {
+      if (articleLink) {
+        wx.navigateTo({
+          url: articleLink,
+          fail() {
+            wx.navigateTo({
+              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
+            });
+          }
+        });
+      }
+    }
+    // 3: 第三方链接
+    else if (articleType === 3) {
+      wx.navigateTo({
+        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
+      });
+    }
+    // 默认跳转到普通详情页
+    else {
+      wx.navigateTo({
+        url: `/pages/article/detail/detail?id=${id}`
+      });
+    }
+  },
+
+  // 跳转到母校详情
+  viewSchoolDetail() {
+    if (this.data.associationInfo.schoolId) {
+      wx.navigateTo({
+        url: `/pages/school/detail/detail?id=${this.data.associationInfo.schoolId}`
+      })
+    }
   },
 
   // 查看校友企业详情
