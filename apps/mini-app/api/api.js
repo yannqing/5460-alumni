@@ -65,6 +65,16 @@ const associationApi = {
 const unionApi = {
   // 根据 id 查询校友总会详情
   getUnionDetail: (id) => get(`/AlumniHeadquarters/${id}`),
+  // 分页查询校友总会列表
+  getUnionPage: (params) => post('/AlumniHeadquarters/page', params),
+  // 申请激活校友总会
+  applyActivate: (data) => post('/AlumniHeadquarters/applyActivate', data),
+  // 获取未激活的校友总会列表
+  getInactiveUnionPage: (params) => post('/AlumniHeadquarters/inactive/page', params),
+  // 获取待审核的校友总会列表
+  getPendingUnionPage: (params) => post('/AlumniHeadquarters/pending/page', params),
+  // 审核校友总会
+  auditUnion: (data) => post('/AlumniHeadquarters/audit', data),
 }
 
 // ==================== 校促会相关接口 ====================

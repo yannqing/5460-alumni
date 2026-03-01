@@ -58,6 +58,12 @@ public class QueryAlumniHeadquartersListDto extends PageRequest implements Seria
     @Schema(description = "创建码", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer createCode;
 
+    /**
+     * 审核状态：0-待审核 1-已通过 2-已驳回
+     */
+    @Schema(description = "审核状态：0-待审核 1-已通过 2-已驳回", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer approvalStatus;
+
     @Serial
     private static final long serialVersionUID = 1L;
 

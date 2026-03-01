@@ -448,7 +448,6 @@ picker::before {
 .card-location-wrap {
   display: flex;
   align-items: center;
-  margin-left: 38rpx;
   flex: 1;
   min-width: 0;
 }
@@ -543,4 +542,27 @@ picker::before {
 
 .full-width {
   width: 100%;
+}
+
+/* 右下角+号按钮 */
+.add-button {
+  position: fixed;
+  bottom: 100rpx;
+  right: 40rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #3F61CA;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.add-button-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 300;
+  line-height: 1;
 }

@@ -71,41 +71,44 @@
       </view>
 
       <view class="association-list" id="school-list-start">
-        <view class="association-card" wx:for="{{schoolList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
+        <view class="association-card" wx:for="{{headquartersList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
           <view class="card-header">
             <view class="card-info">
               <view class="card-title-row">
                 <text class="card-title">{{item.name}}</text>
-                <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
               </view>
               <view class="card-meta-row">
-                <text wx:if="{{item.level}}" class="card-level">办学层次：{{item.level}}</text>
                 <view class="card-location-wrap">
                   <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                  <text class="location-text">{{item.location}}</text>
+                  <text class="location-text">{{item.address}}</text>
                 </view>
               </view>
-              <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
-                <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
-                  {{item.isFollowed ? '已关注' : '+ 关注'}}
+              <view class="card-meta-row">
+                <view class="card-location-wrap">
+                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                  <text class="location-text">{{item.phone}}</text>
                 </view>
               </view>
             </view>
-            <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
+            <image class="association-icon" src="{{item.logo || DEFAULT_AVATAR}}" mode="aspectFill" />
           </view>
           <view class="card-footer">
             <view class="card-stats">
-              <text wx:if="{{item.associationCount > 0}}" class="stat-item">校友会 {{item.associationCount}}</text>
-              <text wx:if="{{item.followCount > 0}}" class="stat-item">关注 {{item.followCount}}</text>
+              <text wx:if="{{item.memberCount > 0}}" class="stat-item">下属校友会 {{item.memberCount}}</text>
             </view>
           </view>
         </view>
 
         <view wx:if="{{loading && !refreshing}}" class="loading-text">加载中...</view>
-        <view wx:if="{{!loading && !hasMore && schoolList.length > 0}}" class="loading-text">没有更多了</view>
-        <view wx:if="{{!loading && schoolList.length === 0}}" class="empty-state"><text>暂无数据</text></view>
+        <view wx:if="{{!loading && !hasMore && headquartersList.length > 0}}" class="loading-text">没有更多了</view>
+        <view wx:if="{{!loading && headquartersList.length === 0}}" class="empty-state"><text>暂无数据</text></view>
         <view class="bottom-safe-area"></view>
       </view>
     </view>
   </scroll-view>
+
+  <!-- 右下角+号按钮 -->
+  <view class="add-button" bindtap="navigateToCreate">
+    <text class="add-button-text">+</text>
+  </view>
 </view>

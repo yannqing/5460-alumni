@@ -94,6 +94,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
 
         String headquartersName = infoDTO.getHeadquartersName();
         Long schoolId = infoDTO.getSchoolId();
+        Integer approvalStatus = infoDTO.getApprovalStatus();
         int current = infoDTO.getCurrent();
         int pageSize = infoDTO.getPageSize();
         String sortField = infoDTO.getSortField();
@@ -104,8 +105,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                 .like(StringUtils.isNotBlank(headquartersName), AlumniHeadquarters::getHeadquartersName,
                         headquartersName)
                 .eq(schoolId != null, AlumniHeadquarters::getSchoolId, schoolId)
-                .eq(AlumniHeadquarters::getApprovalStatus, 0) // 仅查询待审核状态 (0)
-                .eq(AlumniHeadquarters::getActiveStatus, 1); // 且必须是已激活状态 (1)
+                .eq(approvalStatus != null, AlumniHeadquarters::getApprovalStatus, approvalStatus);
 
         // 排序
         queryWrapper

@@ -32,6 +32,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/carousel/carousel'
+      },
+      {
+        id: 5,
+        name: '审核校友总会',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/headquarters/list/list'
       }
       // {
       //   id: 3,
@@ -372,6 +379,8 @@ Page({
         return this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
       } else if (item.name === '轮播图管理') {
         return this.hasPermission('HOME_PAGE_BANNER_MANAGEMENT')
+      } else if (item.name === '审核校友总会') {
+        return true // 取消权限限制，所有人都可以查看
       }
       return false
     })
