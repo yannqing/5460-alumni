@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 /**
  * 校友总会表
+ * 
  * @TableName alumni_headquarters
  */
 @TableName(value = "alumni_headquarters")
@@ -108,6 +109,12 @@ public class AlumniHeadquarters implements Serializable {
     private Integer level;
 
     /**
+     * 创建码
+     */
+    @TableField(value = "create_code")
+    private Integer createCode;
+
+    /**
      * 创建人ID
      */
     @TableField(value = "created_user_id")
@@ -144,6 +151,7 @@ public class AlumniHeadquarters implements Serializable {
 
     /**
      * 获取排序字段方法
+     * 
      * @param sortField 排序字段名
      * @return 排序方法引用
      */
