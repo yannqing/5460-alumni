@@ -44,6 +44,16 @@ page {
   color: #333;
 }
 
+/* 基本信息下的子项标题（驻会代表、主要负责人） */
+.form-subsection-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-top: 24rpx;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+  color: #555;
+}
+
 .form-header {
   display: flex;
   justify-content: space-between;

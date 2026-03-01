@@ -6,8 +6,8 @@
     <view class="form-title">基本信息</view>
 
     <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
-      <text class="label">申请学校</text>
-      <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
+      <text class="label">母校名称</text>
+      <input class="input" placeholder="请输入关键字" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
         <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
         <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
@@ -37,14 +37,32 @@
       </picker>
     </view>
 
+    <view class="form-subsection-title">驻会代表</view>
     <view class="form-item required">
-      <text class="label">联系人姓名</text>
-      <input class="input" placeholder="请输入联系人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
+      <text class="label">姓名</text>
+      <input class="input" placeholder="请输入驻会代表姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">联系电话</text>
+      <input class="input" placeholder="请输入驻会代表联系电话" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">社会职务</text>
+      <input class="input" placeholder="请输入驻会代表社会职务" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" />
     </view>
 
+    <view class="form-subsection-title">主要负责人</view>
     <view class="form-item required">
-      <text class="label">联系人电话</text>
-      <input class="input" placeholder="请输入联系人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+      <text class="label">姓名</text>
+      <input class="input" placeholder="请输入主要负责人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">联系电话</text>
+      <input class="input" placeholder="请输入主要负责人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">社会职务</text>
+      <input class="input" placeholder="请输入主要负责人社会职务" value="{{formData.msocialAffiliation}}" data-field="msocialAffiliation" bindinput="handleInput" />
     </view>
 
     <view class="form-item">
@@ -87,8 +105,18 @@
       </view>
     </view>
 
+    <view class="form-item required">
+      <text class="label">申请理由</text>
+      <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
+    </view>
+
     <view class="form-item">
-      <text class="label">申请材料</text>
+      <text class="label">校友会简介</text>
+      <textarea class="textarea" placeholder="请输入校友会简介" value="{{formData.associationProfile}}" data-field="associationProfile" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">附件</text>
       <view class="upload-container">
         <button class="upload-btn" bindtap="chooseAttachment">选择文件</button>
         <view wx:if="{{attachments.length > 0}}" class="attachments-list">
@@ -99,19 +127,12 @@
         </view>
       </view>
     </view>
-    
-
-
-    <view class="form-item required">
-      <text class="label">申请理由</text>
-      <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
-    </view>
   </view>
 
   <view class="form-card" style="margin-top: 20rpx;">
     <view class="form-header">
-      <view class="form-title">其余人员信息</view>
-      <view class="add-btn" bindtap="addMember">+ 添加成员</view>
+      <view class="form-title">校友会负责人员信息</view>
+      <view class="add-btn" bindtap="addMember">+ 添加</view>
     </view>
 
     <block wx:for="{{members}}" wx:key="index">
