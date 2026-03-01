@@ -69,6 +69,34 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
     private String contactInfo;
 
     /**
+     * 主要负责人社会职务
+     */
+    @Schema(description = "主要负责人社会职务")
+    @NotBlank(message = "主要负责人社会职务不能为空")
+    private String msocialAffiliation;
+
+    /**
+     * 驻会代表姓名
+     */
+    @Schema(description = "驻会代表姓名")
+    @NotBlank(message = "驻会代表姓名不能为空")
+    private String zhName;
+
+    /**
+     * 驻会代表联系电话
+     */
+    @Schema(description = "驻会代表联系电话")
+    @NotBlank(message = "驻会代表联系电话不能为空")
+    private String zhPhone;
+
+    /**
+     * 驻会代表社会职务
+     */
+    @Schema(description = "驻会代表社会职务")
+    @NotBlank(message = "驻会代表社会职务不能为空")
+    private String zhSocialAffiliation;
+
+    /**
      * 背景图（URL 列表）
      */
     @Schema(description = "背景图（URL 列表）")
@@ -92,6 +120,12 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
     @Schema(description = "申请理由")
     @NotBlank(message = "申请理由不能为空")
     private String applicationReason;
+
+    /**
+     * 校友会简介（选填）
+     */
+    @Schema(description = "校友会简介（选填）")
+    private String associationProfile;
 
     /**
      * 初始成员列表

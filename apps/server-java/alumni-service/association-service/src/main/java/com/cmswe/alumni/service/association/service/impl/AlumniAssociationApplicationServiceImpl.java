@@ -130,6 +130,10 @@ public class AlumniAssociationApplicationServiceImpl
         application.setChargeName(applyDto.getChargeName());
         application.setChargeRole(applyDto.getChargeRole());
         application.setContactInfo(applyDto.getContactInfo());
+        application.setMsocialAffiliation(applyDto.getMsocialAffiliation());
+        application.setZhName(applyDto.getZhName());
+        application.setZhPhone(applyDto.getZhPhone());
+        application.setZhSocialAffiliation(applyDto.getZhSocialAffiliation());
 
         // 将背景图列表转换为 JSON 字符串
         if (applyDto.getBgImg() != null && !applyDto.getBgImg().isEmpty()) {
@@ -148,6 +152,7 @@ public class AlumniAssociationApplicationServiceImpl
         application.setLocation(applyDto.getLocation());
         application.setLogo(applyDto.getLogo());
         application.setApplicationReason(applyDto.getApplicationReason());
+        application.setAssociationProfile(applyDto.getAssociationProfile());
         application.setApplicationStatus(0); // 0-待审核
         application.setApplyTime(LocalDateTime.now());
 

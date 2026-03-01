@@ -25,9 +25,14 @@ Page({
             platformName: '',
             chargeName: '',
             contactInfo: '',
+            msocialAffiliation: '',
+            zhName: '',
+            zhPhone: '',
+            zhSocialAffiliation: '',
             logo: '',
 
             applicationReason: '',
+            associationProfile: '',
             presidentWxId: '',
             location: '',
             logoType: 'default' // logo来源类型: default, school, upload
@@ -711,11 +716,27 @@ Page({
         }
         // platformId is optional per API specs
         if (!formData.chargeName) {
-            wx.showToast({ title: '请输入联系人姓名', icon: 'none' })
+            wx.showToast({ title: '请输入主要负责人姓名', icon: 'none' })
             return
         }
         if (!formData.contactInfo) {
-            wx.showToast({ title: '请输入联系人电话', icon: 'none' })
+            wx.showToast({ title: '请输入主要负责人电话', icon: 'none' })
+            return
+        }
+        if (!formData.msocialAffiliation) {
+            wx.showToast({ title: '请输入主要负责人社会职务', icon: 'none' })
+            return
+        }
+        if (!formData.zhName) {
+            wx.showToast({ title: '请输入驻会代表姓名', icon: 'none' })
+            return
+        }
+        if (!formData.zhPhone) {
+            wx.showToast({ title: '请输入驻会代表联系电话', icon: 'none' })
+            return
+        }
+        if (!formData.zhSocialAffiliation) {
+            wx.showToast({ title: '请输入驻会代表社会职务', icon: 'none' })
             return
         }
         if (!formData.applicationReason) {
@@ -766,9 +787,14 @@ Page({
             chargeName: formData.chargeName,
             chargeRole: '成员',
             contactInfo: formData.contactInfo || undefined,
+            msocialAffiliation: formData.msocialAffiliation || undefined,
+            zhName: formData.zhName || undefined,
+            zhPhone: formData.zhPhone || undefined,
+            zhSocialAffiliation: formData.zhSocialAffiliation || undefined,
             location: formData.location || formData.platformName || undefined,
             logo: formData.logoType === 'default' ? undefined : (formData.logo || undefined),
             applicationReason: formData.applicationReason,
+            associationProfile: formData.associationProfile || undefined,
             attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
             initialMembers: members.length > 0 ? members.map(m => ({
                 wxId: m.wxId,
