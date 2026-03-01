@@ -108,6 +108,12 @@ public class AlumniHeadquartersDetailVo implements Serializable {
     private Integer level;
 
     /**
+     * 创建码
+     */
+    @Schema(description = "创建码")
+    private Integer createCode;
+
+    /**
      * 创建人信息
      */
     @Schema(description = "创建人信息")
