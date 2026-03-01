@@ -35,6 +35,12 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     private Integer createCode;
 
     /**
+     * logo
+     */
+    @Schema(description = "logo")
+    private String logo;
+
+    /**
      * 校友总会描述
      */
     @Schema(description = "校友总会描述")

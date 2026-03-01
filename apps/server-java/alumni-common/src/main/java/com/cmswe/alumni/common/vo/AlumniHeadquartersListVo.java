@@ -30,6 +30,12 @@ public class AlumniHeadquartersListVo implements Serializable {
     private String headquartersName;
 
     /**
+     * logo
+     */
+    @Schema(description = "logo")
+    private String logo;
+
+    /**
      * 校友总会描述
      */
     @Schema(description = "校友总会描述")
