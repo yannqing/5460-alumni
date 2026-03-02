@@ -22,6 +22,7 @@
       <text class="label">校友会全称</text>
       <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
     </view>
+<<<<<<< HEAD
 
     <view class="form-item required">
       <text class="label">是否已经是校促会会员</text>
@@ -51,6 +52,11 @@
       </picker>
     </view>
     <view class="form-title">成员信息</view>
+=======
+    
+
+    <view class="form-subsection-title">驻会代表</view>
+>>>>>>> 1f94353 (update: fixed page of creating alumni association)
     <view class="form-item required">
       <text class="label">联系人姓名</text>
       <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
