@@ -162,19 +162,11 @@ Page({
             this.setData({ filteredUnionList: this.data.inactiveUnionList })
             return
         }
-<<<<<<< HEAD
 
         const filtered = this.data.inactiveUnionList.filter(union =>
             union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
         )
 
-=======
-        
-        const filtered = this.data.inactiveUnionList.filter(union => 
-            union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
-        )
-        
->>>>>>> origin/dev
         this.setData({ filteredUnionList: filtered })
     },
 
@@ -186,14 +178,11 @@ Page({
             'formData.headquartersId': union.headquartersId,
             'formData.headquartersName': union.headquartersName,
             showUnionResults: false
-<<<<<<< HEAD
         }
 
         // 保存校友总会logo
         if (union.logo) {
             updateData.unionLogoUrl = union.logo
-=======
->>>>>>> origin/dev
         }
         
         // 保存校友总会logo
