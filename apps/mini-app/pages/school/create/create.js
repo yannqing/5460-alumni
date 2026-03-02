@@ -169,13 +169,6 @@ Page({
             union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
         )
 
-=======
-
-        const filtered = this.data.inactiveUnionList.filter(union =>
-            union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
-        )
-
->>>>>>> 2d6634c (Administrators view alumni association applications; application fields updated.)
         this.setData({ filteredUnionList: filtered })
     },
 
@@ -187,14 +180,11 @@ Page({
             'formData.headquartersId': union.headquartersId,
             'formData.headquartersName': union.headquartersName,
             showUnionResults: false
-<<<<<<< HEAD
         }
 
         // 保存校友总会logo
         if (union.logo) {
             updateData.unionLogoUrl = union.logo
-=======
->>>>>>> 2d6634c (Administrators view alumni association applications; application fields updated.)
         }
 
         // 保存校友总会logo
