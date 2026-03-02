@@ -1,4 +1,4 @@
-const { schoolApi, localPlatformApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
+const { schoolApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
 const config = require('../../../utils/config.js')
 
@@ -21,8 +21,7 @@ Page({
             associationName: '',
             schoolId: '',
             schoolName: '',
-            platformId: '',
-            platformName: '',
+            previousName: '',
             chargeName: '',
             contactInfo: '',
             msocialAffiliation: '',
@@ -34,17 +33,12 @@ Page({
             applicationReason: '',
             associationProfile: '',
             presidentWxId: '',
-            location: '',
             logoType: 'default' // logo来源类型: default, school, upload
         },
         schoolLogoUrl: '',
         defaultAlumniLogo: config.defaultAvatar,
         // 搜索结果列表
         schoolList: [],
-        platformList: [],
-
-        // 平台选择索引
-        platformIndex: -1,
 
         // 控制显示
         showSchoolResults: false,
@@ -72,72 +66,12 @@ Page({
         this.searchSchoolDebounced = debounce(this.searchSchool, 500)
         this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
 
-        // 处理从列表页面传递过来的platformName参数
-        console.log('接收到的参数:', options)
-        this.platformNameFromList = options.platformName ? decodeURIComponent(options.platformName) : null
-        console.log('处理后的platformNameFromList:', this.platformNameFromList)
-
         this.loadInitialData()
-        this.loadPlatformList()
 
         // 默认初始化logo为平台默认logo
         this.setData({
             'formData.logo': this.data.defaultAlumniLogo
         })
-    },
-
-    // 加载平台列表
-    async loadPlatformList() {
-        try {
-            const res = await localPlatformApi.getLocalPlatformPage({
-                current: 1,
-                pageSize: 100, // 加载更多平台
-                platformName: '' // 空关键词加载所有平台
-            })
-            if (res.data && res.data.code === 200) {
-                const platformList = res.data.data.records || []
-                this.setData({
-                    platformList: platformList
-                })
-
-                // 如果有从列表页面传递过来的platformName，查找并设置对应的平台信息
-                if (this.platformNameFromList) {
-                    const platformIndex = platformList.findIndex(item => item.platformName === this.platformNameFromList)
-                    if (platformIndex !== -1) {
-                        const platform = platformList[platformIndex]
-                        this.setData({
-                            platformIndex: platformIndex,
-                            'formData.platformId': platform.platformId,
-                            'formData.platformName': platform.platformName,
-                            'formData.location': this.platformNameFromList // 直接使用传递过来的platformName作为location
-                        })
-                    } else {
-                        // 如果找不到对应的平台，仍然设置platformName和location
-                        this.setData({
-                            'formData.platformName': this.platformNameFromList,
-                            'formData.location': this.platformNameFromList
-                        })
-                    }
-                }
-            }
-        } catch (e) {
-            console.error('加载平台列表失败', e)
-        }
-    },
-
-    // 处理平台选择
-    handlePlatformChange(e) {
-        const index = e.detail.value
-        const platform = this.data.platformList[index]
-        if (platform) {
-            const location = platform.city || platform.location || platform.platformName
-            this.setData({
-                platformIndex: index,
-                'formData.platformId': platform.platformId,
-                'formData.platformName': platform.platformName,
-                'formData.location': location
-            })
-        }
     },
 
     async loadInitialData() {
@@ -162,9 +96,11 @@ Page({
                 const userId = userInfo.wxId || userInfo.wx_id || userInfo.userId || userInfo.user_id || userInfo.id
                 console.log('获取到的用户ID:', userId)
 
+                // 将当前登录用户信息填入驻会代表字段
                 this.setData({
-                    'formData.chargeName': userInfo.name || userInfo.realName || userInfo.nickname || '',
-                    'formData.contactInfo': userInfo.phone || userInfo.mobile || '',
+                    'formData.zhName': userInfo.name || userInfo.realName || userInfo.nickname || '',
+                    'formData.zhPhone': userInfo.phone || userInfo.mobile || '',
+                    'formData.zhSocialAffiliation': userInfo.socialAffiliation || userInfo.social_affiliation || '',
                     'formData.presidentWxId': userId
                 })
             }
@@ -225,6 +161,7 @@ Page({
         this.setData({
             'formData.schoolName': value,
             'formData.schoolId': '', // 清空ID，因为修改了名称
+            'formData.previousName': '', // 清空曾用名
             showSchoolResults: true
         })
 
@@ -251,7 +188,8 @@ Page({
             const res = await schoolApi.getSchoolPage({
                 current: 1,
                 pageSize: 20,
-                schoolName: keyword.trim()
+                schoolName: keyword.trim(),
+                previousName: keyword.trim()
             })
             if (res.data && res.data.code === 200) {
                 this.setData({
@@ -273,6 +211,7 @@ Page({
         const updateData = {
             'formData.schoolId': school.schoolId,
             'formData.schoolName': school.schoolName,
+            'formData.previousName': school.previousName || '', // 保存曾用名
             'formData.associationName': school.schoolName, // 自动填充校友会名称为学校名称
             'schoolLogoUrl': schoolLogo,
             showSchoolResults: false
@@ -782,7 +721,6 @@ Page({
         const submitData = {
             associationName: formData.associationName,
             schoolId: formData.schoolId,
-            platformId: formData.platformId,
             chargeWxId: formData.presidentWxId,
             chargeName: formData.chargeName,
             chargeRole: '成员',
@@ -791,7 +729,6 @@ Page({
             zhName: formData.zhName || undefined,
             zhPhone: formData.zhPhone || undefined,
             zhSocialAffiliation: formData.zhSocialAffiliation || undefined,
-            location: formData.location || formData.platformName || undefined,
             logo: formData.logoType === 'default' ? undefined : (formData.logo || undefined),
             applicationReason: formData.applicationReason,
             associationProfile: formData.associationProfile || undefined,

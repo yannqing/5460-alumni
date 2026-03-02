@@ -56,6 +56,12 @@ public class SchoolListVo implements Serializable {
     private String level;
 
     /**
+     * 曾用名（json 数组）
+     */
+    @Schema(description = "曾用名（json 数组）")
+    private String previousName;
+
+    /**
      * 建校日期
      */
     @Schema(description = "建校日期")

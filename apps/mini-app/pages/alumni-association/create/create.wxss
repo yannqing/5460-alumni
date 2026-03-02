@@ -400,3 +400,18 @@ page {
 .member-search-item:active {
   background-color: #f9f9f9;
 }
+
+/* 学校曾用名样式 */
+.previous-name {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 8rpx;
+}
+
+.school-previous-name {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  padding-left: 4rpx;
+}
