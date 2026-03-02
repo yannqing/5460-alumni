@@ -35,7 +35,7 @@
         <view class="search-bar">
           <view class="search-input-wrap">
             <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
-            <input class="search-input" type="text" placeholder="搜索母校、曾用名、合并院校名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+            <input class="search-input" type="text" placeholder="搜索校友总会名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
             <view class="search-button" bindtap="onSearch">搜索</view>
           </view>
         </view>
