@@ -6,30 +6,14 @@
         <view class="form-title">基本信息</view>
 
         <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
-          <text class="label">申请学校</text>
-          <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
-          <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
-            <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
-            <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
-              {{item.schoolName}}
+          <text class="label">校友总会名称</text>
+          <input class="input" placeholder="请输入并选择校友总会" value="{{formData.headquartersName}}" data-field="headquartersName" bindinput="handleUnionInput" bindfocus="handleUnionFocus" />
+          <scroll-view scroll-y class="search-results" wx:if="{{showUnionResults}}">
+            <view wx:if="{{filteredUnionList.length === 0}}" class="search-placeholder">未找到相关校友总会</view>
+            <view wx:for="{{filteredUnionList}}" wx:key="headquartersId" class="search-item" bindtap="selectUnion" data-index="{{index}}">
+              {{item.headquartersName}}
             </view>
           </scroll-view>
-        </view>
-        
-        <view class="form-item required">
-          <text class="label">选择校友总会</text>
-          <picker 
-            mode="selector" 
-            range="{{inactiveUnionList}}" 
-            range-key="headquartersName" 
-            value="{{inactiveUnionIndex}}" 
-            bindchange="handleUnionChange"
-            class="input"
-          >
-            <view class="picker-content">
-              {{formData.headquartersName || '请选择校友总会'}}
-            </view>
-          </picker>
         </view>
         
         <view class="form-item required">

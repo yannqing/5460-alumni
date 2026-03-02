@@ -65,4 +65,12 @@ public interface AlumniHeadquartersService extends IService<AlumniHeadquarters> 
      * @return 分页结果
      */
     PageVo<AlumniHeadquartersListVo> selectPendingByPage(QueryAlumniHeadquartersListDto infoDTO);
+
+    /**
+     * 管理员查看校友总会申请详情（不限状态）
+     *
+     * @param headquartersId 校友总会ID
+     * @return 详情VO
+     */
+    AlumniHeadquartersDetailVo getApplyDetailByAdmin(Long headquartersId);
 }

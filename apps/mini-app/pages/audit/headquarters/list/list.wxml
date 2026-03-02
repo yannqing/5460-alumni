@@ -1,6 +1,12 @@
 <!-- pages/audit/headquarters/list/list.wxml -->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="审核校友总会">
 <view class="headquarters-management-list-page">
+  <!-- 筛选区域 -->
+  <view class="filter-section">
+    <view class="filter-item {{filterStatus === -1 ? 'active' : ''}}" bindtap="setFilterStatus" data-status="-1">全部</view>
+    <view class="filter-item {{filterStatus === 0 ? 'active' : ''}}" bindtap="setFilterStatus" data-status="0">待审核</view>
+    <view class="filter-item {{filterStatus === 1 ? 'active' : ''}}" bindtap="setFilterStatus" data-status="1">已审核</view>
+  </view>
   <!-- 可滚动列表区域 -->
   <scroll-view 
     class="scroll-list" 

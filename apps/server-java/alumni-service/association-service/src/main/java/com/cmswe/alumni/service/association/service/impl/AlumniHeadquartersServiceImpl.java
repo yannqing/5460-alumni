@@ -382,4 +382,35 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
 
         return detailVo;
     }
+
+    @Override
+    public AlumniHeadquartersDetailVo getApplyDetailByAdmin(Long headquartersId) {
+        // 1. 校验参数
+        if (headquartersId == null) {
+            throw new BusinessException("参数不能为空，请重试");
+        }
+
+        // 2. 查询数据库（不限活跃/审核状态）
+        AlumniHeadquarters alumniHeadquarters = this.getById(headquartersId);
+        if (alumniHeadquarters == null) {
+            throw new BusinessException("校友总会信息不存在");
+        }
+
+        // 3. 转换为 VO
+        AlumniHeadquartersDetailVo detailVo = AlumniHeadquartersDetailVo.objToVo(alumniHeadquarters);
+
+        // 4. 构建母校信息
+        Long schoolId = alumniHeadquarters.getSchoolId();
+        if (schoolId != null) {
+            School school = schoolMapper.selectById(schoolId);
+            if (school != null) {
+                SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
+                schoolListVo.setSchoolId(String.valueOf(schoolId));
+                detailVo.setSchoolInfo(schoolListVo);
+            }
+        }
+
+        log.info("管理员查询校友总会申请详情 headquartersId: {}", headquartersId);
+        return detailVo;
+    }
 }

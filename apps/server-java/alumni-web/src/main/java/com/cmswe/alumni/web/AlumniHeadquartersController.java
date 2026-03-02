@@ -81,4 +81,12 @@ public class AlumniHeadquartersController {
         AlumniHeadquartersDetailVo detailVo = alumniHeadquartersService.getAlumniHeadquartersDetailById(id);
         return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
     }
+
+    @GetMapping("/admin/applyDetail")
+    @Operation(summary = "管理员查看校友总会申请详情（不限状态）")
+    public BaseResponse<AlumniHeadquartersDetailVo> getApplyDetailByAdmin(
+            @RequestParam Long headquartersId) {
+        AlumniHeadquartersDetailVo detailVo = alumniHeadquartersService.getApplyDetailByAdmin(headquartersId);
+        return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
+    }
 }
