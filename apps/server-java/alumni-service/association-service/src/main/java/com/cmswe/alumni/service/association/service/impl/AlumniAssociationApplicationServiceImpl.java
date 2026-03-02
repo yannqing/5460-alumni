@@ -351,6 +351,19 @@ public class AlumniAssociationApplicationServiceImpl
             alumniAssociation.setBgImg(application.getBgImg()); // 同步背景图
             alumniAssociation.setLocation(application.getLocation());
             alumniAssociation.setLogo(application.getLogo());
+            alumniAssociation.setAssociationProfile(application.getAssociationProfile()); // 同步校友会简介
+
+            // 同步主要负责人信息
+            alumniAssociation.setChargeWxId(application.getChargeWxId());
+            alumniAssociation.setChargeName(application.getChargeName());
+            alumniAssociation.setChargeRole(application.getChargeRole());
+            alumniAssociation.setChargeSocialAffiliation(application.getMsocialAffiliation());
+
+            // 同步驻会代表信息
+            alumniAssociation.setZhName(application.getZhName());
+            alumniAssociation.setZhPhone(application.getZhPhone());
+            alumniAssociation.setZhSocialAffiliation(application.getZhSocialAffiliation());
+
             alumniAssociation.setStatus(1); // 启用
             alumniAssociation.setMemberCount(0); // 初始为0，后续更新
 

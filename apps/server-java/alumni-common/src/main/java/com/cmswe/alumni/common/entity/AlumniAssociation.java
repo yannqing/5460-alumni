@@ -70,6 +70,60 @@ public class AlumniAssociation implements Serializable {
     private String logo;
 
     /**
+     * 校友会简介
+     */
+    @TableField(value = "association_profile")
+    private String associationProfile;
+
+    /**
+     * 主要负责人微信用户ID
+     */
+    @TableField(value = "charge_wx_id")
+    private Long chargeWxId;
+
+    /**
+     * 主要负责人姓名
+     */
+    @TableField(value = "charge_name")
+    private String chargeName;
+
+    /**
+     * 主要负责人架构角色
+     */
+    @TableField(value = "charge_role")
+    private String chargeRole;
+
+    /**
+     * 主要负责人社会职务
+     */
+    @TableField(value = "charge_social_affiliation")
+    private String chargeSocialAffiliation;
+
+    /**
+     * 驻会代表微信用户ID
+     */
+    @TableField(value = "zh_wx_id")
+    private Long zhWxId;
+
+    /**
+     * 驻会代表姓名
+     */
+    @TableField(value = "zh_name")
+    private String zhName;
+
+    /**
+     * 驻会代表联系电话
+     */
+    @TableField(value = "zh_phone")
+    private String zhPhone;
+
+    /**
+     * 驻会代表社会职务
+     */
+    @TableField(value = "zh_social_affiliation")
+    private String zhSocialAffiliation;
+
+    /**
      * 背景图（json 数组）
      */
     @TableField(value = "bg_img")
