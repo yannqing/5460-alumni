@@ -12,7 +12,6 @@ import com.cmswe.alumni.common.vo.AlumniHeadquartersDetailVo;
 import com.cmswe.alumni.common.vo.AlumniHeadquartersListVo;
 import com.cmswe.alumni.common.vo.InactiveAlumniHeadquartersVo;
 import com.cmswe.alumni.common.vo.PageVo;
-import com.cmswe.alumni.common.model.PageRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -58,7 +57,8 @@ public class AlumniHeadquartersController {
 
     @PostMapping("/inactive/page")
     @Operation(summary = "分页查询未激活校友总会列表（仅ID和名称）")
-    public BaseResponse<PageVo<InactiveAlumniHeadquartersVo>> selectInactivePage(@RequestBody PageRequest pageRequest) {
+    public BaseResponse<PageVo<InactiveAlumniHeadquartersVo>> selectInactivePage(
+            @RequestBody QueryAlumniHeadquartersListDto pageRequest) {
         PageVo<InactiveAlumniHeadquartersVo> pageVo = alumniHeadquartersService.selectInactiveByPage(pageRequest);
         return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
     }
@@ -79,6 +79,14 @@ public class AlumniHeadquartersController {
     @Operation(summary = "根据id查询校友总会详情")
     public BaseResponse<AlumniHeadquartersDetailVo> getAlumniHeadquartersDetailById(@PathVariable Long id) {
         AlumniHeadquartersDetailVo detailVo = alumniHeadquartersService.getAlumniHeadquartersDetailById(id);
+        return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
+    }
+
+    @GetMapping("/admin/applyDetail")
+    @Operation(summary = "管理员查看校友总会申请详情（不限状态）")
+    public BaseResponse<AlumniHeadquartersDetailVo> getApplyDetailByAdmin(
+            @RequestParam Long headquartersId) {
+        AlumniHeadquartersDetailVo detailVo = alumniHeadquartersService.getApplyDetailByAdmin(headquartersId);
         return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
     }
 }

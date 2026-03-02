@@ -17,7 +17,6 @@ import com.cmswe.alumni.common.vo.AlumniHeadquartersDetailVo;
 import com.cmswe.alumni.common.vo.AlumniHeadquartersListVo;
 import com.cmswe.alumni.common.vo.InactiveAlumniHeadquartersVo;
 import com.cmswe.alumni.common.vo.PageVo;
-import com.cmswe.alumni.common.model.PageRequest;
 import com.cmswe.alumni.common.vo.SchoolListVo;
 import com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper;
 import com.cmswe.alumni.service.association.mapper.SchoolMapper;
@@ -105,7 +104,8 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                 .like(StringUtils.isNotBlank(headquartersName), AlumniHeadquarters::getHeadquartersName,
                         headquartersName)
                 .eq(schoolId != null, AlumniHeadquarters::getSchoolId, schoolId)
-                .eq(approvalStatus != null, AlumniHeadquarters::getApprovalStatus, approvalStatus);
+                .eq(approvalStatus != null, AlumniHeadquarters::getApprovalStatus, approvalStatus)
+                .ne(AlumniHeadquarters::getActiveStatus, 0);
 
         // 排序
         queryWrapper
@@ -129,7 +129,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
 
     @Override
     public boolean applyActivateHeadquarters(ApplyActivateHeadquartersRequest request, Long userId) {
-        if (request == null || request.getHeadquartersId() == null || request.getSchoolId() == null
+        if (request == null || request.getHeadquartersId() == null
                 || request.getCreateCode() == null) {
             throw new BusinessException("申请失败，参数不能为空");
         }
@@ -144,11 +144,13 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
             throw new BusinessException("申请失败，校友总会信息不存在");
         }
 
-        // 验证传入的母校 ID 与数据是否匹配（如果数据已设置）或直接设置
-        if (alumniHeadquarters.getSchoolId() != null && !alumniHeadquarters.getSchoolId().equals(schoolId)) {
-            throw new BusinessException("申请失败，母校信息不匹配");
+        // 验证传入的母校 ID 与数据是否匹配（如果传了 schoolId 才校验）
+        if (schoolId != null) {
+            if (alumniHeadquarters.getSchoolId() != null && !alumniHeadquarters.getSchoolId().equals(schoolId)) {
+                throw new BusinessException("申请失败，母校信息不匹配");
+            }
+            alumniHeadquarters.setSchoolId(schoolId);
         }
-        alumniHeadquarters.setSchoolId(schoolId);
 
         // 2. 验证创建码是否匹配
         if (!createCode.equals(alumniHeadquarters.getCreateCode())) {
@@ -209,22 +211,35 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
     }
 
     @Override
-    public PageVo<InactiveAlumniHeadquartersVo> selectInactiveByPage(PageRequest pageRequest) {
+    public PageVo<InactiveAlumniHeadquartersVo> selectInactiveByPage(QueryAlumniHeadquartersListDto pageRequest) {
         if (pageRequest == null) {
             throw new BusinessException("参数为空");
         }
 
         int current = pageRequest.getCurrent();
         int pageSize = pageRequest.getPageSize();
+        String headquartersName = pageRequest.getHeadquartersName();
 
         LambdaQueryWrapper<AlumniHeadquarters> queryWrapper = new LambdaQueryWrapper<>();
         // 仅查询活跃状态为 0 (不活跃)
-        queryWrapper.eq(AlumniHeadquarters::getActiveStatus, 0)
+        queryWrapper
+                .like(StringUtils.isNotBlank(headquartersName), AlumniHeadquarters::getHeadquartersName,
+                        headquartersName)
+                .eq(AlumniHeadquarters::getActiveStatus, 0)
                 .orderByDesc(AlumniHeadquarters::getCreatedTime);
 
         Page<AlumniHeadquarters> page = this.page(new Page<>(current, pageSize), queryWrapper);
         List<InactiveAlumniHeadquartersVo> list = page.getRecords().stream()
-                .map(InactiveAlumniHeadquartersVo::objToVo)
+                .map(record -> {
+                    InactiveAlumniHeadquartersVo vo = InactiveAlumniHeadquartersVo.objToVo(record);
+                    if (record.getSchoolId() != null) {
+                        School school = schoolMapper.selectById(record.getSchoolId());
+                        if (school != null) {
+                            vo.setLogo(school.getLogo());
+                        }
+                    }
+                    return vo;
+                })
                 .toList();
 
         Page<InactiveAlumniHeadquartersVo> resultPage = new Page<>(current, pageSize, page.getTotal());
@@ -368,6 +383,37 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
 
         log.info("根据id查询校友总会信息 id: {}", id);
 
+        return detailVo;
+    }
+
+    @Override
+    public AlumniHeadquartersDetailVo getApplyDetailByAdmin(Long headquartersId) {
+        // 1. 校验参数
+        if (headquartersId == null) {
+            throw new BusinessException("参数不能为空，请重试");
+        }
+
+        // 2. 查询数据库（不限活跃/审核状态）
+        AlumniHeadquarters alumniHeadquarters = this.getById(headquartersId);
+        if (alumniHeadquarters == null) {
+            throw new BusinessException("校友总会信息不存在");
+        }
+
+        // 3. 转换为 VO
+        AlumniHeadquartersDetailVo detailVo = AlumniHeadquartersDetailVo.objToVo(alumniHeadquarters);
+
+        // 4. 构建母校信息
+        Long schoolId = alumniHeadquarters.getSchoolId();
+        if (schoolId != null) {
+            School school = schoolMapper.selectById(schoolId);
+            if (school != null) {
+                SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
+                schoolListVo.setSchoolId(String.valueOf(schoolId));
+                detailVo.setSchoolInfo(schoolListVo);
+            }
+        }
+
+        log.info("管理员查询校友总会申请详情 headquartersId: {}", headquartersId);
         return detailVo;
     }
 }

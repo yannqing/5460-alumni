@@ -1,0 +1,154 @@
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友总会申请详情">
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<scroll-view class="container" scroll-y enable-back-to-top>
+  <!-- 骨架屏加载状态 -->
+  <view class="skeleton-container" wx:if="{{loading}}">
+    <view class="skeleton-header">
+      <view class="skeleton-avatar skeleton-animate"></view>
+      <view class="skeleton-user-info">
+        <view class="skeleton-name skeleton-animate"></view>
+        <view class="skeleton-time skeleton-animate"></view>
+      </view>
+    </view>
+    <view class="skeleton-title skeleton-animate"></view>
+    <view class="skeleton-content">
+      <view class="skeleton-line skeleton-animate"></view>
+      <view class="skeleton-line skeleton-animate" style="width: 85%;"></view>
+      <view class="skeleton-line skeleton-animate" style="width: 70%;"></view>
+    </view>
+  </view>
+
+  <!-- 校友总会详情内容 -->
+  <block wx:elif="{{headquarters}}">
+    <!-- 主卡片 -->
+    <view class="main-card">
+      <!-- 基本信息 -->
+      <view class="info-section">
+        <view class="info-item">
+          <text class="info-label">校友总会名称</text>
+          <text class="info-value">{{headquarters.headquartersName || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">审核状态</text>
+          <view class="status-tag {{statusClass}}">
+            <text class="status-text">{{approvalStatusText}}</text>
+          </view>
+        </view>
+        <view class="info-item">
+          <text class="info-label">成立日期</text>
+          <text class="info-value">{{headquarters.establishedDate || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">创建码</text>
+          <text class="info-value">{{headquarters.createCode || '无'}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider"></view>
+
+      <!-- 详细信息 -->
+      <view class="detail-section">
+        <view class="section-title">详细信息</view>
+        <view class="info-item">
+          <text class="info-label">描述</text>
+          <text class="info-value multi-line">{{headquarters.description || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系信息</text>
+          <text class="info-value">{{headquarters.contactInfo || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">办公地址</text>
+          <text class="info-value">{{headquarters.address || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">官方网站</text>
+          <text class="info-value link" wx:if="{{headquarters.website}}" bindtap="openLink" data-link="{{headquarters.website}}">{{headquarters.website}}</text>
+          <text class="info-value" wx:else>无</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">微信公众号</text>
+          <text class="info-value">{{headquarters.wechatPublicAccount || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系邮箱</text>
+          <text class="info-value">{{headquarters.email || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系电话</text>
+          <text class="info-value">{{headquarters.phone || '无'}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider"></view>
+
+      <!-- 学校信息（暂时不展示） -->
+      <!-- <view class="school-section" wx:if="{{headquarters.schoolInfo}}">
+        <view class="section-title">学校信息</view>
+        <view class="info-item">
+          <text class="info-label">学校名称</text>
+          <text class="info-value">{{headquarters.schoolInfo.schoolName || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">学校代码</text>
+          <text class="info-value">{{headquarters.schoolInfo.schoolCode || '无'}}</text>
+        </view>
+      </view> -->
+
+      <!-- 分割线 -->
+      <view class="divider"></view>
+
+      <!-- 创建者信息 -->
+      <view class="user-section" wx:if="{{headquarters.createdUser}}">
+        <view class="section-title">创建者信息</view>
+        <view class="info-item">
+          <text class="info-label">创建人</text>
+          <text class="info-value">{{headquarters.createdUser.nickname || headquarters.createdUser.username || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">创建时间</text>
+          <text class="info-value">{{headquarters.createdUser.createTime || '无'}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider"></view>
+
+      <!-- 更新者信息 -->
+      <view class="user-section" wx:if="{{headquarters.updatedUser}}">
+        <view class="section-title">更新者信息</view>
+        <view class="info-item">
+          <text class="info-label">更新人</text>
+          <text class="info-value">{{headquarters.updatedUser.nickname || headquarters.updatedUser.username || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">更新时间</text>
+          <text class="info-value">{{headquarters.updatedUser.updateTime || '无'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 错误信息 -->
+    <view class="error-info" wx:if="{{headquarters.msg}}">
+      <text class="error-text">{{headquarters.msg}}</text>
+    </view>
+  </block>
+
+  <!-- 错误状态 -->
+  <view wx:else class="error-state">
+    <view class="error-icon">🏢</view>
+    <view class="error-text">校友总会申请不存在或已删除</view>
+    <view class="error-btn" bindtap="goBack">返回上一页</view>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder"></view>
+</scroll-view>
+
+</custom-nav-bar>

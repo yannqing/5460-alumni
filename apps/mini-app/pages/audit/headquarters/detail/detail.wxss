@@ -1,0 +1,246 @@
+/* 容器 */
+.container {
+  min-height: 100vh;
+  background-color: #F7F7FE;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+/* 骨架屏样式 */
+.skeleton-container {
+  padding: 30rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.skeleton-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+  margin-right: 20rpx;
+}
+
+.skeleton-user-info {
+  flex: 1;
+}
+
+.skeleton-name {
+  width: 160rpx;
+  height: 32rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  margin-bottom: 12rpx;
+}
+
+.skeleton-time {
+  width: 240rpx;
+  height: 24rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+}
+
+.skeleton-title {
+  width: 80%;
+  height: 40rpx;
+  background: #f0f0f0;
+  border-radius: 8rpx;
+  margin-bottom: 32rpx;
+}
+
+.skeleton-content {
+  padding-top: 16rpx;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 28rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  margin-bottom: 20rpx;
+}
+
+.skeleton-animate {
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-color: #f0f0f0; }
+  50% { background-color: #e0e0e0; }
+  100% { background-color: #f0f0f0; }
+}
+
+/* 主卡片 */
+.main-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+/* 信息项 */
+.info-section {
+  margin-bottom: 20rpx;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+}
+
+.info-label {
+  width: 180rpx;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.55);
+  font-family: PingFangSC-Regular;
+  flex-shrink: 0;
+  padding-top: 4rpx;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.85);
+  font-family: PingFangSC-Regular;
+  word-break: break-all;
+}
+
+.info-value.multi-line {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.info-value.link {
+  color: #4A8BF5;
+  text-decoration: underline;
+}
+
+/* 审核状态标签 */
+.status-tag {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  margin-top: 4rpx;
+}
+
+.status-tag.status-pending {
+  background-color: rgba(250, 156, 0, 0.1);
+}
+
+.status-tag.status-approved {
+  background-color: rgba(80, 200, 32, 0.1);
+}
+
+.status-tag.status-rejected {
+  background-color: rgba(154, 154, 154, 0.1);
+}
+
+.status-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.status-pending .status-text {
+  color: rgba(250, 156, 0, 1);
+}
+
+.status-approved .status-text {
+  color: rgba(80, 200, 32, 1);
+}
+
+.status-rejected .status-text {
+  color: rgba(154, 154, 154, 1);
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 28rpx 0;
+}
+
+/* 详细信息 */
+.detail-section {
+  margin-bottom: 20rpx;
+}
+
+/* 学校信息 */
+.school-section {
+  margin-bottom: 20rpx;
+}
+
+/* 用户信息 */
+.user-section {
+  margin-bottom: 20rpx;
+}
+
+/* 区域标题 */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  font-family: PingFangSC-Semibold;
+  margin-bottom: 24rpx;
+  padding-left: 12rpx;
+  border-left: 6rpx solid #4A8BF5;
+}
+
+/* 错误信息 */
+.error-info {
+  margin-top: 24rpx;
+  padding: 20rpx;
+  background: rgba(255, 77, 79, 0.06);
+  border-radius: 16rpx;
+  border-left: 4rpx solid #FF4D4F;
+}
+
+.error-text {
+  font-size: 26rpx;
+  color: #FF4D4F;
+  font-family: PingFangSC-Regular;
+  line-height: 1.5;
+}
+
+/* 错误状态 */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+}
+
+.error-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.error-text {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.45);
+  font-family: PingFangSC-Regular;
+  margin-bottom: 32rpx;
+}
+
+.error-btn {
+  padding: 16rpx 48rpx;
+  background: rgba(74, 139, 245, 0.1);
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  color: #4A8BF5;
+  font-family: PingFangSC-Medium;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+  height: 80rpx;
+}

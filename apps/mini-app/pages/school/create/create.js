@@ -1,4 +1,4 @@
-const { schoolApi, userApi, fileApi, unionApi } = require('../../../api/api.js')
+const { userApi, fileApi, unionApi } = require('../../../api/api.js')
 const app = getApp()
 const config = require('../../../utils/config.js')
 
@@ -20,8 +20,6 @@ Page({
         formData: {
             headquartersId: '',
             headquartersName: '',
-            schoolId: '',
-            schoolName: '',
             createCode: '',
             logo: '',
             description: '',
@@ -32,26 +30,17 @@ Page({
             email: '',
             phone: '',
             establishedDate: '',
-            level: 0,
-            levelName: '',
             createdUserId: 0,
             updatedUserId: 0,
             logoType: 'default' // logo来源类型: default, school, upload
         },
-        schoolLogoUrl: '',
         defaultLogo: config.defaultAvatar,
-        // 搜索结果列表
-        schoolList: [],
         // 未激活的校友总会列表
         inactiveUnionList: [],
-        inactiveUnionIndex: -1,
-
-        // 级别列表
-        levelList: ['1-校级', '2-省级', '3-国家级', '4-国际级'],
-        levelIndex: -1,
-
+        // 过滤后的校友总会列表
+        filteredUnionList: [],
         // 控制显示
-        showSchoolResults: false,
+        showUnionResults: false,
 
         loading: false,
         submitting: false,
@@ -61,7 +50,7 @@ Page({
 
     onLoad(options) {
         // 创建搜索防抖函数
-        this.searchSchoolDebounced = debounce(this.searchSchool, 500)
+        this.searchUnionDebounced = debounce(this.filterUnions, 500)
 
         this.loadInitialData()
 
@@ -91,8 +80,10 @@ Page({
                 pageSize: 10
             })
             if (res.data && res.data.code === 200) {
+                const unions = res.data.data.records || []
                 this.setData({
-                    inactiveUnionList: res.data.data.records || []
+                    inactiveUnionList: unions,
+                    filteredUnionList: unions
                 })
             }
         } catch (e) {
@@ -114,7 +105,7 @@ Page({
                 this.setData({
                     'formData.createdUserId': userId,
                     'formData.updatedUserId': userId,
-                    'formData.contactInfo': userInfo.phone || userInfo.mobile || '',
+                    'formData.phone': userInfo.phone || userInfo.mobile || '',
                     'formData.email': userInfo.email || ''
                 })
             }
@@ -131,23 +122,11 @@ Page({
         })
     },
 
-    // 处理级别选择
-    handleLevelChange(e) {
-        const index = e.detail.value
-        const level = index + 1 // 级别从1开始
-        const levelName = this.data.levelList[index]
-        this.setData({
-            levelIndex: index,
-            'formData.level': level,
-            'formData.levelName': levelName
-        })
-    },
-
     // --- 下拉框控制 ---
 
     closeAllDropdowns() {
         this.setData({
-            showSchoolResults: false
+            showUnionResults: false
         })
     },
 
@@ -155,85 +134,82 @@ Page({
         // 阻止冒泡
     },
 
-    // --- 学校搜索处理 ---
+    // --- 校友总会搜索处理 ---
 
-    handleSchoolInput(e) {
+    handleUnionInput(e) {
         const value = e.detail.value
         this.setData({
-            'formData.schoolName': value,
-            'formData.schoolId': '', // 清空ID，因为修改了名称
-            showSchoolResults: true
+            'formData.headquartersName': value,
+            'formData.headquartersId': '', // 清空ID，因为修改了名称
+            showUnionResults: true
         })
 
         if (value.trim()) {
-            this.searchSchoolDebounced(value)
+            this.searchUnionDebounced(value)
         } else {
-            this.setData({ schoolList: [] })
+            // 当输入为空时，显示所有校友总会
+            this.setData({ filteredUnionList: this.data.inactiveUnionList })
         }
     },
 
-    handleSchoolFocus() {
-        // 聚焦时如果已有内容，也展示结果
-        if (this.data.formData.schoolName) {
-            this.setData({ showSchoolResults: true })
-            if (this.data.schoolList.length === 0) {
-                this.searchSchool(this.data.formData.schoolName)
-            }
-        }
+    handleUnionFocus() {
+        // 聚焦时展示结果
+        this.setData({ showUnionResults: true })
     },
 
-    async searchSchool(keyword) {
-        if (!keyword) { return }
-        try {
-            const res = await schoolApi.getSchoolPage({
-                current: 1,
-                pageSize: 20,
-                schoolName: keyword.trim()
-            })
-            if (res.data && res.data.code === 200) {
-                this.setData({
-                    schoolList: res.data.data.records || []
-                })
-            }
-        } catch (e) {
-            console.error('搜索学校失败', e)
+    filterUnions(keyword) {
+        if (!keyword) {
+            this.setData({ filteredUnionList: this.data.inactiveUnionList })
+            return
         }
+<<<<<<< HEAD
+
+        const filtered = this.data.inactiveUnionList.filter(union =>
+            union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
+        )
+
+=======
+        
+        const filtered = this.data.inactiveUnionList.filter(union => 
+            union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
+        )
+        
+>>>>>>> origin/dev
+        this.setData({ filteredUnionList: filtered })
     },
 
-    selectSchool(e) {
+    selectUnion(e) {
         const index = e.currentTarget.dataset.index
-        const school = this.data.schoolList[index]
-
-        // 提取学校Logo，如果学校没有Logo则使用系统默认母校图标
-        const schoolLogo = school.logo ? config.getImageUrl(school.logo) : config.defaultSchoolAvatar
+        const union = this.data.filteredUnionList[index]
 
         const updateData = {
-            'formData.schoolId': school.schoolId,
-            'formData.schoolName': school.schoolName,
-            'schoolLogoUrl': schoolLogo,
-            showSchoolResults: false
+            'formData.headquartersId': union.headquartersId,
+            'formData.headquartersName': union.headquartersName,
+            showUnionResults: false
+<<<<<<< HEAD
         }
 
+        // 保存校友总会logo
+        if (union.logo) {
+            updateData.unionLogoUrl = union.logo
+=======
+>>>>>>> origin/dev
+        }
+        
+        // 保存校友总会logo
+        if (union.logo) {
+            updateData.unionLogoUrl = union.logo
+        }
+        
         // 如果当前选中的是"使用学校logo", 则实时更新预览图和提交用的logo地址
-        if (this.data.formData.logoType === 'school') {
-            updateData['formData.logo'] = schoolLogo
+        if (this.data.formData.logoType === 'school' && union.logo) {
+            updateData['formData.logo'] = union.logo
         }
-
+        
         this.setData(updateData)
     },
 
-    // 处理校友总会选择
-    handleUnionChange(e) {
-        const index = e.detail.value
-        const union = this.data.inactiveUnionList[index]
-        if (union) {
-            this.setData({
-                inactiveUnionIndex: index,
-                'formData.headquartersId': union.headquartersId,
-                'formData.headquartersName': union.headquartersName
-            })
-        }
-    },
+
 
     // 处理logo类型切换
     handleLogoTypeChange(e) {
@@ -243,11 +219,11 @@ Page({
         if (type === 'default') {
             logo = this.data.defaultLogo
         } else if (type === 'school') {
-            // 只有当有 schoolId 时才展示相应学校的 logo，否则为空
-            if (this.data.formData.schoolId) {
-                logo = this.data.schoolLogoUrl || config.defaultSchoolAvatar
+            // 使用校友总会logo
+            if (this.data.unionLogoUrl) {
+                logo = this.data.unionLogoUrl
             } else {
-                logo = '' // 未选学校时不展示预览
+                logo = '' // 未选校友总会时不展示预览
             }
         } else if (type === 'upload') {
             // 如果切到上传,保留原来的logo或者为空
@@ -358,10 +334,6 @@ Page({
 
         const { formData } = this.data
 
-        if (!formData.schoolId) {
-            wx.showToast({ title: '请选择学校', icon: 'none' })
-            return
-        }
         if (!formData.headquartersId) {
             wx.showToast({ title: '请选择校友总会', icon: 'none' })
             return
@@ -370,7 +342,7 @@ Page({
             wx.showToast({ title: '请输入创建码/邀请码', icon: 'none' })
             return
         }
-        
+
         // 验证日期格式
         if (formData.establishedDate) {
             const dateRegex = /^\d{4}-\d{2}-\d{2}$/
@@ -378,7 +350,7 @@ Page({
                 wx.showToast({ title: '请输入正确的日期格式 (YYYY-MM-DD)', icon: 'none' })
                 return
             }
-            
+
             // 验证日期是否有效
             const date = new Date(formData.establishedDate)
             if (isNaN(date.getTime())) {
@@ -389,21 +361,19 @@ Page({
 
         const submitData = {
             headquartersId: formData.headquartersId,
-            schoolId: formData.schoolId,
             createCode: formData.createCode,
             description: formData.description || undefined,
-            contactInfo: formData.contactInfo || undefined,
+            contactInfo: formData.contactInfo ? JSON.stringify({content: formData.contactInfo}) : undefined,
             address: formData.address || undefined,
             website: formData.website || undefined,
             wechatPublicAccount: formData.wechatPublicAccount || undefined,
             email: formData.email || undefined,
             phone: formData.phone || undefined,
             establishedDate: formData.establishedDate || undefined,
-            level: formData.level || undefined,
             createdUserId: formData.createdUserId || undefined,
             updatedUserId: formData.updatedUserId || undefined
         }
-        
+
         // 确保logo字段在非默认情况下总是传递
         if (formData.logoType !== 'default') {
             submitData.logo = formData.logo || ''

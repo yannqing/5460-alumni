@@ -21,6 +21,9 @@ public class InactiveAlumniHeadquartersVo implements Serializable {
     @Schema(description = "校友总会 名称")
     private String headquartersName;
 
+    @Schema(description = "校友总会 Logo")
+    private String logo;
+
     @Serial
     private static final long serialVersionUID = 1L;
 
