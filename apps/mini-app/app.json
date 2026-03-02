@@ -83,6 +83,7 @@
     "pages/audit/article/manage/manage",
     "pages/audit/enterprise/index",
     "pages/audit/headquarters/list/list",
+    "pages/audit/headquarters/detail/detail",
     "pages/article/detail/detail",
     "pages/article/form/form",
     "pages/article/audit-list/audit-list",

@@ -105,7 +105,7 @@ Page({
                 this.setData({
                     'formData.createdUserId': userId,
                     'formData.updatedUserId': userId,
-                    'formData.contactInfo': userInfo.phone || userInfo.mobile || '',
+                    'formData.phone': userInfo.phone || userInfo.mobile || '',
                     'formData.email': userInfo.email || ''
                 })
             }
@@ -162,11 +162,19 @@ Page({
             this.setData({ filteredUnionList: this.data.inactiveUnionList })
             return
         }
+<<<<<<< HEAD
+
+        const filtered = this.data.inactiveUnionList.filter(union =>
+            union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
+        )
+
+=======
         
         const filtered = this.data.inactiveUnionList.filter(union => 
             union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
         )
         
+>>>>>>> origin/dev
         this.setData({ filteredUnionList: filtered })
     },
 
@@ -178,6 +186,14 @@ Page({
             'formData.headquartersId': union.headquartersId,
             'formData.headquartersName': union.headquartersName,
             showUnionResults: false
+<<<<<<< HEAD
+        }
+
+        // 保存校友总会logo
+        if (union.logo) {
+            updateData.unionLogoUrl = union.logo
+=======
+>>>>>>> origin/dev
         }
         
         // 保存校友总会logo
@@ -326,7 +342,7 @@ Page({
             wx.showToast({ title: '请输入创建码/邀请码', icon: 'none' })
             return
         }
-        
+
         // 验证日期格式
         if (formData.establishedDate) {
             const dateRegex = /^\d{4}-\d{2}-\d{2}$/
@@ -334,7 +350,7 @@ Page({
                 wx.showToast({ title: '请输入正确的日期格式 (YYYY-MM-DD)', icon: 'none' })
                 return
             }
-            
+
             // 验证日期是否有效
             const date = new Date(formData.establishedDate)
             if (isNaN(date.getTime())) {
@@ -347,7 +363,7 @@ Page({
             headquartersId: formData.headquartersId,
             createCode: formData.createCode,
             description: formData.description || undefined,
-            contactInfo: formData.contactInfo || undefined,
+            contactInfo: formData.contactInfo ? JSON.stringify({content: formData.contactInfo}) : undefined,
             address: formData.address || undefined,
             website: formData.website || undefined,
             wechatPublicAccount: formData.wechatPublicAccount || undefined,
@@ -357,7 +373,7 @@ Page({
             createdUserId: formData.createdUserId || undefined,
             updatedUserId: formData.updatedUserId || undefined
         }
-        
+
         // 确保logo字段在非默认情况下总是传递
         if (formData.logoType !== 'default') {
             submitData.logo = formData.logo || ''

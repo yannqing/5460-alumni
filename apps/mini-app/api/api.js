@@ -75,6 +75,8 @@ const unionApi = {
   getPendingUnionPage: (params) => post('/AlumniHeadquarters/pending/page', params),
   // 审核校友总会
   auditUnion: (data) => post('/AlumniHeadquarters/audit', data),
+  // 查看校友总会申请详情
+  getApplyDetail: (headquartersId) => get(`/AlumniHeadquarters/admin/applyDetail`, { headquartersId }),
 }
 
 // ==================== 校促会相关接口 ====================

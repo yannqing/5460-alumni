@@ -104,7 +104,8 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                 .like(StringUtils.isNotBlank(headquartersName), AlumniHeadquarters::getHeadquartersName,
                         headquartersName)
                 .eq(schoolId != null, AlumniHeadquarters::getSchoolId, schoolId)
-                .eq(approvalStatus != null, AlumniHeadquarters::getApprovalStatus, approvalStatus);
+                .eq(approvalStatus != null, AlumniHeadquarters::getApprovalStatus, approvalStatus)
+                .ne(AlumniHeadquarters::getActiveStatus, 0);
 
         // 排序
         queryWrapper
@@ -128,7 +129,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
 
     @Override
     public boolean applyActivateHeadquarters(ApplyActivateHeadquartersRequest request, Long userId) {
-        if (request == null || request.getHeadquartersId() == null || request.getSchoolId() == null
+        if (request == null || request.getHeadquartersId() == null
                 || request.getCreateCode() == null) {
             throw new BusinessException("申请失败，参数不能为空");
         }
@@ -143,11 +144,13 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
             throw new BusinessException("申请失败，校友总会信息不存在");
         }
 
-        // 验证传入的母校 ID 与数据是否匹配（如果数据已设置）或直接设置
-        if (alumniHeadquarters.getSchoolId() != null && !alumniHeadquarters.getSchoolId().equals(schoolId)) {
-            throw new BusinessException("申请失败，母校信息不匹配");
+        // 验证传入的母校 ID 与数据是否匹配（如果传了 schoolId 才校验）
+        if (schoolId != null) {
+            if (alumniHeadquarters.getSchoolId() != null && !alumniHeadquarters.getSchoolId().equals(schoolId)) {
+                throw new BusinessException("申请失败，母校信息不匹配");
+            }
+            alumniHeadquarters.setSchoolId(schoolId);
         }
-        alumniHeadquarters.setSchoolId(schoolId);
 
         // 2. 验证创建码是否匹配
         if (!createCode.equals(alumniHeadquarters.getCreateCode())) {
