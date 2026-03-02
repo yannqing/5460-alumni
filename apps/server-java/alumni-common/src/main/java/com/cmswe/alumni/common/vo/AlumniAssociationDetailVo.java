@@ -61,6 +61,12 @@ public class AlumniAssociationDetailVo implements Serializable {
     private String logo;
 
     /**
+     * 校友会简介
+     */
+    @Schema(description = "校友会简介")
+    private String associationProfile;
+
+    /**
      * 背景图（json 数组）
      */
     @Schema(description = "背景图（json 数组）")
