@@ -44,10 +44,10 @@ Page({
   async loadHeadquartersDetail() {
     try {
       const res = await unionApi.getUnionDetail(this.data.headquartersId)
-      
+
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
-        
+
         // 处理联系信息（JSON字符串转对象）
         let contactInfo = data.contactInfo || ''
         if (contactInfo && typeof contactInfo === 'string') {
