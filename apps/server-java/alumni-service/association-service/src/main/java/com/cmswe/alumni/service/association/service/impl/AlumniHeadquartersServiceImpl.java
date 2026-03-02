@@ -200,6 +200,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
 
         // 4. 更新激活状态
         alumniHeadquarters.setActiveStatus(1);
+        alumniHeadquarters.setApprovalStatus(0);
         boolean result = this.updateById(alumniHeadquarters);
 
         if (!result) {
