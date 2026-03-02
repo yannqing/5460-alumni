@@ -164,6 +164,7 @@ Page({
             return
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         const filtered = this.data.inactiveUnionList.filter(union =>
             union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
@@ -176,6 +177,13 @@ Page({
         )
         
 >>>>>>> 2d6634c (Administrators view alumni association applications; application fields updated.)
+=======
+
+        const filtered = this.data.inactiveUnionList.filter(union =>
+            union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
+        )
+
+>>>>>>> 19b90da (Details page)
         this.setData({ filteredUnionList: filtered })
     },
 
@@ -196,17 +204,17 @@ Page({
 =======
 >>>>>>> 2d6634c (Administrators view alumni association applications; application fields updated.)
         }
-        
+
         // 保存校友总会logo
         if (union.logo) {
             updateData.unionLogoUrl = union.logo
         }
-        
+
         // 如果当前选中的是"使用学校logo", 则实时更新预览图和提交用的logo地址
         if (this.data.formData.logoType === 'school' && union.logo) {
             updateData['formData.logo'] = union.logo
         }
-        
+
         this.setData(updateData)
     },
 
@@ -451,7 +459,11 @@ Page({
             headquartersId: formData.headquartersId,
             createCode: formData.createCode,
             description: formData.description || undefined,
+<<<<<<< HEAD
             contactInfo: formData.contactInfo ? JSON.stringify({ content: formData.contactInfo }) : undefined,
+=======
+            contactInfo: formData.contactInfo ? JSON.stringify({content: formData.contactInfo}) : undefined,
+>>>>>>> 19b90da (Details page)
             address: formData.address || undefined,
             website: formData.website || undefined,
             wechatPublicAccount: formData.wechatPublicAccount || undefined,

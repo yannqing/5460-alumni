@@ -24,6 +24,7 @@
 
   <!-- 校友总会详情内容 -->
   <block wx:elif="{{headquarters}}">
+<<<<<<< HEAD
     <!-- 背景横幅 -->
     <view class="detail-header">
       <image class="header-bg" src="{{headquarters.bgImg || defaultBackground}}" mode="aspectFill" />
@@ -50,6 +51,15 @@
         <view class="info-item" wx:if="{{headquarters.createCode != null}}">
           <text class="info-label">创建码</text>
           <text class="info-value">{{headquarters.createCode || '无'}}</text>
+=======
+    <!-- 主卡片 -->
+    <view class="main-card">
+      <!-- 基本信息 -->
+      <view class="info-section">
+        <view class="info-item">
+          <text class="info-label">校友总会名称</text>
+          <text class="info-value">{{headquarters.headquartersName || '无'}}</text>
+>>>>>>> 19b90da (Details page)
         </view>
         <view class="info-item">
           <text class="info-label">审核状态</text>
@@ -57,6 +67,17 @@
             <text class="status-text">{{approvalStatusText}}</text>
           </view>
         </view>
+<<<<<<< HEAD
+=======
+        <view class="info-item">
+          <text class="info-label">成立日期</text>
+          <text class="info-value">{{headquarters.establishedDate || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">创建码</text>
+          <text class="info-value">{{headquarters.createCode || '无'}}</text>
+        </view>
+>>>>>>> 19b90da (Details page)
       </view>
 
       <!-- 分割线 -->
@@ -65,6 +86,7 @@
       <!-- 详细信息 -->
       <view class="detail-section">
         <view class="section-title">详细信息</view>
+<<<<<<< HEAD
         <view class="info-item" wx:if="{{headquarters.description != null}}">
           <text class="info-label">描述</text>
           <text class="info-value multi-line">{{headquarters.description || '无'}}</text>
@@ -90,6 +112,34 @@
           <text class="info-value">{{headquarters.email || '无'}}</text>
         </view>
         <view class="info-item" wx:if="{{headquarters.phone != null}}">
+=======
+        <view class="info-item">
+          <text class="info-label">描述</text>
+          <text class="info-value multi-line">{{headquarters.description || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系信息</text>
+          <text class="info-value">{{headquarters.contactInfo || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">办公地址</text>
+          <text class="info-value">{{headquarters.address || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">官方网站</text>
+          <text class="info-value link" wx:if="{{headquarters.website}}" bindtap="openLink" data-link="{{headquarters.website}}">{{headquarters.website}}</text>
+          <text class="info-value" wx:else>无</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">微信公众号</text>
+          <text class="info-value">{{headquarters.wechatPublicAccount || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系邮箱</text>
+          <text class="info-value">{{headquarters.email || '无'}}</text>
+        </view>
+        <view class="info-item">
+>>>>>>> 19b90da (Details page)
           <text class="info-label">联系电话</text>
           <text class="info-value">{{headquarters.phone || '无'}}</text>
         </view>
@@ -99,7 +149,11 @@
       <view class="divider"></view>
 
       <!-- 学校信息（暂时不展示） -->
+<<<<<<< HEAD
       <!-- <view class="school-section" wx:if="{{headquarters.schoolInfo != null}}">
+=======
+      <!-- <view class="school-section" wx:if="{{headquarters.schoolInfo}}">
+>>>>>>> 19b90da (Details page)
         <view class="section-title">学校信息</view>
         <view class="info-item">
           <text class="info-label">学校名称</text>
@@ -115,7 +169,11 @@
       <view class="divider"></view>
 
       <!-- 创建者信息 -->
+<<<<<<< HEAD
       <view class="user-section" wx:if="{{headquarters.createdUser != null}}">
+=======
+      <view class="user-section" wx:if="{{headquarters.createdUser}}">
+>>>>>>> 19b90da (Details page)
         <view class="section-title">创建者信息</view>
         <view class="info-item">
           <text class="info-label">创建人</text>
@@ -131,7 +189,11 @@
       <view class="divider"></view>
 
       <!-- 更新者信息 -->
+<<<<<<< HEAD
       <view class="user-section" wx:if="{{headquarters.updatedUser != null}}">
+=======
+      <view class="user-section" wx:if="{{headquarters.updatedUser}}">
+>>>>>>> 19b90da (Details page)
         <view class="section-title">更新者信息</view>
         <view class="info-item">
           <text class="info-label">更新人</text>
@@ -141,11 +203,19 @@
           <text class="info-label">更新时间</text>
           <text class="info-value">{{headquarters.updatedUser.updateTime || '无'}}</text>
         </view>
+<<<<<<< HEAD
       </view> <!-- end detail-card -->
     </view>
 
     <!-- 错误信息 -->
     <view class="error-info" wx:if="{{headquarters.msg != null}}">
+=======
+      </view>
+    </view>
+
+    <!-- 错误信息 -->
+    <view class="error-info" wx:if="{{headquarters.msg}}">
+>>>>>>> 19b90da (Details page)
       <text class="error-text">{{headquarters.msg}}</text>
     </view>
   </block>
