@@ -32,8 +32,6 @@ Page({
             email: '',
             phone: '',
             establishedDate: '',
-            level: 0,
-            levelName: '',
             createdUserId: 0,
             updatedUserId: 0,
             logoType: 'default' // logo来源类型: default, school, upload
@@ -45,10 +43,6 @@ Page({
         // 未激活的校友总会列表
         inactiveUnionList: [],
         inactiveUnionIndex: -1,
-
-        // 级别列表
-        levelList: ['1-校级', '2-省级', '3-国家级', '4-国际级'],
-        levelIndex: -1,
 
         // 控制显示
         showSchoolResults: false,
@@ -131,17 +125,7 @@ Page({
         })
     },
 
-    // 处理级别选择
-    handleLevelChange(e) {
-        const index = e.detail.value
-        const level = index + 1 // 级别从1开始
-        const levelName = this.data.levelList[index]
-        this.setData({
-            levelIndex: index,
-            'formData.level': level,
-            'formData.levelName': levelName
-        })
-    },
+
 
     // --- 下拉框控制 ---
 
@@ -399,7 +383,6 @@ Page({
             email: formData.email || undefined,
             phone: formData.phone || undefined,
             establishedDate: formData.establishedDate || undefined,
-            level: formData.level || undefined,
             createdUserId: formData.createdUserId || undefined,
             updatedUserId: formData.updatedUserId || undefined
         }

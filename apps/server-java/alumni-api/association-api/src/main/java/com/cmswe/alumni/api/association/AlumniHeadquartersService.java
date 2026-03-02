@@ -10,7 +10,6 @@ import com.cmswe.alumni.common.dto.QueryAlumniHeadquartersListDto;
 import com.cmswe.alumni.common.vo.AlumniHeadquartersListVo;
 import com.cmswe.alumni.common.vo.InactiveAlumniHeadquartersVo;
 import com.cmswe.alumni.common.vo.PageVo;
-import com.cmswe.alumni.common.model.PageRequest;
 
 /**
  * 校友总会服务接口
@@ -48,7 +47,7 @@ public interface AlumniHeadquartersService extends IService<AlumniHeadquarters> 
      * @param pageRequest 分页参数
      * @return 分页结果
      */
-    PageVo<InactiveAlumniHeadquartersVo> selectInactiveByPage(PageRequest pageRequest);
+    PageVo<InactiveAlumniHeadquartersVo> selectInactiveByPage(QueryAlumniHeadquartersListDto pageRequest);
 
     /**
      * 审核校友总会

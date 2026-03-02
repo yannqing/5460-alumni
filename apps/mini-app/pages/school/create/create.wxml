@@ -78,21 +78,6 @@
         </view>
 
         <view class="form-item">
-          <text class="label">级别</text>
-          <picker 
-            mode="selector" 
-            range="{{levelList}}" 
-            value="{{levelIndex}}" 
-            bindchange="handleLevelChange"
-            class="input"
-          >
-            <view class="picker-content">
-              {{formData.levelName || '请选择级别'}}
-            </view>
-          </picker>
-        </view>
-
-        <view class="form-item">
           <text class="label">校友总会logo</text>
           <view class="logo-options">
             <radio-group class="radio-group" bindchange="handleLogoTypeChange">
