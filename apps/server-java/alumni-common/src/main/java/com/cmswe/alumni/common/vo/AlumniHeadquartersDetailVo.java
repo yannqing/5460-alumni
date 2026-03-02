@@ -72,6 +72,12 @@ public class AlumniHeadquartersDetailVo implements Serializable {
     private String logo;
 
     /**
+     * 背景图
+     */
+    @Schema(description = "背景图")
+    private String bgImg;
+
+    /**
      * 联系邮箱
      */
     @Schema(description = "联系邮箱")
