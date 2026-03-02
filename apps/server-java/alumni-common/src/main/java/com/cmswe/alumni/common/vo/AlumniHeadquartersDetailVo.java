@@ -66,6 +66,12 @@ public class AlumniHeadquartersDetailVo implements Serializable {
     private String wechatPublicAccount;
 
     /**
+     * logo
+     */
+    @Schema(description = "logo")
+    private String logo;
+
+    /**
      * 联系邮箱
      */
     @Schema(description = "联系邮箱")

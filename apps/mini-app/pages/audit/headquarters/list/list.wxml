@@ -50,15 +50,15 @@
           </view>
           <!-- 校友总会信息 -->
 
-          <view class="text-wrapper_16">
+          <view class="text-wrapper_16" wx:if="{{item.phone != null}}">
             <text lines="1" class="text_26">联系电话：</text>
             <text lines="1" class="text_27">{{item.phone}}</text>
           </view>
-          <view class="text-wrapper_16">
+          <view class="text-wrapper_16" wx:if="{{item.email != null}}">
             <text lines="1" class="text_26">联系邮箱：</text>
             <text lines="1" class="text_27">{{item.email}}</text>
           </view>
-          <view class="text-wrapper_16">
+          <view class="text-wrapper_16" wx:if="{{item.address != null}}">
             <text lines="1" class="text_26">地址：</text>
             <text lines="1" class="text_27">{{item.address}}</text>
           </view>

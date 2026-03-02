@@ -8,7 +8,8 @@ Page({
     headquarters: null,
     loading: true,
     statusClass: '',
-    approvalStatusText: ''
+    approvalStatusText: '',
+    defaultAlumniAvatar: config.defaultAvatar
   },
 
   onLoad(options) {
@@ -32,7 +33,19 @@ Page({
       const res = await unionApi.getApplyDetail(headquartersId)
       
       if (res.data && res.data.code === 200) {
-        const headquarters = res.data.data
+        let headquarters = res.data.data
+        
+        // 处理 contactInfo 字段，将 JSON 字符串转换为对象
+        if (headquarters.contactInfo) {
+          try {
+            const parsedContactInfo = JSON.parse(headquarters.contactInfo)
+            // 如果解析成功，使用解析后的数据
+            headquarters.contactInfo = parsedContactInfo.content || headquarters.contactInfo
+          } catch (error) {
+            // 解析失败，保持原样
+            console.error('解析 contactInfo 失败:', error)
+          }
+        }
         
         // 处理状态文本和样式
         const statusClass = this.getStatusClass(headquarters.approvalStatus)

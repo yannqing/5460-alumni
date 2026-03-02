@@ -122,6 +122,33 @@
   text-decoration: underline;
 }
 
+/* logo 样式 */
+.info-logo {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+/* 名称和 logo 容器 */
+.name-with-logo {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+/* logo 项 */
+.logo-item {
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+/* logo 名称样式 */
+.logo-name {
+  font-size: 38rpx;
+  font-weight: 600;
+}
+
 /* 审核状态标签 */
 .status-tag {
   padding: 8rpx 20rpx;
