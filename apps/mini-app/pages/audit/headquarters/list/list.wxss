@@ -12,6 +12,31 @@
   overflow: hidden;
 }
 
+/* 筛选区域 */
+.filter-section {
+  display: flex;
+  background-color: #FFFFFF;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+  margin-bottom: 20rpx;
+}
+
+.filter-item {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx 0;
+  font-size: 28rpx;
+  color: #666666;
+  border-radius: 20rpx;
+  margin: 0 10rpx;
+}
+
+.filter-item.active {
+  color: #4A8BF5;
+  background-color: #F0F7FF;
+  font-weight: 500;
+}
+
 /* 可滚动列表区域 */
 .scroll-list {
   width: 750rpx;

@@ -23,8 +23,7 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     /**
      * 所属母校 ID
      */
-    @Schema(description = "所属母校 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "所属母校 ID 不能为空")
+    @Schema(description = "所属母校 ID")
     private Long schoolId;
 
     /**

@@ -12,6 +12,7 @@ Page({
     pageSize: 10,
     hasMore: true,
     total: 0,
+    filterStatus: -1, // -1: 全部, 0: 待审核, 1: 已审核
     // 审核弹框相关
     isApprovalModalVisible: false,
     approvalAction: 1, // 1-通过，2-拒绝
@@ -42,6 +43,15 @@ Page({
     }
   },
 
+  // 设置筛选状态
+  setFilterStatus(e) {
+    const status = parseInt(e.currentTarget.dataset.status)
+    if (this.data.filterStatus !== status) {
+      this.setData({ filterStatus: status })
+      this.loadHeadquartersList(false)
+    }
+  },
+
   async loadHeadquartersList(isLoadMore = false) {
     const { loading, loadingMore, hasMore, currentPage, pageSize } = this.data
 
@@ -64,6 +74,11 @@ Page({
       const params = {
         current: page,
         pageSize: pageSize
+      }
+
+      // 添加审核状态筛选参数
+      if (this.data.filterStatus !== -1) {
+        params.approvalStatus = this.data.filterStatus
       }
 
       // 调用真实接口获取待审核的校友总会列表
