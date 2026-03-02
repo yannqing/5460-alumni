@@ -2,27 +2,28 @@
   <message-notification />
 
   <view class="school-detail-page">
-    <view wx:if="{{schoolInfo}}">
-      <!-- 顶部背景图区域（包含学校信息） -->
+    <view wx:if="{{headquartersInfo}}">
+      <!-- 顶部背景图区域（包含校友总会信息） -->
       <view class="top-background-container">
-        <image class="cover-image" src="{{schoolInfo.cover}}" mode="aspectFill" bindtap="previewImage" data-url="{{schoolInfo.cover}}" />
+        <image class="cover-image" src="{{headquartersInfo.cover}}" mode="aspectFill" bindtap="previewImage" data-url="{{headquartersInfo.cover}}" />
         <!-- 渐变遮罩 -->
         <view class="bg-gradient-overlay"></view>
-        <!-- 学校头像 -->
-        <image class="school-avatar-on-bg" src="{{schoolInfo.icon}}" mode="aspectFill" />
-        <!-- 学校信息 -->
+        <!-- 校友总会头像 -->
+        <image class="school-avatar-on-bg" src="{{headquartersInfo.icon}}" mode="aspectFill" />
+        <!-- 校友总会信息 -->
         <view class="school-info-on-bg">
-          <text class="school-name-on-bg">{{schoolInfo.name}}</text>
-          <view wx:if="{{schoolInfo.provinceCity}}" class="location-row-on-bg">
+          <text class="school-name-on-bg">{{headquartersInfo.headquartersName}}</text>
+          <view wx:if="{{headquartersInfo.address}}" class="location-row-on-bg">
             <image class="location-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
-            <text>{{schoolInfo.provinceCity}}</text>
+            <text>{{headquartersInfo.address}}</text>
           </view>
         </view>
-        <!-- 认证标签 -->
-        <view class="cert-tag-wrap-on-bg">
-          <view wx:if="{{schoolInfo.certifiedUnion}}" class="cert-tag" catchtap="viewCertifiedUnion">
-            {{schoolInfo.certifiedUnion.name}}
-          </view>
+      </view>
+
+      <!-- 标签栏 -->
+      <view class="tabs">
+        <view wx:for="{{tabs}}" wx:key="index" class="tab-item {{activeTab === index ? 'active' : ''}}" bindtap="switchTab" data-index="{{index}}">
+          {{item}}
         </view>
       </view>
 
@@ -30,50 +31,50 @@
       <view class="white-background">
 
         <!-- 基本信息 -->
-        <view class="card">
+        <view wx:if="{{activeTab === 0}}" class="card">
           <view class="text-bold mb-20">基本信息</view>
           
-          <view wx:if="{{schoolInfo.description}}" class="text-secondary">{{schoolInfo.description}}</view>
-          <view class="basic-info-item">学校名称：{{schoolInfo.name}}</view>
-          <view wx:if="{{schoolInfo.previousName}}" class="divider"></view>
-          <view wx:if="{{schoolInfo.previousName}}" class="basic-info-item">曾用名：{{schoolInfo.previousName}}</view>
-          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="divider"></view>
-          <view wx:if="{{schoolInfo.mergedInstitutions}}" class="basic-info-item">合并院校：{{schoolInfo.mergedInstitutions}}</view>
-          <view wx:if="{{schoolInfo.previousName}}" class="divider"></view>
-          <view wx:if="{{schoolInfo.provinceCity}}" class="basic-info-item">所在地：{{schoolInfo.provinceCity}}</view>
-         
+          <view wx:if="{{headquartersInfo.description}}" class="text-secondary">{{headquartersInfo.description}}</view>
+          <view class="basic-info-item">校友总会名称：{{headquartersInfo.headquartersName}}</view>
+          <view wx:if="{{headquartersInfo.schoolInfo && headquartersInfo.schoolInfo.schoolName}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.schoolInfo && headquartersInfo.schoolInfo.schoolName}}" class="basic-info-item">母校名称：{{headquartersInfo.schoolInfo.schoolName}}</view>
+          <view wx:if="{{headquartersInfo.establishedDate}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.establishedDate}}" class="basic-info-item">成立日期：{{headquartersInfo.establishedDate}}</view>
+          <view wx:if="{{headquartersInfo.address}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.address}}" class="basic-info-item">办公地址：{{headquartersInfo.address}}</view>
+          <view wx:if="{{headquartersInfo.phone}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.phone}}" class="basic-info-item">联系电话：{{headquartersInfo.phone}}</view>
+          <view wx:if="{{headquartersInfo.email}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.email}}" class="basic-info-item">联系邮箱：{{headquartersInfo.email}}</view>
+          <view wx:if="{{headquartersInfo.website}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.website}}" class="basic-info-item">官方网站：{{headquartersInfo.website}}</view>
+          <view wx:if="{{headquartersInfo.wechatPublicAccount}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.wechatPublicAccount}}" class="basic-info-item">微信公众号：{{headquartersInfo.wechatPublicAccount}}</view>
+          <view wx:if="{{headquartersInfo.memberCount}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.memberCount}}" class="basic-info-item">下属校友会总数：{{headquartersInfo.memberCount}}</view>
+          <view wx:if="{{headquartersInfo.activeStatus !== undefined}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.activeStatus !== undefined}}" class="basic-info-item">活跃状态：{{headquartersInfo.activeStatus === 1 ? '活跃' : '不活跃'}}</view>
+          <view wx:if="{{headquartersInfo.approvalStatus !== undefined}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.approvalStatus !== undefined}}" class="basic-info-item">审核状态：{{headquartersInfo.approvalStatus === 0 ? '待审核' : headquartersInfo.approvalStatus === 1 ? '已通过' : '已驳回'}}</view>
+          <view wx:if="{{headquartersInfo.level !== undefined}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.level !== undefined}}" class="basic-info-item">级别：{{headquartersInfo.level === 1 ? '校级' : headquartersInfo.level === 2 ? '省级' : headquartersInfo.level === 3 ? '国家级' : '国际级'}}</view>
+          <view wx:if="{{headquartersInfo.contactInfo}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.contactInfo}}" class="basic-info-item">联系信息：{{headquartersInfo.contactInfo}}</view>
         </view>
 
-        <!-- 校友会列表 -->
-        <view class="card mt-20">
-          <view class="text-bold mb-20">校友会</view>
-          
-          <view wx:if="{{associationList.length > 0}}" class="association-list">
-            <view class="association-item" wx:for="{{associationList}}" wx:key="id">
-              <view class="association-row" bindtap="viewAssociationDetail" data-id="{{item.id}}">
-                <image class="association-icon" src="{{item.icon}}" mode="aspectFill" />
-                <view class="association-info">
-                  <view class="association-name-row">
-                    <text class="association-name">{{item.name}}</text>
-                    <view wx:if="{{item.isCertified}}" class="certified-badge-small">✓ 认证</view>
-                  </view>
-                  <view class="association-meta">
-                    <view class="association-location">
-                      <image class="location-icon-small" src="{{iconLocation}}" mode="aspectFit" />
-                      <text>{{item.location}}</text>
-                    </view>
-                    <view class="association-members">
-                      <image class="meta-icon" src="{{iconPeople}}" mode="aspectFit" />
-                      <text>{{item.memberCount}}人</text>
-                    </view>
-                  </view>
-                </view>
-              </view>
-            </view>
+        <!-- 组织架构 -->
+        <view wx:if="{{activeTab === 1}}" class="card">
+          <view class="text-bold mb-20">组织架构</view>
+          <view class="empty-association">
+            <text class="empty-text">组织架构功能开发中</text>
           </view>
-          
-          <view wx:else class="empty-association">
-            <text class="empty-text">暂无校友会</text>
+        </view>
+
+        <!-- 成员列表 -->
+        <view wx:if="{{activeTab === 2}}" class="card">
+          <view class="text-bold mb-20">成员列表</view>
+          <view class="empty-association">
+            <text class="empty-text">成员列表功能开发中</text>
           </view>
         </view>
       </view>

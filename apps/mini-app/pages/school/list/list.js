@@ -579,7 +579,10 @@ Page({
 
   // 查看详情
   viewDetail(e) {
-    // 不再跳转到详情页，因为需求要求不再使用点击查看详情跳转
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({
+      url: `/pages/school/detail/detail?id=${id}`
+    })
   },
 
   // 跳转到我的关注
