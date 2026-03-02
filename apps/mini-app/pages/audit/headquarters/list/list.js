@@ -155,10 +155,8 @@ Page({
 
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
-    // 跳转到详情页，实际项目中实现
-    wx.showToast({
-      title: `查看ID为${id}的校友总会详情`,
-      icon: 'none'
+    wx.navigateTo({
+      url: `/pages/audit/headquarters/detail/detail?headquartersId=${id}`
     })
   },
 
