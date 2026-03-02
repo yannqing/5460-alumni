@@ -43,18 +43,7 @@
             </view>
           </view>
           <!-- 校友总会信息 -->
-          <view class="text-wrapper_16">
-            <text lines="1" class="text_26">级别：</text>
-            <text lines="1" class="text_27">{{item.levelText}}</text>
-          </view>
-          <view class="text-wrapper_16">
-            <text lines="1" class="text_26">成立日期：</text>
-            <text lines="1" class="text_27">{{item.establishedDate}}</text>
-          </view>
-          <view class="text-wrapper_16">
-            <text lines="1" class="text_26">下属校友会：</text>
-            <text lines="1" class="text_27">{{item.memberCount}}个</text>
-          </view>
+
           <view class="text-wrapper_16">
             <text lines="1" class="text_26">联系电话：</text>
             <text lines="1" class="text_27">{{item.phone}}</text>

@@ -17,7 +17,6 @@ import com.cmswe.alumni.common.vo.AlumniHeadquartersDetailVo;
 import com.cmswe.alumni.common.vo.AlumniHeadquartersListVo;
 import com.cmswe.alumni.common.vo.InactiveAlumniHeadquartersVo;
 import com.cmswe.alumni.common.vo.PageVo;
-import com.cmswe.alumni.common.model.PageRequest;
 import com.cmswe.alumni.common.vo.SchoolListVo;
 import com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper;
 import com.cmswe.alumni.service.association.mapper.SchoolMapper;
@@ -209,22 +208,35 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
     }
 
     @Override
-    public PageVo<InactiveAlumniHeadquartersVo> selectInactiveByPage(PageRequest pageRequest) {
+    public PageVo<InactiveAlumniHeadquartersVo> selectInactiveByPage(QueryAlumniHeadquartersListDto pageRequest) {
         if (pageRequest == null) {
             throw new BusinessException("参数为空");
         }
 
         int current = pageRequest.getCurrent();
         int pageSize = pageRequest.getPageSize();
+        String headquartersName = pageRequest.getHeadquartersName();
 
         LambdaQueryWrapper<AlumniHeadquarters> queryWrapper = new LambdaQueryWrapper<>();
         // 仅查询活跃状态为 0 (不活跃)
-        queryWrapper.eq(AlumniHeadquarters::getActiveStatus, 0)
+        queryWrapper
+                .like(StringUtils.isNotBlank(headquartersName), AlumniHeadquarters::getHeadquartersName,
+                        headquartersName)
+                .eq(AlumniHeadquarters::getActiveStatus, 0)
                 .orderByDesc(AlumniHeadquarters::getCreatedTime);
 
         Page<AlumniHeadquarters> page = this.page(new Page<>(current, pageSize), queryWrapper);
         List<InactiveAlumniHeadquartersVo> list = page.getRecords().stream()
-                .map(InactiveAlumniHeadquartersVo::objToVo)
+                .map(record -> {
+                    InactiveAlumniHeadquartersVo vo = InactiveAlumniHeadquartersVo.objToVo(record);
+                    if (record.getSchoolId() != null) {
+                        School school = schoolMapper.selectById(record.getSchoolId());
+                        if (school != null) {
+                            vo.setLogo(school.getLogo());
+                        }
+                    }
+                    return vo;
+                })
                 .toList();
 
         Page<InactiveAlumniHeadquartersVo> resultPage = new Page<>(current, pageSize, page.getTotal());

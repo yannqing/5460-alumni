@@ -12,7 +12,6 @@ import com.cmswe.alumni.common.vo.AlumniHeadquartersDetailVo;
 import com.cmswe.alumni.common.vo.AlumniHeadquartersListVo;
 import com.cmswe.alumni.common.vo.InactiveAlumniHeadquartersVo;
 import com.cmswe.alumni.common.vo.PageVo;
-import com.cmswe.alumni.common.model.PageRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -58,7 +57,8 @@ public class AlumniHeadquartersController {
 
     @PostMapping("/inactive/page")
     @Operation(summary = "分页查询未激活校友总会列表（仅ID和名称）")
-    public BaseResponse<PageVo<InactiveAlumniHeadquartersVo>> selectInactivePage(@RequestBody PageRequest pageRequest) {
+    public BaseResponse<PageVo<InactiveAlumniHeadquartersVo>> selectInactivePage(
+            @RequestBody QueryAlumniHeadquartersListDto pageRequest) {
         PageVo<InactiveAlumniHeadquartersVo> pageVo = alumniHeadquartersService.selectInactiveByPage(pageRequest);
         return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
     }
