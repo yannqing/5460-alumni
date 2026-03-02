@@ -115,6 +115,12 @@ public class AlumniHeadquarters implements Serializable {
     private Integer level;
 
     /**
+     * 背景图
+     */
+    @TableField(value = "bg_img")
+    private String bgImg;
+
+    /**
      * 创建码
      */
     @TableField(value = "create_code")

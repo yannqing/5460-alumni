@@ -94,6 +94,12 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     private Integer level;
 
     /**
+     * 背景图
+     */
+    @Schema(description = "背景图")
+    private String bgImg;
+
+    /**
      * 创建人ID
      */
     @Schema(description = "创建人ID")

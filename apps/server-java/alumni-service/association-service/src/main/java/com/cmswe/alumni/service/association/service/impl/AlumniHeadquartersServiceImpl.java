@@ -188,6 +188,9 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
         if (request.getLevel() != null) {
             alumniHeadquarters.setLevel(request.getLevel());
         }
+        if (StringUtils.isNotBlank(request.getBgImg())) {
+            alumniHeadquarters.setBgImg(request.getBgImg());
+        }
 
         // 设置创建人和更新人
         Long requestCreatedUserId = request.getCreatedUserId();
