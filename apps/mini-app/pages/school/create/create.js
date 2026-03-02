@@ -162,11 +162,11 @@ Page({
             this.setData({ filteredUnionList: this.data.inactiveUnionList })
             return
         }
-
-        const filtered = this.data.inactiveUnionList.filter(union =>
+        
+        const filtered = this.data.inactiveUnionList.filter(union => 
             union.headquartersName.toLowerCase().includes(keyword.toLowerCase())
         )
-
+        
         this.setData({ filteredUnionList: filtered })
     },
 
@@ -180,11 +180,6 @@ Page({
             showUnionResults: false
         }
 
-        // 保存校友总会logo
-        if (union.logo) {
-            updateData.unionLogoUrl = union.logo
-        }
-        
         // 保存校友总会logo
         if (union.logo) {
             updateData.unionLogoUrl = union.logo
