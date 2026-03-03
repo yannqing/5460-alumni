@@ -306,6 +306,18 @@ function uploadOtherFile(filePath, uploadPath, originalName = '') {
 }
 
 /**
+ * 上传文档文件（通用方法，接收接口路径）
+ * 支持格式: pdf, doc, docx, xls, xlsx, ppt, pptx, txt, md, csv, rtf, odt, ods, odp
+ * @param {string} filePath 文档文件路径
+ * @param {string} uploadPath 上传接口路径（如 '/file/upload/document'）
+ * @param {string} originalName 原始文件名（可选）
+ * @returns {Promise} 返回上传结果，包含 fileId, fileName, fileUrl 等
+ */
+function uploadDocument(filePath, uploadPath, originalName = '') {
+  return uploadFile(filePath, uploadPath, 'document', originalName)
+}
+
+/**
  * 下载文件（通用方法，接收接口路径）
  * @param {string|number} fileId 文件ID
  * @param {string} downloadPath 下载接口路径模板（如 '/file/download/{fileId}'，{fileId} 会被替换）
@@ -451,6 +463,7 @@ module.exports = {
   uploadAudio,
   uploadVideo,
   uploadOtherFile,
+  uploadDocument,
   downloadFile,
   saveFileToLocal
 }
