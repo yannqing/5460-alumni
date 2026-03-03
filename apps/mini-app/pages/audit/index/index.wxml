@@ -9,7 +9,7 @@
             <text lines="1" class="text_title_common">管理功能</text>
           </view>
           <view class="group_items_common">
-            <view class="image-text_item_common" wx:for="{{auditFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
+            <view class="image-text_item_common {{item.id === 5 ? 'special-item' : ''}}" wx:for="{{auditFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
               <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
               <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
               <text lines="1" class="text-group_name_common">{{item.name}}</text>

@@ -48,6 +48,16 @@ Page({
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
         
+        // 处理联系信息（JSON字符串转对象）
+        let contactInfo = data.contactInfo || ''
+        if (contactInfo && typeof contactInfo === 'string') {
+          try {
+            contactInfo = JSON.parse(contactInfo)
+          } catch (e) {
+            console.error('解析联系信息失败:', e)
+          }
+        }
+
         // 数据映射（与后端 AlumniHeadquartersDetailVo 字段完全一致）
         const headquartersInfo = {
           // 后端原始字段
@@ -55,7 +65,7 @@ Page({
           headquartersName: data.headquartersName || '',
           schoolInfo: data.schoolInfo || null,
           description: data.description || '',
-          contactInfo: data.contactInfo || '',
+          contactInfo: contactInfo,
           address: data.address || '',
           website: data.website || '',
           wechatPublicAccount: data.wechatPublicAccount || '',
@@ -69,12 +79,15 @@ Page({
           createCode: data.createCode,
           createdUser: data.createdUser || null,
           updatedUser: data.updatedUser || null,
+          // 新增背景图字段
+          bgImg: data.bgImg || '',
+          logo: data.logo || '',
 
           // 前端内部使用的通用字段
           id: data.headquartersId || this.data.headquartersId,
           name: data.headquartersName || '',
-          icon: data.schoolInfo?.logo || DEFAULT_AVATAR,
-          cover: DEFAULT_COVER
+          icon: data.logo || data.schoolInfo?.logo || DEFAULT_AVATAR,
+          cover: data.bgImg || '/assets/icons/background.png'
         }
 
         this.setData({

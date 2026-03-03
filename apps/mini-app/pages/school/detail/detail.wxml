@@ -35,9 +35,7 @@
           <view class="text-bold mb-20">基本信息</view>
           
           <view wx:if="{{headquartersInfo.description}}" class="text-secondary">{{headquartersInfo.description}}</view>
-          <view class="basic-info-item">校友总会名称：{{headquartersInfo.headquartersName}}</view>
           <view wx:if="{{headquartersInfo.schoolInfo && headquartersInfo.schoolInfo.schoolName}}" class="divider"></view>
-          <view wx:if="{{headquartersInfo.schoolInfo && headquartersInfo.schoolInfo.schoolName}}" class="basic-info-item">母校名称：{{headquartersInfo.schoolInfo.schoolName}}</view>
           <view wx:if="{{headquartersInfo.establishedDate}}" class="divider"></view>
           <view wx:if="{{headquartersInfo.establishedDate}}" class="basic-info-item">成立日期：{{headquartersInfo.establishedDate}}</view>
           <view wx:if="{{headquartersInfo.address}}" class="divider"></view>
@@ -52,14 +50,8 @@
           <view wx:if="{{headquartersInfo.wechatPublicAccount}}" class="basic-info-item">微信公众号：{{headquartersInfo.wechatPublicAccount}}</view>
           <view wx:if="{{headquartersInfo.memberCount}}" class="divider"></view>
           <view wx:if="{{headquartersInfo.memberCount}}" class="basic-info-item">下属校友会总数：{{headquartersInfo.memberCount}}</view>
-          <view wx:if="{{headquartersInfo.activeStatus !== undefined}}" class="divider"></view>
-          <view wx:if="{{headquartersInfo.activeStatus !== undefined}}" class="basic-info-item">活跃状态：{{headquartersInfo.activeStatus === 1 ? '活跃' : '不活跃'}}</view>
-          <view wx:if="{{headquartersInfo.approvalStatus !== undefined}}" class="divider"></view>
-          <view wx:if="{{headquartersInfo.approvalStatus !== undefined}}" class="basic-info-item">审核状态：{{headquartersInfo.approvalStatus === 0 ? '待审核' : headquartersInfo.approvalStatus === 1 ? '已通过' : '已驳回'}}</view>
-          <view wx:if="{{headquartersInfo.level !== undefined}}" class="divider"></view>
-          <view wx:if="{{headquartersInfo.level !== undefined}}" class="basic-info-item">级别：{{headquartersInfo.level === 1 ? '校级' : headquartersInfo.level === 2 ? '省级' : headquartersInfo.level === 3 ? '国家级' : '国际级'}}</view>
           <view wx:if="{{headquartersInfo.contactInfo}}" class="divider"></view>
-          <view wx:if="{{headquartersInfo.contactInfo}}" class="basic-info-item">联系信息：{{headquartersInfo.contactInfo}}</view>
+          <view wx:if="{{headquartersInfo.contactInfo}}" class="basic-info-item">联系信息：{{headquartersInfo.contactInfo.content || headquartersInfo.contactInfo}}</view>
         </view>
 
         <!-- 组织架构 -->
