@@ -9,7 +9,8 @@ Page({
     loading: true,
     statusClass: '',
     approvalStatusText: '',
-    defaultAlumniAvatar: config.defaultAvatar
+    defaultAlumniAvatar: config.defaultAlumniAvatar || config.defaultAvatar,
+    defaultBackground: '/assets/icons/background.png'
   },
 
   onLoad(options) {
@@ -28,13 +29,13 @@ Page({
   async loadHeadquartersDetail(headquartersId) {
     try {
       this.setData({ loading: true })
-      
+
       // 调用获取校友总会申请详情的接口
       const res = await unionApi.getApplyDetail(headquartersId)
-      
+
       if (res.data && res.data.code === 200) {
         let headquarters = res.data.data
-        
+
         // 处理 contactInfo 字段，将 JSON 字符串转换为对象
         if (headquarters.contactInfo) {
           try {
@@ -46,11 +47,23 @@ Page({
             console.error('解析 contactInfo 失败:', error)
           }
         }
-        
+
         // 处理状态文本和样式
         const statusClass = this.getStatusClass(headquarters.approvalStatus)
         const approvalStatusText = this.getApprovalStatusText(headquarters.approvalStatus)
-        
+
+        // 处理背景图
+        if (headquarters.bgImg && headquarters.bgImg.trim()) {
+          headquarters.bgImg = config.getImageUrl(headquarters.bgImg)
+        } else {
+          headquarters.bgImg = null
+        }
+
+        // 处理 Logo
+        if (headquarters.logo && headquarters.logo.trim()) {
+          headquarters.logo = config.getImageUrl(headquarters.logo)
+        }
+
         this.setData({
           headquarters,
           statusClass,

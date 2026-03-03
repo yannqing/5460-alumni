@@ -82,7 +82,22 @@
               </view>
               <view wx:if="{{formData.logo}}" class="logo-preview-wrapper">
                 <image src="{{formData.logo}}" class="logo-preview" mode="aspectFit" />
-                <view wx:if="{{formData.logoType === 'upload'}}" class="logo-delete" bindtap="deleteLogo">×</view>
+                <view wx:if="{{formData.logoType === 'upload' && formData.logo}}" class="logo-delete" bindtap="deleteLogo">×</view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="label">请上传背景图</text>
+          <view class="logo-options">
+            <view class="logo-preview-box">
+              <view class="upload-action">
+                <button class="upload-btn" bindtap="chooseBgImg">选择图片</button>
+              </view>
+              <view wx:if="{{formData.bgImg}}" class="bg-preview-wrapper">
+                <image src="{{formData.bgImg}}" class="bg-preview" mode="aspectFit" />
+                <view class="bg-delete" bindtap="deleteBgImg">×</view>
               </view>
             </view>
           </view>

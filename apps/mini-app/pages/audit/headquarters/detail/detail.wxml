@@ -24,22 +24,25 @@
 
   <!-- 校友总会详情内容 -->
   <block wx:elif="{{headquarters}}">
-    <!-- 主卡片 -->
-    <view class="main-card">
-      <!-- 基本信息 -->
-      <view class="info-section">
-        <view class="info-item logo-item">
-          <view class="name-with-logo">
-            <image class="info-logo" src="{{headquarters.logo || defaultAlumniAvatar}}" mode="aspectFill" />
-            <text class="info-value logo-name">{{headquarters.headquartersName || '无'}}</text>
+    <!-- 背景横幅 -->
+    <view class="detail-header">
+      <image class="header-bg" src="{{headquarters.bgImg || defaultBackground}}" mode="aspectFill" />
+      <view class="header-content">
+        <view class="header-left">
+          <view class="logo-container">
+            <image class="headquarters-logo" src="{{headquarters.logo || defaultAlumniAvatar}}" mode="aspectFill" />
           </view>
         </view>
-        <view class="info-item">
-          <text class="info-label">审核状态</text>
-          <view class="status-tag {{statusClass}}">
-            <text class="status-text">{{approvalStatusText}}</text>
-          </view>
+        <view class="headquarters-basic">
+          <text class="headquarters-name">{{headquarters.headquartersName || '无'}}</text>
         </view>
+      </view>
+    </view> <!-- end detail-header -->
+
+
+    <!-- 详细信息卡片 -->
+    <view class="detail-card">
+      <view class="info-grid">
         <view class="info-item" wx:if="{{headquarters.establishedDate != null}}">
           <text class="info-label">成立日期</text>
           <text class="info-value">{{headquarters.establishedDate || '无'}}</text>
@@ -47,6 +50,12 @@
         <view class="info-item" wx:if="{{headquarters.createCode != null}}">
           <text class="info-label">创建码</text>
           <text class="info-value">{{headquarters.createCode || '无'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">审核状态</text>
+          <view class="status-tag {{statusClass}}">
+            <text class="status-text">{{approvalStatusText}}</text>
+          </view>
         </view>
       </view>
 
@@ -132,7 +141,7 @@
           <text class="info-label">更新时间</text>
           <text class="info-value">{{headquarters.updatedUser.updateTime || '无'}}</text>
         </view>
-      </view>
+      </view> <!-- end detail-card -->
     </view>
 
     <!-- 错误信息 -->

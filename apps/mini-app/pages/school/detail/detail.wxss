@@ -54,6 +54,8 @@ page {
   display: block;
   vertical-align: top;
   line-height: 0;
+  border-radius: 40rpx 40rpx 40rpx 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
 }
 
 /* 顶部背景图容器 */
@@ -64,24 +66,27 @@ page {
   margin: 0;
   display: block;
   overflow: hidden;
+  padding: 24rpx;
+  box-sizing: border-box;
 }
 
 /* 渐变遮罩 */
 .bg-gradient-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 24rpx;
+  left: 24rpx;
+  right: 24rpx;
   height: 240rpx;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
   z-index: 1;
+  border-radius: 40rpx 40rpx 40rpx 40rpx;
 }
 
 /* 背景图上的学校头像 */
 .school-avatar-on-bg {
   position: absolute;
-  bottom: 34rpx;
-  left: 24rpx;
+  bottom: 58rpx;
+  left: 48rpx;
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
@@ -94,8 +99,8 @@ page {
 /* 背景图上的学校信息 */
 .school-info-on-bg {
   position: absolute;
-  bottom: 37rpx;
-  left: 130rpx;
+  bottom: 61rpx;
+  left: 154rpx;
   z-index: 2;
   color: #ffffff;
   text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.3);

@@ -242,7 +242,6 @@ page {
   width: 200rpx;
   height: 200rpx;
   border-radius: 50%;
-  overflow: hidden;
   border: 1rpx solid #eee;
 }
 
@@ -254,6 +253,39 @@ page {
 }
 
 .logo-delete {
+  position: absolute;
+  top: -15rpx;
+  right: -15rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(255, 77, 79, 0.9);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  line-height: 1;
+  z-index: 10;
+}
+
+/* 背景图预览样式 */
+.bg-preview-wrapper {
+  position: relative;
+  width: 300rpx;
+  height: 200rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #eee;
+}
+
+.bg-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 8rpx;
+  background-color: #f9f9f9;
+}
+
+.bg-delete {
   position: absolute;
   top: -15rpx;
   right: -15rpx;
