@@ -275,6 +275,7 @@ const FILE_API_PATHS = {
   UPLOAD_AUDIO: '/file/upload/audio',      // 上传音频
   UPLOAD_VIDEO: '/file/upload/video',      // 上传视频（待后端提供接口）
   UPLOAD_OTHER: '/file/upload/other',      // 上传其他格式文件（待后端提供接口）
+  UPLOAD_DOCUMENT: '/file/upload/document', // 上传文档（pdf, doc, docx, xls, xlsx, ppt, pptx, txt, md, csv, rtf, odt, ods, odp）
 
   // 下载接口
   DOWNLOAD_FILE: '/file/download/{fileId}' // 下载文件（{fileId} 会被替换为实际文件ID）
@@ -299,6 +300,12 @@ const fileApi = {
   // 上传其他格式文件（接口路径在 FILE_API_PATHS.UPLOAD_OTHER 中配置）
   uploadOtherFile: (filePath, originalName) => {
     return fileUploadUtil.uploadOtherFile(filePath, FILE_API_PATHS.UPLOAD_OTHER, originalName)
+  },
+
+  // 上传文档文件（支持 pdf, doc, docx, xls, xlsx, ppt, pptx, txt, md, csv, rtf, odt, ods, odp）
+  // 文件大小限制：5MB
+  uploadDocument: (filePath, originalName) => {
+    return fileUploadUtil.uploadDocument(filePath, FILE_API_PATHS.UPLOAD_DOCUMENT, originalName)
   },
 
   // 下载文件

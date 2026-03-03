@@ -58,6 +58,18 @@ public class AlumniAssociationMember implements Serializable {
     private String roleName;
 
     /**
+     * 用户的联系电话
+     */
+    @TableField(value = "user_phone")
+    private String userPhone;
+
+    /**
+     * 用户的社会职务
+     */
+    @TableField(value = "user_affiliation")
+    private String userAffiliation;
+
+    /**
      * 加入时间
      */
     @TableField(value = "join_time")
