@@ -322,19 +322,19 @@ public class LocalPlatformManagementController {
         @Operation(summary = "为校处会添加管理员")
         public BaseResponse<Boolean> addAdminToLocalPlatform(@Valid @RequestBody AddLocalPlatformAdminDto addDto) {
                 log.info("添加校处会管理员，校处会 ID: {}, 用户 ID: {}",
-                        addDto.getLocalPlatformId(), addDto.getWxId());
+                                addDto.getLocalPlatformId(), addDto.getWxId());
 
                 boolean result = localPlatformService.addAdminToLocalPlatform(
-                        addDto.getLocalPlatformId(),
-                        addDto.getWxId());
+                                addDto.getLocalPlatformId(),
+                                addDto.getWxId());
 
                 if (result) {
                         log.info("添加校处会管理员成功，校处会 ID: {}, 用户 ID: {}",
-                                addDto.getLocalPlatformId(), addDto.getWxId());
+                                        addDto.getLocalPlatformId(), addDto.getWxId());
                         return ResultUtils.success(Code.SUCCESS, true, "添加成功");
                 } else {
                         log.error("添加校处会管理员失败，校处会 ID: {}, 用户 ID: {}",
-                                addDto.getLocalPlatformId(), addDto.getWxId());
+                                        addDto.getLocalPlatformId(), addDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "添加失败");
                 }
         }
@@ -347,21 +347,22 @@ public class LocalPlatformManagementController {
          */
         @DeleteMapping("/admin/remove")
         @Operation(summary = "移除校处会管理员")
-        public BaseResponse<Boolean> removeAdminFromLocalPlatform(@Valid @RequestBody RemoveLocalPlatformAdminDto removeDto) {
+        public BaseResponse<Boolean> removeAdminFromLocalPlatform(
+                        @Valid @RequestBody RemoveLocalPlatformAdminDto removeDto) {
                 log.info("移除校处会管理员，校处会 ID: {}, 用户 ID: {}",
-                        removeDto.getLocalPlatformId(), removeDto.getWxId());
+                                removeDto.getLocalPlatformId(), removeDto.getWxId());
 
                 boolean result = localPlatformService.removeAdminFromLocalPlatform(
-                        removeDto.getLocalPlatformId(),
-                        removeDto.getWxId());
+                                removeDto.getLocalPlatformId(),
+                                removeDto.getWxId());
 
                 if (result) {
                         log.info("移除校处会管理员成功，校处会 ID: {}, 用户 ID: {}",
-                                removeDto.getLocalPlatformId(), removeDto.getWxId());
+                                        removeDto.getLocalPlatformId(), removeDto.getWxId());
                         return ResultUtils.success(Code.SUCCESS, true, "移除成功");
                 } else {
                         log.error("移除校处会管理员失败，校处会 ID: {}, 用户 ID: {}",
-                                removeDto.getLocalPlatformId(), removeDto.getWxId());
+                                        removeDto.getLocalPlatformId(), removeDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "移除失败");
                 }
         }
@@ -376,20 +377,83 @@ public class LocalPlatformManagementController {
         @Operation(summary = "绑定校处会组织架构成员与系统用户")
         public BaseResponse<Boolean> bindMemberToUser(@Valid @RequestBody BindLocalPlatformMemberToUserDto bindDto) {
                 log.info("绑定校处会成员与系统用户，成员 ID: {}, 用户 ID: {}",
-                        bindDto.getMemberId(), bindDto.getWxId());
+                                bindDto.getMemberId(), bindDto.getWxId());
 
                 boolean result = localPlatformService.bindMemberToUser(
-                        bindDto.getMemberId(),
-                        bindDto.getWxId());
+                                bindDto.getMemberId(),
+                                bindDto.getWxId());
 
                 if (result) {
                         log.info("绑定校处会成员与系统用户成功，成员 ID: {}, 用户 ID: {}",
-                                bindDto.getMemberId(), bindDto.getWxId());
+                                        bindDto.getMemberId(), bindDto.getWxId());
                         return ResultUtils.success(Code.SUCCESS, true, "绑定成功");
                 } else {
                         log.error("绑定校处会成员与系统用户失败，成员 ID: {}, 用户 ID: {}",
-                                bindDto.getMemberId(), bindDto.getWxId());
+                                        bindDto.getMemberId(), bindDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "绑定失败");
                 }
+        }
+
+        /**
+         * 获取校促会隐私设置
+         * 
+         * @param platformId 校促会ID
+         * @return 隐私设置列表
+         */
+        @GetMapping("/privacy/{platformId}")
+        @Operation(summary = "获取校促会隐私设置")
+        public BaseResponse<List<com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting>> getPrivacySettings(
+                        @PathVariable Long platformId) {
+                log.info("获取校促会隐私设置，校促会 ID: {}", platformId);
+                List<com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting> settings = localPlatformService
+                                .getPrivacySettings(platformId);
+                return ResultUtils.success(Code.SUCCESS, settings, "查询成功");
+        }
+
+        /**
+         * 更新校促会隐私设置
+         * 
+         * @param updateDto 更新请求参数
+         * @return 是否更新成功
+         */
+        @PostMapping("/privacy/update")
+        @Operation(summary = "更新校促会隐私设置")
+        public BaseResponse<Boolean> updatePrivacySetting(@Valid @RequestBody UpdateLocalPlatformPrivacyDto updateDto) {
+                log.info("更新校促会隐私设置，校促会 ID: {}, 字段: {}, 可见性: {}",
+                                updateDto.getPlatformId(), updateDto.getFieldCode(), updateDto.getVisibility());
+                boolean result = localPlatformService.updatePrivacySetting(updateDto.getPlatformId(),
+                                updateDto.getFieldCode(), updateDto.getVisibility());
+                return ResultUtils.success(Code.SUCCESS, result, "更新成功");
+        }
+
+        /**
+         * 管理端获取校处会详情
+         * 
+         * @param platformId 校处会ID
+         * @return 校处会管理端详情VO
+         */
+        @GetMapping("/detail/{platformId}")
+        @Operation(summary = "管理端获取校处会详情")
+        public BaseResponse<com.cmswe.alumni.common.vo.LocalPlatformAdminVo> getAdminLocalPlatformById(
+                        @PathVariable Long platformId) {
+                log.info("管理端获取校处会详情，校处会 ID: {}", platformId);
+                com.cmswe.alumni.common.vo.LocalPlatformAdminVo detail = localPlatformService
+                                .getAdminLocalPlatformById(platformId);
+                return ResultUtils.success(Code.SUCCESS, detail, "查询成功");
+        }
+
+        /**
+         * 管理端修改校处会信息
+         * 
+         * @param updateDto 修改载体
+         * @return 是否成功
+         */
+        @PutMapping("/update")
+        @Operation(summary = "管理端修改校处会信息")
+        public BaseResponse<Boolean> updateLocalPlatform(
+                        @Valid @RequestBody com.cmswe.alumni.common.dto.UpdateLocalPlatformDto updateDto) {
+                log.info("管理端修改校处会信息，校处会 ID: {}", updateDto.getPlatformId());
+                boolean result = localPlatformService.updateLocalPlatform(updateDto);
+                return ResultUtils.success(Code.SUCCESS, result, "修改成功");
         }
 }

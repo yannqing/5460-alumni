@@ -41,11 +41,11 @@
                 <view wx:if="{{activeTab === 0}}" class="tab-content">
                     <view class="card">
                         <view class="text-bold mb-20">基本信息</view>
-                        <view class="basic-info-item">联系信息：{{platformInfo.contactInfo || '暂无'}}</view>
-                        <view class="basic-info-item" wx:if="{{platformInfo.city}}">所在城市：{{platformInfo.city}}</view>
-                        <view class="basic-info-item" wx:if="{{platformInfo.associationCount}}">关联校友会数量：{{platformInfo.associationCount}}个</view>
-                        <view class="basic-info-item" wx:if="{{platformInfo.memberCount}}">会员：{{platformInfo.memberCount}}人</view>
-                        <view class="basic-info-item" wx:if="{{platformInfo.description}}">简介: {{platformInfo.description}}</view>
+                        <view class="basic-info-item">负责人姓名：{{platformInfo.principalName || '不方便透露'}}</view>
+                        <view class="basic-info-item">负责人职位：{{platformInfo.principalPosition || '不方便透露'}}</view>
+                        <view class="basic-info-item">联系电话：{{platformInfo.localPlatformPhone || '不方便透露'}}</view>
+                        <view class="basic-info-item">会员数量：{{platformInfo.memberCount || '不方便透露'}}</view>
+                        <view class="basic-info-item">简介：{{platformInfo.description || '不方便透露'}}</view>
                     </view>
 
                     <!-- 资讯列表 (校促会) -->

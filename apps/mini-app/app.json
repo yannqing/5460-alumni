@@ -93,7 +93,9 @@
     "pages/activity/publish/publish",
     "pages/activity/edit/edit",
     "pages/info-maintenance/index/index",
-    "pages/info-maintenance/edit/edit"
+    "pages/info-maintenance/edit/edit",
+    "pages/audit/info-maintenance/index/index",
+    "pages/audit/info-maintenance/edit/edit"
   ],
   "window": {
     "backgroundTextStyle": "light",

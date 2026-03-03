@@ -85,6 +85,8 @@ const localPlatformApi = {
   getLocalPlatformPage: (params) => post('/localPlatform/page', params),
   // 根据id查询校促会详情
   getLocalPlatformDetail: (id) => get(`/localPlatform/${id}`),
+  // 获取校促会管理端详情
+  getLocalPlatformManagementDetail: (platformId) => get(`/localPlatformManagement/detail/${platformId}`),
   // 分页查询校促会审核列表
   queryAssociationApplicationPage: (params) => post('/localPlatformManagement/queryAssociationApplicationPage', params),
   // 获取校促会审核详情
@@ -99,6 +101,12 @@ const localPlatformApi = {
   getPlatformAssociations: (params) => post('/localPlatform/alumniAssociations/page', params),
   // 更新校促会成员角色
   updateMemberRole: (data) => put('/localPlatformManagement/updateMemberRole/v2', data),
+  // 更新校促会信息
+  updateLocalPlatform: (data) => put('/localPlatformManagement/update', data),
+  // 获取校促会隐私设置
+  getLocalPlatformPrivacySetting: (platformId) => get(`/localPlatformManagement/privacy/${platformId}`),
+  // 修改校促会隐私设置
+  updateLocalPlatformPrivacySetting: (data) => post('/localPlatformManagement/privacy/update', data),
 }
 
 
