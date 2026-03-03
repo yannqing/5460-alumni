@@ -91,6 +91,17 @@
   margin-top: 9rpx;
 }
 
+.special-item .text-group_name_common {
+  white-space: normal;
+  line-height: 24rpx;
+  margin-top: 6rpx;
+  height: auto;
+  min-height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Section 8 (Merchants) - 单行按钮时卡片宽高 677.54×246.38 */
 .section_8 {
   background-color: rgba(255,255,255,1.000000);

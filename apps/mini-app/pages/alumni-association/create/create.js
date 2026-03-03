@@ -1,4 +1,4 @@
-const { schoolApi, localPlatformApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
+const { schoolApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
 const config = require('../../../utils/config.js')
 
@@ -35,7 +35,6 @@ Page({
             applicationReason: '',
             associationProfile: '',
             presidentWxId: '',
-            location: '',
             logoType: 'default' // logo来源类型: default, school, upload
         },
         schoolLogoUrl: '',
@@ -80,7 +79,6 @@ Page({
         this.platformNameFromList = options.platformName ? decodeURIComponent(options.platformName) : null
 
         this.loadInitialData()
-        this.loadPlatformList()
 
         // 默认初始化logo为平台默认logo（本地静态资源）
         const defaultLogoUrl = '/assets/avatar/avatar.jpg'

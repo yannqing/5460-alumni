@@ -63,7 +63,8 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                 .eq(activeStatus != null, AlumniHeadquarters::getActiveStatus, activeStatus)
                 .eq(level != null, AlumniHeadquarters::getLevel, level)
                 .eq(createCode != null, AlumniHeadquarters::getCreateCode, createCode)
-                .eq(AlumniHeadquarters::getActiveStatus, 1); // 仅查询活跃状态
+                .eq(AlumniHeadquarters::getActiveStatus, 1) // 仅查询活跃状态
+                .eq(AlumniHeadquarters::getApprovalStatus, 1); // 仅查询审核通过状态
 
         // 排序
         queryWrapper

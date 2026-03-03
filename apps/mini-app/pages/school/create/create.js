@@ -22,6 +22,7 @@ Page({
             headquartersName: '',
             createCode: '',
             logo: '',
+            bgImg: '',
             description: '',
             contactInfo: '',
             address: '',
@@ -313,6 +314,93 @@ Page({
         })
     },
 
+    // --- 背景图上传处理 ---
+
+    async chooseBgImg() {
+        try {
+            // 选择图片
+            const chooseRes = await new Promise((resolve, reject) => {
+                wx.chooseMedia({
+                    count: 1,
+                    mediaType: ['image'],
+                    success: resolve,
+                    fail: reject
+                })
+            })
+
+            const tempFilePath = chooseRes.tempFiles?.[0]?.tempFilePath
+            if (!tempFilePath) {
+                return
+            }
+
+            // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
+            const fileSize = chooseRes.tempFiles?.[0]?.size || 0
+            const maxSize = 10 * 1024 * 1024 // 10MB
+            if (fileSize > maxSize) {
+                wx.showToast({
+                    title: '图片大小不能超过10MB',
+                    icon: 'none'
+                })
+                return
+            }
+
+            // 显示上传中提示
+            wx.showLoading({
+                title: '上传中...',
+                mask: true
+            })
+
+            // 获取原始文件名（如果有）
+            const originalName = chooseRes.tempFiles?.[0]?.name || 'bgimg.jpg'
+
+            // 直接调用公共的文件上传方法
+            const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+
+            if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+                // 获取返回的图片URL
+                const rawImageUrl = uploadRes.data.fileUrl || ''
+                if (rawImageUrl) {
+                    // 使用 config.getImageUrl 处理图片URL，确保是完整的URL
+                    const config = require('../../../utils/config.js')
+                    const imageUrl = config.getImageUrl(rawImageUrl)
+                    // 更新表单中的背景图URL
+                    this.setData({ 'formData.bgImg': imageUrl })
+                    wx.showToast({
+                        title: '上传成功',
+                        icon: 'success'
+                    })
+                } else {
+                    wx.showToast({
+                        title: '上传失败，未获取到图片地址',
+                        icon: 'none'
+                    })
+                }
+            } else {
+                wx.showToast({
+                    title: uploadRes?.msg || '上传失败',
+                    icon: 'none'
+                })
+            }
+        } catch (error) {
+            // 显示具体的错误信息
+            const errorMsg = error?.msg || error?.message || '上传失败，请重试'
+            wx.showToast({
+                title: errorMsg,
+                icon: 'none',
+                duration: 2000
+            })
+        } finally {
+            wx.hideLoading()
+        }
+    },
+
+    // 删除已上传的背景图
+    deleteBgImg() {
+        this.setData({
+            'formData.bgImg': ''
+        })
+    },
+
     async submitForm() {
         if (this.data.submitting) { return }
 
@@ -361,6 +449,11 @@ Page({
         // 确保logo字段在非默认情况下总是传递
         if (formData.logoType !== 'default') {
             submitData.logo = formData.logo || ''
+        }
+
+        // 传递背景图字段（可选）
+        if (formData.bgImg) {
+            submitData.bgImg = formData.bgImg
         }
 
         console.log('最终提交数据:', submitData)
