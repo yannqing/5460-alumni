@@ -104,6 +104,24 @@ public class LocalPlatformDetailVo implements Serializable {
     @Schema(description = "文章列表（已发布的文章）")
     private List<HomePageArticleVo> articleList;
 
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String principalName;
+
+    /**
+     * 负责人职务
+     */
+    @Schema(description = "负责人职务")
+    private String principalPosition;
+
+    /**
+     * 联系电话
+     */
+    @Schema(description = "联系电话")
+    private String localPlatformPhone;
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -115,6 +133,5 @@ public class LocalPlatformDetailVo implements Serializable {
         BeanUtils.copyProperties(localPlatform, localPlatformDetailVo);
         return localPlatformDetailVo;
     }
-
 
 }

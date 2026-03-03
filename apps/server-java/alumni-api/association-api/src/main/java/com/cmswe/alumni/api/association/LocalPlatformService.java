@@ -20,140 +20,176 @@ import com.cmswe.alumni.common.vo.UserListResponse;
 import java.util.List;
 
 public interface LocalPlatformService extends IService<LocalPlatform> {
-    /**
-     * 根据用户ID查询校处会详情
-     *
-     * @param id 用户ID
-     * @return 详情列表
-     */
-    LocalPlatformDetailVo getLocalPlatformById(Long id);
+        /**
+         * 根据用户ID查询校处会详情
+         *
+         * @param id 用户ID
+         * @return 详情列表
+         */
+        LocalPlatformDetailVo getLocalPlatformById(Long id);
 
-    boolean insertLocalPlatform(AddLocalPlatformDto addLocalPlatformDto);
+        boolean insertLocalPlatform(AddLocalPlatformDto addLocalPlatformDto);
 
-    /**
-     * 分页查询校处会列表
-     *
-     * @param queryLocalPlatformListDto 查询条件
-     * @return 分页结果
-     */
-    PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto);
+        /**
+         * 分页查询校处会列表
+         *
+         * @param queryLocalPlatformListDto 查询条件
+         * @return 分页结果
+         */
+        PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto);
 
-    /**
-     * 获取校处会组织架构树
-     *
-     * @param localPlatformId 校处会ID
-     * @return 组织架构树列表
-     */
-    List<OrganizationTreeVo> getOrganizationTree(Long localPlatformId);
+        /**
+         * 获取校处会组织架构树
+         *
+         * @param localPlatformId 校处会ID
+         * @return 组织架构树列表
+         */
+        List<OrganizationTreeVo> getOrganizationTree(Long localPlatformId);
 
-    /**
-     * 获取校处会组织架构树 V2版本（基于username，支持wxId为空的情况）
-     *
-     * @param localPlatformId 校处会ID
-     * @return 组织架构树列表
-     */
-    List<OrganizationTreeV2Vo> getOrganizationTreeV2(Long localPlatformId);
+        /**
+         * 获取校处会组织架构树 V2版本（基于username，支持wxId为空的情况）
+         *
+         * @param localPlatformId 校处会ID
+         * @return 组织架构树列表
+         */
+        List<OrganizationTreeV2Vo> getOrganizationTreeV2(Long localPlatformId);
 
-    /**
-     * 删除校处会成员
-     *
-     * @param localPlatformId 校处会ID
-     * @param wxId            成员用户ID
-     * @return 删除结果
-     */
-    boolean deleteMember(Long localPlatformId, Long wxId);
+        /**
+         * 删除校处会成员
+         *
+         * @param localPlatformId 校处会ID
+         * @param wxId            成员用户ID
+         * @return 删除结果
+         */
+        boolean deleteMember(Long localPlatformId, Long wxId);
 
-    /**
-     * 邀请成员加入校处会
-     *
-     * @param localPlatformId 校处会ID
-     * @param wxId            成员用户ID
-     * @param roleOrId        组织架构角色ID
-     * @return 邀请结果
-     */
-    boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId);
+        /**
+         * 邀请成员加入校处会
+         *
+         * @param localPlatformId 校处会ID
+         * @param wxId            成员用户ID
+         * @param roleOrId        组织架构角色ID
+         * @return 邀请结果
+         */
+        boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId);
 
-    /**
-     * 根据校处会ID分页查询校友会列表
-     *
-     * @param queryDto 查询条件
-     * @param currentUserId 当前登录用户ID（可为null）
-     * @return 分页结果
-     */
-    PageVo<AlumniAssociationListVo> getAlumniAssociationsByPlatformId(QueryAlumniAssociationByPlatformDto queryDto, Long currentUserId);
+        /**
+         * 根据校处会ID分页查询校友会列表
+         *
+         * @param queryDto      查询条件
+         * @param currentUserId 当前登录用户ID（可为null）
+         * @return 分页结果
+         */
+        PageVo<AlumniAssociationListVo> getAlumniAssociationsByPlatformId(QueryAlumniAssociationByPlatformDto queryDto,
+                        Long currentUserId);
 
-    /**
-     * 根据校处会ID分页查询成员列表
-     *
-     * @param queryDto 查询条件
-     * @return 分页结果
-     */
-    Page<OrganizationMemberResponse> getLocalPlatformMemberPage(QueryLocalPlatformMemberListDto queryDto);
+        /**
+         * 根据校处会ID分页查询成员列表
+         *
+         * @param queryDto 查询条件
+         * @return 分页结果
+         */
+        Page<OrganizationMemberResponse> getLocalPlatformMemberPage(QueryLocalPlatformMemberListDto queryDto);
 
-    /**
-     * 更新校处会成员的组织架构角色
-     *
-     * @param operatorWxId    操作人（管理员）的用户ID
-     * @param localPlatformId 校处会ID
-     * @param wxId            成员用户ID
-     * @param roleOrId        新的组织架构角色ID
-     * @return 更新是否成功
-     */
-    boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId);
+        /**
+         * 更新校处会成员的组织架构角色
+         *
+         * @param operatorWxId    操作人（管理员）的用户ID
+         * @param localPlatformId 校处会ID
+         * @param wxId            成员用户ID
+         * @param roleOrId        新的组织架构角色ID
+         * @return 更新是否成功
+         */
+        boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId);
 
-    /**
-     * 更新校处会成员的组织架构角色 V2版本（基于username，支持wxId为空的情况）
-     *
-     * @param operatorWxId    操作人（管理员）的用户ID
-     * @param localPlatformId 校处会ID
-     * @param id              成员主键ID（新增时为空）
-     * @param username        成员用户名
-     * @param roleOrId        新的组织架构角色ID
-     * @param roleName        角色名称
-     * @return 更新是否成功
-     */
-    boolean updateMemberRoleV2(Long operatorWxId, Long localPlatformId, Long id, String username, Long roleOrId, String roleName);
+        /**
+         * 更新校处会成员的组织架构角色 V2版本（基于username，支持wxId为空的情况）
+         *
+         * @param operatorWxId    操作人（管理员）的用户ID
+         * @param localPlatformId 校处会ID
+         * @param id              成员主键ID（新增时为空）
+         * @param username        成员用户名
+         * @param roleOrId        新的组织架构角色ID
+         * @param roleName        角色名称
+         * @return 更新是否成功
+         */
+        boolean updateMemberRoleV2(Long operatorWxId, Long localPlatformId, Long id, String username, Long roleOrId,
+                        String roleName);
 
-    /**
-     * 根据校处会ID查询校处会管理员列表
-     *
-     * @param localPlatformId 校处会ID
-     * @return 管理员用户列表
-     */
-    List<UserListResponse> getAdminsByLocalPlatformId(Long localPlatformId);
+        /**
+         * 根据校处会ID查询校处会管理员列表
+         *
+         * @param localPlatformId 校处会ID
+         * @return 管理员用户列表
+         */
+        List<UserListResponse> getAdminsByLocalPlatformId(Long localPlatformId);
 
-    /**
-     * 为校处会添加管理员
-     *
-     * @param localPlatformId 校处会ID
-     * @param wxId 用户ID（被添加为管理员的用户）
-     * @return 添加是否成功
-     */
-    boolean addAdminToLocalPlatform(Long localPlatformId, Long wxId);
+        /**
+         * 为校处会添加管理员
+         *
+         * @param localPlatformId 校处会ID
+         * @param wxId            用户ID（被添加为管理员的用户）
+         * @return 添加是否成功
+         */
+        boolean addAdminToLocalPlatform(Long localPlatformId, Long wxId);
 
-    /**
-     * 移除校处会管理员
-     *
-     * @param localPlatformId 校处会ID
-     * @param wxId 用户ID（被移除管理员权限的用户）
-     * @return 移除是否成功
-     */
-    boolean removeAdminFromLocalPlatform(Long localPlatformId, Long wxId);
+        /**
+         * 移除校处会管理员
+         *
+         * @param localPlatformId 校处会ID
+         * @param wxId            用户ID（被移除管理员权限的用户）
+         * @return 移除是否成功
+         */
+        boolean removeAdminFromLocalPlatform(Long localPlatformId, Long wxId);
 
-    /**
-     * 绑定校处会组织架构成员与系统用户
-     *
-     * @param memberId 校处会成员表ID
-     * @param wxId 用户微信ID
-     * @return 绑定是否成功
-     */
-    boolean bindMemberToUser(Long memberId, Long wxId);
+        /**
+         * 绑定校处会组织架构成员与系统用户
+         *
+         * @param memberId 校处会成员表ID
+         * @param wxId     用户微信ID
+         * @return 绑定是否成功
+         */
+        boolean bindMemberToUser(Long memberId, Long wxId);
 
-    /**
-     * 根据用户权限获取管理的校促会列表
-     *
-     * @param wxId 当前用户ID
-     * @return 管理的校促会列表
-     */
-    List<ManagedOrganizationVo> getManagedPlatforms(Long wxId);
+        /**
+         * 根据用户权限获取管理的校促会列表
+         *
+         * @param wxId 当前用户ID
+         * @return 管理的校促会列表
+         */
+        List<ManagedOrganizationVo> getManagedPlatforms(Long wxId);
+
+        /**
+         * 获取校促会隐私设置
+         * 
+         * @param platformId 校促会ID
+         * @return 隐私设置列表
+         */
+        List<com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting> getPrivacySettings(Long platformId);
+
+        /**
+         * 更新校促会隐私设置
+         * 
+         * @param platformId 校促会ID
+         * @param fieldCode  字段代码
+         * @param visibility 可见性
+         * @return 是否更新成功
+         */
+        boolean updatePrivacySetting(Long platformId, String fieldCode, Integer visibility);
+
+        /**
+         * 管理端获取校处会详情
+         *
+         * @param platformId 校处会ID
+         * @return 校处会管理端详情VO
+         */
+        com.cmswe.alumni.common.vo.LocalPlatformAdminVo getAdminLocalPlatformById(Long platformId);
+
+        /**
+         * 修改校处会信息
+         *
+         * @param updateDto 修改载体
+         * @return 是否成功
+         */
+        boolean updateLocalPlatform(com.cmswe.alumni.common.dto.UpdateLocalPlatformDto updateDto);
 }
