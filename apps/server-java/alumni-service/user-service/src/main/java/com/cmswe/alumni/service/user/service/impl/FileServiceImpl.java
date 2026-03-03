@@ -51,6 +51,9 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
     @Value("${file.upload-audio-url}")
     private String uploadAudioPath;
 
+    @Value("${file.upload-document-url}")
+    private String uploadDocumentPath;
+
     @Value("${file.storage-type:local}")
     private String storageType;
 
@@ -74,6 +77,11 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
     @Override
     public FilesVo uploadAudioAndReturnVo(MultipartFile audio, HttpServletRequest request) throws IOException {
         return uploadFile(audio, uploadAudioPath, AUDIO_FILE_TYPE, request);
+    }
+
+    @Override
+    public FilesVo uploadDocumentAndReturnVo(MultipartFile document, HttpServletRequest request) throws IOException {
+        return uploadFile(document, uploadDocumentPath, DOCUMENT_FILE_TYPE, request);
     }
 
     @Override

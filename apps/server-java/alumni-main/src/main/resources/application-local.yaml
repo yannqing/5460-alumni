@@ -114,7 +114,7 @@ file:
   upload-common-url: ${FILE_UPLOAD_COMMON_URL:/yannqing/cni-alumni/java/cdn_statics}  # 文件存储一级目录（本地存储使用）
   upload-prefix-url: ${FILE_UPLOAD_PREFIX_URL:/upload}  # 请求路径前缀（本地存储使用）
   upload-image-url: ${FILE_UPLOAD_IMAGE_URL:images}     # 图片文件存储的三级目录
-  upload-resume-url: ${FILE_UPLOAD_RESUME_URL:resumes}   # 简历文件存储的三级目录
+  upload-document-url: ${FILE_UPLOAD_DOCUMENT_URL:documents}   # 文档文件存储的三级目录
   upload-audio-url: ${FILE_UPLOAD_AUDIO_URL:audios}     # 音频文件存储的三级目录
   storage-type: local  # 文件存储类型: local(本地存储) 或 cos(微信云托管对象存储)
 

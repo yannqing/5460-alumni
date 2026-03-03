@@ -411,6 +411,8 @@ public class AlumniAssociationApplicationServiceImpl
             chargeMember.setWxId(application.getChargeWxId());
             chargeMember.setAlumniAssociationId(alumniAssociationId);
             chargeMember.setRoleOrId(chargeArchiRoleId);
+            chargeMember.setUserPhone(application.getContactInfo()); // 负责人联系方式
+            chargeMember.setUserAffiliation(application.getMsocialAffiliation()); // 负责人社会职务
             chargeMember.setJoinTime(LocalDateTime.now());
             chargeMember.setStatus(1);
             boolean addChargeMemberResult = alumniAssociationMemberService.save(chargeMember);
@@ -459,6 +461,8 @@ public class AlumniAssociationApplicationServiceImpl
                         member.setWxId(memberDto.getWxId());
                         member.setAlumniAssociationId(alumniAssociationId);
                         member.setRoleOrId(memberArchiRole.getRoleOrId());
+                        member.setUserPhone(memberDto.getPhone()); // 成员联系电话
+                        member.setUserAffiliation(memberDto.getAffiliation()); // 成员社会职务
                         member.setJoinTime(LocalDateTime.now());
                         member.setStatus(1);
                         alumniAssociationMemberService.save(member);

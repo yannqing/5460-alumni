@@ -136,7 +136,7 @@ file:
   upload-common-url: .  # 文件存储一级目录： /yannqing
   upload-prefix-url: /upload  # 1. 请求路径前缀：127.0.0.1:8080/upload/**  2. 文件存储二级目录： /yannqing/upload/**
   upload-image-url: images     # 图片文件存储的三级目录  eg: /yannqing/upload/images/**     对应 url 路径：127.0.0.1:8080/upload/images/**
-  upload-resume-url: resumes   # 简历文件存储的三级目录  eg: /yannqing/upload/resumes/**    对应 url 路径：127.0.0.1:8080/upload/resumes/**
+  upload-document-url: documents   # 文档文件存储的三级目录  eg: /yannqing/upload/documents/**    对应 url 路径：127.0.0.1:8080/upload/documents/**
   upload-audio-url: audios     # 音频文件存储的三级目录  eg: /yannqing/upload/audios/**     对应 url 路径：127.0.0.1:8080/upload/audios/**
   storage-type: local  # 文件存储类型: local(本地存储) 或 cos(微信云托管对象存储)
 

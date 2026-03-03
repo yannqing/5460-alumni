@@ -288,6 +288,15 @@ page {
   line-height: 40rpx;
 }
 
+.upload-btn-group {
+  display: flex;
+  gap: 20rpx;
+}
+
+.upload-btn-group .upload-btn {
+  flex: 1;
+}
+
 .logo-preview-wrapper {
   position: relative;
   width: 200rpx;
@@ -414,4 +423,61 @@ page {
   color: #999;
   margin-top: 8rpx;
   padding-left: 4rpx;
+}
+
+/* 校促会会员单选框样式 */
+.platform-member-radio {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.radio-label-inline {
+  display: flex;
+  align-items: center;
+  margin-right: 60rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.radio-label-inline radio {
+  transform: scale(0.8);
+  margin-right: 8rpx;
+}
+
+/* 成员表单样式 */
+.member-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.member-form-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.member-label {
+  font-size: 26rpx;
+  color: #666;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.member-label.required::before {
+  content: '*';
+  color: #ff4d4f;
+  margin-right: 4rpx;
+}
+
+.member-full-input {
+  flex: 1;
+  background-color: #fff;
+}
+
+.member-name-search {
+  flex: 1;
+  position: relative;
 }

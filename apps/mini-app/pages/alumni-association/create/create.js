@@ -1,4 +1,4 @@
-const { schoolApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
+const { schoolApi, localPlatformApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
 const config = require('../../../utils/config.js')
 
@@ -22,6 +22,8 @@ Page({
             schoolId: '',
             schoolName: '',
             previousName: '',
+            platformId: '',
+            platformName: '',
             chargeName: '',
             contactInfo: '',
             msocialAffiliation: '',
@@ -33,12 +35,20 @@ Page({
             applicationReason: '',
             associationProfile: '',
             presidentWxId: '',
+            location: '',
             logoType: 'default' // logo来源类型: default, school, upload
         },
         schoolLogoUrl: '',
-        defaultAlumniLogo: config.defaultAvatar,
+        defaultAlumniLogo: '',
         // 搜索结果列表
         schoolList: [],
+        platformList: [],
+
+        // 是否是校促会会员
+        isPlatformMember: false,
+
+        // 平台选择索引
+        platformIndex: -1,
 
         // 控制显示
         showSchoolResults: false,
@@ -66,12 +76,89 @@ Page({
         this.searchSchoolDebounced = debounce(this.searchSchool, 500)
         this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
 
-        this.loadInitialData()
+        // 处理从列表页面传递过来的platformName参数
+        this.platformNameFromList = options.platformName ? decodeURIComponent(options.platformName) : null
 
-        // 默认初始化logo为平台默认logo
+        this.loadInitialData()
+        this.loadPlatformList()
+
+        // 默认初始化logo为平台默认logo（本地静态资源）
+        const defaultLogoUrl = '/assets/avatar/avatar.jpg'
+
         this.setData({
-            'formData.logo': this.data.defaultAlumniLogo
+            defaultAlumniLogo: defaultLogoUrl,
+            'formData.logo': defaultLogoUrl
         })
+    },
+
+    // 加载平台列表
+    async loadPlatformList() {
+        try {
+            const res = await localPlatformApi.getLocalPlatformPage({
+                current: 1,
+                pageSize: 100,
+                platformName: ''
+            })
+            if (res.data && res.data.code === 200) {
+                const platformList = res.data.data.records || []
+                this.setData({
+                    platformList: platformList
+                })
+
+                // 如果有从列表页面传递过来的platformName，查找并设置对应的平台信息
+                if (this.platformNameFromList) {
+                    const platformIndex = platformList.findIndex(item => item.platformName === this.platformNameFromList)
+                    if (platformIndex !== -1) {
+                        const platform = platformList[platformIndex]
+                        this.setData({
+                            platformIndex: platformIndex,
+                            'formData.platformId': platform.platformId,
+                            'formData.platformName': platform.platformName,
+                            'formData.location': this.platformNameFromList
+                        })
+                    } else {
+                        this.setData({
+                            'formData.platformName': this.platformNameFromList,
+                            'formData.location': this.platformNameFromList
+                        })
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('加载平台列表失败', e)
+        }
+    },
+
+    // 处理是否是校促会会员选择
+    handlePlatformMemberChange(e) {
+        const value = e.detail.value === 'yes'
+        this.setData({
+            isPlatformMember: value
+        })
+        // 如果选择"否"，清空已选择的校促会信息
+        if (!value) {
+            this.setData({
+                platformIndex: -1,
+                'formData.platformId': '',
+                'formData.platformName': '',
+                'formData.location': ''
+            })
+        }
+    },
+
+    // 处理平台选择
+    handlePlatformChange(e) {
+        const index = e.detail.value
+        const platform = this.data.platformList[index]
+        if (platform) {
+            const location = platform.city || platform.location || platform.platformName
+            this.setData({
+                platformIndex: index,
+                'formData.platformId': platform.platformId,
+                'formData.platformName': platform.platformName,
+                'formData.location': location
+            })
+        }
     },
 
     async loadInitialData() {
@@ -229,7 +316,7 @@ Page({
 
     addMember() {
         const members = this.data.members
-        members.push({ name: '', role: '' })
+        members.push({ name: '', role: '', affiliation: '', phone: '' })
         this.setData({ members })
     },
 
@@ -434,13 +521,16 @@ Page({
 
     // --- 申请材料上传处理 ---
 
+    // 支持的文档格式
+    ALLOWED_DOCUMENT_EXTENSIONS: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'csv', 'rtf', 'odt', 'ods', 'odp'],
+
     async chooseAttachment() {
         try {
-            // 选择文件（与校友会logo上传保持一致，使用wx.chooseMedia）
+            // 使用 wx.chooseMessageFile 选择文档文件
             const chooseRes = await new Promise((resolve, reject) => {
-                wx.chooseMedia({
+                wx.chooseMessageFile({
                     count: 5,
-                    mediaType: ['image', 'video', 'audio'],
+                    type: 'file',
                     success: resolve,
                     fail: reject
                 })
@@ -461,34 +551,48 @@ Page({
 
             // 逐个上传文件
             for (const file of tempFiles) {
-                const tempFilePath = file.tempFilePath
-                const originalName = file.name || 'attachment'
+                const tempFilePath = file.path
+                const originalName = file.name || 'document'
 
-                // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
+                // 获取文件扩展名
+                const ext = originalName.split('.').pop().toLowerCase()
+
+                // 检查文件格式是否支持
+                if (!this.ALLOWED_DOCUMENT_EXTENSIONS.includes(ext)) {
+                    wx.showToast({
+                        title: `不支持的文件格式: ${ext}`,
+                        icon: 'none',
+                        duration: 2000
+                    })
+                    continue
+                }
+
+                // 检查文件大小（5MB = 5 * 1024 * 1024 字节）
                 const fileSize = file.size || 0
-                const maxSize = 10 * 1024 * 1024 // 10MB
+                const maxSize = 5 * 1024 * 1024 // 5MB
                 if (fileSize > maxSize) {
                     wx.showToast({
-                        title: `${originalName} 大小不能超过10MB`,
+                        title: `${originalName} 大小不能超过5MB`,
                         icon: 'none'
                     })
                     continue
                 }
 
-                // 上传文件（与校友会logo上传使用相同的方法）
-                const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+                // 上传文档文件
+                const uploadRes = await fileApi.uploadDocument(tempFilePath, originalName)
 
-                console.log('上传文件结果:', uploadRes)
+                console.log('上传文档结果:', uploadRes)
 
                 if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
-                    // 获取返回的文件信息，确保获取到fileId
-                    const fileId = uploadRes.data.fileId || uploadRes.data.id || uploadRes.data.file_id || uploadRes.data.id || ''
+                    // 获取返回的文件信息
+                    const fileId = uploadRes.data.fileId || uploadRes.data.id || ''
+                    const fileName = uploadRes.data.fileName || originalName
                     console.log('获取到的fileId:', fileId)
 
                     if (fileId) {
                         attachments.push({
                             id: fileId,
-                            name: originalName
+                            name: fileName
                         })
                     } else {
                         wx.showToast({
@@ -534,6 +638,105 @@ Page({
         const attachments = [...this.data.attachments]
         attachments.splice(index, 1)
         this.setData({ attachments })
+    },
+
+    // 选择图片作为附件
+    async chooseAttachmentImage() {
+        try {
+            // 使用 wx.chooseMedia 选择图片
+            const chooseRes = await new Promise((resolve, reject) => {
+                wx.chooseMedia({
+                    count: 9,
+                    mediaType: ['image'],
+                    success: resolve,
+                    fail: reject
+                })
+            })
+
+            const tempFiles = chooseRes.tempFiles
+            if (!tempFiles || tempFiles.length === 0) {
+                return
+            }
+
+            // 显示上传中提示
+            wx.showLoading({
+                title: '上传中...',
+                mask: true
+            })
+
+            const attachments = [...this.data.attachments]
+
+            // 逐个上传图片
+            for (const file of tempFiles) {
+                const tempFilePath = file.tempFilePath
+                // 从路径中提取文件名
+                const pathParts = tempFilePath.split('/')
+                const originalName = pathParts[pathParts.length - 1] || 'image.jpg'
+
+                // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
+                const fileSize = file.size || 0
+                const maxSize = 10 * 1024 * 1024 // 10MB
+                if (fileSize > maxSize) {
+                    wx.showToast({
+                        title: `图片大小不能超过10MB`,
+                        icon: 'none'
+                    })
+                    continue
+                }
+
+                // 上传图片文件
+                const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+
+                console.log('上传图片结果:', uploadRes)
+
+                if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+                    // 获取返回的文件信息
+                    const fileId = uploadRes.data.fileId || uploadRes.data.id || ''
+                    const fileName = uploadRes.data.fileName || originalName
+                    console.log('获取到的fileId:', fileId)
+
+                    if (fileId) {
+                        attachments.push({
+                            id: fileId,
+                            name: fileName
+                        })
+                    } else {
+                        wx.showToast({
+                            title: `图片上传成功但未获取到文件ID`,
+                            icon: 'none'
+                        })
+                    }
+                } else {
+                    wx.showToast({
+                        title: `图片上传失败: ${uploadRes?.msg || '未知错误'}`,
+                        icon: 'none'
+                    })
+                }
+            }
+
+            if (attachments.length > this.data.attachments.length) {
+                this.setData({ attachments })
+                wx.showToast({
+                    title: '上传成功',
+                    icon: 'success'
+                })
+            } else {
+                wx.showToast({
+                    title: '上传失败',
+                    icon: 'none'
+                })
+            }
+        } catch (error) {
+            // 显示具体的错误信息
+            const errorMsg = error?.msg || error?.message || '上传失败，请重试'
+            wx.showToast({
+                title: errorMsg,
+                icon: 'none',
+                duration: 2000
+            })
+        } finally {
+            wx.hideLoading()
+        }
     },
 
     // --- 背景图上传处理 ---
@@ -678,8 +881,10 @@ Page({
             wx.showToast({ title: '请输入驻会代表社会职务', icon: 'none' })
             return
         }
-        if (!formData.applicationReason) {
-            wx.showToast({ title: '请输入申请理由', icon: 'none' })
+
+        // 如果选择了"是校促会会员"，则必须选择校促会
+        if (this.data.isPlatformMember && !formData.platformId) {
+            wx.showToast({ title: '请选择相关地区(校促会)', icon: 'none' })
             return
         }
 
@@ -689,11 +894,15 @@ Page({
             return
         }
 
-        // 确保所有成员都有有效的 wxId
+        // 确保所有成员都有有效的职务和姓名
         for (let i = 0; i < members.length; i++) {
             const member = members[i];
-            if (!member.wxId || member.wxId === 0 || member.wxId === '0') {
-                wx.showToast({ title: `请通过搜索选择第 ${i + 1} 位成员，确保选择有效用户`, icon: 'none' });
+            if (!member.role) {
+                wx.showToast({ title: `请输入第 ${i + 1} 位成员的职务`, icon: 'none' });
+                return;
+            }
+            if (!member.name) {
+                wx.showToast({ title: `请输入第 ${i + 1} 位成员的姓名`, icon: 'none' });
                 return;
             }
         }
@@ -733,11 +942,25 @@ Page({
             applicationReason: formData.applicationReason,
             associationProfile: formData.associationProfile || undefined,
             attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
-            initialMembers: members.length > 0 ? members.map(m => ({
-                wxId: m.wxId,
-                name: m.name || undefined,
-                role: m.role || undefined
-            })) : undefined
+            initialMembers: members.length > 0 ? members.map(m => {
+                const memberData = {
+                    name: m.name || undefined,
+                    role: m.role || undefined,
+                    phone: m.phone || undefined,
+                    affiliation: m.affiliation || undefined
+                }
+                // 只有平台用户才传递 wxId
+                if (m.wxId && m.wxId !== 0 && m.wxId !== '0') {
+                    memberData.wxId = m.wxId
+                }
+                return memberData
+            }) : undefined
+        }
+
+        // 只有选择了"是校促会会员"时才添加 platformId 和 location
+        if (this.data.isPlatformMember && formData.platformId) {
+            submitData.platformId = formData.platformId
+            submitData.location = formData.location || formData.platformName || undefined
         }
 
         // 只有当bgImg存在时才添加到提交数据中
