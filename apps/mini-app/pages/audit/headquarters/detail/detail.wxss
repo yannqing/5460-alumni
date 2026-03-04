@@ -76,7 +76,6 @@
   100% { background-color: #f0f0f0; }
 }
 
-<<<<<<< HEAD
 /* 顶部 Header */
 .detail-header {
   position: relative;
@@ -176,18 +175,6 @@
 
 .info-grid .info-item {
   width: 100%;
-=======
-/* 主卡片 */
-.main-card {
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
-}
-
-/* 信息项 */
-.info-section {
->>>>>>> 19b90da (Details page)
   margin-bottom: 20rpx;
 }
 
@@ -230,11 +217,8 @@
   border-radius: 20rpx;
   flex-shrink: 0;
   margin-top: 4rpx;
-<<<<<<< HEAD
   background: #FFFFFF;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-=======
->>>>>>> 19b90da (Details page)
 }
 
 .status-tag.status-pending {
