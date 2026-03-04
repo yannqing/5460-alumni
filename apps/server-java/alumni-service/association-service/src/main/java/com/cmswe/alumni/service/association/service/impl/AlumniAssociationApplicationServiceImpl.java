@@ -10,6 +10,7 @@ import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
 import com.cmswe.alumni.common.dto.InitialMemberDto;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationApplicationListDto;
+import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.entity.*;
 import com.cmswe.alumni.common.enums.ErrorType;

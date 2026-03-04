@@ -13,11 +13,11 @@ import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.model.UserOnlineStatusKaf;
 import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.kafka.utils.KafkaUtils;
+import com.cmswe.alumni.api.association.SchoolService;
 import com.cmswe.alumni.common.entity.*;
 import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.vo.*;
 import com.cmswe.alumni.common.vo.TagVo;
-import com.cmswe.alumni.service.association.mapper.SchoolMapper;
 import com.cmswe.alumni.service.system.mapper.SysConfigMapper;
 import com.cmswe.alumni.service.system.service.SysTagRelationService;
 import com.cmswe.alumni.api.user.UserService;
@@ -55,7 +55,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     private SysConfigMapper sysConfigMapper;
 
     @Resource
-    private SchoolMapper schoolMapper;
+    private SchoolService schoolService;
 
     @Resource
     private AlumniEducationMapper alumniEducationMapper;
@@ -187,7 +187,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         List<AlumniEducationListVo> alumniEducationListVos = alumniEducations.stream().map(alumniEducation -> {
             AlumniEducationListVo alumniEducationListVo = AlumniEducationListVo.objToVo(alumniEducation);
             if (alumniEducation.getSchoolId() != null) {
-                School school = schoolMapper.selectById(alumniEducation.getSchoolId());
+                School school = schoolService.getById(alumniEducation.getSchoolId());
                 SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
                 schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
                 alumniEducationListVo.setSchoolInfo(schoolListVo);
@@ -340,7 +340,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         List<AlumniEducationListVo> alumniEducationListVos = alumniEducations.stream().map(alumniEducation -> {
             AlumniEducationListVo alumniEducationListVo = AlumniEducationListVo.objToVo(alumniEducation);
             if (alumniEducation.getSchoolId() != null) {
-                School school = schoolMapper.selectById(alumniEducation.getSchoolId());
+                School school = schoolService.getById(alumniEducation.getSchoolId());
                 SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
                 schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
                 alumniEducationListVo.setSchoolInfo(schoolListVo);
@@ -556,7 +556,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                         .collect(Collectors.toList());
 
                 if (!schoolIds.isEmpty()) {
-                    List<School> schools = schoolMapper.selectBatchIds(schoolIds);
+                    List<School> schools = schoolService.listByIds(schoolIds);
                     schoolMap = schools.stream()
                             .map(school -> {
                                 SchoolListVo vo = SchoolListVo.objToVo(school);
@@ -691,7 +691,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         // 校验教育经历数据
         for (AlumniEducationDto educationDto : alumniEducationList) {
             // 校验学校是否存在
-            School school = schoolMapper.selectById(educationDto.getSchoolId());
+            School school = schoolService.getById(educationDto.getSchoolId());
             if (school == null) {
                 throw new BusinessException(ErrorType.ARGS_ERROR, "学校ID不存在: " + educationDto.getSchoolId());
             }
