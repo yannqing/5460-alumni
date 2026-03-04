@@ -14,7 +14,7 @@ Page({
       // },
       {
         id: 3,
-        name: '文章管理',
+        name: '资讯管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/article/manage/manage'
@@ -39,6 +39,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/headquarters/list/list'
+      },
+      {
+        id: 6,
+        name: '校友会审核',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/alumni-association/list/list'
       }
       // {
       //   id: 3,
@@ -84,7 +91,7 @@ Page({
     },
     {
       id: 4,
-      name: '文章管理',
+      name: '资讯管理',
       icon: config.getIconUrl('xyhsh@3x.png'),
       iconType: 'image',
       url: '/pages/audit/article/manage/manage'
@@ -187,7 +194,7 @@ Page({
       },
       {
         id: 9,
-        name: '文章管理',
+        name: '资讯管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/article/manage/manage'
@@ -382,12 +389,14 @@ Page({
       // 根据功能名称检查对应权限
       if (item.name === '文章审核') {
         return this.hasPermission('HOME_PAGE_ARTICLE_REVIEW')
-      } else if (item.name === '文章管理') {
+      } else if (item.name === '资讯管理') {
         return this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
       } else if (item.name === '轮播图管理') {
         return this.hasPermission('HOME_PAGE_BANNER_MANAGEMENT')
       } else if (item.name === '审核校友总会') {
         return true // 取消权限限制，所有人都可以查看
+      } else if (item.name === '校友会审核') {
+        return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_APPLICATION')
       }
       return false
     })
@@ -401,7 +410,7 @@ Page({
         return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
       } else if (item.name === '架构管理') {
         return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
-      } else if (item.name === '文章管理') {
+      } else if (item.name === '资讯管理') {
         return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
       } else if (item.name === '信息维护') {
         return true // 取消权限限制，所有人都可以查看
@@ -428,7 +437,7 @@ Page({
         return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT')
       } else if (item.name === '信息维护') {
         return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION')
-      } else if (item.name === '文章管理') {
+      } else if (item.name === '资讯管理') {
         return this.hasPermission('ALUMNI_ASSOCIATION_ARTICLE_MANAGEMENT')
       }
       return false

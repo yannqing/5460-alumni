@@ -1,0 +1,82 @@
+<!--pages/audit/alumni-association/list/list.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会审核">
+  <view class="container">
+    <!-- 标签页 -->
+    <view class="tabs">
+      <view
+        class="tab-item {{currentTab === index ? 'active' : ''}}"
+        wx:for="{{tabs}}"
+        wx:key="index"
+        data-index="{{index}}"
+        bindtap="switchTab"
+      >
+        {{item}}
+      </view>
+    </view>
+
+    <!-- 列表内容 -->
+    <view class="list-container">
+      <view wx:if="{{applicationList.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-text">暂无申请记录</text>
+      </view>
+
+      <view class="application-list" wx:else>
+        <view
+          class="application-item"
+          wx:for="{{applicationList}}"
+          wx:key="id"
+          bindtap="viewDetail"
+          data-id="{{item.id}}"
+        >
+          <view class="item-header">
+            <view class="association-info">
+              <text class="association-name">{{item.associationName}}</text>
+              <text class="school-name">{{item.schoolName}}</text>
+            </view>
+            <view class="status-badge status-{{item.auditStatus}}">
+              {{item.auditStatus === 0 ? '待审核' : item.auditStatus === 1 ? '已通过' : '已拒绝'}}
+            </view>
+          </view>
+
+          <view class="item-content">
+            <view class="info-row">
+              <text class="label">申请人：</text>
+              <text class="value">{{item.chargeName || '-'}}</text>
+            </view>
+            <view class="info-row">
+              <text class="label">联系电话：</text>
+              <text class="value">{{item.contactInfo || '-'}}</text>
+            </view>
+            <view class="info-row">
+              <text class="label">申请时间：</text>
+              <text class="value">{{item.createTime || '-'}}</text>
+            </view>
+          </view>
+
+          <view class="item-actions" wx:if="{{item.auditStatus === 0}}" catchtap="preventBubble">
+            <button
+              class="action-btn reject-btn"
+              data-id="{{item.id}}"
+              data-action="reject"
+              catchtap="handleAudit"
+            >
+              拒绝
+            </button>
+            <button
+              class="action-btn approve-btn"
+              data-id="{{item.id}}"
+              data-action="approve"
+              catchtap="handleAudit"
+            >
+              通过
+            </button>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{loading}}" class="loading-container">
+        <text class="loading-text">加载中...</text>
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>
