@@ -1,6 +1,7 @@
 // pages/index/index.js
 const { homeArticleApi, associationApi, bannerApi } = require('../../api/api');
 const config = require('../../utils/config.js');
+const auth = require('../../utils/auth.js');
 const app = getApp();
 
 Page({
@@ -462,6 +463,18 @@ Page({
       return;
     }
     const url = e.currentTarget.dataset.url;
+
+    // 如果目标是注册页，直接跳转不拦截
+    if (url && url.includes('/pages/register/register')) {
+      wx.navigateTo({ url: url });
+      return;
+    }
+
+    // 检查用户基本信息是否完善，未完善则跳转注册页
+    if (!auth.checkProfileAndRedirect(url)) {
+      return;
+    }
+
     if (url) {
       wx.navigateTo({
         url: url,

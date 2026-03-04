@@ -46,6 +46,7 @@ public class LocalPlatformManagementController {
          * @param queryDto 查询条件（包含校处会ID、审核状态等）
          * @return 校友会创建申请列表
          */
+        @Deprecated
         @PostMapping("/queryAssociationApplicationPage")
         @Operation(summary = "分页查询校友会创建申请列表")
         public BaseResponse<PageVo<AlumniAssociationApplicationListVo>> queryAssociationApplicationPage(
@@ -64,6 +65,7 @@ public class LocalPlatformManagementController {
          * @param reviewDto    审核信息
          * @return 审核结果
          */
+        @Deprecated
         @PostMapping("/reviewAssociationApplication")
         @Operation(summary = "审核校友会创建申请")
         public BaseResponse<Boolean> reviewAssociationApplication(

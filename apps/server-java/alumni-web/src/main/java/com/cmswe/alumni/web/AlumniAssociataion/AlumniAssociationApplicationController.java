@@ -8,6 +8,7 @@ import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
+import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -94,5 +95,22 @@ public class AlumniAssociationApplicationController {
         } else {
             return ResultUtils.failure(Code.FAILURE, false, "审核操作失败");
         }
+    }
+
+    /**
+     * 根据申请ID查询申请详情
+     *
+     * @param applicationId 申请ID
+     * @return 申请详情
+     */
+    @GetMapping("/detail/{applicationId}")
+    @Operation(summary = "根据申请ID查询申请详情")
+    public BaseResponse<AlumniAssociationApplicationDetailVo> getApplicationDetail(
+            @PathVariable("applicationId") Long applicationId) {
+
+        AlumniAssociationApplicationDetailVo detailVo = alumniAssociationApplicationService
+                .getApplicationDetailById(applicationId);
+
+        return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
     }
 }

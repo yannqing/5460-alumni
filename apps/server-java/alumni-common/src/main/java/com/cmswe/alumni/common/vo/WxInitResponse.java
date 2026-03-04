@@ -26,4 +26,7 @@ public class WxInitResponse {
 
     @Schema(description = "是否成为校友：0-否，1-是")
     private Integer isAlumni;
+
+    @Schema(description = "用户基本信息是否完善：true-完善，false-未完善")
+    private Boolean isProfileComplete;
 }
