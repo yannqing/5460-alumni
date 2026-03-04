@@ -1,0 +1,400 @@
+/* pages/audit/alumni-association-certification/list/list.wxss */
+
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.group_5 {
+  width: 714rpx;
+  min-height: 346rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.text_14 {
+  width: 147rpx;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+}
+
+.label_text {
+  width: auto;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.6);
+  font-size: 25rpx;
+  font-family: PingFangSC-Regular;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 16rpx;
+  display: block;
+}
+
+.text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.text_15 {
+  flex: 1;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.85);
+  font-size: 28rpx;
+  font-family: PingFangSC-Regular;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text_15:empty:before {
+  content: '请选择校促会';
+  color: rgba(0,0,0,0.4);
+}
+
+.text-wrapper_8::after {
+  content: '▼';
+  color: #999;
+  font-size: 20rpx;
+  margin-left: 10rpx;
+}
+
+.section_12 {
+  width: 100%;
+  height: 65rpx;
+  flex-direction: row;
+  display: flex;
+  margin-top: 24rpx;
+  gap: 20rpx;
+}
+
+.text-wrapper_9 {
+  flex: 1;
+  background-color: transparent;
+  border-radius: 14rpx;
+  height: 65rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-wrapper_9.active {
+  background-color: rgba(207,219,255,1.000000);
+}
+
+.text_16 {
+  width: auto;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 25rpx;
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 36rpx;
+}
+
+.text-wrapper_9.active .text_16 {
+  color: rgba(8,61,231,1);
+}
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 25rpx 20rpx 25rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
+.text_20 {
+  width: 118rpx;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+  margin-left: 18rpx;
+}
+
+.association-list {
+  margin-top: 11rpx;
+  padding-bottom: 40rpx;
+}
+
+/* 审核列表卡片通用样式 - 按设计图还原 */
+.audit-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-height: 160rpx;
+  background-color: #FFFFFF;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.audit-card-pending {
+  padding-bottom: 24rpx;
+}
+
+/* 第一行：头像 + 名称+状态，名称紧挨头像 */
+.audit-card-top {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.audit-card-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #F5F5F5;
+  margin-right: 16rpx;
+}
+
+.audit-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 第二行：申请人、提交时间，占满宽度避免时间戳换行 */
+.audit-card-meta-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 18rpx;
+  gap: 10rpx;
+  width: 100%;
+}
+
+.audit-card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.audit-card-name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 12rpx;
+}
+
+.audit-card-status {
+  flex-shrink: 0;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.status-approved {
+  background-color: #50C820;
+}
+
+.status-pending {
+  background-color: #FA9C00;
+}
+
+.status-rejected {
+  background-color: #9A9A9A;
+}
+
+.audit-card-meta {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 36rpx;
+}
+
+.audit-card-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 24rpx;
+  padding-top: 20rpx;
+  margin-top: 20rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.audit-btn {
+  width: 160rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.audit-btn-approve {
+  background-color: #fff;
+  border: 1px solid #4364CC;
+  color: #4364CC;
+}
+
+.audit-btn-reject {
+  background-color: #fff;
+  border: 1px solid #B0363E;
+  color: #B0363E;
+}
+
+/* 校促会选择器弹窗 */
+.platform-picker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+}
+
+.picker-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.picker-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.picker-cancel {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.picker-list {
+  max-height: calc(50vh + 40px);
+  overflow-y: auto;
+  padding: 0 30rpx;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.item-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.item-check {
+  font-size: 32rpx;
+  color: #52c41a;
+  font-weight: 600;
+}
+
+.picker-empty {
+  padding: 60rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}

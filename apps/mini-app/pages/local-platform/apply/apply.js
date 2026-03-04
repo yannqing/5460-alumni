@@ -371,22 +371,38 @@ Page({
     },
 
     // 提交表单
-    submitForm() {
-        const { formData } = this.data
+    async submitForm() {
+        const { formData, selectedAlumniAssociationId } = this.data
 
         // 表单验证
-        if (!formData.platformName) {
-            wx.showToast({ title: '请输入校促会名称', icon: 'none' })
+        if (!selectedAlumniAssociationId) {
+            wx.showToast({ title: '请选择校友会', icon: 'none' })
+            return
+        }
+        if (!formData.platformId) {
+            wx.showToast({ title: '请选择校促会', icon: 'none' })
             return
         }
 
-        // 这里可以添加提交表单的逻辑
-        console.log('提交表单数据:', formData)
+        try {
+            // 调用申请加入校促会接口
+            const res = await associationApi.applyJoinPlatform({
+                alumniAssociationId: selectedAlumniAssociationId,
+                platformId: formData.platformId
+            })
 
-        wx.showToast({ title: '提交成功', icon: 'success' })
-        // 提交成功后返回上一页
-        setTimeout(() => {
-            wx.navigateBack()
-        }, 1500)
+            if (res.data && res.data.code === 200) {
+                wx.showToast({ title: '提交成功', icon: 'success' })
+                // 提交成功后返回上一页
+                setTimeout(() => {
+                    wx.navigateBack()
+                }, 1500)
+            } else {
+                wx.showToast({ title: res.data?.msg || '提交失败', icon: 'none' })
+            }
+        } catch (error) {
+            console.error('提交申请失败:', error)
+            wx.showToast({ title: '网络异常，请重试', icon: 'none' })
+        }
     }
 })

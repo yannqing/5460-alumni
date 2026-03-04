@@ -1,0 +1,155 @@
+<!--pages/audit/alumni-association-certification/list/list.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会认证">
+<view class="page">
+  <view class="group_5">
+    <text lines="1" class="text_14">校友会认证</text>
+    <text lines="1" class="label_text">选择校促会</text>
+    <view class="text-wrapper_8" bindtap="{{hasSinglePlatform ? '' : 'showPlatformSelector'}}">
+      <text lines="1" class="text_15">{{selectedPlatformName}}</text>
+    </view>
+    <view class="section_12">
+      <view 
+        class="text-wrapper_9 {{currentTab === 0 ? 'active' : ''}}"
+        data-index="0"
+        bindtap="switchTab"
+      >
+        <text lines="1" class="text_16">全部</text>
+      </view>
+      <view 
+        class="text-wrapper_9 {{currentTab === 1 ? 'active' : ''}}"
+        data-index="1"
+        bindtap="switchTab"
+      >
+        <text lines="1" class="text_16">待审核</text>
+      </view>
+      <view 
+        class="text-wrapper_9 {{currentTab === 2 ? 'active' : ''}}"
+        data-index="2"
+        bindtap="switchTab"
+      >
+        <text lines="1" class="text_16">已通过</text>
+      </view>
+      <view 
+        class="text-wrapper_9 {{currentTab === 3 ? 'active' : ''}}"
+        data-index="3"
+        bindtap="switchTab"
+      >
+        <text lines="1" class="text_16">已拒绝</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 校促会选择器弹窗 -->
+  <view class="platform-picker" wx:if="{{showPlatformPicker}}">
+    <view class="picker-overlay" bindtap="cancelPlatformSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校促会</text>
+        <text class="picker-cancel" bindtap="cancelPlatformSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view 
+          class="picker-item"
+          wx:for="{{platformList}}"
+          wx:key="id"
+          data-platform-id="{{item.platformId}}"
+          data-platform-name="{{item.platformName}}"
+          bindtap="selectPlatform"
+        >
+          <text class="item-name">{{item.platformName}}</text>
+          <text class="item-check" wx:if="{{selectedPlatformId == item.platformId}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{platformList.length === 0}}">
+          <text>暂无校促会数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 审核列表 -->
+  <view class="group_7">
+    <text lines="1" class="text_20">认证列表</text>
+    
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
+    <view class="association-list">
+      <block wx:for="{{applicationList}}" wx:key="applicationId">
+        <!-- 已通过状态 -->
+        <view class="audit-card audit-card-approved" wx:if="{{item.applicationStatus === 1}}">
+          <view class="audit-card-top">
+            <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
+            <view class="audit-card-body">
+              <view class="audit-card-header">
+                <text class="audit-card-name">{{item.associationName}}</text>
+                <view class="audit-card-status status-approved">
+                  <text>已通过</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view class="audit-card-meta-wrap">
+            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
+          </view>
+        </view>
+
+        <!-- 待审核状态 -->
+        <view class="audit-card audit-card-pending" wx:if="{{item.applicationStatus === 0}}">
+          <view class="audit-card-top">
+            <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
+            <view class="audit-card-body">
+              <view class="audit-card-header">
+                <text class="audit-card-name">{{item.associationName}}</text>
+                <view class="audit-card-status status-pending">
+                  <text>待审核</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view class="audit-card-meta-wrap">
+            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
+          </view>
+          <view class="audit-card-actions">
+            <view class="audit-btn audit-btn-approve" catchtap="approveApplication" data-id="{{item.applicationId}}">
+              <text>通过</text>
+            </view>
+            <view class="audit-btn audit-btn-reject" catchtap="rejectApplication" data-id="{{item.applicationId}}">
+              <text>拒绝</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 已拒绝状态 -->
+        <view class="audit-card audit-card-rejected" wx:if="{{item.applicationStatus === 2}}">
+          <view class="audit-card-top">
+            <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
+            <view class="audit-card-body">
+              <view class="audit-card-header">
+                <text class="audit-card-name">{{item.associationName}}</text>
+                <view class="audit-card-status status-rejected">
+                  <text>已拒绝</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view class="audit-card-meta-wrap">
+            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
+          </view>
+        </view>
+      </block>
+
+      <!-- 空状态 -->
+      <view class="picker-empty" wx:if="{{!loading && applicationList.length === 0}}">
+        <text>暂无校友会认证数据</text>
+      </view>
+
+      <!-- 加载中 -->
+      <view class="picker-empty" wx:if="{{loading}}">
+        <text>加载中...</text>
+      </view>
+    </view>
+    </scroll-view>
+  </view>
+</view>
+</custom-nav-bar>

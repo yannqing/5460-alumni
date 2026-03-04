@@ -103,6 +103,13 @@ Page({
         iconType: 'image',
         url: '/pages/audit/info-maintenance/index/index'
       },
+      {
+        id: 6,
+        name: '校友会认证',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/alumni-association-certification/list/list'
+      },
       // {
       //   id: 4,
       //   name: '资料库',
@@ -413,6 +420,8 @@ Page({
       } else if (item.name === '资讯管理') {
         return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
       } else if (item.name === '信息维护') {
+        return true // 取消权限限制，所有人都可以查看
+      } else if (item.name === '校友会认证') {
         return true // 取消权限限制，所有人都可以查看
       }
       return false
