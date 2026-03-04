@@ -44,6 +44,7 @@
     "pages/alumni-union/detail/detail",
     "pages/local-platform/list/list",
     "pages/local-platform/detail/detail",
+    "pages/local-platform/apply/apply",
     "pages/promotion/detail/detail",
     "pages/enterprise/list/list",
     "pages/enterprise/detail/detail",

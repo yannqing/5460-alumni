@@ -1,0 +1,126 @@
+<custom-nav-bar useAuditStyle="{{true}}" auditTitle="申请加入校促会" showBack="{{true}}">
+  <view class="page">
+    <!-- 选择校友会卡片 -->
+    <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+      <text class="text_14">申请加入校促会</text>
+      <text class="label_text">选择校友会</text>
+      <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
+        <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+      </view>
+    </view>
+
+    <!-- 基本信息卡片 -->
+    <view class="group_7">
+      <text class="text_20">基本信息</text>
+
+      <!-- 校友会信息展示 -->
+      <view wx:if="{{alumniAssociationDetail}}" class="alumni-association-info">
+        <!-- 背景横幅 -->
+        <view class="detail-header">
+          <image class="header-bg" src="{{alumniAssociationDetail.bgImg || defaultBackground}}" mode="aspectFill" />
+          <view class="header-content">
+            <view class="header-left">
+              <view class="logo-container">
+                <image class="headquarters-logo" src="{{alumniAssociationDetail.logo || defaultAlumniAvatar}}" mode="aspectFill" />
+              </view>
+            </view>
+            <view class="headquarters-basic">
+              <text class="headquarters-name">{{alumniAssociationDetail.associationName || '无'}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="form-item">
+          <text class="label">所属学校</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.schoolInfo ? alumniAssociationDetail.schoolInfo.schoolName : '未知学校'}}" disabled />
+        </view>
+        <view class="form-item">
+          <text class="label">校促会</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.platform ? alumniAssociationDetail.platform.platformName : '未知校促会'}}" disabled />
+        </view>
+        <view class="form-item">
+          <text class="label">联系信息</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.contactInfo || '暂无联系信息'}}" disabled />
+        </view>
+        <view class="form-item">
+          <text class="label">常驻地点</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.location || '暂无常驻地点'}}" disabled />
+        </view>
+        <view class="form-item">
+          <text class="label">会员数量</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.memberCount || 0}}" disabled />
+        </view>
+        <view class="form-item">
+          <text class="label">校友会简介</text>
+          <textarea class="textarea disabled" value="{{alumniAssociationDetail.associationProfile || '暂无简介'}}" disabled />
+        </view>
+      </view>
+
+    <view class="form-item required">
+      <text class="label">申请人姓名</text>
+      <input class="input" placeholder="请输入申请人姓名" value="{{formData.applicantName}}" data-field="applicantName" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item required">
+      <text class="label">联系电话</text>
+      <input class="input" placeholder="请输入联系电话" value="{{formData.contactPhone}}" data-field="contactPhone" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item required">
+      <text class="label">所属学校</text>
+      <input class="input" placeholder="请输入所属学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">申请理由</text>
+      <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">附件</text>
+      <view class="upload-container">
+        <view class="upload-btn-group">
+          <button class="upload-btn" bindtap="chooseAttachment">选择文档</button>
+          <button class="upload-btn" bindtap="chooseAttachmentImage">选择图片</button>
+        </view>
+        <view wx:if="{{attachments.length > 0}}" class="attachments-list">
+          <view wx:for="{{attachments}}" wx:key="index" class="attachment-item">
+            <text class="attachment-name">{{item.name}}</text>
+            <text class="attachment-delete" bindtap="deleteAttachment" data-index="{{index}}">删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-actions">
+      <button class="submit-btn" bindtap="submitForm">提交申请</button>
+    </view>
+    </view>
+
+  <!-- 校友会选择器弹窗 -->
+  <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
+    <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校友会</text>
+        <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view
+          class="picker-item"
+          wx:for="{{alumniAssociationList}}"
+          wx:key="alumniAssociationId"
+          data-alumni-association-id="{{item.alumniAssociationId}}"
+          data-alumni-association-name="{{item.alumniAssociationName}}"
+          bindtap="selectAlumniAssociation"
+        >
+          <text class="item-name">{{item.alumniAssociationName}}</text>
+          <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">
+          <text>暂无校友会数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  </view>
+</custom-nav-bar>

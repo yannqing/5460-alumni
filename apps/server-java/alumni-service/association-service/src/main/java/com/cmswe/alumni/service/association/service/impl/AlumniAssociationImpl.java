@@ -115,7 +115,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
     // 分页查询 获取校友会列表
     @Override
-    public PageVo<AlumniAssociationListVo> selectByPage(QueryAlumniAssociationListDto alumniAssociationListDto, Long currentUserId) {
+    public PageVo<AlumniAssociationListVo> selectByPage(QueryAlumniAssociationListDto alumniAssociationListDto,
+            Long currentUserId) {
         // 1.参数校验
         Optional.ofNullable(alumniAssociationListDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.SYSTEM_ERROR));
@@ -225,7 +226,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                     // 设置加入状态和关注状态
                     if (currentUserId != null) {
                         vo.setIsMember(finalMemberStatusMap.getOrDefault(association.getAlumniAssociationId(), false));
-                        vo.setIsFollowed(finalFollowStatusMap.getOrDefault(association.getAlumniAssociationId(), false));
+                        vo.setIsFollowed(
+                                finalFollowStatusMap.getOrDefault(association.getAlumniAssociationId(), false));
                     } else {
                         vo.setIsMember(null); // 未登录
                         vo.setIsFollowed(null); // 未登录
@@ -268,9 +270,13 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         alumniAssociationDetailVo.setSchoolInfo(schoolListVo);
         // 4.2 构建校处会信息
         Long platformId = alumniAssociation.getPlatformId();
-        LocalPlatformDetailVo localPlatformDetailVo = localPlatformService.getLocalPlatformById(platformId);
-        localPlatformDetailVo.setPlatformId(String.valueOf(platformId));
-        alumniAssociationDetailVo.setPlatform(localPlatformDetailVo);
+        if (platformId != null) {
+            LocalPlatformDetailVo localPlatformDetailVo = localPlatformService.getLocalPlatformById(platformId);
+            if (localPlatformDetailVo != null) {
+                localPlatformDetailVo.setPlatformId(String.valueOf(platformId));
+                alumniAssociationDetailVo.setPlatform(localPlatformDetailVo);
+            }
+        }
         // 4.3 构建会长信息 - 暂时不设置，需要用户服务模块
         // Long presidentUserId = alumniAssociation.getPresidentUserId();
         // alumniAssociationDetailVo.setPresident(userService.getUserDetailVoById(presidentUserId));
@@ -1576,7 +1582,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         LambdaQueryWrapper<RoleUser> roleUserQueryWrapper = new LambdaQueryWrapper<>();
         roleUserQueryWrapper
                 .eq(RoleUser::getRoleId, adminRole.getRoleId())
-                .eq(RoleUser::getType, 2)  // type=2 表示校友会
+                .eq(RoleUser::getType, 2) // type=2 表示校友会
                 .eq(RoleUser::getOrganizeId, alumniAssociationId);
 
         List<RoleUser> roleUserList = roleUserService.list(roleUserQueryWrapper);
@@ -1628,8 +1634,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         // 3. 校验用户是否存在
         WxUserInfo userInfo = wxUserInfoService.getOne(
-                new LambdaQueryWrapper<WxUserInfo>().eq(WxUserInfo::getWxId, wxId)
-        );
+                new LambdaQueryWrapper<WxUserInfo>().eq(WxUserInfo::getWxId, wxId));
         if (userInfo == null) {
             log.error("用户不存在，用户 ID: {}", wxId);
             throw new BusinessException(ErrorType.SYSTEM_ERROR, "用户不存在");
@@ -1647,7 +1652,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         checkWrapper
                 .eq(RoleUser::getWxId, wxId)
                 .eq(RoleUser::getRoleId, adminRole.getRoleId())
-                .eq(RoleUser::getType, 2)  // type=2 表示校友会
+                .eq(RoleUser::getType, 2) // type=2 表示校友会
                 .eq(RoleUser::getOrganizeId, alumniAssociationId);
 
         RoleUser existingRoleUser = roleUserService.getOne(checkWrapper);
@@ -1660,7 +1665,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         RoleUser roleUser = new RoleUser();
         roleUser.setWxId(wxId);
         roleUser.setRoleId(adminRole.getRoleId());
-        roleUser.setType(2);  // 2-校友会
+        roleUser.setType(2); // 2-校友会
         roleUser.setOrganizeId(alumniAssociationId);
         roleUser.setCreateTime(LocalDateTime.now());
         roleUser.setUpdateTime(LocalDateTime.now());
@@ -1698,7 +1703,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         queryWrapper
                 .eq(RoleUser::getWxId, wxId)
                 .eq(RoleUser::getRoleId, adminRole.getRoleId())
-                .eq(RoleUser::getType, 2)  // type=2 表示校友会
+                .eq(RoleUser::getType, 2) // type=2 表示校友会
                 .eq(RoleUser::getOrganizeId, alumniAssociationId);
 
         RoleUser roleUser = roleUserService.getOne(queryWrapper);
@@ -1792,8 +1797,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             List<AlumniAssociation> allAssociations = this.list(
                     new LambdaQueryWrapper<AlumniAssociation>()
                             .eq(AlumniAssociation::getStatus, 1) // 只返回启用的
-                            .orderByDesc(AlumniAssociation::getCreateTime)
-            );
+                            .orderByDesc(AlumniAssociation::getCreateTime));
 
             result = allAssociations.stream()
                     .map(association -> {
@@ -1815,8 +1819,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                     new LambdaQueryWrapper<RoleUser>()
                             .eq(RoleUser::getWxId, wxId)
                             .eq(RoleUser::getType, 2) // 2-校友会
-                            .isNotNull(RoleUser::getOrganizeId)
-            );
+                            .isNotNull(RoleUser::getOrganizeId));
 
             if (roleUsers.isEmpty()) {
                 log.info("用户无管理的校友会 - 用户ID: {}", wxId);
