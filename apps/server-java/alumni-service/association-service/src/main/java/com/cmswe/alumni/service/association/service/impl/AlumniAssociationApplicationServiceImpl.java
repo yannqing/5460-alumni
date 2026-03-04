@@ -478,11 +478,7 @@ public class AlumniAssociationApplicationServiceImpl
             AlumniAssociationMember chargeMember = new AlumniAssociationMember();
             chargeMember.setWxId(application.getChargeWxId());
             chargeMember.setAlumniAssociationId(alumniAssociationId);
-<<<<<<< HEAD
             // chargeMember.setRoleOrId(null); // 不再关联架构角色，保持为空
-=======
-            chargeMember.setRoleOrId(chargeArchiRoleId);
->>>>>>> 50058bd (fix: fixed the page of creating alumni association)
             chargeMember.setUserPhone(application.getContactInfo()); // 负责人联系方式
             chargeMember.setUserAffiliation(application.getMsocialAffiliation()); // 负责人社会职务
             chargeMember.setJoinTime(LocalDateTime.now());
@@ -523,11 +519,7 @@ public class AlumniAssociationApplicationServiceImpl
                         AlumniAssociationMember member = new AlumniAssociationMember();
                         member.setWxId(memberDto.getWxId());
                         member.setAlumniAssociationId(alumniAssociationId);
-<<<<<<< HEAD
                         // member.setRoleOrId(null); // 不再关联架构角色，保持为空
-=======
-                        member.setRoleOrId(memberArchiRole.getRoleOrId());
->>>>>>> 50058bd (fix: fixed the page of creating alumni association)
                         member.setUserPhone(memberDto.getPhone()); // 成员联系电话
                         member.setUserAffiliation(memberDto.getAffiliation()); // 成员社会职务
                         member.setJoinTime(LocalDateTime.now());
