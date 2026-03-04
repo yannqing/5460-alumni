@@ -1,5 +1,5 @@
 // pages/local-platform/apply/apply.js
-const { associationApi } = require('../../../api/api.js')
+const { associationApi, localPlatformApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
 Page({
@@ -7,12 +7,8 @@ Page({
         config: config,
         formData: {
             platformName: '',
-            applicantName: '',
-            contactPhone: '',
-            schoolName: '',
-            applicationReason: ''
+            platformId: ''
         },
-        attachments: [],
         alumniAssociationList: [],
         selectedAlumniAssociationId: 0,
         selectedAlumniAssociationName: '',
@@ -22,14 +18,17 @@ Page({
         alumniAssociationDetail: null, // 校友会详情
         loading: false, // 加载状态
         defaultAlumniAvatar: config.defaultAlumniAvatar || config.defaultAvatar,
-        defaultBackground: '/assets/icons/background.png'
+        defaultBackground: '/assets/icons/background.png',
+        platformList: [],
+        platformIndex: -1
     },
 
     onLoad(options) {
         // 如果从列表页传递了平台名称，则自动填充
-        if (options.platformName) {
+        this.platformNameFromList = options.platformName ? decodeURIComponent(options.platformName) : null
+        if (this.platformNameFromList) {
             this.setData({
-                'formData.platformName': decodeURIComponent(options.platformName)
+                'formData.platformName': this.platformNameFromList
             })
         }
         // 初始化页面数据
@@ -38,7 +37,42 @@ Page({
 
     // 初始化页面数据
     async initPage() {
-        await this.loadAlumniAssociationList()
+        await Promise.all([
+            this.loadAlumniAssociationList(),
+            this.loadPlatformList()
+        ])
+    },
+
+    // 加载平台列表
+    async loadPlatformList() {
+        try {
+            const res = await localPlatformApi.getLocalPlatformPage({
+                current: 1,
+                pageSize: 100,
+                platformName: ''
+            })
+            if (res.data && res.data.code === 200) {
+                const platformList = res.data.data.records || []
+                this.setData({
+                    platformList: platformList
+                })
+
+                // 如果有从列表页面传递过来的platformName，查找并设置对应的平台信息
+                if (this.platformNameFromList) {
+                    const platformIndex = platformList.findIndex(item => item.platformName === this.platformNameFromList)
+                    if (platformIndex !== -1) {
+                        const platform = platformList[platformIndex]
+                        this.setData({
+                            platformIndex: platformIndex,
+                            'formData.platformId': platform.platformId,
+                            'formData.platformName': platform.platformName
+                        })
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('加载平台列表失败', e)
+        }
     },
 
     // 加载校友会列表（从缓存中获取校友会管理员的alumniAssociationId，然后调用接口）
@@ -251,6 +285,19 @@ Page({
         this.setData({ showAlumniAssociationPicker: false })
     },
 
+    // 处理平台选择
+    handlePlatformChange(e) {
+        const index = e.detail.value
+        const platform = this.data.platformList[index]
+        if (platform) {
+            this.setData({
+                platformIndex: index,
+                'formData.platformId': platform.platformId,
+                'formData.platformName': platform.platformName
+            })
+        }
+    },
+
     // 调用校友会详情接口
     async getAlumniAssociationDetail(alumniAssociationId) {
         try {
@@ -276,12 +323,16 @@ Page({
                         alumniAssociationDetail.bgImg = config.getImageUrl(alumniAssociationDetail.bgImg)
                     }
                 } else {
-                    alumniAssociationDetail.bgImg = null
+                    // 使用默认背景图
+                    alumniAssociationDetail.bgImg = this.data.defaultBackground
                 }
                 
                 // 处理 Logo
                 if (alumniAssociationDetail.logo && alumniAssociationDetail.logo.trim()) {
                     alumniAssociationDetail.logo = config.getImageUrl(alumniAssociationDetail.logo)
+                } else {
+                    // 使用默认头像
+                    alumniAssociationDetail.logo = this.data.defaultAlumniAvatar
                 }
                 
                 this.setData({
@@ -312,48 +363,7 @@ Page({
         })
     },
 
-    // 选择附件（文档）
-    chooseAttachment() {
-        wx.chooseMessageFile({
-            count: 10,
-            type: 'file',
-            success: (res) => {
-                const newAttachments = res.tempFiles.map(file => ({
-                    name: file.name,
-                    path: file.path
-                }))
-                this.setData({
-                    attachments: [...this.data.attachments, ...newAttachments]
-                })
-            }
-        })
-    },
 
-    // 选择附件（图片）
-    chooseAttachmentImage() {
-        wx.chooseImage({
-            count: 10,
-            sizeType: ['original', 'compressed'],
-            sourceType: ['album', 'camera'],
-            success: (res) => {
-                const newAttachments = res.tempFilePaths.map(path => ({
-                    name: `图片${Date.now()}.jpg`,
-                    path: path
-                }))
-                this.setData({
-                    attachments: [...this.data.attachments, ...newAttachments]
-                })
-            }
-        })
-    },
-
-    // 删除附件
-    deleteAttachment(e) {
-        const index = e.currentTarget.dataset.index
-        const attachments = this.data.attachments
-        attachments.splice(index, 1)
-        this.setData({ attachments })
-    },
 
     // 关闭所有下拉列表
     closeAllDropdowns() {
@@ -369,21 +379,9 @@ Page({
             wx.showToast({ title: '请输入校促会名称', icon: 'none' })
             return
         }
-        if (!formData.applicantName) {
-            wx.showToast({ title: '请输入申请人姓名', icon: 'none' })
-            return
-        }
-        if (!formData.contactPhone) {
-            wx.showToast({ title: '请输入联系电话', icon: 'none' })
-            return
-        }
-        if (!formData.schoolName) {
-            wx.showToast({ title: '请输入所属学校', icon: 'none' })
-            return
-        }
 
         // 这里可以添加提交表单的逻辑
-        console.log('提交表单数据:', formData, this.data.attachments)
+        console.log('提交表单数据:', formData)
 
         wx.showToast({ title: '提交成功', icon: 'success' })
         // 提交成功后返回上一页

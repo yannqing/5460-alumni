@@ -10,10 +10,10 @@ page {
   background-color: transparent;
   position: relative;
   width: 750rpx;
-  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .group_5 {
@@ -111,7 +111,7 @@ page {
   margin: 34rpx 0 20rpx 18rpx;
   padding: 38rpx 25rpx 20rpx 25rpx;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   z-index: 1;
 }
@@ -168,9 +168,11 @@ page {
 }
 
 .input.disabled {
-  background-color: #f9f9f9;
-  color: #999;
-  border-color: #e0e0e0;
+  background-color: #f5f5f5;
+  color: #666;
+  border-color: #e8e8e8;
+  border-radius: 12rpx;
+  box-shadow: inset 0 1rpx 3rpx rgba(0, 0, 0, 0.05);
 }
 
 .textarea {
@@ -179,9 +181,11 @@ page {
 }
 
 .textarea.disabled {
-  background-color: #f9f9f9;
-  color: #999;
-  border-color: #e0e0e0;
+  background-color: #f5f5f5;
+  color: #666;
+  border-color: #e8e8e8;
+  border-radius: 12rpx;
+  box-shadow: inset 0 1rpx 3rpx rgba(0, 0, 0, 0.05);
 }
 
 /* 图片预览样式 */
@@ -213,79 +217,88 @@ page {
 /* 顶部 Header */
 .detail-header {
   position: relative;
-  width: 100%;
-  height: 380rpx;
-  margin-bottom: 30rpx;
+  width: calc(100% + 50rpx);
+  height: 360rpx;
+  margin-top: -25rpx;
+  margin-left: -25rpx;
+  margin-right: -25rpx;
+  margin-bottom: 20rpx;
+  border-radius: 28.99rpx;
   overflow: visible;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .detail-header::after {
-  content: "";
+  content: '';
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
-  border-radius: 40rpx 40rpx 40rpx 40rpx;
+  height: 240rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
   z-index: 1;
+  border-radius: 0 0 28.99rpx 28.99rpx;
 }
 
 .header-bg {
   width: 100%;
   height: 100%;
-  border-radius: 40rpx 40rpx 40rpx 40rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+  object-position: center;
+  border-radius: 28.99rpx;
 }
 
-.header-content {
+/* 背景图片上的头像 */
+.platform-avatar-on-bg {
   position: absolute;
-  bottom: -40rpx;
-  left: 40rpx;
-  right: 40rpx;
-  display: flex;
-  align-items: flex-end;
+  bottom: 24rpx;
+  left: 24rpx;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 3rpx solid #ffffff;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.15);
   z-index: 2;
 }
 
-.header-left {
+/* 背景图片上的信息容器 */
+.info-on-bg {
+  position: absolute;
+  bottom: 27rpx;
+  left: 130rpx;
+  z-index: 2;
+  color: #ffffff;
+  text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: flex-end;
 }
 
-.logo-container {
-  width: 140rpx;
-  height: 140rpx;
-  background: #FFFFFF;
-  border-radius: 32rpx;
-  padding: 8rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+/* 背景图片上的标题行 */
+.title-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.headquarters-logo {
+  justify-content: space-between;
   width: 100%;
-  height: 100%;
-  border-radius: 28rpx;
+  margin-bottom: 6rpx;
+  margin-top: -3rpx;
+  transform: translateY(-6rpx);
 }
 
-.headquarters-basic {
-  margin-left: 24rpx;
-  padding-bottom: 50rpx;
-  flex: 1;
-}
-
-.headquarters-name {
-  font-size: 40rpx;
+/* 背景图片上的标题 */
+.card-title-on-bg {
+  font-size: 32rpx;
   font-weight: 700;
-  color: #FFFFFF;
-  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
-  display: block;
-  margin-bottom: 12rpx;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  margin-right: 10rpx;
 }
 
 .form-actions {
