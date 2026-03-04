@@ -112,14 +112,17 @@ public class AlumniAssociationApplicationServiceImpl
         }
 
         // 4. 检查是否已有相同学校和地点的待审核申请
-//        LambdaQueryWrapper<AlumniAssociationApplication> checkQuery = new LambdaQueryWrapper<>();
-//        checkQuery.eq(AlumniAssociationApplication::getSchoolId, applyDto.getSchoolId())
-//                .eq(AlumniAssociationApplication::getLocation, applyDto.getLocation())
-//                .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
-//        Long existingCount = this.count(checkQuery);
-//        if (existingCount > 0) {
-//            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校和地点已有待审核的校友会创建申请，请勿重复提交");
-//        }
+        // LambdaQueryWrapper<AlumniAssociationApplication> checkQuery = new
+        // LambdaQueryWrapper<>();
+        // checkQuery.eq(AlumniAssociationApplication::getSchoolId,
+        // applyDto.getSchoolId())
+        // .eq(AlumniAssociationApplication::getLocation, applyDto.getLocation())
+        // .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
+        // Long existingCount = this.count(checkQuery);
+        // if (existingCount > 0) {
+        // throw new BusinessException(ErrorType.ARGS_ERROR,
+        // "该学校和地点已有待审核的校友会创建申请，请勿重复提交");
+        // }
 
         // 4. 创建申请记录
         AlumniAssociationApplication application = new AlumniAssociationApplication();
@@ -209,8 +212,7 @@ public class AlumniAssociationApplicationServiceImpl
                     title,
                     content,
                     null,
-                    "ASSOCIATION_APPLICATION"
-            );
+                    "ASSOCIATION_APPLICATION");
 
             if (success) {
                 log.info("校友会创建申请提交通知已发送 - 用户: {}, 校友会: {}", wxId, associationName);
@@ -225,7 +227,8 @@ public class AlumniAssociationApplicationServiceImpl
     }
 
     @Override
-    public PageVo<AlumniAssociationApplicationListVo> queryApplicationPage(QueryAlumniAssociationApplicationListDto queryDto) {
+    public PageVo<AlumniAssociationApplicationListVo> queryApplicationPage(
+            QueryAlumniAssociationApplicationListDto queryDto) {
         // 1. 参数校验
         Optional.ofNullable(queryDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL, "查询参数不能为空"));
@@ -247,7 +250,8 @@ public class AlumniAssociationApplicationServiceImpl
         LambdaQueryWrapper<AlumniAssociationApplication> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .eq(AlumniAssociationApplication::getPlatformId, platformId)
-                .like(StringUtils.isNotBlank(associationName), AlumniAssociationApplication::getAssociationName, associationName)
+                .like(StringUtils.isNotBlank(associationName), AlumniAssociationApplication::getAssociationName,
+                        associationName)
                 .like(StringUtils.isNotBlank(chargeName), AlumniAssociationApplication::getChargeName, chargeName)
                 .like(StringUtils.isNotBlank(location), AlumniAssociationApplication::getLocation, location)
                 .eq(applicationStatus != null, AlumniAssociationApplication::getApplicationStatus, applicationStatus)
@@ -300,7 +304,8 @@ public class AlumniAssociationApplicationServiceImpl
     }
 
     @Override
-    public PageVo<AlumniAssociationApplicationListVo> querySystemAdminApplicationPage(QuerySystemAdminApplicationListDto queryDto) {
+    public PageVo<AlumniAssociationApplicationListVo> querySystemAdminApplicationPage(
+            QuerySystemAdminApplicationListDto queryDto) {
         // 1. 参数校验
         Optional.ofNullable(queryDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL, "查询参数不能为空"));
@@ -320,7 +325,8 @@ public class AlumniAssociationApplicationServiceImpl
         queryWrapper
                 .eq(schoolId != null, AlumniAssociationApplication::getSchoolId, schoolId)
                 .eq(platformId != null, AlumniAssociationApplication::getPlatformId, platformId)
-                .like(StringUtils.isNotBlank(associationName), AlumniAssociationApplication::getAssociationName, associationName)
+                .like(StringUtils.isNotBlank(associationName), AlumniAssociationApplication::getAssociationName,
+                        associationName)
                 .like(StringUtils.isNotBlank(chargeName), AlumniAssociationApplication::getChargeName, chargeName)
                 .like(StringUtils.isNotBlank(location), AlumniAssociationApplication::getLocation, location)
                 .eq(applicationStatus != null, AlumniAssociationApplication::getApplicationStatus, applicationStatus)
@@ -581,8 +587,7 @@ public class AlumniAssociationApplicationServiceImpl
                     title,
                     content,
                     null,
-                    "ASSOCIATION_APPLICATION_APPROVED"
-            );
+                    "ASSOCIATION_APPLICATION_APPROVED");
 
             if (success) {
                 log.info("校友会创建申请通过通知已发送 - 用户: {}, 校友会: {}", chargeWxId, associationName);
@@ -609,8 +614,7 @@ public class AlumniAssociationApplicationServiceImpl
                     title,
                     content,
                     null,
-                    "ASSOCIATION_APPLICATION_REJECTED"
-            );
+                    "ASSOCIATION_APPLICATION_REJECTED");
 
             if (success) {
                 log.info("校友会创建申请拒绝通知已发送 - 用户: {}, 校友会: {}", chargeWxId, associationName);
