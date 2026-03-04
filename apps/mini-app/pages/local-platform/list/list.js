@@ -25,6 +25,7 @@ Page({
         scrollTop: 0,
         refresherHeight: 0,
         scrollThreshold: 100,
+        isAlumniAdmin: false,
 
 
         // 地区筛选（与母校列表页一致）- 自定义省市级选择器（只到市）
@@ -45,9 +46,24 @@ Page({
         // 计算图片区域高度用于吸顶阈值
         this.initMeasurements()
 
+        // 检查权限
+        this.checkAlumniAdminPermission()
+
         // 初始化省市级数据
         this.initRegionData()
         this.loadPlatformList(true)
+    },
+
+    // 检查用户是否拥有校友会管理员权限
+    checkAlumniAdminPermission() {
+        try {
+            const roles = wx.getStorageSync('roles') || []
+            const isAlumniAdmin = roles.some(role => role.roleCode === 'ORGANIZE_ALUMNI_ADMIN')
+            this.setData({ isAlumniAdmin })
+        } catch (error) {
+            console.error('获取权限信息失败:', error)
+            this.setData({ isAlumniAdmin: false })
+        }
     },
 
     // 初始化测量数据
@@ -523,7 +539,7 @@ Page({
         const platformName = e.currentTarget.dataset.platformName
         console.log('传递的平台名称:', platformName)
         wx.navigateTo({
-            url: `/pages/alumni-association/create/create?platformName=${encodeURIComponent(platformName)}`
+            url: `/pages/local-platform/apply/apply?platformName=${encodeURIComponent(platformName)}`
         })
     }
 })

@@ -61,6 +61,64 @@ public class AlumniAssociationController {
     @Resource
     private WxUserInfoService wxUserInfoService;
 
+    @Resource
+    private com.cmswe.alumni.api.association.AlumniAssociationJoinApplyService alumniAssociationJoinApplyService;
+
+    /**
+     * 校友会申请加入校促会
+     *
+     * @param applyDto 申请参数
+     * @return 申请结果
+     */
+    @PostMapping("/applyJoinPlatform")
+    @Operation(summary = "校友会申请加入校促会")
+    public BaseResponse<Boolean> applyJoinPlatform(
+            @Valid @RequestBody com.cmswe.alumni.common.dto.ApplyAssociationJoinPlatformDto applyDto) {
+        log.info("校友会申请加入校促会，校友会 ID: {}, 校促会 ID: {}", applyDto.getAlumniAssociationId(), applyDto.getPlatformId());
+        boolean result = alumniAssociationJoinApplyService.applyJoinPlatform(applyDto);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, true, "申请已提交，请等待审核");
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "申请提交失败");
+        }
+    }
+
+    /**
+     * 审核校友会加入校促会申请
+     *
+     * @param reviewDto 审核参数
+     * @return 审核结果
+     */
+    @PostMapping("/reviewJoinPlatform")
+    @Operation(summary = "审核校友会加入校促会申请")
+    public BaseResponse<Boolean> reviewJoinPlatform(
+            @Valid @RequestBody com.cmswe.alumni.common.dto.ReviewAssociationJoinPlatformDto reviewDto) {
+        log.info("审核校友会加入校促会申请，申请 ID: {}, 结果: {}", reviewDto.getId(), reviewDto.getStatus());
+        boolean result = alumniAssociationJoinApplyService.reviewJoinPlatform(reviewDto);
+        if (result) {
+            String message = reviewDto.getStatus() == 1 ? "审核通过，已更新关联关系" : "已拒绝申请";
+            return ResultUtils.success(Code.SUCCESS, true, message);
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "审核操作失败");
+        }
+    }
+
+    /**
+     * 分页查询校友会加入校促会申请列表
+     *
+     * @param queryDto 查询参数
+     * @return 申请列表分页数据
+     */
+    @PostMapping("/queryJoinApplyPage")
+    @Operation(summary = "分页查询校友会加入校促会申请列表")
+    public BaseResponse<com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.entity.AlumniAssociationJoinApply>> queryJoinApplyPage(
+            @RequestBody com.cmswe.alumni.common.dto.QueryAssociationJoinApplyDto queryDto) {
+        log.info("查询校友会加入校促会申请列表，平台 ID: {}, 状态: {}", queryDto.getPlatformId(), queryDto.getStatus());
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.entity.AlumniAssociationJoinApply> page = alumniAssociationJoinApplyService
+                .queryApplyPage(queryDto);
+        return ResultUtils.success(Code.SUCCESS, page, "查询成功");
+    }
+
     @PostMapping("/page")
     @Operation(summary = "分页查询校友会列表")
     public BaseResponse<PageVo<AlumniAssociationListVo>> selectPage(
@@ -71,7 +129,8 @@ public class AlumniAssociationController {
                 ? securityUser.getWxUser().getWxId()
                 : null;
 
-        PageVo<AlumniAssociationListVo> pageVo = alumniAssociationService.selectByPage(alumniAssociationListDto, currentUserId);
+        PageVo<AlumniAssociationListVo> pageVo = alumniAssociationService.selectByPage(alumniAssociationListDto,
+                currentUserId);
         return ResultUtils.success(Code.SUCCESS, pageVo, "分页查询成功");
     }
 
@@ -159,7 +218,7 @@ public class AlumniAssociationController {
     /**
      * 用户报名参加活动
      *
-     * @param activityId 活动ID
+     * @param activityId   活动ID
      * @param securityUser 当前登录用户
      * @return 返回报名结果
      */
@@ -207,15 +266,14 @@ public class AlumniAssociationController {
         // 5. 检查是否已经报名
         LambdaQueryWrapper<ActivityRegistration> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ActivityRegistration::getActivityId, activityId)
-                    .eq(ActivityRegistration::getUserId, userId);
+                .eq(ActivityRegistration::getUserId, userId);
         ActivityRegistration existingRegistration = activityRegistrationMapper.selectOne(queryWrapper);
 
         if (existingRegistration != null) {
             // 如果已取消，可以重新报名
             if (existingRegistration.getRegistrationStatus() == 3) {
                 existingRegistration.setRegistrationStatus(
-                    activity.getIsNeedReview() != null && activity.getIsNeedReview() == 1 ? 0 : 1
-                );
+                        activity.getIsNeedReview() != null && activity.getIsNeedReview() == 1 ? 0 : 1);
                 existingRegistration.setRegistrationTime(now);
                 existingRegistration.setAuditTime(null);
                 existingRegistration.setAuditReason(null);
@@ -242,8 +300,7 @@ public class AlumniAssociationController {
 
         // 7. 查询用户详细信息
         WxUserInfo wxUserInfo = wxUserInfoService.getOne(
-            new LambdaQueryWrapper<WxUserInfo>().eq(WxUserInfo::getWxId, userId)
-        );
+                new LambdaQueryWrapper<WxUserInfo>().eq(WxUserInfo::getWxId, userId));
 
         // 8. 创建报名记录
         ActivityRegistration registration = new ActivityRegistration();
@@ -254,8 +311,7 @@ public class AlumniAssociationController {
         registration.setRegistrationTime(now);
         // 如果需要审核，状态为待审核(0)，否则直接通过(1)
         registration.setRegistrationStatus(
-            activity.getIsNeedReview() != null && activity.getIsNeedReview() == 1 ? 0 : 1
-        );
+                activity.getIsNeedReview() != null && activity.getIsNeedReview() == 1 ? 0 : 1);
         registration.setCreateTime(now);
         registration.setUpdateTime(now);
 
@@ -265,8 +321,7 @@ public class AlumniAssociationController {
             // 9. 更新活动当前报名人数（仅当无需审核或审核通过时）
             if (registration.getRegistrationStatus() == 1) {
                 activity.setCurrentParticipants(
-                    activity.getCurrentParticipants() == null ? 1 : activity.getCurrentParticipants() + 1
-                );
+                        activity.getCurrentParticipants() == null ? 1 : activity.getCurrentParticipants() + 1);
                 activityMapper.updateById(activity);
             }
 
@@ -282,7 +337,7 @@ public class AlumniAssociationController {
     /**
      * 用户取消报名
      *
-     * @param activityId 活动ID
+     * @param activityId   活动ID
      * @param securityUser 当前登录用户
      * @return 返回取消结果
      */
@@ -315,7 +370,7 @@ public class AlumniAssociationController {
         // 3. 查询报名记录
         LambdaQueryWrapper<ActivityRegistration> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ActivityRegistration::getActivityId, activityId)
-                    .eq(ActivityRegistration::getUserId, userId);
+                .eq(ActivityRegistration::getUserId, userId);
         ActivityRegistration registration = activityRegistrationMapper.selectOne(queryWrapper);
 
         if (registration == null) {
@@ -335,7 +390,8 @@ public class AlumniAssociationController {
 
         if (updateResult > 0) {
             // 6. 更新活动当前报名人数（仅当之前是审核通过状态）
-            if (registration.getRegistrationStatus() == 1 && activity.getCurrentParticipants() != null && activity.getCurrentParticipants() > 0) {
+            if (registration.getRegistrationStatus() == 1 && activity.getCurrentParticipants() != null
+                    && activity.getCurrentParticipants() > 0) {
                 activity.setCurrentParticipants(activity.getCurrentParticipants() - 1);
                 activityMapper.updateById(activity);
             }
@@ -350,6 +406,7 @@ public class AlumniAssociationController {
 
     /**
      * 分页查询校友会的文章列表
+     * 
      * @param queryDto 查询参数
      * @return 文章列表
      */
