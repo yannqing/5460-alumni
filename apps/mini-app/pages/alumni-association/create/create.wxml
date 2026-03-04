@@ -23,7 +23,7 @@
       <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
     </view>
 
-    <view class="form-item">
+    <view class="form-item required">
       <text class="label">是否已经是校促会会员</text>
       <radio-group class="platform-member-radio" bindchange="handlePlatformMemberChange">
         <label class="radio-label-inline">
@@ -50,33 +50,22 @@
         </view>
       </picker>
     </view>
-
-    <view class="form-subsection-title">驻会代表</view>
+    <view class="form-title">成员信息</view>
     <view class="form-item required">
-      <text class="label">姓名</text>
-      <input class="input" placeholder="请输入驻会代表姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
+      <text class="label">联系人姓名</text>
+      <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
     </view>
     <view class="form-item required">
-      <text class="label">联系电话</text>
-      <input class="input" placeholder="请输入驻会代表联系电话" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" />
+      <text class="label">联系人职务</text>
+      <input class="input" placeholder="请输入联系人职务" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" />
     </view>
     <view class="form-item required">
-      <text class="label">社会职务</text>
-      <input class="input" placeholder="请输入驻会代表社会职务" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" />
-    </view>
-
-    <view class="form-subsection-title">主要负责人</view>
-    <view class="form-item required">
-      <text class="label">姓名</text>
-      <input class="input" placeholder="请输入主要负责人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
+      <text class="label">联系人联系电话</text>
+      <input class="input" placeholder="请输入联系人联系电话" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" />
     </view>
     <view class="form-item required">
-      <text class="label">联系电话</text>
-      <input class="input" placeholder="请输入主要负责人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
-    </view>
-    <view class="form-item required">
-      <text class="label">社会职务</text>
-      <input class="input" placeholder="请输入主要负责人社会职务" value="{{formData.msocialAffiliation}}" data-field="msocialAffiliation" bindinput="handleInput" />
+      <text class="label">联系人社会职务</text>
+      <input class="input" placeholder="请输入联系人社会职务" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" />
     </view>
 
     <view class="form-subsection-title" style="display: flex; justify-content: space-between; align-items: center;">
@@ -87,13 +76,13 @@
     <block wx:for="{{members}}" wx:key="index">
       <view class="member-item">
         <view class="member-header">
-          <text class="member-index">成员 {{index + 1}}</text>
-          <text class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
+          <text class="member-index">{{index === 0 ? '主要负责人' : '成员 ' + index}}</text>
+          <text wx:if="{{index > 0}}" class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
         </view>
         <view class="member-form-group">
           <view class="member-form-row">
             <text class="member-label required">职务</text>
-            <input class="input member-full-input" placeholder="如：副会长" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
+            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">姓名</text>
@@ -113,19 +102,18 @@
             </view>
           </view>
           <view class="member-form-row">
-            <text class="member-label">社会职务</text>
-            <input class="input member-full-input" placeholder="选填" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" />
+            <text class="member-label required">社会职务</text>
+            <input class="input member-full-input" placeholder="请输入社会职务" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" />
           </view>
           <view class="member-form-row">
-            <text class="member-label">联系方式</text>
-            <input class="input member-full-input" placeholder="选填" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
+            <text class="member-label required">联系方式</text>
+            <input class="input member-full-input" placeholder="请输入联系方式" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
           </view>
         </view>
       </view>
     </block>
 
-    <view wx:if="{{members.length === 0}}" class="empty-tip">暂无其他成员，请点击上方按钮添加</view>
-
+    <view class="form-title">申请材料</view>
     <view class="form-item">
       <text class="label">校友会logo</text>
       <view class="logo-options">

@@ -83,6 +83,13 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
     private String zhName;
 
     /**
+     * 驻会代表架构角色
+     */
+    @Schema(description = "驻会代表架构角色")
+    @NotBlank(message = "驻会代表架构角色不能为空")
+    private String zhRole;
+
+    /**
      * 驻会代表联系电话
      */
     @Schema(description = "驻会代表联系电话")
