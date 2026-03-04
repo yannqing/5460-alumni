@@ -81,6 +81,12 @@ public class AlumniAssociationApplication implements Serializable {
     private String zhName;
 
     /**
+     * 驻会代表架构角色
+     */
+    @TableField(value = "zh_role")
+    private String zhRole;
+
+    /**
      * 驻会代表联系电话
      */
     @TableField(value = "zh_phone")

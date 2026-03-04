@@ -132,6 +132,7 @@ public class AlumniAssociationApplicationServiceImpl
         application.setContactInfo(applyDto.getContactInfo());
         application.setMsocialAffiliation(applyDto.getMsocialAffiliation());
         application.setZhName(applyDto.getZhName());
+        application.setZhRole(applyDto.getZhRole());
         application.setZhPhone(applyDto.getZhPhone());
         application.setZhSocialAffiliation(applyDto.getZhSocialAffiliation());
 

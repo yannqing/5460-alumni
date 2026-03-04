@@ -1,4 +1,4 @@
-const { schoolApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
+const { schoolApi, localPlatformApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
 const config = require('../../../utils/config.js')
 
@@ -28,6 +28,7 @@ Page({
             contactInfo: '',
             msocialAffiliation: '',
             zhName: '',
+            zhRole: '',
             zhPhone: '',
             zhSocialAffiliation: '',
             logo: '',
@@ -79,13 +80,16 @@ Page({
         this.platformNameFromList = options.platformName ? decodeURIComponent(options.platformName) : null
 
         this.loadInitialData()
+        this.loadPlatformList()
 
         // 默认初始化logo为平台默认logo（本地静态资源）
         const defaultLogoUrl = '/assets/avatar/avatar.jpg'
 
         this.setData({
             defaultAlumniLogo: defaultLogoUrl,
-            'formData.logo': defaultLogoUrl
+            'formData.logo': defaultLogoUrl,
+            // 初始化第一个成员为"主要负责人"，不能删除
+            members: [{ name: '', role: '会长', affiliation: '', phone: '' }]
         })
     },
 
@@ -320,6 +324,11 @@ Page({
 
     deleteMember(e) {
         const index = e.currentTarget.dataset.index
+        // 第一个成员是主要负责人，不能删除
+        if (index === 0) {
+            wx.showToast({ title: '主要负责人不能删除', icon: 'none' })
+            return
+        }
         const members = this.data.members
         members.splice(index, 1)
         this.setData({ members })
@@ -855,28 +864,21 @@ Page({
             return
         }
         // platformId is optional per API specs
-        if (!formData.chargeName) {
-            wx.showToast({ title: '请输入主要负责人姓名', icon: 'none' })
-            return
-        }
-        if (!formData.contactInfo) {
-            wx.showToast({ title: '请输入主要负责人电话', icon: 'none' })
-            return
-        }
-        if (!formData.msocialAffiliation) {
-            wx.showToast({ title: '请输入主要负责人社会职务', icon: 'none' })
-            return
-        }
+        // 主要负责人信息现在从 members[0] 获取，在下面的成员验证中统一校验
         if (!formData.zhName) {
-            wx.showToast({ title: '请输入驻会代表姓名', icon: 'none' })
+            wx.showToast({ title: '请输入联系人姓名', icon: 'none' })
+            return
+        }
+        if (!formData.zhRole) {
+            wx.showToast({ title: '请输入联系人职务', icon: 'none' })
             return
         }
         if (!formData.zhPhone) {
-            wx.showToast({ title: '请输入驻会代表联系电话', icon: 'none' })
+            wx.showToast({ title: '请输入联系人联系电话', icon: 'none' })
             return
         }
         if (!formData.zhSocialAffiliation) {
-            wx.showToast({ title: '请输入驻会代表社会职务', icon: 'none' })
+            wx.showToast({ title: '请输入联系人社会职务', icon: 'none' })
             return
         }
 
@@ -892,15 +894,24 @@ Page({
             return
         }
 
-        // 确保所有成员都有有效的职务和姓名
+        // 确保所有成员都填写了完整的四项信息
         for (let i = 0; i < members.length; i++) {
             const member = members[i];
+            const memberLabel = i === 0 ? '主要负责人' : `第 ${i} 位成员`;
             if (!member.role) {
-                wx.showToast({ title: `请输入第 ${i + 1} 位成员的职务`, icon: 'none' });
+                wx.showToast({ title: `请输入${memberLabel}的职务`, icon: 'none' });
                 return;
             }
             if (!member.name) {
-                wx.showToast({ title: `请输入第 ${i + 1} 位成员的姓名`, icon: 'none' });
+                wx.showToast({ title: `请输入${memberLabel}的姓名`, icon: 'none' });
+                return;
+            }
+            if (!member.affiliation) {
+                wx.showToast({ title: `请输入${memberLabel}的社会职务`, icon: 'none' });
+                return;
+            }
+            if (!member.phone) {
+                wx.showToast({ title: `请输入${memberLabel}的联系方式`, icon: 'none' });
                 return;
             }
         }
@@ -925,22 +936,28 @@ Page({
         const bgImg = bgImgArray.length > 0 ? bgImgArray : undefined
         console.log('最终bgImg:', bgImg)
 
+        // 第一个成员是主要负责人
+        const chargeLeader = members[0]
+        // 其余成员作为 initialMembers
+        const otherMembers = members.slice(1)
+
         const submitData = {
             associationName: formData.associationName,
             schoolId: formData.schoolId,
-            chargeWxId: formData.presidentWxId,
-            chargeName: formData.chargeName,
-            chargeRole: '成员',
-            contactInfo: formData.contactInfo || undefined,
-            msocialAffiliation: formData.msocialAffiliation || undefined,
+            chargeWxId: chargeLeader.wxId || formData.presidentWxId,
+            chargeName: chargeLeader.name,
+            chargeRole: chargeLeader.role,
+            contactInfo: chargeLeader.phone || undefined,
+            msocialAffiliation: chargeLeader.affiliation || undefined,
             zhName: formData.zhName || undefined,
+            zhRole: formData.zhRole || undefined,
             zhPhone: formData.zhPhone || undefined,
             zhSocialAffiliation: formData.zhSocialAffiliation || undefined,
             logo: formData.logoType === 'default' ? undefined : (formData.logo || undefined),
             applicationReason: formData.applicationReason,
             associationProfile: formData.associationProfile || undefined,
             attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
-            initialMembers: members.length > 0 ? members.map(m => {
+            initialMembers: otherMembers.length > 0 ? otherMembers.map(m => {
                 const memberData = {
                     name: m.name || undefined,
                     role: m.role || undefined,
