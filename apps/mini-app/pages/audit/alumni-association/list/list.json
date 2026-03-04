@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  },
+  "navigationBarTitleText": "校友会审核",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

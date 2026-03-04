@@ -3,6 +3,7 @@ package com.cmswe.alumni.api.association;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationApplicationListDto;
+import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
@@ -38,4 +39,12 @@ public interface AlumniAssociationApplicationService extends IService<AlumniAsso
      * @return 是否审核成功
      */
     boolean reviewApplication(Long reviewerId, ReviewAlumniAssociationApplicationDto reviewDto);
+
+    /**
+     * 系统管理员分页查询所有校友会创建申请列表
+     *
+     * @param queryDto 查询条件
+     * @return 申请列表
+     */
+    PageVo<AlumniAssociationApplicationListVo> querySystemAdminApplicationPage(QuerySystemAdminApplicationListDto queryDto);
 }
