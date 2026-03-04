@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * 地方校处会表
+ * 
  * @TableName local_platform
  */
 @TableName(value = "local_platform")
@@ -91,6 +92,24 @@ public class LocalPlatform implements Serializable {
      */
     @TableField(value = "update_time")
     private LocalDateTime updateTime;
+
+    /**
+     * 负责人姓名
+     */
+    @TableField(value = "principal_name")
+    private String principalName;
+
+    /**
+     * 负责人职务
+     */
+    @TableField(value = "principal_position")
+    private String principalPosition;
+
+    /**
+     * 联系电话
+     */
+    @TableField(value = "phone")
+    private String phone;
 
     /**
      * 逻辑删除

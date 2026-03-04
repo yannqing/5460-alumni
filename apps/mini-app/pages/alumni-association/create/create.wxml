@@ -70,7 +70,7 @@
 
     <view class="form-subsection-title" style="display: flex; justify-content: space-between; align-items: center;">
       <text>校友会负责人员信息</text>
-      <view class="add-btn" bindtap="addMember">+ 添加成员</view>
+      <view class="add-btn" bindtap="addMember">+ 添加</view>
     </view>
 
     <block wx:for="{{members}}" wx:key="index">

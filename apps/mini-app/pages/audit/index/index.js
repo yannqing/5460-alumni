@@ -89,6 +89,13 @@ Page({
       iconType: 'image',
       url: '/pages/audit/article/manage/manage'
     },
+    {
+      id: 5,
+      name: '信息维护',
+      icon: config.getIconUrl('xyhsh@3x.png'),
+      iconType: 'image',
+      url: '/pages/audit/info-maintenance/index/index'
+    },
       // {
       //   id: 4,
       //   name: '资料库',
@@ -396,6 +403,8 @@ Page({
         return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
       } else if (item.name === '文章管理') {
         return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
+      } else if (item.name === '信息维护') {
+        return true // 取消权限限制，所有人都可以查看
       }
       return false
     })

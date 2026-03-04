@@ -1,0 +1,192 @@
+<!--pages/audit/info-maintenance/edit/edit.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑校促会信息">
+<view class="page">
+  <view class="edit-form" wx:if="{{platformDetail}}">
+    <!-- 基本资料 -->
+    <view class="form-section">
+      <view class="section-title">基本资料</view>
+      
+      <view class="form-item">
+        <text class="form-label">校促会名称</text>
+        <input 
+          class="form-input" 
+          value="{{formData.platformName}}" 
+          placeholder="请输入校促会名称" 
+          bindinput="handleInput" 
+          data-field="platformName"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">会员总数</text>
+        <input 
+          class="form-input" 
+          type="number" 
+          value="{{formData.memberCount}}" 
+          placeholder="请输入会员数量" 
+          bindinput="handleInput" 
+          data-field="memberCount"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">所在城市</text>
+        <input 
+          class="form-input" 
+          value="{{formData.city}}" 
+          placeholder="请输入所在城市" 
+          bindinput="handleInput" 
+          data-field="city"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">管辖范围</text>
+        <input 
+          class="form-input" 
+          value="{{formData.scope}}" 
+          placeholder="请输入管辖范围" 
+          bindinput="handleInput" 
+          data-field="scope"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">联系信息</text>
+        <input 
+          class="form-input" 
+          value="{{formData.contactInfo}}" 
+          placeholder="请输入联系信息" 
+          bindinput="handleInput" 
+          data-field="contactInfo"
+        />
+      </view>
+      
+
+      
+      <view class="form-item">
+        <text class="form-label">状态</text>
+        <view class="status-selector">
+          <view 
+            class="status-option {{formData.status === 1 ? 'active' : ''}}" 
+            bindtap="setStatus" 
+            data-status="1"
+          >
+            启用
+          </view>
+          <view 
+            class="status-option {{formData.status === 0 ? 'active' : ''}}" 
+            bindtap="setStatus" 
+            data-status="0"
+          >
+            禁用
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 负责人信息 -->
+    <view class="form-section">
+      <view class="section-title">负责人信息</view>
+      
+      <view class="form-item">
+        <text class="form-label">负责人姓名</text>
+        <input 
+          class="form-input" 
+          value="{{formData.principalName}}" 
+          placeholder="请输入负责人姓名" 
+          bindinput="handleInput" 
+          data-field="principalName"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">负责人职务</text>
+        <input 
+          class="form-input" 
+          value="{{formData.principalPosition}}" 
+          placeholder="请输入负责人职务" 
+          bindinput="handleInput" 
+          data-field="principalPosition"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">联系电话</text>
+        <input 
+          class="form-input" 
+          value="{{formData.phone}}" 
+          placeholder="请输入联系电话" 
+          bindinput="handleInput" 
+          data-field="phone"
+        />
+      </view>
+    </view>
+    
+    <!-- 业务简介 -->
+    <view class="form-section">
+      <view class="section-title">业务简介</view>
+      
+      <view class="form-item">
+        <textarea 
+          class="form-textarea" 
+          value="{{formData.description}}" 
+          placeholder="请输入业务简介" 
+          bindinput="handleInput" 
+          data-field="description"
+          auto-height
+        />
+      </view>
+    </view>
+    
+    <!-- 图片上传 -->
+    <view class="form-section">
+      <view class="section-title">图片设置</view>
+      
+      <view class="form-item">
+        <text class="form-label">校促会头像</text>
+        <view class="uploader">
+          <view class="uploader-item" wx:if="{{formData.avatar}}">
+            <image src="{{formData.avatar}}" class="uploader-image" />
+            <view class="uploader-delete" bindtap="deleteImage" data-field="avatar">×</view>
+          </view>
+          <view class="uploader-add" bindtap="uploadImage" data-field="avatar">
+            <text>+</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">背景图片</text>
+        <view class="uploader">
+          <view class="uploader-item" wx:if="{{formData.bgImg}}">
+            <image src="{{formData.bgImg}}" class="uploader-image" />
+            <view class="uploader-delete" bindtap="deleteImage" data-field="bgImg">×</view>
+          </view>
+          <view class="uploader-add" bindtap="uploadImage" data-field="bgImg">
+            <text>+</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button 
+        class="submit-button" 
+        bindtap="submitForm" 
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        保存修改
+      </button>
+    </view>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:else class="loading">
+    <view class="loading-spinner"></view>
+    <text>正在加载数据...</text>
+  </view>
+</view>
+</custom-nav-bar>

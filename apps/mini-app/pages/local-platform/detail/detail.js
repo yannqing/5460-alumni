@@ -149,7 +149,10 @@ Page({
           cover: cover,
           location: data.city || '',
           description: data.description || '',
-          memberCount: data.memberCount || 0
+          memberCount: data.memberCount || 0,
+          principalName: data.principalName || null,
+          principalPosition: data.principalPosition || null,
+          localPlatformPhone: data.localPlatformPhone || null
         }
 
         // 处理并格式化文章列表 (资讯部分)

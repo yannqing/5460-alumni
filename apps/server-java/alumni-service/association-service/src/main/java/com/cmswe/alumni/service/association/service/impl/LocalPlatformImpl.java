@@ -10,6 +10,7 @@ import com.cmswe.alumni.api.association.AlumniAssociationMemberService;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.association.LocalPlatformMemberService;
 import com.cmswe.alumni.api.association.LocalPlatformService;
+import com.cmswe.alumni.api.association.LocalPlatformPrivacySettingService;
 import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.api.user.FileService;
 import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
@@ -23,6 +24,7 @@ import com.cmswe.alumni.common.dto.AddLocalPlatformDto;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationByPlatformDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformListDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformMemberListDto;
+import com.cmswe.alumni.common.dto.UpdateLocalPlatformDto;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationMember;
 import com.cmswe.alumni.common.entity.HomePageArticle;
@@ -114,6 +116,9 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     @Resource
     private FileService fileService;
 
+    @Resource
+    private LocalPlatformPrivacySettingService localPlatformPrivacySettingService;
+
     @Override
     public LocalPlatformDetailVo getLocalPlatformById(Long id) {
         // 1.校验id
@@ -133,13 +138,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         localPlatformDetailVo.setPlatformId(String.valueOf(id));
 
         // 4. 构建其他详情
-        // 4.1 统计会员数量
-        long memberCount = localPlatformMemberService.count(
-                new LambdaQueryWrapper<LocalPlatformMember>()
-                        .eq(LocalPlatformMember::getLocalPlatformId, id)
-                        .eq(LocalPlatformMember::getStatus, 1) // 状态：1-正常
-        );
-        localPlatformDetailVo.setMemberCount((int) memberCount);
+        // 4.1 使用 LocalPlatform 表中的会员数量字段
+        // 注意：memberCount 已经通过 objToVo 方法从实体类复制到 VO 中
 
         // 4.2 统计关联的校友会数量
         long associationCount = alumniAssociationService.count(
@@ -201,8 +201,36 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 .collect(Collectors.toList());
         localPlatformDetailVo.setArticleList(articleListVos);
 
+        // 4.5 手动映射字段 (因为VO中重命名为 localPlatformPhone 与 实体类 phone 不一致，BeanUtils无法自动映射)
+        // 映射必须在隐私脱敏逻辑之前，否则脱敏设置的 null 会被重新覆盖
+        localPlatformDetailVo.setLocalPlatformPhone(localPlatform.getPhone());
+
+        // 4.6 应用隐私设置
+        try {
+            List<com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting> privacySettings = localPlatformPrivacySettingService
+                    .getPlatformPrivacy(id);
+            Map<String, Integer> privacyMap = privacySettings.stream()
+                    .collect(Collectors.toMap(com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting::getFieldCode,
+                            com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting::getVisibility, (v1, v2) -> v1));
+
+            // 根据配置脱敏
+            if (privacyMap.getOrDefault("description", 0) == 0)
+                localPlatformDetailVo.setDescription(null);
+            if (privacyMap.getOrDefault("memberCount", 0) == 0)
+                localPlatformDetailVo.setMemberCount(null);
+            if (privacyMap.getOrDefault("principalName", 0) == 0)
+                localPlatformDetailVo.setPrincipalName(null);
+            if (privacyMap.getOrDefault("principalPosition", 0) == 0)
+                localPlatformDetailVo.setPrincipalPosition(null);
+            if (privacyMap.getOrDefault("local_platform_phone", 0) == 0)
+                localPlatformDetailVo.setLocalPlatformPhone(null);
+        } catch (Exception e) {
+            log.error("应用校促会隐私设置失败 - PlatformId: {}", id, e);
+            // 异常时保持原有字段值
+        }
+
         log.info("根据id获取校处会详情id:{}, 会员数:{}, 校友会数:{}, 文章数:{}",
-                id, memberCount, associationCount, articleListVos.size());
+                id, localPlatform.getMemberCount(), associationCount, articleListVos.size());
 
         return localPlatformDetailVo;
     }
@@ -1374,4 +1402,40 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         return result;
     }
 
+    @Override
+    public List<com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting> getPrivacySettings(Long platformId) {
+        return localPlatformPrivacySettingService.getPlatformPrivacy(platformId);
+    }
+
+    @Override
+    public boolean updatePrivacySetting(Long platformId, String fieldCode, Integer visibility) {
+        return localPlatformPrivacySettingService.updatePrivacy(platformId, fieldCode, visibility);
+    }
+
+    @Override
+    public com.cmswe.alumni.common.vo.LocalPlatformAdminVo getAdminLocalPlatformById(Long platformId) {
+        if (platformId == null) {
+            throw new com.cmswe.alumni.common.exception.BusinessException(
+                    com.cmswe.alumni.common.enums.ErrorType.ARGS_NOT_NULL);
+        }
+        LocalPlatform localPlatform = this.getById(platformId);
+        if (localPlatform == null) {
+            throw new com.cmswe.alumni.common.exception.BusinessException(
+                    com.cmswe.alumni.common.enums.ErrorType.NOT_FOUND_ERROR, "未找到校处会信息");
+        }
+        return com.cmswe.alumni.common.vo.LocalPlatformAdminVo.objToVo(localPlatform);
+    }
+
+    @Override
+    public boolean updateLocalPlatform(com.cmswe.alumni.common.dto.UpdateLocalPlatformDto updateDto) {
+        if (updateDto == null || updateDto.getPlatformId() == null) {
+            throw new com.cmswe.alumni.common.exception.BusinessException(
+                    com.cmswe.alumni.common.enums.ErrorType.ARGS_NOT_NULL);
+        }
+        LocalPlatform localPlatform = new LocalPlatform();
+        org.springframework.beans.BeanUtils.copyProperties(updateDto, localPlatform);
+        // 特殊处理单字段不一致 (DTO中的phone对应Entity中的phone)
+        localPlatform.setPhone(updateDto.getPhone());
+        return this.updateById(localPlatform);
+    }
 }
