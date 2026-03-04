@@ -36,6 +36,7 @@ Page({
             applicationReason: '',
             associationProfile: '',
             presidentWxId: '',
+            location: '',
             logoType: 'default' // logo来源类型: default, school, upload
         },
         schoolLogoUrl: '',
