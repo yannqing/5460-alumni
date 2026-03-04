@@ -179,8 +179,10 @@ Page({
 
   // 选择校促会
   async selectPlatform(e) {
-    const { platformId, platformName } = e.currentTarget.dataset
-    console.log('[Debug] 选择的校促会:', { platformId, platformName })
+    let { platformId, platformName } = e.currentTarget.dataset
+    // 确保platformId是数字类型
+    platformId = typeof platformId === 'string' ? parseInt(platformId, 10) : platformId
+    console.log('[Debug] 选择的校促会:', { platformId, platformName, type: typeof platformId })
 
     this.setData({
       selectedPlatformId: platformId,
@@ -235,8 +237,14 @@ Page({
       const apiParams = {
         current: this.data.pageParams.current,
         size: this.data.pageParams.pageSize,
-        platformId: this.data.pageParams.platformId
+        id: this.data.pageParams.platformId
       }
+      
+      // 确保id是有效的数字类型
+      if (apiParams.id && typeof apiParams.id === 'string') {
+        apiParams.id = parseInt(apiParams.id, 10)
+      }
+      console.log('[Debug] 处理后的API请求参数:', apiParams)
       
       // 根据当前标签设置状态参数
       if (this.data.currentTab > 0) {
@@ -258,7 +266,9 @@ Page({
         const processedRecords = records.map(record => {
           const status = parseInt(record.applyStatus, 10)
           const rawLogo = record.logo || ''
-          const displayLogo = rawLogo ? config.getImageUrl(rawLogo) : config.defaultAvatar
+          // 清理logo URL中的多余空格和反引号
+          const cleanedLogo = rawLogo.replace(/[`\s]/g, '')
+          const displayLogo = cleanedLogo ? config.getImageUrl(cleanedLogo) : config.defaultAvatar
           // 申请人：优先 chargeName
           const displayApplicant = record.chargeName || '未知'
           // 提交时间：使用 createTime
@@ -268,7 +278,10 @@ Page({
           }
           return {
             ...record,
-            applicationId: record.id,
+            applicationId: typeof record.id === 'number' ? record.id.toString() : record.id, // 确保转换为字符串
+            id: typeof record.id === 'number' ? record.id.toString() : record.id, // 确保转换为字符串
+            alumniAssociationId: typeof record.alumniAssociationId === 'number' ? record.alumniAssociationId.toString() : record.alumniAssociationId || '', // 确保转换为字符串
+            platformId: typeof record.platformId === 'number' ? record.platformId.toString() : record.platformId || '', // 确保转换为字符串
             applicationStatus: isNaN(status) ? 0 : status,
             displayLogo,
             displayApplicant,
@@ -343,7 +356,7 @@ Page({
       console.log('[Debug] 审核参数:', reviewData)
 
       // 使用封装的 API 方法，确保云托管环境下的正确处理
-      const res = await app.api.joinApplicationApi.reviewApplication(reviewData)
+      const res = await app.api.associationApi.reviewJoinPlatform(reviewData)
 
       console.log('[Debug] 批准申请结果:', res)
 
@@ -402,14 +415,14 @@ Page({
             // 准备审核参数
             const reviewData = {
               id: id, // 直接使用字符串类型，避免数字精度丢失
-              status: 2, // 2-拒绝
-              reason: reviewComment
+              status: 2 // 2-拒绝
+              // 注意：根据API文档，此接口可能不支持reason参数
             }
 
             console.log('[Debug] 拒绝审核参数:', reviewData)
 
             // 使用封装的 API 方法，确保云托管环境下的正确处理
-            const apiRes = await app.api.joinApplicationApi.reviewApplication(reviewData)
+            const apiRes = await app.api.associationApi.reviewJoinPlatform(reviewData)
 
             console.log('[Debug] 拒绝申请结果:', apiRes)
 

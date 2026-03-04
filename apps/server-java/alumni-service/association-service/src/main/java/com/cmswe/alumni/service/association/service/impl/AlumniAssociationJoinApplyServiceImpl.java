@@ -59,7 +59,7 @@ public class AlumniAssociationJoinApplyServiceImpl
     }
 
     @Override
-    public com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> queryApplyPage(
+    public com.cmswe.alumni.common.vo.PageVo<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> queryApplyPage(
             com.cmswe.alumni.common.dto.QueryAssociationJoinApplyDto queryDto) {
         com.baomidou.mybatisplus.extension.plugins.pagination.Page<AlumniAssociationJoinApply> page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>
                 (queryDto.getCurrent(), queryDto.getSize());
@@ -78,16 +78,18 @@ public class AlumniAssociationJoinApplyServiceImpl
         com.baomidou.mybatisplus.extension.plugins.pagination.Page<AlumniAssociationJoinApply> resultPage = this.page(page, wrapper);
 
         // 转换为VO
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> voPage = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>
-                (queryDto.getCurrent(), queryDto.getSize(), resultPage.getTotal());
-
         java.util.List<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> voList = resultPage.getRecords().stream().map(apply -> {
             com.cmswe.alumni.common.entity.AlumniAssociation association = alumniAssociationService.getById(apply.getAlumniAssociationId());
             return com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo.objToVo(apply, association);
         }).collect(java.util.stream.Collectors.toList());
 
+        // 创建VO分页对象
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> voPage = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>
+                (queryDto.getCurrent(), queryDto.getSize(), resultPage.getTotal());
         voPage.setRecords(voList);
-        return voPage;
+
+        // 转换为PageVo
+        return com.cmswe.alumni.common.vo.PageVo.of(voPage);
     }
 
     @Override

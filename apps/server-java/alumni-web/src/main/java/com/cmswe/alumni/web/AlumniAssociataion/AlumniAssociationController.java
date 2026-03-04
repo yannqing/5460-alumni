@@ -111,10 +111,10 @@ public class AlumniAssociationController {
      */
     @PostMapping("/queryJoinApplyPage")
     @Operation(summary = "分页查询校友会加入校促会申请列表")
-    public BaseResponse<com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo>> queryJoinApplyPage(
+    public BaseResponse<com.cmswe.alumni.common.vo.PageVo<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo>> queryJoinApplyPage(
             @RequestBody com.cmswe.alumni.common.dto.QueryAssociationJoinApplyDto queryDto) {
         log.info("查询校友会加入校促会申请列表，平台 ID: {}, 状态: {}", queryDto.getPlatformId(), queryDto.getStatus());
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> page = alumniAssociationJoinApplyService
+        com.cmswe.alumni.common.vo.PageVo<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> page = alumniAssociationJoinApplyService
                 .queryApplyPage(queryDto);
         return ResultUtils.success(Code.SUCCESS, page, "查询成功");
     }

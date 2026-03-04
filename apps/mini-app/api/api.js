@@ -63,6 +63,8 @@ const associationApi = {
   applyJoinPlatform: (data) => post('/AlumniAssociation/applyJoinPlatform', data),
   // 查询加入申请列表
   queryJoinApplyPage: (params) => post('/AlumniAssociation/queryJoinApplyPage', params),
+  // 审核加入校促会申请
+  reviewJoinPlatform: (data) => post('/AlumniAssociation/reviewJoinPlatform', data),
   // 系统管理员分页查询所有校友会创建申请列表
   querySystemAdminApplicationPage: (params) => post('/AlumniAssociationApplication/querySystemAdminApplicationPage', params),
   // 系统管理员审核校友会创建申请
