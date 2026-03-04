@@ -186,7 +186,8 @@ public class AlumniAssociationJoinApplyVo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public static AlumniAssociationJoinApplyVo objToVo(AlumniAssociationJoinApply apply, AlumniAssociation association) {
+    public static AlumniAssociationJoinApplyVo objToVo(AlumniAssociationJoinApply apply,
+            AlumniAssociation association) {
         if (apply == null) {
             return null;
         }
