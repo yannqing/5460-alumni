@@ -1,0 +1,218 @@
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会申请详情">
+
+<!-- 消息通知组件 -->
+<message-notification />
+
+<scroll-view class="container" scroll-y enable-back-to-top>
+  <!-- 骨架屏加载状态 -->
+  <view class="skeleton-container" wx:if="{{loading}}">
+    <view class="skeleton-header">
+      <view class="skeleton-avatar skeleton-animate"></view>
+      <view class="skeleton-user-info">
+        <view class="skeleton-name skeleton-animate"></view>
+        <view class="skeleton-time skeleton-animate"></view>
+      </view>
+    </view>
+    <view class="skeleton-title skeleton-animate"></view>
+    <view class="skeleton-content">
+      <view class="skeleton-line skeleton-animate"></view>
+      <view class="skeleton-line skeleton-animate" style="width: 85%;"></view>
+      <view class="skeleton-line skeleton-animate" style="width: 70%;"></view>
+    </view>
+  </view>
+
+  <!-- 校友会申请详情内容 -->
+  <block wx:elif="{{application}}">
+    <!-- 背景横幅 -->
+    <view class="detail-header">
+      <image class="header-bg" src="{{application.bgImg || defaultBackground}}" mode="aspectFill" />
+      <view class="header-content">
+        <view class="header-left">
+          <view class="logo-container">
+            <image class="association-logo" src="{{application.logo || defaultAlumniAvatar}}" mode="aspectFill" />
+          </view>
+        </view>
+        <view class="association-basic">
+          <text class="association-name">{{application.associationName || '无'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 详细信息卡片 -->
+    <view class="detail-card">
+      <!-- 基本信息网格 -->
+      <view class="info-grid">
+        <view class="info-item">
+          <text class="info-label">申请状态</text>
+          <view class="status-tag {{statusClass}}">
+            <text class="status-text">{{applicationStatusText}}</text>
+          </view>
+        </view>
+        <view class="info-item" wx:if="{{application.applyTimeFormatted}}">
+          <text class="info-label">申请时间</text>
+          <text class="info-value">{{application.applyTimeFormatted}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.location}}">
+          <text class="info-label">常驻地点</text>
+          <text class="info-value">{{application.location}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider"></view>
+
+      <!-- 校友会简介 -->
+      <view class="detail-section" wx:if="{{application.associationProfile}}">
+        <view class="section-title">校友会简介</view>
+        <view class="info-item">
+          <text class="info-value multi-line">{{application.associationProfile}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{application.associationProfile}}"></view>
+
+      <!-- 母校信息 -->
+      <view class="detail-section" wx:if="{{application.schoolInfo}}">
+        <view class="section-title">所属母校</view>
+        <view class="info-item">
+          <text class="info-label">学校名称</text>
+          <text class="info-value">{{application.schoolInfo.schoolName || '无'}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.schoolInfo.province}}">
+          <text class="info-label">所在省份</text>
+          <text class="info-value">{{application.schoolInfo.province}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{application.schoolInfo}}"></view>
+
+      <!-- 主要负责人信息 -->
+      <view class="detail-section" wx:if="{{application.chargeName || application.chargeRole || application.contactInfo}}">
+        <view class="section-title">主要负责人信息</view>
+        <view class="info-item" wx:if="{{application.chargeName}}">
+          <text class="info-label">负责人姓名</text>
+          <text class="info-value">{{application.chargeName}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.chargeRole}}">
+          <text class="info-label">架构角色</text>
+          <text class="info-value">{{application.chargeRole}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.contactInfo}}">
+          <text class="info-label">联系方式</text>
+          <text class="info-value">{{application.contactInfo}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.msocialAffiliation}}">
+          <text class="info-label">社会职务</text>
+          <text class="info-value multi-line">{{application.msocialAffiliation}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{application.chargeName || application.chargeRole || application.contactInfo}}"></view>
+
+      <!-- 驻会代表信息 -->
+      <view class="detail-section" wx:if="{{application.zhName || application.zhRole || application.zhPhone}}">
+        <view class="section-title">驻会代表信息</view>
+        <view class="info-item" wx:if="{{application.zhName}}">
+          <text class="info-label">代表姓名</text>
+          <text class="info-value">{{application.zhName}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.zhRole}}">
+          <text class="info-label">架构角色</text>
+          <text class="info-value">{{application.zhRole}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.zhPhone}}">
+          <text class="info-label">联系电话</text>
+          <text class="info-value">{{application.zhPhone}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.zhSocialAffiliation}}">
+          <text class="info-label">社会职务</text>
+          <text class="info-value multi-line">{{application.zhSocialAffiliation}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{application.zhName || application.zhRole || application.zhPhone}}"></view>
+
+      <!-- 申请理由 -->
+      <view class="detail-section" wx:if="{{application.applicationReason}}">
+        <view class="section-title">申请理由</view>
+        <view class="info-item">
+          <text class="info-value multi-line">{{application.applicationReason}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{application.applicationReason}}"></view>
+
+      <!-- 初始成员列表 -->
+      <view class="detail-section" wx:if="{{initialMembersList.length > 0}}">
+        <view class="section-title">初始成员 ({{initialMembersList.length}}人)</view>
+        <view class="member-list">
+          <view class="member-item" wx:for="{{initialMembersList}}" wx:key="wxId">
+            <view class="member-info">
+              <text class="member-name">{{item.name || '未知'}}</text>
+              <text class="member-phone" wx:if="{{item.phone}}">{{item.phone}}</text>
+            </view>
+            <text class="member-affiliation" wx:if="{{item.affiliation}}">{{item.affiliation}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{initialMembersList.length > 0}}"></view>
+
+      <!-- 审核信息 -->
+      <view class="detail-section" wx:if="{{application.applicationStatus !== 0}}">
+        <view class="section-title">审核信息</view>
+        <view class="info-item" wx:if="{{application.reviewTimeFormatted}}">
+          <text class="info-label">审核时间</text>
+          <text class="info-value">{{application.reviewTimeFormatted}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.reviewComment}}">
+          <text class="info-label">审核意见</text>
+          <text class="info-value multi-line">{{application.reviewComment}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.createdAssociationId}}">
+          <text class="info-label">创建的校友会</text>
+          <text class="info-value link">ID: {{application.createdAssociationId}}</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{application.applicationStatus !== 0}}"></view>
+
+      <!-- 系统信息 -->
+      <view class="detail-section">
+        <view class="section-title">系统信息</view>
+        <view class="info-item" wx:if="{{application.applicationId}}">
+          <text class="info-label">申请ID</text>
+          <text class="info-value">{{application.applicationId}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.createTimeFormatted}}">
+          <text class="info-label">创建时间</text>
+          <text class="info-value">{{application.createTimeFormatted}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.updateTimeFormatted}}">
+          <text class="info-label">更新时间</text>
+          <text class="info-value">{{application.updateTimeFormatted}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 错误状态 -->
+  <view wx:else class="error-state">
+    <view class="error-icon">📄</view>
+    <view class="error-text">校友会申请不存在或已删除</view>
+    <view class="error-btn" bindtap="goBack">返回上一页</view>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder"></view>
+</scroll-view>
+
+</custom-nav-bar>

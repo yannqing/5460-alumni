@@ -1,0 +1,268 @@
+/* pages/register/register.wxss */
+
+.register-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #E8F4FD 0%, #FFFFFF 30%);
+}
+
+/* 自定义导航栏 */
+.custom-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: transparent;
+}
+
+.nav-content {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 主内容区域 */
+.main-content {
+  padding: 0 40rpx 60rpx;
+}
+
+/* 头部欢迎区域 */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 40rpx 0 60rpx;
+}
+
+.welcome-text {
+  flex: 1;
+}
+
+.welcome-line1 {
+  font-size: 36rpx;
+  color: #333333;
+  font-weight: 400;
+  margin-bottom: 12rpx;
+}
+
+.welcome-line2 {
+  font-size: 44rpx;
+  color: #333333;
+  font-weight: 600;
+}
+
+.illustration-wrapper {
+  width: 200rpx;
+  height: 160rpx;
+  flex-shrink: 0;
+}
+
+.illustration {
+  width: 100%;
+  height: 100%;
+}
+
+.illustration-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #4A8BF5 0%, #6BA3F7 100%);
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-icon {
+  font-size: 40rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* 表单区域 */
+.form-section {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.form-item {
+  margin-bottom: 40rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 20rpx;
+}
+
+.form-input-wrapper {
+  border-bottom: 1rpx solid #E8E8E8;
+  padding-bottom: 16rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 60rpx;
+  font-size: 30rpx;
+  color: #333333;
+}
+
+.input-placeholder {
+  color: #CCCCCC;
+  font-size: 30rpx;
+}
+
+/* 性别选择器 */
+.gender-selector {
+  display: flex;
+  gap: 30rpx;
+}
+
+.gender-option {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #E8E8E8;
+  border-radius: 12rpx;
+  background-color: #FFFFFF;
+  transition: all 0.3s;
+}
+
+.gender-option.active {
+  border-color: #4A8BF5;
+  background-color: #F0F7FF;
+}
+
+.gender-text {
+  font-size: 30rpx;
+  color: #666666;
+}
+
+.gender-option.active .gender-text {
+  color: #4A8BF5;
+  font-weight: 500;
+}
+
+/* 大学选择器 */
+.form-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60rpx;
+  border-bottom: 1rpx solid #E8E8E8;
+  padding-bottom: 16rpx;
+}
+
+.picker-value {
+  font-size: 30rpx;
+  color: #333333;
+}
+
+.picker-placeholder {
+  font-size: 30rpx;
+  color: #CCCCCC;
+}
+
+.picker-arrow-text {
+  font-size: 32rpx;
+  color: #CCCCCC;
+}
+
+/* 用户协议 */
+.agreement-section {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 40rpx;
+  padding: 0 10rpx;
+}
+
+.agreement-checkbox {
+  margin-right: 16rpx;
+  padding-top: 4rpx;
+}
+
+.checkbox-icon {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #CCCCCC;
+  border-radius: 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+}
+
+.checkbox-icon.checked {
+  background-color: #4A8BF5;
+  border-color: #4A8BF5;
+}
+
+.check-text {
+  font-size: 24rpx;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.agreement-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #999999;
+  line-height: 1.6;
+}
+
+.agreement-text .link {
+  color: #4A8BF5;
+}
+
+/* 注册按钮 */
+.submit-section {
+  margin-top: 60rpx;
+  padding: 0 10rpx;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  border-radius: 48rpx;
+  border: none;
+  transition: all 0.3s;
+}
+
+.submit-btn::after {
+  border: none;
+}
+
+.submit-btn.active {
+  background-color: #4A8BF5;
+  color: #FFFFFF;
+}
+
+.submit-btn.disabled {
+  background-color: #E8E8E8;
+  color: #CCCCCC;
+}

@@ -177,6 +177,11 @@ async function login(inviter_wx_uuid) {
       console.warn('[Auth] 登录响应中没有角色信息')
     }
 
+    // 存储用户基本信息完善状态
+    const isProfileComplete = data.isProfileComplete === true
+    wx.setStorageSync('isProfileComplete', isProfileComplete)
+    console.log('[Auth] 用户基本信息完善状态:', isProfileComplete)
+
     // 取用户唯一ID（优先 wxId，补充常见字段）
     let userId =
       data.wxId ||
@@ -228,6 +233,7 @@ async function login(inviter_wx_uuid) {
       wxId: data.wxId || data.wx_id || data.wx_uuid || data.wxUid || data.userId || data.id || data.uuid || ''
     }
     app.globalData.token = data.token || ''
+    app.globalData.isProfileComplete = data.isProfileComplete === true
 
     // 二次加工用户信息（包括角色处理）
     formatUserInfoData(data)
@@ -429,6 +435,55 @@ function hasManagementPermission() {
   return false
 }
 
+/**
+ * 检查用户基本信息是否完善
+ * @returns {boolean} 是否完善
+ */
+function checkProfileComplete() {
+  // 优先从 globalData 读取，其次从缓存读取
+  const app = getApp()
+  if (app && app.globalData && app.globalData.isProfileComplete !== undefined) {
+    return app.globalData.isProfileComplete === true
+  }
+  return wx.getStorageSync('isProfileComplete') === true
+}
+
+/**
+ * 检查用户基本信息是否完善，如果未完善则跳转到注册页
+ * @param {string} targetUrl - 目标页面URL（可选，用于日志记录）
+ * @returns {boolean} 是否可以继续导航（true-可以，false-已拦截并跳转到注册页）
+ */
+function checkProfileAndRedirect(targetUrl = '') {
+  const isComplete = checkProfileComplete()
+
+  if (!isComplete) {
+    console.log('[Auth] 用户基本信息未完善，拦截导航:', targetUrl)
+    wx.navigateTo({
+      url: '/pages/register/register',
+      fail: () => {
+        // 如果跳转失败（可能在注册页），静默处理
+        console.log('[Auth] 跳转注册页失败，可能已在注册页')
+      }
+    })
+    return false
+  }
+
+  return true
+}
+
+/**
+ * 更新用户基本信息完善状态（注册成功后调用）
+ * @param {boolean} isComplete - 是否完善
+ */
+function updateProfileComplete(isComplete) {
+  const app = getApp()
+  if (app && app.globalData) {
+    app.globalData.isProfileComplete = isComplete
+  }
+  wx.setStorageSync('isProfileComplete', isComplete)
+  console.log('[Auth] 更新用户基本信息完善状态:', isComplete)
+}
+
 module.exports = {
   login,
   initApp,
@@ -443,5 +498,9 @@ module.exports = {
   hasManagementPermission,
   // 登录锁相关
   isLoginInProgress,
-  waitForLogin
+  waitForLogin,
+  // 用户信息完善检查
+  checkProfileComplete,
+  checkProfileAndRedirect,
+  updateProfileComplete
 };

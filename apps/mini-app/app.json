@@ -85,6 +85,8 @@
     "pages/audit/enterprise/index",
     "pages/audit/headquarters/list/list",
     "pages/audit/headquarters/detail/detail",
+    "pages/audit/alumni-association/list/list",
+    "pages/audit/alumni-association/detail/detail",
     "pages/article/detail/detail",
     "pages/article/form/form",
     "pages/article/audit-list/audit-list",
@@ -96,7 +98,8 @@
     "pages/info-maintenance/index/index",
     "pages/info-maintenance/edit/edit",
     "pages/audit/info-maintenance/index/index",
-    "pages/audit/info-maintenance/edit/edit"
+    "pages/audit/info-maintenance/edit/edit",
+    "pages/register/register"
   ],
   "window": {
     "backgroundTextStyle": "light",

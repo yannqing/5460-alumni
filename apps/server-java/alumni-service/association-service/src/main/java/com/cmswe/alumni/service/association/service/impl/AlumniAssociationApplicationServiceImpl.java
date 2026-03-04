@@ -16,6 +16,7 @@ import com.cmswe.alumni.common.entity.*;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.SchoolListVo;
@@ -618,5 +619,39 @@ public class AlumniAssociationApplicationServiceImpl
             log.error("发送校友会创建申请拒绝通知异常 - 用户: {}, 校友会: {}, Error: {}",
                     chargeWxId, associationName, e.getMessage(), e);
         }
+    }
+
+    /**
+     * 根据申请ID查询申请详情
+     *
+     * @param applicationId 申请ID
+     * @return 申请详情
+     */
+    @Override
+    public AlumniAssociationApplicationDetailVo getApplicationDetailById(Long applicationId) {
+        // 1. 参数校验
+        Optional.ofNullable(applicationId)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL, "申请ID不能为空"));
+
+        // 2. 查询申请记录
+        AlumniAssociationApplication application = this.getById(applicationId);
+        Optional.ofNullable(application)
+                .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND_ERROR, "申请记录不存在"));
+
+        // 3. 转换为VO
+        AlumniAssociationApplicationDetailVo detailVo = AlumniAssociationApplicationDetailVo.objToVo(application);
+
+        // 4. 查询并设置学校信息
+        if (application.getSchoolId() != null) {
+            School school = schoolMapper.selectById(application.getSchoolId());
+            if (school != null) {
+                SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
+                schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
+                detailVo.setSchoolInfo(schoolListVo);
+            }
+        }
+
+        log.info("查询申请详情成功 - 申请ID: {}", applicationId);
+        return detailVo;
     }
 }

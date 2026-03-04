@@ -59,6 +59,10 @@ const associationApi = {
   quitAssociation: (data) => post('/AlumniAssociationJoinApplication/quit', data),
   // 获取组织结构列表
   getOrganizationRoles: (params) => post('/alumniAssociationManagement/role/list', params),
+  // 系统管理员分页查询所有校友会创建申请列表
+  querySystemAdminApplicationPage: (params) => post('/AlumniAssociationApplication/querySystemAdminApplicationPage', params),
+  // 系统管理员审核校友会创建申请
+  reviewApplication: (data) => post('/AlumniAssociationApplication/reviewApplication', data),
 }
 
 // ==================== 校友总会相关接口 ====================

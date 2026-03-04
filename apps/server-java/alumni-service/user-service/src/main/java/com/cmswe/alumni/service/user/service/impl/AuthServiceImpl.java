@@ -16,6 +16,7 @@ import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.utils.WechatMiniUtil;
 import com.cmswe.alumni.common.vo.RoleListVo;
 import com.cmswe.alumni.common.vo.WxInitResponse;
+import com.cmswe.alumni.service.user.mapper.AlumniEducationMapper;
 import com.cmswe.alumni.service.user.mapper.RoleUserMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserInfoMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
@@ -45,6 +46,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private WxUserInfoMapper wxUserInfoMapper;
+
+    @Resource
+    private AlumniEducationMapper alumniEducationMapper;
 
     @Resource
     private WechatMiniUtil wechatMiniUtil;
@@ -127,13 +131,18 @@ public class AuthServiceImpl implements AuthService {
         //7. 获取用户角色信息（这里只获取了用户的系统角色，没有获取到组织相关角色）
         List<RoleListVo> roleList = roleService.getRoleListVoByWxId(loginUser.getWxId());
 
-        //8. 返回用户信息 + Token + 角色信息
-        log.info("用户登录: openid={}, token={}, roles={}, isAlumni={}", openid, token, roleList, loginUser.getIsAlumni());
+        //8. 检查用户基本信息是否完善
+        boolean isProfileComplete = checkUserProfileComplete(loginUser.getWxId());
+
+        //9. 返回用户信息 + Token + 角色信息 + 信息完善标识
+        log.info("用户登录: openid={}, token={}, roles={}, isAlumni={}, isProfileComplete={}",
+                openid, token, roleList, loginUser.getIsAlumni(), isProfileComplete);
 
         return WxInitResponse.builder()
                 .token(token)
                 .roles(roleList)
                 .isAlumni(loginUser.getIsAlumni())
+                .isProfileComplete(isProfileComplete)
                 .build();
     }
 
@@ -211,5 +220,70 @@ public class AuthServiceImpl implements AuthService {
             return openid;
         }
         return openid.substring(0, 6) + "****" + openid.substring(openid.length() - 4);
+    }
+
+    /**
+     * 检查用户基本信息是否完善
+     * 需要满足以下条件：
+     * 1. 真实姓名不为空
+     * 2. 手机号不为空
+     * 3. 性别不为空且不为0（未知）
+     * 4. 至少有一条学习经历
+     *
+     * @param wxId 用户ID
+     * @return true-信息完善，false-信息未完善
+     */
+    private boolean checkUserProfileComplete(Long wxId) {
+        try {
+            // 1. 查询用户基本信息
+            WxUserInfo userInfo = wxUserInfoMapper.selectOne(
+                    new LambdaQueryWrapper<WxUserInfo>()
+                            .eq(WxUserInfo::getWxId, wxId)
+            );
+
+            // 如果用户信息不存在，返回false
+            if (userInfo == null) {
+                log.warn("用户信息不存在，wxId={}", wxId);
+                return false;
+            }
+
+            // 2. 检查真实姓名
+            if (userInfo.getName() == null || userInfo.getName().trim().isEmpty()) {
+                log.debug("用户真实姓名未填写，wxId={}", wxId);
+                return false;
+            }
+
+            // 3. 检查手机号
+            if (userInfo.getPhone() == null || userInfo.getPhone().trim().isEmpty()) {
+                log.debug("用户手机号未填写，wxId={}", wxId);
+                return false;
+            }
+
+            // 4. 检查性别（0-未知，1-男，2-女）
+            if (userInfo.getGender() == null || userInfo.getGender() == 0) {
+                log.debug("用户性别未填写，wxId={}", wxId);
+                return false;
+            }
+
+            // 5. 检查是否至少有一条学习经历
+            Long educationCount = alumniEducationMapper.selectCount(
+                    new LambdaQueryWrapper<com.cmswe.alumni.common.entity.AlumniEducation>()
+                            .eq(com.cmswe.alumni.common.entity.AlumniEducation::getWxId, wxId)
+            );
+
+            if (educationCount == null || educationCount == 0) {
+                log.debug("用户学习经历为空，wxId={}", wxId);
+                return false;
+            }
+
+            // 所有条件都满足，信息完善
+            log.debug("用户基本信息完善，wxId={}", wxId);
+            return true;
+
+        } catch (Exception e) {
+            log.error("检查用户信息完善状态失败，wxId={}, error={}", wxId, e.getMessage(), e);
+            // 发生异常时返回false，防止用户因系统错误而无法正常使用
+            return false;
+        }
     }
 }

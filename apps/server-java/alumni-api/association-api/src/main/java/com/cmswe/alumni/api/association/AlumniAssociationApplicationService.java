@@ -6,6 +6,7 @@ import com.cmswe.alumni.common.dto.QueryAlumniAssociationApplicationListDto;
 import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
+import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 
@@ -47,4 +48,12 @@ public interface AlumniAssociationApplicationService extends IService<AlumniAsso
      * @return 申请列表
      */
     PageVo<AlumniAssociationApplicationListVo> querySystemAdminApplicationPage(QuerySystemAdminApplicationListDto queryDto);
+
+    /**
+     * 根据申请ID查询申请详情
+     *
+     * @param applicationId 申请ID
+     * @return 申请详情
+     */
+    AlumniAssociationApplicationDetailVo getApplicationDetailById(Long applicationId);
 }
