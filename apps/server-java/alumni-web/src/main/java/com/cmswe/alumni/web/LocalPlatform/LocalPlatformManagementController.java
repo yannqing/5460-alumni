@@ -520,4 +520,57 @@ public class LocalPlatformManagementController {
                         return ResultUtils.failure(Code.FAILURE, false, "更新失败");
                 }
         }
+
+        /**
+         * 更新校促会预设成员信息
+         * 
+         * @param updateDto 更新预设成员信息请求参数
+         * @return 更新是否成功
+         */
+        @PutMapping("/updatePresetMemberInfo")
+        @Operation(summary = "更新校促会预设成员信息")
+        public BaseResponse<Boolean> updatePresetMemberInfo(@Valid @RequestBody UpdateLocalPlatformPresetMemberInfoDto updateDto) {
+                log.info("更新校促会预设成员信息，成员 ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
+                                updateDto.getMemberId(), updateDto.getUsername(), updateDto.getRoleName(), 
+                                updateDto.getContactInformation(), updateDto.getSocialDuties());
+
+                boolean result = localPlatformService.updatePresetMemberInfo(
+                                updateDto.getMemberId(),
+                                updateDto.getUsername(),
+                                updateDto.getRoleName(),
+                                updateDto.getContactInformation(),
+                                updateDto.getSocialDuties());
+
+                if (result) {
+                        log.info("更新校促会预设成员信息成功，成员 ID: {}",
+                                        updateDto.getMemberId());
+                        return ResultUtils.success(Code.SUCCESS, true, "更新成功");
+                } else {
+                        log.error("更新校促会预设成员信息失败，成员 ID: {}",
+                                        updateDto.getMemberId());
+                        return ResultUtils.failure(Code.FAILURE, false, "更新失败");
+                }
+        }
+
+        /**
+         * 删除校促会预设成员
+         * 
+         * @param deleteDto 删除预设成员请求参数
+         * @return 删除是否成功
+         */
+        @DeleteMapping("/deletePresetMember")
+        @Operation(summary = "删除校促会预设成员")
+        public BaseResponse<Boolean> deletePresetMember(@Valid @RequestBody DeleteLocalPlatformPresetMemberDto deleteDto) {
+                log.info("删除校促会预设成员，成员 ID: {}", deleteDto.getMemberId());
+
+                boolean result = localPlatformService.deletePresetMember(deleteDto.getMemberId());
+
+                if (result) {
+                        log.info("删除校促会预设成员成功，成员 ID: {}", deleteDto.getMemberId());
+                        return ResultUtils.success(Code.SUCCESS, true, "删除成功");
+                } else {
+                        log.error("删除校促会预设成员失败，成员 ID: {}", deleteDto.getMemberId());
+                        return ResultUtils.failure(Code.FAILURE, false, "删除失败");
+                }
+        }
 }

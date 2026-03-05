@@ -920,6 +920,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     response.setJoined(isJoined);
                     
                     // 设置成员基本信息
+                    response.setId(member.getId());
                     response.setUsername(member.getUsername());
                     response.setRoleName(member.getRoleName());
                     
@@ -1580,5 +1581,83 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         log.info("更新校促会预设成员成功 - 成员ID: {}, 用户ID: {}", memberId, wxId);
 
         return updateResult;
+    }
+
+    @Override
+    public boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties) {
+        // 1. 参数校验
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+
+        log.info("开始更新校促会预设成员信息 - 成员ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
+                memberId, username, roleName, contactInformation, socialDuties);
+
+        // 2. 查询成员记录是否存在
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 检查成员是否是预设成员（wxId 为 null）
+        if (member.getWxId() != null) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该成员已经关联了用户，不能通过此接口更新信息");
+        }
+
+        // 4. 更新成员信息
+        if (username != null) {
+            member.setUsername(username);
+        }
+        if (roleName != null) {
+            member.setRoleName(roleName);
+        }
+        if (contactInformation != null) {
+            member.setContactInformation(contactInformation);
+        }
+        if (socialDuties != null) {
+            member.setSocialDuties(socialDuties);
+        }
+
+        boolean updateResult = localPlatformMemberService.updateById(member);
+
+        if (!updateResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新预设成员信息失败");
+        }
+
+        log.info("更新校促会预设成员信息成功 - 成员ID: {}", memberId);
+
+        return updateResult;
+    }
+
+    @Override
+    public boolean deletePresetMember(Long memberId) {
+        // 1. 参数校验
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+
+        log.info("开始删除校促会预设成员 - 成员ID: {}", memberId);
+
+        // 2. 查询成员记录是否存在
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 检查成员是否是预设成员（wxId 为 null）
+        if (member.getWxId() != null) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该成员已经关联了用户，不能通过此接口删除");
+        }
+
+        // 4. 删除成员记录
+        boolean deleteResult = localPlatformMemberService.removeById(memberId);
+
+        if (!deleteResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "删除预设成员失败");
+        }
+
+        log.info("删除校促会预设成员成功 - 成员ID: {}", memberId);
+
+        return deleteResult;
     }
 }

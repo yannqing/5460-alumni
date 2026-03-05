@@ -218,4 +218,24 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @return 更新是否成功
          */
         boolean updatePresetMember(Long memberId, Long wxId);
+
+        /**
+         * 更新校促会预设成员信息
+         *
+         * @param memberId           成员ID
+         * @param username           用户名
+         * @param roleName           角色名称
+         * @param contactInformation 联系方式
+         * @param socialDuties       社会职务
+         * @return 更新是否成功
+         */
+        boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties);
+
+        /**
+         * 删除校促会预设成员
+         *
+         * @param memberId 成员ID
+         * @return 删除是否成功
+         */
+        boolean deletePresetMember(Long memberId);
 }

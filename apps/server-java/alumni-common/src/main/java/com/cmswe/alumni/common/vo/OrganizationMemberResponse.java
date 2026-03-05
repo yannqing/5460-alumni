@@ -51,6 +51,12 @@ public class OrganizationMemberResponse extends UserListResponse {
     @Schema(description = "是否已加入平台：true-已加入 false-未加入（预设成员）")
     private Boolean joined;
 
+    /**
+     * 成员 ID（来自 local_platform_member 表）
+     */
+    @Schema(description = "成员 ID（来自 local_platform_member 表）")
+    private Long id;
+
     @Serial
     private static final long serialVersionUID = 1L;
 
