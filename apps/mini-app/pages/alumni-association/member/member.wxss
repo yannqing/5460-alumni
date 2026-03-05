@@ -743,3 +743,46 @@
   color: #333;
   font-weight: 600;
 }
+
+/* 校友会选择器项样式（带logo和location） */
+.alumni-association-picker .picker-item-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.alumni-association-picker .picker-item-logo {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+
+.alumni-association-picker .picker-item-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.alumni-association-picker .item-location {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alumni-association-picker .picker-item.selected {
+  background-color: #f6ffed;
+}
+
+.alumni-association-picker .picker-item.selected .item-name {
+  color: #52c41a;
+  font-weight: 600;
+}

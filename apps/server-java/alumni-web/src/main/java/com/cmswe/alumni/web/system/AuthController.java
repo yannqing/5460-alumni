@@ -43,6 +43,19 @@ public class AuthController {
         return ResultUtils.success(Code.SUCCESS, response, "获取手机号成功");
     }
 
+    @Operation(summary = "测试登录（本地调试用，传入微信用户ID）")
+    @PostMapping("/testLogin")
+    public BaseResponse<WxInitResponse> testLogin(@RequestBody java.util.Map<String, Long> request) throws JsonProcessingException {
+        Long wxId = request.get("wxId");
+        if (wxId == null) {
+            return ResultUtils.failure(Code.FAILURE, null, "参数错误：wxId不能为空");
+        }
+
+        WxInitResponse wxInitResponse = authService.testLogin(wxId);
+
+        return ResultUtils.success(Code.SUCCESS, wxInitResponse, "测试登录成功");
+    }
+
     /**
      * 1. 用户登录的时候，需要初始化的一些信息
      *      1. 用户隐私设置

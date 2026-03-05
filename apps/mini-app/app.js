@@ -26,18 +26,16 @@ App({
       console.log('服务名称:', config.cloud.serviceName)
     }
 
-    // 完全手动切换环境，从本地存储读取
-    const manualEnv = wx.getStorageSync('manual_env') || 'test' // 默认使用测试环境
+    // 根据小程序版本自动选择API地址
+    const envVersion = config.getMiniProgramEnvVersion()
+    const autoBaseUrl = config.getBaseUrlByEnvVersion()
 
-    // 获取当前环境的配置
-    const envConfig = config.getEnvConfig(manualEnv)
+    console.log('=== 环境配置（根据小程序版本自动选择） ===')
+    console.log('小程序版本:', envVersion)
+    console.log('当前API地址:', config.IS_CLOUD_HOST ? '云托管' : autoBaseUrl)
 
-    console.log('=== 环境配置（手动切换） ===')
-    console.log('手动设置的环境:', manualEnv)
-    console.log('当前API地址:', config.IS_CLOUD_HOST ? '云托管' : envConfig.apiBaseUrl)
-    
-    // 设置全局配置（完整的API基础地址，包含前缀）
-    this.globalData.baseUrl = envConfig.apiBaseUrl
+    // 设置全局配置（根据小程序版本自动选择的API地址）
+    this.globalData.baseUrl = autoBaseUrl
 
     // 获取系统信息
     this.getSystemInfo();

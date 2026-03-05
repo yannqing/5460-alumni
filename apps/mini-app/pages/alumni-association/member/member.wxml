@@ -56,14 +56,20 @@
       </view>
       <view class="picker-list">
         <view
-          class="picker-item"
+          class="picker-item {{selectedAlumniAssociationId == item.alumniAssociationId ? 'selected' : ''}}"
           wx:for="{{alumniAssociationList}}"
           wx:key="alumniAssociationId"
           data-alumni-association-id="{{item.alumniAssociationId}}"
           data-alumni-association-name="{{item.alumniAssociationName}}"
           bindtap="selectAlumniAssociation"
         >
-          <text class="item-name">{{item.alumniAssociationName}}</text>
+          <view class="picker-item-left">
+            <image class="picker-item-logo" src="{{item.logo || defaultUserAvatarUrl}}" mode="aspectFill" />
+            <view class="picker-item-info">
+              <text class="item-name">{{item.alumniAssociationName}}</text>
+              <text class="item-location" wx:if="{{item.location}}">{{item.location}}</text>
+            </view>
+          </view>
           <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
         </view>
         <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">
