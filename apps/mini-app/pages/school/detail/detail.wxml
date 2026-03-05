@@ -21,11 +21,7 @@
       </view>
 
       <!-- 标签栏 -->
-      <view class="tabs">
-        <view wx:for="{{tabs}}" wx:key="index" class="tab-item {{activeTab === index ? 'active' : ''}}" bindtap="switchTab" data-index="{{index}}">
-          {{item}}
-        </view>
-      </view>
+      <tab-bar tabs="{{tabs}}" activeTab="{{activeTab}}" bind:tabchange="onTabChange" />
 
       <!-- 白色背景内容区域 -->
       <view class="white-background">

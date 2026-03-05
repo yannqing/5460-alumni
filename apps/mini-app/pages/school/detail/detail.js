@@ -131,9 +131,15 @@ Page({
     })
   },
 
+  // tab-bar 组件事件处理
+  onTabChange(e) {
+    const index = e.detail.index;
+    this.setData({ activeTab: index });
+  },
+
   // 切换标签
   switchTab(e) {
-    const index = e.currentTarget.dataset.index
-    this.setData({ activeTab: index })
+    const index = e.currentTarget.dataset.index;
+    this.setData({ activeTab: index });
   }
 })

@@ -35,6 +35,7 @@
     "pages/activity/list/list",
     "pages/activity/detail/detail",
     "pages/activity/detail-new/detail-new",
+    "pages/alumni-activity/list/list",
     "pages/notification/list/list",
     "pages/notification/detail/detail",
     "pages/notification/notification-list/notification-list",

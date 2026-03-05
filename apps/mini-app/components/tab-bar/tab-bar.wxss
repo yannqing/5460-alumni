@@ -1,0 +1,33 @@
+/* components/tab-bar/tab-bar.wxss */
+
+.tabs {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.32);
+  position: relative;
+}
+
+.tab-item.active {
+  color: rgba(0, 0, 0, 0.8);
+  font-weight: 600;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20%;
+  height: 6rpx;
+  background-color: #0DA6FE;
+  border-radius: 3rpx;
+}

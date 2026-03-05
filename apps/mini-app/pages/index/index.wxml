@@ -136,14 +136,22 @@
 
               <!-- 右侧：活动信息 -->
               <view class="activity-info">
-                <text class="activity-title">{{item.activity_theme}}</text>
+                <text class="activity-title">{{item.activityTitle || item.activity_theme}}</text>
+                <!-- 主办方信息 -->
+                <view class="activity-organizer" wx:if="{{item.organizerName}}">
+                  <image class="organizer-avatar" src="{{item.organizerAvatar}}" mode="aspectFill" />
+                  <text class="organizer-name">{{item.organizerName}}</text>
+                  <text class="organizer-type" wx:if="{{item.organizerType === 0}}">校友会</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 1}}">校促会</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 2}}">校友总会</text>
+                </view>
                 <view class="activity-time">
                   <text class="info-icon">📅</text>
-                  <text class="info-text">{{item.activity_starttime}}</text>
+                  <text class="info-text">{{item.startTime || item.activity_starttime}}</text>
                 </view>
-                <view class="activity-address" wx:if="{{item.activity_address}}">
+                <view class="activity-address" wx:if="{{item.address || item.activity_address}}">
                   <text class="info-icon">📍</text>
-                  <text class="info-text">{{item.activity_address}}</text>
+                  <text class="info-text">{{item.province}}{{item.city}}{{item.district}}{{item.address || item.activity_address}}</text>
                 </view>
               </view>
 

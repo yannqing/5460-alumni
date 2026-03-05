@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmswe.alumni.api.association.AlumniAssociationMemberService;
@@ -21,6 +23,7 @@ import com.cmswe.alumni.api.user.UserService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.constant.CommonConstant;
 import com.cmswe.alumni.common.dto.AddLocalPlatformDto;
+import com.cmswe.alumni.common.dto.MiniProgramLinkDto;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationByPlatformDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformListDto;
 import com.cmswe.alumni.common.dto.QueryLocalPlatformMemberListDto;
@@ -76,6 +79,9 @@ import java.util.stream.Collectors;
 public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPlatform> implements LocalPlatformService {
     @Resource
     private LocalPlatformMapper localPlatformMapper;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Resource
     private UserService userService;
@@ -204,6 +210,21 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         // 4.5 手动映射字段 (因为VO中重命名为 localPlatformPhone 与 实体类 phone 不一致，BeanUtils无法自动映射)
         // 映射必须在隐私脱敏逻辑之前，否则脱敏设置的 null 会被重新覆盖
         localPlatformDetailVo.setLocalPlatformPhone(localPlatform.getPhone());
+
+        // 4.5.5 解析小程序链接JSON
+        if (localPlatform.getMiniProgramLinks() != null && !localPlatform.getMiniProgramLinks().trim().isEmpty()) {
+            try {
+                List<MiniProgramLinkDto> miniProgramLinks = objectMapper.readValue(
+                        localPlatform.getMiniProgramLinks(),
+                        new TypeReference<List<MiniProgramLinkDto>>() {});
+                localPlatformDetailVo.setMiniProgramLinks(miniProgramLinks);
+            } catch (Exception e) {
+                log.warn("解析小程序链接JSON失败 - PlatformId: {}, Error: {}", id, e.getMessage());
+                localPlatformDetailVo.setMiniProgramLinks(new ArrayList<>());
+            }
+        } else {
+            localPlatformDetailVo.setMiniProgramLinks(new ArrayList<>());
+        }
 
         // 4.6 应用隐私设置
         try {
