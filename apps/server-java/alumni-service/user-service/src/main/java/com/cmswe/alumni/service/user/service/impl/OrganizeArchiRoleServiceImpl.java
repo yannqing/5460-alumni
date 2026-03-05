@@ -273,7 +273,7 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
                     .map(OrganizeArchiRole::getRoleOrId)
                     .collect(Collectors.toList());
 
-            if (organizeType == 1) { // 1-校处会：查询该校处会下所有正常状态成员（含未分配角色的）
+            if (organizeType == 1) { // 1-校处会：查询该校处会下所有正常状态成员（含预设成员 wxId 为空但有 role_or_id 的，也按架构角色展示）
                 List<LocalPlatformMember> members = new ArrayList<>();
                 if (!roleIds.isEmpty()) {
                     members.addAll(localPlatformMemberService.list(
@@ -319,7 +319,7 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
                 Map<Long, List<LocalPlatformMember>> membersByRoleId = members.stream()
                         .collect(Collectors.groupingBy(m -> m.getRoleOrId() != null ? m.getRoleOrId() : -1L));
 
-                // 转换为 OrganizationMemberV2Vo（校处会成员含联系方式、社会职务）
+                // 转换为 OrganizationMemberV2Vo（校处会成员含联系方式、社会职务；预设成员 wxId 为空时用 username 作为 nickname/name 便于展示）
                 for (Map.Entry<Long, List<LocalPlatformMember>> entry : membersByRoleId.entrySet()) {
                     Long roleId = entry.getKey();
                     List<LocalPlatformMember> roleMembers = entry.getValue();
@@ -335,7 +335,7 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
                                         .contactInformation(organizeType == 1 ? member.getContactInformation() : null)
                                         .socialDuties(organizeType == 1 ? member.getSocialDuties() : null);
 
-                                // 如果wxId不为空且能找到用户信息，则填充用户详细信息
+                                // wxId 不为空时填充用户详细信息；预设成员（wxId 为空）用 username 作为 nickname/name 便于在架构角色下展示
                                 if (member.getWxId() != null) {
                                     WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
                                     if (userInfo != null) {
@@ -343,7 +343,11 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
                                                 .name(userInfo.getName())
                                                 .avatarUrl(userInfo.getAvatarUrl())
                                                 .gender(userInfo.getGender());
+                                    } else {
+                                        builder.nickname(member.getUsername()).name(member.getUsername());
                                     }
+                                } else {
+                                    builder.nickname(member.getUsername()).name(member.getUsername());
                                 }
 
                                 return builder.build();

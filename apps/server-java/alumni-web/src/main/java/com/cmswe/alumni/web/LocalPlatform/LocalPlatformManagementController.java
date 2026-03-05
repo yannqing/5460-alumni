@@ -210,6 +210,54 @@ public class LocalPlatformManagementController {
         }
 
         /**
+         * 为校促会架构添加成员（将已有成员分配到组织架构角色，更新 role_or_id）
+         *
+         * @param addDto 请求参数：校促会id、成员id、role_or_id
+         * @return 返回添加结果
+         */
+        @PostMapping("/member/addToStructure")
+        @Operation(summary = "为校促会架构添加成员")
+        public BaseResponse<Boolean> addMemberToStructure(@Valid @RequestBody AddLocalPlatformMemberToStructureDto addDto) {
+                log.info("为校促会架构添加成员，校促会 ID: {}, 成员 ID: {}, 角色 ID: {}",
+                                addDto.getLocalPlatformId(), addDto.getMemberId(), addDto.getRoleOrId());
+
+                boolean result = localPlatformService.addMemberToStructure(
+                                addDto.getLocalPlatformId(),
+                                addDto.getMemberId(),
+                                addDto.getRoleOrId());
+
+                if (result) {
+                        return ResultUtils.success(Code.SUCCESS, true, "添加成功");
+                } else {
+                        return ResultUtils.failure(Code.FAILURE, false, "添加失败");
+                }
+        }
+
+        /**
+         * 将成员从校促会架构移除（清空 role_or_id，非逻辑删除）
+         *
+         * @param removeDto 请求参数：校促会id、成员id
+         * @return 返回移除结果
+         */
+        @DeleteMapping("/member/removeFromStructure")
+        @Operation(summary = "将成员从校促会架构移除")
+        public BaseResponse<Boolean> removeMemberFromStructure(
+                        @Valid @RequestBody RemoveLocalPlatformMemberFromStructureDto removeDto) {
+                log.info("将成员从校促会架构移除，校促会 ID: {}, 成员 ID: {}",
+                                removeDto.getLocalPlatformId(), removeDto.getMemberId());
+
+                boolean result = localPlatformService.removeMemberFromStructure(
+                                removeDto.getLocalPlatformId(),
+                                removeDto.getMemberId());
+
+                if (result) {
+                        return ResultUtils.success(Code.SUCCESS, true, "移除成功");
+                } else {
+                        return ResultUtils.failure(Code.FAILURE, false, "移除失败");
+                }
+        }
+
+        /**
          * 邀请成员加入校处会
          *
          * @param inviteDto 邀请请求参数

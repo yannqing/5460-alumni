@@ -21,9 +21,12 @@ import java.io.Serializable;
 @Schema(description = "校促会成员列表响应")
 public class LocalPlatformMemberListVo implements Serializable {
 
-    @Schema(description = "用户ID")
+    @Schema(description = "成员ID（local_platform_member 表主键，用于 addToStructure/removeFromStructure）")
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long wxId;
+    private Long memberId;
+
+    @Schema(description = "用户ID（字符串形式，避免前端长整型精度丢失）")
+    private String wxId;
 
     @Schema(description = "用户名")
     private String username;
@@ -43,6 +46,9 @@ public class LocalPlatformMemberListVo implements Serializable {
 
     @Schema(description = "社会职务")
     private String socialDuties;
+
+    @Schema(description = "头像URL")
+    private String avatarUrl;
 
     @Serial
     private static final long serialVersionUID = 1L;

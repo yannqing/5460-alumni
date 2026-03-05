@@ -1715,17 +1715,118 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             roleNameMap = roles.stream()
                     .collect(Collectors.toMap(OrganizeArchiRole::getRoleOrId, OrganizeArchiRole::getRoleOrName, (a, b) -> a));
         }
+        List<Long> wxIds = members.stream()
+                .map(LocalPlatformMember::getWxId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, String> avatarMap = new HashMap<>();
+        if (!wxIds.isEmpty()) {
+            List<WxUserInfo> userInfos = wxUserInfoService.list(
+                    new LambdaQueryWrapper<WxUserInfo>().in(WxUserInfo::getWxId, wxIds));
+            avatarMap = userInfos.stream()
+                    .filter(u -> u.getAvatarUrl() != null)
+                    .collect(Collectors.toMap(WxUserInfo::getWxId, WxUserInfo::getAvatarUrl, (a, b) -> a));
+        }
         final Map<Long, String> finalRoleNameMap = roleNameMap;
+        final Map<Long, String> finalAvatarMap = avatarMap;
         return members.stream()
                 .map(m -> LocalPlatformMemberListVo.builder()
-                        .wxId(m.getWxId())
+                        .memberId(m.getId())
+                        .wxId(m.getWxId() != null ? String.valueOf(m.getWxId()) : null)
                         .username(m.getUsername())
                         .roleName(m.getRoleName())
                         .roleOrId(m.getRoleOrId())
                         .roleOrName(m.getRoleOrId() != null ? finalRoleNameMap.get(m.getRoleOrId()) : null)
                         .contactInformation(m.getContactInformation())
                         .socialDuties(m.getSocialDuties())
+                        .avatarUrl(m.getWxId() != null ? finalAvatarMap.get(m.getWxId()) : null)
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId) {
+        if (localPlatformId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校促会ID不能为空");
+        }
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+        if (roleOrId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
+        }
+        log.info("为校促会架构添加成员 - 校促会ID: {}, 成员ID: {}, 角色ID: {}", localPlatformId, memberId, roleOrId);
+
+        // 1. 校验成员是否存在且属于该校促会
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员不存在");
+        }
+        if (!localPlatformId.equals(member.getLocalPlatformId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "该成员不属于该校促会");
+        }
+        if (!Integer.valueOf(1).equals(member.getStatus())) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "成员状态异常，无法添加至架构");
+        }
+
+        // 2. 校验组织架构角色是否存在且属于该校促会
+        OrganizeArchiRole role = organizeArchiRoleService.getOne(
+                new LambdaQueryWrapper<OrganizeArchiRole>()
+                        .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
+                        .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
+                        .eq(OrganizeArchiRole::getOrganizeType, 1)
+                        .eq(OrganizeArchiRole::getStatus, 1));
+        if (role == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "组织架构角色不存在或未启用");
+        }
+
+        // 3. 更新成员的 role_or_id 和 role_name
+        member.setRoleOrId(roleOrId);
+        member.setRoleName(role.getRoleOrName());
+        member.setIsNu(1);
+
+        boolean result = localPlatformMemberService.updateById(member);
+        if (!result) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员架构角色失败");
+        }
+        log.info("为校促会架构添加成员成功 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 角色名: {}",
+                localPlatformId, memberId, roleOrId, role.getRoleOrName());
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeMemberFromStructure(Long localPlatformId, Long memberId) {
+        if (localPlatformId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校促会ID不能为空");
+        }
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+        log.info("将成员从校促会架构移除 - 校促会ID: {}, 成员ID: {}", localPlatformId, memberId);
+
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员不存在");
+        }
+        if (!localPlatformId.equals(member.getLocalPlatformId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "该成员不属于该校促会");
+        }
+
+        // 清空 role_or_id、role_name，设置 is_nu=0（使用 lambdaUpdate 显式设置 null，因 updateById 会忽略 null 值）
+        boolean result = localPlatformMemberService.lambdaUpdate()
+                .set(LocalPlatformMember::getRoleOrId, null)
+                .set(LocalPlatformMember::getRoleName, null)
+                .set(LocalPlatformMember::getIsNu, 0)
+                .eq(LocalPlatformMember::getId, memberId)
+                .eq(LocalPlatformMember::getLocalPlatformId, localPlatformId)
+                .update();
+        if (!result) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "移除成员架构角色失败");
+        }
+        log.info("将成员从校促会架构移除成功 - 校促会ID: {}, 成员ID: {}", localPlatformId, memberId);
+        return true;
     }
 }

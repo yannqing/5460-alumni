@@ -1,6 +1,7 @@
 // pages/audit/schooloffice/organization/organization.js
 const { localPlatformManagementApi, localPlatformApi } = require('../../../../api/api.js')
 const app = getApp()
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
@@ -13,6 +14,8 @@ Page({
     roleLoading: false, // 角色加载状态
     selectedOrganizeId: 0, // 存储选中的organizeId
     expandedRoles: {}, // 存储展开状态的角色ID
+    expandedMembers: {}, // 存储展开状态的成员列表
+    defaultUserAvatarUrl: config.defaultAvatar,
     hasSingleSchoolOffice: false, // 是否只有一个校促会权限
     // 编辑弹窗相关
     showEditModal: false,
@@ -38,7 +41,12 @@ Page({
       pid: '0' // 默认顶级
     },
     parentOptions: [], // 父级选项列表
-    selectedParentName: '' // 选中的父级名称
+    selectedParentName: '', // 选中的父级名称
+    // 添加成员到架构相关
+    showAddMemberModal: false,
+    currentRole: null, // 当前操作的角色
+    memberList: [], // 校促会成员列表
+    memberLoading: false // 成员列表加载状态
   },
 
   onLoad(options) {
@@ -309,6 +317,14 @@ Page({
     const expandedRoles = { ...this.data.expandedRoles }
     expandedRoles[roleOrId] = !expandedRoles[roleOrId]
     this.setData({ expandedRoles })
+  },
+
+  // 切换成员列表展开/收缩状态
+  toggleMembers(e) {
+    const roleOrId = e.currentTarget.dataset.roleOrId
+    const expandedMembers = { ...this.data.expandedMembers }
+    expandedMembers[roleOrId] = !expandedMembers[roleOrId]
+    this.setData({ expandedMembers })
   },
 
   // 打开编辑弹窗
@@ -872,5 +888,163 @@ Page({
     console.log('[Debug] organizeId:', strOrganizeId, '类型:', typeof strOrganizeId)
     
     return localPlatformManagementApi.deleteRole(strRoleOrId, strOrganizeId)
+  },
+
+  // 打开添加成员到架构弹窗
+  openAddMemberModal(e) {
+    const { role } = e.currentTarget.dataset
+    this.setData({
+      currentRole: role,
+      showAddMemberModal: true
+    })
+    this.loadMemberList()
+  },
+
+  // 关闭添加成员到架构弹窗
+  closeAddMemberModal() {
+    this.setData({
+      showAddMemberModal: false,
+      currentRole: null,
+      memberList: []
+    })
+  },
+
+  // 加载校促会成员列表
+  async loadMemberList() {
+    try {
+      this.setData({ memberLoading: true })
+      const { selectedOrganizeId } = this.data
+      const res = await localPlatformManagementApi.getMemberList(selectedOrganizeId)
+      
+      if (res.data && res.data.code === 200) {
+        // Add selected property to each member
+        const members = (res.data.data || []).map(member => ({
+          ...member,
+          selected: false
+        }))
+        this.setData({
+          memberList: members
+        })
+      } else {
+        console.error('[Debug] 获取成员列表失败:', res)
+        this.setData({ memberList: [] })
+      }
+    } catch (error) {
+      console.error('[Debug] 加载成员列表失败:', error)
+      this.setData({ memberList: [] })
+    } finally {
+      this.setData({ memberLoading: false })
+    }
+  },
+
+  // 选择/取消选择成员
+  toggleMemberSelection(e) {
+    const { index } = e.currentTarget.dataset
+    const memberList = [...this.data.memberList]
+    memberList[index].selected = !memberList[index].selected
+    this.setData({ memberList })
+  },
+
+  // 提交添加成员到架构
+  async submitAddMembers() {
+    const { currentRole, memberList, selectedOrganizeId } = this.data
+    
+    // Get selected members
+    const selectedMembers = memberList.filter(member => member.selected)
+    
+    if (selectedMembers.length === 0) {
+      wx.showToast({
+        title: '请选择至少一个成员',
+        icon: 'none'
+      })
+      return
+    }
+    
+    try {
+      wx.showLoading({ title: '添加中...' })
+      
+      // 批量添加成员
+      const promises = selectedMembers.map(member => {
+        return localPlatformManagementApi.addMemberToStructure({
+          localPlatformId: selectedOrganizeId,
+          memberId: member.memberId, // 使用正确的字段名 memberId
+          roleOrId: currentRole.roleOrId
+        })
+      })
+      
+      const results = await Promise.all(promises)
+      
+      // 检查是否所有请求都成功
+      const allSuccess = results.every(res => res.data && res.data.code === 200)
+      
+      if (allSuccess) {
+        wx.showToast({
+          title: '添加成功',
+          icon: 'success'
+        })
+        this.closeAddMemberModal()
+        // 重新加载角色列表以更新成员信息
+        await this.loadRoleList(selectedOrganizeId)
+      } else {
+        wx.showToast({
+          title: '部分成员添加失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 添加成员失败:', error)
+      wx.showToast({
+        title: '添加失败',
+        icon: 'none'
+      })
+    } finally {
+      wx.hideLoading()
+    }
+  },
+
+  // 从架构中删除成员
+  async removeMemberFromStructure(e) {
+    const { member, role } = e.currentTarget.dataset
+    const { selectedOrganizeId } = this.data
+    
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要将 ${member.name || member.nickname || member.username} 从 ${role.roleOrName} 中移除吗？`,
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...' })
+            
+            const result = await localPlatformManagementApi.removeMemberFromStructure({
+              localPlatformId: selectedOrganizeId,
+              memberId: member.id || member.memberId // 兼容不同的字段名
+            })
+            
+            if (result.data && result.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+              // 重新加载角色列表以更新成员信息
+              await this.loadRoleList(selectedOrganizeId)
+            } else {
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              })
+            }
+          } catch (error) {
+            console.error('[Debug] 删除成员失败:', error)
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          } finally {
+            wx.hideLoading()
+          }
+        }
+      }
+    })
   }
 })
