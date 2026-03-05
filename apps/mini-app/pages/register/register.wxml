@@ -63,18 +63,18 @@
         </view>
       </view>
 
-      <!-- 大学 -->
+      <!-- 学校 -->
       <view class="form-item">
-        <view class="form-label">大学</view>
+        <view class="form-label">学校</view>
         <picker
           mode="selector"
-          range="{{universityList}}"
-          value="{{universityIndex}}"
-          bindchange="onUniversityChange"
+          range="{{schoolList}}"
+          value="{{schoolIndex}}"
+          bindchange="onSchoolChange"
         >
           <view class="form-picker">
-            <text class="{{formData.university ? 'picker-value' : 'picker-placeholder'}}">
-              {{formData.university || '请选择您的大学'}}
+            <text class="{{formData.school ? 'picker-value' : 'picker-placeholder'}}">
+              {{formData.school || '请选择您的学校'}}
             </text>
             <text class="picker-arrow-text">></text>
           </view>
@@ -84,16 +84,19 @@
       <!-- 手机号 -->
       <view class="form-item">
         <view class="form-label">手机号</view>
-        <view class="form-input-wrapper">
-          <input
-            class="form-input"
-            type="number"
-            maxlength="11"
-            placeholder="请输入您的手机号"
-            placeholder-class="input-placeholder"
-            value="{{formData.phone}}"
-            bindinput="onPhoneInput"
-          />
+        <view class="phone-input-wrapper">
+          <view class="phone-display" wx:if="{{formData.phone}}">
+            <text class="phone-value">{{formData.phone}}</text>
+            <view class="phone-change" bindtap="clearPhone">更换</view>
+          </view>
+          <button
+            wx:else
+            class="get-phone-btn"
+            open-type="getPhoneNumber"
+            bindgetphonenumber="onGetPhoneNumber"
+          >
+            <text class="btn-text">获取微信手机号</text>
+          </button>
         </view>
       </view>
     </view>

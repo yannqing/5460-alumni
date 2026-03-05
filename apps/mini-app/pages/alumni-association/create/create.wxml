@@ -24,6 +24,20 @@
     </view>
 
     <view class="form-item required">
+      <text class="label">常驻地点</text>
+      <picker
+        mode="region"
+        value="{{regionValue}}"
+        bindchange="handleRegionChange"
+        class="input"
+      >
+        <view class="picker-content">
+          {{formData.location || '请选择省/市/区'}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item required">
       <text class="label">是否已经是校促会会员</text>
       <radio-group class="platform-member-radio" bindchange="handlePlatformMemberChange">
         <label class="radio-label-inline">
@@ -50,6 +64,26 @@
         </view>
       </picker>
     </view>
+
+    <view class="form-item required">
+      <text class="label">组织架构模板</text>
+      <picker
+        mode="selector"
+        range="{{templateList}}"
+        range-key="templateName"
+        value="{{templateIndex}}"
+        bindchange="handleTemplateChange"
+        class="input"
+      >
+        <view class="picker-content">
+          {{selectedTemplate.templateName || '请选择组织架构模板'}}
+        </view>
+      </picker>
+      <view wx:if="{{selectedTemplate.description}}" class="template-description">
+        {{selectedTemplate.description}}
+      </view>
+    </view>
+
     <view class="form-title">成员信息</view>
     <view class="form-item required">
       <text class="label">联系人姓名</text>

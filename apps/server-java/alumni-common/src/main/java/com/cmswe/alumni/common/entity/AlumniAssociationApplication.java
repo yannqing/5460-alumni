@@ -123,6 +123,12 @@ public class AlumniAssociationApplication implements Serializable {
     private String associationProfile;
 
     /**
+     * 组织架构模板ID
+     */
+    @TableField(value = "template_id")
+    private Long templateId;
+
+    /**
      * 初始成员列表（JSON格式）
      * 格式：[{"wxId": 123, "name": "张三", "roleId": 1}, {"wxId": 456, "name": "李四", "roleId": 2}]
      */

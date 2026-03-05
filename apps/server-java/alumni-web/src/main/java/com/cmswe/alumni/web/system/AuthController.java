@@ -2,15 +2,18 @@ package com.cmswe.alumni.web.system;
 
 import com.cmswe.alumni.api.user.AuthService;
 import com.cmswe.alumni.common.constant.Code;
+import com.cmswe.alumni.common.dto.GetPhoneNumberRequest;
 import com.cmswe.alumni.common.dto.WxInitRequest;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
+import com.cmswe.alumni.common.vo.GetPhoneNumberResponse;
 import com.cmswe.alumni.common.vo.WxInitResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,14 @@ public class AuthController {
         WxInitResponse wxInitResponse = authService.wxInit(wxInitRequest, request);
 
         return ResultUtils.success(Code.SUCCESS, wxInitResponse);
+    }
+
+    @Operation(summary = "获取用户手机号")
+    @PostMapping("/getPhoneNumber")
+    public BaseResponse<GetPhoneNumberResponse> getPhoneNumber(@Valid @RequestBody GetPhoneNumberRequest request) {
+        GetPhoneNumberResponse response = authService.getPhoneNumber(request);
+
+        return ResultUtils.success(Code.SUCCESS, response, "获取手机号成功");
     }
 
     /**
