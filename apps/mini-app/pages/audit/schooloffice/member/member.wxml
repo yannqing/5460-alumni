@@ -31,6 +31,10 @@
             <view class="member-text-group">
               <text class="member-name">{{item.name || item.nickname || '未命名'}}</text>
               <text class="member-gender-text" wx:if="{{item.gender}}">{{item.gender === 1 ? '男' : '女'}}</text>
+              <text class="member-joined-tag" wx:if="{{item.joined}}">已注册</text>
+              <text class="member-role-name" wx:if="{{item.roleName}}">角色: {{item.roleName}}</text>
+              <text class="member-info" wx:if="{{item.contact_information}}">联系方式: {{item.contact_information}}</text>
+              <text class="member-info" wx:if="{{item.social_duties}}">社会职务: {{item.social_duties}}</text>
             </view>
           </view>
           <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</view>

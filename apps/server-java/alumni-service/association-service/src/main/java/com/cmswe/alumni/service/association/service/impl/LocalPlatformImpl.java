@@ -923,11 +923,13 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     response.setId(member.getId());
                     response.setUsername(member.getUsername());
                     response.setRoleName(member.getRoleName());
+                    response.setContactInformation(member.getContactInformation());
+                    response.setSocialDuties(member.getSocialDuties());
                     
                     // 如果已加入平台，填充用户信息
                     if (isJoined) {
                         WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
-                        if (userInfo != null) {
+                        if (userInfo != null) { 
                             // 应用用户信息过滤条件
                             boolean matchFilter = true;
                             if (StringUtils.isNotBlank(nickname) && !userInfo.getNickname().contains(nickname)) {

@@ -57,6 +57,18 @@ public class OrganizationMemberResponse extends UserListResponse {
     @Schema(description = "成员 ID（来自 local_platform_member 表）")
     private Long id;
 
+    /**
+     * 联系方式
+     */
+    @Schema(description = "联系方式")
+    private String contactInformation;
+
+    /**
+     * 社会职务
+     */
+    @Schema(description = "社会职务")
+    private String socialDuties;
+
     @Serial
     private static final long serialVersionUID = 1L;
 
