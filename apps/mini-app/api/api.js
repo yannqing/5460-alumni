@@ -594,11 +594,11 @@ const localPlatformManagementApi = {
   // 删除校促会角色
   deleteRole: (roleOrId, organizeId) => del('/localPlatformManagement/role/delete', { roleOrId, organizeId }),
   // 邀请校促会成员
-  inviteMember: (localPlatformId, wxId, roleOrId) => post('/localPlatformManagement/inviteMember', { localPlatformId, wxId, roleOrId }),
+  inviteMember: (localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) => post('/localPlatformManagement/inviteMember', { localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties }),
   // 删除校促会成员
   deleteMember: (localPlatformId, wxId) => del('/localPlatformManagement/deleteMember', { localPlatformId, wxId }),
   // 更新校促会成员角色
-  updateMemberRole: (localPlatformId, wxId, roleOrId) => put('/localPlatformManagement/updateMemberRole', { localPlatformId, wxId, roleOrId }),
+  updateMemberRole: (localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) => put('/localPlatformManagement/updateMemberRole', { localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties }),
 }
 
 // ==================== 校友会管理相关接口 ====================

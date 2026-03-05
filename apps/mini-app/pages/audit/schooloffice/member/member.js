@@ -346,7 +346,10 @@ Page({
         wxId: '',
         roleOrId: '',
         roleOrName: '',
-        roleIndex: 0
+        roleName: '',
+        roleIndex: 0,
+        contactInformation: '',
+        socialDuties: ''
       },
       alumniSearchResults: [],
       showAlumniSearchResults: false,
@@ -397,6 +400,54 @@ Page({
     } else {
       this.setData({ alumniSearchResults: [] })
     }
+  },
+
+  // 处理联系方式输入
+  onContactInformationInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.contactInformation': value
+    })
+  },
+
+  // 处理社会职务输入
+  onSocialDutiesInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.socialDuties': value
+    })
+  },
+
+  // 处理职务输入
+  onRoleNameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.roleName': value
+    })
+  },
+
+  // 处理编辑弹窗职务输入
+  onEditRoleNameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.roleName': value
+    })
+  },
+
+  // 处理编辑弹窗联系方式输入
+  onEditContactInformationInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.contactInformation': value
+    })
+  },
+
+  // 处理编辑弹窗社会职务输入
+  onEditSocialDutiesInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.socialDuties': value
+    })
   },
 
   // 处理校友姓名输入框聚焦
@@ -451,7 +502,7 @@ Page({
   // 提交邀请
   async submitInvite() {
     try {
-      const { wxId, roleOrId } = this.data.inviteForm
+      const { wxId, roleOrId, name, roleName, contactInformation, socialDuties } = this.data.inviteForm
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
@@ -464,7 +515,7 @@ Page({
       }
 
       // 调用邀请成员接口，直接传递字符串形式的wxId和roleOrId，避免大整数精度丢失
-      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId)
+      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId, name, roleName, contactInformation, socialDuties)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -555,8 +606,8 @@ Page({
   },
 
   // 调用邀请成员接口
-  inviteMemberAPI(localPlatformId, wxId, roleOrId) {
-    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId)
+  inviteMemberAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) {
+    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties)
   },
 
   // 打开编辑成员弹窗
@@ -577,6 +628,9 @@ Page({
         ...member,
         newRoleId: (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || '',
         newRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
+        roleName: member.roleName || '',
+        contactInformation: member.contactInformation || '',
+        socialDuties: member.socialDuties || '',
         roleIndex: 0
       },
       showEditModal: true
@@ -619,7 +673,7 @@ Page({
   async submitEdit() {
     try {
       const { editingMember } = this.data
-      const { newRoleId, wxId } = editingMember
+      const { newRoleId, wxId, name, roleName, contactInformation, socialDuties } = editingMember
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
@@ -632,7 +686,7 @@ Page({
       }
 
       // 调用更新成员角色接口
-      const res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId)
+      const res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId, name, roleName, contactInformation, socialDuties)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -704,7 +758,7 @@ Page({
   },
 
   // 调用更新成员角色接口
-  updateMemberRoleAPI(localPlatformId, wxId, roleOrId) {
-    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId)
+  updateMemberRoleAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) {
+    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties)
   }
 })
