@@ -35,12 +35,41 @@
             </view>
             <view class="expand-placeholder" wx:else></view>
             <view class="role-name">{{item.roleOrName}}</view>
+            <view
+              class="expand-icon members-icon {{expandedMembers[item.roleOrId] ? 'expanded' : ''}}"
+              wx:if="{{item.members && item.members.length > 0}}"
+              catchtap="toggleMembers"
+              data-role-or-id="{{item.roleOrId}}"
+            >
+              <text class="arrow">▼</text>
+            </view>
           </view>
           <view class="role-actions">
+            <view class="add-member-btn" catchtap="openAddMemberModal" data-role="{{item}}">添加成员</view>
             <view class="edit-btn" catchtap="openEditModal" data-role="{{item}}">编辑</view>
             <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{item.roleOrId}}">删除</view>
           </view>
         </view>
+        <!-- 顶级架构成员列表 -->
+        <block wx:if="{{item.members && item.members.length > 0 && expandedMembers[item.roleOrId]}}">
+          <view class="members-container level-1">
+            <view class="members-title">成员列表</view>
+            <block wx:for="{{item.members}}" wx:for-item="member" wx:key="id">
+              <view class="member-item">
+                <view class="member-avatar">
+                  <image src="{{member.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+                </view>
+                <view class="member-info">
+                  <view class="member-name">{{member.name || member.nickname || member.username}}</view>
+                  <view class="member-role">{{member.roleName}}</view>
+                </view>
+                <view class="member-actions">
+                  <view class="delete-member-btn" catchtap="removeMemberFromStructure" data-member="{{member}}" data-role="{{item}}">删除</view>
+                </view>
+              </view>
+            </block>
+          </view>
+        </block>
         <!-- 二级架构 -->
         <block wx:if="{{expandedRoles[item.roleOrId]}}">
           <block wx:for="{{item.children}}" wx:for-item="child" wx:key="roleOrId">
@@ -56,8 +85,17 @@
                 </view>
                 <view class="expand-placeholder" wx:else></view>
                 <view class="role-name">{{child.roleOrName}}</view>
+                <view
+                  class="expand-icon members-icon {{expandedMembers[child.roleOrId] ? 'expanded' : ''}}"
+                  wx:if="{{child.members && child.members.length > 0}}"
+                  catchtap="toggleMembers"
+                  data-role-or-id="{{child.roleOrId}}"
+                >
+                  <text class="arrow">▼</text>
+                </view>
               </view>
               <view class="role-actions">
+                <view class="add-member-btn" catchtap="openAddMemberModal" data-role="{{child}}">添加成员</view>
                 <view class="edit-btn" catchtap="openEditModal" data-role="{{child}}">编辑</view>
                 <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{child.roleOrId}}">删除</view>
               </view>
@@ -69,13 +107,62 @@
                   <view class="role-left">
                     <view class="expand-placeholder"></view>
                     <view class="role-name">{{grandChild.roleOrName}}</view>
+                    <view
+                      class="expand-icon members-icon {{expandedMembers[grandChild.roleOrId] ? 'expanded' : ''}}"
+                      wx:if="{{grandChild.members && grandChild.members.length > 0}}"
+                      catchtap="toggleMembers"
+                      data-role-or-id="{{grandChild.roleOrId}}"
+                    >
+                      <text class="arrow">▼</text>
+                    </view>
                   </view>
                   <view class="role-actions">
+                    <view class="add-member-btn" catchtap="openAddMemberModal" data-role="{{grandChild}}">添加成员</view>
                     <view class="edit-btn" catchtap="openEditModal" data-role="{{grandChild}}">编辑</view>
                     <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{grandChild.roleOrId}}">删除</view>
                   </view>
                 </view>
+                <!-- 成员列表 -->
+                <block wx:if="{{grandChild.members && grandChild.members.length > 0 && expandedMembers[grandChild.roleOrId]}}">
+                  <view class="members-container level-3">
+                    <view class="members-title">成员列表</view>
+                    <block wx:for="{{grandChild.members}}" wx:for-item="member" wx:key="id">
+                      <view class="member-item">
+                        <view class="member-avatar">
+                          <image src="{{member.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+                        </view>
+                        <view class="member-info">
+                          <view class="member-name">{{member.name || member.nickname || member.username}}</view>
+                          <view class="member-role">{{member.roleName}}</view>
+                        </view>
+                        <view class="member-actions">
+                          <view class="delete-member-btn" catchtap="removeMemberFromStructure" data-member="{{member}}" data-role="{{grandChild}}">删除</view>
+                        </view>
+                      </view>
+                    </block>
+                  </view>
+                </block>
               </block>
+            </block>
+            <!-- 成员列表 -->
+            <block wx:if="{{child.members && child.members.length > 0 && expandedMembers[child.roleOrId]}}">
+              <view class="members-container level-2">
+                <view class="members-title">成员列表</view>
+                <block wx:for="{{child.members}}" wx:for-item="member" wx:key="id">
+                  <view class="member-item">
+                    <view class="member-avatar">
+                      <image src="{{member.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+                    </view>
+                    <view class="member-info">
+                      <view class="member-name">{{member.name || member.nickname || member.username}}</view>
+                      <view class="member-role">{{member.roleName}}</view>
+                    </view>
+                    <view class="member-actions">
+                      <view class="delete-member-btn" catchtap="removeMemberFromStructure" data-member="{{member}}" data-role="{{child}}">删除</view>
+                    </view>
+                  </view>
+                </block>
+              </view>
             </block>
           </block>
         </block>
@@ -269,4 +356,41 @@
     </view>
   </view>
 </view>
+
+  <!-- 添加成员到架构弹窗 -->
+  <view class="add-member-modal" wx:if="{{showAddMemberModal}}">
+    <view class="add-member-modal-overlay" bindtap="closeAddMemberModal"></view>
+    <view class="add-member-modal-content">
+      <view class="add-member-modal-header">
+        <text class="add-member-modal-title">添加成员到「{{currentRole.roleOrName}}」</text>
+        <text class="add-member-modal-close" bindtap="closeAddMemberModal">×</text>
+      </view>
+      <view class="add-member-modal-body">
+        <view wx:if="{{memberLoading}}" class="loading-state">
+          <text>加载成员中...</text>
+        </view>
+        <scroll-view class="member-list" wx:else scroll-y show-scrollbar="{{false}}">
+          <view class="member-item" wx:for="{{memberList}}" wx:key="wxId" bindtap="toggleMemberSelection" data-index="{{index}}">
+            <view class="member-avatar">
+              <image src="{{item.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+            </view>
+            <view class="member-info">
+              <view class="member-name">{{item.username || item.nickname}}</view>
+              <view class="member-role">{{item.roleName}}</view>
+            </view>
+            <view class="member-checkbox {{item.selected ? 'checked' : ''}}">
+              <text wx:if="{{item.selected}}">✓</text>
+            </view>
+          </view>
+          <view class="empty-state" wx:if="{{memberList.length === 0}}">
+            <text>暂无成员数据</text>
+          </view>
+        </scroll-view>
+      </view>
+      <view class="add-member-modal-footer">
+        <view class="add-member-btn-cancel" bindtap="closeAddMemberModal">取消</view>
+        <view class="add-member-btn-confirm" bindtap="submitAddMembers">确定添加</view>
+      </view>
+    </view>
+  </view>
 </custom-nav-bar>

@@ -613,6 +613,12 @@ const localPlatformManagementApi = {
   deletePresetMember: (memberId) => del('/localPlatformManagement/deletePresetMember', { memberId }),
   // 更新预设成员（关联注册用户）
   updatePresetMember: (memberId, wxId) => put('/localPlatformManagement/updatePresetMember', { memberId, wxId }),
+  // 为校促会架构添加成员
+  addMemberToStructure: (data) => post('/localPlatformManagement/member/addToStructure', data),
+  // 从校促会架构移除成员
+  removeMemberFromStructure: (data) => del('/localPlatformManagement/member/removeFromStructure', data),
+  // 获取校促会成员列表（用于添加到架构）
+  getMemberList: (localPlatformId) => get(`/localPlatformManagement/member/list/${localPlatformId}`),
 }
 
 // ==================== 校友会管理相关接口 ====================
