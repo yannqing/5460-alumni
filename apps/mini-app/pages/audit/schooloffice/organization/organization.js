@@ -411,7 +411,6 @@ Page({
         pid: editForm.pid === '0' ? null : editForm.pid, // 0表示顶级，传null
         roleOrName: editForm.roleOrName.trim(),
         remark: editForm.remark.trim(),
-        roleOrCode: editForm.roleOrCode.trim(),
         status: editForm.status
       })
 
