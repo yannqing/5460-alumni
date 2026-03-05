@@ -425,15 +425,22 @@ Page({
       return
     }
 
-    // 复制链接到剪贴板，提示用户粘贴到聊天中打开
-    wx.setClipboardData({
-      data: url,
-      success: () => {
-        wx.showModal({
-          title: '链接已复制',
-          content: `"${text}" 的链接已复制到剪贴板，请粘贴到微信聊天中发送，点击即可打开小程序`,
-          showCancel: false,
-          confirmText: '知道了'
+    // 使用 shortLink 直接打开小程序
+    wx.navigateToMiniProgram({
+      shortLink: url,
+      envVersion: 'release',
+      success() {
+        console.log('打开小程序成功:', text)
+      },
+      fail(err) {
+        // 用户取消时不提示
+        if (err.errMsg && err.errMsg.includes('cancel')) {
+          return
+        }
+        console.error('打开小程序失败:', err)
+        wx.showToast({
+          title: '打开失败，请稍后重试',
+          icon: 'none'
         })
       }
     })
