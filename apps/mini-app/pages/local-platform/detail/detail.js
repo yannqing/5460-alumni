@@ -12,9 +12,9 @@ Page({
     loading: true,
     // 校友会列表
     associations: [],
-    // 顶部标签：基本信息 / 组织结构 / 会员单位
+    // 顶部标签：基本信息 / 组织结构 / 最新动态 / 会员单位
     activeTab: 0,
-    tabs: ['基本信息', '组织架构', '会员单位'],
+    tabs: ['基本信息', '组织架构', '最新动态', '会员单位'],
     // 组织结构数据
     roleList: [], // 存储角色列表
     organizationLoading: false, // 组织结构加载状态
@@ -82,8 +82,8 @@ Page({
 
   // 下拉刷新
   onPullDownRefresh() {
-    // 如果当前单位标签页，刷新校友会列表
-    if (this.data.activeTab === 2) {
+    // 如果当前是会员单位标签页，刷新校友会列表
+    if (this.data.activeTab === 3) {
       this.loadAssociations(true).finally(() => {
         wx.stopPullDownRefresh()
       })
@@ -96,7 +96,7 @@ Page({
   // 上拉加载更多
   onReachBottom() {
     // 如果当前是会员单位标签页且有更多数据，加载更多
-    if (this.data.activeTab === 2 && this.data.hasMore) {
+    if (this.data.activeTab === 3 && this.data.hasMore) {
       this.loadAssociations()
     }
   },
@@ -152,7 +152,9 @@ Page({
           memberCount: data.memberCount || 0,
           principalName: data.principalName || null,
           principalPosition: data.principalPosition || null,
-          localPlatformPhone: data.localPlatformPhone || null
+          localPlatformPhone: data.localPlatformPhone || null,
+          // 小程序链接
+          miniProgramLinks: data.miniProgramLinks || []
         }
 
         // 处理并格式化文章列表 (资讯部分)
@@ -202,6 +204,9 @@ Page({
         wx.setNavigationBarTitle({
           title: platformInfo.city || '校促会'
         })
+
+        // 加载会员单位列表（用于基本信息页的头像预览）
+        this.loadAssociations(true)
       } else {
         wx.showToast({
           title: res.data?.msg || '加载失败',
@@ -219,25 +224,40 @@ Page({
     }
   },
 
+  // tab-bar 组件事件处理
+  onTabChange(e) {
+    const index = e.detail.index;
+    this.handleTabSwitch(index);
+  },
+
   // 顶部 Tab 切换
   switchTab(e) {
-    const index = e.currentTarget.dataset.index
-    this.setData({ activeTab: index })
+    const index = e.currentTarget.dataset.index;
+    this.handleTabSwitch(index);
+  },
+
+  handleTabSwitch(index) {
+    this.setData({ activeTab: index });
 
     // 切换到组织结构标签时，加载组织结构数据
     if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
       if (this.data.roleList.length === 0) {
-        this.loadOrganizationTree()
+        this.loadOrganizationTree();
       }
     }
-    // 切换到会员单位时加载数据
-    else if (index === 2) {
+    // 切换到会员单位时加载数据 (index 3)
+    else if (index === 3) {
       // 如果是首次切换到会员单位，重新加载数据
       if (this.data.associations.length === 0) {
-        this.loadAssociations(true)
+        this.loadAssociations(true);
       }
     }
+  },
+
+  // 跳转到会员单位 Tab
+  goToMemberTab() {
+    this.handleTabSwitch(3);
   },
 
   // 加载组织架构树
@@ -391,6 +411,32 @@ Page({
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${month}-${day} ${hours}:${minutes}`;
+  },
+
+  // 点击小程序链接
+  onMiniProgramLinkTap(e) {
+    const { url, text } = e.currentTarget.dataset
+
+    if (!url) {
+      wx.showToast({
+        title: '链接暂未配置',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 复制链接到剪贴板，提示用户粘贴到聊天中打开
+    wx.setClipboardData({
+      data: url,
+      success: () => {
+        wx.showModal({
+          title: '链接已复制',
+          content: `"${text}" 的链接已复制到剪贴板，请粘贴到微信聊天中发送，点击即可打开小程序`,
+          showCancel: false,
+          confirmText: '知道了'
+        })
+      }
+    })
   },
 
   // 跳转到文章详情

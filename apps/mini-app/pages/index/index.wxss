@@ -606,6 +606,39 @@
   overflow: hidden;
 }
 
+/* 主办方信息 */
+.activity-organizer {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.organizer-avatar {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.organizer-name {
+  font-size: 22rpx;
+  color: #666;
+  max-width: 150rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.organizer-type {
+  font-size: 18rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  flex-shrink: 0;
+}
+
 .activity-time,
 .activity-address {
   display: flex;

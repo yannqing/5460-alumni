@@ -112,6 +112,12 @@ public class LocalPlatform implements Serializable {
     private String phone;
 
     /**
+     * 小程序链接列表（JSON数组格式）
+     */
+    @TableField(value = "mini_program_links")
+    private String miniProgramLinks;
+
+    /**
      * 逻辑删除
      */
     @TableLogic

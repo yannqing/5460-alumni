@@ -126,6 +126,103 @@ page {
   padding-top: 0;
 }
 
+/* 会员头像预览 */
+.member-avatar-preview {
+  margin: 20rpx 0;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.avatar-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 18rpx;
+  margin-bottom: 16rpx;
+}
+
+.avatar-row:last-child {
+  margin-bottom: 0;
+}
+
+.preview-avatar {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.preview-avatar.view-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  border: 1rpx dashed #ccc;
+}
+
+.view-more-text {
+  font-size: 18rpx;
+  color: #666;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* 小程序链接样式 */
+.mini-program-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.mini-program-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  transition: background-color 0.2s;
+}
+
+.mini-program-item:active {
+  background-color: #f0f0f0;
+}
+
+.mini-program-item.disabled {
+  opacity: 0.5;
+}
+
+.mini-program-icon {
+  width: 60rpx;
+  height: 60rpx;
+  background: linear-gradient(135deg, #07C160 0%, #10B981 100%);
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+
+.mini-program-icon .icon-text {
+  font-size: 18rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+.mini-program-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.mini-program-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+  margin-left: 10rpx;
+}
+
 .divider {
   height: 1rpx;
   background-color: #f0f0f0;

@@ -234,6 +234,10 @@ const nearbyApi = {
 const activityApi = {
   // 获取活动列表
   getActivityList: (params) => get('/activities', params),
+  // 查询所有公开活动列表（分页）
+  getPublicActivityList: (params) => post('/activity/public/list', params),
+  // 查询首页展示的活动列表
+  getHomepageActivityList: (params) => post('/activity/homepage/list', params),
   // 获取活动详情
   getActivityDetail: (id) => get(`/activity/${id}`),
   // 报名活动

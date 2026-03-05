@@ -71,26 +71,6 @@ page {
   z-index: 1000;
 }
 
-.tabs {
-  display: flex;
-  background-color: #fff;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.tab-item {
-  flex: 1;
-  text-align: center;
-  padding: 30rpx 0;
-  font-size: 28rpx;
-  color: #666;
-}
-
-.tab-item.active {
-  color: #40B2E6;
-  font-weight: 600;
-  border-bottom: 4rpx solid #40B2E6;
-}
-
 .join-button {
   width: 100%;
   text-align: center;
@@ -138,6 +118,18 @@ page {
 
 .tab-content {
   padding: 20rpx;
+}
+
+/* Basic information items */
+.basic-info-item {
+  color: #666666;
+  font-size: 25rpx;
+  line-height: 58rpx;
+  padding: 10rpx 0;
+}
+
+.basic-info-item:first-child {
+  padding-top: 0;
 }
 
 /* 加入申请弹窗样式 */

@@ -147,27 +147,6 @@ page {
   gap: 12rpx;
 }
 
-/* 标签栏样式 */
-.tabs {
-  display: flex;
-  background-color: #fff;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.tab-item {
-  flex: 1;
-  text-align: center;
-  padding: 30rpx 0;
-  font-size: 28rpx;
-  color: #666;
-}
-
-.tab-item.active {
-  color: #40B2E6;
-  font-weight: 600;
-  border-bottom: 4rpx solid #40B2E6;
-}
-
 .location-row {
   display: flex;
   align-items: center;

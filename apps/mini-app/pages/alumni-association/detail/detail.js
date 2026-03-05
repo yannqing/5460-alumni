@@ -14,7 +14,7 @@ Page({
     associationId: '',
     associationInfo: null,
     activeTab: 0,
-    tabs: ['基本信息', '组织架构', '成员列表'],//, '关系图谱'],
+    tabs: ['基本信息', '组织架构', '最新动态', '成员列表'],
     members: [],
     // 图谱数据（预留后端接口）
     graphData: null,
@@ -152,9 +152,17 @@ Page({
           president: '',
           vicePresidents: [],
           establishedYear: null,
-          description: '',
+          description: item.associationProfile || '',
           certifications: [],
-          applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null
+          applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null,
+          // 校友会负责人信息
+          chargeName: item.chargeName || '',
+          chargeRole: item.chargeRole || '',
+          chargeSocialAffiliation: item.chargeSocialAffiliation || '',
+          // 驻会代表信息
+          zhName: item.zhName || '',
+          zhPhone: item.zhPhone || '',
+          zhSocialAffiliation: item.zhSocialAffiliation || ''
         };
 
         const formattedActivityList = (item.activityList || []).map(activity => ({
@@ -346,22 +354,32 @@ Page({
     }
   },
 
+  // tab-bar 组件事件处理
+  onTabChange(e) {
+    const index = e.detail.index;
+    this.handleTabSwitch(index);
+  },
+
   switchTab(e) {
-    const index = e.currentTarget.dataset.index
-    this.setData({ activeTab: index })
+    const index = e.currentTarget.dataset.index;
+    this.handleTabSwitch(index);
+  },
+
+  handleTabSwitch(index) {
+    this.setData({ activeTab: index });
 
     // 切换到组织结构标签时，加载组织结构数据
     if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
       if (this.data.roleList.length === 0) {
-        this.loadOrganizationTree()
+        this.loadOrganizationTree();
       }
     }
-    // 切换到成员列表标签时
-    else if (index === 2) {
+    // 切换到成员列表标签时 (index 3)
+    else if (index === 3) {
       // 如果还没加载过成员数据，则加载
       if (this.data.members.length === 0) {
-        this.loadMembers()
+        this.loadMembers();
       }
     }
     /* // 切换到图谱标签时

@@ -1,0 +1,103 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友活动">
+  <message-notification />
+
+  <view class="activity-list-page">
+    <!-- 活动列表 -->
+    <scroll-view
+      class="activity-scroll"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      bindscrolltolower="loadMore"
+      refresher-enabled="{{true}}"
+      refresher-triggered="{{refreshing}}"
+      bindrefresherrefresh="onRefresh"
+    >
+      <!-- 活动卡片列表 -->
+      <view class="activity-list" wx:if="{{activityList.length > 0}}">
+        <view
+          class="activity-card"
+          wx:for="{{activityList}}"
+          wx:key="activity_uuid"
+          bindtap="gotoActivityDetail"
+          data-item="{{item}}"
+        >
+          <!-- 左侧：活动封面 -->
+          <view class="activity-cover-wrapper">
+            <image
+              class="activity-cover"
+              src="{{item.activity_poster.preview_url}}"
+              mode="aspectFill"
+              lazy-load
+            ></image>
+            <!-- 状态标签 -->
+            <view class="activity-status {{activityThemes[item.activity_status].theme}}">
+              <view class="status-dot"></view>
+              <text class="status-text">{{activityThemes[item.activity_status].name}}</text>
+            </view>
+            <!-- 活动类型标签 -->
+            <view class="activity-type-tag" wx:if="{{item.type.activity_type_name}}">
+              <text class="type-text">{{item.type.activity_type_name}}</text>
+            </view>
+          </view>
+
+          <!-- 右侧：活动信息 -->
+          <view class="activity-info">
+            <text class="activity-title">{{item.activityTitle || item.activity_theme}}</text>
+            <!-- 主办方信息 -->
+            <view class="activity-organizer" wx:if="{{item.organizerName}}">
+              <image class="organizer-avatar" src="{{item.organizerAvatar}}" mode="aspectFill" />
+              <text class="organizer-name">{{item.organizerName}}</text>
+              <text class="organizer-type" wx:if="{{item.organizerType === 0}}">校友会</text>
+              <text class="organizer-type" wx:elif="{{item.organizerType === 1}}">校促会</text>
+              <text class="organizer-type" wx:elif="{{item.organizerType === 2}}">校友总会</text>
+            </view>
+            <view class="activity-time">
+              <image class="info-icon" src="/assets/icons/calendar.png" mode="aspectFit" />
+              <text class="info-text">{{item.startTime || item.activity_starttime}}</text>
+            </view>
+            <view class="activity-address" wx:if="{{item.address || item.activity_address}}">
+              <image class="info-icon" src="/assets/icons/position.png" mode="aspectFit" />
+              <text class="info-text">{{item.province}}{{item.city}}{{item.district}}{{item.address || item.activity_address}}</text>
+            </view>
+          </view>
+
+          <!-- 价格标签 -->
+          <view class="activity-price-tag">
+            <text wx:if="{{item.activity_fees !== '0.00'}}" class="price-text">{{item.activity_fees}}/人</text>
+            <text wx:else class="price-text free">免费</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{!loading && activityList.length === 0}}">
+        <view class="empty-icon">📭</view>
+        <view class="empty-text">暂无校友活动</view>
+        <view class="empty-desc">敬请期待更多精彩活动</view>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="loading-more" wx:if="{{loading && activityList.length > 0}}">
+        <view class="loading-dots">
+          <view class="loading-dot"></view>
+          <view class="loading-dot"></view>
+          <view class="loading-dot"></view>
+        </view>
+      </view>
+
+      <!-- 没有更多 -->
+      <view class="no-more" wx:if="{{!hasMore && activityList.length > 0}}">没有更多了</view>
+
+      <!-- 首次加载中 -->
+      <view class="first-loading" wx:if="{{loading && activityList.length === 0}}">
+        <view class="loading-dots">
+          <view class="loading-dot"></view>
+          <view class="loading-dot"></view>
+          <view class="loading-dot"></view>
+        </view>
+        <text class="loading-text">加载中...</text>
+      </view>
+    </scroll-view>
+  </view>
+</custom-nav-bar>

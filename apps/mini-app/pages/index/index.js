@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { homeArticleApi, associationApi, bannerApi } = require('../../api/api');
+const { homeArticleApi, associationApi, bannerApi, activityApi } = require('../../api/api');
 const config = require('../../utils/config.js');
 const auth = require('../../utils/auth.js');
 const app = getApp();
@@ -898,57 +898,96 @@ Page({
 
   /**
    * 获取热门活动列表
-   * TODO: 接口暂时置空，后续接入真实接口
    */
   async getActivityList() {
     this.setData({ activityLoading: true });
 
     try {
-      // TODO: 替换为真实接口
-      // const res = await activityApi.getHotList();
-      // if (res.data && res.data.code === 200) {
-      //   this.setData({
-      //     activityList: res.data.data || [],
-      //     activityLoading: false
-      //   });
-      // }
+      const res = await activityApi.getPublicActivityList({
+        current: 1,
+        pageSize: 5
+      });
 
-      // 暂时模拟示例数据
-      setTimeout(() => {
-        this.setData({
-          activityList: [
-            {
-              activity_uuid: 'demo-1',
-              activity_theme: '2024届校友返校日活动',
-              activity_poster: {
-                preview_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400'
-              },
-              activity_status: 1,
-              activity_starttime: '2024-03-15 09:00',
-              activity_address: '天津市南开区天津大学北洋园校区',
-              activity_fees: '0.00',
-              type: {
-                activity_type_name: '校友聚会'
-              }
-            },
-            {
-              activity_uuid: 'demo-2',
-              activity_theme: '创业分享会：从校园到商业的跨越',
-              activity_poster: {
-                preview_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=400'
-              },
-              activity_status: 2,
-              activity_starttime: '2024-03-20 14:00',
-              activity_address: '天津市和平区创业大厦3楼',
-              activity_fees: '50.00',
-              type: {
-                activity_type_name: '讲座沙龙'
-              }
+      const result = res.data || res;
+
+      if (result.code === 200) {
+        const records = result.data?.records || result.data?.list || [];
+
+        // 映射接口数据到组件使用的格式
+        const activityList = records.map(item => {
+          // 处理封面图
+          let posterUrl = '';
+          if (item.coverImage) {
+            if (typeof item.coverImage === 'object') {
+              posterUrl = item.coverImage.fileUrl || item.coverImage.filePath || '';
+            } else {
+              posterUrl = item.coverImage;
             }
-          ],
+            if (posterUrl) {
+              posterUrl = config.getImageUrl(posterUrl);
+            }
+          }
+
+          // 处理活动时间格式
+          let startTime = item.startTime || '';
+          if (startTime && startTime.includes('T')) {
+            startTime = startTime.replace('T', ' ').substring(0, 16);
+          }
+
+          // 处理主办方头像
+          let organizerAvatar = '';
+          if (item.organizerAvatar) {
+            if (typeof item.organizerAvatar === 'object') {
+              organizerAvatar = item.organizerAvatar.fileUrl || item.organizerAvatar.filePath || '';
+            } else {
+              organizerAvatar = item.organizerAvatar;
+            }
+            if (organizerAvatar) {
+              organizerAvatar = config.getImageUrl(organizerAvatar);
+            }
+          }
+
+          return {
+            activity_uuid: item.activityId || item.id || '',
+            activity_theme: item.activityTitle || item.title || '',
+            activity_poster: {
+              preview_url: posterUrl
+            },
+            activity_status: item.status || 1,
+            activity_starttime: startTime,
+            activity_address: item.address || item.activityAddress || '',
+            activity_fees: item.fees || item.activityFees || '0.00',
+            type: {
+              activity_type_name: item.activityCategory || item.categoryName || ''
+            },
+            // 主办方信息
+            organizerType: item.organizerType,
+            organizerId: item.organizerId || '',
+            organizerName: item.organizerName || '',
+            organizerAvatar: organizerAvatar,
+            // 新接口字段（兼容）
+            activityTitle: item.activityTitle || item.title || '',
+            startTime: startTime,
+            province: item.province || '',
+            city: item.city || '',
+            district: item.district || '',
+            address: item.address || ''
+          };
+        });
+
+        this.setData({
+          activityList: activityList,
           activityLoading: false
         });
-      }, 300);
+
+        console.log('[Index] 获取活动列表成功:', activityList.length);
+      } else {
+        console.warn('[Index] 获取活动列表非200:', result);
+        this.setData({
+          activityList: [],
+          activityLoading: false
+        });
+      }
     } catch (err) {
       console.error('[Index] 获取活动列表失败:', err);
       this.setData({
@@ -963,13 +1002,7 @@ Page({
    */
   gotoActivityList() {
     wx.navigateTo({
-      url: '/pages/activity/list/list',
-      fail: () => {
-        wx.showToast({
-          title: '功能开发中',
-          icon: 'none'
-        });
-      }
+      url: '/pages/alumni-activity/list/list'
     });
   },
 

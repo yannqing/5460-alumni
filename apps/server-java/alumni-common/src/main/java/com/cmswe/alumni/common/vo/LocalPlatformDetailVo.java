@@ -2,6 +2,7 @@ package com.cmswe.alumni.common.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.cmswe.alumni.common.dto.MiniProgramLinkDto;
 import com.cmswe.alumni.common.entity.LocalPlatform;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -121,6 +122,12 @@ public class LocalPlatformDetailVo implements Serializable {
      */
     @Schema(description = "联系电话")
     private String localPlatformPhone;
+
+    /**
+     * 小程序链接列表
+     */
+    @Schema(description = "小程序链接列表")
+    private List<MiniProgramLinkDto> miniProgramLinks;
 
     @Serial
     private static final long serialVersionUID = 1L;
