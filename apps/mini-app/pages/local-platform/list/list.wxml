@@ -79,7 +79,7 @@
           <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
             <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
             <!-- 右上角图标 -->
-            <image wx:if="{{isAlumniAdmin}}" class="platform-crate-icon" src="/assets/icons/5460@2x.png" catchtap="goToCreate" data-platform-name="{{item.platformName}}" />
+            <image wx:if="{{isAlumniAdmin}}" class="platform-crate-icon" src="https://cni-alumni.yannqing.com/upload/images/2026/03/05/9b2b5c0b-9777-4883-aa23-244dafed73a2.png" catchtap="goToCreate" data-platform-name="{{item.platformName}}" />
             <!-- 头像 -->
             <image class="platform-avatar-on-bg" src="{{item.avatar}}" mode="aspectFill" />
             <!-- 名称、城市 -->
