@@ -208,7 +208,11 @@ public class LocalPlatformManagementController {
                 boolean result = localPlatformService.inviteMember(
                                 inviteDto.getLocalPlatformId(),
                                 inviteDto.getWxId(),
-                                inviteDto.getRoleOrId());
+                                inviteDto.getRoleOrId(),
+                                inviteDto.getUsername(),
+                                inviteDto.getRoleName(),
+                                inviteDto.getContactInformation(),
+                                inviteDto.getSocialDuties());
 
                 if (result) {
                         log.info("邀请成员加入校处会成功，校处会 ID: {}, 成员用户 ID: {}, 角色 ID: {}",
@@ -457,5 +461,63 @@ public class LocalPlatformManagementController {
                 log.info("管理端修改校处会信息，校处会 ID: {}", updateDto.getPlatformId());
                 boolean result = localPlatformService.updateLocalPlatform(updateDto);
                 return ResultUtils.success(Code.SUCCESS, result, "修改成功");
+        }
+
+        /**
+         * 添加校促会预设成员（假人）
+         * 
+         * @param addDto 添加预设成员请求参数
+         * @return 添加是否成功
+         */
+        @PostMapping("/addPresetMember")
+        @Operation(summary = "添加校促会预设成员（假人）")
+        public BaseResponse<Boolean> addPresetMember(@Valid @RequestBody AddLocalPlatformPresetMemberDto addDto) {
+                log.info("添加校促会预设成员，校促会 ID: {}, 用户名: {}, 角色名称: {}, 角色 ID: {}",
+                                addDto.getLocalPlatformId(), addDto.getUsername(), addDto.getRoleName(), addDto.getRoleOrId());
+
+                boolean result = localPlatformService.addPresetMember(
+                                addDto.getLocalPlatformId(),
+                                addDto.getUsername(),
+                                addDto.getRoleName(),
+                                addDto.getRoleOrId(),
+                                addDto.getContactInformation(),
+                                addDto.getSocialDuties());
+
+                if (result) {
+                        log.info("添加校促会预设成员成功，校促会 ID: {}, 用户名: {}",
+                                        addDto.getLocalPlatformId(), addDto.getUsername());
+                        return ResultUtils.success(Code.SUCCESS, true, "添加成功");
+                } else {
+                        log.error("添加校促会预设成员失败，校促会 ID: {}, 用户名: {}",
+                                        addDto.getLocalPlatformId(), addDto.getUsername());
+                        return ResultUtils.failure(Code.FAILURE, false, "添加失败");
+                }
+        }
+
+        /**
+         * 更新校促会预设成员（关联用户ID）
+         * 
+         * @param updateDto 更新预设成员请求参数
+         * @return 更新是否成功
+         */
+        @PutMapping("/updatePresetMember")
+        @Operation(summary = "更新校促会预设成员（关联用户ID）")
+        public BaseResponse<Boolean> updatePresetMember(@Valid @RequestBody UpdateLocalPlatformPresetMemberDto updateDto) {
+                log.info("更新校促会预设成员，成员 ID: {}, 用户 ID: {}",
+                                updateDto.getMemberId(), updateDto.getWxId());
+
+                boolean result = localPlatformService.updatePresetMember(
+                                updateDto.getMemberId(),
+                                updateDto.getWxId());
+
+                if (result) {
+                        log.info("更新校促会预设成员成功，成员 ID: {}, 用户 ID: {}",
+                                        updateDto.getMemberId(), updateDto.getWxId());
+                        return ResultUtils.success(Code.SUCCESS, true, "更新成功");
+                } else {
+                        log.error("更新校促会预设成员失败，成员 ID: {}, 用户 ID: {}",
+                                        updateDto.getMemberId(), updateDto.getWxId());
+                        return ResultUtils.failure(Code.FAILURE, false, "更新失败");
+                }
         }
 }

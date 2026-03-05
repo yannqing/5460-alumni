@@ -45,6 +45,12 @@ public class OrganizationMemberResponse extends UserListResponse {
     @Schema(description = "当前登录用户是否关注了该成员：true-已关注 false-未关注 null-未登录")
     private Boolean isFollowed;
 
+    /**
+     * 是否已加入平台：true-已加入 false-未加入（预设成员）
+     */
+    @Schema(description = "是否已加入平台：true-已加入 false-未加入（预设成员）")
+    private Boolean joined;
+
     @Serial
     private static final long serialVersionUID = 1L;
 

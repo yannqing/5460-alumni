@@ -66,12 +66,16 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
         /**
          * 邀请成员加入校处会
          *
-         * @param localPlatformId 校处会ID
-         * @param wxId            成员用户ID
-         * @param roleOrId        组织架构角色ID
+         * @param localPlatformId    校处会ID
+         * @param wxId               成员用户ID
+         * @param roleOrId           组织架构角色ID
+         * @param username           用户名
+         * @param roleName           角色名称
+         * @param contactInformation 联系方式
+         * @param socialDuties       社会职务
          * @return 邀请结果
          */
-        boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId);
+        boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId, String username, String roleName, String contactInformation, String socialDuties);
 
         /**
          * 根据校处会ID分页查询校友会列表
@@ -192,4 +196,26 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @return 是否成功
          */
         boolean updateLocalPlatform(com.cmswe.alumni.common.dto.UpdateLocalPlatformDto updateDto);
+
+        /**
+         * 添加校促会预设成员（假人）
+         *
+         * @param localPlatformId    校促会ID
+         * @param username           用户名
+         * @param roleName           角色名称
+         * @param roleOrId           组织架构角色ID
+         * @param contactInformation 联系方式
+         * @param socialDuties       社会职务
+         * @return 添加是否成功
+         */
+        boolean addPresetMember(Long localPlatformId, String username, String roleName, Long roleOrId, String contactInformation, String socialDuties);
+
+        /**
+         * 更新校促会预设成员（关联用户ID）
+         *
+         * @param memberId 成员ID
+         * @param wxId     用户ID
+         * @return 更新是否成功
+         */
+        boolean updatePresetMember(Long memberId, Long wxId);
 }
