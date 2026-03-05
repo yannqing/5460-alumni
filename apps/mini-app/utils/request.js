@@ -81,7 +81,49 @@ const request = (params) => {
     // 统一的成功回调处理
     const handleSuccess = async function (res) {
       // 无论状态码如何，都尝试解析响应数据
-      const responseData = res.data || {}
+      let responseData = res.data || {}
+      
+      // 处理大数字精度问题：注意，wx.request和wx.cloud.callContainer返回的res.data已经是解析后的对象
+      // 因此我们需要在前端处理层面确保所有ID都被转换为字符串
+      if (res.data) {
+        // 递归处理对象中的大数字，将其转换为字符串
+        const processLargeNumbers = (obj) => {
+          if (obj === null || typeof obj !== 'object') {
+            // 检查是否是大数字（超过JavaScript安全整数范围）
+            if (typeof obj === 'number') {
+              // JavaScript Number.MAX_SAFE_INTEGER = 9007199254740991 (16 digits)
+              // 任何超过16位的数字或接近安全整数范围的数字都转换为字符串
+              if (obj > Number.MAX_SAFE_INTEGER || obj < Number.MIN_SAFE_INTEGER || obj.toString().length >= 16) {
+                return obj.toString();
+              }
+            }
+            return obj;
+          }
+          
+          if (Array.isArray(obj)) {
+            return obj.map(processLargeNumbers);
+          }
+          
+          const result = {};
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              result[key] = processLargeNumbers(obj[key]);
+            }
+          }
+          return result;
+        };
+        
+        try {
+          // 处理响应数据中的大数字
+          responseData = processLargeNumbers(res.data);
+          // 更新res.data
+          res.data = responseData;
+        } catch (e) {
+          console.warn('处理大数字精度时出错:', e);
+          // 出错时使用原始数据
+        }
+      }
+      
       const { code, msg } = responseData
 
       // 后端约定的 token 相关错误码：

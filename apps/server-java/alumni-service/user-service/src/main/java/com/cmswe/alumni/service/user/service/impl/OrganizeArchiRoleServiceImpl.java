@@ -42,24 +42,30 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
         // 1. 参数校验
         Optional.ofNullable(addDto).orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
 
-        log.info("开始新增组织架构角色 - 组织ID: {}, 角色名: {}, 角色代码: {}",
-                addDto.getOrganizeId(), addDto.getRoleOrName(), addDto.getRoleOrCode());
+        log.info("开始新增组织架构角色 - 组织ID: {}, 角色名: {}",
+                addDto.getOrganizeId(), addDto.getRoleOrName());
 
-        // 2. 检查角色代码是否已存在（同一组织下不能有重复的角色代码）
+        // 2. 自动生成角色代码
+        // 格式: ORG_{组织类型}_{组织ID}_{时间戳}
+        String roleCode = "ORG_" + addDto.getOrganizeType() + "_" + addDto.getOrganizeId() + "_" + System.currentTimeMillis();
+
+        // 3. 检查生成的角色代码是否已存在（同一组织下不能有重复的角色代码）
         OrganizeArchiRole existingRole = this.getOne(
                 new LambdaQueryWrapper<OrganizeArchiRole>()
                         .eq(OrganizeArchiRole::getOrganizeId, addDto.getOrganizeId())
-                        .eq(OrganizeArchiRole::getRoleOrCode, addDto.getRoleOrCode())
+                        .eq(OrganizeArchiRole::getRoleOrCode, roleCode)
         );
 
         if (existingRole != null) {
-            log.warn("角色代码重复 - 组织ID: {}, 角色代码: {}", addDto.getOrganizeId(), addDto.getRoleOrCode());
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "角色代码重复，该组织下已存在相同的角色代码");
+            // 如果重复，添加一个随机数
+            roleCode = roleCode + "_" + (int)(Math.random() * 1000);
         }
 
-        // 3. 构建实体对象
+        // 4. 构建实体对象
         OrganizeArchiRole role = new OrganizeArchiRole();
         BeanUtils.copyProperties(addDto, role);
+        // 设置自动生成的角色代码
+        role.setRoleOrCode(roleCode);
 
         // 设置父ID，如果为null则设置为0（根节点）
         if (role.getPid() == null) {
@@ -69,14 +75,14 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
         // 设置默认状态为启用
         role.setStatus(1);
 
-        // 4. 保存到数据库
+        // 5. 保存到数据库
         boolean result = this.save(role);
         if (!result) {
             throw new BusinessException(ErrorType.OPERATION_ERROR, "新增组织架构角色失败");
         }
 
         log.info("新增组织架构角色成功 - 组织ID: {}, 角色ID: {}, 角色名: {}, 角色代码: {}",
-                addDto.getOrganizeId(), role.getRoleOrId(), addDto.getRoleOrName(), addDto.getRoleOrCode());
+                addDto.getOrganizeId(), role.getRoleOrId(), addDto.getRoleOrName(), role.getRoleOrCode());
 
         return true;
     }
@@ -126,6 +132,9 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
         // 5. 更新角色信息
         OrganizeArchiRole role = new OrganizeArchiRole();
         BeanUtils.copyProperties(updateDto, role);
+        
+        // 保留原始角色代码，不允许更新
+        role.setRoleOrCode(existingRole.getRoleOrCode());
 
         boolean result = this.updateById(role);
         if (!result) {

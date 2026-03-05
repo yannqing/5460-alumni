@@ -598,6 +598,29 @@ public class AlumniAssociationJoinApplicationServiceImpl
         // 校友会信息
         if (association != null) {
             vo.setAlumniAssociationName(association.getAssociationName());
+            // 校友会详细信息
+            vo.setAssociationSchoolId(association.getSchoolId());
+            vo.setPlatformId(association.getPlatformId());
+            vo.setCertificationFlag(association.getCertificationFlag());
+            vo.setRole(association.getRole());
+            vo.setContactInfo(association.getContactInfo());
+            vo.setLocation(association.getLocation());
+            vo.setMemberCount(association.getMemberCount());
+            vo.setMonthlyHomepageArticleQuota(association.getMonthlyHomepageArticleQuota());
+            vo.setLogo(association.getLogo());
+            vo.setAssociationProfile(association.getAssociationProfile());
+            vo.setChargeWxId(association.getChargeWxId());
+            vo.setChargeName(association.getChargeName());
+            vo.setChargeRole(association.getChargeRole());
+            vo.setChargeSocialAffiliation(association.getChargeSocialAffiliation());
+            vo.setZhWxId(association.getZhWxId());
+            vo.setZhName(association.getZhName());
+            vo.setZhPhone(association.getZhPhone());
+            vo.setZhSocialAffiliation(association.getZhSocialAffiliation());
+            vo.setBgImg(association.getBgImg());
+            vo.setStatus(association.getStatus());
+            vo.setCreateTime(association.getCreateTime());
+            vo.setUpdateTime(association.getUpdateTime());
         }
 
         // 用户信息

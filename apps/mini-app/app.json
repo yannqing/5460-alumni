@@ -99,6 +99,7 @@
     "pages/info-maintenance/edit/edit",
     "pages/audit/info-maintenance/index/index",
     "pages/audit/info-maintenance/edit/edit",
+    "pages/audit/alumni-association-certification/list/list",
     "pages/register/register"
   ],
   "window": {

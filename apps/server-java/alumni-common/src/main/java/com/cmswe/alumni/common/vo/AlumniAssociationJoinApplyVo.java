@@ -1,6 +1,9 @@
 package com.cmswe.alumni.common.vo;
 
 import com.cmswe.alumni.common.entity.AlumniAssociation;
+import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,20 +12,54 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(name = "AlumniAssociationDetailVo", description = "校友会信息列表返回VO")
-public class AlumniAssociationDetailVo implements Serializable {
+@Schema(name = "AlumniAssociationJoinApplyVo", description = "校友会申请加入校促会申请VO")
+public class AlumniAssociationJoinApplyVo implements Serializable {
+
+    /**
+     * 校友会申请加入校促会住主键id
+     */
+    @Schema(description = "校友会申请加入校促会住主键id")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
 
     /**
      * 校友会ID
      */
     @Schema(description = "校友会ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long alumniAssociationId;
 
+    /**
+     * 校促会ID
+     */
+    @Schema(description = "校促会ID")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long platformId;
+
+    /**
+     * 审核状态(0待审核,1已通过,2已拒绝)
+     */
+    @Schema(description = "审核状态(0待审核,1已通过,2已拒绝)")
+    private Integer applyStatus;
+
+    /**
+     * 创建时间
+     */
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
+
+    // 校友会信息
     /**
      * 校友会名称
      */
@@ -32,14 +69,9 @@ public class AlumniAssociationDetailVo implements Serializable {
     /**
      * 所属母校ID
      */
-    @Schema(description = "所属母校信息")
-    private SchoolListVo schoolInfo;
-
-    /**
-     * 所属校处会ID
-     */
-    @Schema(description = "所属校处会")
-    private LocalPlatformDetailVo platform;
+    @Schema(description = "所属母校ID")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long schoolId;
 
     /**
      * 认证标识（0-未认证，1-校友总会，2-校促会，3-校友总会）
@@ -93,6 +125,7 @@ public class AlumniAssociationDetailVo implements Serializable {
      * 主要负责人微信用户ID
      */
     @Schema(description = "主要负责人微信用户ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long chargeWxId;
 
     /**
@@ -117,6 +150,7 @@ public class AlumniAssociationDetailVo implements Serializable {
      * 驻会代表微信用户ID
      */
     @Schema(description = "驻会代表微信用户ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long zhWxId;
 
     /**
@@ -149,52 +183,25 @@ public class AlumniAssociationDetailVo implements Serializable {
     @Schema(description = "状态：0-禁用 1-启用")
     private Integer status;
 
-    /**
-     * 创建时间
-     */
-    @Schema(description = "创建时间")
-    private java.time.LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    @Schema(description = "更新时间")
-    private java.time.LocalDateTime updateTime;
-
-    /**
-     * 当前用户加入状态：1-已加入（成员表中存在且状态正常） null-未加入
-     */
-    @Schema(description = "当前用户加入状态：1-已加入 null-未加入")
-    private Integer applicationStatus;
-
-    /**
-     * 活动列表
-     */
-    @Schema(description = "活动列表")
-    private List<ActivityListVo> activityList;
-
-    /**
-     * 企业列表
-     */
-    @Schema(description = "企业列表")
-    private List<AlumniPlaceListVo> enterpriseList;
-
-    /**
-     * 文章列表
-     */
-    @Schema(description = "文章列表（已发布的文章）")
-    private List<HomePageArticleVo> articleList;
-
-
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public static AlumniAssociationDetailVo objToVo(AlumniAssociation alumniAssociation) {
-        if (alumniAssociation == null) {
+    public static AlumniAssociationJoinApplyVo objToVo(AlumniAssociationJoinApply apply, AlumniAssociation association) {
+        if (apply == null) {
             return null;
         }
-        AlumniAssociationDetailVo alumniAssociationListVo = new AlumniAssociationDetailVo();
-        BeanUtils.copyProperties(alumniAssociation, alumniAssociationListVo);
-        return alumniAssociationListVo;
+        AlumniAssociationJoinApplyVo vo = new AlumniAssociationJoinApplyVo();
+        // Copy apply fields
+        vo.setId(apply.getId());
+        vo.setAlumniAssociationId(apply.getAlumniAssociationId());
+        vo.setPlatformId(apply.getPlatformId());
+        vo.setApplyStatus(apply.getStatus());
+        vo.setCreateTime(apply.getCreateTime());
+        vo.setUpdateTime(apply.getUpdateTime());
+        // Copy association fields
+        if (association != null) {
+            BeanUtils.copyProperties(association, vo);
+        }
+        return vo;
     }
 }

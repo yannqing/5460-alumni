@@ -45,7 +45,6 @@ public class AddOrganizeArchiRoleDto implements Serializable {
     /**
      * 角色唯一代码
      */
-    @NotBlank(message = "角色代码不能为空")
     @Schema(description = "角色唯一代码")
     private String roleOrCode;
 

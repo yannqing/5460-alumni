@@ -40,6 +40,12 @@ public class AlumniAssociation implements Serializable {
     private Long platformId;
 
     /**
+     * 认证标识（0-未认证，1-校友总会，2-校促会，3-校友总会）
+     */
+    @TableField(value = "certification_flag")
+    private Integer certificationFlag;
+
+    /**
      * 联系信息
      */
     @TableField(value = "contact_info")

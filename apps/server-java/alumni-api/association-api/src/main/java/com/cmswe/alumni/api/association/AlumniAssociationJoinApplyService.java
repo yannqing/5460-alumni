@@ -31,6 +31,14 @@ public interface AlumniAssociationJoinApplyService extends IService<AlumniAssoci
      * @param queryDto 查询参数
      * @return 分页结果
      */
-    com.baomidou.mybatisplus.extension.plugins.pagination.Page<AlumniAssociationJoinApply> queryApplyPage(
+    com.cmswe.alumni.common.vo.PageVo<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> queryApplyPage(
             com.cmswe.alumni.common.dto.QueryAssociationJoinApplyDto queryDto);
+
+    /**
+     * 根据ID获取校友会加入校促会申请详情
+     *
+     * @param id 申请ID
+     * @return 申请详情
+     */
+    com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo getApplyDetailById(Long id);
 }

@@ -18,14 +18,10 @@
         <!-- 背景横幅 -->
         <view class="detail-header">
           <image class="header-bg" src="{{alumniAssociationDetail.bgImg || defaultBackground}}" mode="aspectFill" />
-          <view class="header-content">
-            <view class="header-left">
-              <view class="logo-container">
-                <image class="headquarters-logo" src="{{alumniAssociationDetail.logo || defaultAlumniAvatar}}" mode="aspectFill" />
-              </view>
-            </view>
-            <view class="headquarters-basic">
-              <text class="headquarters-name">{{alumniAssociationDetail.associationName || '无'}}</text>
+          <image class="platform-avatar-on-bg" src="{{alumniAssociationDetail.logo || defaultAlumniAvatar}}" mode="aspectFill" />
+          <view class="info-on-bg">
+            <view class="title-row">
+              <text class="card-title-on-bg">{{alumniAssociationDetail.associationName || '无'}}</text>
             </view>
           </view>
         </view>
@@ -46,50 +42,47 @@
           <input class="input disabled" value="{{alumniAssociationDetail.location || '暂无常驻地点'}}" disabled />
         </view>
         <view class="form-item">
-          <text class="label">会员数量</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.memberCount || 0}}" disabled />
-        </view>
-        <view class="form-item">
           <text class="label">校友会简介</text>
           <textarea class="textarea disabled" value="{{alumniAssociationDetail.associationProfile || '暂无简介'}}" disabled />
         </view>
+        <view class="form-item" wx:if="{{alumniAssociationDetail.chargeName}}">
+          <text class="label">主要负责人姓名</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.chargeName}}" disabled />
+        </view>
+        <view class="form-item" wx:if="{{alumniAssociationDetail.chargeRole}}">
+          <text class="label">主要负责人职务</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.chargeRole}}" disabled />
+        </view>
+        <view class="form-item" wx:if="{{alumniAssociationDetail.zhName}}">
+          <text class="label">驻会代表姓名</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.zhName}}" disabled />
+        </view>
+        <view class="form-item" wx:if="{{alumniAssociationDetail.zhPhone}}">
+          <text class="label">驻会代表电话</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.zhPhone}}" disabled />
+        </view>
+        <view class="form-item" wx:if="{{alumniAssociationDetail.zhSocialAffiliation}}">
+          <text class="label">驻会代表社会职务</text>
+          <input class="input disabled" value="{{alumniAssociationDetail.zhSocialAffiliation}}" disabled />
+        </view>
       </view>
 
-    <view class="form-item required">
-      <text class="label">申请人姓名</text>
-      <input class="input" placeholder="请输入申请人姓名" value="{{formData.applicantName}}" data-field="applicantName" bindinput="handleInput" />
-    </view>
-
-    <view class="form-item required">
-      <text class="label">联系电话</text>
-      <input class="input" placeholder="请输入联系电话" value="{{formData.contactPhone}}" data-field="contactPhone" bindinput="handleInput" />
-    </view>
-
-    <view class="form-item required">
-      <text class="label">所属学校</text>
-      <input class="input" placeholder="请输入所属学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleInput" />
-    </view>
-
-    <view class="form-item">
-      <text class="label">申请理由</text>
-      <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
-    </view>
-
-    <view class="form-item">
-      <text class="label">附件</text>
-      <view class="upload-container">
-        <view class="upload-btn-group">
-          <button class="upload-btn" bindtap="chooseAttachment">选择文档</button>
-          <button class="upload-btn" bindtap="chooseAttachmentImage">选择图片</button>
-        </view>
-        <view wx:if="{{attachments.length > 0}}" class="attachments-list">
-          <view wx:for="{{attachments}}" wx:key="index" class="attachment-item">
-            <text class="attachment-name">{{item.name}}</text>
-            <text class="attachment-delete" bindtap="deleteAttachment" data-index="{{index}}">删除</text>
+      <!-- 校促会选择 -->
+      <view class="form-item required">
+        <text class="label">校促会</text>
+        <picker
+          mode="selector"
+          range="{{platformList}}"
+          range-key="platformName"
+          value="{{platformIndex}}"
+          bindchange="handlePlatformChange"
+          class="input"
+        >
+          <view class="picker-content">
+            {{formData.platformName || '请选择校促会'}}
           </view>
-        </view>
+        </picker>
       </view>
-    </view>
 
     <view class="form-actions">
       <button class="submit-btn" bindtap="submitForm">提交申请</button>
