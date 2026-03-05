@@ -202,6 +202,11 @@ Page({
             updateData.unionLogoUrl = union.logo
         }
 
+        // 保存校友总会logo
+        if (union.logo) {
+            updateData.unionLogoUrl = union.logo
+        }
+
         // 如果当前选中的是"使用学校logo", 则实时更新预览图和提交用的logo地址
         if (this.data.formData.logoType === 'school' && union.logo) {
             updateData['formData.logo'] = union.logo

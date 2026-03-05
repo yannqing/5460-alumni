@@ -61,8 +61,8 @@ public class AlumniAssociationJoinApplyServiceImpl
     @Override
     public com.cmswe.alumni.common.vo.PageVo<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> queryApplyPage(
             com.cmswe.alumni.common.dto.QueryAssociationJoinApplyDto queryDto) {
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<AlumniAssociationJoinApply> page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>
-                (queryDto.getCurrent(), queryDto.getSize());
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<AlumniAssociationJoinApply> page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(
+                queryDto.getCurrent(), queryDto.getSize());
         com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AlumniAssociationJoinApply> wrapper = new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
 
         // 按状态筛选
@@ -75,17 +75,20 @@ public class AlumniAssociationJoinApplyServiceImpl
         wrapper.orderByDesc(AlumniAssociationJoinApply::getCreateTime);
 
         // 执行查询
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<AlumniAssociationJoinApply> resultPage = this.page(page, wrapper);
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<AlumniAssociationJoinApply> resultPage = this
+                .page(page, wrapper);
 
         // 转换为VO
-        java.util.List<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> voList = resultPage.getRecords().stream().map(apply -> {
-            com.cmswe.alumni.common.entity.AlumniAssociation association = alumniAssociationService.getById(apply.getAlumniAssociationId());
-            return com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo.objToVo(apply, association);
-        }).collect(java.util.stream.Collectors.toList());
+        java.util.List<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> voList = resultPage.getRecords()
+                .stream().map(apply -> {
+                    com.cmswe.alumni.common.entity.AlumniAssociation association = alumniAssociationService
+                            .getById(apply.getAlumniAssociationId());
+                    return com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo.objToVo(apply, association);
+                }).collect(java.util.stream.Collectors.toList());
 
         // 创建VO分页对象
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> voPage = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>
-                (queryDto.getCurrent(), queryDto.getSize(), resultPage.getTotal());
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo> voPage = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(
+                queryDto.getCurrent(), queryDto.getSize(), resultPage.getTotal());
         voPage.setRecords(voList);
 
         // 转换为PageVo
@@ -106,7 +109,8 @@ public class AlumniAssociationJoinApplyServiceImpl
         }
 
         // 3. 查询校友会信息
-        com.cmswe.alumni.common.entity.AlumniAssociation association = alumniAssociationService.getById(apply.getAlumniAssociationId());
+        com.cmswe.alumni.common.entity.AlumniAssociation association = alumniAssociationService
+                .getById(apply.getAlumniAssociationId());
 
         // 4. 转换为VO
         return com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo.objToVo(apply, association);

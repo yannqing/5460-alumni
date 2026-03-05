@@ -239,13 +239,13 @@ Page({
         size: this.data.pageParams.pageSize,
         id: this.data.pageParams.platformId
       }
-      
+
       // 确保id是有效的数字类型
       if (apiParams.id && typeof apiParams.id === 'string') {
         apiParams.id = parseInt(apiParams.id, 10)
       }
       console.log('[Debug] 处理后的API请求参数:', apiParams)
-      
+
       // 根据当前标签设置状态参数
       if (this.data.currentTab > 0) {
         apiParams.status = this.data.currentTab - 1 // 0: 待审核, 1: 已通过, 2: 已拒绝

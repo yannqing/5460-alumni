@@ -85,7 +85,7 @@ Page({
             console.log('[Debug] 从storage获取的角色列表:', roles)
 
             // 查找所有校友会管理员角色（根据roleCode）
-            const alumniAdminRoles = roles.filter(role => 
+            const alumniAdminRoles = roles.filter(role =>
                 role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
             )
             console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
@@ -97,14 +97,14 @@ Page({
 
             if (alumniAdminRoles.length > 0) {
                 console.log('[Debug] 存在校友会管理员角色，开始处理每个角色')
-                
+
                 // 存储所有校友会数据
                 const alumniAssociationList = []
-                
+
                 // 遍历所有校友会管理员角色，创建校友会数据
                 for (const alumniAdminRole of alumniAdminRoles) {
                     console.log('[Debug] 处理校友会管理员角色:', alumniAdminRole)
-                    
+
                     // 尝试从不同可能的位置获取ID
                     let alumniAssociationId = null
 
@@ -134,7 +134,7 @@ Page({
                     if (alumniAssociationId) {
                         // 获取协会名称（如果直接提供）
                         const associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
-                        
+
                         // 创建基本的校友会对象
                         const basicAlumniData = {
                             id: alumniAssociationId,
@@ -142,12 +142,12 @@ Page({
                             alumniAssociationName: `${associationName} (ID: ${alumniAssociationId})`,
                             organizeId: alumniAdminRole.organizeId || alumniAssociationId // 存储organizeId
                         }
-                        
+
                         // 检查是否已经存在相同ID的校友会
-                        const existingIndex = alumniAssociationList.findIndex(item => 
+                        const existingIndex = alumniAssociationList.findIndex(item =>
                             item.alumniAssociationId === alumniAssociationId
                         )
-                        
+
                         // 如果不存在，则添加到列表
                         if (existingIndex === -1) {
                             alumniAssociationList.push(basicAlumniData)
@@ -157,25 +157,25 @@ Page({
                         }
                     }
                 }
-                
+
                 // 设置校友会列表
                 this.setData({
                     alumniAssociationList: alumniAssociationList
                 })
                 console.log('[Debug] 最终校友会列表:', alumniAssociationList)
-                
+
                 // 尝试为所有校友会调用接口获取更详细的信息
                 try {
                     // 创建一个新的列表来存储更新后的校友会数据
                     const updatedList = [...alumniAssociationList]
-                    
+
                     // 使用Promise.all并行获取所有校友会的详细信息
                     const detailPromises = updatedList.map(async (alumni, index) => {
                         try {
                             const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
                             if (res.data && res.data.code === 200 && res.data.data) {
                                 console.log(`[Debug] 获取校友会 ${index + 1} 详细信息成功:`, res.data.data)
-                                
+
                                 // 更新校友会的详细信息
                                 return {
                                     ...res.data.data,
@@ -191,16 +191,16 @@ Page({
                             return alumni // 如果发生错误，返回原始数据
                         }
                     })
-                    
+
                     // 等待所有请求完成
                     const detailedAlumniList = await Promise.all(detailPromises)
-                    
+
                     // 更新校友会列表
                     this.setData({
                         alumniAssociationList: detailedAlumniList
                     })
                     console.log('[Debug] 已更新所有校友会详细信息:', detailedAlumniList)
-                    
+
                     // 判断权限数量，处理自动选择逻辑
                     this.handleAlumniAssociationSelection(detailedAlumniList)
                 } catch (apiError) {
@@ -305,7 +305,7 @@ Page({
             if (res.data && res.data.code === 200 && res.data.data) {
                 console.log('[Debug] 获取校友会详情成功:', res.data.data)
                 let alumniAssociationDetail = res.data.data
-                
+
                 // 处理背景图（支持字符串和数组形式）
                 if (alumniAssociationDetail.bgImg && alumniAssociationDetail.bgImg.trim()) {
                     try {
@@ -326,7 +326,7 @@ Page({
                     // 使用默认背景图
                     alumniAssociationDetail.bgImg = this.data.defaultBackground
                 }
-                
+
                 // 处理 Logo
                 if (alumniAssociationDetail.logo && alumniAssociationDetail.logo.trim()) {
                     alumniAssociationDetail.logo = config.getImageUrl(alumniAssociationDetail.logo)
@@ -334,7 +334,7 @@ Page({
                     // 使用默认头像
                     alumniAssociationDetail.logo = this.data.defaultAlumniAvatar
                 }
-                
+
                 this.setData({
                     alumniAssociationDetail: alumniAssociationDetail
                 })
