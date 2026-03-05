@@ -82,6 +82,103 @@
       <view wx:if="{{selectedTemplate.description}}" class="template-description">
         {{selectedTemplate.description}}
       </view>
+      <!-- 组织架构树形预览 -->
+      <view wx:if="{{templateTreeData.length > 0}}" class="template-tree-preview">
+        <view class="tree-preview-title">架构预览</view>
+        <scroll-view scroll-x scroll-y class="tree-scroll-container">
+          <view class="tree-container">
+            <!-- 递归渲染树节点（最多支持6层） -->
+            <block wx:for="{{templateTreeData}}" wx:key="nodeId" wx:for-item="n1">
+              <view class="tree-node-row">
+                <view class="tree-node level-1 {{n1.children.length > 0 ? 'has-children' : ''}}">
+                  <view class="node-content">{{n1.roleOrName}}</view>
+                </view>
+              </view>
+              <view wx:if="{{n1.children.length > 0}}" class="tree-children-row">
+                <block wx:for="{{n1.children}}" wx:key="nodeId" wx:for-item="n2">
+                  <view class="tree-branch">
+                    <view class="tree-node level-2 {{n2.children.length > 0 ? 'has-children' : ''}}">
+                      <view class="node-content">{{n2.roleOrName}}</view>
+                    </view>
+                    <view wx:if="{{n2.children.length > 0}}" class="tree-sub-children">
+                      <block wx:for="{{n2.children}}" wx:key="nodeId" wx:for-item="n3">
+                        <view class="tree-branch">
+                          <view class="tree-node level-3 {{n3.children.length > 0 ? 'has-children' : ''}}">
+                            <view class="node-content">{{n3.roleOrName}}</view>
+                          </view>
+                          <view wx:if="{{n3.children.length > 0}}" class="tree-sub-children">
+                            <block wx:for="{{n3.children}}" wx:key="nodeId" wx:for-item="n4">
+                              <view class="tree-branch">
+                                <view class="tree-node level-4 {{n4.children.length > 0 ? 'has-children' : ''}}">
+                                  <view class="node-content">{{n4.roleOrName}}</view>
+                                </view>
+                                <view wx:if="{{n4.children.length > 0}}" class="tree-sub-children">
+                                  <block wx:for="{{n4.children}}" wx:key="nodeId" wx:for-item="n5">
+                                    <view class="tree-branch">
+                                      <view class="tree-node level-5 {{n5.children.length > 0 ? 'has-children' : ''}}">
+                                        <view class="node-content">{{n5.roleOrName}}</view>
+                                      </view>
+                                      <view wx:if="{{n5.children.length > 0}}" class="tree-sub-children">
+                                        <block wx:for="{{n5.children}}" wx:key="nodeId" wx:for-item="n6">
+                                          <view class="tree-branch">
+                                            <view class="tree-node level-6 {{n6.children.length > 0 ? 'has-children' : ''}}">
+                                              <view class="node-content">{{n6.roleOrName}}</view>
+                                            </view>
+                                            <view wx:if="{{n6.children.length > 0}}" class="tree-sub-children">
+                                              <block wx:for="{{n6.children}}" wx:key="nodeId" wx:for-item="n7">
+                                                <view class="tree-branch">
+                                                  <view class="tree-node level-7 {{n7.children.length > 0 ? 'has-children' : ''}}">
+                                                    <view class="node-content">{{n7.roleOrName}}</view>
+                                                  </view>
+                                                  <view wx:if="{{n7.children.length > 0}}" class="tree-sub-children">
+                                                    <block wx:for="{{n7.children}}" wx:key="nodeId" wx:for-item="n8">
+                                                      <view class="tree-branch">
+                                                        <view class="tree-node level-8 {{n8.children.length > 0 ? 'has-children' : ''}}">
+                                                          <view class="node-content">{{n8.roleOrName}}</view>
+                                                        </view>
+                                                        <view wx:if="{{n8.children.length > 0}}" class="tree-sub-children">
+                                                          <block wx:for="{{n8.children}}" wx:key="nodeId" wx:for-item="n9">
+                                                            <view class="tree-branch">
+                                                              <view class="tree-node level-9 {{n9.children.length > 0 ? 'has-children' : ''}}">
+                                                                <view class="node-content">{{n9.roleOrName}}</view>
+                                                              </view>
+                                                              <view wx:if="{{n9.children.length > 0}}" class="tree-sub-children">
+                                                                <block wx:for="{{n9.children}}" wx:key="nodeId" wx:for-item="n10">
+                                                                  <view class="tree-branch">
+                                                                    <view class="tree-node level-10">
+                                                                      <view class="node-content">{{n10.roleOrName}}</view>
+                                                                    </view>
+                                                                  </view>
+                                                                </block>
+                                                              </view>
+                                                            </view>
+                                                          </block>
+                                                        </view>
+                                                      </view>
+                                                    </block>
+                                                  </view>
+                                                </view>
+                                              </block>
+                                            </view>
+                                          </view>
+                                        </block>
+                                      </view>
+                                    </view>
+                                  </block>
+                                </view>
+                              </view>
+                            </block>
+                          </view>
+                        </view>
+                      </block>
+                    </view>
+                  </view>
+                </block>
+              </view>
+            </block>
+          </view>
+        </scroll-view>
+      </view>
     </view>
 
     <view class="form-title">成员信息</view>

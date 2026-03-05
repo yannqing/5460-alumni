@@ -55,6 +55,7 @@ Page({
         templateList: [],
         templateIndex: -1,
         selectedTemplate: null,
+        templateTreeData: [], // 树形结构预览数据
 
         // 地区选择器
         regionValue: [],
@@ -152,11 +153,18 @@ Page({
                     defaultIndex = 0 // 如果没有默认模板，默认选中第一个
                 }
 
+                const defaultTemplate = defaultIndex >= 0 ? templateList[defaultIndex] : null
+                // API 返回的 templateContent 已经是树形结构，直接使用
+                const treeData = defaultTemplate && defaultTemplate.templateContent ? defaultTemplate.templateContent : []
+
                 this.setData({
                     templateList: templateList,
                     templateIndex: defaultIndex,
-                    selectedTemplate: defaultIndex >= 0 ? templateList[defaultIndex] : null
+                    selectedTemplate: defaultTemplate,
+                    templateTreeData: treeData
                 })
+
+                console.log('加载模板列表成功，树形数据:', treeData)
             }
         } catch (e) {
             console.error('加载架构模板列表失败', e)
@@ -168,10 +176,14 @@ Page({
         const index = e.detail.value
         const template = this.data.templateList[index]
         if (template) {
+            // API 返回的 templateContent 已经是树形结构，直接使用
+            const treeData = template.templateContent || []
             this.setData({
                 templateIndex: index,
-                selectedTemplate: template
+                selectedTemplate: template,
+                templateTreeData: treeData
             })
+            console.log('选择模板，树形数据:', treeData)
         }
     },
 
