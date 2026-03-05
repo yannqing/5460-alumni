@@ -627,9 +627,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户ID不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
 
         log.info("开始邀请成员加入校处会 - 校处会ID: {}, 成员用户ID: {}, 角色ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
                 localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties);
@@ -1024,9 +1022,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户ID不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
 
         log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
                 operatorWxId, localPlatformId, wxId, roleOrId, roleName, contactInformation, socialDuties);
@@ -1049,17 +1045,19 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该用户不是该校处会的成员");
         }
 
-        // 4. 查询新的组织架构角色是否存在且有效
-        OrganizeArchiRole organizeArchiRole = organizeArchiRoleService.getOne(
-                new LambdaQueryWrapper<OrganizeArchiRole>()
-                        .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
-                        .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
-                        .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
-                        .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
-        );
+        // 4. 查询新的组织架构角色是否存在且有效（仅当 roleOrId 不为 null 时）
+        if (roleOrId != null) {
+            OrganizeArchiRole organizeArchiRole = organizeArchiRoleService.getOne(
+                    new LambdaQueryWrapper<OrganizeArchiRole>()
+                            .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
+                            .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
+                            .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
+                            .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+            );
 
-        if (organizeArchiRole == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+            if (organizeArchiRole == null) {
+                throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+            }
         }
 
         // 5. 更新成员信息
@@ -1101,9 +1099,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (username == null || username.trim().isEmpty()) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户名不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
 
         log.info("开始处理校处会成员角色V2 - 操作人ID: {}, 校处会ID: {}, 成员ID: {}, 成员用户名: {}, 新角色ID: {}, 角色名称: {}",
                 operatorWxId, localPlatformId, id, username, roleOrId, roleName);
@@ -1146,17 +1142,19 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         member.setIsNu(1); // 设为架构成员
         member.setStatus(1); // 设为正常状态
 
-        // 4. 查询新的组织架构角色是否存在且有效
-        OrganizeArchiRole organizeArchiRole = organizeArchiRoleService.getOne(
-                new LambdaQueryWrapper<OrganizeArchiRole>()
-                        .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
-                        .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
-                        .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
-                        .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
-        );
+        // 4. 查询新的组织架构角色是否存在且有效（仅当 roleOrId 不为 null 时）
+        if (roleOrId != null) {
+            OrganizeArchiRole organizeArchiRole = organizeArchiRoleService.getOne(
+                    new LambdaQueryWrapper<OrganizeArchiRole>()
+                            .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
+                            .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
+                            .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
+                            .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+            );
 
-        if (organizeArchiRole == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+            if (organizeArchiRole == null) {
+                throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+            }
         }
 
         // 5. 保存或更新成员
@@ -1509,12 +1507,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (username == null || username.trim().isEmpty()) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户名不能为空");
         }
-        if (roleName == null || roleName.trim().isEmpty()) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "角色名称不能为空");
-        }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
+
 
         log.info("开始添加校促会预设成员 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}, 联系方式: {}, 社会职务: {}",
                 localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties);
@@ -1525,17 +1519,19 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校促会不存在");
         }
 
-        // 3. 查询组织架构角色是否存在
-        OrganizeArchiRole role = organizeArchiRoleService.getOne(
-                new LambdaQueryWrapper<OrganizeArchiRole>()
-                        .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
-                        .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
-                        .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
-                        .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
-        );
+        // 3. 查询组织架构角色是否存在（仅当 roleOrId 不为 null 时）
+        if (roleOrId != null) {
+            OrganizeArchiRole role = organizeArchiRoleService.getOne(
+                    new LambdaQueryWrapper<OrganizeArchiRole>()
+                            .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
+                            .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
+                            .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
+                            .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+            );
 
-        if (role == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+            if (role == null) {
+                throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+            }
         }
 
         // 4. 创建预设成员记录（wxId 为 null，表示未加入平台的假人）
