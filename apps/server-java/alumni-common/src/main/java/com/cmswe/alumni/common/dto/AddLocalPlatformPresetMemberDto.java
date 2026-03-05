@@ -10,26 +10,33 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 邀请成员加入校处会请求 DTO
+ * 添加校促会预设成员请求 DTO
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InviteLocalPlatformMemberDto implements Serializable {
+public class AddLocalPlatformPresetMemberDto implements Serializable {
 
     /**
-     * 校处会 ID
+     * 校促会 ID
      */
-    @Schema(description = "校处会 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "校处会 ID不能为空")
+    @Schema(description = "校促会 ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "校促会 ID不能为空")
     private Long localPlatformId;
 
     /**
-     * 成员用户 ID
+     * 用户名
      */
-    @Schema(description = "成员用户 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "成员用户 ID不能为空")
-    private Long wxId;
+    @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "用户名不能为空")
+    private String username;
+
+    /**
+     * 角色名称
+     */
+    @Schema(description = "角色名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "角色名称不能为空")
+    private String roleName;
 
     /**
      * 组织架构角色 ID
@@ -37,18 +44,6 @@ public class InviteLocalPlatformMemberDto implements Serializable {
     @Schema(description = "组织架构角色 ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "组织架构角色 ID不能为空")
     private Long roleOrId;
-
-    /**
-     * 用户名
-     */
-    @Schema(description = "用户名", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String username;
-
-    /**
-     * 角色名称
-     */
-    @Schema(description = "角色名称", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String roleName;
 
     /**
      * 联系方式

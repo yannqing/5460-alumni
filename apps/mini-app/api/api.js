@@ -594,11 +594,19 @@ const localPlatformManagementApi = {
   // 删除校促会角色
   deleteRole: (roleOrId, organizeId) => del('/localPlatformManagement/role/delete', { roleOrId, organizeId }),
   // 邀请校促会成员
-  inviteMember: (localPlatformId, wxId, roleOrId) => post('/localPlatformManagement/inviteMember', { localPlatformId, wxId, roleOrId }),
+  inviteMember: (localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) => post('/localPlatformManagement/inviteMember', { localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties }),
   // 删除校促会成员
   deleteMember: (localPlatformId, wxId) => del('/localPlatformManagement/deleteMember', { localPlatformId, wxId }),
   // 更新校促会成员角色
-  updateMemberRole: (localPlatformId, wxId, roleOrId) => put('/localPlatformManagement/updateMemberRole', { localPlatformId, wxId, roleOrId }),
+  updateMemberRole: (localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) => put('/localPlatformManagement/updateMemberRole', { localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties }),
+  // 添加预设成员
+  addPresetMember: (localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties) => post('/localPlatformManagement/addPresetMember', { localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties }),
+  // 更新预设成员信息
+  updatePresetMemberInfo: (memberId, username, roleName, contactInformation, socialDuties) => put('/localPlatformManagement/updatePresetMemberInfo', { memberId, username, roleName, contactInformation, socialDuties }),
+  // 删除预设成员
+  deletePresetMember: (memberId) => del('/localPlatformManagement/deletePresetMember', { memberId }),
+  // 更新预设成员（关联注册用户）
+  updatePresetMember: (memberId, wxId) => put('/localPlatformManagement/updatePresetMember', { memberId, wxId }),
 }
 
 // ==================== 校友会管理相关接口 ====================

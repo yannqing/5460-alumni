@@ -10,33 +10,25 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 更新校处会成员角色请求 DTO
+ * 更新校促会预设成员信息请求 DTO
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateLocalPlatformMemberRoleDto implements Serializable {
+public class UpdateLocalPlatformPresetMemberInfoDto implements Serializable {
 
     /**
-     * 校处会 ID
+     * 成员 ID
      */
-    @Schema(description = "校处会 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "校处会 ID不能为空")
-    private Long localPlatformId;
+    @Schema(description = "成员 ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "成员 ID不能为空")
+    private Long memberId;
 
     /**
-     * 成员用户 ID
+     * 用户名
      */
-    @Schema(description = "成员用户 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "成员用户 ID不能为空")
-    private Long wxId;
-
-    /**
-     * 新的组织架构角色 ID
-     */
-    @Schema(description = "新的组织架构角色 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "组织架构角色 ID不能为空")
-    private Long roleOrId;
+    @Schema(description = "用户名", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String username;
 
     /**
      * 角色名称

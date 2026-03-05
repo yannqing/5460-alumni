@@ -598,7 +598,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
-    public boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId) {
+    public boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId, String username, String roleName, String contactInformation, String socialDuties) {
         // 1. 参数校验
         if (localPlatformId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校处会ID不能为空");
@@ -610,8 +610,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
         }
 
-        log.info("开始邀请成员加入校处会 - 校处会ID: {}, 成员用户ID: {}, 角色ID: {}",
-                localPlatformId, wxId, roleOrId);
+        log.info("开始邀请成员加入校处会 - 校处会ID: {}, 成员用户ID: {}, 角色ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
+                localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties);
 
         // 2. 查询校处会是否存在
         LocalPlatform localPlatform = this.getById(localPlatformId);
@@ -637,11 +637,17 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.OPERATION_ERROR, "该用户已经是该校处会成员");
         }
 
-        // 5. 创建新成员记录
+        // 直接使用前端传入的角色名称，不自动查询
+
+        // 6. 创建新成员记录
         LocalPlatformMember newMember = new LocalPlatformMember();
         newMember.setWxId(wxId);
         newMember.setLocalPlatformId(localPlatformId);
         newMember.setRoleOrId(roleOrId);
+        newMember.setUsername(username);
+        newMember.setRoleName(roleName);
+        newMember.setContactInformation(contactInformation);
+        newMember.setSocialDuties(socialDuties);
         newMember.setJoinTime(java.time.LocalDateTime.now());
         newMember.setStatus(1); // 状态：1-正常
 
@@ -650,8 +656,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.OPERATION_ERROR, "邀请成员失败");
         }
 
-        log.info("邀请成员加入校处会成功 - 校处会ID: {}, 成员用户ID: {}, 角色ID: {}",
-                localPlatformId, wxId, roleOrId);
+        log.info("邀请成员加入校处会成功 - 校处会ID: {}, 成员用户ID: {}, 角色ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
+                localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties);
 
         return saveResult;
     }
@@ -837,13 +843,11 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         String sortField = queryDto.getSortField();
         String sortOrder = queryDto.getSortOrder();
 
-        // 4. 先查询成员表，获取该校处会的所有成员（此处必须过滤掉 wx_id 为空的记录，只展示真实绑定的校友）
+        // 4. 先查询成员表，获取该校处会的所有成员（包括 wx_id 为空的预设成员）
         Page<LocalPlatformMember> memberPage = new Page<>(current, pageSize);
         LambdaQueryWrapper<LocalPlatformMember> memberWrapper = new LambdaQueryWrapper<>();
         memberWrapper
                 .eq(LocalPlatformMember::getLocalPlatformId, localPlatformId)
-                .isNotNull(LocalPlatformMember::getWxId) // 过滤 null
-                .ne(LocalPlatformMember::getWxId, 0L) // 过滤 0
                 .eq(LocalPlatformMember::getStatus, 1); // 状态：1-正常
 
         // 添加排序
@@ -880,12 +884,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (!wxIds.isEmpty()) {
             LambdaQueryWrapper<WxUserInfo> userInfoWrapper = new LambdaQueryWrapper<>();
             userInfoWrapper
-                    .in(WxUserInfo::getWxId, wxIds)
-                    .like(StringUtils.isNotBlank(nickname), WxUserInfo::getNickname, nickname)
-                    .like(StringUtils.isNotBlank(name), WxUserInfo::getName, name)
-                    .eq(gender != null, WxUserInfo::getGender, gender)
-                    .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
-                    .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity);
+                    .in(WxUserInfo::getWxId, wxIds);
 
             List<WxUserInfo> userInfoList = wxUserInfoService.list(userInfoWrapper);
 
@@ -908,29 +907,66 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     .collect(Collectors.toMap(OrganizeArchiRole::getRoleOrId, Function.identity(), (v1, v2) -> v1));
         }
 
-        // 10. 组装结果（直接检测输出中的 wxId，如果为 null 则剔除该记录）
+        // 10. 组装结果（包括 wxId 为空的预设成员）
         Map<Long, OrganizeArchiRole> finalOrganizeArchiRoleMap = organizeArchiRoleMap;
         Map<Long, WxUserInfo> finalUserInfoMap = userInfoMap;
         List<OrganizationMemberResponse> responseList = memberResultPage.getRecords().stream()
                 .map(member -> {
-                    // 再次检查校验，双重保险
-                    if (member.getWxId() == null || member.getWxId() == 0) {
-                        log.debug("过滤成员: {} - wxId 为空或为0", member.getUsername());
-                        return null;
-                    }
-
-                    // 获取对应的真实用户信息
-                    WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
-                    if (userInfo == null) {
-                        log.debug("过滤成员: {} - 找不到对应的 WxUserInfo (wxId: {})", member.getUsername(), member.getWxId());
-                        return null;
-                    }
-
                     // 构建 VO 响应结果
-                    OrganizationMemberResponse response = OrganizationMemberResponse.objToVo(userInfo);
-                    response.setWxId(String.valueOf(userInfo.getWxId()));
+                    OrganizationMemberResponse response = new OrganizationMemberResponse();
+                    
+                    // 检查是否已加入平台（有 wxId）
+                    boolean isJoined = member.getWxId() != null && member.getWxId() != 0L;
+                    response.setJoined(isJoined);
+                    
+                    // 设置成员基本信息
+                    response.setId(member.getId());
                     response.setUsername(member.getUsername());
                     response.setRoleName(member.getRoleName());
+                    response.setContactInformation(member.getContactInformation());
+                    response.setSocialDuties(member.getSocialDuties());
+                    
+                    // 如果已加入平台，填充用户信息
+                    if (isJoined) {
+                        WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
+                        if (userInfo != null) { 
+                            // 应用用户信息过滤条件
+                            boolean matchFilter = true;
+                            if (StringUtils.isNotBlank(nickname) && !userInfo.getNickname().contains(nickname)) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(name) && !userInfo.getName().contains(name)) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && gender != null && !gender.equals(userInfo.getGender())) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(curProvince) && !userInfo.getCurProvince().contains(curProvince)) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(curCity) && !userInfo.getCurCity().contains(curCity)) {
+                                matchFilter = false;
+                            }
+                            
+                            if (!matchFilter) {
+                                return null;
+                            }
+                            
+                            // 填充用户信息
+                            response.setNickname(userInfo.getNickname());
+                            response.setName(userInfo.getName());
+                            response.setGender(userInfo.getGender());
+                            response.setCurProvince(userInfo.getCurProvince());
+                            response.setCurCity(userInfo.getCurCity());
+                            response.setAvatarUrl(userInfo.getAvatarUrl());
+                            response.setWxId(String.valueOf(userInfo.getWxId()));
+                        }
+                    } else {
+                        // 未加入平台的成员，只设置基本信息
+                        response.setNickname(member.getUsername()); // 使用用户名作为昵称
+                        response.setName(member.getUsername()); // 使用用户名作为姓名
+                        response.setWxId(null);
+                    }
 
                     // 设置架构详细信息
                     if (member.getRoleOrId() != null) {
@@ -940,20 +976,14 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                         }
                     }
 
-                    // 最终检测：如果 response 的 wxId 为空或者为 "null" 字符串，彻底不展示
-                    if (StringUtils.isBlank(response.getWxId()) || "null".equals(response.getWxId())) {
-                        log.debug("过滤成员: {} - 最终生成的 wxId 无效 (wxId: {})", member.getUsername(), response.getWxId());
-                        return null;
-                    }
-
-                    log.debug("保留成员: {} (wxId: {})", member.getUsername(), response.getWxId());
+                    log.debug("成员: {} (wxId: {}, 已加入: {})", member.getUsername(), member.getWxId(), isJoined);
                     return response;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        log.info("DEBUG: 查询校处会成员列表 - 校处会ID: {}, 原始记录数: {}, 过滤后记录数: {}, 最终total: {}",
-                localPlatformId, memberResultPage.getTotal(), responseList.size(), responseList.size());
+        log.info("查询校处会成员列表 - 校处会ID: {}, 总记录数: {}, 过滤后记录数: {}",
+                localPlatformId, memberResultPage.getTotal(), responseList.size());
 
         // 11. 构建分页结果
         Page<OrganizationMemberResponse> resultPage = new Page<>(current, pageSize, (long) responseList.size());
@@ -962,7 +992,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
-    public boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId) {
+    public boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId, String roleName, String contactInformation, String socialDuties) {
         // 1. 参数校验
         if (operatorWxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "操作人用户ID不能为空");
@@ -977,8 +1007,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
         }
 
-        log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}",
-                operatorWxId, localPlatformId, wxId, roleOrId);
+        log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
+                operatorWxId, localPlatformId, wxId, roleOrId, roleName, contactInformation, socialDuties);
 
         // 2. 查询校处会是否存在
         LocalPlatform localPlatform = this.getById(localPlatformId);
@@ -1011,13 +1041,23 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
         }
 
-        // 5. 更新成员角色
+        // 5. 更新成员信息
         Long oldRoleOrId = member.getRoleOrId();
         member.setRoleOrId(roleOrId);
+        if (roleName != null) {
+            member.setRoleName(roleName);
+        }
+        if (contactInformation != null) {
+            member.setContactInformation(contactInformation);
+        }
+        if (socialDuties != null) {
+            member.setSocialDuties(socialDuties);
+        }
+
         boolean updateResult = localPlatformMemberService.updateById(member);
 
         if (!updateResult) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员角色失败");
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员信息失败");
         }
 
         log.info("更新校处会成员角色成功 - 校处会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}",
@@ -1437,5 +1477,199 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         // 特殊处理单字段不一致 (DTO中的phone对应Entity中的phone)
         localPlatform.setPhone(updateDto.getPhone());
         return this.updateById(localPlatform);
+    }
+
+    @Override
+    public boolean addPresetMember(Long localPlatformId, String username, String roleName, Long roleOrId, String contactInformation, String socialDuties) {
+        // 1. 参数校验
+        if (localPlatformId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校促会ID不能为空");
+        }
+        if (username == null || username.trim().isEmpty()) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户名不能为空");
+        }
+        if (roleName == null || roleName.trim().isEmpty()) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "角色名称不能为空");
+        }
+        if (roleOrId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
+        }
+
+        log.info("开始添加校促会预设成员 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}, 联系方式: {}, 社会职务: {}",
+                localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties);
+
+        // 2. 查询校促会是否存在
+        LocalPlatform localPlatform = this.getById(localPlatformId);
+        if (localPlatform == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校促会不存在");
+        }
+
+        // 3. 查询组织架构角色是否存在
+        OrganizeArchiRole role = organizeArchiRoleService.getOne(
+                new LambdaQueryWrapper<OrganizeArchiRole>()
+                        .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
+                        .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
+                        .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
+                        .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+        );
+
+        if (role == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+        }
+
+        // 4. 创建预设成员记录（wxId 为 null，表示未加入平台的假人）
+        LocalPlatformMember presetMember = new LocalPlatformMember();
+        presetMember.setWxId(null); // 预设成员 wxId 为 null
+        presetMember.setLocalPlatformId(localPlatformId);
+        presetMember.setRoleOrId(roleOrId);
+        presetMember.setUsername(username);
+        presetMember.setRoleName(roleName);
+        presetMember.setContactInformation(contactInformation);
+        presetMember.setSocialDuties(socialDuties);
+        presetMember.setJoinTime(java.time.LocalDateTime.now());
+        presetMember.setStatus(1); // 状态：1-正常
+        presetMember.setIsNu(1); // 1-是组织架构成员
+
+        boolean saveResult = localPlatformMemberService.save(presetMember);
+        if (!saveResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "添加预设成员失败");
+        }
+
+        log.info("添加校促会预设成员成功 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}",
+                localPlatformId, username, roleName, roleOrId);
+
+        return saveResult;
+    }
+
+    @Override
+    public boolean updatePresetMember(Long memberId, Long wxId) {
+        // 1. 参数校验
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+
+        log.info("开始更新校促会预设成员 - 成员ID: {}, 用户ID: {}", memberId, wxId);
+
+        // 2. 查询成员记录是否存在
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 检查成员是否是预设成员（wxId 为 null）
+        if (member.getWxId() != null) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该成员已经关联了用户，不能重复关联");
+        }
+
+        // 4. 查询用户是否存在
+        WxUser wxUser = userService.getById(wxId);
+        if (wxUser == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "用户不存在");
+        }
+
+        // 5. 检查该用户是否已经是该校促会的成员
+        LocalPlatformMember existingMember = localPlatformMemberService.getOne(
+                new LambdaQueryWrapper<LocalPlatformMember>()
+                        .eq(LocalPlatformMember::getLocalPlatformId, member.getLocalPlatformId())
+                        .eq(LocalPlatformMember::getWxId, wxId)
+                        .eq(LocalPlatformMember::getStatus, 1) // 状态：1-正常
+        );
+
+        if (existingMember != null) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该用户已经是该校促会的成员");
+        }
+
+        // 6. 更新成员记录，关联用户ID
+        member.setWxId(wxId);
+        boolean updateResult = localPlatformMemberService.updateById(member);
+
+        if (!updateResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新预设成员失败");
+        }
+
+        log.info("更新校促会预设成员成功 - 成员ID: {}, 用户ID: {}", memberId, wxId);
+
+        return updateResult;
+    }
+
+    @Override
+    public boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties) {
+        // 1. 参数校验
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+
+        log.info("开始更新校促会预设成员信息 - 成员ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
+                memberId, username, roleName, contactInformation, socialDuties);
+
+        // 2. 查询成员记录是否存在
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 检查成员是否是预设成员（wxId 为 null）
+        if (member.getWxId() != null) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该成员已经关联了用户，不能通过此接口更新信息");
+        }
+
+        // 4. 更新成员信息
+        if (username != null) {
+            member.setUsername(username);
+        }
+        if (roleName != null) {
+            member.setRoleName(roleName);
+        }
+        if (contactInformation != null) {
+            member.setContactInformation(contactInformation);
+        }
+        if (socialDuties != null) {
+            member.setSocialDuties(socialDuties);
+        }
+
+        boolean updateResult = localPlatformMemberService.updateById(member);
+
+        if (!updateResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新预设成员信息失败");
+        }
+
+        log.info("更新校促会预设成员信息成功 - 成员ID: {}", memberId);
+
+        return updateResult;
+    }
+
+    @Override
+    public boolean deletePresetMember(Long memberId) {
+        // 1. 参数校验
+        if (memberId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+
+        log.info("开始删除校促会预设成员 - 成员ID: {}", memberId);
+
+        // 2. 查询成员记录是否存在
+        LocalPlatformMember member = localPlatformMemberService.getById(memberId);
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 检查成员是否是预设成员（wxId 为 null）
+        if (member.getWxId() != null) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该成员已经关联了用户，不能通过此接口删除");
+        }
+
+        // 4. 删除成员记录
+        boolean deleteResult = localPlatformMemberService.removeById(memberId);
+
+        if (!deleteResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "删除预设成员失败");
+        }
+
+        log.info("删除校促会预设成员成功 - 成员ID: {}", memberId);
+
+        return deleteResult;
     }
 }
