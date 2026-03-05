@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.cmswe.alumni.api.user.AuthService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.WechatApiService;
+import com.cmswe.alumni.common.dto.GetPhoneNumberRequest;
 import com.cmswe.alumni.common.dto.WxInitRequest;
 import com.cmswe.alumni.common.entity.Role;
 import com.cmswe.alumni.common.entity.RoleUser;
@@ -14,6 +15,7 @@ import com.cmswe.alumni.common.entity.WxUserInfo;
 import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.utils.WechatMiniUtil;
+import com.cmswe.alumni.common.vo.GetPhoneNumberResponse;
 import com.cmswe.alumni.common.vo.RoleListVo;
 import com.cmswe.alumni.common.vo.WxInitResponse;
 import com.cmswe.alumni.service.user.mapper.AlumniEducationMapper;
@@ -284,6 +286,54 @@ public class AuthServiceImpl implements AuthService {
             log.error("检查用户信息完善状态失败，wxId={}, error={}", wxId, e.getMessage(), e);
             // 发生异常时返回false，防止用户因系统错误而无法正常使用
             return false;
+        }
+    }
+
+    /**
+     * 获取微信用户手机号
+     *
+     * @param request 获取手机号请求参数
+     * @return 用户手机号信息
+     */
+    @Override
+    public GetPhoneNumberResponse getPhoneNumber(GetPhoneNumberRequest request) {
+        // 1. 参数校验
+        String code = request.getCode();
+        if (code == null || code.trim().isEmpty()) {
+            log.error("getPhoneNumber 参数错误: code为空");
+            throw new BusinessException(400, "参数错误：code不能为空");
+        }
+
+        log.info("开始获取微信用户手机号, code={}", code);
+
+        try {
+            // 2. 调用微信API获取手机号
+            Map<String, Object> phoneInfo = wechatMiniUtil.getUserPhoneNumber(code);
+            log.info("微信返回手机号信息: {}", phoneInfo);
+
+            // 3. 提取手机号信息
+            String phoneNumber = (String) phoneInfo.get("phoneNumber");
+            String purePhoneNumber = (String) phoneInfo.get("purePhoneNumber");
+            String countryCode = (String) phoneInfo.get("countryCode");
+
+            // 4. 构建响应
+            GetPhoneNumberResponse response = GetPhoneNumberResponse.builder()
+                    .phoneNumber(phoneNumber)
+                    .purePhoneNumber(purePhoneNumber)
+                    .countryCode(countryCode)
+                    .build();
+
+            log.info("获取手机号成功: phoneNumber={}, purePhoneNumber={}, countryCode={}",
+                    phoneNumber, purePhoneNumber, countryCode);
+
+            return response;
+
+        } catch (BusinessException e) {
+            log.error("获取手机号失败: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("获取手机号异常", e);
+            throw new BusinessException(500, "获取手机号失败: " + e.getMessage());
         }
     }
 }

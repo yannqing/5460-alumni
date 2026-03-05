@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
+import com.cmswe.alumni.api.user.OrganizeArchiTemplateService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
@@ -14,6 +15,7 @@ import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.entity.*;
 import com.cmswe.alumni.common.enums.ErrorType;
+import com.cmswe.alumni.common.entity.OrganizeArchiTemplate;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
@@ -72,6 +74,9 @@ public class AlumniAssociationApplicationServiceImpl
 
     @Resource
     private com.cmswe.alumni.api.association.AlumniAssociationMemberService alumniAssociationMemberService;
+
+    @Resource
+    private OrganizeArchiTemplateService organizeArchiTemplateService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -159,6 +164,7 @@ public class AlumniAssociationApplicationServiceImpl
         application.setLogo(applyDto.getLogo());
         application.setApplicationReason(applyDto.getApplicationReason());
         application.setAssociationProfile(applyDto.getAssociationProfile());
+        application.setTemplateId(applyDto.getTemplateId());
         application.setApplicationStatus(0); // 0-待审核
         application.setApplyTime(LocalDateTime.now());
 
@@ -537,6 +543,21 @@ public class AlumniAssociationApplicationServiceImpl
                 }
             }
 
+            // 5.6.5 根据模板创建组织架构
+            if (application.getTemplateId() != null) {
+                try {
+                    createOrganizeArchitecture(application.getTemplateId(), alumniAssociationId);
+                    log.info("根据模板创建组织架构成功 - 校友会ID: {}, 模板ID: {}",
+                            alumniAssociationId, application.getTemplateId());
+                } catch (Exception e) {
+                    log.error("根据模板创建组织架构失败 - 校友会ID: {}, 模板ID: {}",
+                            alumniAssociationId, application.getTemplateId(), e);
+                    throw new BusinessException(ErrorType.SYSTEM_ERROR, "创建组织架构失败: " + e.getMessage());
+                }
+            } else {
+                log.info("未选择组织架构模板，跳过架构创建 - 校友会ID: {}", alumniAssociationId);
+            }
+
             // 5.7 更新校友会会员数量
             alumniAssociation.setMemberCount(totalMemberCount);
             alumniAssociationService.updateById(alumniAssociation);
@@ -653,5 +674,103 @@ public class AlumniAssociationApplicationServiceImpl
 
         log.info("查询申请详情成功 - 申请ID: {}", applicationId);
         return detailVo;
+    }
+
+    /**
+     * 根据模板创建组织架构
+     *
+     * @param templateId          模板ID
+     * @param alumniAssociationId 校友会ID
+     */
+    private void createOrganizeArchitecture(Long templateId, Long alumniAssociationId) {
+        // 1. 查询模板
+        OrganizeArchiTemplate template = organizeArchiTemplateService.getById(templateId);
+        if (template == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "组织架构模板不存在");
+        }
+
+        if (template.getStatus() != 1) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该模板已被禁用");
+        }
+
+        // 2. 解析模板JSON
+        try {
+            List<Map<String, Object>> templateNodes = objectMapper.readValue(
+                    template.getTemplateJson(),
+                    new TypeReference<List<Map<String, Object>>>() {}
+            );
+
+            // 3. 创建节点ID映射（旧ID -> 新ID）
+            Map<String, Long> nodeIdMapping = new HashMap<>();
+
+            // 4. 遍历模板节点，创建组织架构角色
+            for (Map<String, Object> nodeData : templateNodes) {
+                OrganizeArchiRole role = new OrganizeArchiRole();
+
+                // 生成新的角色ID
+                Long newRoleId = generateRoleId();
+                role.setRoleOrId(newRoleId);
+
+                // 处理父节点ID
+                Object pidObj = nodeData.get("pid");
+                if (pidObj != null && !"null".equals(String.valueOf(pidObj))) {
+                    String oldPid = String.valueOf(pidObj);
+                    Long newPid = nodeIdMapping.get(oldPid);
+                    role.setPid(newPid);
+                } else {
+                    role.setPid(null);
+                }
+
+                // 设置组织信息
+                role.setOrganizeType(0); // 0-校友会
+                role.setOrganizeId(alumniAssociationId);
+
+                // 设置角色信息
+                role.setRoleOrName((String) nodeData.get("roleOrName"));
+
+                // 生成唯一的角色代码（模板代码 + 校友会ID + 节点序号）
+                String templateRoleCode = (String) nodeData.get("roleOrCode");
+                String uniqueRoleCode = templateRoleCode + "_" + alumniAssociationId + "_" + newRoleId;
+                role.setRoleOrCode(uniqueRoleCode);
+
+                role.setRemark((String) nodeData.get("remark"));
+                role.setStatus(1); // 启用
+                role.setCreateTime(LocalDateTime.now());
+
+                // 保存到数据库
+                boolean saveResult = organizeArchiRoleService.save(role);
+                if (!saveResult) {
+                    throw new BusinessException(ErrorType.SYSTEM_ERROR, "创建组织架构角色失败");
+                }
+
+                // 记录ID映射
+                Object nodeIdObj = nodeData.get("nodeId");
+                if (nodeIdObj != null) {
+                    nodeIdMapping.put(String.valueOf(nodeIdObj), newRoleId);
+                }
+
+                log.info("创建组织架构角色成功 - 角色名: {}, 角色ID: {}, 校友会ID: {}",
+                        role.getRoleOrName(), newRoleId, alumniAssociationId);
+            }
+
+            log.info("根据模板创建组织架构完成 - 校友会ID: {}, 模板ID: {}, 创建角色数: {}",
+                    alumniAssociationId, templateId, templateNodes.size());
+
+        } catch (JsonProcessingException e) {
+            log.error("解析组织架构模板JSON失败 - 模板ID: {}", templateId, e);
+            throw new BusinessException(ErrorType.SYSTEM_ERROR, "解析组织架构模板失败");
+        }
+    }
+
+    /**
+     * 生成角色ID（使用雪花ID）
+     * 这里简单使用时间戳，实际应该使用雪花ID生成器
+     *
+     * @return 角色ID
+     */
+    private Long generateRoleId() {
+        // 这里使用MyBatis-Plus的ID生成策略会自动生成
+        // 临时使用时间戳 + 随机数
+        return System.currentTimeMillis() * 1000 + (long) (Math.random() * 1000);
     }
 }

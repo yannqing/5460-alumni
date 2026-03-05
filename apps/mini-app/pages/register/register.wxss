@@ -165,7 +165,7 @@
   font-weight: 500;
 }
 
-/* 大学选择器 */
+/* 学校选择器 */
 .form-picker {
   display: flex;
   align-items: center;
@@ -188,6 +188,53 @@
 .picker-arrow-text {
   font-size: 32rpx;
   color: #CCCCCC;
+}
+
+/* 手机号获取 */
+.phone-input-wrapper {
+  border-bottom: 1rpx solid #E8E8E8;
+  padding-bottom: 16rpx;
+}
+
+.phone-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60rpx;
+}
+
+.phone-value {
+  font-size: 30rpx;
+  color: #333333;
+}
+
+.phone-change {
+  font-size: 26rpx;
+  color: #4A8BF5;
+  padding: 8rpx 16rpx;
+}
+
+.get-phone-btn {
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #F0F7FF;
+  border: 2rpx solid #4A8BF5;
+  border-radius: 12rpx;
+  padding: 0;
+  margin: 0;
+}
+
+.get-phone-btn::after {
+  border: none;
+}
+
+.get-phone-btn .btn-text {
+  font-size: 28rpx;
+  color: #4A8BF5;
+  font-weight: 500;
 }
 
 /* 用户协议 */

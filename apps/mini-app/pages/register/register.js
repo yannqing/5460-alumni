@@ -11,12 +11,12 @@ Page({
     formData: {
       realName: '',
       gender: '', // male 或 female
-      university: '',
+      school: '',
       phone: ''
     },
-    // 大学选择器
-    universityList: ['清华大学', '北京大学', '复旦大学', '上海交通大学', '浙江大学', '中国人民大学', '南京大学', '武汉大学', '中山大学', '华中科技大学'],
-    universityIndex: -1,
+    // 学校选择器
+    schoolList: ['清华大学', '北京大学', '复旦大学', '上海交通大学', '浙江大学', '中国人民大学', '南京大学', '武汉大学', '中山大学', '华中科技大学'],
+    schoolIndex: -1,
     // 用户协议
     isAgreed: false,
     // 表单验证状态
@@ -60,20 +60,65 @@ Page({
     this.validateForm()
   },
 
-  // 选择大学
-  onUniversityChange(e) {
+  // 选择学校
+  onSchoolChange(e) {
     const index = e.detail.value
     this.setData({
-      universityIndex: index,
-      'formData.university': this.data.universityList[index]
+      schoolIndex: index,
+      'formData.school': this.data.schoolList[index]
     })
     this.validateForm()
   },
 
-  // 输入手机号
-  onPhoneInput(e) {
+  // 获取微信手机号（新方式：基础库 2.21.2+）
+  async onGetPhoneNumber(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      // 用户拒绝授权
+      wx.showToast({
+        title: '需要授权手机号才能注册',
+        icon: 'none'
+      })
+      return
+    }
+
+    try {
+      wx.showLoading({ title: '获取中...' })
+
+      // 新方式：直接从回调中获取 code（不需要调用 wx.login）
+      // 将 code 发送到后端，后端调用微信 phonenumber.getPhoneNumber 接口获取手机号
+      const code = e.detail.code
+
+      // 调用后端接口获取手机号
+      const res = await userApi.getPhoneNumber({ code })
+
+      wx.hideLoading()
+
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const phoneNumber = res.data.data.phoneNumber || res.data.data.purePhoneNumber || res.data.data
+        this.setData({
+          'formData.phone': phoneNumber
+        })
+        this.validateForm()
+      } else {
+        wx.showToast({
+          title: res.data?.msg || '获取手机号失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('获取手机号失败:', error)
+      wx.showToast({
+        title: '获取手机号失败，请重试',
+        icon: 'none'
+      })
+    }
+  },
+
+  // 清除手机号（更换）
+  clearPhone() {
     this.setData({
-      'formData.phone': e.detail.value
+      'formData.phone': ''
     })
     this.validateForm()
   },
@@ -108,7 +153,7 @@ Page({
     const isValid =
       formData.realName.trim() !== '' &&
       formData.gender !== '' &&
-      formData.university !== '' &&
+      formData.school !== '' &&
       formData.phone.trim() !== '' &&
       /^1[3-9]\d{9}$/.test(formData.phone) &&
       isAgreed
@@ -131,16 +176,16 @@ Page({
         wx.showToast({ title: '请选择性别', icon: 'none' })
         return
       }
-      if (!formData.university) {
-        wx.showToast({ title: '请选择大学', icon: 'none' })
+      if (!formData.school) {
+        wx.showToast({ title: '请选择学校', icon: 'none' })
         return
       }
       if (!formData.phone.trim()) {
-        wx.showToast({ title: '请输入手机号', icon: 'none' })
+        wx.showToast({ title: '请获取手机号', icon: 'none' })
         return
       }
       if (!/^1[3-9]\d{9}$/.test(formData.phone)) {
-        wx.showToast({ title: '请输入正确的手机号', icon: 'none' })
+        wx.showToast({ title: '手机号格式不正确', icon: 'none' })
         return
       }
       if (!isAgreed) {
@@ -166,7 +211,7 @@ Page({
         name: formData.realName.trim(),
         gender: genderMap[formData.gender] || 0,
         phone: formData.phone.trim()
-        // 大学信息暂时不保存，后续可以扩展教育经历
+        // 学校信息暂时不保存，后续可以扩展教育经历
       }
 
       // 调用用户信息更新接口

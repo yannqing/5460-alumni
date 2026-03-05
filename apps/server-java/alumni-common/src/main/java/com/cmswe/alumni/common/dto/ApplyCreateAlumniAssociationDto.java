@@ -122,10 +122,9 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
     private String logo;
 
     /**
-     * 申请理由
+     * 申请理由（选填）
      */
-    @Schema(description = "申请理由")
-    @NotBlank(message = "申请理由不能为空")
+    @Schema(description = "申请理由（选填）")
     private String applicationReason;
 
     /**
@@ -133,6 +132,12 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
      */
     @Schema(description = "校友会简介（选填）")
     private String associationProfile;
+
+    /**
+     * 组织架构模板ID
+     */
+    @Schema(description = "组织架构模板ID（选填，不填则不创建组织架构）")
+    private Long templateId;
 
     /**
      * 初始成员列表

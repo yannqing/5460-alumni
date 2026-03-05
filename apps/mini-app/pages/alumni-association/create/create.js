@@ -51,6 +51,14 @@ Page({
         // 平台选择索引
         platformIndex: -1,
 
+        // 架构模板相关
+        templateList: [],
+        templateIndex: -1,
+        selectedTemplate: null,
+
+        // 地区选择器
+        regionValue: [],
+
         // 控制显示
         showSchoolResults: false,
 
@@ -82,6 +90,7 @@ Page({
 
         this.loadInitialData()
         this.loadPlatformList()
+        this.loadTemplateList()
 
         // 默认初始化logo为平台默认logo（本地静态资源）
         const defaultLogoUrl = '/assets/avatar/avatar.jpg'
@@ -116,13 +125,11 @@ Page({
                         this.setData({
                             platformIndex: platformIndex,
                             'formData.platformId': platform.platformId,
-                            'formData.platformName': platform.platformName,
-                            'formData.location': this.platformNameFromList
+                            'formData.platformName': platform.platformName
                         })
                     } else {
                         this.setData({
-                            'formData.platformName': this.platformNameFromList,
-                            'formData.location': this.platformNameFromList
+                            'formData.platformName': this.platformNameFromList
                         })
                     }
                 }
@@ -132,19 +139,72 @@ Page({
         }
     },
 
+    // 加载架构模板列表
+    async loadTemplateList() {
+        try {
+            // organizeType: 0-校友会，1-校促会，2-商户
+            const res = await associationApi.getOrganizeTemplateList({ organizeType: 0 })
+            if (res.data && res.data.code === 200) {
+                const templateList = res.data.data || []
+                // 找到默认模板的索引
+                let defaultIndex = templateList.findIndex(item => item.isDefault === 1)
+                if (defaultIndex === -1 && templateList.length > 0) {
+                    defaultIndex = 0 // 如果没有默认模板，默认选中第一个
+                }
+
+                this.setData({
+                    templateList: templateList,
+                    templateIndex: defaultIndex,
+                    selectedTemplate: defaultIndex >= 0 ? templateList[defaultIndex] : null
+                })
+            }
+        } catch (e) {
+            console.error('加载架构模板列表失败', e)
+        }
+    },
+
+    // 处理架构模板选择
+    handleTemplateChange(e) {
+        const index = e.detail.value
+        const template = this.data.templateList[index]
+        if (template) {
+            this.setData({
+                templateIndex: index,
+                selectedTemplate: template
+            })
+        }
+    },
+
+    // 处理常驻地点选择（省/市/区）
+    handleRegionChange(e) {
+        const value = e.detail.value // [省, 市, 区]
+        const province = value[0] || ''
+        const city = value[1] || ''
+        const district = value[2] || ''
+
+        // 拼接为 "省 市 区" 格式
+        let location = province
+        if (city) location += ' ' + city
+        if (district) location += ' ' + district
+
+        this.setData({
+            regionValue: value,
+            'formData.location': location
+        })
+    },
+
     // 处理是否是校促会会员选择
     handlePlatformMemberChange(e) {
         const value = e.detail.value === 'yes'
         this.setData({
             isPlatformMember: value
         })
-        // 如果选择"否"，清空已选择的校促会信息
+        // 如果选择"否"，清空已选择的校促会信息（不清空location，因为location由独立的地区选择器管理）
         if (!value) {
             this.setData({
                 platformIndex: -1,
                 'formData.platformId': '',
-                'formData.platformName': '',
-                'formData.location': ''
+                'formData.platformName': ''
             })
         }
     },
@@ -154,12 +214,10 @@ Page({
         const index = e.detail.value
         const platform = this.data.platformList[index]
         if (platform) {
-            const location = platform.city || platform.location || platform.platformName
             this.setData({
                 platformIndex: index,
                 'formData.platformId': platform.platformId,
-                'formData.platformName': platform.platformName,
-                'formData.location': location
+                'formData.platformName': platform.platformName
             })
         }
     },
@@ -864,6 +922,10 @@ Page({
             wx.showToast({ title: '请选择并点击学校', icon: 'none' })
             return
         }
+        if (!formData.location) {
+            wx.showToast({ title: '请选择常驻地点', icon: 'none' })
+            return
+        }
         // platformId is optional per API specs
         // 主要负责人信息现在从 members[0] 获取，在下面的成员验证中统一校验
         if (!formData.zhName) {
@@ -973,15 +1035,24 @@ Page({
             }) : undefined
         }
 
-        // 只有选择了"是校促会会员"时才添加 platformId 和 location
+        // 只有选择了"是校促会会员"时才添加 platformId
         if (this.data.isPlatformMember && formData.platformId) {
             submitData.platformId = formData.platformId
-            submitData.location = formData.location || formData.platformName || undefined
+        }
+
+        // 添加常驻地点（来自地区选择器）
+        if (formData.location) {
+            submitData.location = formData.location
         }
 
         // 只有当bgImg存在时才添加到提交数据中
         if (bgImg !== undefined) {
             submitData.bgImg = bgImg
+        }
+
+        // 添加架构模板ID
+        if (this.data.selectedTemplate && this.data.selectedTemplate.templateId) {
+            submitData.templateId = this.data.selectedTemplate.templateId
         }
 
         console.log('最终提交数据:', submitData)

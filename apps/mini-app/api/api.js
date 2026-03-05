@@ -63,6 +63,8 @@ const associationApi = {
   querySystemAdminApplicationPage: (params) => post('/AlumniAssociationApplication/querySystemAdminApplicationPage', params),
   // 系统管理员审核校友会创建申请
   reviewApplication: (data) => post('/AlumniAssociationApplication/reviewApplication', data),
+  // 获取组织架构模板列表
+  getOrganizeTemplateList: (params) => get('/organizeArchiTemplate/list', params),
 }
 
 // ==================== 校友总会相关接口 ====================
@@ -250,6 +252,8 @@ const userApi = {
   getPrivacy: () => get('/users/getPrivacy'),
   // 更新个人隐私设置
   updatePrivacy: (data) => put('/users/update/privacy', data),
+  // 获取微信手机号（通过 button 组件回调中的 code）
+  getPhoneNumber: (data) => post('/auth/getPhoneNumber', data),
 }
 
 

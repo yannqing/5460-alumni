@@ -151,6 +151,60 @@ public class WechatMiniUtil {
     private AccessToken cachedToken;
 
     /**
+     * 获取用户手机号
+     * 官方文档: https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-info/phone-number/getPhoneNumber.html
+     *
+     * @param code 从前端 button 组件回调中获取的动态令牌 code
+     * @return 包含 phoneNumber、purePhoneNumber、countryCode 的 Map
+     */
+    public Map<String, Object> getUserPhoneNumber(String code) {
+        String accessToken = getAccessToken();
+        if (accessToken == null) {
+            throw new BusinessException(500, "获取微信Access Token失败");
+        }
+
+        String url = wechatApiBaseUrl + "/wxa/business/getuserphonenumber?access_token=" + accessToken;
+
+        try {
+            log.info("调用微信获取手机号接口, code={}", code);
+
+            // 构建请求参数
+            Map<String, Object> params = new java.util.HashMap<>();
+            params.put("code", code);
+
+            // 发送HTTP POST请求
+            String response = httpClientUtil.post(url, params, String.class);
+            log.info("微信获取手机号响应: {}", response);
+
+            // 解析响应JSON
+            Map<String, Object> result = objectMapper.readValue(response, Map.class);
+
+            // 检查是否有错误
+            if (result.containsKey("errcode")) {
+                Integer errcode = (Integer) result.get("errcode");
+                if (errcode != 0) {
+                    String errmsg = (String) result.get("errmsg");
+                    log.error("微信获取手机号失败, errcode={}, errmsg={}", errcode, errmsg);
+                    throw new BusinessException(500, "获取手机号失败: " + errmsg);
+                }
+            }
+
+            // 返回 phone_info 对象
+            if (result.containsKey("phone_info")) {
+                return (Map<String, Object>) result.get("phone_info");
+            } else {
+                throw new BusinessException(500, "获取手机号失败：响应数据格式错误");
+            }
+
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("调用微信获取手机号接口异常", e);
+            throw new BusinessException(500, "调用微信API失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 获取 Access Token
      */
     private synchronized String getAccessToken() {
