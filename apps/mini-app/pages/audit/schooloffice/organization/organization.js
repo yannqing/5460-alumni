@@ -20,7 +20,6 @@ Page({
     editForm: {
       roleOrName: '',
       remark: '',
-      roleOrCode: '',
       status: 1,
       pid: '0' // 父角色ID，0表示顶级
     },
@@ -35,7 +34,6 @@ Page({
     showAddModal: false,
     addForm: {
       roleOrName: '',
-      roleOrCode: '',
       remark: '',
       pid: '0' // 默认顶级
     },
@@ -328,7 +326,7 @@ Page({
     const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
     
     // 获取当前父级名称
-    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级角色（无父级）'
+    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构(无父级)'
 
     this.setData({
       showEditModal: true,
@@ -336,7 +334,6 @@ Page({
       editForm: {
         roleOrName: role.roleOrName || '',
         remark: role.remark || '',
-        roleOrCode: role.roleOrCode || '',
         status: role.status !== undefined ? role.status : 1,
         pid: currentPid
       },
@@ -354,7 +351,6 @@ Page({
       editForm: {
         roleOrName: '',
         remark: '',
-        roleOrCode: '',
         status: 1,
         pid: '0'
       },
@@ -400,7 +396,7 @@ Page({
     // 校验必填项
     if (!editForm.roleOrName.trim()) {
       wx.showToast({
-        title: '请输入角色名',
+        title: '请输入架构名称',
         icon: 'none'
       })
       return
@@ -479,7 +475,7 @@ Page({
     // 添加"设为顶级"选项
     result.push({
       roleOrId: '0',
-      roleOrName: '设为顶级角色',
+      roleOrName: '设为顶级架构(无父级)',
       level: 0,
       isRoot: true
     })
@@ -504,7 +500,7 @@ Page({
     return result
   },
 
-  // 获取编辑时可选的父级角色列表
+  // 获取编辑时可选的父级架构列表
   getAvailableParentsForEdit(editingRole) {
     const { roleList } = this.data
     const excludeIds = this.getDescendantIds(editingRole)
@@ -512,10 +508,10 @@ Page({
 
     const result = []
 
-    // 添加"顶级角色（无父级）"选项
+    // 添加"顶级架构（无父级）"选项
     result.push({
       roleOrId: '0',
-      roleOrName: '顶级角色（无父级）',
+      roleOrName: '顶级架构(无父级)',
       level: 0,
       isRoot: true
     })
@@ -592,7 +588,6 @@ Page({
         pid: parentId === '0' ? null : parentId, // 0 表示顶级，传 null
         roleOrName: movingRole.roleOrName,
         remark: movingRole.remark || '',
-        roleOrCode: movingRole.roleOrCode || '',
         status: movingRole.status !== undefined ? movingRole.status : 1
       })
 
@@ -648,7 +643,7 @@ Page({
         remark: '',
         pid: '0'
       },
-      selectedParentName: '顶级角色（无父级）',
+      selectedParentName: '顶级架构(无父级)',
       parentOptions: parentOptions
     })
   },
@@ -658,10 +653,10 @@ Page({
     const { roleList } = this.data
     const result = []
 
-    // 添加"顶级角色"选项
+    // 添加"顶级架构"选项
     result.push({
       roleOrId: '0',
-      roleOrName: '顶级角色（无父级）',
+      roleOrName: '顶级架构(无父级)',
       level: 0
     })
 
@@ -689,7 +684,6 @@ Page({
       showAddModal: false,
       addForm: {
         roleOrName: '',
-        roleOrCode: '',
         remark: '',
         pid: '0'
       },
@@ -721,25 +715,17 @@ Page({
   getSelectedParentName() {
     const { addForm, parentOptions } = this.data
     const selected = parentOptions.find(item => item.roleOrId === addForm.pid)
-    return selected ? selected.roleOrName : '请选择父级'
+    return selected ? selected.roleOrName : '请选择上级'
   },
 
-  // 提交新增角色
+  // 提交新增分支
   async submitAdd() {
     const { addForm, selectedOrganizeId } = this.data
 
     // 校验必填项
     if (!addForm.roleOrName.trim()) {
       wx.showToast({
-        title: '请输入角色名',
-        icon: 'none'
-      })
-      return
-    }
-    
-    if (!addForm.roleOrCode.trim()) {
-      wx.showToast({
-        title: '请输入角色唯一代码',
+        title: '请输入架构名称',
         icon: 'none'
       })
       return
@@ -754,7 +740,6 @@ Page({
         organizeType: 1, // 校促会类型为1
         pid: addForm.pid, // 保持字符串形式，与校友会页面保持一致
         roleOrName: addForm.roleOrName.trim(),
-        roleOrCode: addForm.roleOrCode.trim(),
         remark: addForm.remark.trim()
       })
 
@@ -797,7 +782,6 @@ Page({
       organizeType: data.organizeType, // 已经是数字类型
       pid: String(data.pid), // 转换为字符串形式，与校友会页面保持一致
       roleOrName: data.roleOrName, // 角色名，字符串类型
-      roleOrCode: data.roleOrCode, // 角色唯一代码，字符串类型
       remark: data.remark // 角色含义，字符串类型
     }
 
@@ -813,7 +797,6 @@ Page({
       roleOrId: String(data.roleOrId),
       roleOrName: data.roleOrName,
       remark: data.remark,
-      roleOrCode: data.roleOrCode,
       status: data.status
     }
     // pid 可能为 null 或 0，需要特殊处理
