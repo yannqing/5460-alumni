@@ -248,7 +248,10 @@ public class LocalPlatformManagementController {
                                 operatorWxId,
                                 updateDto.getLocalPlatformId(),
                                 updateDto.getWxId(),
-                                updateDto.getRoleOrId());
+                                updateDto.getRoleOrId(),
+                                updateDto.getRoleName(),
+                                updateDto.getContactInformation(),
+                                updateDto.getSocialDuties());
 
                 if (result) {
                         log.info("更新校处会成员角色成功，校处会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",

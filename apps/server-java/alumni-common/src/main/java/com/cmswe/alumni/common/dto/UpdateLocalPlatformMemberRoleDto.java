@@ -38,6 +38,24 @@ public class UpdateLocalPlatformMemberRoleDto implements Serializable {
     @NotNull(message = "组织架构角色 ID不能为空")
     private Long roleOrId;
 
+    /**
+     * 角色名称
+     */
+    @Schema(description = "角色名称", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String roleName;
+
+    /**
+     * 联系方式
+     */
+    @Schema(description = "联系方式", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String contactInformation;
+
+    /**
+     * 社会职务
+     */
+    @Schema(description = "社会职务", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String socialDuties;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

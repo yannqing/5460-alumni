@@ -298,6 +298,11 @@
   justify-content: flex-end;
   align-items: center;
   margin-right: 24rpx;
+  gap: 12rpx;
+}
+
+.group_7 .preset-btn {
+  margin-right: -3rpx;
 }
 
 .group_7 .invite-btn {

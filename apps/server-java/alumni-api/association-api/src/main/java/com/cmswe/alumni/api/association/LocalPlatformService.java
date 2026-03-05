@@ -102,9 +102,12 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @param localPlatformId 校处会ID
          * @param wxId            成员用户ID
          * @param roleOrId        新的组织架构角色ID
+         * @param roleName        角色名称
+         * @param contactInformation 联系方式
+         * @param socialDuties    社会职务
          * @return 更新是否成功
          */
-        boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId);
+        boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId, String roleName, String contactInformation, String socialDuties);
 
         /**
          * 更新校处会成员的组织架构角色 V2版本（基于username，支持wxId为空的情况）

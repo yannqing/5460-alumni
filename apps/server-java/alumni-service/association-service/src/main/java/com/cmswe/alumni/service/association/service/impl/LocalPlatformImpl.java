@@ -992,7 +992,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
-    public boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId) {
+    public boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId, String roleName, String contactInformation, String socialDuties) {
         // 1. 参数校验
         if (operatorWxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "操作人用户ID不能为空");
@@ -1007,8 +1007,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
         }
 
-        log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}",
-                operatorWxId, localPlatformId, wxId, roleOrId);
+        log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
+                operatorWxId, localPlatformId, wxId, roleOrId, roleName, contactInformation, socialDuties);
 
         // 2. 查询校处会是否存在
         LocalPlatform localPlatform = this.getById(localPlatformId);
@@ -1041,13 +1041,23 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
         }
 
-        // 5. 更新成员角色
+        // 5. 更新成员信息
         Long oldRoleOrId = member.getRoleOrId();
         member.setRoleOrId(roleOrId);
+        if (roleName != null) {
+            member.setRoleName(roleName);
+        }
+        if (contactInformation != null) {
+            member.setContactInformation(contactInformation);
+        }
+        if (socialDuties != null) {
+            member.setSocialDuties(socialDuties);
+        }
+
         boolean updateResult = localPlatformMemberService.updateById(member);
 
         if (!updateResult) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员角色失败");
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员信息失败");
         }
 
         log.info("更新校处会成员角色成功 - 校处会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}",
