@@ -226,6 +226,12 @@ public class Activity implements Serializable {
     private Integer isPublic;
 
     /**
+     * 是否展示在首页：0-否 1-是
+     */
+    @TableField(value = "show_on_homepage")
+    private Integer showOnHomepage;
+
+    /**
      * 是否推荐：0-否 1-是
      */
     @TableField(value = "is_recommended")
