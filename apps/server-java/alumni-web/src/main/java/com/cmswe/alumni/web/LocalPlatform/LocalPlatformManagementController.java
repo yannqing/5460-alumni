@@ -9,6 +9,7 @@ import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
+import com.cmswe.alumni.common.vo.LocalPlatformMemberListVo;
 import com.cmswe.alumni.common.vo.OrganizeArchiRoleVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.UserListResponse;
@@ -191,6 +192,21 @@ public class LocalPlatformManagementController {
                                         deleteDto.getLocalPlatformId(), deleteDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "删除失败");
                 }
+        }
+
+        /**
+         * 获取校促会成员列表
+         *
+         * @param localPlatformId 校促会ID
+         * @return 成员列表（含 wx_id, username, role_name, role_or_id, 架构名称, contact_information, social_duties）
+         */
+        @GetMapping("/member/list/{localPlatformId}")
+        @Operation(summary = "获取校促会成员列表")
+        public BaseResponse<List<LocalPlatformMemberListVo>> getLocalPlatformMemberList(
+                        @PathVariable Long localPlatformId) {
+                log.info("查询校促会成员列表，校促会 ID: {}", localPlatformId);
+                List<LocalPlatformMemberListVo> list = localPlatformService.getLocalPlatformMemberList(localPlatformId);
+                return ResultUtils.success(Code.SUCCESS, list, "查询成功");
         }
 
         /**

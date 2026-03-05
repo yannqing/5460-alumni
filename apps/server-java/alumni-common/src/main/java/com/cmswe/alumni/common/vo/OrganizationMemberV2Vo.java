@@ -78,6 +78,18 @@ public class OrganizationMemberV2Vo implements Serializable {
     @Schema(description = "加入时间")
     private LocalDateTime joinTime;
 
+    /**
+     * 联系方式（校处会成员）
+     */
+    @Schema(description = "联系方式")
+    private String contactInformation;
+
+    /**
+     * 社会职务（校处会成员）
+     */
+    @Schema(description = "社会职务")
+    private String socialDuties;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

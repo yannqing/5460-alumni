@@ -50,6 +50,7 @@ import com.cmswe.alumni.common.vo.HomePageArticleVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
 import com.cmswe.alumni.common.vo.LocalPlatformListVo;
 import com.cmswe.alumni.common.vo.ManagedOrganizationVo;
+import com.cmswe.alumni.common.vo.LocalPlatformMemberListVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberV2Vo;
 import com.cmswe.alumni.common.vo.OrganizationTreeVo;
@@ -1688,5 +1689,43 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         log.info("删除校促会预设成员成功 - 成员ID: {}", memberId);
 
         return deleteResult;
+    }
+
+    @Override
+    public List<LocalPlatformMemberListVo> getLocalPlatformMemberList(Long localPlatformId) {
+        if (localPlatformId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校促会ID不能为空");
+        }
+        List<LocalPlatformMember> members = localPlatformMemberService.list(
+                new LambdaQueryWrapper<LocalPlatformMember>()
+                        .eq(LocalPlatformMember::getLocalPlatformId, localPlatformId)
+                        .eq(LocalPlatformMember::getStatus, 1)
+        );
+        if (members.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Long> roleOrIds = members.stream()
+                .map(LocalPlatformMember::getRoleOrId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, String> roleNameMap = new HashMap<>();
+        if (!roleOrIds.isEmpty()) {
+            List<OrganizeArchiRole> roles = organizeArchiRoleService.listByIds(roleOrIds);
+            roleNameMap = roles.stream()
+                    .collect(Collectors.toMap(OrganizeArchiRole::getRoleOrId, OrganizeArchiRole::getRoleOrName, (a, b) -> a));
+        }
+        final Map<Long, String> finalRoleNameMap = roleNameMap;
+        return members.stream()
+                .map(m -> LocalPlatformMemberListVo.builder()
+                        .wxId(m.getWxId())
+                        .username(m.getUsername())
+                        .roleName(m.getRoleName())
+                        .roleOrId(m.getRoleOrId())
+                        .roleOrName(m.getRoleOrId() != null ? finalRoleNameMap.get(m.getRoleOrId()) : null)
+                        .contactInformation(m.getContactInformation())
+                        .socialDuties(m.getSocialDuties())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

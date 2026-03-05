@@ -10,6 +10,7 @@ import com.cmswe.alumni.common.entity.LocalPlatform;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
 import com.cmswe.alumni.common.vo.LocalPlatformListVo;
+import com.cmswe.alumni.common.vo.LocalPlatformMemberListVo;
 import com.cmswe.alumni.common.vo.ManagedOrganizationVo;
 import com.cmswe.alumni.common.vo.OrganizationTreeVo;
 import com.cmswe.alumni.common.vo.OrganizationTreeV2Vo;
@@ -241,4 +242,12 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @return 删除是否成功
          */
         boolean deletePresetMember(Long memberId);
+
+        /**
+         * 获取校促会成员列表
+         *
+         * @param localPlatformId 校促会ID
+         * @return 成员列表
+         */
+        List<LocalPlatformMemberListVo> getLocalPlatformMemberList(Long localPlatformId);
 }
