@@ -74,7 +74,7 @@
                     </view>
                     <!-- 小程序链接 -->
                     <view class="card" wx:if="{{platformInfo.miniProgramLinks && platformInfo.miniProgramLinks.length > 0}}">
-                        <view class="text-bold mb-20">相关小程序</view>
+                        <view class="text-bold mb-20">相关政务</view>
                         <view class="mini-program-links">
                             <view
                                 class="mini-program-item {{!item.url ? 'disabled' : ''}}"
@@ -84,7 +84,8 @@
                                 data-url="{{item.url}}"
                                 data-text="{{item.text}}"
                             >
-                                <view class="mini-program-icon">
+                                <image wx:if="{{item.avatar}}" class="mini-program-avatar" src="{{item.avatar}}" mode="aspectFill" />
+                                <view wx:else class="mini-program-icon">
                                     <text class="icon-text">小程序</text>
                                 </view>
                                 <text class="mini-program-name">{{item.text}}</text>

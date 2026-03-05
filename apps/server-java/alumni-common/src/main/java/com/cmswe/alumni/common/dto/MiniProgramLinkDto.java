@@ -32,6 +32,12 @@ public class MiniProgramLinkDto implements Serializable {
     private String text;
 
     /**
+     * 头像
+     */
+    @Schema(description = "头像")
+    private String avatar;
+
+    /**
      * 小程序跳转链接
      */
     @Schema(description = "小程序跳转链接（格式：#小程序://名称/路径）")
