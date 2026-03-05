@@ -445,3 +445,401 @@
   font-size: 26rpx;
 }
 
+/* ========== 热门活动组件样式 ========== */
+.hot-activity-section {
+  padding: 0 15rpx;
+  margin-bottom: 20rpx;
+  margin-top: 20rpx;
+}
+
+.hot-activity-box {
+  background: transparent;
+  border-radius: 20rpx;
+  overflow: visible;
+}
+
+/* 顶部Banner图片 */
+.hot-activity-banner,
+.hot-shop-banner {
+  width: 100%;
+  display: block;
+  position: relative;
+}
+
+.banner-img {
+  width: 100%;
+  display: block;
+}
+
+.banner-title {
+  position: absolute;
+  left: 24rpx;
+  top: 30%;
+  transform: translateY(-50%);
+  height: 50rpx;
+}
+
+.banner-more {
+  position: absolute;
+  right: 34rpx;
+  top: 22%;
+  transform: translateY(-50%);
+  font-size: 18rpx;
+  color: #701FFF;
+}
+
+/* 活动列表 */
+.hot-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 20rpx 24rpx 24rpx;
+  margin-top: -70rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+/* 活动卡片 */
+.activity-card {
+  position: relative;
+  display: flex;
+  gap: 20rpx;
+  padding: 16rpx;
+  background: transparent;
+  border-radius: 16rpx;
+}
+
+.activity-card:active {
+  background: rgba(0, 0, 0, 0.03);
+  transform: scale(0.99);
+}
+
+/* 活动封面 */
+.activity-cover-wrapper {
+  position: relative;
+  width: 240rpx;
+  height: 170rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.activity-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 状态标签 */
+.activity-status {
+  position: absolute;
+  top: 12rpx;
+  left: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 6rpx 16rpx 6rpx 12rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(270deg, #999999 0%, #CCCCCC 100%);
+}
+
+.activity-status.ing {
+  background: linear-gradient(270deg, #0FCB36 0%, #0DB230 55%, #07AD2A 100%);
+}
+
+.activity-status.start {
+  background: linear-gradient(270deg, #E02E22 0%, #F66359 55%, #F4675E 100%);
+}
+
+.activity-status.end {
+  background: linear-gradient(270deg, #999999 0%, #AAAAAA 55%, #BBBBBB 100%);
+}
+
+.status-dot {
+  width: 10rpx;
+  height: 10rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 4rpx rgba(255, 255, 255, 0.5);
+}
+
+.status-text {
+  font-size: 20rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 活动类型标签 */
+.activity-type-tag {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12rpx 0 12rpx 0;
+  padding: 6rpx 14rpx;
+}
+
+.type-text {
+  font-size: 20rpx;
+  color: #23B850;
+  font-weight: 500;
+}
+
+/* 活动信息 */
+.activity-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  overflow: hidden;
+  padding-top: 4rpx;
+}
+
+.activity-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #131315;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.activity-time,
+.activity-address {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.info-icon {
+  font-size: 22rpx;
+  flex-shrink: 0;
+}
+
+.info-text {
+  font-size: 22rpx;
+  color: #7c7c7c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 价格标签 */
+.activity-price-tag {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  background-color: rgba(239, 239, 239, 0.8);
+  border-radius: 16rpx;
+  padding: 6rpx 16rpx;
+}
+
+.price-text {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #963145;
+}
+
+.price-text.free {
+  color: #23B850;
+}
+
+/* 空状态 */
+.hot-activity-empty,
+.hot-shop-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 24rpx 40rpx;
+  margin-top: -70rpx;
+  gap: 16rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+.empty-img {
+  width: 100%;
+}
+
+.empty-icon {
+  font-size: 64rpx;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 加载中 */
+.hot-activity-loading,
+.hot-shop-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30rpx 24rpx;
+  margin-top: -70rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 12rpx;
+}
+
+.loading-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #ff6b4a;
+  animation: loading-dot-pulse 1s infinite ease-in-out;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loading-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+/* ========== 热门商铺组件样式 ========== */
+.hot-shop-section {
+  padding: 0 15rpx;
+  margin-bottom: 20rpx;
+}
+
+.hot-shop-box {
+  background: transparent;
+  border-radius: 20rpx;
+  overflow: visible;
+}
+
+/* 商铺列表 */
+.hot-shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 20rpx 24rpx 24rpx;
+  margin-top: -70rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+/* 商铺卡片 */
+.shop-card {
+  position: relative;
+  display: flex;
+  gap: 20rpx;
+  padding: 16rpx;
+  background: transparent;
+  border-radius: 16rpx;
+}
+
+.shop-card:active {
+  background: rgba(0, 0, 0, 0.03);
+  transform: scale(0.99);
+}
+
+/* 商铺封面 */
+.shop-cover-wrapper {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.shop-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 商铺类型标签 */
+.shop-type-tag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(24, 144, 255, 0.9);
+  border-radius: 0 8rpx 0 12rpx;
+  padding: 4rpx 12rpx;
+}
+
+.shop-type-tag .type-text {
+  font-size: 18rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 商铺信息 */
+.shop-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  overflow: hidden;
+  padding-top: 4rpx;
+}
+
+.shop-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #131315;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shop-desc {
+  display: flex;
+  align-items: center;
+}
+
+.desc-text {
+  font-size: 24rpx;
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.shop-address {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+/* 优惠标签 */
+.shop-discount-tag {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  background: linear-gradient(135deg, #ff6b4a 0%, #ff9068 100%);
+  border-radius: 16rpx;
+  padding: 6rpx 16rpx;
+}
+
+.discount-text {
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #fff;
+}
+
+.loading-dot.shop {
+  background-color: #1890ff;
+}
+

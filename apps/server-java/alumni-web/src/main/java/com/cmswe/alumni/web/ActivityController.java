@@ -4,6 +4,7 @@ import com.cmswe.alumni.api.system.ActivityService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.PublishTopicDto;
+import com.cmswe.alumni.common.dto.QueryPublicActivityDto;
 import com.cmswe.alumni.common.dto.QueryShopActivityDto;
 import com.cmswe.alumni.common.dto.UpdateActivityDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
@@ -148,5 +149,43 @@ public class ActivityController {
             log.error("商家删除活动失败 - 用户ID: {}, 活动ID: {}", wxId, activityId);
             return ResultUtils.failure(Code.FAILURE, false, "删除失败");
         }
+    }
+
+    /**
+     * 查询所有公开活动列表（is_public=1，status=1/2/3/4）
+     *
+     * @param queryDto 查询参数
+     * @return 活动列表分页数据
+     */
+    @PostMapping("/public/list")
+    @Operation(summary = "查询所有公开活动列表")
+    public BaseResponse<PageVo<ActivityListVo>> getPublicActivities(
+            @Valid @RequestBody QueryPublicActivityDto queryDto) {
+        log.info("查询公开活动列表 - 分类: {}, 主办方类型: {}, 主办方ID: {}",
+                queryDto.getActivityCategory(), queryDto.getOrganizerType(), queryDto.getOrganizerId());
+
+        PageVo<ActivityListVo> result = activityService.getPublicActivities(queryDto);
+
+        log.info("查询公开活动列表成功 - 共{}条记录", result.getTotal());
+        return ResultUtils.success(Code.SUCCESS, result, "查询成功");
+    }
+
+    /**
+     * 查询首页展示的活动列表（is_public=1，status=1/2/3/4，show_on_homepage=1）
+     *
+     * @param queryDto 查询参数
+     * @return 活动列表分页数据
+     */
+    @PostMapping("/homepage/list")
+    @Operation(summary = "查询首页展示的活动列表")
+    public BaseResponse<PageVo<ActivityListVo>> getHomepageActivities(
+            @Valid @RequestBody QueryPublicActivityDto queryDto) {
+        log.info("查询首页活动列表 - 分类: {}, 主办方类型: {}, 主办方ID: {}",
+                queryDto.getActivityCategory(), queryDto.getOrganizerType(), queryDto.getOrganizerId());
+
+        PageVo<ActivityListVo> result = activityService.getHomepageActivities(queryDto);
+
+        log.info("查询首页活动列表成功 - 共{}条记录", result.getTotal());
+        return ResultUtils.success(Code.SUCCESS, result, "查询成功");
     }
 }

@@ -26,6 +26,20 @@ Page({
     hasMore: true,
     refreshing: false,
 
+    // 热门活动相关
+    activityList: [],
+    activityLoading: false,
+    activityThemes: {
+      1: { name: '进行中', theme: 'ing' },
+      2: { name: '未开始', theme: 'start' },
+      3: { name: '已结束', theme: 'end' },
+      'default': { name: '未知', theme: '' }
+    },
+
+    // 热门商铺相关
+    shopList: [],
+    shopLoading: false,
+
     // 预留字段，防止报错
     recommendedPeople: [],
 
@@ -93,6 +107,8 @@ Page({
     });
 
     this.getBannerList();
+    this.getActivityList();
+    this.getShopList();
     this.getArticleList(true);
   },
 
@@ -203,6 +219,8 @@ Page({
     try {
       await Promise.all([
         this.getBannerList(),
+        this.getActivityList(),
+        this.getShopList(),
         this.getArticleList(true)
       ]);
     } catch (err) {
@@ -875,6 +893,189 @@ Page({
   onBannerChange(e) {
     this.setData({
       currentBannerIndex: e.detail.current
+    });
+  },
+
+  /**
+   * 获取热门活动列表
+   * TODO: 接口暂时置空，后续接入真实接口
+   */
+  async getActivityList() {
+    this.setData({ activityLoading: true });
+
+    try {
+      // TODO: 替换为真实接口
+      // const res = await activityApi.getHotList();
+      // if (res.data && res.data.code === 200) {
+      //   this.setData({
+      //     activityList: res.data.data || [],
+      //     activityLoading: false
+      //   });
+      // }
+
+      // 暂时模拟示例数据
+      setTimeout(() => {
+        this.setData({
+          activityList: [
+            {
+              activity_uuid: 'demo-1',
+              activity_theme: '2024届校友返校日活动',
+              activity_poster: {
+                preview_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400'
+              },
+              activity_status: 1,
+              activity_starttime: '2024-03-15 09:00',
+              activity_address: '天津市南开区天津大学北洋园校区',
+              activity_fees: '0.00',
+              type: {
+                activity_type_name: '校友聚会'
+              }
+            },
+            {
+              activity_uuid: 'demo-2',
+              activity_theme: '创业分享会：从校园到商业的跨越',
+              activity_poster: {
+                preview_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=400'
+              },
+              activity_status: 2,
+              activity_starttime: '2024-03-20 14:00',
+              activity_address: '天津市和平区创业大厦3楼',
+              activity_fees: '50.00',
+              type: {
+                activity_type_name: '讲座沙龙'
+              }
+            }
+          ],
+          activityLoading: false
+        });
+      }, 300);
+    } catch (err) {
+      console.error('[Index] 获取活动列表失败:', err);
+      this.setData({
+        activityList: [],
+        activityLoading: false
+      });
+    }
+  },
+
+  /**
+   * 跳转到活动列表页
+   */
+  gotoActivityList() {
+    wx.navigateTo({
+      url: '/pages/activity/list/list',
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  /**
+   * 跳转到活动详情页
+   */
+  gotoActivityDetail(e) {
+    const { item } = e.currentTarget.dataset;
+    if (!item || !item.activity_uuid) {
+      wx.showToast({
+        title: '活动信息错误',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.navigateTo({
+      url: `/pages/activity/detail/detail?id=${item.activity_uuid}`,
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  /**
+   * 获取热门商铺列表
+   * TODO: 接口暂时置空，后续接入真实接口
+   */
+  async getShopList() {
+    this.setData({ shopLoading: true });
+
+    try {
+      // TODO: 替换为真实接口
+      // const res = await shopApi.getHotList();
+      // if (res.data && res.data.code === 200) {
+      //   this.setData({
+      //     shopList: res.data.data || [],
+      //     shopLoading: false
+      //   });
+      // }
+
+      // 暂时模拟示例数据（清空显示空状态）
+      setTimeout(() => {
+        this.setData({
+          shopList: [],
+          shopLoading: false
+        });
+      }, 300);
+    } catch (err) {
+      console.error('[Index] 获取商铺列表失败:', err);
+      this.setData({
+        shopList: [],
+        shopLoading: false
+      });
+    }
+  },
+
+  /**
+   * 跳转到商铺列表页
+   */
+  gotoShopList() {
+    wx.navigateTo({
+      url: '/pages/merchant/list/list',
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  /**
+   * 商铺建设中提示
+   */
+  showShopBuilding() {
+    wx.showToast({
+      title: '建设中，请稍后',
+      icon: 'none'
+    });
+  },
+
+  /**
+   * 跳转到商铺详情页
+   */
+  gotoShopDetail(e) {
+    const { item } = e.currentTarget.dataset;
+    if (!item || !item.shop_id) {
+      wx.showToast({
+        title: '商铺信息错误',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.navigateTo({
+      url: `/pages/merchant/detail/detail?id=${item.shop_id}`,
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        });
+      }
     });
   }
 });

@@ -2,6 +2,7 @@ package com.cmswe.alumni.api.system;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cmswe.alumni.common.dto.PublishTopicDto;
+import com.cmswe.alumni.common.dto.QueryPublicActivityDto;
 import com.cmswe.alumni.common.dto.QueryShopActivityDto;
 import com.cmswe.alumni.common.dto.UpdateActivityDto;
 import com.cmswe.alumni.common.entity.Activity;
@@ -60,4 +61,20 @@ public interface ActivityService extends IService<Activity> {
      * @return 是否成功
      */
     boolean deleteActivity(Long wxId, Long activityId);
+
+    /**
+     * 查询所有公开活动列表（is_public=1，status=1/2/3/4）
+     *
+     * @param queryDto 查询参数
+     * @return 活动列表分页数据
+     */
+    PageVo<ActivityListVo> getPublicActivities(QueryPublicActivityDto queryDto);
+
+    /**
+     * 查询首页展示的活动列表（is_public=1，status=1/2/3/4，show_on_homepage=1）
+     *
+     * @param queryDto 查询参数
+     * @return 活动列表分页数据
+     */
+    PageVo<ActivityListVo> getHomepageActivities(QueryPublicActivityDto queryDto);
 }
