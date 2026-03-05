@@ -41,8 +41,7 @@ public class AddLocalPlatformPresetMemberDto implements Serializable {
     /**
      * 组织架构角色 ID
      */
-    @Schema(description = "组织架构角色 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "组织架构角色 ID不能为空")
+    @Schema(description = "组织架构角色 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long roleOrId;
 
     /**

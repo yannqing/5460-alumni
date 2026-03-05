@@ -668,9 +668,9 @@ Page({
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
-      if (!wxId || wxId === 0 || !roleOrId || !localPlatformId) {
+      if (!wxId || wxId === 0 || !localPlatformId) {
         wx.showToast({
-          title: '请通过搜索选择校友并选择身份',
+          title: '请通过搜索选择校友',
           icon: 'none'
         })
         return
@@ -709,9 +709,9 @@ Page({
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
-      if (!username || !roleName || !roleOrId || !localPlatformId) {
+      if (!username || !localPlatformId) {
         wx.showToast({
-          title: '请填写用户名、职务并选择身份',
+          title: '请填写用户名',
           icon: 'none'
         })
         return
@@ -943,13 +943,6 @@ Page({
         res = await this.updatePresetMemberInfoAPI(id, name, roleName, contactInformation, socialDuties)
       } else {
         // 真实成员，使用更新成员角色接口
-        if (!newRoleId) {
-          wx.showToast({
-            title: '请选择新角色',
-            icon: 'none'
-          })
-          return
-        }
         res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId, name, roleName, contactInformation, socialDuties)
       }
 

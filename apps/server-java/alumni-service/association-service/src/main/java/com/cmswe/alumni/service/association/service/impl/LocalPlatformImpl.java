@@ -627,9 +627,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户ID不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
 
         log.info("开始邀请成员加入校处会 - 校处会ID: {}, 成员用户ID: {}, 角色ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
                 localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties);
@@ -1024,9 +1022,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户ID不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
 
         log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}",
                 operatorWxId, localPlatformId, wxId, roleOrId, roleName, contactInformation, socialDuties);
@@ -1101,9 +1097,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (username == null || username.trim().isEmpty()) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户名不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
 
         log.info("开始处理校处会成员角色V2 - 操作人ID: {}, 校处会ID: {}, 成员ID: {}, 成员用户名: {}, 新角色ID: {}, 角色名称: {}",
                 operatorWxId, localPlatformId, id, username, roleOrId, roleName);
@@ -1512,9 +1506,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (roleName == null || roleName.trim().isEmpty()) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "角色名称不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
+
 
         log.info("开始添加校促会预设成员 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}, 联系方式: {}, 社会职务: {}",
                 localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties);
