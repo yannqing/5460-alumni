@@ -18,4 +18,13 @@ public interface AuthService {
      * @return 用户手机号信息
      */
     GetPhoneNumberResponse getPhoneNumber(GetPhoneNumberRequest request);
+
+    /**
+     * 测试登录接口（本地调试用）
+     *
+     * @param wxId 微信用户ID
+     * @return 登录响应信息（与正式登录接口返回一致）
+     * @throws JsonProcessingException JSON处理异常
+     */
+    WxInitResponse testLogin(Long wxId) throws JsonProcessingException;
 }

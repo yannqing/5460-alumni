@@ -25,6 +25,9 @@ Page({
     attachments: [], // 附件列表 {url: '', fileId: ''}
     educationLevels: ['专科', '本科', '硕士', '博士'],
     educationLevelIndex: -1,
+    // 年份选择器相关
+    yearRanges: [[], []], // [入学年份列表, 毕业年份列表]
+    yearPickerIndex: [0, 0], // 当前选中的索引
     submitting: false,
     loadingUserInfo: false,
     applicationDetail: null, // 申请详情
@@ -33,6 +36,9 @@ Page({
   },
 
   async onLoad(options) {
+    // 初始化年份选择器
+    this.initYearRanges()
+
     // 获取校友会ID和学校信息
     if (options.id) {
       this.setData({
@@ -122,6 +128,9 @@ Page({
           formData,
           loadingUserInfo: false
         })
+
+        // 更新年份选择器索引
+        this.updateYearPickerIndex()
       } else {
         this.setData({ loadingUserInfo: false })
         console.warn('获取用户信息失败:', res.data?.message)
@@ -141,13 +150,76 @@ Page({
     })
   },
 
-  // 处理年份选择
-  handleYearChange(e) {
-    const { field } = e.currentTarget.dataset
-    const year = e.detail.value.split('-')[0] // 获取年份部分
+  // 初始化年份选择器
+  initYearRanges() {
+    const currentYear = new Date().getFullYear()
+    const startYear = 1950
+    const endYear = currentYear + 4 // 允许选择未来4年（方便在读学生）
+
+    // 生成年份列表（降序，从当前年份+4开始）
+    const years = []
+    for (let i = endYear; i >= startYear; i--) {
+      years.push(i + '年')
+    }
+
+    // 默认选中：入学年份为当前年份-4，毕业年份为当前年份
+    const defaultEnrollmentIndex = endYear - (currentYear - 4) // 当前年份-4在降序列表中的索引
+    const defaultGraduationIndex = endYear - currentYear // 当前年份在降序列表中的索引
+
     this.setData({
-      [`formData.${field}`]: parseInt(year)
+      yearRanges: [years, years],
+      yearPickerIndex: [defaultEnrollmentIndex, defaultGraduationIndex]
     })
+  },
+
+  // 更新年份选择器索引（根据已有数据）
+  updateYearPickerIndex() {
+    const { formData, yearRanges } = this.data
+    if (!yearRanges[0].length) return
+
+    const currentYear = new Date().getFullYear()
+    const endYear = currentYear + 4
+    let enrollmentIndex = 0
+    let graduationIndex = 0
+
+    if (formData.enrollmentYear) {
+      // 降序列表：索引 = endYear - 年份
+      enrollmentIndex = endYear - formData.enrollmentYear
+      if (enrollmentIndex < 0) enrollmentIndex = 0
+      if (enrollmentIndex >= yearRanges[0].length) enrollmentIndex = yearRanges[0].length - 1
+    }
+
+    if (formData.graduationYear) {
+      graduationIndex = endYear - formData.graduationYear
+      if (graduationIndex < 0) graduationIndex = 0
+      if (graduationIndex >= yearRanges[1].length) graduationIndex = yearRanges[1].length - 1
+    }
+
+    this.setData({
+      yearPickerIndex: [enrollmentIndex, graduationIndex]
+    })
+  },
+
+  // 处理年份范围选择确认
+  handleYearRangeChange(e) {
+    const indexArr = e.detail.value
+    const currentYear = new Date().getFullYear()
+    const endYear = currentYear + 4
+
+    // 降序列表：年份 = endYear - 索引
+    const enrollmentYear = endYear - indexArr[0]
+    const graduationYear = endYear - indexArr[1]
+
+    this.setData({
+      'formData.enrollmentYear': enrollmentYear,
+      'formData.graduationYear': graduationYear,
+      yearPickerIndex: indexArr
+    })
+  },
+
+  // 处理年份列变化（可选，用于动态联动）
+  handleYearColumnChange() {
+    // 暂不做联动处理，两列独立选择
   },
 
   // 处理学历层次选择
@@ -296,16 +368,22 @@ Page({
       return false
     }
 
-    // 如果填写了手机号，验证手机号格式
-    if (formData.phone && formData.phone.trim()) {
-      const phoneReg = /^1[3-9]\d{9}$/
-      if (!phoneReg.test(formData.phone)) {
-        wx.showToast({
-          title: '手机号格式不正确',
-          icon: 'none'
-        })
-        return false
-      }
+    // 验证手机号（必填）
+    if (!formData.phone || !formData.phone.trim()) {
+      wx.showToast({
+        title: '未获取到手机号',
+        icon: 'none'
+      })
+      return false
+    }
+
+    const phoneReg = /^1[3-9]\d{9}$/
+    if (!phoneReg.test(formData.phone)) {
+      wx.showToast({
+        title: '手机号格式不正确',
+        icon: 'none'
+      })
+      return false
     }
 
     // 验证教育经历必填字段
@@ -328,22 +406,6 @@ Page({
     if (!formData.department || !formData.department.trim()) {
       wx.showToast({
         title: '请输入院系',
-        icon: 'none'
-      })
-      return false
-    }
-
-    if (!formData.major || !formData.major.trim()) {
-      wx.showToast({
-        title: '请输入专业',
-        icon: 'none'
-      })
-      return false
-    }
-
-    if (!formData.className || !formData.className.trim()) {
-      wx.showToast({
-        title: '请输入班级',
         icon: 'none'
       })
       return false
@@ -391,8 +453,6 @@ Page({
       enrollmentYear: formData.enrollmentYear || undefined,
       graduationYear: formData.graduationYear || undefined,
       department: formData.department ? formData.department.trim() : undefined,
-      major: formData.major ? formData.major.trim() : undefined,
-      className: formData.className ? formData.className.trim() : undefined,
       educationLevel: formData.educationLevel || undefined
     }
 
@@ -497,6 +557,9 @@ Page({
           schoolName: detail.schoolName || '',
           loadingDetail: false
         })
+
+        // 更新年份选择器索引
+        this.updateYearPickerIndex()
       } else {
         this.setData({ loadingDetail: false })
         wx.showToast({

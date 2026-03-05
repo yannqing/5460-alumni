@@ -264,6 +264,9 @@ const userApi = {
   updatePrivacy: (data) => put('/users/update/privacy', data),
   // 获取微信手机号（通过 button 组件回调中的 code）
   getPhoneNumber: (data) => post('/auth/getPhoneNumber', data),
+  // 获取用户管理的组织列表
+  // type: 0-校友会 1-校促会 2-商户 3-校友总会
+  getManagedOrganizations: (params) => get('/users/managed-organizations', params),
 }
 
 
@@ -374,7 +377,6 @@ const followApi = {
 const authApi = {
   // 认证登录（静默登录）
   // 用 wx.login 的 code 换取 token 和用户信息
-
   auth: (data) => post('/auth/login', data),
   // auth: (data) => {
   //   // 将参数拼接到 URL 上（查询参数）

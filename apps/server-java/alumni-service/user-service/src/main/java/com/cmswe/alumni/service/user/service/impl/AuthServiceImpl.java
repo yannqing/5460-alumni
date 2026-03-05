@@ -336,4 +336,48 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(500, "获取手机号失败: " + e.getMessage());
         }
     }
+
+    @Override
+    public WxInitResponse testLogin(Long wxId) throws JsonProcessingException {
+        // 1. 参数校验
+        if (wxId == null) {
+            log.error("testLogin 参数错误: wxId为空");
+            throw new BusinessException(400, "参数错误：wxId不能为空");
+        }
+
+        log.info("开始测试登录 - 用户ID: {}", wxId);
+
+        // 2. 查询用户信息
+        WxUser loginUser = wxUserMapper.selectById(wxId);
+        if (loginUser == null) {
+            log.error("测试登录失败 - 用户不存在: wxId={}", wxId);
+            throw new BusinessException(404, "用户不存在");
+        }
+
+        // 3. 生成JWT Token（与正式登录保持一致）
+        String token = jwtUtils.token(JSON.toJSONString(loginUser), null);
+
+        log.info("为用户生成测试Token - 用户ID: {}, OpenID: {}", loginUser.getWxId(), loginUser.getOpenid());
+
+        // 4. 获取用户角色信息
+        List<RoleListVo> roleList = roleService.getRoleListVoByWxId(loginUser.getWxId());
+
+        log.info("查询到用户角色 - 用户ID: {}, 角色数量: {}", loginUser.getWxId(), roleList.size());
+
+        // 5. 检查用户基本信息是否完善
+        boolean isProfileComplete = checkUserProfileComplete(loginUser.getWxId());
+
+        // 6. 返回用户信息 + Token + 角色信息 + 信息完善标识
+        WxInitResponse response = WxInitResponse.builder()
+                .token(token)
+                .roles(roleList)
+                .isAlumni(loginUser.getIsAlumni())
+                .isProfileComplete(isProfileComplete)
+                .build();
+
+        log.info("测试登录成功 - 用户ID: {}, 是否校友: {}, 信息完善: {}",
+                loginUser.getWxId(), loginUser.getIsAlumni(), isProfileComplete);
+
+        return response;
+    }
 }

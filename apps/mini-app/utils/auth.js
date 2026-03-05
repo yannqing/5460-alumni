@@ -116,38 +116,60 @@ async function login(inviter_wx_uuid) {
     console.log('=== 开始登录流程 ===')
     console.log('邀请人的uuid', inviter_wx_uuid)
 
-  // 1. 调用 wx.login 获取 code
-  const wxcode = await wxaCode();
+    // 引入配置，判断是否使用测试登录
+    const config = require('./config.js')
+    const useTestLogin = config.shouldUseTestLogin()
 
-  console.log('获取到的微信 code:', wxcode)
-  console.log('code 类型:', typeof wxcode)
-  console.log('code 长度:', wxcode ? wxcode.length : 0)
+    let response
 
-  // 验证 code 是否有效
-  if (!wxcode || typeof wxcode !== 'string' || wxcode.trim() === '' || wxcode === '登录失败') {
-    const errorMsg = '获取微信登录code失败，请重试'
-    console.error('微信code无效:', wxcode)
-    wx.showToast({
-      title: errorMsg,
-      icon: 'none',
-      duration: 2000
-    })
-    throw new Error(errorMsg)
-  }
-  
-    // 2. 构建请求参数
-    // 确保 code 是字符串类型
-    const params = {
-      code: String(wxcode).trim()  // 确保是字符串且去除首尾空格
+    if (useTestLogin) {
+      // ========== 测试登录模式（仅开发版生效）==========
+      console.log('[Auth] 使用测试登录模式')
+      console.log('[Auth] 测试登录 wxId:', config.testLogin.wxId)
+      console.log('[Auth] 测试登录接口:', config.testLogin.apiPath)
+
+      const testParams = {
+        wxId: config.testLogin.wxId
+      }
+
+      // 直接使用 post 方法调用 config 中配置的接口路径
+      const { post } = require('./request.js')
+      response = await post(config.testLogin.apiPath, testParams)
+    } else {
+      // ========== 正式登录模式 ==========
+      // 1. 调用 wx.login 获取 code
+      const wxcode = await wxaCode();
+
+      console.log('获取到的微信 code:', wxcode)
+      console.log('code 类型:', typeof wxcode)
+      console.log('code 长度:', wxcode ? wxcode.length : 0)
+
+      // 验证 code 是否有效
+      if (!wxcode || typeof wxcode !== 'string' || wxcode.trim() === '' || wxcode === '登录失败') {
+        const errorMsg = '获取微信登录code失败，请重试'
+        console.error('微信code无效:', wxcode)
+        wx.showToast({
+          title: errorMsg,
+          icon: 'none',
+          duration: 2000
+        })
+        throw new Error(errorMsg)
+      }
+
+      // 2. 构建请求参数
+      // 确保 code 是字符串类型
+      const params = {
+        code: String(wxcode).trim()  // 确保是字符串且去除首尾空格
+      }
+
+      // 如果有邀请人，加入参数
+      inviter_wx_uuid && (params.inviter_wx_uuid = inviter_wx_uuid)
+
+      console.log('准备发送的请求参数:', params)
+
+      // 3. 调用后端认证登录接口
+      response = await authApi.auth(params)
     }
-
-  // 如果有邀请人，加入参数
-  inviter_wx_uuid && (params.inviter_wx_uuid = inviter_wx_uuid)
-  
-  console.log('准备发送的请求参数:', params)
-
-  // 3. 调用后端认证登录接口
-  const response = await authApi.auth(params)
   console.log('登录接口完整响应:', response)
   
   const {

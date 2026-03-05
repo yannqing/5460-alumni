@@ -129,6 +129,17 @@ public class UserController {
         List<AlumniAssociationListVo> associations = alumniAssociationService.getMyJoinedAssociations(wxId);
         return ResultUtils.success(Code.SUCCESS, associations, "查询成功");
     }
+
+    @GetMapping("/managed-organizations")
+    @Operation(summary = "根据本人角色，获取所有可管理的组织列表")
+    public BaseResponse<List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo>> getManagedOrganizations(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @RequestParam(required = false) Integer type) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> organizations =
+                userService.getManagedOrganizations(wxId, type);
+        return ResultUtils.success(Code.SUCCESS, organizations, "查询成功");
+    }
 }
 
 

@@ -81,6 +81,24 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     @Resource
     private WxUserMapper wxUserMapper;
 
+    @Resource
+    private com.cmswe.alumni.api.user.RoleUserService roleUserService;
+
+    @Resource
+    private com.cmswe.alumni.api.user.RoleService roleService;
+
+    @org.springframework.context.annotation.Lazy
+    @Resource
+    private com.cmswe.alumni.api.association.AlumniAssociationService alumniAssociationService;
+
+    @org.springframework.context.annotation.Lazy
+    @Resource
+    private com.cmswe.alumni.api.association.LocalPlatformService localPlatformService;
+
+    @org.springframework.context.annotation.Lazy
+    @Resource
+    private com.cmswe.alumni.api.search.ShopService shopService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateUserInfo(Long wxId, UpdateUserInfoDto updateDto) throws JsonProcessingException {
@@ -857,6 +875,234 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             log.error("生成token失败，{}", identifier, e);
             throw new RuntimeException("Token生成失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type) {
+        // 1. 参数校验
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+
+        log.info("查询用户可管理的组织列表 - 用户ID: {}, 类型: {}", wxId, type);
+
+        List<ManagedOrganizationListVo> result = new ArrayList<>();
+
+        // 2. 查询用户的角色
+        List<Role> userRoles = roleService.getRolesByUserId(wxId);
+
+        // 3. 判断是否是系统管理员
+        boolean isSystemAdmin = userRoles.stream()
+                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
+
+        if (isSystemAdmin) {
+            // 系统管理员：返回所有启用的组织
+            result.addAll(getAllOrganizationsByType(type));
+        } else {
+            // 普通用户：根据角色权限查询可管理的组织
+            result.addAll(getManagedOrganizationsByRole(wxId, type));
+        }
+
+        log.info("查询用户可管理的组织列表成功 - 用户ID: {}, 类型: {}, 组织数量: {}", wxId, type, result.size());
+        return result;
+    }
+
+    /**
+     * 获取所有组织（系统管理员）
+     *
+     * @param type 组织类型（null-全部）
+     * @return 组织列表
+     */
+    private List<ManagedOrganizationListVo> getAllOrganizationsByType(Integer type) {
+        List<ManagedOrganizationListVo> result = new ArrayList<>();
+
+        // 0-校友会
+        if (type == null || type == 0) {
+            List<AlumniAssociation> associations = alumniAssociationService.list(
+                    new LambdaQueryWrapper<AlumniAssociation>()
+                            .eq(AlumniAssociation::getStatus, 1)
+                            .orderByDesc(AlumniAssociation::getCreateTime));
+
+            associations.forEach(association -> {
+                ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                vo.setId(association.getAlumniAssociationId());
+                vo.setType(0);
+                vo.setLogo(association.getLogo());
+                vo.setName(association.getAssociationName());
+                vo.setLocation(association.getLocation());
+                result.add(vo);
+            });
+        }
+
+        // 1-校促会
+        if (type == null || type == 1) {
+            List<LocalPlatform> platforms = localPlatformService.list(
+                    new LambdaQueryWrapper<LocalPlatform>()
+                            .eq(LocalPlatform::getStatus, 1)
+                            .orderByDesc(LocalPlatform::getCreateTime));
+
+            platforms.forEach(platform -> {
+                ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                vo.setId(platform.getPlatformId());
+                vo.setType(1);
+                vo.setLogo(platform.getAvatar());
+                vo.setName(platform.getPlatformName());
+                vo.setLocation(platform.getCity());
+                result.add(vo);
+            });
+        }
+
+        // 2-商户（门店）
+        if (type == null || type == 2) {
+            List<Shop> shops = shopService.list(
+                    new LambdaQueryWrapper<Shop>()
+                            .eq(Shop::getStatus, 1)
+                            .eq(Shop::getReviewStatus, 1)
+                            .orderByDesc(Shop::getCreateTime));
+
+            shops.forEach(shop -> {
+                ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                vo.setId(shop.getShopId());
+                vo.setType(2);
+                vo.setLogo(null); // Shop 表没有 logo 字段
+                vo.setName(shop.getShopName());
+                // 拼接完整地址
+                String location = (shop.getCity() != null ? shop.getCity() : "") +
+                        (shop.getDistrict() != null ? shop.getDistrict() : "") +
+                        (shop.getAddress() != null ? shop.getAddress() : "");
+                vo.setLocation(location.isEmpty() ? null : location);
+                result.add(vo);
+            });
+        }
+
+        // 3-校友总会（目前系统中没有对应的表，暂不处理）
+        if (type != null && type == 3) {
+            log.warn("校友总会类型（type=3）暂未实现");
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据角色权限获取可管理的组织
+     *
+     * @param wxId 用户ID
+     * @param type 组织类型（null-全部）
+     * @return 组织列表
+     */
+    private List<ManagedOrganizationListVo> getManagedOrganizationsByRole(Long wxId, Integer type) {
+        List<ManagedOrganizationListVo> result = new ArrayList<>();
+
+        // 查询用户的组织角色
+        LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RoleUser::getWxId, wxId)
+                .isNotNull(RoleUser::getOrganizeId);
+
+        // 如果指定了类型，添加类型过滤
+        if (type != null) {
+            // RoleUser.type: 1-校处会，2-校友会，3-商户
+            // 请求参数 type: 0-校友会，1-校促会，2-商户
+            Integer roleUserType = convertTypeToRoleUserType(type);
+            if (roleUserType != null) {
+                queryWrapper.eq(RoleUser::getType, roleUserType);
+            }
+        }
+
+        List<RoleUser> roleUsers = roleUserService.list(queryWrapper);
+
+        if (roleUsers.isEmpty()) {
+            log.info("用户无管理的组织 - 用户ID: {}", wxId);
+            return result;
+        }
+
+        // 按类型分组
+        Map<Integer, List<Long>> organizeIdsByType = roleUsers.stream()
+                .collect(Collectors.groupingBy(
+                        RoleUser::getType,
+                        Collectors.mapping(RoleUser::getOrganizeId, Collectors.toList())
+                ));
+
+        // 查询校友会（type=2）
+        if (organizeIdsByType.containsKey(2)) {
+            List<Long> associationIds = organizeIdsByType.get(2);
+            if (!associationIds.isEmpty()) {
+                List<AlumniAssociation> associations = alumniAssociationService.listByIds(associationIds);
+                associations.forEach(association -> {
+                    if (association.getStatus() == 1) { // 只返回启用的
+                        ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                        vo.setId(association.getAlumniAssociationId());
+                        vo.setType(0);
+                        vo.setLogo(association.getLogo());
+                        vo.setName(association.getAssociationName());
+                        vo.setLocation(association.getLocation());
+                        result.add(vo);
+                    }
+                });
+            }
+        }
+
+        // 查询校促会（type=1）
+        if (organizeIdsByType.containsKey(1)) {
+            List<Long> platformIds = organizeIdsByType.get(1);
+            if (!platformIds.isEmpty()) {
+                List<LocalPlatform> platforms = localPlatformService.listByIds(platformIds);
+                platforms.forEach(platform -> {
+                    if (platform.getStatus() == 1) { // 只返回启用的
+                        ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                        vo.setId(platform.getPlatformId());
+                        vo.setType(1);
+                        vo.setLogo(platform.getAvatar());
+                        vo.setName(platform.getPlatformName());
+                        vo.setLocation(platform.getCity());
+                        result.add(vo);
+                    }
+                });
+            }
+        }
+
+        // 查询商户（type=3）
+        if (organizeIdsByType.containsKey(3)) {
+            List<Long> shopIds = organizeIdsByType.get(3);
+            if (!shopIds.isEmpty()) {
+                List<Shop> shops = shopService.listByIds(shopIds);
+                shops.forEach(shop -> {
+                    if (shop.getStatus() == 1 && shop.getReviewStatus() == 1) { // 只返回营业中且审核通过的
+                        ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                        vo.setId(shop.getShopId());
+                        vo.setType(2);
+                        vo.setLogo(null); // Shop 表没有 logo 字段
+                        vo.setName(shop.getShopName());
+                        // 拼接完整地址
+                        String location = (shop.getCity() != null ? shop.getCity() : "") +
+                                (shop.getDistrict() != null ? shop.getDistrict() : "") +
+                                (shop.getAddress() != null ? shop.getAddress() : "");
+                        vo.setLocation(location.isEmpty() ? null : location);
+                        result.add(vo);
+                    }
+                });
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 将请求参数的类型转换为 RoleUser 表的类型
+     *
+     * @param type 请求参数类型（0-校友会，1-校促会，2-商户，3-校友总会）
+     * @return RoleUser 类型（1-校处会，2-校友会，3-商户）
+     */
+    private Integer convertTypeToRoleUserType(Integer type) {
+        if (type == null) {
+            return null;
+        }
+        return switch (type) {
+            case 0 -> 2; // 校友会
+            case 1 -> 1; // 校促会
+            case 2 -> 3; // 商户
+            case 3 -> null; // 校友总会（暂不支持）
+            default -> null;
+        };
     }
 }
 

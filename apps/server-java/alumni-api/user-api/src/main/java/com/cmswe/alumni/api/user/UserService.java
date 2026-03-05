@@ -106,4 +106,13 @@ public interface UserService extends IService<WxUser> {
      * @param userId
      */
     void offline(String userId);
+
+    /**
+     * 根据用户角色获取所有可管理的组织列表
+     *
+     * @param wxId 用户ID
+     * @param type 组织类型（0-校友会 1-校促会 2-商户 3-校友总会，null-查询全部）
+     * @return 可管理的组织列表
+     */
+    List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type);
 }
