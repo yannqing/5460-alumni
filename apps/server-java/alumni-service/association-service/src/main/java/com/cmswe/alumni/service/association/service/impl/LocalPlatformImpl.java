@@ -1503,9 +1503,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (username == null || username.trim().isEmpty()) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户名不能为空");
         }
-        if (roleName == null || roleName.trim().isEmpty()) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "角色名称不能为空");
-        }
+
 
 
         log.info("开始添加校促会预设成员 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}, 联系方式: {}, 社会职务: {}",
