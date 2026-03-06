@@ -1,5 +1,10 @@
 <custom-nav-bar useAuditStyle="{{true}}" auditTitle="申请加入校促会" showBack="{{true}}">
   <view class="page">
+    <!-- 隐私提示 -->
+    <view class="privacy-notice">
+      <text class="privacy-text">您所填写的信息仅用于审核，不会对外公开</text>
+    </view>
+
     <!-- 选择校友会卡片 -->
     <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
       <text class="text_14">申请加入校促会</text>

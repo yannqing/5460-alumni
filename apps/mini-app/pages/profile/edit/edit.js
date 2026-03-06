@@ -89,6 +89,17 @@ function mapUserInfoToForm(userInfo) {
   const rawAvatarUrl = userInfo.avatarUrl || ''
   const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : config.defaultAvatar
 
+  // 处理籍贯显示文本
+  const originProvince = userInfo.originProvince || userInfo.curProvince || ''
+  const curCity = userInfo.curCity || ''
+  let hometownDisplayText = ''
+  if (originProvince) {
+    hometownDisplayText = originProvince
+    if (curCity) {
+      hometownDisplayText += ' ' + curCity
+    }
+  }
+
   return {
     // 基础信息
     nickname: userInfo.nickname || '',
@@ -320,7 +331,10 @@ Page({
     identifyTypeOptions: ['身份证', '护照'],
     maritalStatusOptions: ['未知', '未婚', '已婚', '离异', '丧偶'],
     // 星座选项：与后端数据库定义一致（1-摩羯座 2-水瓶座 3-双鱼座 4-白羊座 5-金牛座 6-双子座 7-巨蟹座 8-狮子座 9-处女座 10-天秤座 11-天蝎座 12-射手座）
-    constellationOptions: ['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座']
+    constellationOptions: ['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座'],
+    // 籍贯所在地（省、市）
+    hometownRegion: [],
+    hometownDisplayText: ''
   },
 
   async onLoad() {
@@ -377,8 +391,25 @@ Page({
       if (userInfo) {
         // 使用统一的数据映射函数
         const formData = mapUserInfoToForm(userInfo)
+
+        // 处理籍贯显示
+        const originProvince = userInfo.originProvince || userInfo.curProvince || ''
+        const curCity = userInfo.curCity || ''
+        let hometownDisplayText = ''
+        let hometownRegion = []
+        if (originProvince) {
+          hometownDisplayText = originProvince
+          hometownRegion = [originProvince]
+          if (curCity) {
+            hometownDisplayText += ' ' + curCity
+            hometownRegion.push(curCity)
+          }
+        }
+
         this.setData({
-          form: formData
+          form: formData,
+          hometownDisplayText: hometownDisplayText,
+          hometownRegion: hometownRegion
         })
         // 计算默认展示的教育经历索引
         this.updateDefaultEducationIndex()
@@ -812,6 +843,39 @@ Page({
 
     // 选择后自动保存
     const updateData = { maritalStatus: index }
+    await this.saveSingleField(updateData, true)
+  },
+
+  // 处理籍贯所在地选择
+  async handleHometownChange(e) {
+    const value = e.detail.value // [省, 市, 区]
+    // 只取省和市
+    const province = value[0] || ''
+    const city = value[1] || ''
+
+    // 更新显示文本（只显示省和市）
+    let displayText = ''
+    if (province && province !== '暂不选择') {
+      displayText = province
+      if (city && city !== '暂不选择') {
+        displayText += ' ' + city
+      }
+    }
+
+    this.setData({
+      hometownRegion: value,
+      hometownDisplayText: displayText,
+      'form.originProvince': province !== '暂不选择' ? province : '',
+      'form.curProvince': province !== '暂不选择' ? province : '',
+      'form.curCity': city !== '暂不选择' ? city : ''
+    })
+
+    // 选择后自动保存
+    const updateData = {
+      originProvince: province !== '暂不选择' ? province : null,
+      curProvince: province !== '暂不选择' ? province : null,
+      curCity: city !== '暂不选择' ? city : null
+    }
     await this.saveSingleField(updateData, true)
   },
 

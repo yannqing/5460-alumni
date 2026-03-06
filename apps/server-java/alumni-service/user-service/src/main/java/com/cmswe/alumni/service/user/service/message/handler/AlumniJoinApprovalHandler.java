@@ -1,11 +1,14 @@
 package com.cmswe.alumni.service.user.service.message.handler;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.cmswe.alumni.api.association.AlumniAssociationJoinApplicationService;
 import com.cmswe.alumni.api.association.AlumniAssociationMemberService;
+import com.cmswe.alumni.api.user.AlumniEducationService;
 import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.RoleUserService;
 import com.cmswe.alumni.api.user.UserService;
+import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.entity.*;
 import com.cmswe.alumni.common.enums.MessageCategory;
 import com.cmswe.alumni.common.model.UnifiedMessage;
@@ -43,18 +46,27 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
     private final OrganizeArchiRoleService organizeArchiRoleService;
     private final AlumniAssociationMemberService alumniAssociationMemberService;
     private final UserService userService;
+    private final WxUserInfoService wxUserInfoService;
+    private final AlumniEducationService alumniEducationService;
+    private final AlumniAssociationJoinApplicationService alumniAssociationJoinApplicationService;
 
     public AlumniJoinApprovalHandler(
             RoleService roleService,
             RoleUserService roleUserService,
             OrganizeArchiRoleService organizeArchiRoleService,
             AlumniAssociationMemberService alumniAssociationMemberService,
-            UserService userService) {
+            UserService userService,
+            WxUserInfoService wxUserInfoService,
+            AlumniEducationService alumniEducationService,
+            AlumniAssociationJoinApplicationService alumniAssociationJoinApplicationService) {
         this.roleService = roleService;
         this.roleUserService = roleUserService;
         this.organizeArchiRoleService = organizeArchiRoleService;
         this.alumniAssociationMemberService = alumniAssociationMemberService;
         this.userService = userService;
+        this.wxUserInfoService = wxUserInfoService;
+        this.alumniEducationService = alumniEducationService;
+        this.alumniAssociationJoinApplicationService = alumniAssociationJoinApplicationService;
     }
 
     @Override
@@ -108,7 +120,28 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
             log.info("[AlumniJoinApprovalHandler] 开始处理校友会加入申请审核通过 - 用户ID: {}, 校友会ID: {}",
                     wxId, alumniAssociationId);
 
-            // 5. 添加用户到 role_user 表（分配校友会成员角色）
+            // 5. 查询申请记录获取申请时填写的信息
+            AlumniAssociationJoinApplication application = getApplicationByMessageId(message);
+            if (application == null) {
+                log.error("[AlumniJoinApprovalHandler] 无法获取申请记录 - MessageId: {}", message.getMessageId());
+                return false;
+            }
+
+            // 6. 同步基本信息到用户表（以申请时填写的信息为准）
+            boolean userInfoSynced = syncUserBasicInfo(wxId, application);
+            if (!userInfoSynced) {
+                log.warn("[AlumniJoinApprovalHandler] 同步用户基本信息失败 - 用户ID: {}", wxId);
+                // 不返回 false，继续处理其他步骤
+            }
+
+            // 7. 同步教育经历到教育经历表（以申请时填写的信息为准）
+            boolean educationSynced = syncEducationInfo(wxId, application);
+            if (!educationSynced) {
+                log.warn("[AlumniJoinApprovalHandler] 同步教育经历失败 - 用户ID: {}", wxId);
+                // 不返回 false，继续处理其他步骤
+            }
+
+            // 8. 添加用户到 role_user 表（分配校友会成员角色）
             boolean roleAssigned = assignMemberRole(wxId, alumniAssociationId);
             if (!roleAssigned) {
                 log.error("[AlumniJoinApprovalHandler] 分配校友会成员角色失败 - 用户ID: {}, 校友会ID: {}",
@@ -116,7 +149,7 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
                 return false;
             }
 
-            // 6. 创建或获取普通成员的架构角色
+            // 9. 创建或获取普通成员的架构角色
             Long roleOrId = getOrCreateRegularMemberArchiRole(alumniAssociationId);
             if (roleOrId == null) {
                 log.error("[AlumniJoinApprovalHandler] 创建或获取普通成员架构角色失败 - 校友会ID: {}",
@@ -124,7 +157,7 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
                 return false;
             }
 
-            // 7. 添加用户到校友会成员表
+            // 10. 添加用户到校友会成员表
             boolean memberAdded = addToAssociationMemberTable(wxId, alumniAssociationId, roleOrId);
             if (!memberAdded) {
                 log.error("[AlumniJoinApprovalHandler] 添加用户到校友会成员表失败 - 用户ID: {}, 校友会ID: {}",
@@ -132,7 +165,7 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
                 return false;
             }
 
-            // 8. 更新用户的 isAlumni 字段为 1
+            // 11. 更新用户的 isAlumni 字段为 1
             boolean alumniStatusUpdated = updateUserAlumniStatus(wxId);
             if (!alumniStatusUpdated) {
                 log.warn("[AlumniJoinApprovalHandler] 更新用户校友状态失败 - 用户ID: {}", wxId);
@@ -340,6 +373,167 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
 
         } catch (Exception e) {
             log.error("[AlumniJoinApprovalHandler] 更新校友状态异常 - 用户ID: {}, Error: {}", wxId, e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 从消息中获取申请记录
+     *
+     * @param message 统一消息对象
+     * @return 申请记录，未找到返回 null
+     */
+    private AlumniAssociationJoinApplication getApplicationByMessageId(UnifiedMessage message) {
+        try {
+            Long wxId = message.getToId();
+            Long alumniAssociationId = message.getRelatedId();
+
+            if (wxId == null || alumniAssociationId == null) {
+                log.warn("[AlumniJoinApprovalHandler] 消息参数不完整，无法查询申请记录 - MessageId: {}", message.getMessageId());
+                return null;
+            }
+
+            // 查询最新的已通过的申请记录
+            LambdaQueryWrapper<AlumniAssociationJoinApplication> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(AlumniAssociationJoinApplication::getTargetId, wxId)
+                    .eq(AlumniAssociationJoinApplication::getAlumniAssociationId, alumniAssociationId)
+                    .eq(AlumniAssociationJoinApplication::getApplicantType, 1) // 1-用户
+                    .eq(AlumniAssociationJoinApplication::getApplicationStatus, 1) // 1-已通过
+                    .orderByDesc(AlumniAssociationJoinApplication::getReviewTime)
+                    .last("LIMIT 1");
+
+            AlumniAssociationJoinApplication application = alumniAssociationJoinApplicationService.getOne(queryWrapper);
+
+            if (application == null) {
+                log.warn("[AlumniJoinApprovalHandler] 未找到申请记录 - 用户ID: {}, 校友会ID: {}", wxId, alumniAssociationId);
+            }
+
+            return application;
+
+        } catch (Exception e) {
+            log.error("[AlumniJoinApprovalHandler] 查询申请记录异常 - MessageId: {}, Error: {}",
+                    message.getMessageId(), e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 同步基本信息到用户信息表（以申请时填写的信息为准）
+     *
+     * @param wxId        用户ID
+     * @param application 申请记录
+     * @return 是否成功
+     */
+    private boolean syncUserBasicInfo(Long wxId, AlumniAssociationJoinApplication application) {
+        try {
+            // 1. 检查申请记录中是否有基本信息
+            if (application.getName() == null && application.getIdentifyCode() == null && application.getPhone() == null) {
+                log.debug("[AlumniJoinApprovalHandler] 申请记录中无基本信息，跳过同步 - 用户ID: {}", wxId);
+                return true;
+            }
+
+            // 2. 查询用户信息
+            LambdaQueryWrapper<WxUserInfo> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(WxUserInfo::getWxId, wxId);
+            WxUserInfo userInfo = wxUserInfoService.getOne(queryWrapper);
+
+            if (userInfo == null) {
+                // 创建新的用户信息
+                userInfo = new WxUserInfo();
+                userInfo.setWxId(wxId);
+                userInfo.setName(application.getName());
+                userInfo.setIdentifyType(0); // 默认为身份证
+                userInfo.setIdentifyCode(application.getIdentifyCode());
+                userInfo.setPhone(application.getPhone());
+
+                boolean saved = wxUserInfoService.save(userInfo);
+                if (saved) {
+                    log.info("[AlumniJoinApprovalHandler] 创建用户基本信息成功 - 用户ID: {}, 姓名: {}", wxId, application.getName());
+                    return true;
+                } else {
+                    log.error("[AlumniJoinApprovalHandler] 创建用户基本信息失败 - 用户ID: {}", wxId);
+                    return false;
+                }
+            } else {
+                // 更新用户信息（以申请时填写的为准）
+                boolean updated = false;
+
+                if (application.getName() != null) {
+                    userInfo.setName(application.getName());
+                    updated = true;
+                }
+
+                if (application.getIdentifyCode() != null) {
+                    userInfo.setIdentifyCode(application.getIdentifyCode());
+                    updated = true;
+                }
+
+                if (application.getPhone() != null) {
+                    userInfo.setPhone(application.getPhone());
+                    updated = true;
+                }
+
+                if (updated) {
+                    boolean updateResult = wxUserInfoService.updateById(userInfo);
+                    if (updateResult) {
+                        log.info("[AlumniJoinApprovalHandler] 同步用户基本信息成功 - 用户ID: {}, 姓名: {}", wxId, application.getName());
+                        return true;
+                    } else {
+                        log.error("[AlumniJoinApprovalHandler] 同步用户基本信息失败 - 用户ID: {}", wxId);
+                        return false;
+                    }
+                } else {
+                    log.debug("[AlumniJoinApprovalHandler] 无需更新用户基本信息 - 用户ID: {}", wxId);
+                    return true;
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("[AlumniJoinApprovalHandler] 同步用户基本信息异常 - 用户ID: {}, Error: {}", wxId, e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 同步教育经历到教育经历表（以申请时填写的信息为准）
+     *
+     * @param wxId        用户ID
+     * @param application 申请记录
+     * @return 是否成功
+     */
+    private boolean syncEducationInfo(Long wxId, AlumniAssociationJoinApplication application) {
+        try {
+            // 1. 检查申请记录中是否有教育经历信息
+            if (application.getSchoolId() == null) {
+                log.debug("[AlumniJoinApprovalHandler] 申请记录中无教育经历信息，跳过同步 - 用户ID: {}", wxId);
+                return true;
+            }
+
+            // 2. 构建教育经历对象
+            AlumniEducation education = new AlumniEducation();
+            education.setWxId(wxId);
+            education.setSchoolId(application.getSchoolId());
+            education.setEnrollmentYear(application.getEnrollmentYear());
+            education.setGraduationYear(application.getGraduationYear());
+            education.setDepartment(application.getDepartment());
+            education.setMajor(application.getMajor());
+            education.setClassName(application.getClassName());
+            education.setEducationLevel(application.getEducationLevel());
+            education.setCertificationStatus(0); // 默认未认证
+
+            // 3. 保存或更新教育经历（如果同一个学校已存在则更新，否则新增）
+            boolean result = alumniEducationService.saveOrUpdateByWxIdAndSchoolId(education);
+
+            if (result) {
+                log.info("[AlumniJoinApprovalHandler] 同步教育经历成功 - 用户ID: {}, 学校ID: {}", wxId, application.getSchoolId());
+                return true;
+            } else {
+                log.error("[AlumniJoinApprovalHandler] 同步教育经历失败 - 用户ID: {}, 学校ID: {}", wxId, application.getSchoolId());
+                return false;
+            }
+
+        } catch (Exception e) {
+            log.error("[AlumniJoinApprovalHandler] 同步教育经历异常 - 用户ID: {}, Error: {}", wxId, e.getMessage(), e);
             return false;
         }
     }

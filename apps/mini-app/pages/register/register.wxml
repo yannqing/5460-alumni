@@ -63,9 +63,9 @@
         </view>
       </view>
 
-      <!-- 学校 -->
+      <!-- 最高学历 -->
       <view class="form-item school-search-wrapper" catchtap="preventBubble">
-        <view class="form-label">学校</view>
+        <view class="form-label">最高学历</view>
         <view class="form-input-wrapper">
           <input
             class="form-input"

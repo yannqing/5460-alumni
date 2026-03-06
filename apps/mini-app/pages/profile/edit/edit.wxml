@@ -91,15 +91,6 @@
           </view>
         </view>
         <view class="form-item">
-          <view class="label">QQ号</view>
-          <view class="input-wrapper">
-            <input class="input" type="number" placeholder="请输入QQ号" value="{{form.qqNum}}" data-field="qqNum" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'qqNum'}}" data-field="qqNum" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
-          </view>
-        </view>
-        <view class="form-item">
           <view class="label">邮箱</view>
           <view class="input-wrapper">
             <input class="input" type="text" placeholder="请输入常用邮箱" value="{{form.email}}" data-field="email" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
@@ -123,27 +114,11 @@
             </view>
           </view>
         </view>
-      </view>
-
-      <view class="section-card card">
-        <view class="section-title">位置信息</view>
         <view class="form-item">
-          <view class="label">当前所在省市</view>
-          <view class="input-wrapper">
-            <input class="input" placeholder="请输入所在省市" value="{{form.curProvince}}" data-field="curProvince" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'curProvince'}}" data-field="curProvince" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
-          </view>
-        </view>
-        <view class="form-item">
-          <view class="label">当前所在市区</view>
-          <view class="input-wrapper">
-            <input class="input" placeholder="请输入所在市区" value="{{form.curCity}}" data-field="curCity" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'curCity'}}" data-field="curCity" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
-          </view>
+          <view class="label">籍贯所在地</view>
+          <picker mode="region" value="{{hometownRegion}}" bindchange="handleHometownChange" custom-item="暂不选择">
+            <view class="picker-value">{{hometownDisplayText || '请选择籍贯所在地'}}</view>
+          </picker>
         </view>
       </view>
 

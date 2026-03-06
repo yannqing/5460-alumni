@@ -167,6 +167,11 @@ public class AlumniAssociationJoinApplicationServiceImpl
         application.setApplicationStatus(0); // 0-待审核
         application.setApplyTime(LocalDateTime.now());
 
+        // 保存基本信息到申请记录中
+        application.setName(applyDto.getName());
+        application.setIdentifyCode(applyDto.getIdentifyCode());
+        application.setPhone(applyDto.getPhone());
+
         // 保存教育经历信息到申请记录中
         application.setSchoolId(applyDto.getSchoolId());
         application.setEnrollmentYear(applyDto.getEnrollmentYear());

@@ -31,6 +31,28 @@ page {
   vertical-align: top;
 }
 
+/* 隐私提示样式 */
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f9ff;
+  border: 1rpx solid #bae6fd;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  margin: 20rpx 0 10rpx;
+}
+
+.privacy-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.privacy-text {
+  font-size: 24rpx;
+  color: #0369a1;
+}
+
 .form-header {
   text-align: center;
   padding: 20rpx 0 40rpx;

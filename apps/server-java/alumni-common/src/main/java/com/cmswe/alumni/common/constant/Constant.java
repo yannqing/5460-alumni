@@ -26,7 +26,10 @@ public class Constant {
     };
 
     public static String[] anonymousMatch = {
-            "/auth/**",
+            "/auth/login",
+            "/auth/getPhoneNumber",
+            "/auth/testLogin",
+            "/auth/logout",
        "/doc.html/**",
        "/webjars/**",
             "/file/**",

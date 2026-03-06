@@ -65,6 +65,11 @@ public class AuthController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody RegisterUserDto registerDto) {
 
+        // 检查用户是否已登录
+        if (securityUser == null || securityUser.getWxUser() == null) {
+            return ResultUtils.failure(Code.FAILURE, false, "用户未登录，请先登录");
+        }
+
         Long wxId = securityUser.getWxUser().getWxId();
 
         boolean result = authService.registerUser(

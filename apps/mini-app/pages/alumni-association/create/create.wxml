@@ -2,6 +2,12 @@
   <view class="white-background-content">
     <view class="container" bindtap="closeAllDropdowns">
   <image src="{{headerImageUrl}}" class="header-image" mode="aspectFit"></image>
+
+    <!-- 隐私提示 -->
+    <view class="privacy-notice">
+      <text class="privacy-text">您所填写的信息仅用于平台审核，不会对外公开</text>
+    </view>
+
   <view class="form-card">
     <view class="form-title">基本信息</view>
 

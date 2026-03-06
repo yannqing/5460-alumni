@@ -33,7 +33,7 @@
                         <view class="text-bold mb-20">基本信息</view>
                         <!-- 主页展示成员列表 -->
                         <view wx:if="{{platformInfo.showMembers && platformInfo.showMembers.length > 0}}" class="show-members-section">
-                            <view class="show-members-title">主页展示成员</view>
+                            <view class="show-members-title">核心成员</view>
                             <view class="show-members-list">
                                 <view class="show-member-item" wx:for="{{platformInfo.showMembers}}" wx:key="id">
                                     <view class="show-member-row">

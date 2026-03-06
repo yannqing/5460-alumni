@@ -16,6 +16,28 @@ page {
   overflow: auto;
 }
 
+/* 隐私提示样式 */
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f9ff;
+  border: 1rpx solid #bae6fd;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  margin: 20rpx 18rpx 0;
+}
+
+.privacy-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.privacy-text {
+  font-size: 24rpx;
+  color: #0369a1;
+}
+
 .group_5 {
   width: 714rpx;
   min-height: 346rpx;

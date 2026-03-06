@@ -39,6 +39,24 @@ public class AlumniAssociationJoinApplication implements Serializable {
     private Long targetId;
 
     /**
+     * 真实姓名
+     */
+    @TableField(value = "name")
+    private String name;
+
+    /**
+     * 身份证号
+     */
+    @TableField(value = "identify_code")
+    private String identifyCode;
+
+    /**
+     * 手机号
+     */
+    @TableField(value = "phone")
+    private String phone;
+
+    /**
      * 申请理由
      */
     @TableField(value = "application_reason")
