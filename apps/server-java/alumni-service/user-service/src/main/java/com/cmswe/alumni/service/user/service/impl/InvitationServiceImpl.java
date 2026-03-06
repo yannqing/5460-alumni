@@ -15,6 +15,8 @@ import com.cmswe.alumni.common.vo.InvitationRankVo;
 import com.cmswe.alumni.common.vo.InvitationRecordItemVo;
 import com.cmswe.alumni.common.vo.InviteeRegisterCheckVo;
 import com.cmswe.alumni.common.vo.PosterTemplateItemVo;
+import com.cmswe.alumni.common.dto.InviterCountDto;
+import java.util.List;
 import com.cmswe.alumni.common.entity.InvitationRecord;
 import com.cmswe.alumni.common.entity.PosterTemplate;
 import com.cmswe.alumni.common.entity.PointsChange;
@@ -102,7 +104,7 @@ public class InvitationServiceImpl implements InvitationService {
         InvitationRecord record = new InvitationRecord();
         record.setInviterWxId(inviterWxId);
         record.setInviteeWxId(inviteeWxId);
-        record.setIsVerified(isVerified);
+        record.setIsRegister(isVerified);
         invitationRecordMapper.insert(record);
 
         // 5. 查询邀请人当前积分
@@ -201,7 +203,7 @@ public class InvitationServiceImpl implements InvitationService {
                     .inviteeNickname(inviteeInfo != null ? inviteeInfo.getNickname() : null)
                     .inviteeName(inviteeInfo != null ? inviteeInfo.getName() : null)
                     .avatar(inviteeInfo != null ? inviteeInfo.getAvatarUrl() : null)
-                    .isVerified(r.getIsVerified() != null ? r.getIsVerified() : 0)
+                    .isVerified(r.getIsRegister() != null ? r.getIsRegister() : 0)
                     .isRegister(r.getIsRegister() != null ? r.getIsRegister() : 0)
                     .createTime(r.getCreateTime())
                     .build();

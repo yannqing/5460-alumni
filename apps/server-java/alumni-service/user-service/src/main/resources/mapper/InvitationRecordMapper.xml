@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cmswe.alumni.service.user.mapper.InvitationRecordMapper">
+    <select id="selectInviteCountByInviter" resultType="com.cmswe.alumni.common.dto.InviterCountDto">
+        SELECT
+            inviter_wx_id AS inviterWxId,
+            COUNT(id) AS inviteCount
+        FROM
+            invitation_record
+        WHERE
+            is_register = 1
+        GROUP BY
+            inviter_wx_id
+        ORDER BY
+            inviteCount DESC, inviter_wx_id ASC
+    </select>
+</mapper>
