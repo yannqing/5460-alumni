@@ -225,7 +225,8 @@ public class LocalPlatformManagementController {
                                 addDto.getLocalPlatformId(),
                                 addDto.getMemberId(),
                                 addDto.getRoleOrId(),
-                                addDto.getRoleName());
+                                addDto.getRoleName(),
+                                addDto.getIsShow());
 
                 if (result) {
                         return ResultUtils.success(Code.SUCCESS, true, "添加成功");
@@ -277,7 +278,8 @@ public class LocalPlatformManagementController {
                                 inviteDto.getUsername(),
                                 inviteDto.getRoleName(),
                                 inviteDto.getContactInformation(),
-                                inviteDto.getSocialDuties());
+                                inviteDto.getSocialDuties(),
+                                inviteDto.getIsShow());
 
                 if (result) {
                         log.info("邀请成员加入校处会成功，校处会 ID: {}, 成员用户 ID: {}, 角色 ID: {}",
@@ -316,7 +318,8 @@ public class LocalPlatformManagementController {
                                 updateDto.getRoleOrId(),
                                 updateDto.getRoleName(),
                                 updateDto.getContactInformation(),
-                                updateDto.getSocialDuties());
+                                updateDto.getSocialDuties(),
+                                updateDto.getIsShow());
 
                 if (result) {
                         log.info("更新校处会成员角色成功，校处会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",
@@ -354,7 +357,8 @@ public class LocalPlatformManagementController {
                                 updateDto.getId(),
                                 updateDto.getUsername(),
                                 updateDto.getRoleOrId(),
-                                updateDto.getRoleName());
+                                updateDto.getRoleName(),
+                                updateDto.getIsShow());
 
                 if (result) {
                         log.info("更新校处会成员角色V2成功，校处会 ID: {}, 成员用户名: {}, 新角色 ID: {}",
@@ -549,7 +553,8 @@ public class LocalPlatformManagementController {
                                 addDto.getRoleName(),
                                 addDto.getRoleOrId(),
                                 addDto.getContactInformation(),
-                                addDto.getSocialDuties());
+                                addDto.getSocialDuties(),
+                                addDto.getIsShow());
 
                 if (result) {
                         log.info("添加校促会预设成员成功，校促会 ID: {}, 用户名: {}",
@@ -607,7 +612,8 @@ public class LocalPlatformManagementController {
                                 updateDto.getUsername(),
                                 updateDto.getRoleName(),
                                 updateDto.getContactInformation(),
-                                updateDto.getSocialDuties());
+                                updateDto.getSocialDuties(),
+                                updateDto.getIsShow());
 
                 if (result) {
                         log.info("更新校促会预设成员信息成功，成员 ID: {}",

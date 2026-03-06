@@ -510,6 +510,27 @@ Page({
         url: `/pages/article/detail/detail?id=${id}`
       });
     }
+  },
+
+  // 查看人员详情
+  viewMemberDetail(e) {
+    const { member } = e.currentTarget.dataset
+    if (!member) return
+
+    const wxId = member.wxId
+    const username = member.username || '匿名用户'
+
+    if (wxId) {
+      // 有 wxId，跳转到正式个人详情页
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${wxId}`
+      })
+    } else {
+      // 无 wxId，跳转到模拟个人详情页（显示假数据）
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(username)}`
+      })
+    }
   }
 })
 

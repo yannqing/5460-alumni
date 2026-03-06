@@ -40,7 +40,9 @@ Page({
     showAlumniSearchResults: false,
     // 编辑成员相关
     showEditModal: false,
-    editingMember: {},
+    editingMember: {
+      isShowOnHome: 0
+    },
     // 预设成员相关
     showPresetModal: false,
     presetForm: {
@@ -49,9 +51,10 @@ Page({
       roleOrId: '',
       roleOrName: '',
       roleIndex: 0,
-      contactInformation: '',
-      socialDuties: ''
-    },
+        contactInformation: '',
+        socialDuties: '',
+        isShowOnHome: 0
+      },
     // 关联注册用户相关
     showLinkModal: false,
     linkForm: {
@@ -367,7 +370,8 @@ Page({
         roleName: '',
         roleIndex: 0,
         contactInformation: '',
-        socialDuties: ''
+        socialDuties: '',
+        isShowOnHome: 0
       },
       alumniSearchResults: [],
       showAlumniSearchResults: false,
@@ -399,7 +403,8 @@ Page({
         roleOrName: '',
         roleIndex: 0,
         contactInformation: '',
-        socialDuties: ''
+        socialDuties: '',
+        isShowOnHome: 0
       },
       roleList: []
     })
@@ -612,6 +617,27 @@ Page({
     })
   },
 
+  // 处理邀请成员时主页展示开关变化
+  onInviteIsShowOnHomeChange(e) {
+    this.setData({
+      'inviteForm.isShowOnHome': e.detail.value ? 1 : 0
+    })
+  },
+
+  // 处理预设成员时主页展示开关变化
+  onPresetIsShowOnHomeChange(e) {
+    this.setData({
+      'presetForm.isShowOnHome': e.detail.value ? 1 : 0
+    })
+  },
+
+  // 处理编辑成员时主页展示开关变化
+  onEditIsShowOnHomeChange(e) {
+    this.setData({
+      'editingMember.isShowOnHome': e.detail.value ? 1 : 0
+    })
+  },
+
   // 处理校友姓名输入框聚焦
   onMemberNameFocus() {
     if (this.data.inviteForm.name) {
@@ -664,7 +690,7 @@ Page({
   // 提交邀请
   async submitInvite() {
     try {
-      const { wxId, roleOrId, name, roleName, contactInformation, socialDuties } = this.data.inviteForm
+      const { wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome } = this.data.inviteForm
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
@@ -677,7 +703,7 @@ Page({
       }
 
       // 调用邀请成员接口，直接传递字符串形式的wxId和roleOrId，避免大整数精度丢失
-      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId, name, roleName, contactInformation, socialDuties)
+      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -705,7 +731,7 @@ Page({
   // 提交预设成员
   async submitPreset() {
     try {
-      const { username, roleName, roleOrId, contactInformation, socialDuties } = this.data.presetForm
+      const { username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome } = this.data.presetForm
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
@@ -718,7 +744,7 @@ Page({
       }
 
       // 调用添加预设成员接口
-      const res = await this.addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties)
+      const res = await this.addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -850,8 +876,8 @@ Page({
   },
 
   // 调用邀请成员接口
-  inviteMemberAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) {
-    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties)
+  inviteMemberAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow) {
+    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow)
   },
 
   // 打开编辑成员弹窗
@@ -867,6 +893,12 @@ Page({
     }
 
     const member = e.currentTarget.dataset.member
+    console.log('[Debug] 准备编辑成员，原始数据:', member)
+    
+    // 只要 isShow 或 isShowOnHome 其中一个是 1，就视为已设置主页展示
+    const isShowValue = (member.isShow == 1 || member.isShowOnHome == 1) ? 1 : 0;
+    console.log('[Debug] 继承到的展示状态:', isShowValue)
+
     this.setData({
       editingMember: {
         ...member,
@@ -875,7 +907,8 @@ Page({
         roleName: member.roleName || '',
         contactInformation: member.contactInformation || '',
         socialDuties: member.socialDuties || '',
-        roleIndex: 0
+        roleIndex: 0,
+        isShowOnHome: isShowValue
       },
       showEditModal: true
     })
@@ -917,7 +950,8 @@ Page({
   async submitEdit() {
     try {
       const { editingMember } = this.data
-      const { newRoleId, wxId, name, roleName, contactInformation, socialDuties, id } = editingMember
+      const { newRoleId, wxId, name, roleName, contactInformation, socialDuties, id, isShowOnHome } = editingMember
+      const isShow = isShowOnHome === 1 ? 1 : 0
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
@@ -940,10 +974,10 @@ Page({
           })
           return
         }
-        res = await this.updatePresetMemberInfoAPI(id, name, roleName, contactInformation, socialDuties)
+        res = await this.updatePresetMemberInfoAPI(id, name, roleName, contactInformation, socialDuties, isShow)
       } else {
         // 真实成员，使用更新成员角色接口
-        res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId, name, roleName, contactInformation, socialDuties)
+        res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId, name, roleName, contactInformation, socialDuties, isShow)
       }
 
       if (res.data && res.data.code === 200) {
@@ -1038,18 +1072,18 @@ Page({
   },
 
   // 调用更新成员角色接口
-  updateMemberRoleAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties) {
-    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties)
+  updateMemberRoleAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow) {
+    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow)
   },
 
   // 调用添加预设成员接口
-  addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties) {
-    return localPlatformManagementApi.addPresetMember(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties)
+  addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow) {
+    return localPlatformManagementApi.addPresetMember(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow)
   },
 
   // 调用更新预设成员信息接口
-  updatePresetMemberInfoAPI(memberId, username, roleName, contactInformation, socialDuties) {
-    return localPlatformManagementApi.updatePresetMemberInfo(memberId, username, roleName, contactInformation, socialDuties)
+  updatePresetMemberInfoAPI(memberId, username, roleName, contactInformation, socialDuties, isShow) {
+    return localPlatformManagementApi.updatePresetMemberInfo(memberId, username, roleName, contactInformation, socialDuties, isShow)
   },
 
   // 调用删除预设成员接口

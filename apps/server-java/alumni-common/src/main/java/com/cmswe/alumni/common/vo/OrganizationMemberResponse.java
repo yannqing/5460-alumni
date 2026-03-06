@@ -75,6 +75,12 @@ public class OrganizationMemberResponse extends UserListResponse {
     @Schema(description = "是否展示在主页（0-否，1-是）")
     private Integer isShowOnHome;
 
+    /**
+     * 是否展示（0-否，1-是）
+     */
+    @Schema(description = "是否展示（0-否，1-是）")
+    private Integer isShow;
+
     @Serial
     private static final long serialVersionUID = 1L;
 

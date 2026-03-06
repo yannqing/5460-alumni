@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ConfirmInvitationDto {
-    private Long inviterWxId;
-    private Long inviteeWxId;
+    private String inviterWxId;
+    private String inviteeWxId;
 }

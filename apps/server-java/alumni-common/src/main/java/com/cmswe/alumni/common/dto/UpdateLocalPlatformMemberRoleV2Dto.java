@@ -50,6 +50,12 @@ public class UpdateLocalPlatformMemberRoleV2Dto implements Serializable {
     @Schema(description = "角色名称")
     private String roleName;
 
+    /**
+     * 是否在主页展示
+     */
+    @Schema(description = "是否在主页展示(0否,1是)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer isShow;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

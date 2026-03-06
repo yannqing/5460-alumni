@@ -111,14 +111,10 @@ public class AuthServiceImpl implements AuthService {
 
         //4. 判断用户是否存在数据库
         // 优先通过unionid查询（如果有），否则通过openid查询
-        WxUser loginUser;
-        // 使用 union_id 是否为空判断是否第一次登录：为空=第一次，不为空=非第一次
-        boolean isFirstLogin = (unionId == null || unionId.trim().isEmpty());
-        if (unionId != null && !unionId.trim().isEmpty()) {
-            loginUser = wxUserMapper.selectOne(new LambdaQueryWrapper<WxUser>().eq(WxUser::getUnionId, unionId));
-        } else {
-            loginUser = wxUserMapper.selectOne(new LambdaQueryWrapper<WxUser>().eq(WxUser::getOpenid, openid));
-        }
+        WxUser loginUser = wxUserMapper.selectOne(new LambdaQueryWrapper<WxUser>().eq(WxUser::getOpenid, openid));
+
+        // 使用 openid 是否为空判断是否第一次登录：为空=第一次，不为空=非第一次
+        boolean isFirstLogin = (loginUser == null);
         if (loginUser == null) {
             //4.1 首次登录 - 创建新用户
             loginUser = new WxUser();
@@ -160,17 +156,17 @@ public class AuthServiceImpl implements AuthService {
                 .isAlumni(loginUser.getIsAlumni())
                 .isProfileComplete(isProfileComplete);
         if (isFirstLogin) {
-            Long inviterWxId = parseInviterWxId(inviterWxUuid);
-            if (inviterWxId != null) {
+            Long inviterWxIdLong = parseInviterWxId(inviterWxUuid);
+            if (inviterWxIdLong != null) {
                 ConfirmInvitationDto confirmInvitationDto = ConfirmInvitationDto.builder()
-                        .inviterWxId(inviterWxId)
-                        .inviteeWxId(loginUser.getWxId())
+                        .inviterWxId(String.valueOf(inviterWxIdLong))
+                        .inviteeWxId(String.valueOf(loginUser.getWxId()))
                         .build();
                 try {
                     invitationService.confirmInvitation(confirmInvitationDto);
-                    log.info("调用邀请确认接口成功：inviterWxId={}, inviteeWxId={}", inviterWxId, loginUser.getWxId());
+                    log.info("调用邀请确认接口成功：inviterWxId={}, inviteeWxId={}", inviterWxIdLong, loginUser.getWxId());
                 } catch (Exception e) {
-                    log.error("调用邀请确认接口失败：inviterWxId={}, inviteeWxId={}, error={}", inviterWxId, loginUser.getWxId(), e.getMessage());
+                    log.error("调用邀请确认接口失败：inviterWxId={}, inviteeWxId={}, error={}", inviterWxIdLong, loginUser.getWxId(), e.getMessage());
                 }
             }
         }
