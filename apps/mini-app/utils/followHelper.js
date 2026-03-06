@@ -145,7 +145,7 @@ async function toggleFollow(isFollowed, targetType, targetId, followStatus = Fol
       })
     } else {
       // 不显示确认框，直接取消关注
-    return await removeFollow(targetType, targetId)
+      return await removeFollow(targetType, targetId)
     }
   } else {
     // 未关注，执行添加关注
@@ -372,10 +372,10 @@ async function handleFollowInPage(page, dataKey, followedKey = 'isFollowed', fol
 
     // 显示提示
     if (!result.canceled) {
-    wx.showToast({
-      title: result.message,
-      icon: 'success'
-    })
+      wx.showToast({
+        title: result.message,
+        icon: 'success'
+      })
     }
 
     // 执行成功回调
@@ -385,10 +385,10 @@ async function handleFollowInPage(page, dataKey, followedKey = 'isFollowed', fol
   } else {
     // 显示错误提示（排除用户主动取消的情况）
     if (!result.canceled) {
-    wx.showToast({
-      title: result.message,
-      icon: 'none'
-    })
+      wx.showToast({
+        title: result.message,
+        icon: 'none'
+      })
     }
 
     // 执行失败回调
