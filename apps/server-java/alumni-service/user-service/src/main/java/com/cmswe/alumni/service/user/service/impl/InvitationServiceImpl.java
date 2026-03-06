@@ -93,7 +93,8 @@ public class InvitationServiceImpl implements InvitationService {
         // 3. 获取被邀请人是否认证（alumni_info.certification_status: 1=已认证）
         int isVerified = 0;
         AlumniInfo alumniInfo = alumniInfoMapper.findByWxIdOrUserId(inviteeWxId);
-        if (alumniInfo != null && alumniInfo.getCertificationStatus() != null && alumniInfo.getCertificationStatus() == 1) {
+        if (alumniInfo != null && alumniInfo.getCertificationStatus() != null
+                && alumniInfo.getCertificationStatus() == 1) {
             isVerified = 1;
         }
 
