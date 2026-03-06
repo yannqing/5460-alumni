@@ -24,9 +24,9 @@
         <text class="detail-label">校友会名称</text>
         <text class="detail-value">{{currentAlumniDetail ? currentAlumniDetail.associationName : '加载中...'}}</text>
       </view>
-      <view class="detail-item">
-        <text class="detail-label">联系信息</text>
-        <text class="detail-value">{{currentAlumniDetail ? (currentAlumniDetail.contactInfo || '无') : '无'}}</text>
+      <view class="detail-item detail-item-profile">
+        <text class="detail-label">校友会简介</text>
+        <text class="detail-value detail-value-profile">{{currentAlumniDetail ? (currentAlumniDetail.associationProfile || '无') : '无'}}</text>
       </view>
       <view class="detail-item">
         <text class="detail-label">常驻地点</text>
@@ -44,6 +44,42 @@
         <text class="detail-label">校促会信息</text>
         <text class="detail-value">{{currentAlumniDetail.platform.platformName || '无'}}</text>
       </view>
+      <!-- 主要负责人信息 -->
+      <view class="detail-section-title" wx:if="{{currentAlumniDetail && currentAlumniDetail.chargeName}}">主要负责人</view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.chargeName}}">
+        <text class="detail-label">姓名</text>
+        <text class="detail-value">{{currentAlumniDetail.chargeName || '无'}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.chargeRole}}">
+        <text class="detail-label">职务</text>
+        <text class="detail-value">{{currentAlumniDetail.chargeRole || '无'}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.contactInfo}}">
+        <text class="detail-label">联系电话</text>
+        <text class="detail-value">{{currentAlumniDetail.contactInfo || '无'}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.chargeSocialAffiliation}}">
+        <text class="detail-label">社会任职</text>
+        <text class="detail-value">{{currentAlumniDetail.chargeSocialAffiliation || '无'}}</text>
+      </view>
+      <!-- 驻会代表信息 -->
+      <view class="detail-section-title" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhName}}">驻会代表</view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhName}}">
+        <text class="detail-label">姓名</text>
+        <text class="detail-value">{{currentAlumniDetail.zhName || '无'}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhRole}}">
+        <text class="detail-label">职务</text>
+        <text class="detail-value">{{currentAlumniDetail.zhRole || '无'}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhPhone}}">
+        <text class="detail-label">联系电话</text>
+        <text class="detail-value">{{currentAlumniDetail.zhPhone || '无'}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhSocialAffiliation}}">
+        <text class="detail-label">社会任职</text>
+        <text class="detail-value">{{currentAlumniDetail.zhSocialAffiliation || '无'}}</text>
+      </view>
     </view>
   </view>
 
@@ -58,7 +94,7 @@
     <text class="empty-text">您没有校友会管理员权限</text>
   </view>
 
-  <!-- 校友会选择器弹窗 -->
+  <!-- 校友会选择器弹窗（与架构管理一致） -->
   <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
     <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
     <view class="picker-content">
@@ -67,8 +103,24 @@
         <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
       </view>
       <view class="picker-list">
-        <view class="picker-item" wx:for="{{alumniAssociationList}}" wx:key="alumniAssociationId" data-alumni-association-id="{{item.alumniAssociationId}}" data-alumni-association-name="{{item.alumniAssociationName}}" bindtap="selectAlumniAssociation">
-          <text class="item-name">{{item.alumniAssociationName}}</text>
+        <view
+          class="picker-item {{selectedAlumniAssociationId == item.alumniAssociationId ? 'selected' : ''}}"
+          wx:for="{{alumniAssociationList}}"
+          wx:key="alumniAssociationId"
+          data-alumni-association-id="{{item.alumniAssociationId}}"
+          data-alumni-association-name="{{item.alumniAssociationName}}"
+          bindtap="selectAlumniAssociation"
+        >
+          <view class="picker-item-left">
+            <image class="picker-item-logo" src="{{item.logo}}" mode="aspectFill" wx:if="{{item.logo}}"></image>
+            <view class="picker-item-logo-placeholder" wx:else>
+              <text>{{item.alumniAssociationName[0] || '校'}}</text>
+            </view>
+            <view class="picker-item-info">
+              <text class="item-name">{{item.alumniAssociationName}}</text>
+              <text class="item-location" wx:if="{{item.location}}">{{item.location}}</text>
+            </view>
+          </view>
           <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
         </view>
         <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">

@@ -80,11 +80,11 @@
   margin-left: 10rpx;
 }
 
-/* 活动列表白框（与校友会审核页一致：固定高度，仅 scroll-list 内滚动） */
+/* 活动列表白框（占据剩余空间，仅 scroll-list 内滚动） */
 .group_7 {
   width: 714rpx;
   flex: 1;
-  max-height: 55vh;
+  min-height: 0;
   background-color: #FFFFFF;
   border-radius: 28.99rpx;
   margin: 34rpx 0 20rpx 18rpx;
@@ -169,10 +169,11 @@
   font-weight: 600;
 }
 
-/* 仅列表区域滚动（高度由 js 通过 style 注入，scroll-view 必须明确高度才能滚动） */
+/* 仅列表区域滚动（flex: 1 占据剩余空间，scroll-view 必须明确高度才能滚动） */
 .scroll-list {
   width: 100%;
-  flex-shrink: 0;
+  flex: 1;
+  min-height: 0;
 }
 
 .empty-block {
@@ -372,9 +373,58 @@
   border-bottom: 1rpx solid #f0f0f0;
 }
 
+.alumni-association-picker .picker-item.selected {
+  background-color: #f6ffed;
+}
+
+.alumni-association-picker .picker-item-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.alumni-association-picker .picker-item-logo {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  background-color: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.alumni-association-picker .picker-item-logo-placeholder {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  background: linear-gradient(135deg, #3759C7 0%, #5273D2 100%);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alumni-association-picker .picker-item-logo-placeholder text {
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.alumni-association-picker .picker-item-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .alumni-association-picker .item-name {
   font-size: 28rpx;
   color: #333;
+}
+
+.alumni-association-picker .item-location {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
 }
 
 .alumni-association-picker .item-check {

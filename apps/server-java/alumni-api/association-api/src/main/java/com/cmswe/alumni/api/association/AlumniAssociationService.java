@@ -221,4 +221,36 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @return 管理的校友会列表
      */
     List<ManagedOrganizationVo> getManagedAssociations(Long wxId);
+
+    /**
+     * 更新校友会成员信息
+     *
+     * @param id 成员ID
+     * @param username 用户名
+     * @param roleName 角色名称
+     * @param userPhone 用户联系电话
+     * @param userAffiliation 用户社会职务
+     * @param isShowOnHome 是否展示在主页（0-否，1-是）
+     * @return 更新是否成功
+     */
+    boolean updateMemberInfo(Long id, String username, String roleName, String userPhone, String userAffiliation, Integer isShowOnHome);
+
+    /**
+     * 添加校友会成员到分支（组织架构角色）
+     *
+     * @param alumniAssociationId 校友会ID
+     * @param wxId 成员用户ID
+     * @param roleOrId 分支（组织架构角色）ID
+     * @return 添加是否成功
+     */
+    boolean addMemberToBranch(Long alumniAssociationId, Long wxId, Long roleOrId);
+
+    /**
+     * 从分支（组织架构角色）移除校友会成员
+     *
+     * @param alumniAssociationId 校友会ID
+     * @param wxId 成员用户ID
+     * @return 移除是否成功
+     */
+    boolean removeMemberFromBranch(Long alumniAssociationId, Long wxId);
 }

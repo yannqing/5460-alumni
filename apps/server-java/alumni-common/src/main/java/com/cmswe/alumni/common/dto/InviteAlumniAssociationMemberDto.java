@@ -32,10 +32,9 @@ public class InviteAlumniAssociationMemberDto implements Serializable {
     private Long wxId;
 
     /**
-     * 组织架构角色 ID
+     * 组织架构角色 ID（可选，用户同意后可以为空）
      */
-    @Schema(description = "组织架构角色 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "组织架构角色 ID不能为空")
+    @Schema(description = "组织架构角色 ID（可选）")
     private Long roleOrId;
 
     @Serial

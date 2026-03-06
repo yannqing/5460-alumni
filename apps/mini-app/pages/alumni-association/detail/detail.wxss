@@ -132,6 +132,17 @@ page {
   padding-top: 0;
 }
 
+/* 可点击的用户信息 */
+.basic-info-item.clickable-user {
+  display: flex;
+  align-items: center;
+}
+
+.user-name-link {
+  color: #1890ff;
+  text-decoration: underline;
+}
+
 /* 加入申请弹窗样式 */
 .join-modal-mask {
   position: fixed;

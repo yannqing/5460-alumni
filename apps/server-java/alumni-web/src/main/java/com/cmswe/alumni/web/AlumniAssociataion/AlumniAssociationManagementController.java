@@ -7,8 +7,11 @@ import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.dto.AddAlumniAssociationAdminDto;
+import com.cmswe.alumni.common.dto.AddMemberToBranchDto;
 import com.cmswe.alumni.common.dto.BindMemberToUserDto;
 import com.cmswe.alumni.common.dto.RemoveAlumniAssociationAdminDto;
+import com.cmswe.alumni.common.dto.RemoveMemberFromBranchDto;
+import com.cmswe.alumni.common.dto.UpdateAlumniAssociationMemberDto;
 import com.cmswe.alumni.common.entity.Activity;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
@@ -542,6 +545,91 @@ public class AlumniAssociationManagementController {
                         log.error("绑定校友会成员与系统用户失败，成员 ID: {}, 用户 ID: {}",
                                 bindDto.getMemberId(), bindDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "绑定失败");
+                }
+        }
+
+        /**
+         * 更新校友会成员信息
+         *
+         * @param updateDto 更新请求参数
+         * @return 返回更新结果
+         */
+        @PutMapping("/updateMemberInfo")
+        @Operation(summary = "更新校友会成员信息")
+        public BaseResponse<Boolean> updateMemberInfo(@Valid @RequestBody UpdateAlumniAssociationMemberDto updateDto) {
+                log.info("更新校友会成员信息，成员 ID: {}, 用户名: {}, 角色名: {}, 电话: {}, 社会职务: {}, 是否展示在主页: {}",
+                        updateDto.getId(), updateDto.getUsername(), updateDto.getRoleName(),
+                        updateDto.getUserPhone(), updateDto.getUserAffiliation(), updateDto.getIsShowOnHome());
+
+                boolean result = alumniAssociationService.updateMemberInfo(
+                        updateDto.getId(),
+                        updateDto.getUsername(),
+                        updateDto.getRoleName(),
+                        updateDto.getUserPhone(),
+                        updateDto.getUserAffiliation(),
+                        updateDto.getIsShowOnHome());
+
+                if (result) {
+                        log.info("更新校友会成员信息成功，成员 ID: {}", updateDto.getId());
+                        return ResultUtils.success(Code.SUCCESS, true, "更新成功");
+                } else {
+                        log.error("更新校友会成员信息失败，成员 ID: {}", updateDto.getId());
+                        return ResultUtils.failure(Code.FAILURE, false, "更新失败");
+                }
+        }
+
+        /**
+         * 添加校友会成员到分支
+         *
+         * @param addDto 添加请求参数
+         * @return 返回添加结果
+         */
+        @PostMapping("/addMemberToBranch")
+        @Operation(summary = "添加校友会成员到分支（组织架构角色）")
+        public BaseResponse<Boolean> addMemberToBranch(@Valid @RequestBody AddMemberToBranchDto addDto) {
+                log.info("添加成员到分支，校友会 ID: {}, 成员用户 ID: {}, 分支 ID: {}",
+                        addDto.getAlumniAssociationId(), addDto.getWxId(), addDto.getRoleOrId());
+
+                boolean result = alumniAssociationService.addMemberToBranch(
+                        addDto.getAlumniAssociationId(),
+                        addDto.getWxId(),
+                        addDto.getRoleOrId());
+
+                if (result) {
+                        log.info("添加成员到分支成功，校友会 ID: {}, 成员用户 ID: {}, 分支 ID: {}",
+                                addDto.getAlumniAssociationId(), addDto.getWxId(), addDto.getRoleOrId());
+                        return ResultUtils.success(Code.SUCCESS, true, "添加成功");
+                } else {
+                        log.error("添加成员到分支失败，校友会 ID: {}, 成员用户 ID: {}, 分支 ID: {}",
+                                addDto.getAlumniAssociationId(), addDto.getWxId(), addDto.getRoleOrId());
+                        return ResultUtils.failure(Code.FAILURE, false, "添加失败");
+                }
+        }
+
+        /**
+         * 从分支移除校友会成员
+         *
+         * @param removeDto 移除请求参数
+         * @return 返回移除结果
+         */
+        @DeleteMapping("/removeMemberFromBranch")
+        @Operation(summary = "从分支（组织架构角色）移除校友会成员")
+        public BaseResponse<Boolean> removeMemberFromBranch(@Valid @RequestBody RemoveMemberFromBranchDto removeDto) {
+                log.info("从分支移除成员，校友会 ID: {}, 成员用户 ID: {}",
+                        removeDto.getAlumniAssociationId(), removeDto.getWxId());
+
+                boolean result = alumniAssociationService.removeMemberFromBranch(
+                        removeDto.getAlumniAssociationId(),
+                        removeDto.getWxId());
+
+                if (result) {
+                        log.info("从分支移除成员成功，校友会 ID: {}, 成员用户 ID: {}",
+                                removeDto.getAlumniAssociationId(), removeDto.getWxId());
+                        return ResultUtils.success(Code.SUCCESS, true, "移除成功");
+                } else {
+                        log.error("从分支移除成员失败，校友会 ID: {}, 成员用户 ID: {}",
+                                removeDto.getAlumniAssociationId(), removeDto.getWxId());
+                        return ResultUtils.failure(Code.FAILURE, false, "移除失败");
                 }
         }
 }

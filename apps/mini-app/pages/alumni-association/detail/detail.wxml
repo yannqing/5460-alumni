@@ -56,8 +56,8 @@
         <view wx:if="{{activeTab === 0}}" class="tab-content">
           <view class="card">
             <view class="text-bold mb-20">基本信息</view>
-            <view wx:if="{{associationInfo.chargeName}}" class="basic-info-item">{{associationInfo.chargeRole || '校友会负责人'}}：{{associationInfo.chargeName}}</view>
-            <view wx:if="{{associationInfo.zhName}}" class="basic-info-item">驻会代表：{{associationInfo.zhName}}</view>
+            <view wx:if="{{associationInfo.chargeName}}" class="basic-info-item" bindtap="viewChargeDetail">{{associationInfo.chargeRole || '校友会负责人'}}：{{associationInfo.chargeName}}</view>
+            <view wx:if="{{associationInfo.zhName}}" class="basic-info-item" bindtap="viewZhDetail">驻会代表：{{associationInfo.zhName}}</view>
             <view class="basic-info-item">成员数量：{{associationInfo.memberCount || 0}}人</view>
             <view wx:if="{{associationInfo.contactInfo}}" class="basic-info-item">联系方式：{{associationInfo.contactInfo}}</view>
             <view wx:if="{{associationInfo.description}}" class="basic-info-item">简介：{{associationInfo.description}}</view>

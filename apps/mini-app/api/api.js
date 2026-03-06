@@ -522,7 +522,11 @@ const chatApi = {
       ? `/chat/notifications/read?notificationId=${notificationId}`
       : '/chat/notifications/read'
     return put(url)
-  }
+  },
+
+  // 处理邀请（同意/拒绝）
+  // data: { invitationId, notificationId, agree }
+  handleInvitation: (data) => post('/chat/invitation/handle', data)
 }
 
 // ==================== 首页文章相关接口 ====================
@@ -623,8 +627,8 @@ const localPlatformManagementApi = {
 
 // ==================== 校友会管理相关接口 ====================
 const alumniAssociationManagementApi = {
-  // 获取校友会成员列表
-  getMemberList: (alumniAssociationId) => post('/alumniAssociationManagement/queryMemberList', { alumniAssociationId }),
+  // 获取校友会成员列表（支持 keyword 搜索）
+  getMemberList: (alumniAssociationId, keyword) => post('/alumniAssociationManagement/queryMemberList', { alumniAssociationId, keyword }),
   // 获取校友会角色列表
   getRoleList: (organizeId) => post('/alumniAssociationManagement/role/list', { organizeId }),
   // 新增校友会角色
@@ -633,12 +637,25 @@ const alumniAssociationManagementApi = {
   updateRole: (data) => put('/alumniAssociationManagement/role/update', data),
   // 删除校友会角色
   deleteRole: (roleOrId, organizeId) => del('/alumniAssociationManagement/role/delete', { roleOrId, organizeId }),
-  // 邀请校友会成员
-  inviteMember: (alumniAssociationId, wxId, roleOrId) => post('/alumniAssociationManagement/inviteMember', { alumniAssociationId, wxId, roleOrId }),
+  // 邀请校友会成员（roleOrId 可选）
+  inviteMember: (alumniAssociationId, wxId, roleOrId) => {
+    const data = { alumniAssociationId, wxId }
+    if (roleOrId) {
+      data.roleOrId = roleOrId
+    }
+    return post('/alumniAssociationManagement/inviteMember', data)
+  },
   // 删除校友会成员
   deleteMember: (alumniAssociationId, wxId) => del('/alumniAssociationManagement/deleteMember', { alumniAssociationId, wxId }),
   // 更新校友会成员角色
   updateMemberRole: (alumniAssociationId, wxId, roleOrId) => put('/alumniAssociationManagement/updateMemberRole', { alumniAssociationId, wxId, roleOrId }),
+  // 添加成员到分支（组织架构角色）
+  addMemberToBranch: (alumniAssociationId, wxId, roleOrId) => post('/alumniAssociationManagement/addMemberToBranch', { alumniAssociationId, wxId, roleOrId }),
+  // 从分支移除成员
+  removeMemberFromBranch: (alumniAssociationId, wxId) => del('/alumniAssociationManagement/removeMemberFromBranch', { alumniAssociationId, wxId }),
+  // 更新校友会成员信息（所有字段除id外都是可选的）
+  // data: { id, username?, roleName?, userPhone?, userAffiliation?, isShowOnHome? }
+  updateMemberInfo: (data) => put('/alumniAssociationManagement/updateMemberInfo', data),
   // 发布活动
   publishActivity: (data) => post('/alumniAssociationManagement/activity/publish', data),
   // 获取活动详情

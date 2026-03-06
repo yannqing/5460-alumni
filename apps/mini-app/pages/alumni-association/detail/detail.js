@@ -156,10 +156,12 @@ Page({
           certifications: [],
           applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null,
           // 校友会负责人信息
+          chargeWxId: item.chargeWxId || '',
           chargeName: item.chargeName || '',
           chargeRole: item.chargeRole || '',
           chargeSocialAffiliation: item.chargeSocialAffiliation || '',
           // 驻会代表信息
+          zhWxId: item.zhWxId || '',
           zhName: item.zhName || '',
           zhPhone: item.zhPhone || '',
           zhSocialAffiliation: item.zhSocialAffiliation || ''
@@ -1440,11 +1442,37 @@ Page({
     })
   },
 
-  // 显示“开发中”提示
+  // 显示"开发中"提示
   handleDeveloping() {
     wx.showToast({
       title: '开发中，敬请期待',
       icon: 'none'
+    })
+  },
+
+  // 点击负责人跳转到用户详情
+  viewChargeDetail() {
+    const { associationInfo } = this.data
+    if (!associationInfo) return
+
+    const wxId = associationInfo.chargeWxId
+    const username = associationInfo.chargeName || '匿名用户'
+
+    wx.navigateTo({
+      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`
+    })
+  },
+
+  // 点击驻会代表跳转到用户详情
+  viewZhDetail() {
+    const { associationInfo } = this.data
+    if (!associationInfo) return
+
+    const wxId = associationInfo.zhWxId
+    const username = associationInfo.zhName || '匿名用户'
+
+    wx.navigateTo({
+      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`
     })
   }
 })

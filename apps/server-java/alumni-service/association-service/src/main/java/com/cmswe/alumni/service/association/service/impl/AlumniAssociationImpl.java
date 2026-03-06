@@ -1,6 +1,7 @@
 package com.cmswe.alumni.service.association.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -112,6 +113,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
     @Resource
     private UserFollowService userFollowService;
+
+    @Resource
+    private com.cmswe.alumni.service.association.mapper.AlumniAssociationInvitationMapper alumniAssociationInvitationMapper;
 
     // 分页查询 获取校友会列表
     @Override
@@ -429,6 +433,34 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         if (updateAlumniAssociationDto.getBgImg() != null) {
             existingAssociation.setBgImg(updateAlumniAssociationDto.getBgImg());
         }
+        if (updateAlumniAssociationDto.getAssociationProfile() != null) {
+            existingAssociation.setAssociationProfile(updateAlumniAssociationDto.getAssociationProfile());
+        }
+        // chargeWxId 支持传 null 来清空（使用 ALWAYS 更新策略）
+        existingAssociation.setChargeWxId(updateAlumniAssociationDto.getChargeWxId());
+        if (updateAlumniAssociationDto.getChargeName() != null) {
+            existingAssociation.setChargeName(updateAlumniAssociationDto.getChargeName());
+        }
+        if (updateAlumniAssociationDto.getChargeRole() != null) {
+            existingAssociation.setChargeRole(updateAlumniAssociationDto.getChargeRole());
+        }
+        if (updateAlumniAssociationDto.getChargeSocialAffiliation() != null) {
+            existingAssociation.setChargeSocialAffiliation(updateAlumniAssociationDto.getChargeSocialAffiliation());
+        }
+        // zhWxId 支持传 null 来清空（使用 ALWAYS 更新策略）
+        existingAssociation.setZhWxId(updateAlumniAssociationDto.getZhWxId());
+        if (updateAlumniAssociationDto.getZhName() != null) {
+            existingAssociation.setZhName(updateAlumniAssociationDto.getZhName());
+        }
+        if (updateAlumniAssociationDto.getZhPhone() != null) {
+            existingAssociation.setZhPhone(updateAlumniAssociationDto.getZhPhone());
+        }
+        if (updateAlumniAssociationDto.getZhRole() != null) {
+            existingAssociation.setZhRole(updateAlumniAssociationDto.getZhRole());
+        }
+        if (updateAlumniAssociationDto.getZhSocialAffiliation() != null) {
+            existingAssociation.setZhSocialAffiliation(updateAlumniAssociationDto.getZhSocialAffiliation());
+        }
         if (updateAlumniAssociationDto.getStatus() != null) {
             existingAssociation.setStatus(updateAlumniAssociationDto.getStatus());
         }
@@ -455,6 +487,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         // 2. 提取查询参数
         Long alumniAssociationId = queryAlumniAssociationMemberListRequest.getAlumniAssociationId();
+        String keyword = queryAlumniAssociationMemberListRequest.getKeyword(); // 统一搜索关键词
         String nickname = queryAlumniAssociationMemberListRequest.getNickname();
         String name = queryAlumniAssociationMemberListRequest.getName();
         String phone = queryAlumniAssociationMemberListRequest.getPhone();
@@ -488,35 +521,52 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             return emptyPage;
         }
 
-        // 5. 提取所有 wxId
+        // 5. 提取所有非空的 wxId
         List<Long> wxIds = memberResultPage.getRecords().stream()
                 .map(AlumniAssociationMember::getWxId)
+                .filter(Objects::nonNull) // 过滤掉 null 的 wxId
                 .distinct()
                 .collect(Collectors.toList());
 
-        // 6. 批量查询用户信息（一次查询，避免 N+1 问题） TODO: 这个位置需要重新理解逻辑，可能存在问题
-        List<WxUserInfo> userInfoList = wxUserInfoService.list(
-                new LambdaQueryWrapper<WxUserInfo>()
-                        .in(WxUserInfo::getWxId, wxIds)
-                        .like(StringUtils.isNotBlank(nickname), WxUserInfo::getNickname, nickname)
-                        .like(StringUtils.isNotBlank(name), WxUserInfo::getName, name)
-                        .like(StringUtils.isNotBlank(phone), WxUserInfo::getPhone, phone)
-                        .like(StringUtils.isNotBlank(wxNum), WxUserInfo::getWxNum, wxNum)
-                        .like(StringUtils.isNotBlank(qqNum), WxUserInfo::getQqNum, qqNum)
-                        .like(StringUtils.isNotBlank(email), WxUserInfo::getEmail, email)
-                        .like(StringUtils.isNotBlank(curContinent), WxUserInfo::getCurContinent, curContinent)
-                        .like(StringUtils.isNotBlank(curCountry), WxUserInfo::getCurCountry, curCountry)
-                        .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
-                        .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity)
-                        .like(StringUtils.isNotBlank(signature), WxUserInfo::getSignature, signature)
-                        .like(StringUtils.isNotBlank(identifyCode), WxUserInfo::getIdentifyCode, identifyCode)
-                        .eq(constellation != null, WxUserInfo::getConstellation, constellation)
-                        .eq(gender != null, WxUserInfo::getGender, gender)
-                        .eq(birthDate != null, WxUserInfo::getBirthDate, birthDate));
+        // 6. 批量查询用户信息（一次查询，避免 N+1 问题）
+        final Map<Long, WxUserInfo> userInfoMap;
+        if (!wxIds.isEmpty()) {
+            LambdaQueryWrapper<WxUserInfo> queryWrapper = new LambdaQueryWrapper<WxUserInfo>()
+                    .in(WxUserInfo::getWxId, wxIds);
 
-        // 7. 转成 Map，方便查找（key: wxId, value: WxUserInfo）
-        Map<Long, WxUserInfo> userInfoMap = userInfoList.stream()
-                .collect(Collectors.toMap(WxUserInfo::getWxId, Function.identity(), (v1, v2) -> v1));
+            // 如果提供了 keyword，使用 OR 条件匹配姓名或昵称
+            if (StringUtils.isNotBlank(keyword)) {
+                queryWrapper.and(wrapper -> wrapper
+                        .like(WxUserInfo::getName, keyword)
+                        .or()
+                        .like(WxUserInfo::getNickname, keyword));
+            }
+
+            // 其他独立的过滤条件（AND 关系）
+            queryWrapper.like(StringUtils.isNotBlank(nickname), WxUserInfo::getNickname, nickname)
+                    .like(StringUtils.isNotBlank(name), WxUserInfo::getName, name)
+                    .like(StringUtils.isNotBlank(phone), WxUserInfo::getPhone, phone)
+                    .like(StringUtils.isNotBlank(wxNum), WxUserInfo::getWxNum, wxNum)
+                    .like(StringUtils.isNotBlank(qqNum), WxUserInfo::getQqNum, qqNum)
+                    .like(StringUtils.isNotBlank(email), WxUserInfo::getEmail, email)
+                    .like(StringUtils.isNotBlank(curContinent), WxUserInfo::getCurContinent, curContinent)
+                    .like(StringUtils.isNotBlank(curCountry), WxUserInfo::getCurCountry, curCountry)
+                    .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
+                    .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity)
+                    .like(StringUtils.isNotBlank(signature), WxUserInfo::getSignature, signature)
+                    .like(StringUtils.isNotBlank(identifyCode), WxUserInfo::getIdentifyCode, identifyCode)
+                    .eq(constellation != null, WxUserInfo::getConstellation, constellation)
+                    .eq(gender != null, WxUserInfo::getGender, gender)
+                    .eq(birthDate != null, WxUserInfo::getBirthDate, birthDate);
+
+            List<WxUserInfo> userInfoList = wxUserInfoService.list(queryWrapper);
+
+            // 7. 转成 Map，方便查找（key: wxId, value: WxUserInfo）
+            userInfoMap = userInfoList.stream()
+                    .collect(Collectors.toMap(WxUserInfo::getWxId, Function.identity(), (v1, v2) -> v1));
+        } else {
+            userInfoMap = new HashMap<>();
+        }
 
         // 8. 提取所有 roleOrId 并批量查询组织架构角色信息
         List<Long> roleOrIds = memberResultPage.getRecords().stream()
@@ -553,38 +603,124 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                             (v1, v2) -> v1));
         }
 
-        // 10. 组装结果（过滤掉用户信息不匹配的记录）
+        // 10. 组装结果（包括预设成员）
         Map<Long, OrganizeArchiRoleVo> finalOrganizeArchiRoleMap = organizeArchiRoleMap;
         Map<Long, Boolean> finalFollowStatusMap = followStatusMap;
+        final String finalKeyword = keyword; // 用于 lambda 表达式中访问
         List<OrganizationMemberResponse> responses = memberResultPage.getRecords().stream()
                 .map(member -> {
-                    WxUserInfo userInfo = userInfoMap.get(member.getWxId());
-                    // 如果用户信息不存在或不符合过滤条件，返回 null
-                    if (userInfo == null) {
-                        return null;
-                    }
+                    OrganizationMemberResponse response = new OrganizationMemberResponse();
 
-                    // 构建响应对象
-                    OrganizationMemberResponse response = OrganizationMemberResponse
-                            .objToVo(userInfo);
-                    response.setWxId(String.valueOf(member.getWxId()));
+                    // 判断是否已加入平台（是否有 wxId）
+                    boolean isJoined = member.getWxId() != null && member.getWxId() != 0L;
+                    response.setJoined(isJoined);
 
-                    // 设置组织架构角色信息
-                    OrganizeArchiRoleVo organizeArchiRoleVo = finalOrganizeArchiRoleMap.get(member.getRoleOrId());
-                    if (organizeArchiRoleVo != null) {
-                        response.setOrganizeArchiRole(organizeArchiRoleVo);
-                    }
+                    if (isJoined) {
+                        // 已加入平台：从 wx_user_info 获取详细信息
+                        WxUserInfo userInfo = userInfoMap.get(member.getWxId());
+                        if (userInfo != null) {
+                            // 应用用户信息过滤条件
+                            // 注意：keyword、nickname、name 已经在数据库查询时过滤，这里不需要再次过滤
+                            boolean matchFilter = true;
+                            if (matchFilter && StringUtils.isNotBlank(phone) && (userInfo.getPhone() == null || !userInfo.getPhone().contains(phone))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(wxNum) && (userInfo.getWxNum() == null || !userInfo.getWxNum().contains(wxNum))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(qqNum) && (userInfo.getQqNum() == null || !userInfo.getQqNum().contains(qqNum))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(email) && (userInfo.getEmail() == null || !userInfo.getEmail().contains(email))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(curContinent) && (userInfo.getCurContinent() == null || !userInfo.getCurContinent().contains(curContinent))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(curCountry) && (userInfo.getCurCountry() == null || !userInfo.getCurCountry().contains(curCountry))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(curProvince) && (userInfo.getCurProvince() == null || !userInfo.getCurProvince().contains(curProvince))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(curCity) && (userInfo.getCurCity() == null || !userInfo.getCurCity().contains(curCity))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(signature) && (userInfo.getSignature() == null || !userInfo.getSignature().contains(signature))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && StringUtils.isNotBlank(identifyCode) && (userInfo.getIdentifyCode() == null || !userInfo.getIdentifyCode().contains(identifyCode))) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && constellation != null && !constellation.equals(userInfo.getConstellation())) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && gender != null && !gender.equals(userInfo.getGender())) {
+                                matchFilter = false;
+                            }
+                            if (matchFilter && birthDate != null && !birthDate.equals(userInfo.getBirthDate())) {
+                                matchFilter = false;
+                            }
 
-                    // 设置关注状态
-                    if (currentUserId != null) {
-                        response.setIsFollowed(finalFollowStatusMap.getOrDefault(member.getWxId(), false));
+                            if (!matchFilter) {
+                                return null; // 不符合过滤条件，跳过
+                            }
+
+                            // 填充用户详细信息
+                            response = OrganizationMemberResponse.objToVo(userInfo);
+                            response.setJoined(true);
+                            response.setWxId(String.valueOf(member.getWxId()));
+
+                            // 设置成员表的 ID（用于更新成员信息）
+                            response.setId(member.getId());
+
+                            // 设置关注状态
+                            if (currentUserId != null) {
+                                response.setIsFollowed(finalFollowStatusMap.getOrDefault(member.getWxId(), false));
+                            } else {
+                                response.setIsFollowed(null); // 未登录
+                            }
+
+                            // 设置是否展示在主页
+                            response.setIsShowOnHome(member.getIsShowOnHome());
+                        } else {
+                            // 有 wxId 但没有用户信息（异常情况），跳过
+                            return null;
+                        }
                     } else {
-                        response.setIsFollowed(null); // 未登录
+                        // 未加入平台的预设成员：从成员表获取基本信息
+
+                        // 应用 keyword 过滤：匹配 username
+                        if (StringUtils.isNotBlank(finalKeyword)) {
+                            String username = member.getUsername();
+                            if (username == null || !username.contains(finalKeyword)) {
+                                return null; // 不符合搜索条件，跳过
+                            }
+                        }
+
+                        response.setId(member.getId());
+                        response.setUsername(member.getUsername());
+                        response.setName(member.getUsername()); // 使用 username 作为姓名
+                        response.setNickname(member.getUsername()); // 使用 username 作为昵称
+                        response.setRoleName(member.getRoleName());
+                        response.setContactInformation(member.getUserPhone()); // 联系方式
+                        response.setSocialDuties(member.getUserAffiliation()); // 社会职务
+                        response.setIsShowOnHome(member.getIsShowOnHome()); // 是否展示在主页
+                        response.setWxId(null); // 预设成员没有 wxId
+                        response.setIsFollowed(null); // 预设成员不支持关注
+                    }
+
+                    // 设置组织架构角色信息（已加入和未加入的都设置）
+                    if (member.getRoleOrId() != null) {
+                        OrganizeArchiRoleVo organizeArchiRoleVo = finalOrganizeArchiRoleMap.get(member.getRoleOrId());
+                        if (organizeArchiRoleVo != null) {
+                            response.setOrganizeArchiRole(organizeArchiRoleVo);
+                        }
                     }
 
                     return response;
                 })
-                .filter(Objects::nonNull) // 过滤掉 null 值
+                .filter(Objects::nonNull) // 过滤掉不符合条件的记录
                 .collect(Collectors.toList());
 
         // 11. 构建分页结果
@@ -746,11 +882,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校友用户ID不能为空");
         }
-        if (roleOrId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
-        }
 
-        log.info("开始邀请校友加入校友会 - 校友会ID: {}, 校友用户ID: {}, 角色ID: {}",
+        log.info("开始发送校友会邀请通知 - 校友会ID: {}, 校友用户ID: {}, 角色ID: {}",
                 alumniAssociationId, wxId, roleOrId);
 
         // 2. 查询校友会是否存在
@@ -777,46 +910,70 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException(ErrorType.OPERATION_ERROR, "该用户已经是该校友会成员");
         }
 
-        // 5. 创建新成员记录
-        AlumniAssociationMember newMember = new AlumniAssociationMember();
-        newMember.setWxId(wxId);
-        newMember.setAlumniAssociationId(alumniAssociationId);
-        newMember.setRoleOrId(roleOrId);
-        newMember.setJoinTime(java.time.LocalDateTime.now());
-        newMember.setStatus(1); // 状态：1-正常
+        // 5. 检查是否已有待处理的邀请
+        AlumniAssociationInvitation existingInvitation = alumniAssociationInvitationMapper.selectOne(
+                new LambdaQueryWrapper<AlumniAssociationInvitation>()
+                        .eq(AlumniAssociationInvitation::getAlumniAssociationId, alumniAssociationId)
+                        .eq(AlumniAssociationInvitation::getInviteeId, wxId)
+                        .eq(AlumniAssociationInvitation::getStatus, 0) // 0-待处理
+        );
 
-        boolean saveResult = alumniAssociationMemberService.save(newMember);
-        if (!saveResult) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "邀请成员失败");
+        if (existingInvitation != null) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该用户已有待处理的邀请，请勿重复发送");
         }
 
-        // 6. 更新校友会成员数量（+1）
-        Integer currentMemberCount = alumniAssociation.getMemberCount();
-        if (currentMemberCount == null) {
-            currentMemberCount = 0;
-        }
-        alumniAssociation.setMemberCount(currentMemberCount + 1);
-        boolean updateResult = this.updateById(alumniAssociation);
-        if (!updateResult) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新校友会成员数量失败");
-        }
+        // 6. 构建邀请通知消息内容
+        String invitationContent = String.format("%s 邀请您加入", alumniAssociation.getAssociationName());
 
-        // 7. 更新用户的 isAlumni 字段为 1（成为校友）
-        if (wxUser.getIsAlumni() == null || wxUser.getIsAlumni() == 0) {
-            wxUser.setIsAlumni(1);
-            boolean updateAlumniStatus = userService.updateById(wxUser);
-            if (updateAlumniStatus) {
-                log.info("用户校友状态已更新 - 用户ID: {}, isAlumni: {} -> 1", wxId, wxUser.getIsAlumni());
-            } else {
-                log.warn("用户校友状态更新失败 - 用户ID: {}", wxId);
+        // 7. 创建邀请记录（先创建记录，用于在action_data中存储invitationId）
+        AlumniAssociationInvitation invitation = new AlumniAssociationInvitation();
+        invitation.setAlumniAssociationId(alumniAssociationId);
+        invitation.setInviterId(0L); // 暂时设为0，实际应该从SecurityContext获取
+        invitation.setInviteeId(wxId);
+        invitation.setRoleOrId(roleOrId);
+        invitation.setNotificationId(null); // 暂时为空，前端会传递通知ID
+        invitation.setStatus(0); // 0-待处理
+        alumniAssociationInvitationMapper.insert(invitation);
+        Long invitationId = invitation.getId();
+
+        log.info("已创建邀请记录 - 邀请ID: {}, 校友会ID: {}, 被邀请人ID: {}",
+                invitationId, alumniAssociationId, wxId);
+
+        log.info("校友会邀请记录创建成功 - 校友会ID: {}, 被邀请人ID: {}, 邀请ID: {}",
+                alumniAssociationId, wxId, invitationId);
+
+        // 8. 异步发送邀请通知（避免阻塞主线程）
+        // 使用 CompletableFuture 异步执行
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                // 发送邀请通知给被邀请人
+                unifiedMessageApiService.sendBusinessNotification(
+                        wxId,
+                        "ASSOCIATION_INVITATION",
+                        "校友会邀请",
+                        invitationContent,
+                        invitationId, // 使用 invitationId 作为 relatedId
+                        "INVITATION"
+                );
+
+                // 发送确认通知给管理员
+                unifiedMessageApiService.sendSystemNotification(
+                        0L, // 应该发给当前操作的管理员，暂时用0
+                        com.cmswe.alumni.common.enums.NotificationType.SYSTEM_ANNOUNCEMENT,
+                        "邀请通知已发送",
+                        "您的邀请通知已成功发送",
+                        alumniAssociationId,
+                        "ASSOCIATION"
+                );
+
+                log.info("校友会邀请通知异步发送成功 - 校友会ID: {}, 被邀请人ID: {}, 邀请ID: {}",
+                        alumniAssociationId, wxId, invitationId);
+            } catch (Exception e) {
+                log.error("校友会邀请通知异步发送失败 - 校友会ID: {}, 被邀请人ID: {}, 错误: {}",
+                        alumniAssociationId, wxId, e.getMessage(), e);
             }
-        }
+        });
 
-        log.info("邀请校友加入校友会成功 - 校友会ID: {}, 校友用户ID: {}, 角色ID: {}, 当前成员数: {}",
-                alumniAssociationId, wxId, roleOrId, alumniAssociation.getMemberCount());
-
-        // 8. 发送邀请成功通知
-        sendInvitationSuccessNotification(wxId, alumniAssociationId, alumniAssociation.getAssociationName());
         return true;
     }
 
@@ -864,8 +1021,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                     .collect(Collectors.toMap(WxUserInfo::getWxId, Function.identity(), (v1, v2) -> v1));
         }
 
-        // 5. 按角色ID分组成员
+        // 5. 按角色ID分组成员（过滤掉 roleOrId 为 null 的成员）
         Map<Long, List<AlumniAssociationMember>> membersByRole = allMembers.stream()
+                .filter(member -> member.getRoleOrId() != null) // 过滤掉没有分配角色的成员
                 .collect(Collectors.groupingBy(AlumniAssociationMember::getRoleOrId));
 
         // 6. 构建角色树节点的Map（key: roleOrId, value: OrganizationTreeVo）
@@ -955,11 +1113,10 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             return new ArrayList<>();
         }
 
-        // 3. 查询该校友会的所有成员（仅查询架构成员 is_nu = 1）
+        // 3. 查询该校友会的所有成员
         List<AlumniAssociationMember> allMembers = alumniAssociationMemberService.list(
                 new LambdaQueryWrapper<AlumniAssociationMember>()
                         .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId)
-                        .eq(AlumniAssociationMember::getIsNu, 1) // 仅架构成员
                         .eq(AlumniAssociationMember::getStatus, 1) // 1-正常
         );
 
@@ -981,8 +1138,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             }
         }
 
-        // 5. 按角色ID分组成员
+        // 5. 按角色ID分组成员（过滤掉 roleOrId 为 null 的成员）
         Map<Long, List<AlumniAssociationMember>> membersByRole = allMembers.stream()
+                .filter(member -> member.getRoleOrId() != null) // 过滤掉没有分配角色的成员
                 .collect(Collectors.groupingBy(AlumniAssociationMember::getRoleOrId));
 
         // 6. 构建角色树节点的Map（key: roleOrId, value: OrganizationTreeV2Vo）
@@ -1851,6 +2009,184 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         }
 
         return result;
+    }
+
+    @Override
+    public boolean updateMemberInfo(Long id, String username, String roleName, String userPhone,
+                                    String userAffiliation, Integer isShowOnHome) {
+        // 1. 参数校验
+        if (id == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
+        }
+
+        log.info("开始更新校友会成员信息 - 成员ID: {}, 用户名: {}, 角色名: {}, 电话: {}, 社会职务: {}, 是否展示在主页: {}",
+                id, username, roleName, userPhone, userAffiliation, isShowOnHome);
+
+        // 2. 查询成员记录是否存在
+        AlumniAssociationMember member = alumniAssociationMemberService.getById(id);
+        if (member == null) {
+            log.error("成员记录不存在 - 成员ID: {}", id);
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "成员记录不存在");
+        }
+
+        // 3. 更新成员信息（只更新非空字段）
+        boolean needUpdate = false;
+
+        if (username != null && !username.equals(member.getUsername())) {
+            member.setUsername(username);
+            needUpdate = true;
+        }
+
+        if (roleName != null && !roleName.equals(member.getRoleName())) {
+            member.setRoleName(roleName);
+            needUpdate = true;
+        }
+
+        if (userPhone != null && !userPhone.equals(member.getUserPhone())) {
+            member.setUserPhone(userPhone);
+            needUpdate = true;
+        }
+
+        if (userAffiliation != null && !userAffiliation.equals(member.getUserAffiliation())) {
+            member.setUserAffiliation(userAffiliation);
+            needUpdate = true;
+        }
+
+        if (isShowOnHome != null && !isShowOnHome.equals(member.getIsShowOnHome())) {
+            member.setIsShowOnHome(isShowOnHome);
+            needUpdate = true;
+        }
+
+        // 4. 如果没有需要更新的字段，直接返回成功
+        if (!needUpdate) {
+            log.info("成员信息无变化，无需更新 - 成员ID: {}", id);
+            return true;
+        }
+
+        // 5. 执行更新
+        boolean result = alumniAssociationMemberService.updateById(member);
+
+        if (result) {
+            log.info("更新校友会成员信息成功 - 成员ID: {}", id);
+        } else {
+            log.error("更新校友会成员信息失败 - 成员ID: {}", id);
+        }
+
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean addMemberToBranch(Long alumniAssociationId, Long wxId, Long roleOrId) {
+        // 1. 参数校验
+        if (alumniAssociationId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校友会ID不能为空");
+        }
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户ID不能为空");
+        }
+        if (roleOrId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "分支ID不能为空");
+        }
+
+        log.info("开始添加成员到分支 - 校友会ID: {}, 成员用户ID: {}, 分支ID: {}", alumniAssociationId, wxId, roleOrId);
+
+        // 2. 查询校友会是否存在
+        AlumniAssociation alumniAssociation = this.getById(alumniAssociationId);
+        if (alumniAssociation == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校友会不存在");
+        }
+
+        // 3. 查询分支（组织架构角色）是否存在且有效
+        OrganizeArchiRole organizeArchiRole = organizeArchiRoleService.getOne(
+                new LambdaQueryWrapper<OrganizeArchiRole>()
+                        .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
+                        .eq(OrganizeArchiRole::getOrganizeId, alumniAssociationId)
+                        .eq(OrganizeArchiRole::getOrganizeType, 0) // 0-校友会
+                        .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+        );
+
+        if (organizeArchiRole == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
+        }
+
+        // 4. 查询成员记录是否存在
+        AlumniAssociationMember member = alumniAssociationMemberService.getOne(
+                new LambdaQueryWrapper<AlumniAssociationMember>()
+                        .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId)
+                        .eq(AlumniAssociationMember::getWxId, wxId)
+                        .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
+        );
+
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该用户不是该校友会的成员");
+        }
+
+        // 5. 更新成员的分支（角色）
+        Long oldRoleOrId = member.getRoleOrId();
+        member.setRoleOrId(roleOrId);
+        boolean updateResult = alumniAssociationMemberService.updateById(member);
+
+        if (!updateResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "添加成员到分支失败");
+        }
+
+        log.info("添加成员到分支成功 - 校友会ID: {}, 成员用户ID: {}, 原分支ID: {}, 新分支ID: {}",
+                alumniAssociationId, wxId, oldRoleOrId, roleOrId);
+
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeMemberFromBranch(Long alumniAssociationId, Long wxId) {
+        // 1. 参数校验
+        if (alumniAssociationId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校友会ID不能为空");
+        }
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户ID不能为空");
+        }
+
+        log.info("开始从分支移除成员 - 校友会ID: {}, 成员用户ID: {}", alumniAssociationId, wxId);
+
+        // 2. 查询校友会是否存在
+        AlumniAssociation alumniAssociation = this.getById(alumniAssociationId);
+        if (alumniAssociation == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校友会不存在");
+        }
+
+        // 3. 查询成员记录是否存在
+        AlumniAssociationMember member = alumniAssociationMemberService.getOne(
+                new LambdaQueryWrapper<AlumniAssociationMember>()
+                        .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId)
+                        .eq(AlumniAssociationMember::getWxId, wxId)
+                        .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
+        );
+
+        if (member == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该用户不是该校友会的成员");
+        }
+
+        // 4. 记录原分支ID
+        Long oldRoleOrId = member.getRoleOrId();
+
+        // 5. 将成员的分支（角色）设置为 null
+        // 注意：使用 UpdateWrapper 显式设置为 null，因为 updateById 默认忽略 null 值
+        boolean updateResult = alumniAssociationMemberService.update(
+                new LambdaUpdateWrapper<AlumniAssociationMember>()
+                        .set(AlumniAssociationMember::getRoleOrId, null)
+                        .eq(AlumniAssociationMember::getId, member.getId())
+        );
+
+        if (!updateResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "从分支移除成员失败");
+        }
+
+        log.info("从分支移除成员成功 - 校友会ID: {}, 成员用户ID: {}, 原分支ID: {}",
+                alumniAssociationId, wxId, oldRoleOrId);
+
+        return true;
     }
 
 }
