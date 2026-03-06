@@ -49,6 +49,7 @@ import com.cmswe.alumni.common.vo.FilesVo;
 import com.cmswe.alumni.common.vo.HomePageArticleVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
 import com.cmswe.alumni.common.vo.LocalPlatformListVo;
+import com.cmswe.alumni.common.vo.LocalPlatformShowMemberVo;
 import com.cmswe.alumni.common.vo.ManagedOrganizationVo;
 import com.cmswe.alumni.common.vo.LocalPlatformMemberListVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberVo;
@@ -225,6 +226,35 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             }
         } else {
             localPlatformDetailVo.setMiniProgramLinks(new ArrayList<>());
+        }
+
+        // 4.5.6 查询主页展示成员（is_show=1，status=1）
+        List<LocalPlatformMember> showMembersList = localPlatformMemberService.list(
+                new LambdaQueryWrapper<LocalPlatformMember>()
+                        .eq(LocalPlatformMember::getLocalPlatformId, id)
+                        .eq(LocalPlatformMember::getIsShow, 1)
+                        .eq(LocalPlatformMember::getStatus, 1));
+        List<LocalPlatformShowMemberVo> showMemberVos = showMembersList.stream()
+                .map(m -> LocalPlatformShowMemberVo.builder()
+                        .id(m.getId())
+                        .wxId(m.getWxId() != null ? String.valueOf(m.getWxId()) : null)
+                        .username(m.getUsername())
+                        .roleName(m.getRoleName())
+                        .build())
+                .collect(Collectors.toList());
+        localPlatformDetailVo.setShowMembers(showMemberVos);
+
+        // 4.5.7 解析校促会重大事记（important_events JSON）
+        if (localPlatform.getImportantEvents() != null && !localPlatform.getImportantEvents().trim().isEmpty()) {
+            try {
+                Object parsed = objectMapper.readValue(localPlatform.getImportantEvents(), Object.class);
+                localPlatformDetailVo.setImportantEvents(parsed);
+            } catch (Exception e) {
+                log.warn("解析校促会重大事记JSON失败 - PlatformId: {}, Error: {}", id, e.getMessage());
+                localPlatformDetailVo.setImportantEvents(null);
+            }
+        } else {
+            localPlatformDetailVo.setImportantEvents(null);
         }
 
         // 4.6 应用隐私设置
@@ -670,6 +700,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         newMember.setSocialDuties(socialDuties);
         newMember.setJoinTime(java.time.LocalDateTime.now());
         newMember.setStatus(1); // 状态：1-正常
+        newMember.setIsNu(1); // 1-是组织架构成员
 
         boolean saveResult = localPlatformMemberService.save(newMember);
         if (!saveResult) {

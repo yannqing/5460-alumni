@@ -102,14 +102,15 @@
                                 <view class="text-bold">组织架构</view>
                                 <view class="section-subtitle">组织架构展示</view>
                             </view>
-                            <view wx:if="{{canEditOrg}}" class="section-edit-btn">
+                            <!-- 暂时注销编辑按钮 -->
+                            <!-- <view wx:if="{{canEditOrg}}" class="section-edit-btn">
                                 <view wx:if="{{!isEditOrgMode}}" class="edit-btn" bindtap="onEditOrgClick">
                                     <text class="edit-text">编辑</text>
                                 </view>
                                 <view wx:else class="edit-btn cancel-btn" bindtap="onCancelOrgEdit">
                                     <text class="edit-text">取消</text>
                                 </view>
-                            </view>
+                            </view> -->
                         </view>
                         <org-structure 
                             id="org-structure" 

@@ -667,14 +667,17 @@ Component({
       })
     },
 
-    // 点击成员跳转到个人详情页
-  onMemberClick(e) {
-    const { wxid, username } = e.currentTarget.dataset
-    const wxidValue = wxid === null || wxid === undefined || wxid === '' ? '' : String(wxid)
-    wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${wxidValue}&username=${encodeURIComponent(username || '匿名用户')}`
-    })
-  }
+    // 点击成员：有 wxId 时跳转个人主页，无 wxId 时保持原逻辑（跳转显示匿名信息）
+    onMemberClick(e) {
+      const ds = e.currentTarget.dataset
+      // 使用 data-id 传递 wxId，兼容后端返回 number 或 string
+      const id = (ds.id != null && ds.id !== '') ? String(ds.id) : ''
+      const username = ds.username || '匿名用户'
+      // 同时传 id 和 wxid，校友详情页优先用 wxid 判断
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${id}&wxid=${id}&username=${encodeURIComponent(username)}`
+      })
+    }
   }
 })
 
