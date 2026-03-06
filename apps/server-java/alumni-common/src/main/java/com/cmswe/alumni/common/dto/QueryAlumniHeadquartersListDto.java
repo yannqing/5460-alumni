@@ -64,6 +64,24 @@ public class QueryAlumniHeadquartersListDto extends PageRequest implements Seria
     @Schema(description = "审核状态：0-待审核 1-已通过 2-已驳回", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer approvalStatus;
 
+    /**
+     * 办学层次（匹配母校的办学层次）
+     */
+    @Schema(description = "办学层次（匹配母校的办学层次）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String schoolLevel;
+
+    /**
+     * 城市（匹配校友总会地址或母校地址）
+     */
+    @Schema(description = "城市（匹配校友总会地址或母校地址）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String city;
+
+    /**
+     * 我的关注：0-全部 1-仅我关注的
+     */
+    @Schema(description = "我的关注：0-全部 1-仅我关注的", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer myFollow;
+
     @Serial
     private static final long serialVersionUID = 1L;
 

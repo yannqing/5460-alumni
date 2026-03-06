@@ -1,6 +1,7 @@
 // pages/school/list/list.js
 const { unionApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
+const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
 
 const DEFAULT_AVATAR = config.defaultAvatar
 
@@ -32,10 +33,16 @@ Page({
 
     // 筛选器配置
     filters: [
-      { label: '城市', options: ['全部城市'], selected: 0 }
+      { label: '办学层次', options: ['全部', '本科', '专科', '中专', '高中', '初中', '小学'], selected: 0 }
     ],
     showFilterOptions: false,
     activeFilterIndex: -1,
+    schoolLevel: '', // 办学层次筛选值
+
+    // 关注筛选
+    followFilterOptions: ['全部', '我的关注'],
+    followFilterIndex: 0,
+    myFollow: 0, // 我的关注筛选（0-全部，1-仅我关注的）
 
     // 列表数据
     headquartersList: [],
@@ -342,12 +349,17 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const { keyword, region, current, pageSize } = this.data
+      const { keyword, region, current, pageSize, myFollow, schoolLevel } = this.data
 
-      // 从地区选择器中提取省份和城市
-      let address = undefined
+      // 从地区选择器中提取城市（只取城市部分）
+      let city = undefined
       if (region && region.length > 0) {
-        address = region.join(' ')
+        // 如果有城市，使用城市；否则使用省份
+        city = region.length > 1 && region[1] ? region[1] : region[0]
+        // 如果是"全部"则不传
+        if (city === '全部' || !city) {
+          city = undefined
+        }
       }
 
       // 构建请求参数
@@ -357,7 +369,9 @@ Page({
         sortField: "createTime",
         sortOrder: "ascend",
         headquartersName: keyword ? keyword.trim() : undefined,
-        address: address || undefined
+        city: city || undefined, // 城市筛选
+        schoolLevel: schoolLevel || undefined, // 办学层次筛选
+        myFollow: myFollow // 我的关注筛选（0-全部，1-仅我关注的）
       }
 
       // 移除 undefined 参数
@@ -380,7 +394,8 @@ Page({
           logo: item.logo || DEFAULT_AVATAR,
           memberCount: item.memberCount || 0,
           address: item.address || '暂无位置信息',
-          phone: item.phone || '暂无联系电话'
+          phone: item.phone || '暂无联系电话',
+          isFollowed: item.isFollowed || false // 是否已关注
         }))
 
         // 更新列表数据
@@ -403,6 +418,9 @@ Page({
             loading: false
           })
         }
+
+        // 加载完列表后，获取关注状态
+        loadAndUpdateFollowStatus(this, 'headquartersList', FollowTargetType.HEADQUARTERS)
       } else {
         // API 返回错误
         this.setData({
@@ -592,11 +610,46 @@ Page({
     })
   },
 
-  // 关注筛选变更
-  onFollowChange(e) {
-    wx.navigateTo({
-      url: '/pages/my-follow/my-follow'
+  // 关注筛选变更（下拉选择器）
+  onFollowFilterChange(e) {
+    const index = parseInt(e.detail.value)
+    const myFollow = index === 1 ? 1 : 0 // 0-全部，1-仅我关注的
+
+    this.setData({
+      followFilterIndex: index,
+      myFollow: myFollow,
+      current: 1
     })
+
+    // 重新加载数据
+    this.loadSchoolList(true)
+  },
+
+  // 办学层次筛选变更
+  onTypeChange(e) {
+    const index = parseInt(e.detail.value)
+    const options = this.data.filters[0].options
+    const schoolLevel = index === 0 ? '' : options[index] // 索引0表示"全部"，不传值
+
+    // 更新 filters 中的 selected
+    const filters = this.data.filters
+    filters[0].selected = index
+
+    this.setData({
+      filters: filters,
+      schoolLevel: schoolLevel,
+      current: 1
+    })
+
+    // 重新加载数据
+    this.loadSchoolList(true)
+  },
+
+  // 关注/取消关注校友总会
+  async toggleFollow(e) {
+    const { id, followed } = e.currentTarget.dataset
+    const isFollowed = followed === true || followed === 'true'
+    await handleListItemFollow(this, 'headquartersList', id, isFollowed, FollowTargetType.HEADQUARTERS)
   },
 
   // 跳转到创建校友总会页面

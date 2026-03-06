@@ -1,8 +1,10 @@
 package com.cmswe.alumni.web.system;
 
 import com.cmswe.alumni.api.user.AuthService;
+import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.GetPhoneNumberRequest;
+import com.cmswe.alumni.common.dto.RegisterUserDto;
 import com.cmswe.alumni.common.dto.WxInitRequest;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +57,25 @@ public class AuthController {
         WxInitResponse wxInitResponse = authService.testLogin(wxId);
 
         return ResultUtils.success(Code.SUCCESS, wxInitResponse, "测试登录成功");
+    }
+
+    @Operation(summary = "用户注册（完善基本信息）")
+    @PostMapping("/register")
+    public BaseResponse<Boolean> register(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody RegisterUserDto registerDto) {
+
+        Long wxId = securityUser.getWxUser().getWxId();
+
+        boolean result = authService.registerUser(
+                wxId,
+                registerDto.getName(),
+                registerDto.getSchoolId(),
+                registerDto.getGender(),
+                registerDto.getPhone()
+        );
+
+        return ResultUtils.success(Code.SUCCESS, result, "注册成功");
     }
 
     /**

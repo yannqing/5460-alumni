@@ -378,6 +378,10 @@ const authApi = {
   // 认证登录（静默登录）
   // 用 wx.login 的 code 换取 token 和用户信息
   auth: (data) => post('/auth/login', data),
+
+  // 用户注册（更新用户信息并添加教育经历）
+  // data: { name, schoolId, gender, phone }
+  register: (data) => post('/auth/register', data),
   // auth: (data) => {
   //   // 将参数拼接到 URL 上（查询参数）
   //   let url = '/auth/login'

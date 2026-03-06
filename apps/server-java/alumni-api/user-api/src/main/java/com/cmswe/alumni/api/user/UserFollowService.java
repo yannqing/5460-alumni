@@ -69,4 +69,12 @@ public interface UserFollowService extends IService<UserFollow> {
      * @return 分页结果
      */
     PageVo<FriendItemVo> getFriendList(Long wxId, QueryFriendListDto queryDto);
+
+    /**
+     * 获取用户关注的指定类型的目标 ID 列表
+     * @param wxId 用户 id
+     * @param targetType 目标类型（1-用户，2-校友会，3-母校，4-商户，5-校友总会）
+     * @return 目标 ID 列表
+     */
+    java.util.List<Long> getFollowedTargetIds(Long wxId, Integer targetType);
 }

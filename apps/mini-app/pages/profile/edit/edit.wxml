@@ -5,26 +5,27 @@
 
   <view class="edit-container">
     <scroll-view scroll-y class="form-scroll">
-      <view class="avatar-card card">
-        <view class="avatar-wrap" bindtap="chooseAvatar">
-          <image class="avatar" src="{{form.avatarUrl || defaultAvatar}}" mode="aspectFill" />
-          <view class="avatar-mask">
-            <text>更换头像</text>
-          </view>
-        </view>
-        <view class="avatar-tip">建议使用清晰的本人照片，大小不超过10MB</view>
-      </view>
-
-      <view class="background-card card">
-        <view class="section-title">个人背景</view>
-        <view class="background-wrap" bindtap="chooseBackground">
-          <image wx:if="{{form.bgImg}}" class="background-img" src="{{form.bgImg}}" mode="aspectFill" />
+      <!-- 背景和头像区域（参考校友详情页样式） -->
+      <view class="profile-header">
+        <view class="background-area" bindtap="chooseBackground">
+          <image wx:if="{{form.bgImg}}" class="background-image" src="{{form.bgImg}}" mode="aspectFill"></image>
           <view wx:else class="default-bg-gradient"></view>
-          <view class="background-mask">
-            <text>{{form.bgImg ? '更换背景图' : '设置背景图'}}</text>
+          <view class="header-overlay"></view>
+          <view class="background-edit-hint">
+            <text class="edit-icon">📷</text>
+            <text class="edit-text">{{form.bgImg ? '更换背景' : '设置背景'}}</text>
           </view>
         </view>
-        <view class="avatar-tip">将展示在您的名片详情页顶部</view>
+
+        <view class="profile-avatar-section">
+          <view class="avatar-wrap" bindtap="chooseAvatar">
+            <image class="avatar-circle" src="{{form.avatarUrl || defaultAvatar}}" mode="aspectFill"></image>
+            <view class="avatar-edit-mask">
+              <text class="avatar-edit-icon">📷</text>
+            </view>
+          </view>
+          <view class="avatar-tip">点击更换头像</view>
+        </view>
       </view>
 
       <view class="section-card card">
@@ -62,10 +63,7 @@
         <view class="form-item">
           <view class="label label-required">手机号</view>
           <view class="input-wrapper">
-            <input class="input" type="number" maxlength="11" placeholder="手机号码" value="{{form.phone}}" data-field="phone" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'phone'}}" data-field="phone" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
+            <input class="input input-disabled" type="number" maxlength="11" placeholder="手机号码" value="{{form.phone}}" disabled="{{true}}" />
           </view>
         </view>
         <view class="form-item">

@@ -407,4 +407,84 @@ public class AuthServiceImpl implements AuthService {
 
         return response;
     }
+
+    /**
+     * 用户注册接口（完善用户基本信息和教育经历）
+     *
+     * @param wxId 微信用户ID（从token解析）
+     * @param name 真实姓名
+     * @param schoolId 学校ID
+     * @param gender 性别
+     * @param phone 手机号
+     * @return 是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean registerUser(Long wxId, String name, Long schoolId, Integer gender, String phone) {
+        log.info("开始注册用户 - wxId: {}, name: {}, schoolId: {}, gender: {}, phone: {}",
+                wxId, name, schoolId, gender, maskPhone(phone));
+
+        try {
+            // 1. 更新 wx_user_info 表
+            WxUserInfo userInfo = wxUserInfoMapper.selectOne(
+                    new LambdaQueryWrapper<WxUserInfo>()
+                            .eq(WxUserInfo::getWxId, wxId)
+            );
+
+            if (userInfo == null) {
+                log.error("用户信息不存在，无法注册 - wxId: {}", wxId);
+                throw new BusinessException(404, "用户信息不存在");
+            }
+
+            // 更新用户基本信息
+            userInfo.setName(name);
+            userInfo.setGender(gender);
+            userInfo.setPhone(phone);
+            int updateCount = wxUserInfoMapper.updateById(userInfo);
+
+            if (updateCount == 0) {
+                log.error("更新用户信息失败 - wxId: {}", wxId);
+                throw new BusinessException(500, "更新用户信息失败");
+            }
+
+            log.info("用户信息更新成功 - wxId: {}", wxId);
+
+            // 2. 检查教育经历表中是否已有该学校的记录
+            com.cmswe.alumni.common.entity.AlumniEducation existingEducation = alumniEducationMapper.selectOne(
+                    new LambdaQueryWrapper<com.cmswe.alumni.common.entity.AlumniEducation>()
+                            .eq(com.cmswe.alumni.common.entity.AlumniEducation::getWxId, wxId)
+                            .eq(com.cmswe.alumni.common.entity.AlumniEducation::getSchoolId, schoolId)
+            );
+
+            // 3. 如果不存在该学校的教育经历，则新增
+            if (existingEducation == null) {
+                com.cmswe.alumni.common.entity.AlumniEducation newEducation = new com.cmswe.alumni.common.entity.AlumniEducation();
+                newEducation.setWxId(wxId);
+                newEducation.setSchoolId(schoolId);
+                newEducation.setType(1); // 1-主要经历
+                newEducation.setCertificationStatus(0); // 0-未认证
+
+                int insertCount = alumniEducationMapper.insert(newEducation);
+
+                if (insertCount == 0) {
+                    log.error("新增教育经历失败 - wxId: {}, schoolId: {}", wxId, schoolId);
+                    throw new BusinessException(500, "新增教育经历失败");
+                }
+
+                log.info("新增教育经历成功 - wxId: {}, schoolId: {}", wxId, schoolId);
+            } else {
+                log.info("该学校的教育经历已存在，无需新增 - wxId: {}, schoolId: {}", wxId, schoolId);
+            }
+
+            log.info("用户注册完成 - wxId: {}", wxId);
+            return true;
+
+        } catch (BusinessException e) {
+            log.error("用户注册失败 - wxId: {}, error: {}", wxId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("用户注册异常 - wxId: {}, error: {}", wxId, e.getMessage(), e);
+            throw new BusinessException(500, "用户注册失败: " + e.getMessage());
+        }
+    }
 }

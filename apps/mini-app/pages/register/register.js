@@ -1,8 +1,21 @@
 // pages/register/register.js
 const app = getApp()
 const config = require('../../utils/config.js')
-const { userApi } = require('../../api/api.js')
+const { userApi, schoolApi, authApi } = require('../../api/api.js')
 const auth = require('../../utils/auth.js')
+
+// 防抖函数
+function debounce(fn, delay) {
+  let timer = null
+  return function () {
+    const context = this
+    const args = arguments
+    clearTimeout(timer)
+    timer = setTimeout(function () {
+      fn.apply(context, args)
+    }, delay)
+  }
+}
 
 Page({
   data: {
@@ -12,11 +25,13 @@ Page({
       realName: '',
       gender: '', // male 或 female
       school: '',
+      schoolId: '',
+      previousName: '', // 学校曾用名
       phone: ''
     },
-    // 学校选择器
-    schoolList: ['清华大学', '北京大学', '复旦大学', '上海交通大学', '浙江大学', '中国人民大学', '南京大学', '武汉大学', '中山大学', '华中科技大学'],
-    schoolIndex: -1,
+    // 学校搜索
+    schoolSearchList: [],
+    showSchoolResults: false,
     // 用户协议
     isAgreed: false,
     // 表单验证状态
@@ -26,6 +41,9 @@ Page({
   },
 
   onLoad(options) {
+    // 创建搜索防抖函数
+    this.searchSchoolDebounced = debounce(this.searchSchool, 500)
+
     const systemInfo = wx.getSystemInfoSync()
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight || 20
@@ -60,14 +78,80 @@ Page({
     this.validateForm()
   },
 
-  // 选择学校
-  onSchoolChange(e) {
-    const index = e.detail.value
+  // --- 学校搜索处理 ---
+
+  // 学校输入处理
+  handleSchoolInput(e) {
+    const value = e.detail.value
     this.setData({
-      schoolIndex: index,
-      'formData.school': this.data.schoolList[index]
+      'formData.school': value,
+      'formData.schoolId': '', // 清空ID，因为修改了名称
+      'formData.previousName': '', // 清空曾用名
+      showSchoolResults: true
+    })
+
+    if (value.trim()) {
+      this.searchSchoolDebounced(value)
+    } else {
+      this.setData({ schoolSearchList: [] })
+    }
+    this.validateForm()
+  },
+
+  // 学校输入聚焦
+  handleSchoolFocus() {
+    if (this.data.formData.school) {
+      this.setData({ showSchoolResults: true })
+      if (this.data.schoolSearchList.length === 0) {
+        this.searchSchool(this.data.formData.school)
+      }
+    }
+  },
+
+  // 搜索学校
+  async searchSchool(keyword) {
+    if (!keyword) { return }
+    try {
+      const res = await schoolApi.getSchoolPage({
+        current: 1,
+        pageSize: 20,
+        schoolName: keyword.trim(),
+        previousName: keyword.trim()
+      })
+      if (res.data && res.data.code === 200) {
+        this.setData({
+          schoolSearchList: res.data.data.records || []
+        })
+      }
+    } catch (e) {
+      console.error('搜索学校失败', e)
+    }
+  },
+
+  // 选择学校
+  selectSchool(e) {
+    const index = e.currentTarget.dataset.index
+    const school = this.data.schoolSearchList[index]
+
+    this.setData({
+      'formData.schoolId': school.schoolId,
+      'formData.school': school.schoolName,
+      'formData.previousName': school.previousName || '', // 保存曾用名
+      showSchoolResults: false
     })
     this.validateForm()
+  },
+
+  // 关闭学校搜索结果
+  closeSchoolResults() {
+    this.setData({
+      showSchoolResults: false
+    })
+  },
+
+  // 阻止冒泡
+  preventBubble() {
+    // 阻止冒泡
   },
 
   // 获取微信手机号（新方式：基础库 2.21.2+）
@@ -154,6 +238,7 @@ Page({
       formData.realName.trim() !== '' &&
       formData.gender !== '' &&
       formData.school !== '' &&
+      formData.schoolId !== '' && // 确保从搜索结果中选择了学校
       formData.phone.trim() !== '' &&
       /^1[3-9]\d{9}$/.test(formData.phone) &&
       isAgreed
@@ -176,8 +261,8 @@ Page({
         wx.showToast({ title: '请选择性别', icon: 'none' })
         return
       }
-      if (!formData.school) {
-        wx.showToast({ title: '请选择学校', icon: 'none' })
+      if (!formData.school || !formData.schoolId) {
+        wx.showToast({ title: '请从搜索结果中选择学校', icon: 'none' })
         return
       }
       if (!formData.phone.trim()) {
@@ -200,22 +285,22 @@ Page({
 
       const { formData } = this.data
 
-      // 构建用户信息更新数据
-      // 性别映射：male -> 1, female -> 2
+      // 构建注册数据
+      // 性别映射：male -> 1, female -> 2, 0-未知
       const genderMap = {
         'male': 1,
         'female': 2
       }
 
-      const updateData = {
+      const registerData = {
         name: formData.realName.trim(),
+        schoolId: formData.schoolId,
         gender: genderMap[formData.gender] || 0,
         phone: formData.phone.trim()
-        // 学校信息暂时不保存，后续可以扩展教育经历
       }
 
-      // 调用用户信息更新接口
-      const res = await userApi.updateUserInfo(updateData)
+      // 调用注册接口（会同时更新用户信息和添加教育经历）
+      const res = await authApi.register(registerData)
 
       wx.hideLoading()
 
@@ -223,11 +308,11 @@ Page({
         // 更新全局用户数据
         app.globalData.userData = {
           ...(app.globalData.userData || {}),
-          ...updateData
+          ...registerData
         }
         app.globalData.userInfo = {
           ...(app.globalData.userInfo || {}),
-          ...updateData
+          ...registerData
         }
 
         // 更新用户基本信息完善状态

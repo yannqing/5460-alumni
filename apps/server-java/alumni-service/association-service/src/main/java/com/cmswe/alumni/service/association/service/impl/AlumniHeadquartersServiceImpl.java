@@ -16,6 +16,7 @@ import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.AlumniHeadquartersDetailVo;
 import com.cmswe.alumni.common.vo.AlumniHeadquartersListVo;
 import com.cmswe.alumni.common.vo.InactiveAlumniHeadquartersVo;
+import com.cmswe.alumni.api.user.UserFollowService;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.SchoolListVo;
 import com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper;
@@ -24,7 +25,9 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 校友总会服务实现类
@@ -37,8 +40,11 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
     @Resource
     private SchoolMapper schoolMapper;
 
+    @Resource
+    private UserFollowService userFollowService;
+
     @Override
-    public PageVo<AlumniHeadquartersListVo> selectByPage(QueryAlumniHeadquartersListDto infoDTO) {
+    public PageVo<AlumniHeadquartersListVo> selectByPage(QueryAlumniHeadquartersListDto infoDTO, Long wxId) {
         if (infoDTO == null) {
             throw new BusinessException("参数为空");
         }
@@ -49,11 +55,61 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
         Integer activeStatus = infoDTO.getActiveStatus();
         Integer level = infoDTO.getLevel();
         Integer createCode = infoDTO.getCreateCode();
+        String schoolLevel = infoDTO.getSchoolLevel();
+        String city = infoDTO.getCity();
+        Integer myFollow = infoDTO.getMyFollow();
         int current = infoDTO.getCurrent();
         int pageSize = infoDTO.getPageSize();
         String sortField = infoDTO.getSortField();
         String sortOrder = infoDTO.getSortOrder();
 
+        // 1. 处理办学层次筛选：查询符合办学层次的所有 schoolId
+        List<Long> schoolIdsByLevel = null;
+        if (StringUtils.isNotBlank(schoolLevel)) {
+            LambdaQueryWrapper<School> schoolQueryWrapper = new LambdaQueryWrapper<>();
+            schoolQueryWrapper.eq(School::getLevel, schoolLevel);
+            List<School> schools = schoolMapper.selectList(schoolQueryWrapper);
+            schoolIdsByLevel = schools.stream()
+                    .map(School::getSchoolId)
+                    .collect(Collectors.toList());
+
+            // 如果没有符合条件的学校，直接返回空结果
+            if (schoolIdsByLevel.isEmpty()) {
+                Page<AlumniHeadquartersListVo> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return PageVo.of(emptyPage);
+            }
+        }
+
+        // 1.5 处理城市筛选：查询符合城市条件的 schoolId
+        List<Long> schoolIdsByCity = null;
+        if (StringUtils.isNotBlank(city)) {
+            LambdaQueryWrapper<School> schoolCityQueryWrapper = new LambdaQueryWrapper<>();
+            schoolCityQueryWrapper.and(wrapper -> wrapper
+                    .like(School::getLocation, city)
+                    .or()
+                    .like(School::getCity, city)
+            );
+            List<School> schoolsByCity = schoolMapper.selectList(schoolCityQueryWrapper);
+            schoolIdsByCity = schoolsByCity.stream()
+                    .map(School::getSchoolId)
+                    .collect(Collectors.toList());
+        }
+
+        // 2. 处理我的关注筛选：查询用户关注的校友总会 ID 列表
+        List<Long> followedHeadquartersIds = null;
+        if (myFollow != null && myFollow == 1 && wxId != null) {
+            followedHeadquartersIds = userFollowService.getFollowedTargetIds(wxId, 5); // 5-校友总会
+
+            // 如果用户没有关注任何校友总会，直接返回空结果
+            if (followedHeadquartersIds.isEmpty()) {
+                Page<AlumniHeadquartersListVo> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return PageVo.of(emptyPage);
+            }
+        }
+
+        // 3. 构建主查询条件
         LambdaQueryWrapper<AlumniHeadquarters> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .like(StringUtils.isNotBlank(headquartersName), AlumniHeadquarters::getHeadquartersName,
@@ -66,6 +122,31 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                 .eq(AlumniHeadquarters::getActiveStatus, 1) // 仅查询活跃状态
                 .eq(AlumniHeadquarters::getApprovalStatus, 1); // 仅查询审核通过状态
 
+        // 4. 应用办学层次筛选
+        if (schoolIdsByLevel != null) {
+            queryWrapper.in(AlumniHeadquarters::getSchoolId, schoolIdsByLevel);
+        }
+
+        // 4.5 应用城市筛选：headquarters.address LIKE '%city%' OR schoolId IN (schoolIdsByCity)
+        if (StringUtils.isNotBlank(city)) {
+            final List<Long> finalSchoolIdsByCity = schoolIdsByCity;
+            final String finalCity = city;
+            queryWrapper.and(wrapper -> {
+                // 匹配校友总会地址
+                wrapper.like(AlumniHeadquarters::getAddress, finalCity);
+
+                // 或者匹配母校地址/城市
+                if (finalSchoolIdsByCity != null && !finalSchoolIdsByCity.isEmpty()) {
+                    wrapper.or().in(AlumniHeadquarters::getSchoolId, finalSchoolIdsByCity);
+                }
+            });
+        }
+
+        // 5. 应用我的关注筛选
+        if (followedHeadquartersIds != null) {
+            queryWrapper.in(AlumniHeadquarters::getHeadquartersId, followedHeadquartersIds);
+        }
+
         // 排序
         queryWrapper
                 .orderBy(StringUtils.isNotBlank(sortField), CommonConstant.SORT_ORDER_ASC.equals(sortOrder),
@@ -73,6 +154,8 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                 .orderByDesc(AlumniHeadquarters::getHeadquartersId);
 
         Page<AlumniHeadquarters> page = this.page(new Page<>(current, pageSize), queryWrapper);
+
+        // 6. 转换为 VO
         List<AlumniHeadquartersListVo> list = page.getRecords().stream().map(alumniHeadquarters -> {
             AlumniHeadquartersListVo vo = AlumniHeadquartersListVo.objToVo(alumniHeadquarters);
             vo.setHeadquartersId(String.valueOf(alumniHeadquarters.getHeadquartersId()));
@@ -81,6 +164,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
 
         log.info("分页查询校友总会列表");
 
+        // 7. 构建分页结果
         Page<AlumniHeadquartersListVo> resultPage = new Page<>(current, pageSize, page.getTotal());
         resultPage.setRecords(list);
         return PageVo.of(resultPage);

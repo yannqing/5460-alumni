@@ -26,11 +26,12 @@ public interface AlumniHeadquartersService extends IService<AlumniHeadquarters> 
 
     /**
      * 分页查询校友总会列表
-     * 
+     *
      * @param infoDTO 分页查询DTO
+     * @param wxId 当前用户ID（用于筛选我的关注，可为null）
      * @return 分页结果
      */
-    PageVo<AlumniHeadquartersListVo> selectByPage(QueryAlumniHeadquartersListDto infoDTO);
+    PageVo<AlumniHeadquartersListVo> selectByPage(QueryAlumniHeadquartersListDto infoDTO, Long wxId);
 
     /**
      * 申请激活校友总会
