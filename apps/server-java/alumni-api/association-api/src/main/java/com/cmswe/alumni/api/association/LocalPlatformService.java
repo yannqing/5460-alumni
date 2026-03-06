@@ -75,9 +75,10 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @param roleName           角色名称
          * @param contactInformation 联系方式
          * @param socialDuties       社会职务
+         * @param isShow             是否在主页展示(0否,1是)
          * @return 邀请结果
          */
-        boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId, String username, String roleName, String contactInformation, String socialDuties);
+        boolean inviteMember(Long localPlatformId, Long wxId, Long roleOrId, String username, String roleName, String contactInformation, String socialDuties, Integer isShow);
 
         /**
          * 根据校处会ID分页查询校友会列表
@@ -107,9 +108,10 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @param roleName        角色名称
          * @param contactInformation 联系方式
          * @param socialDuties    社会职务
+         * @param isShow          是否在主页展示(0否,1是)
          * @return 更新是否成功
          */
-        boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId, String roleName, String contactInformation, String socialDuties);
+        boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId, String roleName, String contactInformation, String socialDuties, Integer isShow);
 
         /**
          * 更新校处会成员的组织架构角色 V2版本（基于username，支持wxId为空的情况）
@@ -120,10 +122,11 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @param username        成员用户名
          * @param roleOrId        新的组织架构角色ID
          * @param roleName        角色名称
+         * @param isShow          是否在主页展示(0否,1是)
          * @return 更新是否成功
          */
         boolean updateMemberRoleV2(Long operatorWxId, Long localPlatformId, Long id, String username, Long roleOrId,
-                        String roleName);
+                        String roleName, Integer isShow);
 
         /**
          * 根据校处会ID查询校处会管理员列表
@@ -211,9 +214,10 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @param roleOrId           组织架构角色ID
          * @param contactInformation 联系方式
          * @param socialDuties       社会职务
+         * @param isShow             是否在主页展示(0否,1是)
          * @return 添加是否成功
          */
-        boolean addPresetMember(Long localPlatformId, String username, String roleName, Long roleOrId, String contactInformation, String socialDuties);
+        boolean addPresetMember(Long localPlatformId, String username, String roleName, Long roleOrId, String contactInformation, String socialDuties, Integer isShow);
 
         /**
          * 更新校促会预设成员（关联用户ID）
@@ -232,9 +236,10 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @param roleName           角色名称
          * @param contactInformation 联系方式
          * @param socialDuties       社会职务
+         * @param isShow             是否在主页展示(0否,1是)
          * @return 更新是否成功
          */
-        boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties);
+        boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties, Integer isShow);
 
         /**
          * 删除校促会预设成员
@@ -259,9 +264,10 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * @param memberId        成员ID（local_platform_member 表主键）
          * @param roleOrId        组织架构角色ID
          * @param roleName        职位名称
+         * @param isShow          是否在主页展示(0否,1是)
          * @return 是否成功
          */
-        boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId, String roleName);
+        boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId, String roleName, Integer isShow);
 
         /**
          * 将成员从校促会架构移除（清空 role_or_id，非逻辑删除）

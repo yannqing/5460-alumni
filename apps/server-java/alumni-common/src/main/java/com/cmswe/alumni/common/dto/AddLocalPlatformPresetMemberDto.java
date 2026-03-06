@@ -55,6 +55,12 @@ public class AddLocalPlatformPresetMemberDto implements Serializable {
     @Schema(description = "社会职务", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String socialDuties;
 
+    /**
+     * 是否在主页展示
+     */
+    @Schema(description = "是否在主页展示(0否,1是)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer isShow;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

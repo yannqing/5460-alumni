@@ -47,6 +47,9 @@ public class LocalPlatformMemberListVo implements Serializable {
     @Schema(description = "社会职务")
     private String socialDuties;
 
+    @Schema(description = "是否在主页展示(0否,1是)")
+    private Integer isShow;
+
     @Schema(description = "头像URL")
     private String avatarUrl;
 

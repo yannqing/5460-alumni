@@ -35,7 +35,7 @@
                         <view wx:if="{{platformInfo.showMembers && platformInfo.showMembers.length > 0}}" class="show-members-section">
                             <view class="show-members-title">核心成员</view>
                             <view class="show-members-list">
-                                <view class="show-member-item" wx:for="{{platformInfo.showMembers}}" wx:key="id">
+                                <view class="show-member-item" wx:for="{{platformInfo.showMembers}}" wx:key="id" bindtap="viewMemberDetail" data-member="{{item}}">
                                     <text class="show-member-name">{{item.username || '-'}}</text>
                                     <text class="show-member-role">{{item.roleName || '-'}}</text>
                                 </view>
