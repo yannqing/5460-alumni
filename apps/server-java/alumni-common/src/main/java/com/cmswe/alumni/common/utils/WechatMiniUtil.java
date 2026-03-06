@@ -6,7 +6,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
@@ -212,6 +211,14 @@ public class WechatMiniUtil {
             return cachedToken.token;
         }
 
+        // 配置缺失时直接报错（避免吞错导致上层只看到“null”）
+        if (appId == null || appId.trim().isEmpty()) {
+            throw new BusinessException(500, "获取微信Access Token失败：未配置 wechat.mini.app-id");
+        }
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new BusinessException(500, "获取微信Access Token失败：未配置 wechat.mini.secret");
+        }
+
         String url = String.format(
                 "%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
                 wechatApiBaseUrl, appId, secret);
@@ -221,18 +228,30 @@ public class WechatMiniUtil {
             String response = httpClientUtil.get(url, String.class);
             Map<String, Object> result = objectMapper.readValue(response, Map.class);
 
+            // 微信错误响应通常包含 errcode/errmsg
+            if (result.containsKey("errcode")) {
+                Integer errcode = (Integer) result.get("errcode");
+                if (errcode != null && errcode != 0) {
+                    String errmsg = (String) result.get("errmsg");
+                    log.error("获取Access Token失败, appId={}, errcode={}, errmsg={}", appId, errcode, errmsg);
+                    throw new BusinessException(500, "获取微信Access Token失败: " + errmsg + " (errcode=" + errcode + ")");
+                }
+            }
+
             if (result.containsKey("access_token")) {
                 String token = (String) result.get("access_token");
                 Integer expiresIn = (Integer) result.get("expires_in");
                 cachedToken = new AccessToken(token, expiresIn);
                 return token;
             } else {
-                log.error("获取Access Token失败: {}", response);
-                return null;
+                log.error("获取Access Token失败, appId={}, response={}", appId, response);
+                throw new BusinessException(500, "获取微信Access Token失败");
             }
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("获取Access Token异常", e);
-            return null;
+            log.error("获取Access Token异常, appId={}", appId, e);
+            throw new BusinessException(500, "获取微信Access Token失败: " + e.getMessage());
         }
     }
 }

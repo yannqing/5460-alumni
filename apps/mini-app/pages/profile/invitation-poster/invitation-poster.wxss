@@ -56,3 +56,23 @@
   font-size: 28rpx;
   color: #999;
 }
+
+/* 邀请二维码 - 展示海报左下角 */
+.qrcode-wrap {
+  position: absolute;
+  left: 38rpx;
+  bottom: 38rpx;
+  width: 160rpx;
+  height: 160rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 8rpx;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  z-index: 2;
+}
+.qrcode-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

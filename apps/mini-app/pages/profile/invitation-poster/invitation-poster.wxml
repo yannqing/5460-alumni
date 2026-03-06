@@ -17,6 +17,9 @@
         <text class="empty-text">暂无海报模板</text>
       </view>
     </block>
+    <view class="qrcode-wrap" wx:if="{{qrCodeSrc}}">
+      <image class="qrcode-image" src="{{qrCodeSrc}}" mode="aspectFit" />
+    </view>
   </view>
 </view>
 </custom-nav-bar>

@@ -5,11 +5,13 @@ const config = require('../../../utils/config.js')
 Page({
   data: {
     list: [],
-    loading: false
+    loading: false,
+    qrCodeSrc: ''
   },
 
   onLoad() {
     this.loadPosterTemplates()
+    this.loadQrcode()
   },
 
   loadPosterTemplates() {
@@ -39,5 +41,20 @@ Page({
       .finally(() => {
         this.setData({ loading: false })
       })
+  },
+
+  loadQrcode() {
+    get('/invitation/qrcode')
+      .then((res) => {
+        const resData = res && res.data ? res.data : {}
+        if (resData.code === 200 && resData.data && resData.data.qrCodeBase64) {
+          const base64 = resData.data.qrCodeBase64
+          const qrCodeSrc = base64.startsWith('data:')
+            ? base64
+            : 'data:image/png;base64,' + base64
+          this.setData({ qrCodeSrc })
+        }
+      })
+      .catch(() => {})
   }
 })
