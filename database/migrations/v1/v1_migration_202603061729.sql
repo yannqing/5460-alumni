@@ -2,7 +2,7 @@
     `feedback_id` BIGINT NOT NULL COMMENT '反馈ID',
     `wx_id` BIGINT NOT NULL COMMENT '用户ID',
     `feedback_type` TINYINT NOT NULL DEFAULT 1 COMMENT
-  '反馈类型：1-缺少学校，2-功能建议，3-Bug反馈，4-其他',
+  '反馈类型：1-数据问题，2-功能建议，3-Bug反馈，4-使用问题，5-其他',
     `feedback_title` VARCHAR(200) NOT NULL COMMENT '反馈标题',
     `feedback_content` TEXT NOT NULL COMMENT '反馈内容',
     `contact_info` VARCHAR(200) NULL COMMENT '联系方式（可选）',
