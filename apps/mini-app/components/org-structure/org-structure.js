@@ -243,7 +243,7 @@ Component({
       const member = this.findMemberInList(this.data.displayList, roleid, memberid)
       const keyToUse = member && member._editId ? member._editId : editId
       
-      console.log('输入editId:', editId, 'member._editId:', member?._editId, '使用key:', keyToUse)
+      console.log('输入editId:', editId, 'member._editId:', member && member._editId, '使用key:', keyToUse)
       
       // 计算输入框宽度（根据内容长度，中文字符按28rpx，英文字符按10rpx计算）
       const minWidth = 28 * 5 + 24 // 五个中文字符宽度 + 内边距 = 164rpx

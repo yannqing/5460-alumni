@@ -29,8 +29,12 @@ public class AlumniHeadquartersController {
     @PostMapping("/page")
     @Operation(summary = "分页查询校友总会列表")
     public BaseResponse<PageVo<AlumniHeadquartersListVo>> selectPage(
-            @RequestBody QueryAlumniHeadquartersListDto alumniHeadquartersListDto) {
-        PageVo<AlumniHeadquartersListVo> pageVo = alumniHeadquartersService.selectByPage(alumniHeadquartersListDto);
+            @RequestBody QueryAlumniHeadquartersListDto alumniHeadquartersListDto,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser != null && securityUser.getWxUser() != null
+                ? securityUser.getWxUser().getWxId()
+                : null;
+        PageVo<AlumniHeadquartersListVo> pageVo = alumniHeadquartersService.selectByPage(alumniHeadquartersListDto, wxId);
         return ResultUtils.success(Code.SUCCESS, pageVo, "分页查询成功");
     }
 

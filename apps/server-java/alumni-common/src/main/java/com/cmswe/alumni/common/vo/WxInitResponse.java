@@ -29,4 +29,10 @@ public class WxInitResponse {
 
     @Schema(description = "用户基本信息是否完善：true-完善，false-未完善")
     private Boolean isProfileComplete;
+
+    @Schema(description = "被邀请人wxid（仅首次登录时返回）")
+    private Long inviteeWxId;
+
+    @Schema(description = "邀请人wxid（仅首次登录且有邀请人时返回）")
+    private Long inviterWxId;
 }

@@ -35,9 +35,10 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * 分页查询校处会列表
          *
          * @param queryLocalPlatformListDto 查询条件
+         * @param wxId 当前用户ID（用于筛选我的关注，可为null）
          * @return 分页结果
          */
-        PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto);
+        PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto, Long wxId);
 
         /**
          * 获取校处会组织架构树
@@ -252,14 +253,15 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
         List<LocalPlatformMemberListVo> getLocalPlatformMemberList(Long localPlatformId);
 
         /**
-         * 为校促会架构添加成员（将已有成员分配到组织架构角色，更新 role_or_id）
+         * 为校促会架构添加成员（将已有成员分配到组织架构角色，更新 role_or_id 和 role_name）
          *
          * @param localPlatformId 校促会ID
          * @param memberId        成员ID（local_platform_member 表主键）
          * @param roleOrId        组织架构角色ID
+         * @param roleName        职位名称
          * @return 是否成功
          */
-        boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId);
+        boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId, String roleName);
 
         /**
          * 将成员从校促会架构移除（清空 role_or_id，非逻辑删除）

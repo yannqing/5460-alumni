@@ -89,8 +89,13 @@ public class UserController {
     @PrivacyFilter
     @PostMapping("/query/alumni")
     @Operation(summary = "查询校友列表")
-    public BaseResponse<Page<UserListResponse>> getAlumniList(@RequestBody QueryAlumniListDto queryAlumniListDto) {
-        Page<UserListResponse> userListResponsePage = userService.queryAlumniList(queryAlumniListDto);
+    public BaseResponse<Page<UserListResponse>> getAlumniList(
+            @RequestBody QueryAlumniListDto queryAlumniListDto,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser != null && securityUser.getWxUser() != null
+                ? securityUser.getWxUser().getWxId()
+                : null;
+        Page<UserListResponse> userListResponsePage = userService.queryAlumniList(queryAlumniListDto, wxId);
         return ResultUtils.success(Code.SUCCESS, userListResponsePage);
     }
 

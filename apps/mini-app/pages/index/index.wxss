@@ -543,16 +543,28 @@
   background: linear-gradient(270deg, #999999 0%, #CCCCCC 100%);
 }
 
+.activity-status.draft {
+  background: linear-gradient(270deg, #999999 0%, #BBBBBB 100%);
+}
+
+.activity-status.signup {
+  background: linear-gradient(270deg, #E02E22 0%, #F66359 55%, #F4675E 100%);
+}
+
+.activity-status.signup-end {
+  background: linear-gradient(270deg, #FF9500 0%, #FFB340 100%);
+}
+
 .activity-status.ing {
   background: linear-gradient(270deg, #0FCB36 0%, #0DB230 55%, #07AD2A 100%);
 }
 
-.activity-status.start {
-  background: linear-gradient(270deg, #E02E22 0%, #F66359 55%, #F4675E 100%);
-}
-
 .activity-status.end {
   background: linear-gradient(270deg, #999999 0%, #AAAAAA 55%, #BBBBBB 100%);
+}
+
+.activity-status.cancelled {
+  background: linear-gradient(270deg, #666666 0%, #888888 100%);
 }
 
 .status-dot {

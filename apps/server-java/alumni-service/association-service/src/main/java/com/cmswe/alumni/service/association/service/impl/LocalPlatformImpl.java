@@ -317,7 +317,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
      * @return 分页结果
      */
     @Override
-    public PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto) {
+    public PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto, Long wxId) {
         // 1.参数校验
         Optional.ofNullable(queryLocalPlatformListDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.SYSTEM_ERROR));
@@ -326,10 +326,24 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         String platformName = queryLocalPlatformListDto.getPlatformName();
         String city = queryLocalPlatformListDto.getCity();
         String scope = queryLocalPlatformListDto.getScope();
+        Integer myFollow = queryLocalPlatformListDto.getMyFollow();
         int current = queryLocalPlatformListDto.getCurrent();
         int pageSize = queryLocalPlatformListDto.getPageSize();
         String sortField = queryLocalPlatformListDto.getSortField();
         String sortOrder = queryLocalPlatformListDto.getSortOrder();
+
+        // 2.5 处理"我的关注"筛选：查询用户关注的校处会 ID 列表
+        List<Long> followedPlatformIds = null;
+        if (myFollow != null && myFollow == 1 && wxId != null) {
+            followedPlatformIds = userFollowService.getFollowedTargetIds(wxId, 6); // 6-校处会
+
+            // 如果用户没有关注任何校处会，直接返回空结果
+            if (followedPlatformIds.isEmpty()) {
+                Page<LocalPlatformListVo> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return PageVo.of(emptyPage);
+            }
+        }
 
         // 设置默认排序字段
         if (sortField == null) {
@@ -345,6 +359,11 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 .like(StringUtils.isNotBlank(platformName), LocalPlatform::getPlatformName, platformName)
                 .like(StringUtils.isNotBlank(city), LocalPlatform::getCity, city)
                 .like(StringUtils.isNotBlank(scope), LocalPlatform::getScope, scope);
+
+        // 3.5 应用"我的关注"筛选
+        if (followedPlatformIds != null && !followedPlatformIds.isEmpty()) {
+            queryWrapper.in(LocalPlatform::getPlatformId, followedPlatformIds);
+        }
 
         // 4.添加排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
         if ("createTime".equals(sortField)) {
@@ -1778,7 +1797,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId) {
+    public boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId, String roleName) {
         if (localPlatformId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校促会ID不能为空");
         }
@@ -1788,7 +1807,11 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (roleOrId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
         }
-        log.info("为校促会架构添加成员 - 校促会ID: {}, 成员ID: {}, 角色ID: {}", localPlatformId, memberId, roleOrId);
+        if (roleName == null || roleName.trim().isEmpty()) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "职位名称不能为空");
+        }
+        log.info("为校促会架构添加成员 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 职位名称: {}",
+                localPlatformId, memberId, roleOrId, roleName);
 
         // 1. 校验成员是否存在且属于该校促会
         LocalPlatformMember member = localPlatformMemberService.getById(memberId);
@@ -1813,17 +1836,17 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "组织架构角色不存在或未启用");
         }
 
-        // 3. 更新成员的 role_or_id 和 role_name
+        // 3. 更新成员的 role_or_id 和 role_name（使用用户填写的职位名称）
         member.setRoleOrId(roleOrId);
-        member.setRoleName(role.getRoleOrName());
+        member.setRoleName(roleName);
         member.setIsNu(1);
 
         boolean result = localPlatformMemberService.updateById(member);
         if (!result) {
             throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员架构角色失败");
         }
-        log.info("为校促会架构添加成员成功 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 角色名: {}",
-                localPlatformId, memberId, roleOrId, role.getRoleOrName());
+        log.info("为校促会架构添加成员成功 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 职位名称: {}",
+                localPlatformId, memberId, roleOrId, roleName);
         return true;
     }
 
@@ -1846,10 +1869,9 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "该成员不属于该校促会");
         }
 
-        // 清空 role_or_id、role_name，设置 is_nu=0（使用 lambdaUpdate 显式设置 null，因 updateById 会忽略 null 值）
+        // 清空 role_or_id，设置 is_nu=0，保留 role_name（使用 lambdaUpdate 显式设置 null，因 updateById 会忽略 null 值）
         boolean result = localPlatformMemberService.lambdaUpdate()
                 .set(LocalPlatformMember::getRoleOrId, null)
-                .set(LocalPlatformMember::getRoleName, null)
                 .set(LocalPlatformMember::getIsNu, 0)
                 .eq(LocalPlatformMember::getId, memberId)
                 .eq(LocalPlatformMember::getLocalPlatformId, localPlatformId)

@@ -126,9 +126,10 @@ App({
   initWebSocket() {
     // 优先使用内存中的 token / userId；其次使用本地缓存
     const token = this.globalData.token || wx.getStorageSync('token')
+    const userData = this.globalData.userData || {}
     const userId =
-      this.globalData.userData?.wxId ||
-      this.globalData.userData?.userId ||
+      userData.wxId ||
+      userData.userId ||
       wx.getStorageSync('userId')
     
     if (!token || !userId) {
@@ -136,7 +137,7 @@ App({
       console.log('[App] 调试信息:', {
         hasGlobalToken: !!this.globalData.token,
         hasStorageToken: !!wx.getStorageSync('token'),
-        hasGlobalUserId: !!this.globalData.userData?.wxId,
+        hasGlobalUserId: !!(this.globalData.userData && this.globalData.userData.wxId),
         hasStorageUserId: !!wx.getStorageSync('userId')
       })
       return
@@ -296,7 +297,8 @@ App({
       }
 
       // 获取当前用户ID，排除自己发送的消息
-      const myUserId = this.globalData.userData?.wxId || this.globalData.userData?.userId || wx.getStorageSync('userId')
+      const myUserData = this.globalData.userData || {}
+      const myUserId = myUserData.wxId || myUserData.userId || wx.getStorageSync('userId')
       console.log('[App] 当前用户ID:', myUserId, '发送者ID:', fromUserId)
       
       if (String(fromUserId) === String(myUserId)) {
@@ -312,7 +314,7 @@ App({
 
       // 如果当前在聊天详情页，且是当前聊天的消息，则不显示弹窗
       if (currentRoute === 'pages/chat/detail/detail') {
-        const chatId = currentPage.data?.chatId
+        const chatId = currentPage.data && currentPage.data.chatId
         if (chatId && String(fromUserId) === String(chatId)) {
           console.log('[App] 当前在聊天详情页，不显示消息提示')
           return

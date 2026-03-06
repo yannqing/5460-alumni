@@ -356,6 +356,7 @@ view, text, picker, input, button, image, navigator {
   padding: 30rpx;
   margin-bottom: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
 /* 卡片头部 */
@@ -485,9 +486,12 @@ view, text, picker, input, button, image, navigator {
   margin-top: -30rpx;
   margin-left: -30rpx;
   margin-right: -30rpx;
-  margin-bottom: -80rpx;
-  border-radius: 16rpx;
-  overflow: visible;
+  margin-bottom: -100rpx;
+  border-top-left-radius: 16rpx;
+  border-top-right-radius: 16rpx;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  overflow: hidden;
   background-color: #f5f5f5;
   display: flex;
   align-items: center;

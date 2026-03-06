@@ -38,6 +38,10 @@ public class WxUserWorkDto implements Serializable {
     @Size(max = 50, message = "行业名称长度不能超过50个字符")
     private String industry;
 
+    @Schema(description = "工作地址", example = "广东省深圳市南山区")
+    @Size(max = 200, message = "工作地址长度不能超过200个字符")
+    private String workAddress;
+
     @Schema(description = "入职日期", example = "2020-01-01", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "入职日期不能为空")
     private LocalDate startDate;

@@ -48,7 +48,12 @@ Page({
     memberSearchResults: [],
     memberSearchLoading: false,
     removedMembers: [], // 临时存储被移除的成员（用于提交时）
-    addedMembers: [] // 临时存储新添加的成员（用于提交时）
+    addedMembers: [], // 临时存储新添加的成员（用于提交时）
+    // 树形节点详情弹窗相关
+    showNodeDetailModal: false,
+    currentDetailRole: null, // 当前查看详情的节点
+    addModalTitle: '', // 新增弹窗标题
+    addParentRole: null // 新增子架构时的父节点
   },
 
   onLoad(options) {
@@ -419,6 +424,10 @@ Page({
           icon: 'success'
         })
         this.closeEditModal()
+        // 如果详情弹窗也打开着，关闭它
+        if (this.data.showNodeDetailModal) {
+          this.closeNodeDetailModal()
+        }
         // 重新加载角色列表
         await this.loadRoleList(selectedAlumniAssociationId)
       } else {
@@ -682,7 +691,9 @@ Page({
         remark: '',
         pid: '0'
       },
-      parentOptions: []
+      parentOptions: [],
+      addModalTitle: '',
+      addParentRole: null
     })
   },
 
@@ -745,6 +756,10 @@ Page({
           icon: 'success'
         })
         this.closeAddModal()
+        // 如果是从详情弹窗添加子架构，关闭详情弹窗
+        if (this.data.showNodeDetailModal) {
+          this.closeNodeDetailModal()
+        }
         // 重新加载角色列表
         await this.loadRoleList(selectedAlumniAssociationId)
       } else {
@@ -922,8 +937,10 @@ Page({
         const responseData = res.data.data || {}
         const searchResults = responseData.records || responseData || []
 
+        // 支持从详情弹窗或编辑弹窗调用
+        const targetRole = this.data.currentDetailRole || this.data.editingRole || {}
         // 过滤掉已经在当前分支中的成员
-        const existingMemberIds = (this.data.editingRole.members || []).map(m => m.wxId)
+        const existingMemberIds = (targetRole.members || []).map(m => m.wxId)
         const filteredResults = (Array.isArray(searchResults) ? searchResults : [])
           .filter(item => !existingMemberIds.includes(item.wxId))
           .map(item => ({
@@ -964,8 +981,10 @@ Page({
       return
     }
 
-    const { selectedAlumniAssociationId, editingRole } = this.data
-    const roleOrId = editingRole.roleOrId
+    const { selectedAlumniAssociationId, editingRole, currentDetailRole } = this.data
+    // 支持从详情弹窗或编辑弹窗调用
+    const targetRole = currentDetailRole || editingRole
+    const roleOrId = targetRole.roleOrId
 
     wx.showLoading({ title: '添加中...', mask: true })
 
@@ -997,17 +1016,28 @@ Page({
 
       if (successCount > 0) {
         // 更新本地显示
-        const updatedEditingRole = { ...this.data.editingRole }
-        const currentMembers = updatedEditingRole.members || []
         const successfullyAdded = selectedMembers.slice(0, successCount)
-        updatedEditingRole.members = [...currentMembers, ...successfullyAdded]
-
-        this.setData({
-          editingRole: updatedEditingRole,
+        const updateData = {
           showAddMemberModal: false,
           memberSearchKeyword: '',
           memberSearchResults: []
-        })
+        }
+
+        // 根据来源更新不同的数据
+        if (this.data.currentDetailRole) {
+          const updatedDetailRole = { ...this.data.currentDetailRole }
+          const currentMembers = updatedDetailRole.members || []
+          updatedDetailRole.members = [...currentMembers, ...successfullyAdded]
+          updateData.currentDetailRole = updatedDetailRole
+        }
+        if (this.data.editingRole) {
+          const updatedEditingRole = { ...this.data.editingRole }
+          const currentMembers = updatedEditingRole.members || []
+          updatedEditingRole.members = [...currentMembers, ...successfullyAdded]
+          updateData.editingRole = updatedEditingRole
+        }
+
+        this.setData(updateData)
 
         if (failCount > 0) {
           wx.showToast({ title: `成功添加 ${successCount} 人，${failCount} 人失败`, icon: 'none', duration: 2000 })
@@ -1055,6 +1085,207 @@ Page({
 
               this.setData({
                 editingRole: editingRole
+              })
+
+              wx.showToast({ title: '已移除', icon: 'success' })
+
+              // 刷新组织架构树以获取最新数据
+              await this.loadRoleList(selectedAlumniAssociationId)
+            } else {
+              wx.showToast({ title: apiRes.data?.msg || '移除失败', icon: 'none' })
+            }
+          } catch (error) {
+            wx.hideLoading()
+            console.error('[Debug] 移除成员失败:', error)
+            wx.showToast({ title: '移除失败，请重试', icon: 'none' })
+          }
+        }
+      }
+    })
+  },
+
+  // ========== 树形节点详情弹窗相关方法 ==========
+
+  // 打开节点详情弹窗
+  openNodeDetailModal(e) {
+    const { role } = e.currentTarget.dataset
+    console.log('[Debug] 打开节点详情弹窗，角色数据:', role)
+
+    this.setData({
+      showNodeDetailModal: true,
+      currentDetailRole: {
+        ...role,
+        members: role.members || []
+      }
+    })
+  },
+
+  // 关闭节点详情弹窗
+  closeNodeDetailModal() {
+    this.setData({
+      showNodeDetailModal: false,
+      currentDetailRole: null
+    })
+  },
+
+  // 打开新增顶级架构弹窗
+  openAddTopLevelModal() {
+    if (!this.data.selectedAlumniAssociationId) {
+      wx.showToast({
+        title: '请先选择校友会',
+        icon: 'none'
+      })
+      return
+    }
+
+    this.setData({
+      showAddModal: true,
+      addModalTitle: '新增顶级架构',
+      addParentRole: null,
+      addForm: {
+        roleOrName: '',
+        remark: '',
+        pid: '0'
+      }
+    })
+  },
+
+  // 打开新增子架构弹窗（从详情弹窗）
+  openAddChildModal() {
+    const { currentDetailRole } = this.data
+
+    this.setData({
+      showAddModal: true,
+      addModalTitle: '新增子架构',
+      addParentRole: currentDetailRole,
+      addForm: {
+        roleOrName: '',
+        remark: '',
+        pid: String(currentDetailRole.roleOrId)
+      }
+    })
+  },
+
+  // 从详情弹窗打开编辑弹窗
+  openEditModalFromDetail() {
+    const { currentDetailRole } = this.data
+
+    // 获取可选的父级列表（排除自己及其子节点）
+    const editParentOptions = this.getAvailableParentsForEdit(currentDetailRole)
+
+    // 设置当前父级ID（默认为0表示顶级）
+    const currentPid = currentDetailRole.pid === null || currentDetailRole.pid === undefined ? '0' : String(currentDetailRole.pid)
+
+    // 查找当前父级在选项列表中的索引
+    const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
+
+    // 获取当前父级名称
+    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构（无父级）'
+
+    this.setData({
+      showEditModal: true,
+      editingRole: {
+        ...currentDetailRole,
+        members: currentDetailRole.members ? [...currentDetailRole.members] : []
+      },
+      editForm: {
+        roleOrName: currentDetailRole.roleOrName || '',
+        remark: currentDetailRole.remark || '',
+        status: currentDetailRole.status !== undefined ? currentDetailRole.status : 1,
+        pid: currentPid
+      },
+      editParentOptions: editParentOptions,
+      editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
+      editSelectedParentName: editSelectedParentName,
+      addedMembers: [],
+      removedMembers: []
+    })
+  },
+
+  // 从详情弹窗删除角色
+  deleteRoleFromDetail() {
+    const { currentDetailRole, selectedAlumniAssociationId } = this.data
+    const roleOrId = currentDetailRole.roleOrId
+
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这个架构吗？删除后不可恢复。',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...' })
+            const deleteRes = await this.callDeleteRoleApi(roleOrId, selectedAlumniAssociationId)
+
+            wx.hideLoading()
+
+            if (deleteRes.data && deleteRes.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+              this.closeNodeDetailModal()
+              await this.loadRoleList(selectedAlumniAssociationId)
+            } else {
+              const errorMsg = (deleteRes.data && deleteRes.data.msg) || '删除失败'
+              wx.showModal({
+                title: '删除失败',
+                content: errorMsg,
+                showCancel: false,
+                confirmText: '知道了'
+              })
+            }
+          } catch (error) {
+            wx.hideLoading()
+            console.error('[Debug] 删除角色失败:', error)
+            wx.showModal({
+              title: '删除失败',
+              content: '网络请求失败，请稍后重试',
+              showCancel: false,
+              confirmText: '知道了'
+            })
+          }
+        }
+      }
+    })
+  },
+
+  // 从详情弹窗打开添加成员弹窗
+  openAddMemberModalFromDetail() {
+    this.setData({
+      showAddMemberModal: true,
+      memberSearchKeyword: '',
+      memberSearchResults: [],
+      memberSearchLoading: false
+    })
+  },
+
+  // 从详情弹窗移除成员
+  removeMemberFromDetailModal(e) {
+    const { member } = e.currentTarget.dataset
+    const { selectedAlumniAssociationId, currentDetailRole } = this.data
+
+    wx.showModal({
+      title: '确认移除',
+      content: `确定要将「${member.username || member.name || '该成员'}」从此架构移除吗？\n（成员仍保留校友会成员身份）`,
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '移除中...', mask: true })
+
+          try {
+            const apiRes = await alumniAssociationManagementApi.removeMemberFromBranch(
+              selectedAlumniAssociationId,
+              member.wxId
+            )
+
+            wx.hideLoading()
+
+            if (apiRes.data && apiRes.data.code === 200) {
+              // 更新当前详情弹窗中的成员列表
+              const updatedRole = { ...currentDetailRole }
+              updatedRole.members = (updatedRole.members || []).filter(m => m.wxId !== member.wxId)
+
+              this.setData({
+                currentDetailRole: updatedRole
               })
 
               wx.showToast({ title: '已移除', icon: 'success' })

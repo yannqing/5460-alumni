@@ -16,6 +16,10 @@ Page({
             { label: '注册时间', options: ['升序', '降序'], selected: 0 },
             { label: '关注', options: ['我的关注'], selected: 0 }
         ],
+        // 关注筛选下拉选择器
+        followFilterOptions: ['全部', '我的关注'],
+        followFilterIndex: 0,
+        myFollow: 0, // 0-全部，1-仅我关注的
         platformList: [],
         current: 1,
         pageSize: 10,
@@ -266,13 +270,15 @@ Page({
 
         this.setData({ loading: true })
 
-        const { keyword, filters, current, pageSize } = this.data
+        const { keyword, filters, current, pageSize, myFollow } = this.data
         const [cityFilter, sortFilter, followFilter] = filters
 
         // 构建请求参数
         const params = {
             current: reset ? 1 : current,
-            pageSize: pageSize
+            pageSize: pageSize,
+            // 关注筛选：0-全部，1-仅我关注的
+            myFollow: myFollow
         }
 
         // 平台名称搜索
@@ -522,11 +528,15 @@ Page({
         this.loadPlatformList(true)
     },
 
-    // 关注筛选变更
-    onFollowChange(e) {
-        wx.navigateTo({
-            url: '/pages/my-follow/my-follow'
+    // 关注筛选变更（下拉选择器）
+    onFollowFilterChange(e) {
+        const index = parseInt(e.detail.value)
+        this.setData({
+            followFilterIndex: index,
+            myFollow: index, // 0-全部，1-仅我关注的
+            current: 1
         })
+        this.loadPlatformList(true)
     },
 
     viewDetail(e) {

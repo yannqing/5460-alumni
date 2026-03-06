@@ -30,6 +30,28 @@ page {
   vertical-align: top;
 }
 
+/* 隐私提示样式 */
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f9ff;
+  border: 1rpx solid #bae6fd;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  margin: 20rpx 0 10rpx;
+}
+
+.privacy-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.privacy-text {
+  font-size: 24rpx;
+  color: #0369a1;
+}
+
 .form-card {
   background-color: #fff;
   border-radius: 16rpx;
@@ -700,4 +722,24 @@ page {
 
 .level-10 .node-content {
   background: linear-gradient(135deg, #08979c 0%, #36cfc9 100%);
+}
+
+/* 反馈入口提示 */
+.feedback-hint-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30rpx;
+  padding: 0 10rpx;
+}
+
+.feedback-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.feedback-hint-link {
+  font-size: 24rpx;
+  color: #1890FF;
+  margin-left: 8rpx;
 }

@@ -3,6 +3,11 @@
     <view class="container" bindtap="closeAllDropdowns">
   <image src="{{headerImageUrl}}" class="header-image" mode="aspectFit"></image>
 
+    <!-- 隐私提示 -->
+    <view class="privacy-notice">
+      <text class="privacy-text">您的信息将用于校友会审核，不会对外公开</text>
+    </view>
+
     <!-- 基本信息 -->
     <view class="form-section">
       <view class="section-title">基本信息</view>

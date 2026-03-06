@@ -1,0 +1,78 @@
+/* pages/profile/invitation-poster/invitation-poster.wxss */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 25rpx 20rpx 25rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+  z-index: 0;
+}
+
+.poster-item {
+  padding-bottom: 32rpx;
+}
+
+.poster-image {
+  width: 100%;
+  border-radius: 16rpx;
+  display: block;
+}
+
+/* 空状态 */
+.empty-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 邀请二维码 - 展示海报左下角 */
+.qrcode-wrap {
+  position: absolute;
+  left: 38rpx;
+  bottom: 38rpx;
+  width: 160rpx;
+  height: 160rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 8rpx;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  z-index: 2;
+}
+.qrcode-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

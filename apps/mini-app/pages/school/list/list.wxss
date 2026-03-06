@@ -461,6 +461,18 @@ picker::before {
   text-overflow: ellipsis;
 }
 
+/* 关注按钮行 */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.card-action {
+  flex-shrink: 0;
+}
+
 .follow-btn {
   width: 144.93rpx;
   height: 47.1rpx;
@@ -474,7 +486,6 @@ picker::before {
   line-height: 30.8rpx;
   font-weight: 500;
   border-radius: 20.83rpx;
-  margin-top: 6rpx;
 }
 
 .card-footer {

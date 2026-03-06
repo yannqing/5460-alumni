@@ -1,4 +1,5 @@
 const auth = require('../utils/auth.js');
+const config = require('../utils/config.js');
 
 Component({
   data: {
@@ -22,8 +23,8 @@ Component({
       {
         pagePath: "/pages/chat/list/list",
         text: "5460",
-        iconPath: "/assets/icons/5460@2x.png",
-        selectedIconPath: "/assets/icons/5460@2x.png"
+        iconPath: `https://${config.DOMAIN}/upload/images/assets/icons/5460@2x.png`,
+        selectedIconPath: `https://${config.DOMAIN}/upload/images/assets/icons/5460@2x.png`
       },
       {
         pagePath: "/pages/search/search",

@@ -404,5 +404,12 @@ Page({
             console.error('提交申请失败:', error)
             wx.showToast({ title: '网络异常，请重试', icon: 'none' })
         }
+    },
+
+    // 跳转到反馈页面
+    goToFeedback() {
+        wx.navigateTo({
+            url: '/pages/feedback/feedback?type=1&title=' + encodeURIComponent('申请加入校促会遇到问题')
+        })
     }
 })

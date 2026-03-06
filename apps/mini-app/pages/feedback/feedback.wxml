@@ -1,0 +1,98 @@
+<!--pages/feedback/feedback.wxml-->
+<view class="feedback-page">
+  <!-- 顶部提示 -->
+  <view class="tip-section">
+    <view class="tip-icon">
+      <text class="icon-text">!</text>
+    </view>
+    <view class="tip-content">
+      <text class="tip-title">感谢您的反馈</text>
+      <text class="tip-desc">您的建议对我们非常重要，我们会尽快处理</text>
+    </view>
+  </view>
+
+  <!-- 表单区域 -->
+  <view class="form-section">
+    <!-- 反馈类型 -->
+    <view class="form-item">
+      <view class="form-label required">反馈类型</view>
+      <view class="type-selector">
+        <view
+          class="type-option {{formData.feedbackType === item.value ? 'active' : ''}}"
+          wx:for="{{feedbackTypes}}"
+          wx:key="value"
+          bindtap="selectType"
+          data-value="{{item.value}}"
+        >
+          <text class="type-text">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 反馈标题 -->
+    <view class="form-item">
+      <view class="form-label required">反馈标题</view>
+      <view class="input-wrapper">
+        <input
+          class="form-input"
+          type="text"
+          placeholder="请简要描述您的问题或建议"
+          placeholder-class="input-placeholder"
+          maxlength="200"
+          value="{{formData.feedbackTitle}}"
+          bindinput="onTitleInput"
+        />
+        <text class="char-count">{{formData.feedbackTitle.length}}/200</text>
+      </view>
+    </view>
+
+    <!-- 反馈内容 -->
+    <view class="form-item">
+      <view class="form-label required">详细描述</view>
+      <view class="textarea-wrapper">
+        <textarea
+          class="form-textarea"
+          placeholder="请详细描述您遇到的问题或建议，以便我们更好地为您服务"
+          placeholder-class="input-placeholder"
+          maxlength="2000"
+          value="{{formData.feedbackContent}}"
+          bindinput="onContentInput"
+        />
+        <text class="char-count">{{formData.feedbackContent.length}}/2000</text>
+      </view>
+    </view>
+
+    <!-- 联系方式 -->
+    <view class="form-item">
+      <view class="form-label">联系方式 <text class="optional-hint">(选填)</text></view>
+      <view class="input-wrapper">
+        <input
+          class="form-input"
+          type="text"
+          placeholder="方便我们联系您跟进处理"
+          placeholder-class="input-placeholder"
+          maxlength="200"
+          value="{{formData.contactInfo}}"
+          bindinput="onContactInput"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button
+      class="submit-btn {{isFormValid ? 'active' : 'disabled'}}"
+      bindtap="submitFeedback"
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+    >
+      提交反馈
+    </button>
+  </view>
+
+  <!-- 底部说明 -->
+  <view class="footer-tip">
+    <text>我们会在1-3个工作日内处理您的反馈</text>
+  </view>
+</view>

@@ -10,7 +10,7 @@
   </view>
 
   <!-- 主内容区域 -->
-  <view class="main-content" style="padding-top: {{statusBarHeight + 44}}px;">
+  <view class="main-content" style="padding-top: {{statusBarHeight + 44}}px;" bindtap="closeSchoolResults">
     <!-- 头部欢迎区域 -->
     <view class="header-section">
       <view class="welcome-text">
@@ -63,22 +63,29 @@
         </view>
       </view>
 
-      <!-- 学校 -->
-      <view class="form-item">
-        <view class="form-label">学校</view>
-        <picker
-          mode="selector"
-          range="{{schoolList}}"
-          value="{{schoolIndex}}"
-          bindchange="onSchoolChange"
-        >
-          <view class="form-picker">
-            <text class="{{formData.school ? 'picker-value' : 'picker-placeholder'}}">
-              {{formData.school || '请选择您的学校'}}
-            </text>
-            <text class="picker-arrow-text">></text>
+      <!-- 最高学历 -->
+      <view class="form-item school-search-wrapper" catchtap="preventBubble">
+        <view class="form-label">最高学历</view>
+        <view class="form-input-wrapper">
+          <input
+            class="form-input"
+            type="text"
+            placeholder="请输入学校名称搜索"
+            placeholder-class="input-placeholder"
+            value="{{formData.school}}"
+            bindinput="handleSchoolInput"
+            bindfocus="handleSchoolFocus"
+          />
+        </view>
+        <text wx:if="{{formData.previousName}}" class="school-previous-name-hint">曾用名：{{formData.previousName}}</text>
+        <scroll-view scroll-y class="school-search-results" wx:if="{{showSchoolResults}}">
+          <view wx:if="{{schoolSearchList.length === 0 && formData.school}}" class="search-placeholder">未找到相关学校</view>
+          <view wx:if="{{schoolSearchList.length === 0 && !formData.school}}" class="search-placeholder">请输入关键字搜索</view>
+          <view wx:for="{{schoolSearchList}}" wx:key="schoolId" class="school-search-item" bindtap="selectSchool" data-index="{{index}}">
+            <text class="school-name">{{item.schoolName}}</text>
+            <text wx:if="{{item.previousName}}" class="school-previous-name">（曾用名：{{item.previousName}}）</text>
           </view>
-        </picker>
+        </scroll-view>
       </view>
 
       <!-- 手机号 -->
@@ -115,6 +122,12 @@
         <text class="link" bindtap="viewPrivacyPolicy">隐私政策</text>
         <text>并理解相关条款</text>
       </view>
+    </view>
+
+    <!-- 反馈入口 -->
+    <view class="feedback-hint-section">
+      <text class="feedback-hint-text">找不到学校或遇到问题？</text>
+      <text class="feedback-hint-link" bindtap="goToFeedback">点击反馈</text>
     </view>
 
     <!-- 注册按钮 -->

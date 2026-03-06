@@ -121,6 +121,12 @@
           <text lines="1" class="text-group_3-2">我的企业</text>
         </view>
       </view>
+      <view class="list_6 list_6_row2">
+        <view class="image-text_9-3" bindtap="navigateTo" data-url="/pages/profile/my-invitation/my-invitation">
+          <image src="{{iconSwhz}}" class="label_10-3"></image>
+          <text lines="1" class="text-group_3-3">我的邀请</text>
+        </view>
+      </view>
       <view class="image-text_10" wx:if="{{couponStats.unused > 0}}" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">
         <image src="{{iconWdjb}}" class="label_11"></image>
         <text lines="1" class="text-group_4">券包({{couponStats.unused}})</text>

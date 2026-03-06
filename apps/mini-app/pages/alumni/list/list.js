@@ -15,6 +15,10 @@ Page({
       { label: '性别', options: ['全部', '男', '女'], selected: 0 },
       { label: '关注', options: ['我的关注'], selected: 0 }
     ],
+    // 关注筛选下拉选择器
+    followFilterOptions: ['全部', '我的关注'],
+    followFilterIndex: 0,
+    myFollow: 0, // 0-全部，1-仅我关注的
     topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/26/1fbd821e-3a41-41eb-b284-d11d0296a2dc.png`,
     alumniList: [],
     current: 1,
@@ -129,13 +133,15 @@ Page({
 
     this.setData({ loading: true })
 
-    const { keyword, filters, current, pageSize } = this.data
+    const { keyword, filters, current, pageSize, myFollow } = this.data
     const [sortFilter, genderFilter] = filters
 
     // 构建请求参数
     const params = {
       current: reset ? 1 : current,
-      size: pageSize
+      size: pageSize,
+      // 关注筛选：0-全部，1-仅我关注的
+      myFollow: myFollow
     }
 
     // 注册时间排序
@@ -354,11 +360,15 @@ Page({
     this.loadAlumniList(true)
   },
 
-  // 关注筛选
-  onFollowChange(e) {
-    wx.navigateTo({
-      url: '/pages/my-follow/my-follow'
+  // 关注筛选变更（下拉选择器）
+  onFollowFilterChange(e) {
+    const index = parseInt(e.detail.value)
+    this.setData({
+      followFilterIndex: index,
+      myFollow: index, // 0-全部，1-仅我关注的
+      current: 1
     })
+    this.loadAlumniList(true)
   },
 
   viewDetail(e) {

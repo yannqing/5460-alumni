@@ -286,8 +286,8 @@
   background-color: rgba(24,144,255,1);
   border-radius: 7rpx;
   height: 58rpx;
-  min-width: 167rpx;
-  width: 167rpx;
+  min-width: fit-content;
+  width: auto;
   padding: 0 24rpx;
   display: flex;
   flex-direction: row;
@@ -301,6 +301,7 @@
   color: rgba(255,255,255,1);
   line-height: 36rpx;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .group_7 .role-list {
@@ -335,6 +336,18 @@
   margin-left: 80rpx;
   background-color: #fff7e6;
   border-color: #ffd591;
+}
+
+.role-item.level-4 {
+  margin-left: 120rpx;
+  background-color: #f9f0ff;
+  border-color: #d3adf7;
+}
+
+.role-item.level-5 {
+  margin-left: 160rpx;
+  background-color: #fff0f6;
+  border-color: #ffadd2;
 }
 
 .role-left {
@@ -865,6 +878,14 @@
   margin-left: 136rpx;
 }
 
+.member-list-wrap.level-4 {
+  margin-left: 176rpx;
+}
+
+.member-list-wrap.level-5 {
+  margin-left: 216rpx;
+}
+
 .member-item {
   display: flex;
   align-items: center;
@@ -1085,6 +1106,9 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .member-search-box {
@@ -1120,6 +1144,9 @@
   flex: 1;
   min-height: 300rpx;
   max-height: 500rpx;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .member-search-loading,
@@ -1136,10 +1163,26 @@
   align-items: center;
   padding: 20rpx 0;
   border-bottom: 1rpx solid #f5f5f5;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .member-search-item.selected {
   background-color: #f6ffed;
+}
+
+.member-search-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.member-search-name,
+.member-search-school {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .member-search-avatar {
@@ -1215,4 +1258,464 @@
 .add-member-btn-confirm {
   color: #1890ff;
   font-weight: 600;
+}
+
+/* ========== 组织架构树形预览样式（从左到右布局） ========== */
+.template-tree-preview {
+  margin-top: 20rpx;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f5ff 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  border: 1rpx solid #e6e9f0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-scroll-container {
+  width: 100%;
+  flex: 1;
+  min-height: 400rpx;
+}
+
+.tree-container {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 20rpx 10rpx;
+  min-width: fit-content;
+  min-height: fit-content;
+}
+
+/* 一级节点行（从左到右布局） */
+.tree-node-row {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+  position: relative;
+  white-space: nowrap;
+}
+
+/* 有子节点的节点右侧的水平线 */
+.tree-node.has-children::after {
+  content: '';
+  position: absolute;
+  right: -24rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24rpx;
+  height: 2rpx;
+  background-color: #c0c4cc;
+}
+
+/* 子节点列（垂直排列） */
+.tree-children-row {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16rpx;
+  margin-left: 24rpx;
+  padding-left: 24rpx;
+  position: relative;
+  white-space: nowrap;
+}
+
+/* 子节点列左侧的垂直连接线 */
+.tree-children-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 24rpx;
+  bottom: 24rpx;
+  width: 2rpx;
+  background-color: #c0c4cc;
+}
+
+/* 分支容器（水平排列：节点 + 子节点） */
+.tree-branch {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  position: relative;
+  padding-left: 24rpx;
+  white-space: nowrap;
+}
+
+/* 分支左侧的水平连接线 */
+.tree-branch::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 24rpx;
+  width: 24rpx;
+  height: 2rpx;
+  background-color: #c0c4cc;
+}
+
+/* 移除不需要的垂直连接线样式 */
+.tree-branch::after {
+  display: none;
+}
+
+/* 子节点容器（垂直排列） */
+.tree-sub-children {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-left: 24rpx;
+  padding-left: 24rpx;
+  position: relative;
+  white-space: nowrap;
+}
+
+/* 子节点容器左侧的垂直连接线 */
+.tree-sub-children::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 24rpx;
+  bottom: 24rpx;
+  width: 2rpx;
+  background-color: #c0c4cc;
+}
+
+/* 节点样式 */
+.tree-node {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.tree-node:active {
+  opacity: 0.8;
+}
+
+.node-content {
+  padding: 18rpx 32rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  text-align: center;
+  white-space: nowrap;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.node-name {
+  font-size: 24rpx;
+}
+
+.node-member-count {
+  font-size: 20rpx;
+  opacity: 0.85;
+}
+
+/* 不同层级的颜色 */
+.tree-node.level-1 .node-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-size: 28rpx;
+  padding: 20rpx 40rpx;
+}
+
+.tree-node.level-2 .node-content {
+  background: linear-gradient(135deg, #1890FF 0%, #40a9ff 100%);
+}
+
+.tree-node.level-3 .node-content {
+  background: linear-gradient(135deg, #13c2c2 0%, #36cfc9 100%);
+}
+
+.tree-node.level-4 .node-content {
+  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+}
+
+.tree-node.level-5 .node-content {
+  background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%);
+  color: #333;
+}
+
+/* ========== 节点详情弹窗样式 ========== */
+.node-detail-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1005;
+}
+
+.node-detail-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.node-detail-modal-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.node-detail-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.node-detail-modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.node-detail-modal-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.node-detail-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 30rpx 30rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 节点基本信息 */
+.node-info-section {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.node-info-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.node-info-item {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.node-info-label {
+  font-size: 26rpx;
+  color: #999;
+  width: 160rpx;
+  flex-shrink: 0;
+}
+
+.node-info-value {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+}
+
+.node-info-value.status-active {
+  color: #52c41a;
+}
+
+.node-info-value.status-inactive {
+  color: #ff4d4f;
+}
+
+/* 成员列表区域 */
+.node-members-section {
+  padding: 24rpx 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.node-members-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.node-members-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.node-add-member-btn {
+  font-size: 24rpx;
+  color: #1890ff;
+  background-color: #e6f7ff;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #91d5ff;
+}
+
+.node-members-list {
+  background-color: #fafafa;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.node-member-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.node-member-item:last-child {
+  border-bottom: none;
+}
+
+.node-member-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.node-member-avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.node-member-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.node-member-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-member-affiliation {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.node-member-show-tag {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  color: #52c41a;
+  background-color: #f6ffed;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #b7eb8f;
+  margin-right: 12rpx;
+}
+
+.node-member-delete {
+  font-size: 24rpx;
+  color: #ff4d4f;
+  padding: 8rpx 16rpx;
+  background-color: #fff1f0;
+  border-radius: 8rpx;
+  border: 1rpx solid #ffccc7;
+  flex-shrink: 0;
+}
+
+.node-members-empty {
+  padding: 40rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 26rpx;
+  background-color: #fafafa;
+  border-radius: 12rpx;
+}
+
+/* 操作按钮区域 */
+.node-detail-modal-actions {
+  display: flex;
+  gap: 16rpx;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.node-action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+.node-action-add-child {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 1rpx solid #91d5ff;
+}
+
+.node-action-edit {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1rpx solid #b7eb8f;
+}
+
+.node-action-delete {
+  background-color: #fff1f0;
+  color: #ff4d4f;
+  border: 1rpx solid #ffccc7;
+}
+
+/* 禁用的选择器样式 */
+.add-picker.disabled {
+  background-color: #f5f5f5;
+  color: #999;
+}
+
+.add-picker.disabled .add-picker-text {
+  color: #999;
+}
+
+/* scroll-list 支持双向滚动 */
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  display: flex;
+  flex-direction: column;
 }

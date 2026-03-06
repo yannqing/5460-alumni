@@ -31,6 +31,10 @@ public class AddLocalPlatformMemberToStructureDto implements Serializable {
     @NotNull(message = "组织架构角色 ID 不能为空")
     private Long roleOrId;
 
+    @Schema(description = "职位名称（role_name）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "职位名称不能为空")
+    private String roleName;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

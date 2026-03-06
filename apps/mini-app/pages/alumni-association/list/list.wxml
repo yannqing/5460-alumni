@@ -57,8 +57,10 @@
             <text class="filter-arrow">▾</text>
           </view>
           <!-- 关注筛选 -->
-          <view class="filter-item" bindtap="onFollowChange">
-            <text>我的关注</text>
+          <view class="filter-item">
+            <picker bindchange="onFollowFilterChange" range="{{followFilterOptions}}" value="{{followFilterIndex}}">
+              <text>{{followFilterOptions[followFilterIndex] || '全部'}}</text>
+            </picker>
             <text class="filter-arrow">▾</text>
           </view>
         </view>
@@ -149,6 +151,6 @@
 
   <!-- 右下角悬浮按钮 -->
   <view class="floating-button">
-    <image src="../../../assets/icons/establish an alumni association.png" mode="aspectFit" bindtap="createAssociation" />
+    <image src="{{iconCreateAssociation}}" mode="aspectFit" bindtap="createAssociation" />
   </view>
 </view>

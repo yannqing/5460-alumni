@@ -212,7 +212,8 @@ Page({
 
     // 使用 config.getImageUrl 处理图片URL，确保使用正确的 baseUrl
     const config = require('../../utils/config.js')
-    const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : config.getImageUrl(config.defaultAvatar)
+    // 注意：默认头像是本地路径，不需要经过 getImageUrl 处理
+    const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : config.defaultAvatar
 
     // 调试信息（开发时使用）
     console.log('加载用户信息 - userData:', userData)

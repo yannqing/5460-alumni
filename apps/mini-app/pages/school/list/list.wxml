@@ -54,8 +54,10 @@
             </picker>
             <text class="filter-arrow">▾</text>
           </view>
-          <view class="filter-item" bindtap="onFollowChange">
-            <text>我的关注</text>
+          <view class="filter-item">
+            <picker bindchange="onFollowFilterChange" range="{{followFilterOptions}}" value="{{followFilterIndex}}">
+              <text>{{followFilterOptions[followFilterIndex] || '全部'}}</text>
+            </picker>
             <text class="filter-arrow">▾</text>
           </view>
         </view>
@@ -87,6 +89,14 @@
                 <view class="card-location-wrap">
                   <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
                   <text class="location-text">{{item.phone}}</text>
+                </view>
+              </view>
+              <!-- 关注按钮 -->
+              <view class="action-row">
+                <view class="card-action" catchtap="toggleFollow" data-id="{{item.id}}" data-followed="{{item.isFollowed}}">
+                  <view class="follow-btn {{item.isFollowed ? 'followed' : ''}}">
+                    {{item.isFollowed ? '已关注' : '+ 关注'}}
+                  </view>
                 </view>
               </view>
             </view>

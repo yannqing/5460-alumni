@@ -1,0 +1,25 @@
+<!--pages/profile/invitation-poster/invitation-poster.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="邀请海报">
+<view class="page">
+  <view class="group_7">
+    <block wx:if="{{list && list.length}}">
+      <scroll-view class="scroll-list" scroll-y="true">
+        <block wx:for="{{list}}" wx:key="id">
+          <view class="poster-item">
+            <image class="poster-image" src="{{item.imageUrl}}" mode="widthFix" />
+          </view>
+        </block>
+      </scroll-view>
+    </block>
+    <block wx:else>
+      <view class="empty-container">
+        <text class="empty-text">暂无海报模板</text>
+      </view>
+    </block>
+    <view class="qrcode-wrap" wx:if="{{qrCodeSrc}}">
+      <image class="qrcode-image" src="{{qrCodeSrc}}" mode="aspectFit" />
+    </view>
+  </view>
+</view>
+</custom-nav-bar>
