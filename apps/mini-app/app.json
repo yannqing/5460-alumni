@@ -121,6 +121,60 @@
       ]
     }
   ],
+  "subpackages": [
+    {
+      "root": "pages/alumni-association",
+      "name": "alumni-association",
+      "pages": [
+        "list/list",
+        "detail/detail",
+        "apply/apply",
+        "create/create",
+        "organization/organization",
+        "organization-detail/organization-detail",
+        "member/member"
+      ]
+    },
+    {
+      "root": "pages/audit",
+      "name": "audit",
+      "pages": [
+        "index/index",
+        "carousel/carousel",
+        "carousel/create/create",
+        "carousel/edit/edit",
+        "list/list",
+        "user/list/list",
+        "content/list/list",
+        "merchant/list/list",
+        "merchant/shop/shop",
+        "merchant/architecture/architecture",
+        "merchant/member/member",
+        "merchant/coupon/coupon",
+        "merchant/coupon/verify/verify",
+        "merchant/topic/topic",
+        "merchant/topic/publish/publish",
+        "merchant/topic/edit/edit",
+        "schooloffice/list/list",
+        "merchant/apply/apply",
+        "merchant/apply-detail/apply-detail",
+        "merchant/shop-audit/shop-audit",
+        "schooloffice/detail/detail",
+        "schooloffice/organization/organization",
+        "schooloffice/member/member",
+        "join-audit/index",
+        "article/manage/manage",
+        "enterprise/index",
+        "headquarters/list/list",
+        "headquarters/detail/detail",
+        "alumni-association/list/list",
+        "alumni-association/detail/detail",
+        "info-maintenance/index/index",
+        "info-maintenance/edit/edit",
+        "alumni-association-certification/list/list"
+      ]
+    }
+  ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",

@@ -6,12 +6,16 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.cmswe.alumni.api.user.AuthService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.WechatApiService;
+import com.cmswe.alumni.api.user.InvitationService;
 import com.cmswe.alumni.common.dto.GetPhoneNumberRequest;
+import com.cmswe.alumni.common.dto.ConfirmInvitationDto;
 import com.cmswe.alumni.common.dto.WxInitRequest;
 import com.cmswe.alumni.common.entity.Role;
 import com.cmswe.alumni.common.entity.RoleUser;
 import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.common.entity.WxUserInfo;
+import com.cmswe.alumni.common.entity.InvitationRecord;
+import com.cmswe.alumni.common.entity.PointsChange;
 import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.utils.WechatMiniUtil;
@@ -21,6 +25,8 @@ import com.cmswe.alumni.common.vo.WxInitResponse;
 import com.cmswe.alumni.service.user.mapper.AlumniEducationMapper;
 import com.cmswe.alumni.service.user.mapper.RoleUserMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserInfoMapper;
+import com.cmswe.alumni.service.user.mapper.InvitationRecordMapper;
+import com.cmswe.alumni.service.user.mapper.PointsChangeMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
@@ -53,10 +59,19 @@ public class AuthServiceImpl implements AuthService {
     private AlumniEducationMapper alumniEducationMapper;
 
     @Resource
+    private InvitationRecordMapper invitationRecordMapper;
+
+    @Resource
+    private PointsChangeMapper pointsChangeMapper;
+
+    @Resource
     private WechatMiniUtil wechatMiniUtil;
 
     @Resource
     private RoleService roleService;
+
+    @Resource
+    private InvitationService invitationService;
 
     /**
      * 微信小程序静默登录
@@ -145,10 +160,18 @@ public class AuthServiceImpl implements AuthService {
                 .isAlumni(loginUser.getIsAlumni())
                 .isProfileComplete(isProfileComplete);
         if (isFirstLogin) {
-            responseBuilder.inviteeWxId(loginUser.getWxId());
             Long inviterWxId = parseInviterWxId(inviterWxUuid);
             if (inviterWxId != null) {
-                responseBuilder.inviterWxId(inviterWxId);
+                ConfirmInvitationDto confirmInvitationDto = ConfirmInvitationDto.builder()
+                        .inviterWxId(inviterWxId)
+                        .inviteeWxId(loginUser.getWxId())
+                        .build();
+                try {
+                    invitationService.confirmInvitation(confirmInvitationDto);
+                    log.info("调用邀请确认接口成功：inviterWxId={}, inviteeWxId={}", inviterWxId, loginUser.getWxId());
+                } catch (Exception e) {
+                    log.error("调用邀请确认接口失败：inviterWxId={}, inviteeWxId={}, error={}", inviterWxId, loginUser.getWxId(), e.getMessage());
+                }
             }
         }
 
@@ -477,6 +500,52 @@ public class AuthServiceImpl implements AuthService {
             }
 
             log.info("用户注册完成 - wxId: {}", wxId);
+
+            // ====== 邀请功能相关逻辑 START ======
+            // 注册之后检查该用户是否是被邀请人
+            InvitationRecord invitationRecord = invitationRecordMapper.selectOne(
+                    new LambdaQueryWrapper<InvitationRecord>()
+                            .eq(InvitationRecord::getInviteeWxId, wxId)
+                            .eq(InvitationRecord::getIsRegister, 0) // 只处理未注册的邀请记录
+            );
+
+            if (invitationRecord != null) {
+                // 1. 更新邀请记录表的 is_register 字段为1
+                invitationRecord.setIsRegister(1);
+                invitationRecordMapper.updateById(invitationRecord);
+                log.info("更新邀请记录成功，被邀请人已注册 - inviteeWxId: {}", wxId);
+
+                Long inviterWxId = invitationRecord.getInviterWxId();
+                // 2. 给邀请人的 wx_user_info 表中的 integral 积分 +1
+                WxUserInfo inviterUserInfo = wxUserInfoMapper.selectOne(
+                        new LambdaQueryWrapper<WxUserInfo>()
+                                .eq(WxUserInfo::getWxId, inviterWxId)
+                );
+
+                if (inviterUserInfo != null) {
+                    Integer originalPoints = inviterUserInfo.getIntegral() != null ? inviterUserInfo.getIntegral() : 0;
+                    inviterUserInfo.setIntegral(originalPoints + 1);
+                    wxUserInfoMapper.updateById(inviterUserInfo);
+                    log.info("邀请人积分增加成功 - inviterWxId: {}, originalPoints: {}, afterPoints: {}", inviterWxId, originalPoints, inviterUserInfo.getIntegral());
+
+                    // 3. 在 points_change 表记录邀请人积分的变化
+                    PointsChange pointsChange = PointsChange.builder()
+                            .wxId(inviterWxId)
+                            .type(0) // 0-邀请
+                            .originalPoints(originalPoints)
+                            .afterPoints(inviterUserInfo.getIntegral())
+                            .createTime(LocalDateTime.now())
+                            .build();
+                    pointsChangeMapper.insert(pointsChange);
+                    log.info("邀请人积分变化记录成功 - inviterWxId: {}, type: {}, originalPoints: {}, afterPoints: {}",
+                            inviterWxId, pointsChange.getType(), originalPoints, inviterUserInfo.getIntegral());
+                } else {
+                    log.warn("未找到邀请人的用户信息，无法增加积分 - inviterWxId: {}", inviterWxId);
+                }
+            } else {
+                log.info("用户不是被邀请人或邀请记录已处理 - wxId: {}", wxId);
+            }
+            // ====== 邀请功能相关逻辑 END ======
             return true;
 
         } catch (BusinessException e) {

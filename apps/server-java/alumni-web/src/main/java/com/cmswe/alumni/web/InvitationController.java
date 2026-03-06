@@ -65,7 +65,7 @@ public class InvitationController {
         String qrCodeBase64 = wechatMiniUtil.createWxaCodeUnlimit(scene, page, width);
 
         InvitationQrVo vo = InvitationQrVo.builder()
-                .wxId(wxId)
+                .wxId(String.valueOf(wxId))
                 .appId(appId)
                 .qrCodeBase64(qrCodeBase64)
                 .build();
@@ -125,7 +125,7 @@ public class InvitationController {
 
     /**
      * 查看邀请排行榜
-     * 1. 自己的邀请人数及排名  2. 全部邀请排行（wxid、排行、邀请人数、头像、姓名、学校）
+     * 1. 自己的邀请人数及排名 2. 全部邀请排行（wxid、排行、邀请人数、头像、姓名、学校）
      *
      * @param wxId 当前用户 wxid（用于展示“我的”人数与排名，不传则仅返回排行榜）
      */

@@ -32,7 +32,8 @@ public class AuthController {
 
     @Operation(summary = "认证登录")
     @PostMapping("/login")
-    public BaseResponse<WxInitResponse> login(@RequestBody WxInitRequest wxInitRequest, HttpServletRequest request) throws JsonProcessingException {
+    public BaseResponse<WxInitResponse> login(@RequestBody WxInitRequest wxInitRequest, HttpServletRequest request)
+            throws JsonProcessingException {
         WxInitResponse wxInitResponse = authService.wxInit(wxInitRequest, request);
 
         return ResultUtils.success(Code.SUCCESS, wxInitResponse);
@@ -48,7 +49,8 @@ public class AuthController {
 
     @Operation(summary = "测试登录（本地调试用，传入微信用户ID）")
     @PostMapping("/testLogin")
-    public BaseResponse<WxInitResponse> testLogin(@RequestBody java.util.Map<String, Long> request) throws JsonProcessingException {
+    public BaseResponse<WxInitResponse> testLogin(@RequestBody java.util.Map<String, Long> request)
+            throws JsonProcessingException {
         Long wxId = request.get("wxId");
         if (wxId == null) {
             return ResultUtils.failure(Code.FAILURE, null, "参数错误：wxId不能为空");
@@ -77,14 +79,13 @@ public class AuthController {
                 registerDto.getName(),
                 registerDto.getSchoolId(),
                 registerDto.getGender(),
-                registerDto.getPhone()
-        );
+                registerDto.getPhone());
 
         return ResultUtils.success(Code.SUCCESS, result, "注册成功");
     }
 
     /**
      * 1. 用户登录的时候，需要初始化的一些信息
-     *      1. 用户隐私设置
+     * 1. 用户隐私设置
      */
 }

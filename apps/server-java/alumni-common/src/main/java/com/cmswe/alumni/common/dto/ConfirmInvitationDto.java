@@ -1,22 +1,15 @@
 package com.cmswe.alumni.common.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotNull;
-
-/**
- * 确认邀请请求DTO
- */
 @Data
-@Schema(description = "确认邀请请求")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConfirmInvitationDto {
-
-    @Schema(description = "邀请人wxid", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "邀请人wxid不能为空")
-    private String inviterWxId;
-
-    @Schema(description = "被邀请人wxid", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "被邀请人wxid不能为空")
-    private String inviteeWxId;
+    private Long inviterWxId;
+    private Long inviteeWxId;
 }
