@@ -46,6 +46,12 @@ public class QueryLocalPlatformListDto extends PageRequest implements Serializab
     @Schema(description = "排序字段: 根据创建时间排序（createTime）")
     private String sortField;
 
+    /**
+     * 我的关注：0-全部 1-仅我关注的
+     */
+    @Schema(description = "我的关注：0-全部 1-仅我关注的", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer myFollow;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

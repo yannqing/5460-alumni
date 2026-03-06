@@ -317,7 +317,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
      * @return 分页结果
      */
     @Override
-    public PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto) {
+    public PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto, Long wxId) {
         // 1.参数校验
         Optional.ofNullable(queryLocalPlatformListDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.SYSTEM_ERROR));
@@ -326,10 +326,24 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         String platformName = queryLocalPlatformListDto.getPlatformName();
         String city = queryLocalPlatformListDto.getCity();
         String scope = queryLocalPlatformListDto.getScope();
+        Integer myFollow = queryLocalPlatformListDto.getMyFollow();
         int current = queryLocalPlatformListDto.getCurrent();
         int pageSize = queryLocalPlatformListDto.getPageSize();
         String sortField = queryLocalPlatformListDto.getSortField();
         String sortOrder = queryLocalPlatformListDto.getSortOrder();
+
+        // 2.5 处理"我的关注"筛选：查询用户关注的校处会 ID 列表
+        List<Long> followedPlatformIds = null;
+        if (myFollow != null && myFollow == 1 && wxId != null) {
+            followedPlatformIds = userFollowService.getFollowedTargetIds(wxId, 6); // 6-校处会
+
+            // 如果用户没有关注任何校处会，直接返回空结果
+            if (followedPlatformIds.isEmpty()) {
+                Page<LocalPlatformListVo> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return PageVo.of(emptyPage);
+            }
+        }
 
         // 设置默认排序字段
         if (sortField == null) {
@@ -345,6 +359,11 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 .like(StringUtils.isNotBlank(platformName), LocalPlatform::getPlatformName, platformName)
                 .like(StringUtils.isNotBlank(city), LocalPlatform::getCity, city)
                 .like(StringUtils.isNotBlank(scope), LocalPlatform::getScope, scope);
+
+        // 3.5 应用"我的关注"筛选
+        if (followedPlatformIds != null && !followedPlatformIds.isEmpty()) {
+            queryWrapper.in(LocalPlatform::getPlatformId, followedPlatformIds);
+        }
 
         // 4.添加排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
         if ("createTime".equals(sortField)) {

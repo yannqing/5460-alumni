@@ -35,9 +35,10 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
          * 分页查询校处会列表
          *
          * @param queryLocalPlatformListDto 查询条件
+         * @param wxId 当前用户ID（用于筛选我的关注，可为null）
          * @return 分页结果
          */
-        PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto);
+        PageVo<LocalPlatformListVo> selectByPage(QueryLocalPlatformListDto queryLocalPlatformListDto, Long wxId);
 
         /**
          * 获取校处会组织架构树

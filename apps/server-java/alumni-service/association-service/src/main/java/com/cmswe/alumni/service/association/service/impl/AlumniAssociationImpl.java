@@ -130,6 +130,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         String presidentUsername = alumniAssociationListDto.getAssociationName();
         String contactInfo = alumniAssociationListDto.getContactInfo();
         String location = alumniAssociationListDto.getLocation();
+        Integer myFollow = alumniAssociationListDto.getMyFollow();
         int current = alumniAssociationListDto.getCurrent();
         int pageSize = alumniAssociationListDto.getPageSize();
         String sortField = alumniAssociationListDto.getSortField();
@@ -138,6 +139,19 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         // 设置默认排序字段
         if (sortField == null) {
             sortField = "createTime";
+        }
+
+        // 2.5 处理"我的关注"筛选：查询用户关注的校友会 ID 列表
+        List<Long> followedAssociationIds = null;
+        if (myFollow != null && myFollow == 1 && currentUserId != null) {
+            followedAssociationIds = userFollowService.getFollowedTargetIds(currentUserId, 2); // 2-校友会
+
+            // 如果用户没有关注任何校友会，直接返回空结果
+            if (followedAssociationIds.isEmpty()) {
+                Page<AlumniAssociationListVo> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return PageVo.of(emptyPage);
+            }
         }
 
         // 3.构建查询条件
@@ -150,6 +164,11 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                 .orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                         AlumniAssociation.getSortMethod(sortField))
                 .orderByDesc(AlumniAssociation::getAlumniAssociationId);
+
+        // 3.5 应用我的关注筛选
+        if (followedAssociationIds != null) {
+            queryWrapper.in(AlumniAssociation::getAlumniAssociationId, followedAssociationIds);
+        }
 
         // 4.执行分页查询
         Page<AlumniAssociation> alumniAssociationPage = this.page(new Page<>(current, pageSize), queryWrapper);

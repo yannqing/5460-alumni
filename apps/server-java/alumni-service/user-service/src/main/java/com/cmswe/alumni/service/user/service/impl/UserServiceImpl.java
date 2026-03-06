@@ -456,7 +456,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     }
 
     @Override
-    public Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto) {
+    public Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId) {
         if (queryAlumniListDto == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL);
         }
@@ -476,10 +476,24 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         Integer gender = queryAlumniListDto.getGender();
         String identifyCode = queryAlumniListDto.getIdentifyCode();
         LocalDate birthDate = queryAlumniListDto.getBirthDate();
+        Integer myFollow = queryAlumniListDto.getMyFollow();
         int current = queryAlumniListDto.getCurrent();
         int pageSize = queryAlumniListDto.getPageSize();
         String sortField = queryAlumniListDto.getSortField();
         String sortOrder = queryAlumniListDto.getSortOrder();
+
+        // 处理"我的关注"筛选：查询用户关注的校友 ID 列表
+        List<Long> followedUserIds = null;
+        if (myFollow != null && myFollow == 1 && wxId != null) {
+            followedUserIds = userFollowService.getFollowedTargetIds(wxId, 1); // 1-用户
+
+            // 如果用户没有关注任何校友，直接返回空结果
+            if (followedUserIds.isEmpty()) {
+                Page<UserListResponse> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return emptyPage;
+            }
+        }
 
         // 设置默认排序字段
         if (sortField == null) {
@@ -529,6 +543,11 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
         // 过滤：name 和 nickname 不能同时为空（至少有一个不为空）
         queryWrapper.and(wrapper -> wrapper.isNotNull(WxUserInfo::getName).or().isNotNull(WxUserInfo::getNickname));
+
+        // 应用"我的关注"筛选
+        if (followedUserIds != null && !followedUserIds.isEmpty()) {
+            queryWrapper.in(WxUserInfo::getWxId, followedUserIds);
+        }
 
         // 排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
         if ("createdTime".equals(sortField)) {

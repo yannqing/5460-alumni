@@ -73,8 +73,9 @@ public interface UserService extends IService<WxUser> {
      * 获取校友列表
      *
      * @param queryAlumniListDto 查询条件
+     * @param wxId 当前用户ID（用于筛选我的关注，可为null）
      */
-    Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto);
+    Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId);
 
     /**
      * 更新用户隐私设置

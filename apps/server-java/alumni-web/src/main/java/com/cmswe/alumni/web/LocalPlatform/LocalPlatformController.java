@@ -46,9 +46,13 @@ public class LocalPlatformController {
         @PostMapping("/page")
         @Operation(summary = "分页查询校处会列表")
         public BaseResponse<PageVo<LocalPlatformListVo>> selectPage(
-                        @RequestBody QueryLocalPlatformListDto queryLocalPlatformListDto) {
+                        @RequestBody QueryLocalPlatformListDto queryLocalPlatformListDto,
+                        @AuthenticationPrincipal SecurityUser securityUser) {
                 log.info("分页查询校处会列表，查询条件：{}", queryLocalPlatformListDto);
-                PageVo<LocalPlatformListVo> pageVo = localPlatformService.selectByPage(queryLocalPlatformListDto);
+                Long wxId = securityUser != null && securityUser.getWxUser() != null
+                                ? securityUser.getWxUser().getWxId()
+                                : null;
+                PageVo<LocalPlatformListVo> pageVo = localPlatformService.selectByPage(queryLocalPlatformListDto, wxId);
                 return ResultUtils.success(Code.SUCCESS, pageVo, "分页查询成功");
         }
 

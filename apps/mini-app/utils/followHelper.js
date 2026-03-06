@@ -9,7 +9,8 @@ const FollowTargetType = {
   ASSOCIATION: 2, // 校友会
   SCHOOL: 3,      // 母校
   MERCHANT: 4,    // 商户
-  HEADQUARTERS: 5 // 校友总会
+  HEADQUARTERS: 5, // 校友总会
+  LOCAL_PLATFORM: 6 // 校处会
 }
 
 /**

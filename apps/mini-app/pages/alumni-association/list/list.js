@@ -16,11 +16,15 @@ Page({
     keyword: '',
     filters: [
       { label: '城市', options: ['全部城市'], selected: 0 },
-      { label: '条件筛选', options: ['会员人数-升序', '会员人数-降序', '注册时间-升序', '注册时间-降序'], selected: -1 },
+      { label: '条件筛选', options: ['注册会员人数-升序', '注册会员人数-降序', '注册时间-升序', '注册时间-降序'], selected: -1 },
       { label: '关注', options: ['我的关注'], selected: 0 }
     ],
+    // 关注筛选下拉选择器
+    followFilterOptions: ['全部', '我的关注'],
+    followFilterIndex: 0,
+    myFollow: 0, // 0-全部，1-仅我关注的
     // 条件筛选多列选择器数据
-    conditionData: [['会员人数', '注册时间'], ['升序', '降序']],
+    conditionData: [['注册会员人数', '注册时间'], ['升序', '降序']],
     conditionIndex: [0, 0],
     associationList: [],
     current: 1,
@@ -338,7 +342,9 @@ Page({
         // 排序字段：根据选择
         sortField: sortField,
         // 排序顺序：根据筛选选择
-        sortOrder: sortOrder
+        sortOrder: sortOrder,
+        // 关注筛选：0-全部，1-仅我关注的
+        myFollow: this.data.myFollow
       }
 
       // 移除 undefined 参数
@@ -534,11 +540,15 @@ Page({
     this.loadAssociationList(true)
   },
 
-  // 关注筛选变更
-  onFollowChange(e) {
-    wx.navigateTo({
-      url: '/pages/my-follow/my-follow'
+  // 关注筛选变更（下拉选择器）
+  onFollowFilterChange(e) {
+    const index = parseInt(e.detail.value)
+    this.setData({
+      followFilterIndex: index,
+      myFollow: index, // 0-全部，1-仅我关注的
+      current: 1
     })
+    this.loadAssociationList(true)
   },
 
   // 地区选择器列改变（联动选择）- 与母校列表页完全一致
