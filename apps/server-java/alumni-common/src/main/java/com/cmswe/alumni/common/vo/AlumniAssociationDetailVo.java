@@ -1,6 +1,8 @@
 package com.cmswe.alumni.common.vo;
 
 import com.cmswe.alumni.common.entity.AlumniAssociation;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +23,7 @@ public class AlumniAssociationDetailVo implements Serializable {
      * 校友会ID
      */
     @Schema(description = "校友会ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long alumniAssociationId;
 
     /**
@@ -93,6 +96,7 @@ public class AlumniAssociationDetailVo implements Serializable {
      * 主要负责人微信用户ID
      */
     @Schema(description = "主要负责人微信用户ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long chargeWxId;
 
     /**
@@ -117,6 +121,7 @@ public class AlumniAssociationDetailVo implements Serializable {
      * 驻会代表微信用户ID
      */
     @Schema(description = "驻会代表微信用户ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long zhWxId;
 
     /**
@@ -130,6 +135,12 @@ public class AlumniAssociationDetailVo implements Serializable {
      */
     @Schema(description = "驻会代表联系电话")
     private String zhPhone;
+
+    /**
+     * 驻会代表架构角色
+     */
+    @Schema(description = "驻会代表架构角色")
+    private String zhRole;
 
     /**
      * 驻会代表社会职务

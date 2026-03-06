@@ -24,7 +24,7 @@
       </view>
       <view class="member-list" wx:else>
         <view class="member-item" wx:for="{{memberList}}" wx:key="wxId">
-          <view class="member-item-left">
+          <view class="member-item-left {{item.wxId ? 'clickable' : ''}}" bindtap="onMemberTap" data-member="{{item}}">
             <view class="member-avatar">
               <image class="avatar-img" src="{{item.avatarUrl || defaultUserAvatarUrl}}"></image>
             </view>
@@ -33,7 +33,13 @@
               <text class="member-gender-text" wx:if="{{item.gender}}">{{item.gender === 1 ? '男' : '女'}}</text>
             </view>
           </view>
-          <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</view>
+          <view class="member-tags-group">
+            <view class="member-status-tags" wx:if="{{!item.wxId || item.isShowOnHome === 1}}">
+              <text class="unregistered-tag" wx:if="{{!item.wxId}}">未注册</text>
+              <text class="show-on-home-tag" wx:if="{{item.isShowOnHome === 1}}">主页展示</text>
+            </view>
+            <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</view>
+          </view>
           <view class="member-actions">
             <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
             <view class="delete-btn" catchtap="deleteMember" data-member="{{item}}">删除</view>
@@ -112,14 +118,10 @@
             </view>
           </scroll-view>
         </view>
-        <view class="form-item">
-          <text class="label">校友会身份</text>
-          <picker bindchange="onRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{inviteForm.roleIndex || 0}}">
-            <view class="role-selector">
-              <text class="selector-text">{{inviteForm.roleOrName || '请选择身份'}}</text>
-              <text class="selector-arrow">▼</text>
-            </view>
-          </picker>
+        <!-- 邀请流程说明 -->
+        <view class="invite-tip">
+          <text class="invite-tip-icon">i</text>
+          <text class="invite-tip-text">邀请后，用户需在通知中确认才能加入</text>
         </view>
       </view>
       <view class="modal-footer">
@@ -129,32 +131,62 @@
     </view>
   </view>
 
-  <!-- 编辑成员角色弹窗 -->
+  <!-- 编辑成员信息弹窗 -->
   <view class="edit-modal" wx:if="{{showEditModal}}">
     <view class="modal-overlay" bindtap="hideEditModal"></view>
     <view class="modal-content">
       <view class="modal-header">
-        <text class="modal-title">编辑成员角色</text>
+        <text class="modal-title">编辑成员信息</text>
         <text class="modal-close" bindtap="hideEditModal">×</text>
       </view>
-      <view class="modal-body">
+      <scroll-view class="modal-body" scroll-y>
         <view class="form-item">
-          <text class="label">成员姓名</text>
+          <text class="label">成员头像</text>
           <view class="member-info-display">
             <image class="avatar-small" src="{{editingMember.avatarUrl || defaultUserAvatarUrl}}"></image>
             <text class="member-name-display">{{editingMember.name || editingMember.nickname || '未命名'}}</text>
           </view>
         </view>
-        <view class="form-item">
-          <text class="label">校友会身份</text>
-          <picker bindchange="onEditRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{editingMember.roleIndex || 0}}">
-            <view class="role-selector">
-              <text class="selector-text">{{editingMember.newRoleName || (editingMember.organizeArchiRole && editingMember.organizeArchiRole.roleOrName) || '请选择身份'}}</text>
-              <text class="selector-arrow">▼</text>
-            </view>
-          </picker>
+        <!-- 未注册用户才显示用户名编辑 -->
+        <view class="form-item" wx:if="{{!editingMember.wxId}}">
+          <text class="label">用户名</text>
+          <input
+            class="form-input"
+            placeholder="请输入用户名"
+            value="{{editingMember.editUsername}}"
+            bindinput="onEditUsernameInput"
+          />
         </view>
-      </view>
+        <!-- 未注册用户才显示手机号编辑 -->
+        <view class="form-item" wx:if="{{!editingMember.wxId}}">
+          <text class="label">手机号</text>
+          <input
+            class="form-input"
+            type="number"
+            maxlength="11"
+            placeholder="请输入手机号"
+            value="{{editingMember.editUserPhone}}"
+            bindinput="onEditUserPhoneInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">所属单位/职位</text>
+          <input
+            class="form-input"
+            placeholder="请输入所属单位或职位"
+            value="{{editingMember.editUserAffiliation}}"
+            bindinput="onEditUserAffiliationInput"
+          />
+        </view>
+        <view class="form-item form-item-switch">
+          <text class="label">主页展示</text>
+          <switch
+            checked="{{editingMember.editIsShowOnHome === 1}}"
+            bindchange="onEditIsShowOnHomeChange"
+            color="#1890ff"
+          />
+        </view>
+      </scroll-view>
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideEditModal">取消</button>
         <button class="btn btn-confirm" bindtap="submitEdit">保存</button>

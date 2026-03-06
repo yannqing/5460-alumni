@@ -41,6 +41,9 @@ public class ChatMessageController {
     @Resource
     private com.cmswe.alumni.service.user.service.NotificationService notificationService;
 
+    @Resource
+    private com.cmswe.alumni.api.association.AlumniAssociationInvitationService alumniAssociationInvitationService;
+
     @PostMapping("/send")
     @Operation(summary = "发送消息")
     public BaseResponse<Long> sendMessage(
@@ -216,6 +219,29 @@ public class ChatMessageController {
             } else {
                 return ResultUtils.failure(Code.FAILURE, 0, "标记已读失败");
             }
+        }
+    }
+
+    @PostMapping("/invitation/handle")
+    @Operation(summary = "处理邀请（同意或拒绝）")
+    public BaseResponse<Boolean> handleInvitation(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody com.cmswe.alumni.common.dto.HandleInvitationDto handleDto) {
+
+        Long wxId = securityUser.getWxUser().getWxId();
+
+        boolean success = alumniAssociationInvitationService.handleInvitation(
+                handleDto.getInvitationId(),
+                handleDto.getNotificationId(),
+                wxId,
+                handleDto.getAgree()
+        );
+
+        if (success) {
+            String message = handleDto.getAgree() ? "已同意邀请" : "已拒绝邀请";
+            return ResultUtils.success(Code.SUCCESS, true, message);
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "处理邀请失败");
         }
     }
 }

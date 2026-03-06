@@ -1,6 +1,6 @@
 // app.js
-import lib from './utils/lib.js'
-import auth from './utils/auth'
+const lib = require('./utils/lib.js')
+const auth = require('./utils/auth')
 const { socketManager } = require('./utils/socketManager.js')
 const api = require('./api/api.js')
 

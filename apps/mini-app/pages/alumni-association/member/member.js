@@ -249,36 +249,16 @@ Page({
   },
 
   // 显示邀请成员弹窗
-  async showInviteModal() {
+  showInviteModal() {
     this.setData({
       showInviteModal: true,
       inviteForm: {
         name: '',
-        wxId: '',
-        roleOrId: '',
-        roleOrName: '',
-        roleIndex: 0
+        wxId: ''
       },
       alumniSearchResults: [],
-      showAlumniSearchResults: false,
-      roleList: []
+      showAlumniSearchResults: false
     })
-
-    // 获取角色列表
-    await this.loadRoleList()
-  },
-
-  // 邀请成员时角色选择变化
-  onRoleChange(e) {
-    const index = e.detail.value
-    const selectedRole = this.data.roleList[index]
-    if (selectedRole) {
-      this.setData({
-        'inviteForm.roleOrId': selectedRole.roleOrId,
-        'inviteForm.roleOrName': selectedRole.roleOrName,
-        'inviteForm.roleIndex': index
-      })
-    }
   },
 
   // 隐藏邀请成员弹窗
@@ -360,31 +340,33 @@ Page({
 
 
   // 提交邀请
+  // 注意：此接口不再直接添加成员，而是发送邀请通知，用户需要同意后才能加入
   async submitInvite() {
     try {
-      const { wxId, roleOrId } = this.data.inviteForm
+      const { wxId } = this.data.inviteForm
       const alumniAssociationId = this.data.selectedAlumniAssociationId
 
       // 验证必填参数
-      if (!wxId || wxId === 0 || !roleOrId || !alumniAssociationId) {
+      if (!wxId || wxId === 0 || !alumniAssociationId) {
         wx.showToast({
-          title: '请通过搜索选择校友并选择身份',
+          title: '请通过搜索选择校友',
           icon: 'none'
         })
         return
       }
 
-      // 调用邀请成员接口，直接传递字符串形式的wxId和roleOrId，避免大整数精度丢失
-      const res = await this.inviteMemberAPI(alumniAssociationId, wxId, roleOrId)
+      // 调用邀请成员接口，直接传递字符串形式的wxId，避免大整数精度丢失
+      // roleOrId 现在是可选参数，不再需要传递
+      const res = await this.inviteMemberAPI(alumniAssociationId, wxId)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
-          title: '邀请成功',
-          icon: 'success'
+          title: '邀请通知已发送，等待用户确认',
+          icon: 'success',
+          duration: 2000
         })
         this.hideInviteModal()
-        // 刷新成员列表
-        await this.loadMemberList(alumniAssociationId)
+        // 注意：不再刷新成员列表，因为用户还未确认邀请
       } else {
         wx.showToast({
           title: (res.data && res.data.msg) || '邀请失败',
@@ -447,7 +429,7 @@ Page({
     return alumniAssociationManagementApi.getRoleList(organizeId)
   },
 
-  // 调用邀请成员接口
+  // 调用邀请成员接口（roleOrId 可选）
   inviteMemberAPI(alumniAssociationId, wxId, roleOrId) {
     return alumniAssociationManagementApi.inviteMember(alumniAssociationId, wxId, roleOrId)
   },
@@ -458,64 +440,94 @@ Page({
     this.setData({
       editingMember: {
         ...member,
-        newRoleId: (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || '',
-        newRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
-        roleIndex: 0
+        // 编辑表单字段（用户名和手机号仅未注册用户可编辑）
+        editUsername: member.name || member.nickname || '',
+        editUserPhone: member.userPhone || member.phone || '',
+        editUserAffiliation: member.userAffiliation || '',
+        editIsShowOnHome: member.isShowOnHome || 0
       },
       showEditModal: true
     })
-
-    // 加载角色列表
-    await this.loadRoleList()
-
-    // 设置默认角色索引
-    const roleId = (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || ''
-    const roleIndex = this.data.roleList.findIndex(role => role.roleOrId === roleId)
-    if (roleIndex !== -1) {
-      this.setData({
-        'editingMember.roleIndex': roleIndex
-      })
-    }
   },
 
-  // 编辑成员时角色选择变化
-  onEditRoleChange(e) {
-    const index = e.detail.value
-    const selectedRole = this.data.roleList[index]
-    if (selectedRole) {
-      this.setData({
-        'editingMember.newRoleId': selectedRole.roleOrId,
-        'editingMember.newRoleName': selectedRole.roleOrName,
-        'editingMember.roleIndex': index
-      })
-    }
+  // 编辑表单输入处理 - 用户名
+  onEditUsernameInput(e) {
+    this.setData({
+      'editingMember.editUsername': e.detail.value
+    })
+  },
+
+  // 编辑表单输入处理 - 手机号
+  onEditUserPhoneInput(e) {
+    this.setData({
+      'editingMember.editUserPhone': e.detail.value
+    })
+  },
+
+  // 编辑表单输入处理 - 所属单位/职位
+  onEditUserAffiliationInput(e) {
+    this.setData({
+      'editingMember.editUserAffiliation': e.detail.value
+    })
+  },
+
+  // 编辑表单 - 主页展示开关
+  onEditIsShowOnHomeChange(e) {
+    this.setData({
+      'editingMember.editIsShowOnHome': e.detail.value ? 1 : 0
+    })
   },
 
   // 关闭编辑成员弹窗
   hideEditModal() {
     this.setData({
-      showEditModal: false
+      showEditModal: false,
+      editingMember: {}
     })
   },
 
-  // 提交编辑成员角色
+  // 提交编辑成员信息
   async submitEdit() {
     try {
       const { editingMember } = this.data
-      const { newRoleId, wxId } = editingMember
       const alumniAssociationId = this.data.selectedAlumniAssociationId
 
-      // 验证必填参数
-      if (!newRoleId || !wxId || !alumniAssociationId) {
+      // 验证必填参数 - 需要成员id
+      if (!editingMember.id) {
         wx.showToast({
-          title: '请选择新角色',
+          title: '成员信息异常',
           icon: 'none'
         })
         return
       }
 
-      // 调用更新成员角色接口
-      const res = await this.updateMemberRoleAPI(alumniAssociationId, wxId, newRoleId)
+      // 构建更新数据，只传入有变化的字段
+      const updateData = {
+        id: editingMember.id
+      }
+
+      // 用户名和手机号仅未注册用户可编辑
+      if (!editingMember.wxId) {
+        if (editingMember.editUsername && editingMember.editUsername.trim()) {
+          updateData.username = editingMember.editUsername.trim()
+        }
+        if (editingMember.editUserPhone && editingMember.editUserPhone.trim()) {
+          updateData.userPhone = editingMember.editUserPhone.trim()
+        }
+      }
+
+      // 所属单位/职位
+      if (editingMember.editUserAffiliation !== undefined) {
+        updateData.userAffiliation = editingMember.editUserAffiliation.trim()
+      }
+
+      // 主页展示
+      updateData.isShowOnHome = editingMember.editIsShowOnHome
+
+      console.log('[Debug] 更新成员信息，请求数据:', updateData)
+
+      // 调用更新成员信息接口
+      const res = await alumniAssociationManagementApi.updateMemberInfo(updateData)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -532,7 +544,7 @@ Page({
         })
       }
     } catch (error) {
-      console.error('[Debug] 修改成员角色失败:', error)
+      console.error('[Debug] 修改成员信息失败:', error)
       wx.showToast({
         title: '修改失败',
         icon: 'none'
@@ -589,5 +601,25 @@ Page({
   // 调用删除成员接口
   deleteMemberAPI(alumniAssociationId, wxId) {
     return alumniAssociationManagementApi.deleteMember(alumniAssociationId, wxId)
+  },
+
+  // 点击成员跳转到用户详情页
+  onMemberTap(e) {
+    const member = e.currentTarget.dataset.member
+    const wxId = member.wxId
+
+    if (!wxId) {
+      // 没有 wxId，提示未注册
+      wx.showToast({
+        title: '该成员尚未注册',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 有 wxId，跳转到用户详情页
+    wx.navigateTo({
+      url: `/pages/user/detail/detail?id=${wxId}`
+    })
   }
 })

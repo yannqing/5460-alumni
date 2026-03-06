@@ -43,9 +43,9 @@ public class AddOrganizeArchiRoleDto implements Serializable {
     private String roleOrName;
 
     /**
-     * 角色唯一代码
+     * 角色唯一代码（后端自动生成，前端无需传此字段）
      */
-    @Schema(description = "角色唯一代码")
+    @Schema(description = "角色唯一代码（后端自动生成，前端无需传此字段）", accessMode = Schema.AccessMode.READ_ONLY)
     private String roleOrCode;
 
     /**

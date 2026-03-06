@@ -96,6 +96,24 @@ public class Notification implements Serializable {
     private String extraData;
 
     /**
+     * 动作类型：NONE-无动作, CONFIRM-需要确认, APPROVAL-需要审批, INVITATION-邀请等
+     */
+    @TableField(value = "action_type")
+    private String actionType;
+
+    /**
+     * 动作数据（JSON格式），存储动作相关的参数
+     */
+    @TableField(value = "action_data")
+    private String actionData;
+
+    /**
+     * 动作状态：0-待处理, 1-已同意, 2-已拒绝, 3-已过期
+     */
+    @TableField(value = "action_status")
+    private Integer actionStatus;
+
+    /**
      * 创建时间
      */
     @TableField(value = "created_time", fill = FieldFill.INSERT)

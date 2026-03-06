@@ -84,7 +84,7 @@ public class AlumniAssociation implements Serializable {
     /**
      * 主要负责人微信用户ID
      */
-    @TableField(value = "charge_wx_id")
+    @TableField(value = "charge_wx_id", updateStrategy = FieldStrategy.ALWAYS)
     private Long chargeWxId;
 
     /**
@@ -108,7 +108,7 @@ public class AlumniAssociation implements Serializable {
     /**
      * 驻会代表微信用户ID
      */
-    @TableField(value = "zh_wx_id")
+    @TableField(value = "zh_wx_id", updateStrategy = FieldStrategy.ALWAYS)
     private Long zhWxId;
 
     /**
@@ -122,6 +122,12 @@ public class AlumniAssociation implements Serializable {
      */
     @TableField(value = "zh_phone")
     private String zhPhone;
+
+    /**
+     * 驻会代表架构角色
+     */
+    @TableField(value = "zh_role")
+    private String zhRole;
 
     /**
      * 驻会代表社会职务

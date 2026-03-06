@@ -68,6 +68,66 @@ public class UpdateAlumniAssociationDto implements Serializable {
     private String bgImg;
 
     /**
+     * 校友会简介
+     */
+    @Schema(description = "校友会简介")
+    private String associationProfile;
+
+    /**
+     * 主要负责人微信用户ID
+     */
+    @Schema(description = "主要负责人微信用户ID")
+    private Long chargeWxId;
+
+    /**
+     * 主要负责人姓名
+     */
+    @Schema(description = "主要负责人姓名")
+    private String chargeName;
+
+    /**
+     * 主要负责人架构角色
+     */
+    @Schema(description = "主要负责人架构角色")
+    private String chargeRole;
+
+    /**
+     * 主要负责人社会职务
+     */
+    @Schema(description = "主要负责人社会职务")
+    private String chargeSocialAffiliation;
+
+    /**
+     * 驻会代表微信用户ID
+     */
+    @Schema(description = "驻会代表微信用户ID")
+    private Long zhWxId;
+
+    /**
+     * 驻会代表姓名
+     */
+    @Schema(description = "驻会代表姓名")
+    private String zhName;
+
+    /**
+     * 驻会代表联系电话
+     */
+    @Schema(description = "驻会代表联系电话")
+    private String zhPhone;
+
+    /**
+     * 驻会代表架构角色
+     */
+    @Schema(description = "驻会代表架构角色")
+    private String zhRole;
+
+    /**
+     * 驻会代表社会职务
+     */
+    @Schema(description = "驻会代表社会职务")
+    private String zhSocialAffiliation;
+
+    /**
      * 状态：0-禁用 1-启用
      */
     @Schema(description = "状态：0-禁用 1-启用")
