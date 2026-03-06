@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class InvitationQrVo {
 
     @Schema(description = "邀请人wxid")
-    private Long wxId;
+    private String wxId;
 
     @Schema(description = "小程序AppID（从配置读取）")
     private String appId;

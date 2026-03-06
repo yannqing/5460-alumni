@@ -65,7 +65,7 @@ public class InvitationController {
         String qrCodeBase64 = wechatMiniUtil.createWxaCodeUnlimit(scene, page, width);
 
         InvitationQrVo vo = InvitationQrVo.builder()
-                .wxId(wxId)
+                .wxId(String.valueOf(wxId))
                 .appId(appId)
                 .qrCodeBase64(qrCodeBase64)
                 .build();

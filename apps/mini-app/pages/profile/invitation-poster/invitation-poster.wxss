@@ -32,6 +32,11 @@
   z-index: 0;
 }
 
+.poster-container {
+  position: relative;
+  overflow: hidden;
+}
+
 .poster-item {
   padding-bottom: 32rpx;
 }
@@ -60,8 +65,8 @@
 /* 邀请二维码 - 展示海报左下角 */
 .qrcode-wrap {
   position: absolute;
-  left: 38rpx;
-  bottom: 38rpx;
+  left: 20rpx;
+  bottom: 20rpx;
   width: 160rpx;
   height: 160rpx;
   background: #fff;
