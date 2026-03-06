@@ -97,6 +97,8 @@ public class AuthServiceImpl implements AuthService {
         //4. 判断用户是否存在数据库
         // 优先通过unionid查询（如果有），否则通过openid查询
         WxUser loginUser;
+        // 使用 union_id 是否为空判断是否第一次登录：为空=第一次，不为空=非第一次
+        boolean isFirstLogin = (unionId == null || unionId.trim().isEmpty());
         if (unionId != null && !unionId.trim().isEmpty()) {
             loginUser = wxUserMapper.selectOne(new LambdaQueryWrapper<WxUser>().eq(WxUser::getUnionId, unionId));
         } else {
@@ -136,16 +138,24 @@ public class AuthServiceImpl implements AuthService {
         //8. 检查用户基本信息是否完善
         boolean isProfileComplete = checkUserProfileComplete(loginUser.getWxId());
 
-        //9. 返回用户信息 + Token + 角色信息 + 信息完善标识
-        log.info("用户登录: openid={}, token={}, roles={}, isAlumni={}, isProfileComplete={}",
-                openid, token, roleList, loginUser.getIsAlumni(), isProfileComplete);
-
-        return WxInitResponse.builder()
+        //9. 构建响应，仅首次登录时返回被邀请人和邀请人wxid
+        WxInitResponse.WxInitResponseBuilder responseBuilder = WxInitResponse.builder()
                 .token(token)
                 .roles(roleList)
                 .isAlumni(loginUser.getIsAlumni())
-                .isProfileComplete(isProfileComplete)
-                .build();
+                .isProfileComplete(isProfileComplete);
+        if (isFirstLogin) {
+            responseBuilder.inviteeWxId(loginUser.getWxId());
+            Long inviterWxId = parseInviterWxId(inviterWxUuid);
+            if (inviterWxId != null) {
+                responseBuilder.inviterWxId(inviterWxId);
+            }
+        }
+
+        log.info("用户登录: openid={}, token={}, roles={}, isAlumni={}, isProfileComplete={}, isFirstLogin={}",
+                openid, token, roleList, loginUser.getIsAlumni(), isProfileComplete, isFirstLogin);
+
+        return responseBuilder.build();
     }
 
     /**
@@ -168,6 +178,23 @@ public class AuthServiceImpl implements AuthService {
         // TODO 处理邀请关系
         // - 查找邀请人
         // - 创建邀请关系记录
+    }
+
+    /**
+     * 将邀请人UUID字符串解析为Long类型的wxId
+     * @param inviterWxUuid 邀请人wxId字符串（来自扫码scene）
+     * @return 解析成功返回wxId，失败返回null
+     */
+    private Long parseInviterWxId(String inviterWxUuid) {
+        if (inviterWxUuid == null || inviterWxUuid.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return Long.parseLong(inviterWxUuid.trim());
+        } catch (NumberFormatException e) {
+            log.warn("邀请人wxId解析失败: inviterWxUuid={}", inviterWxUuid);
+            return null;
+        }
     }
 
     /**
