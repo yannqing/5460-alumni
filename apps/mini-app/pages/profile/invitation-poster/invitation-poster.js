@@ -55,6 +55,6 @@ Page({
           this.setData({ qrCodeSrc })
         }
       })
-      .catch(() => {})
+      .catch(() => { })
   }
 })
