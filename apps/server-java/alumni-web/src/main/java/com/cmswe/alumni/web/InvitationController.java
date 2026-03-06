@@ -7,10 +7,12 @@ import com.cmswe.alumni.common.dto.ConfirmInvitationDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.utils.WechatMiniUtil;
+import com.cmswe.alumni.common.vo.InvitationMyListVo;
 import com.cmswe.alumni.common.vo.InvitationQrVo;
 import com.cmswe.alumni.common.vo.InvitationRankVo;
 import com.cmswe.alumni.common.vo.InvitationRecordItemVo;
 import com.cmswe.alumni.common.vo.InviteeRegisterCheckVo;
+import com.cmswe.alumni.common.vo.PosterTemplateItemVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -88,7 +90,7 @@ public class InvitationController {
             return ResultUtils.failure(Code.FAILURE, null, "请先登录");
         }
         Long currentWxId = securityUser.getWxUser().getWxId();
-        if (!currentWxId.equals(dto.getInviteeWxId())) {
+        if (!String.valueOf(currentWxId).equals(dto.getInviteeWxId())) {
             return ResultUtils.failure(Code.FAILURE, null, "仅被邀请人本人可确认邀请");
         }
         boolean success = invitationService.confirmInvitation(dto);
@@ -104,7 +106,7 @@ public class InvitationController {
      */
     @GetMapping("/check-register")
     @Operation(summary = "检查被邀请人是否已注册")
-    public BaseResponse<InviteeRegisterCheckVo> checkInviteeRegister(@RequestParam Long wxId) {
+    public BaseResponse<InviteeRegisterCheckVo> checkInviteeRegister(@RequestParam String wxId) {
         InviteeRegisterCheckVo vo = invitationService.checkInviteeRegistration(wxId);
         return ResultUtils.success(Code.SUCCESS, vo, "查询成功");
     }
@@ -116,9 +118,9 @@ public class InvitationController {
      */
     @GetMapping("/my-list")
     @Operation(summary = "查看自己的邀请列表")
-    public BaseResponse<List<InvitationRecordItemVo>> getMyInvitationList(@RequestParam Long wxId) {
-        List<InvitationRecordItemVo> list = invitationService.getMyInvitationList(wxId);
-        return ResultUtils.success(Code.SUCCESS, list, "查询成功");
+    public BaseResponse<InvitationMyListVo> getMyInvitationList(@RequestParam String wxId) {
+        InvitationMyListVo vo = invitationService.getMyInvitationList(wxId);
+        return ResultUtils.success(Code.SUCCESS, vo, "查询成功");
     }
 
     /**
@@ -129,8 +131,18 @@ public class InvitationController {
      */
     @GetMapping("/rank")
     @Operation(summary = "查看邀请排行榜")
-    public BaseResponse<InvitationRankVo> getInvitationRank(@RequestParam(required = false) Long wxId) {
+    public BaseResponse<InvitationRankVo> getInvitationRank(@RequestParam(required = false) String wxId) {
         InvitationRankVo vo = invitationService.getInvitationRank(wxId);
         return ResultUtils.success(Code.SUCCESS, vo, "查询成功");
+    }
+
+    /**
+     * 展示邀请模版列表（无入参，查询 type=0 邀请模板，输出 id、url）
+     */
+    @GetMapping("/poster-templates")
+    @Operation(summary = "展示邀请模版列表")
+    public BaseResponse<List<PosterTemplateItemVo>> getInvitationPosterTemplates() {
+        List<PosterTemplateItemVo> list = invitationService.getInvitationPosterTemplates();
+        return ResultUtils.success(Code.SUCCESS, list, "查询成功");
     }
 }

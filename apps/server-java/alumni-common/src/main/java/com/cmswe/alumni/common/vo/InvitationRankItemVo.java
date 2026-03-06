@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class InvitationRankItemVo {
 
     @Schema(description = "用户wxid")
-    private Long wxId;
+    private String wxId;
 
     @Schema(description = "排行（从1开始）")
     private Integer rank;

@@ -22,13 +22,16 @@ public class InvitationRecordItemVo {
     private Long id;
 
     @Schema(description = "被邀请人wxid")
-    private Long inviteeWxId;
+    private String inviteeWxId;
 
     @Schema(description = "被邀请人昵称")
     private String inviteeNickname;
 
     @Schema(description = "被邀请人姓名")
     private String inviteeName;
+
+    @Schema(description = "被邀请人头像URL")
+    private String avatar;
 
     @Schema(description = "是否认证(0未认证,1已认证)")
     private Integer isVerified;

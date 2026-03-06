@@ -1,0 +1,141 @@
+/* pages/profile/invitation-rank/invitation-rank.wxss */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 25rpx 20rpx 25rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+  z-index: 0;
+}
+
+/* 顶部统计区域 */
+.summary {
+  padding: 20rpx 24rpx;
+  margin-bottom: 32rpx;
+  background-color: #f7f8fa;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+.summary-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background-color: #f5f5f5;
+}
+
+.summary-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-name {
+  font-size: 30rpx;
+  color: #333;
+}
+
+.summary-school {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.summary-extra {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 邀请排行列表 */
+.rank-item {
+  padding: 24rpx 0;
+  border-bottom: 1px solid #F3F3F3;
+  display: flex;
+  align-items: center;
+}
+
+.rank-left {
+  width: 60rpx;
+  text-align: center;
+}
+
+.rank-number {
+  font-size: 32rpx;
+  color: #999;
+}
+
+.rank-number.top3 {
+  color: #F7B500;
+  font-weight: 600;
+}
+
+.rank-middle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.rank-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background-color: #f5f5f5;
+}
+
+.rank-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.rank-name {
+  font-size: 30rpx;
+  color: #333;
+  max-width: 320rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-school {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.rank-right {
+  margin-left: 20rpx;
+}
+
+.rank-count {
+  font-size: 24rpx;
+  color: #666;
+}
+

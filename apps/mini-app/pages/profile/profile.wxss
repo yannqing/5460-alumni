@@ -664,7 +664,7 @@
   background-color: rgba(255,255,255,1.000000);
   border-radius: 29rpx;
   width: 678rpx;
-  height: 380rpx;
+  min-height: 380rpx;
   display: flex;
   flex-direction: column;
   margin: -2rpx 0 0 42rpx;
@@ -694,6 +694,12 @@
   display: flex;
   justify-content: flex-start;
   margin: 24rpx 0 0 76rpx;
+}
+
+/* 其他功能第二行（我的邀请在我的券包下面，每行四个） */
+.list_6_row2 {
+  margin-top: 24rpx;
+  margin-bottom: 0;
 }
 
 .image-text_9-0 {

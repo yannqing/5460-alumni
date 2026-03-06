@@ -1,9 +1,11 @@
 package com.cmswe.alumni.api.user;
 
 import com.cmswe.alumni.common.dto.ConfirmInvitationDto;
+import com.cmswe.alumni.common.vo.InvitationMyListVo;
 import com.cmswe.alumni.common.vo.InvitationRankVo;
 import com.cmswe.alumni.common.vo.InvitationRecordItemVo;
 import com.cmswe.alumni.common.vo.InviteeRegisterCheckVo;
+import com.cmswe.alumni.common.vo.PosterTemplateItemVo;
 
 import java.util.List;
 
@@ -31,15 +33,15 @@ public interface InvitationService {
      * @param wxId 被邀请人 wxid
      * @return 是否为被邀请用户、是否已注册
      */
-    InviteeRegisterCheckVo checkInviteeRegistration(Long wxId);
+    InviteeRegisterCheckVo checkInviteeRegistration(String wxId);
 
     /**
      * 查看自己的邀请列表（作为邀请人）
      *
      * @param inviterWxId 邀请人 wxid
-     * @return 邀请记录列表（含被邀请人昵称、姓名等）
+     * @return 邀请人数、排名、邀请记录列表
      */
-    List<InvitationRecordItemVo> getMyInvitationList(Long inviterWxId);
+    InvitationMyListVo getMyInvitationList(String inviterWxId);
 
     /**
      * 查看邀请排行榜
@@ -48,5 +50,12 @@ public interface InvitationService {
      * @param myWxId 当前用户 wxid（用于展示“我的”人数与排名，可为 null）
      * @return 我的统计 + 完整排行榜列表
      */
-    InvitationRankVo getInvitationRank(Long myWxId);
+    InvitationRankVo getInvitationRank(String myWxId);
+
+    /**
+     * 展示邀请模版列表（type=0 邀请模板），仅返回 id、url
+     *
+     * @return 模版列表
+     */
+    List<PosterTemplateItemVo> getInvitationPosterTemplates();
 }

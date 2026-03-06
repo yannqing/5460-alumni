@@ -14,9 +14,9 @@ public class ConfirmInvitationDto {
 
     @Schema(description = "邀请人wxid", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "邀请人wxid不能为空")
-    private Long inviterWxId;
+    private String inviterWxId;
 
     @Schema(description = "被邀请人wxid", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "被邀请人wxid不能为空")
-    private Long inviteeWxId;
+    private String inviteeWxId;
 }

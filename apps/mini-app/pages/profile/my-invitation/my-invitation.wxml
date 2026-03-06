@@ -1,0 +1,29 @@
+<!--pages/profile/my-invitation/my-invitation.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="我的邀请">
+<view class="page">
+  <view class="group_7">
+  <view class="summary">
+      <text class="summary-text">成功邀请<text class="summary-text-number">{{inviteCount}}</text>位用户，目前排名<text class="summary-text-rank">{{myRank}}</text></text>
+      <view class="summary-btn" bindtap="goToRankPage">
+        查看排行
+      </view>
+    </view>
+
+    <block wx:if="{{list && list.length}}">
+      <scroll-view class="scroll-list" scroll-y="true">
+        <block wx:for="{{list}}" wx:key="id">
+          <view class="invite-item">
+            <image class="invite-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+            <text class="invite-name">{{item.displayName}}</text>
+          </view>
+        </block>
+      </scroll-view>
+    </block>
+
+    <view class="invite-btn-wrap">
+      <view class="invite-btn" bindtap="goToInvitePoster">邀请他人认证</view>
+    </view>
+  </view>
+</view>
+</custom-nav-bar>

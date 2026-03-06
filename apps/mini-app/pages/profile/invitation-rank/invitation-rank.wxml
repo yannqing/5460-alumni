@@ -1,0 +1,39 @@
+<!--pages/profile/invitation-rank/invitation-rank.wxml-->
+<!-- 自定义导航栏 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="邀请排行">
+<view class="page">
+  <view class="group_7">
+    <view class="summary">
+      <image class="summary-avatar" src="{{myAvatarUrl}}" mode="aspectFill" />
+      <view class="summary-info">
+        <text class="summary-name">{{myName}}</text>
+        <text class="summary-school">{{mySchool}}</text>
+        <text class="summary-extra">已邀请{{myInviteCount}}人 · 当前排名{{myRank}}</text>
+      </view>
+    </view>
+
+    <block wx:if="{{rankList && rankList.length}}">
+      <scroll-view class="scroll-list" scroll-y="true">
+        <block wx:for="{{rankList}}" wx:key="wxId">
+          <view class="rank-item">
+            <view class="rank-left">
+              <text class="rank-number {{index < 3 ? 'top3' : ''}}">{{item.rank}}</text>
+            </view>
+            <view class="rank-middle">
+              <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+              <view class="rank-info">
+                <text class="rank-name">{{item.name}}</text>
+                <text class="rank-school">{{item.school}}</text>
+              </view>
+            </view>
+            <view class="rank-right">
+              <text class="rank-count">邀请{{item.inviteCount}}人</text>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </block>
+  </view>
+</view>
+</custom-nav-bar>
+
