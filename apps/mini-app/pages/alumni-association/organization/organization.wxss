@@ -337,6 +337,18 @@
   border-color: #ffd591;
 }
 
+.role-item.level-4 {
+  margin-left: 120rpx;
+  background-color: #f9f0ff;
+  border-color: #d3adf7;
+}
+
+.role-item.level-5 {
+  margin-left: 160rpx;
+  background-color: #fff0f6;
+  border-color: #ffadd2;
+}
+
 .role-left {
   display: flex;
   align-items: center;
@@ -863,6 +875,14 @@
 
 .member-list-wrap.level-3 {
   margin-left: 136rpx;
+}
+
+.member-list-wrap.level-4 {
+  margin-left: 176rpx;
+}
+
+.member-list-wrap.level-5 {
+  margin-left: 216rpx;
 }
 
 .member-item {

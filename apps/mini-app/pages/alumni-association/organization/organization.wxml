@@ -93,7 +93,7 @@
                   <view class="role-left">
                     <view
                       class="expand-icon {{expandedRoles[grandChild.roleOrId] ? 'expanded' : ''}}"
-                      wx:if="{{grandChild.members && grandChild.members.length > 0}}"
+                      wx:if="{{(grandChild.children && grandChild.children.length > 0) || (grandChild.members && grandChild.members.length > 0)}}"
                       catchtap="toggleExpand"
                       data-role-or-id="{{grandChild.roleOrId}}"
                     >
@@ -119,6 +119,76 @@
                     <view class="member-show-tag" wx:if="{{member.isShowOnHome === 1}}">主页展示</view>
                   </view>
                 </view>
+                <!-- 四级角色 -->
+                <block wx:if="{{expandedRoles[grandChild.roleOrId]}}">
+                  <block wx:for="{{grandChild.children}}" wx:for-item="greatGrandChild" wx:key="roleOrId">
+                    <view class="role-item level-4" bindlongpress="onRoleLongPress" data-role="{{greatGrandChild}}">
+                      <view class="role-left">
+                        <view
+                          class="expand-icon {{expandedRoles[greatGrandChild.roleOrId] ? 'expanded' : ''}}"
+                          wx:if="{{(greatGrandChild.children && greatGrandChild.children.length > 0) || (greatGrandChild.members && greatGrandChild.members.length > 0)}}"
+                          catchtap="toggleExpand"
+                          data-role-or-id="{{greatGrandChild.roleOrId}}"
+                        >
+                          <text class="arrow">▶</text>
+                        </view>
+                        <view class="expand-placeholder" wx:else></view>
+                        <view class="role-name">{{greatGrandChild.roleOrName}}</view>
+                        <view class="member-count" wx:if="{{greatGrandChild.members && greatGrandChild.members.length > 0}}">({{greatGrandChild.members.length}}人)</view>
+                      </view>
+                      <view class="role-actions">
+                        <view class="edit-btn" catchtap="openEditModal" data-role="{{greatGrandChild}}">编辑</view>
+                        <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{greatGrandChild.roleOrId}}">删除</view>
+                      </view>
+                    </view>
+                    <!-- 四级角色的成员列表 -->
+                    <view class="member-list-wrap level-4" wx:if="{{expandedRoles[greatGrandChild.roleOrId] && greatGrandChild.members && greatGrandChild.members.length > 0}}">
+                      <view class="member-item" wx:for="{{greatGrandChild.members}}" wx:for-item="member" wx:key="wxId">
+                        <image class="member-avatar" src="{{member.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+                        <view class="member-info">
+                          <text class="member-name">{{member.username || member.name || member.nickname || '未命名'}}</text>
+                          <text class="member-affiliation" wx:if="{{member.userAffiliation}}">{{member.userAffiliation}}</text>
+                        </view>
+                        <view class="member-show-tag" wx:if="{{member.isShowOnHome === 1}}">主页展示</view>
+                      </view>
+                    </view>
+                    <!-- 五级角色 -->
+                    <block wx:if="{{expandedRoles[greatGrandChild.roleOrId]}}">
+                      <block wx:for="{{greatGrandChild.children}}" wx:for-item="level5Child" wx:key="roleOrId">
+                        <view class="role-item level-5" bindlongpress="onRoleLongPress" data-role="{{level5Child}}">
+                          <view class="role-left">
+                            <view
+                              class="expand-icon {{expandedRoles[level5Child.roleOrId] ? 'expanded' : ''}}"
+                              wx:if="{{level5Child.members && level5Child.members.length > 0}}"
+                              catchtap="toggleExpand"
+                              data-role-or-id="{{level5Child.roleOrId}}"
+                            >
+                              <text class="arrow">▶</text>
+                            </view>
+                            <view class="expand-placeholder" wx:else></view>
+                            <view class="role-name">{{level5Child.roleOrName}}</view>
+                            <view class="member-count" wx:if="{{level5Child.members && level5Child.members.length > 0}}">({{level5Child.members.length}}人)</view>
+                          </view>
+                          <view class="role-actions">
+                            <view class="edit-btn" catchtap="openEditModal" data-role="{{level5Child}}">编辑</view>
+                            <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{level5Child.roleOrId}}">删除</view>
+                          </view>
+                        </view>
+                        <!-- 五级角色的成员列表 -->
+                        <view class="member-list-wrap level-5" wx:if="{{expandedRoles[level5Child.roleOrId] && level5Child.members && level5Child.members.length > 0}}">
+                          <view class="member-item" wx:for="{{level5Child.members}}" wx:for-item="member" wx:key="wxId">
+                            <image class="member-avatar" src="{{member.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+                            <view class="member-info">
+                              <text class="member-name">{{member.username || member.name || member.nickname || '未命名'}}</text>
+                              <text class="member-affiliation" wx:if="{{member.userAffiliation}}">{{member.userAffiliation}}</text>
+                            </view>
+                            <view class="member-show-tag" wx:if="{{member.isShowOnHome === 1}}">主页展示</view>
+                          </view>
+                        </view>
+                      </block>
+                    </block>
+                  </block>
+                </block>
               </block>
             </block>
           </block>

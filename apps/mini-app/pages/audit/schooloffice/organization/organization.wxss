@@ -311,6 +311,18 @@
   border-color: #ffd591;
 }
 
+.role-item.level-4 {
+  margin-left: 120rpx;
+  background-color: #f9f0ff;
+  border-color: #d3adf7;
+}
+
+.role-item.level-5 {
+  margin-left: 160rpx;
+  background-color: #fff0f6;
+  border-color: #ffadd2;
+}
+
 /* 角色左侧区域（包含展开图标和名称） */
 .role-left {
   display: flex;
@@ -443,6 +455,18 @@
 
 .members-container.level-3 {
   margin-left: 80rpx;
+  background-color: #f0f7ff;
+  border-color: #91caff;
+}
+
+.members-container.level-4 {
+  margin-left: 120rpx;
+  background-color: #f0f7ff;
+  border-color: #91caff;
+}
+
+.members-container.level-5 {
+  margin-left: 160rpx;
   background-color: #f0f7ff;
   border-color: #91caff;
 }
