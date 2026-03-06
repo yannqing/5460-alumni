@@ -46,7 +46,13 @@ Page({
     showAddMemberModal: false,
     currentRole: null, // 当前操作的角色
     memberList: [], // 校促会成员列表
-    memberLoading: false // 成员列表加载状态
+    memberLoading: false, // 成员列表加载状态
+    // 节点详情弹窗相关
+    showNodeDetailModal: false,
+    currentDetailRole: null, // 当前查看详情的节点
+    // 新增弹窗相关
+    addModalTitle: '新增顶级架构',
+    addParentRole: null // 当前添加子节点的父节点
   },
 
   onLoad(options) {
@@ -427,7 +433,7 @@ Page({
       const res = await this.callUpdateRoleApi({
         organizeId: selectedOrganizeId,
         roleOrId: editingRole.roleOrId,
-        pid: editForm.pid === '0' ? null : editForm.pid, // 0表示顶级，传null
+        pid: editForm.pid, // 0表示顶级
         roleOrName: editForm.roleOrName.trim(),
         remark: editForm.remark.trim(),
         status: editForm.status
@@ -603,7 +609,7 @@ Page({
       const res = await this.callUpdateRoleApi({
         organizeId: this.data.selectedOrganizeId,
         roleOrId: movingRole.roleOrId,
-        pid: parentId === '0' ? null : parentId, // 0 表示顶级，传 null
+        pid: parentId, // 0 表示顶级
         roleOrName: movingRole.roleOrName,
         remark: movingRole.remark || '',
         status: movingRole.status !== undefined ? movingRole.status : 1
@@ -1009,7 +1015,7 @@ Page({
   async removeMemberFromStructure(e) {
     const { member, role } = e.currentTarget.dataset
     const { selectedOrganizeId } = this.data
-    
+
     // 显示确认对话框
     wx.showModal({
       title: '确认删除',
@@ -1018,12 +1024,12 @@ Page({
         if (res.confirm) {
           try {
             wx.showLoading({ title: '删除中...' })
-            
+
             const result = await localPlatformManagementApi.removeMemberFromStructure({
               localPlatformId: selectedOrganizeId,
               memberId: member.id || member.memberId // 兼容不同的字段名
             })
-            
+
             if (result.data && result.data.code === 200) {
               wx.showToast({
                 title: '删除成功',
@@ -1045,6 +1051,243 @@ Page({
             })
           } finally {
             wx.hideLoading()
+          }
+        }
+      }
+    })
+  },
+
+  // ========== 树形展示相关方法 ==========
+
+  // 打开节点详情弹窗
+  openNodeDetailModal(e) {
+    const { role } = e.currentTarget.dataset
+    console.log('[Debug] 打开节点详情弹窗，节点数据:', role)
+    this.setData({
+      showNodeDetailModal: true,
+      currentDetailRole: role
+    })
+  },
+
+  // 关闭节点详情弹窗
+  closeNodeDetailModal() {
+    this.setData({
+      showNodeDetailModal: false,
+      currentDetailRole: null
+    })
+  },
+
+  // 打开新增顶级架构弹窗
+  openAddTopLevelModal() {
+    if (!this.data.selectedSchoolOfficeId) {
+      wx.showToast({
+        title: '请先选择校促会',
+        icon: 'none'
+      })
+      return
+    }
+
+    this.setData({
+      showAddModal: true,
+      addModalTitle: '新增顶级架构',
+      addParentRole: null,
+      addForm: {
+        roleOrName: '',
+        remark: '',
+        pid: '0'
+      },
+      selectedParentName: '顶级架构(无父级)'
+    })
+  },
+
+  // 打开新增子架构弹窗（从详情弹窗中）
+  openAddChildModal() {
+    const { currentDetailRole } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    console.log('[Debug] 打开新增子架构弹窗，父节点:', currentDetailRole)
+
+    // 关闭详情弹窗，打开新增弹窗
+    this.setData({
+      showNodeDetailModal: false,
+      showAddModal: true,
+      addModalTitle: '新增子架构',
+      addParentRole: currentDetailRole,
+      addForm: {
+        roleOrName: '',
+        remark: '',
+        pid: String(currentDetailRole.roleOrId)
+      },
+      selectedParentName: currentDetailRole.roleOrName
+    })
+  },
+
+  // 从详情弹窗打开添加成员弹窗
+  openAddMemberModalFromDetail() {
+    const { currentDetailRole } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    // 关闭详情弹窗，打开添加成员弹窗
+    this.setData({
+      showNodeDetailModal: false,
+      currentRole: currentDetailRole,
+      showAddMemberModal: true
+    })
+    this.loadMemberList()
+  },
+
+  // 从详情弹窗删除成员
+  async removeMemberFromDetailModal(e) {
+    const { member } = e.currentTarget.dataset
+    const { currentDetailRole, selectedOrganizeId } = this.data
+
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要将 ${member.name || member.nickname || member.username} 从 ${currentDetailRole.roleOrName} 中移除吗？`,
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...' })
+
+            const result = await localPlatformManagementApi.removeMemberFromStructure({
+              localPlatformId: selectedOrganizeId,
+              memberId: member.id || member.memberId
+            })
+
+            if (result.data && result.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+              // 关闭详情弹窗
+              this.setData({
+                showNodeDetailModal: false,
+                currentDetailRole: null
+              })
+              // 重新加载角色列表以更新成员信息
+              await this.loadRoleList(selectedOrganizeId)
+            } else {
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              })
+            }
+          } catch (error) {
+            console.error('[Debug] 删除成员失败:', error)
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          } finally {
+            wx.hideLoading()
+          }
+        }
+      }
+    })
+  },
+
+  // 从详情弹窗打开编辑弹窗
+  openEditModalFromDetail() {
+    const { currentDetailRole } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    console.log('[Debug] 从详情弹窗打开编辑弹窗，角色数据:', currentDetailRole)
+
+    // 关闭详情弹窗
+    this.setData({
+      showNodeDetailModal: false
+    })
+
+    // 获取可选的父级列表（排除自己及其子节点）
+    const editParentOptions = this.getAvailableParentsForEdit(currentDetailRole)
+
+    // 设置当前父级ID（默认为0表示顶级）
+    const currentPid = currentDetailRole.pid === null || currentDetailRole.pid === undefined ? '0' : String(currentDetailRole.pid)
+
+    // 查找当前父级在选项列表中的索引
+    const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
+
+    // 获取当前父级名称
+    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构(无父级)'
+
+    this.setData({
+      showEditModal: true,
+      editingRole: currentDetailRole,
+      editForm: {
+        roleOrName: currentDetailRole.roleOrName || '',
+        remark: currentDetailRole.remark || '',
+        status: currentDetailRole.status !== undefined ? currentDetailRole.status : 1,
+        pid: currentPid
+      },
+      editParentOptions: editParentOptions,
+      editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
+      editSelectedParentName: editSelectedParentName
+    })
+  },
+
+  // 从详情弹窗删除角色
+  deleteRoleFromDetail() {
+    const { currentDetailRole, selectedOrganizeId } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    const roleOrId = currentDetailRole.roleOrId
+
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这个架构吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...' })
+
+            // 调用删除接口
+            const deleteRes = await this.callDeleteRoleApi(roleOrId, selectedOrganizeId)
+
+            wx.hideLoading()
+
+            if (deleteRes.data && deleteRes.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+
+              // 关闭详情弹窗
+              this.setData({
+                showNodeDetailModal: false,
+                currentDetailRole: null
+              })
+
+              // 重新加载角色列表
+              await this.loadRoleList(selectedOrganizeId)
+            } else {
+              // 显示后端返回的错误信息
+              const errorMsg = (deleteRes.data && deleteRes.data.msg) || '删除失败'
+              wx.showModal({
+                title: '删除失败',
+                content: errorMsg,
+                showCancel: false,
+                confirmText: '知道了'
+              })
+            }
+          } catch (error) {
+            wx.hideLoading()
+            console.error('[Debug] 删除角色失败:', error)
+            wx.showModal({
+              title: '删除失败',
+              content: '网络请求失败，请稍后重试',
+              showCancel: false,
+              confirmText: '知道了'
+            })
           }
         }
       }
