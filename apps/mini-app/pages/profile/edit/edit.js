@@ -509,13 +509,23 @@ Page({
         return
       }
 
-      // 检查文件大小 (10MB)
+      // 检查文件大小
       const fileSize = chooseRes.tempFiles?.[0]?.size || 0
-      const maxSize = 10 * 1024 * 1024
+      const config = require('../../../utils/config.js')
+
+      // 云托管模式下，限制为 100KB；非云托管模式下，限制为 10MB
+      const maxSize = config.IS_CLOUD_HOST ? 100 * 1024 : 10 * 1024 * 1024
+      const maxSizeText = config.IS_CLOUD_HOST ? '100KB' : '10MB'
+
+      console.log('[Background Upload] 文件大小:', (fileSize / 1024).toFixed(2), 'KB')
+      console.log('[Background Upload] 云托管模式:', config.IS_CLOUD_HOST)
+      console.log('[Background Upload] 大小限制:', maxSizeText)
+
       if (fileSize > maxSize) {
         wx.showToast({
-          title: '图片大小不能超过10MB',
-          icon: 'none'
+          title: '文件过大，请压缩后上传',
+          icon: 'none',
+          duration: 2000
         })
         return
       }
@@ -531,7 +541,6 @@ Page({
 
       // 调用公共的文件上传方法
       const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
-      wx.hideLoading()
 
       if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
         const rawImageUrl = uploadRes.data.fileUrl || ''
@@ -539,12 +548,17 @@ Page({
           const config = require('../../../utils/config.js')
           const imageUrl = config.getImageUrl(rawImageUrl)
 
-          // 更新表单中的背景图URL
+          // 更新表单中的背景图URL（用于显示）
           this.setData({ 'form.bgImg': imageUrl })
 
-          // 上传成功后自动保存
-          const updateData = { bgImg: imageUrl }
+          // 上传成功后自动保存（保存原始URL到后端）
+          const updateData = { bgImg: rawImageUrl }
           await this.saveSingleField(updateData, true)
+        } else {
+          wx.showToast({
+            title: '上传失败，未获取到图片地址',
+            icon: 'none'
+          })
         }
       } else {
         wx.showToast({
@@ -553,14 +567,18 @@ Page({
         })
       }
     } catch (error) {
-      wx.hideLoading()
       if (error.errMsg !== 'chooseMedia:fail cancel') {
         console.error('选择背景图失败:', error)
+        // 显示具体的错误信息
+        const errorMsg = error?.msg || error?.message || '上传失败，请重试'
         wx.showToast({
-          title: '选择图片失败',
-          icon: 'none'
+          title: errorMsg,
+          icon: 'none',
+          duration: 2000
         })
       }
+    } finally {
+      wx.hideLoading()
     }
   },
 
@@ -922,13 +940,23 @@ Page({
         return
       }
 
-      // 检查文件大小（10MB = 2 * 1024 * 1024 字节）
+      // 检查文件大小
       const fileSize = chooseRes.tempFiles?.[0]?.size || 0
-      const maxSize = 10 * 1024 * 1024 // 10MB
+      const config = require('../../../utils/config.js')
+
+      // 云托管模式下，限制为 100KB；非云托管模式下，限制为 10MB
+      const maxSize = config.IS_CLOUD_HOST ? 100 * 1024 : 10 * 1024 * 1024
+      const maxSizeText = config.IS_CLOUD_HOST ? '100KB' : '10MB'
+
+      console.log('[Avatar Upload] 文件大小:', (fileSize / 1024).toFixed(2), 'KB')
+      console.log('[Avatar Upload] 云托管模式:', config.IS_CLOUD_HOST)
+      console.log('[Avatar Upload] 大小限制:', maxSizeText)
+
       if (fileSize > maxSize) {
         wx.showToast({
-          title: '图片大小不能超过10MB',
-          icon: 'none'
+          title: '文件过大，请压缩后上传',
+          icon: 'none',
+          duration: 2000
         })
         return
       }

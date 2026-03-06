@@ -28,8 +28,11 @@
         </view>
         <view class="nickname-badge-row">
           <text class="text_6">{{userInfo.nickname || '用户名'}}</text>
-          <!-- 校友会认证徽章 -->
-          <image wx:if="{{userInfo.isAlumni === 1}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
+          <!-- 校友认证等级标签 -->
+          <view wx:if="{{userInfo.certificationFlag === 1}}" class="alumni-cert-badge alumni-cert-level-1">一级认证</view>
+          <view wx:elif="{{userInfo.certificationFlag === 2}}" class="alumni-cert-badge alumni-cert-level-2">二级认证</view>
+          <view wx:elif="{{userInfo.certificationFlag === 3}}" class="alumni-cert-badge alumni-cert-level-3">三级认证</view>
+          <view wx:else class="uncertified-tag">未认证</view>
         </view>
       </view>
 

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 /**
  * 校友状态更新处理器（责任链模式）
  *
- * <p>功能：当校友会加入申请审核通过时，更新用户的 isAlumni 字段为 1
+ * <p>功能：当校友会加入申请审核通过时，更新用户的 certificationFlag 字段为 3（校友会认证）
  *
  * <p>触发条件：
  * <ul>
@@ -76,32 +76,32 @@ public class AlumniStatusUpdateHandler extends AbstractMessageHandler<UnifiedMes
         }
 
         try {
-            // 5. 查询用户当前的 isAlumni 状态
+            // 5. 查询用户当前的认证状态
             WxUser wxUser = wxUserMapper.selectById(wxId);
 
             if (wxUser == null) {
-                log.warn("[AlumniStatusUpdateHandler] 用户不存在，无法更新校友状态 - WxId: {}", wxId);
+                log.warn("[AlumniStatusUpdateHandler] 用户不存在，无法更新认证状态 - WxId: {}", wxId);
                 return false;
             }
 
-            // 6. 检查当前状态，如果已经是校友则无需更新
-            if (wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1) {
-                log.debug("[AlumniStatusUpdateHandler] 用户已是校友，无需更新 - WxId: {}", wxId);
+            // 6. 检查当前状态，如果已经有认证则无需更新
+            if (wxUser.getCertificationFlag() != null && wxUser.getCertificationFlag() > 0) {
+                log.debug("[AlumniStatusUpdateHandler] 用户已有认证，无需更新 - WxId: {}, 认证标识: {}", wxId, wxUser.getCertificationFlag());
                 return true;
             }
 
-            // 7. 更新用户的 isAlumni 字段为 1
+            // 7. 更新用户的 certificationFlag 字段为 3（校友会认证）
             LambdaUpdateWrapper<WxUser> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(WxUser::getWxId, wxId)
-                    .set(WxUser::getIsAlumni, 1);
+                    .set(WxUser::getCertificationFlag, 3);
 
             int updateCount = wxUserMapper.update(null, updateWrapper);
 
             if (updateCount > 0) {
-                log.info("[AlumniStatusUpdateHandler] 校友状态更新成功 - WxId: {}, isAlumni: 0 -> 1", wxId);
+                log.info("[AlumniStatusUpdateHandler] 认证状态更新成功 - WxId: {}, certificationFlag: 0 -> 3", wxId);
                 return true;
             } else {
-                log.warn("[AlumniStatusUpdateHandler] 校友状态更新失败 - WxId: {}, UpdateCount: {}",
+                log.warn("[AlumniStatusUpdateHandler] 认证状态更新失败 - WxId: {}, UpdateCount: {}",
                         wxId, updateCount);
                 return false;
             }

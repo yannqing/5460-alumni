@@ -353,18 +353,18 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
                 return false;
             }
 
-            // 2. 如果已经是校友，无需更新
-            if (wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1) {
-                log.debug("[AlumniJoinApprovalHandler] 用户已是校友，无需更新 - 用户ID: {}", wxId);
+            // 2. 如果已经有认证，无需更新
+            if (wxUser.getCertificationFlag() != null && wxUser.getCertificationFlag() > 0) {
+                log.debug("[AlumniJoinApprovalHandler] 用户已有认证，无需更新 - 用户ID: {}, 认证标识: {}", wxId, wxUser.getCertificationFlag());
                 return true;
             }
 
-            // 3. 更新 isAlumni 为 1
-            wxUser.setIsAlumni(1);
+            // 3. 更新 certificationFlag 为 3（校友会认证）
+            wxUser.setCertificationFlag(3);
             boolean updateResult = userService.updateById(wxUser);
 
             if (updateResult) {
-                log.info("[AlumniJoinApprovalHandler] 校友状态更新成功 - 用户ID: {}, isAlumni: 0 -> 1", wxId);
+                log.info("[AlumniJoinApprovalHandler] 校友认证状态更新成功 - 用户ID: {}, certificationFlag: 0 -> 3", wxId);
                 return true;
             } else {
                 log.warn("[AlumniJoinApprovalHandler] 校友状态更新失败 - 用户ID: {}", wxId);

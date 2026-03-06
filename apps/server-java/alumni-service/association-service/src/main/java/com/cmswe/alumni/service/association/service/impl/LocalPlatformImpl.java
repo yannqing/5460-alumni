@@ -767,6 +767,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 .eq(AlumniAssociation::getPlatformId, platformId)
                 // 强制条件：只返回启用状态（status=1）的校友会
                 .eq(AlumniAssociation::getStatus, 1)
+                // 强制条件：只返回校促会认证的校友会（certification_flag=2）
+                .eq(AlumniAssociation::getCertificationFlag, 2)
                 // 其他可选查询条件
                 .like(StringUtils.isNotBlank(associationName), AlumniAssociation::getAssociationName, associationName)
                 .like(StringUtils.isNotBlank(location), AlumniAssociation::getLocation, location);

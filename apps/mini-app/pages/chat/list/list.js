@@ -25,8 +25,8 @@ Page({
       messageContent: ''
     },
     statusBarHeight: 0,
-    imageTopBg: config.getAssetImageUrl('grdbt@2x.png'),
-    imageBanner: config.getAssetImageUrl('chatbanner2@2x.png'), // Reusing the banner from profile for now as placeholder
+    imageTopBg: '/assets/home/banner.png',
+    imageBanner: '/assets/home/banner2.png', // 使用本地 banner 图片
     iconAlumni: config.getIconUrl('chatwdxyh@2x.png'), // Using existing icons as placeholders if specific ones aren't known
     iconFav: config.getIconUrl('chatwdsc@2x.png'),
     iconFollow: config.getIconUrl('chatwdgz@2x.png'),
@@ -267,7 +267,8 @@ Page({
           // 判断头像：如果是系统通知使用默认图标，否则使用用户头像
           let avatar = ''
           if (isSystemNotification) {
-            avatar = config.getAssetImageUrl('xttzavartar@2x.png')
+            // 系统通知头像使用远程服务器上的图片
+            avatar = 'https://cni-alumni.yannqing.com/upload/images/assets/images/xttzavartar@2x.png'
           } else {
             avatar = chat.peerAvatar ? config.getImageUrl(chat.peerAvatar) : ((chat.userAvatar || chat.targetAvatar || chat.avatar) ? config.getImageUrl(chat.userAvatar || chat.targetAvatar || chat.avatar) : config.getImageUrl(config.defaultAvatar))
           }

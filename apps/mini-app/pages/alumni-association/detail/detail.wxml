@@ -24,13 +24,11 @@
             <view class="flex-1 ml-20">
               <view class="name-row">
                 <text class="text-primary text-bold">{{associationInfo.name}}</text>
-                <view wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" class="cert-tag-wrap">
-                  <block wx:for="{{associationInfo.certifications}}" wx:key="id">
-                    <view class="cert-tag" data-type="{{item.type}}" data-id="{{item.id}}" catchtap="handleCertificationTap">
-                      {{item.label}}
-                    </view>
-                  </block>
-                </view>
+                <!-- 认证等级标签 -->
+                <view wx:if="{{associationInfo.certificationFlag === 1}}" class="cert-tag cert-level-1">一级认证</view>
+                <view wx:elif="{{associationInfo.certificationFlag === 2}}" class="cert-tag cert-level-2">二级认证</view>
+                <view wx:elif="{{associationInfo.certificationFlag === 3}}" class="cert-tag cert-level-3">三级认证</view>
+                <view wx:else class="uncertified-tag">未认证</view>
               </view>
               <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
                 <view class="school-tag">{{associationInfo.schoolName}}</view>
@@ -56,6 +54,19 @@
         <view wx:if="{{activeTab === 0}}" class="tab-content">
           <view class="card">
             <view class="text-bold mb-20">基本信息</view>
+            <!-- 核心成员展示 -->
+            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="core-members-section">
+              <view class="core-members-title">核心成员</view>
+              <view class="core-members-list">
+                <view class="core-member-item" wx:for="{{coreMemberList}}" wx:key="index" bindtap="viewCoreMemberDetail" data-member="{{item}}">
+                  <view class="core-member-info">
+                    <text class="core-member-name">{{item.username || '-'}}</text>
+                    <text class="core-member-role">{{item.roleName || '-'}}</text>
+                  </view>
+                  <text wx:if="{{item.userAffiliation}}" class="core-member-affiliation">{{item.userAffiliation}}</text>
+                </view>
+              </view>
+            </view>
             <view wx:if="{{associationInfo.chargeName}}" class="basic-info-item" bindtap="viewChargeDetail">{{associationInfo.chargeRole || '校友会负责人'}}：{{associationInfo.chargeName}}</view>
             <view wx:if="{{associationInfo.zhName}}" class="basic-info-item" bindtap="viewZhDetail">驻会代表：{{associationInfo.zhName}}</view>
             <view class="basic-info-item">成员数量：{{associationInfo.memberCount || 0}}人</view>

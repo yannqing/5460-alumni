@@ -14,7 +14,7 @@
         <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP"/>
         <result property="lastLoginIp" column="last_login_ip" jdbcType="VARCHAR"/>
         <result property="isEnabled" column="is_enabled" jdbcType="TINYINT"/>
-        <result property="isAlumni" column="is_alumni" jdbcType="TINYINT"/>
+        <result property="certificationFlag" column="certification_flag" jdbcType="TINYINT"/>
         <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
         <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
         <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
@@ -24,7 +24,7 @@
         wx_id,openid,union_id,
         remark,latitude,longitude,
         last_login_time,last_login_ip,is_enabled,
-        is_alumni,created_time,updated_time,is_delete
+        certification_flag,created_time,updated_time,is_delete
     </sql>
 
 </mapper>

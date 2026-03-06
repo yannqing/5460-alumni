@@ -406,12 +406,12 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         AlumniDetailVo alumniDetailVo = new AlumniDetailVo();
         BeanUtils.copyProperties(baseUserDetail, alumniDetailVo);
 
-        //4. 查询 wx_users 表获取 is_alumni 字段
+        //4. 查询 wx_users 表获取 certification_flag 字段
         WxUser wxUser = wxUserMapper.selectById(id);
         if (wxUser != null) {
-            alumniDetailVo.setIsAlumni(wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1);
+            alumniDetailVo.setCertificationFlag(wxUser.getCertificationFlag());
         } else {
-            alumniDetailVo.setIsAlumni(false);
+            alumniDetailVo.setCertificationFlag(0);
         }
 
         //5. 如果提供了 currentUserId，查询关注状态
@@ -557,9 +557,9 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
         Page<WxUserInfo> wxUserInfoPage = wxUserInfoMapper.selectPage(new Page<>(current, pageSize), queryWrapper);
 
-        // 批量查询主要教育经历和校友状态
+        // 批量查询主要教育经历和认证标识
         Map<Long, AlumniEducationListVo> primaryEducationMap = new HashMap<>();
-        Map<Long, Boolean> isAlumniMap = new HashMap<>();
+        Map<Long, Integer> certificationFlagMap = new HashMap<>();
 
         if (!wxUserInfoPage.getRecords().isEmpty()) {
             List<Long> wxIds = wxUserInfoPage.getRecords().stream()
@@ -567,12 +567,12 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                     .distinct()
                     .collect(Collectors.toList());
 
-            // 批量查询 wx_users 表获取 is_alumni 字段
+            // 批量查询 wx_users 表获取 certification_flag 字段
             List<WxUser> wxUsers = wxUserMapper.selectBatchIds(wxIds);
-            isAlumniMap = wxUsers.stream()
+            certificationFlagMap = wxUsers.stream()
                     .collect(Collectors.toMap(
                             WxUser::getWxId,
-                            wxUser -> wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1,
+                            wxUser -> wxUser.getCertificationFlag() != null ? wxUser.getCertificationFlag() : 0,
                             (v1, v2) -> v1
                     ));
 
@@ -624,7 +624,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         }
 
         Map<Long, AlumniEducationListVo> finalPrimaryEducationMap = primaryEducationMap;
-        Map<Long, Boolean> finalIsAlumniMap = isAlumniMap;
+        Map<Long, Integer> finalCertificationFlagMap = certificationFlagMap;
 
         List<UserListResponse> userListResponses = wxUserInfoPage.getRecords().stream().map(wxUserInfo -> {
             UserListResponse userListResponse = UserListResponse.ObjToVo(wxUserInfo);
@@ -640,8 +640,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             // 设置主要教育经历
             userListResponse.setPrimaryEducation(finalPrimaryEducationMap.get(wxUserInfo.getWxId()));
 
-            // 设置校友认证状态
-            userListResponse.setIsAlumni(finalIsAlumniMap.getOrDefault(wxUserInfo.getWxId(), false));
+            // 设置认证标识
+            userListResponse.setCertificationFlag(finalCertificationFlagMap.getOrDefault(wxUserInfo.getWxId(), 0));
 
             return userListResponse;
         }).toList();

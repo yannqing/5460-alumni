@@ -105,14 +105,14 @@ public class MerchantController {
             throw new BusinessException("用户不存在");
         }
 
-        Integer isAlumni = wxUser.getIsAlumni();
+        Integer certificationFlag = wxUser.getCertificationFlag();
 
-        log.info("用户提交商户入驻申请 - 用户ID: {}, 商户名称: {}, 是否校友: {}", wxId, applyDto.getMerchantName(), isAlumni);
+        log.info("用户提交商户入驻申请 - 用户ID: {}, 商户名称: {}, 认证标识: {}", wxId, applyDto.getMerchantName(), certificationFlag);
 
-        // 校验用户是否为校友
-        if (isAlumni == null || isAlumni != 1) {
-            log.warn("非校友用户尝试提交商户入驻申请 - 用户ID: {}, isAlumni: {}", wxId, isAlumni);
-            throw new BusinessException("只有校友才能申请商户入驻");
+        // 校验用户是否已认证（校友）
+        if (certificationFlag == null || certificationFlag == 0) {
+            log.warn("未认证用户尝试提交商户入驻申请 - 用户ID: {}, certificationFlag: {}", wxId, certificationFlag);
+            throw new BusinessException("只有认证校友才能申请商户入驻");
         }
 
         boolean result = merchantService.applyMerchant(wxId, applyDto);

@@ -111,6 +111,43 @@
   display: block;
 }
 
+/* 校友认证等级标签 */
+.alumni-cert-badge {
+  margin-left: 16rpx;
+  padding: 4rpx 16rpx;
+  font-size: 22rpx;
+  color: #ffffff;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 校友一级认证 - 蓝色 */
+.alumni-cert-level-1 {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+}
+
+/* 校友二级认证 - 紫色 */
+.alumni-cert-level-2 {
+  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+}
+
+/* 校友三级认证 - 红色 */
+.alumni-cert-level-3 {
+  background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+}
+
+/* 未认证标签 */
+.uncertified-tag {
+  margin-left: 16rpx;
+  padding: 4rpx 16rpx;
+  font-size: 22rpx;
+  color: #999999;
+  background: #f5f5f5;
+  border-radius: 20rpx;
+  border: 1rpx solid #e0e0e0;
+  flex-shrink: 0;
+}
+
 .signature-text {
   font-size: 24rpx;
   color: rgba(255, 255, 255, 0.85);

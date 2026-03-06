@@ -37,6 +37,7 @@ import com.cmswe.alumni.common.vo.SchoolListVo;
 import com.cmswe.alumni.common.vo.ActivityListVo;
 import com.cmswe.alumni.common.vo.ActivityDetailVo;
 import com.cmswe.alumni.common.vo.AlumniPlaceListVo;
+import com.cmswe.alumni.common.vo.CoreMemberVo;
 import com.cmswe.alumni.common.vo.UserListResponse;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationMapper;
@@ -388,8 +389,64 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                 .collect(Collectors.toList());
         alumniAssociationDetailVo.setArticleList(articleListVos);
 
-        log.info("根据id查询校友会信息 id:{}, wxId:{}, 活动数量:{}, 企业数量:{}, 文章数量:{}",
-                id, wxId, activityListVos.size(), placeListVos.size(), articleListVos.size());
+        // 4.8 查询该校友会的核心成员列表（在主页展示的成员）
+        LambdaQueryWrapper<AlumniAssociationMember> coreMemberQueryWrapper = new LambdaQueryWrapper<>();
+        coreMemberQueryWrapper
+                .eq(AlumniAssociationMember::getAlumniAssociationId, id) // 校友会ID
+                .eq(AlumniAssociationMember::getIsShowOnHome, 1) // 在主页展示
+                .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
+                .orderByAsc(AlumniAssociationMember::getId); // 按ID升序
+
+        List<AlumniAssociationMember> coreMemberList = alumniAssociationMemberService.list(coreMemberQueryWrapper);
+
+        // 收集所有有 wx_id 的成员ID，批量查询用户信息
+        List<Long> wxIds = coreMemberList.stream()
+                .map(AlumniAssociationMember::getWxId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, WxUserInfo> userInfoMap = new HashMap<>();
+        if (!wxIds.isEmpty()) {
+            List<WxUserInfo> userInfos = wxUserInfoService.list(
+                    new LambdaQueryWrapper<WxUserInfo>().in(WxUserInfo::getWxId, wxIds));
+            userInfoMap = userInfos.stream()
+                    .collect(Collectors.toMap(WxUserInfo::getWxId, Function.identity(), (v1, v2) -> v1));
+        }
+
+        // 构建核心成员VO列表
+        Map<Long, WxUserInfo> finalUserInfoMap = userInfoMap;
+        List<CoreMemberVo> coreMemberVoList = coreMemberList.stream()
+                .map(member -> {
+                    String username = member.getUsername();
+                    String userPhone = member.getUserPhone();
+
+                    // 如果 wx_id 不为空，使用用户信息表中的数据
+                    if (member.getWxId() != null) {
+                        WxUserInfo userInfo = finalUserInfoMap.get(member.getWxId());
+                        if (userInfo != null) {
+                            if (userInfo.getName() != null) {
+                                username = userInfo.getName();
+                            }
+                            if (userInfo.getPhone() != null) {
+                                userPhone = userInfo.getPhone();
+                            }
+                        }
+                    }
+
+                    return CoreMemberVo.builder()
+                            .wxId(member.getWxId())
+                            .roleName(member.getRoleName())
+                            .username(username)
+                            .userPhone(userPhone)
+                            .userAffiliation(member.getUserAffiliation())
+                            .build();
+                })
+                .collect(Collectors.toList());
+        alumniAssociationDetailVo.setCoreMemberList(coreMemberVoList);
+
+        log.info("根据id查询校友会信息 id:{}, wxId:{}, 活动数量:{}, 企业数量:{}, 文章数量:{}, 核心成员数量:{}",
+                id, wxId, activityListVos.size(), placeListVos.size(), articleListVos.size(), coreMemberVoList.size());
 
         return alumniAssociationDetailVo;
 
@@ -1495,9 +1552,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                 return;
             }
 
-            // 2. 如果用户当前不是校友（isAlumni = 0 或 null），无需处理
-            if (wxUser.getIsAlumni() == null || wxUser.getIsAlumni() == 0) {
-                log.debug("用户当前不是校友，无需更新 - 用户ID: {}, isAlumni: {}", wxId, wxUser.getIsAlumni());
+            // 2. 如果用户当前没有认证（certificationFlag = 0 或 null），无需处理
+            if (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
+                log.debug("用户当前没有认证，无需更新 - 用户ID: {}, certificationFlag: {}", wxId, wxUser.getCertificationFlag());
                 return;
             }
 
@@ -1510,16 +1567,16 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
             log.info("用户剩余校友会数量 - 用户ID: {}, 剩余数量: {}", wxId, remainingAssociationCount);
 
-            // 4. 如果用户不再是任何校友会的成员，更新 isAlumni 为 0
+            // 4. 如果用户不再是任何校友会的成员，更新 certificationFlag 为 0
             if (remainingAssociationCount == 0) {
                 // 使用 UserService 的 updateById 方法更新
-                wxUser.setIsAlumni(0);
+                wxUser.setCertificationFlag(0);
                 boolean updateResult = userService.updateById(wxUser);
 
                 if (updateResult) {
-                    log.info("用户校友状态已更新 - 用户ID: {}, isAlumni: 1 -> 0", wxId);
+                    log.info("用户认证状态已更新 - 用户ID: {}, certificationFlag: {} -> 0", wxId, wxUser.getCertificationFlag());
                 } else {
-                    log.warn("用户校友状态更新失败 - 用户ID: {}", wxId);
+                    log.warn("用户认证状态更新失败 - 用户ID: {}", wxId);
                 }
             } else {
                 log.info("用户还是其他校友会成员，保持校友状态 - 用户ID: {}, 校友会数量: {}", wxId, remainingAssociationCount);

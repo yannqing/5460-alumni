@@ -24,8 +24,8 @@ public class WxInitResponse {
     @Schema(description = "用户角色列表")
     private List<RoleListVo> roles;
 
-    @Schema(description = "是否成为校友：0-否，1-是")
-    private Integer isAlumni;
+    @Schema(description = "认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）")
+    private Integer certificationFlag;
 
     @Schema(description = "用户基本信息是否完善：true-完善，false-未完善")
     private Boolean isProfileComplete;

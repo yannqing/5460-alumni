@@ -153,7 +153,7 @@ public class AuthServiceImpl implements AuthService {
         WxInitResponse.WxInitResponseBuilder responseBuilder = WxInitResponse.builder()
                 .token(token)
                 .roles(roleList)
-                .isAlumni(loginUser.getIsAlumni())
+                .certificationFlag(loginUser.getCertificationFlag())
                 .isProfileComplete(isProfileComplete);
         if (isFirstLogin) {
             Long inviterWxIdLong = parseInviterWxId(inviterWxUuid);
@@ -171,8 +171,8 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-        log.info("用户登录: openid={}, token={}, roles={}, isAlumni={}, isProfileComplete={}, isFirstLogin={}",
-                openid, token, roleList, loginUser.getIsAlumni(), isProfileComplete, isFirstLogin);
+        log.info("用户登录: openid={}, token={}, roles={}, certificationFlag={}, isProfileComplete={}, isFirstLogin={}",
+                openid, token, roleList, loginUser.getCertificationFlag(), isProfileComplete, isFirstLogin);
 
         return responseBuilder.build();
     }
@@ -417,12 +417,12 @@ public class AuthServiceImpl implements AuthService {
         WxInitResponse response = WxInitResponse.builder()
                 .token(token)
                 .roles(roleList)
-                .isAlumni(loginUser.getIsAlumni())
+                .certificationFlag(loginUser.getCertificationFlag())
                 .isProfileComplete(isProfileComplete)
                 .build();
 
-        log.info("测试登录成功 - 用户ID: {}, 是否校友: {}, 信息完善: {}",
-                loginUser.getWxId(), loginUser.getIsAlumni(), isProfileComplete);
+        log.info("测试登录成功 - 用户ID: {}, 认证标识: {}, 信息完善: {}",
+                loginUser.getWxId(), loginUser.getCertificationFlag(), isProfileComplete);
 
         return response;
     }
