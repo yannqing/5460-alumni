@@ -1,5 +1,93 @@
-@import "../../alumni-association/detail/detail.wxss";
+/* 校处会详情页面样式 */
 
+/* 从 alumni-association/detail 引入的共用样式 */
+.container {
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.tab-content {
+  padding: 20rpx;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.location-icon {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avatar-large {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+/* 文本和布局工具类 */
+.text-bold {
+  font-weight: 600;
+  font-size: 30rpx;
+}
+
+.text-primary {
+  color: #333333;
+}
+
+.text-secondary {
+  color: #666666;
+  font-size: 24rpx;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.mb-20 {
+  margin-bottom: 20rpx;
+}
+
+.ml-20 {
+  margin-left: 20rpx;
+}
+
+.mt-10 {
+  margin-top: 10rpx;
+}
+
+/* 校处会详情页面特有样式 */
 .platform-detail-page {
   min-height: 100vh;
   margin-top: 0;

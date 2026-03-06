@@ -151,6 +151,6 @@
 
   <!-- 右下角悬浮按钮 -->
   <view class="floating-button">
-    <image src="../../../assets/icons/create_alumni_association.png" mode="aspectFit" bindtap="createAssociation" />
+    <image src="{{iconCreateAssociation}}" mode="aspectFit" bindtap="createAssociation" />
   </view>
 </view>
