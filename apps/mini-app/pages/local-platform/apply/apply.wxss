@@ -508,3 +508,23 @@ page {
   color: #999;
   font-size: 26rpx;
 }
+
+/* 反馈入口提示 */
+.feedback-hint-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30rpx;
+  padding: 0 18rpx;
+}
+
+.feedback-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.feedback-hint-link {
+  font-size: 24rpx;
+  color: #1890FF;
+  margin-left: 8rpx;
+}

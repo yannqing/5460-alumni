@@ -30,9 +30,12 @@ Page({
     activityList: [],
     activityLoading: false,
     activityThemes: {
-      1: { name: '进行中', theme: 'ing' },
-      2: { name: '未开始', theme: 'start' },
-      3: { name: '已结束', theme: 'end' },
+      0: { name: '草稿', theme: 'draft' },
+      1: { name: '报名中', theme: 'signup' },
+      2: { name: '报名结束', theme: 'signup-end' },
+      3: { name: '进行中', theme: 'ing' },
+      4: { name: '已结束', theme: 'end' },
+      5: { name: '已取消', theme: 'cancelled' },
       'default': { name: '未知', theme: '' }
     },
 
@@ -905,7 +908,7 @@ Page({
     try {
       const res = await activityApi.getPublicActivityList({
         current: 1,
-        pageSize: 5
+        pageSize: 2
       });
 
       const result = res.data || res;

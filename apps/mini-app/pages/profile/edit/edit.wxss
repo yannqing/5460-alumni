@@ -597,3 +597,23 @@
   color: #999999;
 }
 
+/* 反馈入口提示 */
+.feedback-hint-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20rpx 40rpx;
+  background: #fff;
+}
+
+.feedback-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.feedback-hint-link {
+  font-size: 24rpx;
+  color: #40B2E6;
+  margin-left: 8rpx;
+}
+

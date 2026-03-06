@@ -680,6 +680,12 @@ const joinApplicationApi = {
   reviewApplication: (params) => post('/AlumniAssociationJoinApplication/review', params),
 }
 
+// ==================== 用户反馈相关接口 ====================
+const feedbackApi = {
+  // 提交用户反馈
+  submit: (data) => post('/feedback/submit', data),
+}
+
 module.exports = {
   schoolApi,
   associationApi,
@@ -705,4 +711,5 @@ module.exports = {
   articleApplyApi,
   bannerApi,
   placeApi,
+  feedbackApi,
 }

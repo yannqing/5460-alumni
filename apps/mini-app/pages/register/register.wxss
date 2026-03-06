@@ -375,3 +375,23 @@
   background-color: #E8E8E8;
   color: #CCCCCC;
 }
+
+/* 反馈入口提示 */
+.feedback-hint-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30rpx;
+  padding: 0 10rpx;
+}
+
+.feedback-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.feedback-hint-link {
+  font-size: 24rpx;
+  color: #4A8BF5;
+  margin-left: 8rpx;
+}

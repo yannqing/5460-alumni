@@ -252,7 +252,7 @@
   flex-shrink: 0;
 }
 
-/* +新增角色按钮：右边缘与列表第一级框内编辑/删除右边缘对齐（role-item 有 padding 24rpx，故 right: 24rpx） */
+/* +新增顶级架构按钮 */
 .group_19 .text-wrapper_13 {
   position: absolute;
   right: 24rpx;
@@ -260,8 +260,8 @@
   background-color: rgba(24,144,255,1);
   border-radius: 7rpx;
   height: 58rpx;
-  min-width: 167rpx;
-  width: 167rpx;
+  min-width: fit-content;
+  width: auto;
   padding: 0 24rpx;
   display: flex;
   flex-direction: row;
@@ -275,6 +275,7 @@
   color: rgba(255,255,255,1);
   line-height: 36rpx;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* 角色列表内容：与标题保持统一垂直间距，与图中一致 */
@@ -1030,8 +1031,44 @@
 }
 
 .add-member-modal-body {
-  max-height: 50vh;
+  flex: 1;
+  padding: 20rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
   overflow: hidden;
+}
+
+/* 成员职务输入样式 */
+.add-member-role-input {
+  margin-bottom: 20rpx;
+  flex-shrink: 0;
+}
+
+.add-member-role-label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.add-member-role-label.required::before {
+  content: '*';
+  color: #ff4d4f;
+  margin-right: 8rpx;
+}
+
+.add-member-role-field {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  background-color: #fafafa;
+  box-sizing: border-box;
 }
 
 .add-member-modal-body .loading-state {
@@ -1044,8 +1081,12 @@
 }
 
 .add-member-modal-body .member-list {
-  max-height: 50vh;
-  padding: 0 30rpx;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .add-member-modal-body .member-item {
@@ -1054,6 +1095,9 @@
   padding: 24rpx 0;
   border-bottom: 1rpx solid #f5f5f5;
   cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .add-member-modal-body .member-item:active {
@@ -1076,6 +1120,8 @@
 
 .add-member-modal-body .member-info {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .add-member-modal-body .member-name {
@@ -1083,11 +1129,17 @@
   font-weight: 600;
   color: #333;
   margin-bottom: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .add-member-modal-body .member-role {
   font-size: 24rpx;
   color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .add-member-modal-body .member-checkbox {
@@ -1382,7 +1434,10 @@
 .node-detail-modal-body {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 30rpx 30rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 节点基本信息 */
@@ -1428,6 +1483,9 @@
 /* 成员列表区域 */
 .node-members-section {
   padding: 24rpx 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .node-members-header {
@@ -1456,6 +1514,9 @@
   background-color: #fafafa;
   border-radius: 12rpx;
   padding: 0 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .node-member-item {
@@ -1463,6 +1524,9 @@
   align-items: center;
   padding: 20rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .node-member-item:last-child {
@@ -1486,6 +1550,7 @@
 .node-member-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .node-member-name {

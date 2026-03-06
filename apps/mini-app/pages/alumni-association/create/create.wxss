@@ -723,3 +723,23 @@ page {
 .level-10 .node-content {
   background: linear-gradient(135deg, #08979c 0%, #36cfc9 100%);
 }
+
+/* 反馈入口提示 */
+.feedback-hint-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30rpx;
+  padding: 0 10rpx;
+}
+
+.feedback-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.feedback-hint-link {
+  font-size: 24rpx;
+  color: #1890FF;
+  margin-left: 8rpx;
+}

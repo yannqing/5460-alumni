@@ -137,13 +137,13 @@
                                 </view>
                             </view> -->
                         </view>
-                        <org-structure 
-                            id="org-structure" 
-                            list="{{roleList}}" 
-                            loading="{{organizationLoading}}" 
-                            empty-text="暂无角色数据" 
-                            isLocalPlatform="{{true}}" 
-                            localPlatformId="{{platformId}}" 
+                        <org-structure
+                            id="org-structure"
+                            list="{{roleList}}"
+                            loading="{{organizationLoading}}"
+                            empty-text="暂无角色数据"
+                            isLocalPlatform="{{true}}"
+                            localPlatformId="{{platformId}}"
                             bind:refresh="onOrgStructureRefresh"
                         />
                     </view>

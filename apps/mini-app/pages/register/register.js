@@ -231,6 +231,13 @@ Page({
     })
   },
 
+  // 跳转到反馈页面
+  goToFeedback() {
+    wx.navigateTo({
+      url: '/pages/feedback/feedback?type=1&title=' + encodeURIComponent('找不到学校')
+    })
+  },
+
   // 验证表单
   validateForm() {
     const { formData, isAgreed } = this.data

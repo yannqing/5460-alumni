@@ -9,7 +9,6 @@ import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.UserFeedbackVo;
 import com.cmswe.alumni.service.system.mapper.UserFeedbackMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import java.time.LocalDateTime;
  */
 @Slf4j
 @Service
-@DubboService
 public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, UserFeedback>
         implements UserFeedbackService {
 
@@ -34,11 +32,11 @@ public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, Use
 
             // 1. 参数校验
             if (wxId == null) {
-                throw new BusinessException(ErrorType.PARAMS_ERROR, "用户ID不能为空");
+                throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
             }
 
             if (feedbackDto.getFeedbackType() == null || feedbackDto.getFeedbackType() < 1 || feedbackDto.getFeedbackType() > 5) {
-                throw new BusinessException(ErrorType.PARAMS_ERROR, "反馈类型不合法");
+                throw new BusinessException(ErrorType.ARGS_ERROR, "反馈类型不合法");
             }
 
             // 2. 创建反馈记录

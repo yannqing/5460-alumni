@@ -210,21 +210,22 @@ public class LocalPlatformManagementController {
         }
 
         /**
-         * 为校促会架构添加成员（将已有成员分配到组织架构角色，更新 role_or_id）
+         * 为校促会架构添加成员（将已有成员分配到组织架构角色，更新 role_or_id 和 role_name）
          *
-         * @param addDto 请求参数：校促会id、成员id、role_or_id
+         * @param addDto 请求参数：校促会id、成员id、role_or_id、role_name
          * @return 返回添加结果
          */
         @PostMapping("/member/addToStructure")
         @Operation(summary = "为校促会架构添加成员")
         public BaseResponse<Boolean> addMemberToStructure(@Valid @RequestBody AddLocalPlatformMemberToStructureDto addDto) {
-                log.info("为校促会架构添加成员，校促会 ID: {}, 成员 ID: {}, 角色 ID: {}",
-                                addDto.getLocalPlatformId(), addDto.getMemberId(), addDto.getRoleOrId());
+                log.info("为校促会架构添加成员，校促会 ID: {}, 成员 ID: {}, 角色 ID: {}, 职位名称: {}",
+                                addDto.getLocalPlatformId(), addDto.getMemberId(), addDto.getRoleOrId(), addDto.getRoleName());
 
                 boolean result = localPlatformService.addMemberToStructure(
                                 addDto.getLocalPlatformId(),
                                 addDto.getMemberId(),
-                                addDto.getRoleOrId());
+                                addDto.getRoleOrId(),
+                                addDto.getRoleName());
 
                 if (result) {
                         return ResultUtils.success(Code.SUCCESS, true, "添加成功");

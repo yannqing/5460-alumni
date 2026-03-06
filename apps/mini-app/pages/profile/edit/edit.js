@@ -2232,6 +2232,13 @@ Page({
     })
   },
 
+  // 跳转到反馈页面
+  goToFeedback() {
+    wx.navigateTo({
+      url: '/pages/feedback/feedback?type=4&title=' + encodeURIComponent('编辑资料遇到问题')
+    })
+  }
+
 })
 
 

@@ -507,5 +507,12 @@ Page({
         } finally {
             this.setData({ submitting: false })
         }
+    },
+
+    // 跳转到反馈页面
+    goToFeedback() {
+        wx.navigateTo({
+            url: '/pages/feedback/feedback?type=1&title=' + encodeURIComponent('创建校友总会遇到问题')
+        })
     }
 })

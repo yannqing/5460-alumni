@@ -337,6 +337,16 @@
         <text class="add-member-modal-close" bindtap="closeAddMemberModal">×</text>
       </view>
       <view class="add-member-modal-body">
+        <!-- 职务输入 -->
+        <view class="add-member-role-input">
+          <text class="add-member-role-label required">成员职务</text>
+          <input
+            class="add-member-role-field"
+            placeholder="请输入成员在此架构下的职务"
+            value="{{memberRoleName}}"
+            bindinput="onMemberRoleNameInput"
+          />
+        </view>
         <view wx:if="{{memberLoading}}" class="loading-state">
           <text>加载成员中...</text>
         </view>

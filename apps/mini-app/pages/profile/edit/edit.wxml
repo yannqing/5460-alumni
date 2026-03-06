@@ -339,6 +339,12 @@
       </view>
     </scroll-view>
 
+    <!-- 反馈入口 -->
+    <view class="feedback-hint-section">
+      <text class="feedback-hint-text">遇到问题或信息有误？</text>
+      <text class="feedback-hint-link" bindtap="goToFeedback">点击反馈</text>
+    </view>
+
     <view class="bottom-action">
       <button class="btn btn-primary" loading="{{saving}}" bindtap="saveProfile">保存资料</button>
     </view>

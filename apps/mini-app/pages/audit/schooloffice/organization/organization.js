@@ -47,6 +47,7 @@ Page({
     currentRole: null, // 当前操作的角色
     memberList: [], // 校促会成员列表
     memberLoading: false, // 成员列表加载状态
+    memberRoleName: '', // 成员在架构下的职务
     // 节点详情弹窗相关
     showNodeDetailModal: false,
     currentDetailRole: null, // 当前查看详情的节点
@@ -904,7 +905,8 @@ Page({
     const { role } = e.currentTarget.dataset
     this.setData({
       currentRole: role,
-      showAddMemberModal: true
+      showAddMemberModal: true,
+      memberRoleName: '' // 重置职务输入
     })
     this.loadMemberList()
   },
@@ -914,7 +916,15 @@ Page({
     this.setData({
       showAddMemberModal: false,
       currentRole: null,
-      memberList: []
+      memberList: [],
+      memberRoleName: ''
+    })
+  },
+
+  // 成员职务输入处理
+  onMemberRoleNameInput(e) {
+    this.setData({
+      memberRoleName: e.detail.value
     })
   },
 
@@ -956,11 +966,20 @@ Page({
 
   // 提交添加成员到架构
   async submitAddMembers() {
-    const { currentRole, memberList, selectedOrganizeId } = this.data
-    
+    const { currentRole, memberList, selectedOrganizeId, memberRoleName } = this.data
+
+    // 校验职务
+    if (!memberRoleName || !memberRoleName.trim()) {
+      wx.showToast({
+        title: '请输入成员职务',
+        icon: 'none'
+      })
+      return
+    }
+
     // Get selected members
     const selectedMembers = memberList.filter(member => member.selected)
-    
+
     if (selectedMembers.length === 0) {
       wx.showToast({
         title: '请选择至少一个成员',
@@ -968,16 +987,17 @@ Page({
       })
       return
     }
-    
+
     try {
       wx.showLoading({ title: '添加中...' })
-      
+
       // 批量添加成员
       const promises = selectedMembers.map(member => {
         return localPlatformManagementApi.addMemberToStructure({
           localPlatformId: selectedOrganizeId,
           memberId: member.memberId, // 使用正确的字段名 memberId
-          roleOrId: currentRole.roleOrId
+          roleOrId: currentRole.roleOrId,
+          roleName: memberRoleName.trim() // 新增职务字段
         })
       })
       
@@ -1135,7 +1155,8 @@ Page({
     this.setData({
       showNodeDetailModal: false,
       currentRole: currentDetailRole,
-      showAddMemberModal: true
+      showAddMemberModal: true,
+      memberRoleName: '' // 重置职务输入
     })
     this.loadMemberList()
   },
