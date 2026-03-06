@@ -31,9 +31,18 @@
                 <view wx:if="{{activeTab === 0}}" class="tab-content">
                     <view class="card">
                         <view class="text-bold mb-20">基本信息</view>
-                        <view class="basic-info-item">负责人姓名：{{platformInfo.principalName || '不方便透露'}}</view>
-                        <view class="basic-info-item">负责人职位：{{platformInfo.principalPosition || '不方便透露'}}</view>
-                        <view class="basic-info-item">联系电话：{{platformInfo.localPlatformPhone || '不方便透露'}}</view>
+                        <!-- 主页展示成员列表 -->
+                        <view wx:if="{{platformInfo.showMembers && platformInfo.showMembers.length > 0}}" class="show-members-section">
+                            <view class="show-members-title">主页展示成员</view>
+                            <view class="show-members-list">
+                                <view class="show-member-item" wx:for="{{platformInfo.showMembers}}" wx:key="id">
+                                    <view class="show-member-row">
+                                        <text class="show-member-name">{{item.username || '-'}}</text>
+                                        <text class="show-member-role">{{item.roleName || '-'}}</text>
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
                         <view class="basic-info-item">会员数量：{{platformInfo.memberCount || '不方便透露'}}</view>
                         <!-- 会员单位头像预览 -->
                         <view wx:if="{{associations && associations.length > 0}}" class="member-avatar-preview">
@@ -72,6 +81,24 @@
                         </view>
                         <view class="basic-info-item">简介：{{platformInfo.description || '不方便透露'}}</view>
                     </view>
+                    <!-- 校促会重大事记（放在简介下面） -->
+                    <view class="card important-events-card" wx:if="{{platformInfo.importantEvents && platformInfo.importantEvents.length > 0}}">
+                        <view class="text-bold mb-20">校促会重大事记</view>
+                        <view class="important-events-timeline">
+                            <view class="events-year-block" wx:for="{{platformInfo.importantEvents}}" wx:key="year">
+                                <view class="events-year-header">
+                                    <view class="events-year-badge">{{item.year}}</view>
+                                    <view class="events-year-line"></view>
+                                </view>
+                                <view class="events-list">
+                                    <view class="event-item" wx:for="{{item.events}}" wx:for-item="event" wx:key="*this">
+                                        <view class="event-dot"></view>
+                                        <text class="event-text">{{event}}</text>
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
                     <!-- 小程序链接 -->
                     <view class="card" wx:if="{{platformInfo.miniProgramLinks && platformInfo.miniProgramLinks.length > 0}}">
                         <view class="text-bold mb-20">相关政务</view>
@@ -102,14 +129,15 @@
                                 <view class="text-bold">组织架构</view>
                                 <view class="section-subtitle">组织架构展示</view>
                             </view>
-                            <view wx:if="{{canEditOrg}}" class="section-edit-btn">
+                            <!-- 暂时注销编辑按钮 -->
+                            <!-- <view wx:if="{{canEditOrg}}" class="section-edit-btn">
                                 <view wx:if="{{!isEditOrgMode}}" class="edit-btn" bindtap="onEditOrgClick">
                                     <text class="edit-text">编辑</text>
                                 </view>
                                 <view wx:else class="edit-btn cancel-btn" bindtap="onCancelOrgEdit">
                                     <text class="edit-text">取消</text>
                                 </view>
-                            </view>
+                            </view> -->
                         </view>
                         <org-structure 
                             id="org-structure" 

@@ -94,6 +94,12 @@ public class LocalPlatformMember implements Serializable {
     private LocalDateTime updatedTime;
 
     /**
+     * 是否在主页展示：0-否，1-是
+     */
+    @TableField(value = "is_show")
+    private Integer isShow;
+
+    /**
      * 逻辑删除
      */
     @TableLogic

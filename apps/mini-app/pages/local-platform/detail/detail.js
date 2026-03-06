@@ -154,7 +154,10 @@ Page({
           principalPosition: data.principalPosition || null,
           localPlatformPhone: data.localPlatformPhone || null,
           // 小程序链接
-          miniProgramLinks: data.miniProgramLinks || []
+          miniProgramLinks: data.miniProgramLinks || [],
+          // 主页展示成员、校促会重大事记
+          showMembers: data.showMembers || [],
+          importantEvents: data.importantEvents || []
         }
 
         // 处理并格式化文章列表 (资讯部分)

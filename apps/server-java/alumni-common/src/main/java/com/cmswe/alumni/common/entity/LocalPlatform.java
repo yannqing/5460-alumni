@@ -118,6 +118,12 @@ public class LocalPlatform implements Serializable {
     private String miniProgramLinks;
 
     /**
+     * 校促会重大事记（JSON格式）
+     */
+    @TableField(value = "important_events")
+    private String importantEvents;
+
+    /**
      * 逻辑删除
      */
     @TableLogic

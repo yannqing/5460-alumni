@@ -129,6 +129,18 @@ public class LocalPlatformDetailVo implements Serializable {
     @Schema(description = "小程序链接列表")
     private List<MiniProgramLinkDto> miniProgramLinks;
 
+    /**
+     * 主页展示成员列表（is_show=1的成员，仅包含id、wxId、username、roleName）
+     */
+    @Schema(description = "主页展示成员列表")
+    private List<LocalPlatformShowMemberVo> showMembers;
+
+    /**
+     * 校促会重大事记（JSON格式）
+     */
+    @Schema(description = "校促会重大事记")
+    private Object importantEvents;
+
     @Serial
     private static final long serialVersionUID = 1L;
 

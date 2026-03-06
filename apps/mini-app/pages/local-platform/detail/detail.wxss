@@ -232,6 +232,130 @@ page {
   margin-left: 10rpx;
 }
 
+/* 主页展示成员 */
+.show-members-section {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.show-members-title {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.show-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.show-member-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 20rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.show-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.show-member-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.show-member-role {
+  font-size: 24rpx;
+  color: #40B2E6;
+  padding: 4rpx 14rpx;
+  background-color: rgba(64, 178, 230, 0.12);
+  border-radius: 8rpx;
+}
+
+/* 校促会重大事记 - 时间轴样式 */
+.important-events-card {
+  margin-top: 24rpx;
+}
+
+.important-events-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+}
+
+.events-year-block {
+  position: relative;
+  padding-left: 40rpx;
+}
+
+.events-year-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.events-year-badge {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #40B2E6;
+  background: linear-gradient(135deg, rgba(64, 178, 230, 0.15) 0%, rgba(64, 178, 230, 0.06) 100%);
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  border: 2rpx solid rgba(64, 178, 230, 0.3);
+  flex-shrink: 0;
+}
+
+.events-year-line {
+  flex: 1;
+  height: 2rpx;
+  background: linear-gradient(to right, rgba(64, 178, 230, 0.4), transparent);
+  margin-left: 20rpx;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding-left: 0;
+}
+
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.event-item:last-child {
+  border-bottom: none;
+}
+
+.event-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #40B2E6;
+  margin-top: 14rpx;
+  flex-shrink: 0;
+}
+
+.event-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #555;
+  line-height: 1.6;
+}
+
 .divider {
   height: 1rpx;
   background-color: #f0f0f0;

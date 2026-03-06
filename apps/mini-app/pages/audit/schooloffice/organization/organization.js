@@ -260,11 +260,14 @@ Page({
       if (res.data && res.data.code === 200) {
         console.log('[Debug] 角色列表接口调用成功，获取到的角色列表:', res.data.data)
 
+        // 过滤掉未分配角色
+        const filteredRoleList = (res.data.data || []).filter(role => role.roleOrName !== '未分配角色')
+        
         // 初始化展开状态：默认全部展开
-        const expandedRoles = this.initExpandedState(res.data.data || [])
+        const expandedRoles = this.initExpandedState(filteredRoleList)
 
         this.setData({
-          roleList: res.data.data || [],
+          roleList: filteredRoleList,
           roleLoading: false,
           expandedRoles: expandedRoles
         })
