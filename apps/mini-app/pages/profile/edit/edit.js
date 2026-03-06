@@ -73,30 +73,41 @@ function mapUserInfoToForm(userInfo) {
   })
 
   // 工作经历映射
-  const workExperienceList = (userInfo.workExperienceList || []).map(work => ({
-    userWorkId: work.userWorkId ? String(work.userWorkId) : null,
-    companyName: work.companyName || '',
-    position: work.position || '',
-    industry: work.industry || '',
-    startDate: work.startDate || '',
-    endDate: work.endDate || '',
-    isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
-    workDescription: work.workDescription || ''
-  }))
+  const workExperienceList = (userInfo.workExperienceList || []).map(work => {
+    // 解析工作地址为数组（用于region picker）
+    const workAddress = work.workAddress || ''
+    const workAddressRegion = workAddress ? workAddress.split(' ').filter(s => s) : []
+    return {
+      userWorkId: work.userWorkId ? String(work.userWorkId) : null,
+      companyName: work.companyName || '',
+      position: work.position || '',
+      industry: work.industry || '',
+      workAddress: workAddress,
+      workAddressRegion: workAddressRegion,
+      startDate: work.startDate || '',
+      endDate: work.endDate || '',
+      isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
+      workDescription: work.workDescription || ''
+    }
+  })
 
   // 处理头像URL，确保使用正确的 baseUrl
   const config = require('../../../utils/config.js')
   const rawAvatarUrl = userInfo.avatarUrl || ''
   const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : config.defaultAvatar
 
-  // 处理籍贯显示文本
+  // 处理籍贯显示文本（三级：省、市、区）
   const originProvince = userInfo.originProvince || userInfo.curProvince || ''
   const curCity = userInfo.curCity || ''
+  const curCounty = userInfo.curCounty || ''
   let hometownDisplayText = ''
   if (originProvince) {
     hometownDisplayText = originProvince
     if (curCity) {
       hometownDisplayText += ' ' + curCity
+      if (curCounty) {
+        hometownDisplayText += ' ' + curCounty
+      }
     }
   }
 
@@ -219,6 +230,7 @@ function mapFormToUpdateData(form) {
         companyName: work.companyName || null,
         position: work.position || null,
         industry: work.industry || null,
+        workAddress: work.workAddress || null,
         startDate: work.startDate || null,
         endDate: work.endDate || null,
         isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
@@ -392,9 +404,10 @@ Page({
         // 使用统一的数据映射函数
         const formData = mapUserInfoToForm(userInfo)
 
-        // 处理籍贯显示
+        // 处理籍贯显示（三级：省、市、区）
         const originProvince = userInfo.originProvince || userInfo.curProvince || ''
         const curCity = userInfo.curCity || ''
+        const curCounty = userInfo.curCounty || ''
         let hometownDisplayText = ''
         let hometownRegion = []
         if (originProvince) {
@@ -403,6 +416,10 @@ Page({
           if (curCity) {
             hometownDisplayText += ' ' + curCity
             hometownRegion.push(curCity)
+            if (curCounty) {
+              hometownDisplayText += ' ' + curCounty
+              hometownRegion.push(curCounty)
+            }
           }
         }
 
@@ -849,16 +866,19 @@ Page({
   // 处理籍贯所在地选择
   async handleHometownChange(e) {
     const value = e.detail.value // [省, 市, 区]
-    // 只取省和市
     const province = value[0] || ''
     const city = value[1] || ''
+    const county = value[2] || ''
 
-    // 更新显示文本（只显示省和市）
+    // 更新显示文本（显示省、市、区三级）
     let displayText = ''
     if (province && province !== '暂不选择') {
       displayText = province
       if (city && city !== '暂不选择') {
         displayText += ' ' + city
+        if (county && county !== '暂不选择') {
+          displayText += ' ' + county
+        }
       }
     }
 
@@ -867,14 +887,16 @@ Page({
       hometownDisplayText: displayText,
       'form.originProvince': province !== '暂不选择' ? province : '',
       'form.curProvince': province !== '暂不选择' ? province : '',
-      'form.curCity': city !== '暂不选择' ? city : ''
+      'form.curCity': city !== '暂不选择' ? city : '',
+      'form.curCounty': county !== '暂不选择' ? county : ''
     })
 
     // 选择后自动保存
     const updateData = {
       originProvince: province !== '暂不选择' ? province : null,
       curProvince: province !== '暂不选择' ? province : null,
-      curCity: city !== '暂不选择' ? city : null
+      curCity: city !== '暂不选择' ? city : null,
+      curCounty: county !== '暂不选择' ? county : null
     }
     await this.saveSingleField(updateData, true)
   },
@@ -1916,6 +1938,8 @@ Page({
       companyName: '',
       position: '',
       industry: '',
+      workAddress: '',
+      workAddressRegion: [],
       startDate: '',
       endDate: '',
       isCurrent: 0,
@@ -2078,6 +2102,49 @@ Page({
 
     // 更新默认展示的工作经历索引
     this.updateDefaultWorkIndex()
+  },
+
+  // 工作地点选择（地区选择器）
+  handleWorkAddressChange(e) {
+    const { index } = e.currentTarget.dataset
+    const value = e.detail.value // [省, 市, 区]
+    const indexNum = parseInt(index)
+
+    if (isNaN(indexNum)) {
+      return
+    }
+
+    // 组合显示文本（三级：省、市、区）
+    const province = value[0] || ''
+    const city = value[1] || ''
+    const county = value[2] || ''
+
+    let displayText = ''
+    if (province && province !== '暂不选择') {
+      displayText = province
+      if (city && city !== '暂不选择') {
+        displayText += ' ' + city
+        if (county && county !== '暂不选择') {
+          displayText += ' ' + county
+        }
+      }
+    }
+
+    const workExperienceList = this.data.form.workExperienceList || []
+    workExperienceList[indexNum] = {
+      ...workExperienceList[indexNum],
+      workAddress: displayText,
+      workAddressRegion: value
+    }
+
+    this.setData({
+      'form.workExperienceList': workExperienceList
+    })
+
+    // 选择后，确保确定按钮保持显示
+    this.setData({
+      editingWorkIndex: indexNum
+    })
   },
 
   // 保存工作经历

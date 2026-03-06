@@ -50,6 +50,12 @@ public class WxUserWorkVo implements Serializable {
     private String industry;
 
     /**
+     * 工作地址
+     */
+    @Schema(description = "工作地址")
+    private String workAddress;
+
+    /**
      * 入职日期
      */
     @Schema(description = "入职日期")

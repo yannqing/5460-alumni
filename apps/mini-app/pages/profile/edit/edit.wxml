@@ -120,6 +120,21 @@
             <view class="picker-value">{{hometownDisplayText || '请选择籍贯所在地'}}</view>
           </picker>
         </view>
+        <view class="form-item">
+          <view class="label">证件类型</view>
+          <picker mode="selector" range="{{identifyTypeOptions}}" value="{{form.identifyTypeIndex}}" bindchange="handleIdentifyTypeChange">
+            <view class="picker-value">{{identifyTypeOptions[form.identifyTypeIndex] || '请选择'}}</view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <view class="label">证件号</view>
+          <view class="input-wrapper">
+            <input class="input" placeholder="请输入证件号" value="{{form.identifyCode}}" data-field="identifyCode" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
+            <view class="save-btn" wx:if="{{editingField === 'identifyCode'}}" data-field="identifyCode" catchtap="handleSaveField">
+              <text class="save-icon">✓</text>
+            </view>
+          </view>
+        </view>
       </view>
 
       <view class="section-card card">
@@ -260,6 +275,13 @@
             </view>
 
             <view class="form-item">
+              <view class="label">工作地点</view>
+              <picker mode="region" value="{{form.workExperienceList[workIndex].workAddressRegion || []}}" bindchange="handleWorkAddressChange" data-index="{{workIndex}}" custom-item="暂不选择">
+                <view class="picker-value">{{form.workExperienceList[workIndex].workAddress || '请选择工作地点'}}</view>
+              </picker>
+            </view>
+
+            <view class="form-item">
               <view class="label">入职日期</view>
               <picker mode="date" value="{{form.workExperienceList[workIndex].startDate}}" bindchange="handleWorkDateChange" data-index="{{workIndex}}" data-field="startDate">
                 <view class="picker-value">{{form.workExperienceList[workIndex].startDate || '请选择入职日期'}}</view>
@@ -280,11 +302,6 @@
               </picker>
             </view>
 
-            <view class="form-item">
-              <view class="label">工作内容/项目成就</view>
-              <textarea class="textarea" placeholder="请输入工作内容或项目成就" value="{{form.workExperienceList[workIndex].workDescription || ''}}" data-index="{{workIndex}}" data-field="workDescription" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" style="height: 100px;" />
-            </view>
-
           </view>
 
           <!-- 展开/折叠按钮（只有多个工作经历时才显示） -->
@@ -294,25 +311,6 @@
 
           <view class="add-work-btn" bindtap="addWorkExperience">
             <text>+ 添加工作经历</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="section-card card">
-        <view class="section-title">证件信息</view>
-        <view class="form-item">
-          <view class="label">证件类型</view>
-          <picker mode="selector" range="{{identifyTypeOptions}}" value="{{form.identifyTypeIndex}}" bindchange="handleIdentifyTypeChange">
-            <view class="picker-value">{{identifyTypeOptions[form.identifyTypeIndex] || '请选择'}}</view>
-          </picker>
-        </view>
-        <view class="form-item">
-          <view class="label">证件号</view>
-          <view class="input-wrapper">
-            <input class="input" placeholder="请输入证件号" value="{{form.identifyCode}}" data-field="identifyCode" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'identifyCode'}}" data-field="identifyCode" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
           </view>
         </view>
       </view>
