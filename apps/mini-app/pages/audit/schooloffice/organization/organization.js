@@ -1257,7 +1257,8 @@ Page({
         roleOrName: currentDetailRole.roleOrName || '',
         remark: currentDetailRole.remark || '',
         status: currentDetailRole.status !== undefined ? currentDetailRole.status : 1,
-        pid: currentPid
+        pid: currentPid,
+        sort: currentDetailRole.sort !== undefined ? currentDetailRole.sort : 0
       },
       editParentOptions: editParentOptions,
       editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
