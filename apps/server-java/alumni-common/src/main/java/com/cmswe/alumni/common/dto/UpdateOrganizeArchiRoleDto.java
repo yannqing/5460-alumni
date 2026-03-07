@@ -60,6 +60,12 @@ public class UpdateOrganizeArchiRoleDto implements Serializable {
     @Schema(description = "状态：0-禁用 1-启用")
     private Integer status;
 
+    /**
+     * 排序
+     */
+    @Schema(description = "排序，数值越小越靠前")
+    private Integer sort;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

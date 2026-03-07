@@ -228,6 +228,7 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
                 .eq(organizeType != null, OrganizeArchiRole::getOrganizeType, organizeType)
                 .like(StringUtils.isNotBlank(roleOrName), OrganizeArchiRole::getRoleOrName, roleOrName)
                 .eq(status != null, OrganizeArchiRole::getStatus, status)
+                .orderByAsc(OrganizeArchiRole::getSort)
                 .orderByAsc(OrganizeArchiRole::getRoleOrId);
 
         // 3. 查询列表
@@ -256,13 +257,14 @@ public class OrganizeArchiRoleServiceImpl extends ServiceImpl<OrganizeArchiRoleM
             return new ArrayList<>();
         }
 
-        // 3. 转换为 VO 对象并构建 Map（key: roleOrId, value: VO）
+        // 3. 转换为 VO 对象并构建 Map（key: roleOrId, value: VO）使用 LinkedHashMap 以保持原始排序
         Map<Long, OrganizeArchiRoleVo> roleMap = roleList.stream()
                 .map(OrganizeArchiRoleVo::objToVo)
                 .collect(Collectors.toMap(
                         vo -> Long.valueOf(vo.getRoleOrId()),
                         vo -> vo,
-                        (v1, v2) -> v1
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
                 ));
 
         // 4. 查询成员信息并按角色分组

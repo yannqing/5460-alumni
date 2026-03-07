@@ -147,6 +147,10 @@
             <text class="node-info-value">{{currentDetailRole.remark || '-'}}</text>
           </view>
           <view class="node-info-item">
+            <text class="node-info-label">排序权重</text>
+            <text class="node-info-value">{{currentDetailRole.sort !== undefined ? currentDetailRole.sort : '0'}}</text>
+          </view>
+          <view class="node-info-item">
             <text class="node-info-label">状态</text>
             <text class="node-info-value {{currentDetailRole.status === 1 ? 'status-active' : 'status-inactive'}}">{{currentDetailRole.status === 1 ? '启用' : '禁用'}}</text>
           </view>
@@ -230,6 +234,18 @@
             value="{{editForm.remark}}"
             bindinput="onEditInputChange"
             data-field="remark"
+          />
+        </view>
+        <!-- 排序 -->
+        <view class="edit-form-item">
+          <text class="edit-label">排序权重</text>
+          <input
+            class="edit-input"
+            type="number"
+            placeholder="数值越小越靠前，默认0"
+            value="{{editForm.sort}}"
+            bindinput="onEditInputChange"
+            data-field="sort"
           />
         </view>
         <!-- 状态 -->
@@ -317,6 +333,18 @@
             value="{{addForm.remark}}"
             bindinput="onAddInputChange"
             data-field="remark"
+          />
+        </view>
+        <!-- 排序 -->
+        <view class="add-form-item">
+          <text class="add-label">排序权重</text>
+          <input
+            class="add-input"
+            type="number"
+            placeholder="数值越小越靠前，默认0"
+            value="{{addForm.sort}}"
+            bindinput="onAddInputChange"
+            data-field="sort"
           />
         </view>
       </view>

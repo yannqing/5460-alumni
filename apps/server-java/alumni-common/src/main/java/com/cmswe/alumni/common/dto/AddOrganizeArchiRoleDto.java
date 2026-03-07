@@ -54,6 +54,12 @@ public class AddOrganizeArchiRoleDto implements Serializable {
     @Schema(description = "角色含义")
     private String remark;
 
+    /**
+     * 排序
+     */
+    @Schema(description = "排序，数值越小越靠前")
+    private Integer sort;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }
