@@ -41,9 +41,9 @@ Page({
     iconSwhz: config.getIconUrl('swhz@3x.png'),
     iconWdsc: config.getIconUrl('wdsc@3x.png'),
     iconGrys: config.getIconUrl('grys@3x.png'),
-    // 页面装饰图片
-    imageTopBg: config.getAssetImageUrl('grdbt@2x.png'),   // 顶部背景图
-    imageBanner: config.getAssetImageUrl('grjrt@2x.png'),   // 中间 Banner 图
+    // 页面装饰图片（使用远程服务器上的图片）
+    imageTopBg: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grdbt@2x.png',   // 顶部背景图
+    imageBanner: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grjrt@2x.png',   // 中间 Banner 图
     // 默认头像
     defaultAvatar: config.defaultAvatar
   },
@@ -235,7 +235,7 @@ Page({
       realName: realName,
       phone: userInfo.phone || userData.phone || '',
       hasEducation: (userInfo.alumniEducationList || userData.alumniEducationList || []).length > 0,
-      isAlumni: userInfo.isAlumni || userData.isAlumni || 0
+      certificationFlag: userInfo.certificationFlag || userData.certificationFlag || 0
     }
 
     this.setData({

@@ -316,8 +316,7 @@ Page({
       followingCount: item.followingCount || 0, // 尝试从后端获取关注数
       isFollowed: item.isFollowed || false, // 关注状态
       followStatus: item.followStatus || 4, // 关注状态
-      isAlumni: item.isAlumni === 1 || item.isAlumni === true,
-      isCertified: item.certificationStatus === 1 || item.isAlumni === 1 || item.isAlumni === true, // 兼容旧字段
+      certificationFlag: item.certificationFlag || 0, // 认证等级：0-未认证，1-一级认证，2-二级认证，3-三级认证
       tags: item.tags || [], // 尝试从后端获取标签
       identity: item.identity || '', // 尝试从后端获取身份
       // 保留后端原始字段

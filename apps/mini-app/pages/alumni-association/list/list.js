@@ -386,7 +386,7 @@ Page({
           associationCount: 0,
           followCount: 0,
           followStatus: item.isFollowed ? 1 : 4, // 关注状态：1-正常关注，4-未关注
-          isCertified: false,
+          certificationFlag: item.certificationFlag || 0, // 认证等级：0-未认证，1-一级认证，2-二级认证，3-三级认证
           schoolName: item.school?.schoolName || '' // 从school对象中获取学校名称
         }))
 

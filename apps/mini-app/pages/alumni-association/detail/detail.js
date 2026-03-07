@@ -51,7 +51,9 @@ Page({
     // 悬浮按钮和弹窗
     showFab: false,
     showAction: false,
-    articleList: []
+    articleList: [],
+    // 核心成员列表
+    coreMemberList: []
   },
 
   async onLoad(options) {
@@ -153,6 +155,7 @@ Page({
           vicePresidents: [],
           establishedYear: null,
           description: item.associationProfile || '',
+          certificationFlag: item.certificationFlag || 0, // 认证等级：0-未认证，1-一级认证，2-二级认证，3-三级认证
           certifications: [],
           applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null,
           // 校友会负责人信息
@@ -209,11 +212,21 @@ Page({
           }
         })
 
+        // 处理核心成员列表
+        const coreMemberList = (item.coreMemberList || []).map(member => ({
+          wxId: member.wxId,
+          roleName: member.roleName || '',
+          username: member.username || '未知',
+          userPhone: member.userPhone || '',
+          userAffiliation: member.userAffiliation || ''
+        }))
+
         this.setData({
           associationInfo: mappedInfo,
           activityList: formattedActivityList,
           articleList: formattedArticleList,
           enterpriseList: item.enterpriseList || [],
+          coreMemberList: coreMemberList,
           loading: false
         });
       } else {
@@ -1470,6 +1483,19 @@ Page({
 
     const wxId = associationInfo.zhWxId
     const username = associationInfo.zhName || '匿名用户'
+
+    wx.navigateTo({
+      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`
+    })
+  },
+
+  // 点击核心成员跳转到用户详情
+  viewCoreMemberDetail(e) {
+    const { member } = e.currentTarget.dataset
+    if (!member) return
+
+    const wxId = member.wxId
+    const username = member.username || '匿名用户'
 
     wx.navigateTo({
       url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`

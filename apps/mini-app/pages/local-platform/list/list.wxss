@@ -486,7 +486,7 @@ view, text, picker, input, button, image, navigator {
   margin-top: -30rpx;
   margin-left: -30rpx;
   margin-right: -30rpx;
-  margin-bottom: -100rpx;
+  margin-bottom: -60rpx;
   border-top-left-radius: 16rpx;
   border-top-right-radius: 16rpx;
   border-bottom-left-radius: 0;

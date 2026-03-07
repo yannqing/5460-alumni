@@ -9,7 +9,7 @@ Page({
         iconLocation: config.getIconUrl('position.png'),
         iconScope: config.getIconUrl('xx.png'),
         iconContact: config.getIconUrl('phone.png'),
-        topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png`,
+        topImageUrl: 'https://cni-alumni.yannqing.com/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png',
         keyword: '',
         filters: [
             { label: '城市', options: ['全部城市'], selected: 0 },

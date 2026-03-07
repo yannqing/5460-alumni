@@ -122,12 +122,12 @@ public class AlumniAssociationInvitationServiceImpl
             association.setMemberCount(currentMemberCount + 1);
             alumniAssociationMapper.updateById(association);
 
-            // 更新用户的 isAlumni 字段为 1（成为校友）
+            // 更新用户的 certificationFlag 字段为 3（校友会认证）
             com.cmswe.alumni.common.entity.WxUser wxUser = userService.getById(userId);
-            if (wxUser != null && (wxUser.getIsAlumni() == null || wxUser.getIsAlumni() == 0)) {
-                wxUser.setIsAlumni(1);
+            if (wxUser != null && (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0)) {
+                wxUser.setCertificationFlag(3);
                 userService.updateById(wxUser);
-                log.info("用户校友状态已更新 - 用户ID: {}, isAlumni: 1", userId);
+                log.info("用户认证状态已更新 - 用户ID: {}, certificationFlag: 3", userId);
             }
 
             // 10. 发送通知给管理员：用户已同意

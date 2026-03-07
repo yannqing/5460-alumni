@@ -82,7 +82,11 @@
             <view class="card-info">
               <view class="card-title-row">
                 <text class="card-title">{{item.name}}</text>
-                <view wx:if="{{item.isCertified}}" class="cert-badge">✓ 认证</view>
+                <!-- 认证等级标签 -->
+                <view wx:if="{{item.certificationFlag === 1}}" class="cert-badge cert-level-1">一级认证</view>
+                <view wx:elif="{{item.certificationFlag === 2}}" class="cert-badge cert-level-2">二级认证</view>
+                <view wx:elif="{{item.certificationFlag === 3}}" class="cert-badge cert-level-3">三级认证</view>
+                <view wx:else class="uncertified-tag">未认证</view>
               </view>
 
               <!-- 学校名称和地点信息在一行展示 -->

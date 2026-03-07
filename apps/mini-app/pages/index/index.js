@@ -1056,7 +1056,7 @@ Page({
           shopList: [],
           shopLoading: false
         });
-      }, 300);
+      }, 1000);
     } catch (err) {
       console.error('[Index] 获取商铺列表失败:', err);
       this.setData({

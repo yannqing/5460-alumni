@@ -417,6 +417,41 @@ view, text, picker, input, button, image, navigator {
   display: block;
 }
 
+/* 未认证标签 */
+.uncertified-tag {
+  padding: 4rpx 12rpx;
+  font-size: 20rpx;
+  color: #999999;
+  background: #f5f5f5;
+  border-radius: 16rpx;
+  border: 1rpx solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+/* 校友认证等级标签 */
+.alumni-cert-badge {
+  padding: 4rpx 12rpx;
+  font-size: 20rpx;
+  color: #ffffff;
+  border-radius: 16rpx;
+  flex-shrink: 0;
+}
+
+/* 校友一级认证 - 蓝色 */
+.alumni-cert-level-1 {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+}
+
+/* 校友二级认证 - 紫色 */
+.alumni-cert-level-2 {
+  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+}
+
+/* 校友三级认证 - 红色 */
+.alumni-cert-level-3 {
+  background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+}
+
 /* 学校和地点信息展示 */
 .meta-row {
   display: flex;

@@ -196,6 +196,11 @@ public class AlumniAssociationDetailVo implements Serializable {
     @Schema(description = "文章列表（已发布的文章）")
     private List<HomePageArticleVo> articleList;
 
+    /**
+     * 核心成员列表
+     */
+    @Schema(description = "核心成员列表（在主页展示的成员）")
+    private List<CoreMemberVo> coreMemberList;
 
     @Serial
     private static final long serialVersionUID = 1L;

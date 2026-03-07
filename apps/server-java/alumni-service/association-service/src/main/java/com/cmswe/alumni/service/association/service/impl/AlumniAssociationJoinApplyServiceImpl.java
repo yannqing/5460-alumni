@@ -43,12 +43,13 @@ public class AlumniAssociationJoinApplyServiceImpl
             return false;
         }
 
-        // 3. 如果审核通过，更新校友会关联的校促会ID
+        // 3. 如果审核通过，更新校友会关联的校促会ID和认证标识
         if (reviewDto.getStatus() == 1) { // 1-已通过
             com.cmswe.alumni.common.entity.AlumniAssociation association = alumniAssociationService
                     .getById(apply.getAlumniAssociationId());
             if (association != null) {
                 association.setPlatformId(apply.getPlatformId());
+                association.setCertificationFlag(2); // 设置认证标识为2（校促会认证）
                 boolean updateAssociation = alumniAssociationService.updateById(association);
                 if (!updateAssociation) {
                     throw new com.cmswe.alumni.common.exception.BusinessException("更新校友会关联校促会失败");

@@ -53,7 +53,7 @@ Page({
           address: { value: '不方便透露', isNull: true },
           educationList: null,
           workExperienceList: null,
-          isAlumni: false,
+          certificationFlag: 0,
           isFriend: false,
           isFollowed: false,
           identifyType: 0,
@@ -213,7 +213,7 @@ Page({
 
       educationList: educationList.length > 0 ? educationList : null,
       workExperienceList: workExperienceList.length > 0 ? workExperienceList : null,
-      isAlumni: data.isAlumni === 1 || data.isAlumni === true,
+      certificationFlag: data.certificationFlag || 0,
       isFriend: data.isFriend === 1 || data.isFriend === true,
       isFollowed: data.isFollowed || false,
       identifyType: data.identifyType,

@@ -32,10 +32,10 @@ public class AlumniDetailVo extends UserDetailVo implements Serializable {
     private Boolean isFollowed;
 
     /**
-     * 是否是校友（是否通过校友认证）
+     * 认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）
      */
-    @Schema(description = "是否是校友（是否通过校友认证）")
-    private Boolean isAlumni;
+    @Schema(description = "认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）")
+    private Integer certificationFlag;
 
     /**
      * 是否是好友（双向关注）

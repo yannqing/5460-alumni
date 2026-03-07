@@ -45,6 +45,12 @@ public class AlumniAssociationListVo implements Serializable {
     private Long platformId;
 
     /**
+     * 认证标识（0-未认证，1-校友总会，2-校促会，3-校友总会）
+     */
+    @Schema(description = "认证标识（0-未认证，1-校友总会，2-校促会，3-校友总会）")
+    private Integer certificationFlag;
+
+    /**
      * 联系信息
      */
     @Schema(description = "联系信息")

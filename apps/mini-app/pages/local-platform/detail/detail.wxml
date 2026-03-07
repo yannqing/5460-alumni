@@ -55,7 +55,12 @@
                                     bindtap="viewAssociationDetail"
                                     data-id="{{item.alumniAssociationId}}"
                                 />
+                                <!-- 当数量 <= 6 时，查看更多在第一行 -->
+                                <view wx:if="{{associations.length <= 6}}" class="preview-avatar view-more" bindtap="goToMemberTab">
+                                    <text class="view-more-text">查看更多</text>
+                                </view>
                             </view>
+                            <!-- 当数量 > 6 时，第二行显示更多头像和查看更多 -->
                             <view class="avatar-row" wx:if="{{associations.length > 6}}">
                                 <image
                                     wx:for="{{associations}}"
@@ -67,11 +72,6 @@
                                     bindtap="viewAssociationDetail"
                                     data-id="{{item.alumniAssociationId}}"
                                 />
-                                <view class="preview-avatar view-more" bindtap="goToMemberTab">
-                                    <text class="view-more-text">查看更多</text>
-                                </view>
-                            </view>
-                            <view class="avatar-row" wx:elif="{{associations.length <= 6}}">
                                 <view class="preview-avatar view-more" bindtap="goToMemberTab">
                                     <text class="view-more-text">查看更多</text>
                                 </view>

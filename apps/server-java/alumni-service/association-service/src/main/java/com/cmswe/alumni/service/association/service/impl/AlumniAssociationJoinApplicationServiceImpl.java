@@ -976,15 +976,15 @@ public class AlumniAssociationJoinApplicationServiceImpl
         log.info("用户剩余校友会数量 - 用户ID: {}, 剩余数量: {}", wxId, remainingAssociationCount);
 
         if (remainingAssociationCount == 0) {
-            // 用户不再是任何校友会成员，更新 isAlumni 为 0
+            // 用户不再是任何校友会成员，更新 certificationFlag 为 0
             WxUser wxUser = userService.getById(wxId);
-            if (wxUser != null && wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1) {
-                wxUser.setIsAlumni(0);
+            if (wxUser != null && wxUser.getCertificationFlag() != null && wxUser.getCertificationFlag() > 0) {
+                wxUser.setCertificationFlag(0);
                 boolean updateAlumniStatus = userService.updateById(wxUser);
                 if (updateAlumniStatus) {
-                    log.info("用户校友状态已更新 - 用户ID: {}, isAlumni: 1 -> 0", wxId);
+                    log.info("用户认证状态已更新 - 用户ID: {}, certificationFlag: {} -> 0", wxId, wxUser.getCertificationFlag());
                 } else {
-                    log.warn("用户校友状态更新失败 - 用户ID: {}", wxId);
+                    log.warn("用户认证状态更新失败 - 用户ID: {}", wxId);
                 }
             }
         }
