@@ -24,7 +24,8 @@ Page({
       roleOrName: '',
       remark: '',
       status: 1,
-      pid: '0' // 父角色ID，0表示顶级
+      pid: '0', // 父角色ID，0表示顶级
+      sort: 0
     },
     editParentOptions: [], // 编辑时的父级选项列表
     editSelectedParentIndex: 0, // 编辑时选中的父级索引
@@ -38,7 +39,8 @@ Page({
     addForm: {
       roleOrName: '',
       remark: '',
-      pid: '0' // 默认顶级
+      pid: '0', // 默认顶级
+      sort: 0
     },
     parentOptions: [], // 父级选项列表
     selectedParentName: '', // 选中的父级名称
@@ -361,7 +363,8 @@ Page({
         roleOrName: role.roleOrName || '',
         remark: role.remark || '',
         status: role.status !== undefined ? role.status : 1,
-        pid: currentPid
+        pid: currentPid,
+        sort: role.sort !== undefined ? role.sort : 0
       },
       editParentOptions: editParentOptions,
       editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
@@ -378,7 +381,8 @@ Page({
         roleOrName: '',
         remark: '',
         status: 1,
-        pid: '0'
+        pid: '0',
+        sort: 0
       },
       editParentOptions: [],
       editSelectedParentIndex: 0,
@@ -437,7 +441,8 @@ Page({
         pid: editForm.pid, // 0表示顶级
         roleOrName: editForm.roleOrName.trim(),
         remark: editForm.remark.trim(),
-        status: editForm.status
+        status: editForm.status,
+        sort: parseInt(editForm.sort) || 0
       })
 
       wx.hideLoading()
@@ -666,7 +671,8 @@ Page({
         roleOrName: '',
         roleOrCode: '',
         remark: '',
-        pid: '0'
+        pid: '0',
+        sort: 0
       },
       selectedParentName: '顶级架构(无父级)',
       parentOptions: parentOptions
@@ -710,7 +716,8 @@ Page({
       addForm: {
         roleOrName: '',
         remark: '',
-        pid: '0'
+        pid: '0',
+        sort: 0
       },
       parentOptions: []
     })
@@ -765,7 +772,8 @@ Page({
         organizeType: 1, // 校促会类型为1
         pid: addForm.pid, // 保持字符串形式，与校友会页面保持一致
         roleOrName: addForm.roleOrName.trim(),
-        remark: addForm.remark.trim()
+        remark: addForm.remark.trim(),
+        sort: parseInt(addForm.sort) || 0
       })
 
       wx.hideLoading()
@@ -807,7 +815,8 @@ Page({
       organizeType: data.organizeType, // 已经是数字类型
       pid: String(data.pid), // 转换为字符串形式，与校友会页面保持一致
       roleOrName: data.roleOrName, // 角色名，字符串类型
-      remark: data.remark // 角色含义，字符串类型
+      remark: data.remark, // 角色含义，字符串类型
+      sort: data.sort
     }
 
     console.log('[Debug] 调用新增角色接口，请求数据:', requestData)
@@ -822,7 +831,8 @@ Page({
       roleOrId: String(data.roleOrId),
       roleOrName: data.roleOrName,
       remark: data.remark,
-      status: data.status
+      status: data.status,
+      sort: data.sort
     }
     // pid 可能为 null 或 0，需要特殊处理
     if (data.pid !== null && data.pid !== undefined) {
@@ -1114,7 +1124,8 @@ Page({
       addForm: {
         roleOrName: '',
         remark: '',
-        pid: '0'
+        pid: '0',
+        sort: 0
       },
       selectedParentName: '顶级架构(无父级)'
     })
@@ -1138,7 +1149,8 @@ Page({
       addForm: {
         roleOrName: '',
         remark: '',
-        pid: String(currentDetailRole.roleOrId)
+        pid: String(currentDetailRole.roleOrId),
+        sort: 0
       },
       selectedParentName: currentDetailRole.roleOrName
     })
@@ -1245,7 +1257,8 @@ Page({
         roleOrName: currentDetailRole.roleOrName || '',
         remark: currentDetailRole.remark || '',
         status: currentDetailRole.status !== undefined ? currentDetailRole.status : 1,
-        pid: currentPid
+        pid: currentPid,
+        sort: currentDetailRole.sort !== undefined ? currentDetailRole.sort : 0
       },
       editParentOptions: editParentOptions,
       editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,

@@ -75,6 +75,12 @@ public class OrganizeArchiRoleVo implements Serializable {
     private Integer status;
 
     /**
+     * 排序
+     */
+    @Schema(description = "排序，数值越小越靠前")
+    private Integer sort;
+
+    /**
      * 创建时间
      */
     @Schema(description = "创建时间")
