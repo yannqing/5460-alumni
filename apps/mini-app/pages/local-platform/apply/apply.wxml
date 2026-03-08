@@ -30,45 +30,45 @@
             </view>
           </view>
         </view>
-        <view class="form-item">
-          <text class="label">所属学校</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.schoolInfo ? alumniAssociationDetail.schoolInfo.schoolName : '未知学校'}}" disabled />
+        <view class="info-item">
+          <text class="info-label">所属学校</text>
+          <view class="info-display-box">{{alumniAssociationDetail.schoolInfo ? alumniAssociationDetail.schoolInfo.schoolName : '未知学校'}}</view>
         </view>
-        <view class="form-item">
-          <text class="label">校促会</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.platform ? alumniAssociationDetail.platform.platformName : '未知校促会'}}" disabled />
+        <view class="info-item">
+          <text class="info-label">校促会</text>
+          <view class="info-display-box">{{alumniAssociationDetail.platform ? alumniAssociationDetail.platform.platformName : '未知校促会'}}</view>
         </view>
-        <view class="form-item">
-          <text class="label">联系信息</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.contactInfo || '暂无联系信息'}}" disabled />
+        <view class="info-item">
+          <text class="info-label">联系信息</text>
+          <view class="info-display-box">{{alumniAssociationDetail.contactInfo || '暂无联系信息'}}</view>
         </view>
-        <view class="form-item">
-          <text class="label">常驻地点</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.location || '暂无常驻地点'}}" disabled />
+        <view class="info-item">
+          <text class="info-label">常驻地点</text>
+          <view class="info-display-box">{{alumniAssociationDetail.location || '暂无常驻地点'}}</view>
         </view>
-        <view class="form-item">
-          <text class="label">校友会简介</text>
-          <textarea class="textarea disabled" value="{{alumniAssociationDetail.associationProfile || '暂无简介'}}" disabled />
+        <view class="info-item">
+          <text class="info-label">校友会简介</text>
+          <view class="info-display-box textarea-box">{{alumniAssociationDetail.associationProfile || '暂无简介'}}</view>
         </view>
-        <view class="form-item" wx:if="{{alumniAssociationDetail.chargeName}}">
-          <text class="label">主要负责人姓名</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.chargeName}}" disabled />
+        <view class="info-item" wx:if="{{alumniAssociationDetail.chargeName}}">
+          <text class="info-label">主要负责人姓名</text>
+          <view class="info-display-box">{{alumniAssociationDetail.chargeName}}</view>
         </view>
-        <view class="form-item" wx:if="{{alumniAssociationDetail.chargeRole}}">
-          <text class="label">主要负责人职务</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.chargeRole}}" disabled />
+        <view class="info-item" wx:if="{{alumniAssociationDetail.chargeRole}}">
+          <text class="info-label">主要负责人职务</text>
+          <view class="info-display-box">{{alumniAssociationDetail.chargeRole}}</view>
         </view>
-        <view class="form-item" wx:if="{{alumniAssociationDetail.zhName}}">
-          <text class="label">驻会代表姓名</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.zhName}}" disabled />
+        <view class="info-item" wx:if="{{alumniAssociationDetail.zhName}}">
+          <text class="info-label">驻会代表姓名</text>
+          <view class="info-display-box">{{alumniAssociationDetail.zhName}}</view>
         </view>
-        <view class="form-item" wx:if="{{alumniAssociationDetail.zhPhone}}">
-          <text class="label">驻会代表电话</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.zhPhone}}" disabled />
+        <view class="info-item" wx:if="{{alumniAssociationDetail.zhPhone}}">
+          <text class="info-label">驻会代表电话</text>
+          <view class="info-display-box">{{alumniAssociationDetail.zhPhone}}</view>
         </view>
-        <view class="form-item" wx:if="{{alumniAssociationDetail.zhSocialAffiliation}}">
-          <text class="label">驻会代表社会职务</text>
-          <input class="input disabled" value="{{alumniAssociationDetail.zhSocialAffiliation}}" disabled />
+        <view class="info-item" wx:if="{{alumniAssociationDetail.zhSocialAffiliation}}">
+          <text class="info-label">驻会代表社会职务</text>
+          <view class="info-display-box">{{alumniAssociationDetail.zhSocialAffiliation}}</view>
         </view>
       </view>
 

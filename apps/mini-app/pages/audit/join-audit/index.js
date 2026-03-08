@@ -167,7 +167,7 @@ Page({
             const basicAlumniData = {
               id: alumniAssociationId,
               alumniAssociationId: alumniAssociationId,
-              alumniAssociationName: `${associationName} (ID: ${alumniAssociationId})`,
+              alumniAssociationName: associationName,
               organizeId: alumniAdminRole.organizeId || alumniAssociationId // 存储organizeId
             }
             

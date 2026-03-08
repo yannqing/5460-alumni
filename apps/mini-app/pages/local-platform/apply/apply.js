@@ -17,7 +17,7 @@ Page({
         hasAlumniAdminPermission: false, // 是否有校友会管理员身份
         alumniAssociationDetail: null, // 校友会详情
         loading: false, // 加载状态
-        defaultAlumniAvatar: config.defaultAlumniAvatar || config.defaultAvatar,
+        defaultAlumniAvatar: config.defaultAvatar,
         defaultBackground: '/assets/icons/background.png',
         platformList: [],
         platformIndex: -1
@@ -139,7 +139,7 @@ Page({
                         const basicAlumniData = {
                             id: alumniAssociationId,
                             alumniAssociationId: alumniAssociationId,
-                            alumniAssociationName: `${associationName} (ID: ${alumniAssociationId})`,
+                            alumniAssociationName: associationName,
                             organizeId: alumniAdminRole.organizeId || alumniAssociationId // 存储organizeId
                         }
 
@@ -345,12 +345,14 @@ Page({
                     icon: 'none'
                 })
             }
+            return res
         } catch (error) {
             console.error('[Debug] 获取校友会详情异常:', error)
             wx.showToast({
                 title: '网络异常，请重试',
                 icon: 'none'
             })
+            throw error
         }
     },
 
