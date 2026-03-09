@@ -18,12 +18,12 @@
         
         <view class="form-item required">
           <view class="label-row">
-            <text class="label">创建码/邀请码</text>
+            <text class="label">邀请码</text>
             <view class="invite-hint" bindtap="goToInviteInfo">
-              没有创建码/邀请码?点击获取
+              没有邀请码?点击获取
             </view>
           </view>
-          <input class="input" placeholder="请输入创建码/邀请码" value="{{formData.createCode}}" data-field="createCode" bindinput="handleInput" />
+          <input class="input" placeholder="请输入邀请码" value="{{formData.createCode}}" data-field="createCode" bindinput="handleInput" />
         </view>
 
         <!-- 验证通过后才展示以下内容 -->
@@ -98,13 +98,28 @@
           <view class="form-item">
             <text class="label">请上传背景图</text>
             <view class="logo-options">
-              <view class="logo-preview-box">
-                <view class="upload-action">
+              <view class="upload-row">
+                <view class="upload-action upload-action-inline">
                   <button class="upload-btn" bindtap="chooseBgImg">选择图片</button>
                 </view>
                 <view wx:if="{{formData.bgImg}}" class="bg-preview-wrapper">
                   <image src="{{formData.bgImg}}" class="bg-preview" mode="aspectFit" />
                   <view class="bg-delete" bindtap="deleteBgImg">×</view>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="form-item">
+            <text class="label">社会团体法人登记证书</text>
+            <view class="logo-options">
+              <view class="upload-row">
+                <view class="upload-action upload-action-inline">
+                  <button class="upload-btn" bindtap="chooseRegistrationCertificate">选择图片</button>
+                </view>
+                <view wx:if="{{formData.registrationCertificate}}" class="bg-preview-wrapper">
+                  <image src="{{formData.registrationCertificate}}" class="bg-preview" mode="aspectFit" />
+                  <view class="bg-delete" bindtap="deleteRegistrationCertificate">×</view>
                 </view>
               </view>
             </view>

@@ -100,6 +100,12 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     private String bgImg;
 
     /**
+     * 社会团体法人登记证书
+     */
+    @Schema(description = "社会团体法人登记证书")
+    private String registrationCertificate;
+
+    /**
      * 创建人ID
      */
     @Schema(description = "创建人ID")

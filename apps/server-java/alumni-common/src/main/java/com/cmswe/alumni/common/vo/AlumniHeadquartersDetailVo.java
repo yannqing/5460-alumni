@@ -78,6 +78,12 @@ public class AlumniHeadquartersDetailVo implements Serializable {
     private String bgImg;
 
     /**
+     * 社会团体法人登记证书
+     */
+    @Schema(description = "社会团体法人登记证书")
+    private String registrationCertificate;
+
+    /**
      * 联系邮箱
      */
     @Schema(description = "联系邮箱")

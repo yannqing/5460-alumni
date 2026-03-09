@@ -206,6 +206,24 @@
   white-space: pre-wrap;
 }
 
+/* 社会团体法人登记证书 - 标签一行不换行，图片在下 */
+.certificate-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.certificate-item .info-label {
+  white-space: nowrap;
+}
+
+.certificate-image {
+  max-width: 100%;
+  border-radius: 12rpx;
+  margin-top: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+
 .info-value.link {
   color: #4A8BF5;
   text-decoration: underline;

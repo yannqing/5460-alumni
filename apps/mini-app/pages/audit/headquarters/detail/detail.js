@@ -64,6 +64,11 @@ Page({
           headquarters.logo = config.getImageUrl(headquarters.logo)
         }
 
+        // 处理社会团体法人登记证书图片
+        if (headquarters.registrationCertificate && headquarters.registrationCertificate.trim()) {
+          headquarters.registrationCertificate = config.getImageUrl(headquarters.registrationCertificate)
+        }
+
         this.setData({
           headquarters,
           statusClass,
