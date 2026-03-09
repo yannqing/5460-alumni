@@ -33,7 +33,8 @@ Page({
     inviteForm: {
       name: '',
       wxId: '',
-      roleOrId: ''
+      roleOrId: '',
+      sort: ''
     },
     // 校友搜索结果
     alumniSearchResults: [],
@@ -41,7 +42,8 @@ Page({
     // 编辑成员相关
     showEditModal: false,
     editingMember: {
-      isShowOnHome: 0
+      isShowOnHome: 0,
+      sort: ''
     },
     // 预设成员相关
     showPresetModal: false,
@@ -53,7 +55,8 @@ Page({
       roleIndex: 0,
         contactInformation: '',
         socialDuties: '',
-        isShowOnHome: 0
+        isShowOnHome: 0,
+        sort: ''
       },
     // 关联注册用户相关
     showLinkModal: false,
@@ -296,16 +299,24 @@ Page({
         // 获取原始成员列表
         const memberList = (res.data.data && res.data.data.records) || []
 
-        // 排序成员列表：pid=0的排在前面，然后按角色名称排序
+        // 排序成员列表：优先使用 sort 字段，然后 pid=0 的排在前面，最后按角色名称排序
         memberList.sort((a, b) => {
-          // 首先比较pid，pid=0的排在前面
+          // 首先比较 sort 权重，数值越小越靠前
+          const sortA = a.sort !== null && a.sort !== undefined ? Number(a.sort) : 999999
+          const sortB = b.sort !== null && b.sort !== undefined ? Number(b.sort) : 999999
+          
+          if (sortA !== sortB) {
+            return sortA - sortB
+          }
+
+          // 然后比较pid，pid=0的排在前面
           const pidA = a.organizeArchiRole ? a.organizeArchiRole.pid : null
           const pidB = b.organizeArchiRole ? b.organizeArchiRole.pid : null
 
           if (pidA === '0' && pidB !== '0') { return -1 }
           if (pidA !== '0' && pidB === '0') { return 1 }
 
-          // 如果pid相同，按角色名称排序
+          // 如果 sort 和 pid 都相同，按角色名称排序
           const roleNameA = a.organizeArchiRole ? a.organizeArchiRole.roleOrName : ''
           const roleNameB = b.organizeArchiRole ? b.organizeArchiRole.roleOrName : ''
 
@@ -371,7 +382,8 @@ Page({
         roleIndex: 0,
         contactInformation: '',
         socialDuties: '',
-        isShowOnHome: 0
+        isShowOnHome: 0,
+        sort: ''
       },
       alumniSearchResults: [],
       showAlumniSearchResults: false,
@@ -404,7 +416,8 @@ Page({
         roleIndex: 0,
         contactInformation: '',
         socialDuties: '',
-        isShowOnHome: 0
+        isShowOnHome: 0,
+        sort: ''
       },
       roleList: []
     })
@@ -533,6 +546,14 @@ Page({
     })
   },
 
+  // 处理邀请成员排序权重输入
+  onInviteSortInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.sort': value
+    })
+  },
+
   // 处理预设成员用户名输入
   onPresetUsernameInput(e) {
     const value = e.detail.value
@@ -562,6 +583,14 @@ Page({
     const value = e.detail.value
     this.setData({
       'presetForm.socialDuties': value
+    })
+  },
+
+  // 处理预设成员排序权重输入
+  onPresetSortInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'presetForm.sort': value
     })
   },
 
@@ -638,6 +667,14 @@ Page({
     })
   },
 
+  // 处理编辑成员排序权重输入
+  onEditSortInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.sort': value
+    })
+  },
+
   // 处理校友姓名输入框聚焦
   onMemberNameFocus() {
     if (this.data.inviteForm.name) {
@@ -690,7 +727,7 @@ Page({
   // 提交邀请
   async submitInvite() {
     try {
-      const { wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome } = this.data.inviteForm
+      const { wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome, sort } = this.data.inviteForm
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
@@ -702,8 +739,17 @@ Page({
         return
       }
 
+      // 验证排序权重是否为数字
+      if (sort && !/^\d+$/.test(sort)) {
+        wx.showToast({
+          title: '排序权重必须为数字',
+          icon: 'none'
+        })
+        return
+      }
+
       // 调用邀请成员接口，直接传递字符串形式的wxId和roleOrId，避免大整数精度丢失
-      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome)
+      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome, sort ? parseInt(sort, 10) : null)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -731,7 +777,7 @@ Page({
   // 提交预设成员
   async submitPreset() {
     try {
-      const { username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome } = this.data.presetForm
+      const { username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome, sort } = this.data.presetForm
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
@@ -743,8 +789,17 @@ Page({
         return
       }
 
+      // 验证排序权重是否为数字
+      if (sort && !/^\d+$/.test(sort)) {
+        wx.showToast({
+          title: '排序权重必须为数字',
+          icon: 'none'
+        })
+        return
+      }
+
       // 调用添加预设成员接口
-      const res = await this.addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome)
+      const res = await this.addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome, sort ? parseInt(sort, 10) : null)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -876,8 +931,8 @@ Page({
   },
 
   // 调用邀请成员接口
-  inviteMemberAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow) {
-    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow)
+  inviteMemberAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort)
   },
 
   // 打开编辑成员弹窗
@@ -950,7 +1005,7 @@ Page({
   async submitEdit() {
     try {
       const { editingMember } = this.data
-      const { newRoleId, wxId, name, roleName, contactInformation, socialDuties, id, isShowOnHome } = editingMember
+      const { newRoleId, wxId, name, roleName, contactInformation, socialDuties, id, isShowOnHome, sort } = editingMember
       const isShow = isShowOnHome === 1 ? 1 : 0
       const localPlatformId = this.data.selectedSchoolOfficeId
 
@@ -963,6 +1018,17 @@ Page({
         return
       }
 
+      // 验证排序权重是否为数字
+      if (sort && !/^\d+$/.test(sort)) {
+        wx.showToast({
+          title: '排序权重必须为数字',
+          icon: 'none'
+        })
+        return
+      }
+
+      const finalSort = sort ? parseInt(sort, 10) : null
+
       let res
       // 判断是否为预设成员（预设成员没有 wxId）
       if (!wxId) {
@@ -974,10 +1040,10 @@ Page({
           })
           return
         }
-        res = await this.updatePresetMemberInfoAPI(id, name, roleName, contactInformation, socialDuties, isShow)
+        res = await this.updatePresetMemberInfoAPI(id, name, roleName, contactInformation, socialDuties, isShow, finalSort)
       } else {
         // 真实成员，使用更新成员角色接口
-        res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId, name, roleName, contactInformation, socialDuties, isShow)
+        res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId, name, roleName, contactInformation, socialDuties, isShow, finalSort)
       }
 
       if (res.data && res.data.code === 200) {
@@ -1072,18 +1138,18 @@ Page({
   },
 
   // 调用更新成员角色接口
-  updateMemberRoleAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow) {
-    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow)
+  updateMemberRoleAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort)
   },
 
   // 调用添加预设成员接口
-  addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow) {
-    return localPlatformManagementApi.addPresetMember(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow)
+  addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.addPresetMember(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow, sort)
   },
 
   // 调用更新预设成员信息接口
-  updatePresetMemberInfoAPI(memberId, username, roleName, contactInformation, socialDuties, isShow) {
-    return localPlatformManagementApi.updatePresetMemberInfo(memberId, username, roleName, contactInformation, socialDuties, isShow)
+  updatePresetMemberInfoAPI(memberId, username, roleName, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.updatePresetMemberInfo(memberId, username, roleName, contactInformation, socialDuties, isShow, sort)
   },
 
   // 调用删除预设成员接口

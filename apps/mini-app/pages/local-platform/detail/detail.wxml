@@ -31,16 +31,6 @@
                 <view wx:if="{{activeTab === 0}}" class="tab-content">
                     <view class="card">
                         <view class="text-bold mb-20">基本信息</view>
-                        <!-- 主页展示成员列表 -->
-                        <view wx:if="{{platformInfo.showMembers && platformInfo.showMembers.length > 0}}" class="show-members-section">
-                            <view class="show-members-title">核心成员</view>
-                            <view class="show-members-list">
-                                <view class="show-member-item" wx:for="{{platformInfo.showMembers}}" wx:key="id" bindtap="viewMemberDetail" data-member="{{item}}">
-                                    <text class="show-member-name">{{item.username || '-'}}</text>
-                                    <text class="show-member-role">{{item.roleName || '-'}}</text>
-                                </view>
-                            </view>
-                        </view>
                         <view class="basic-info-item">会员数量：{{platformInfo.memberCount || '不方便透露'}}</view>
                         <!-- 会员单位头像预览 -->
                         <view wx:if="{{associations && associations.length > 0}}" class="member-avatar-preview">
@@ -78,6 +68,16 @@
                             </view>
                         </view>
                         <view class="basic-info-item">简介：{{platformInfo.description || '不方便透露'}}</view>
+                        <!-- 主页展示成员列表 -->
+                        <view wx:if="{{platformInfo.showMembers && platformInfo.showMembers.length > 0}}" class="show-members-section">
+                            <view class="show-members-title">主要负责人</view>
+                            <view class="show-members-list">
+                                <view class="show-member-item" wx:for="{{platformInfo.showMembers}}" wx:key="id" bindtap="viewMemberDetail" data-member="{{item}}">
+                                    <text class="show-member-name">{{item.username || '-'}}</text>
+                                    <text class="show-member-role">{{item.roleName || '-'}}</text>
+                                </view>
+                            </view>
+                        </view>
                     </view>
                     <!-- 校促会重大事记（放在简介下面） -->
                     <view class="card important-events-card" wx:if="{{platformInfo.importantEvents && platformInfo.importantEvents.length > 0}}">

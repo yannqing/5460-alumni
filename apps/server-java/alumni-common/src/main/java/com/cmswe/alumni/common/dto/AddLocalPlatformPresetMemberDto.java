@@ -61,6 +61,12 @@ public class AddLocalPlatformPresetMemberDto implements Serializable {
     @Schema(description = "是否在主页展示(0否,1是)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer isShow;
 
+    /**
+     * 排序权重, 数值越小越靠前
+     */
+    @Schema(description = "排序权重, 数值越小越靠前", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer sort;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }
