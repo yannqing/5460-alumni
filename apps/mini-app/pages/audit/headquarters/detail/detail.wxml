@@ -93,6 +93,12 @@
           <text class="info-label">联系电话</text>
           <text class="info-value">{{headquarters.phone || '无'}}</text>
         </view>
+
+        <!-- 社会团体法人登记证书 -->
+        <view class="certificate-item" wx:if="{{headquarters.registrationCertificate}}">
+          <text class="info-label">社会团体法人登记证书</text>
+          <image class="certificate-image" src="{{headquarters.registrationCertificate}}" mode="widthFix" />
+        </view>
       </view>
 
       <!-- 分割线 -->

@@ -21,6 +21,8 @@
         <result property="activeStatus" column="active_status" jdbcType="TINYINT"/>
         <result property="approvalStatus" column="approval_status" jdbcType="TINYINT"/>
         <result property="level" column="level" jdbcType="TINYINT"/>
+        <result property="bgImg" column="bg_img" jdbcType="VARCHAR"/>
+        <result property="registrationCertificate" column="registration_certificate" jdbcType="VARCHAR"/>
         <result property="createCode" column="create_code" jdbcType="INTEGER"/>
         <result property="createdUserId" column="created_user_id" jdbcType="BIGINT"/>
         <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
@@ -32,7 +34,7 @@
     <sql id="Base_Column_List">
         headquarters_id, headquarters_name, school_id, logo, description, contact_info,
         address, website, wechat_public_account, email, phone, established_date,
-        member_count, active_status, approval_status, level, create_code, created_user_id,
+        member_count, active_status, approval_status, level, bg_img, registration_certificate, create_code, created_user_id,
         created_time, updated_user_id, updated_time, is_deleted
     </sql>
 

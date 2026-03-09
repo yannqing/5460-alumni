@@ -121,6 +121,12 @@ public class AlumniHeadquarters implements Serializable {
     private String bgImg;
 
     /**
+     * 社会团体法人登记证书
+     */
+    @TableField(value = "registration_certificate")
+    private String registrationCertificate;
+
+    /**
      * 创建码
      */
     @TableField(value = "create_code")

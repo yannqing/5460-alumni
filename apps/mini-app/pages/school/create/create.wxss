@@ -240,6 +240,21 @@ page {
   margin-bottom: 20rpx;
 }
 
+/* 背景图/登记证书：按钮与缩略图并排展示 */
+.upload-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.upload-action-inline {
+  width: auto;
+  margin-bottom: 0;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
 .upload-btn {
   border: 1rpx solid #eee;
   padding: 20rpx;

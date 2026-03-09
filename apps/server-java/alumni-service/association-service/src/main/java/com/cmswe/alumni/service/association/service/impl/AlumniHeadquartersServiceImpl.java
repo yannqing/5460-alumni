@@ -276,6 +276,9 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
         if (StringUtils.isNotBlank(request.getBgImg())) {
             alumniHeadquarters.setBgImg(request.getBgImg());
         }
+        if (StringUtils.isNotBlank(request.getRegistrationCertificate())) {
+            alumniHeadquarters.setRegistrationCertificate(request.getRegistrationCertificate());
+        }
 
         // 设置创建人和更新人
         Long requestCreatedUserId = request.getCreatedUserId();
@@ -420,6 +423,9 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
             if (request.getLevel() != null) {
                 alumniHeadquarters.setLevel(request.getLevel());
             }
+            if (StringUtils.isNotBlank(request.getRegistrationCertificate())) {
+                alumniHeadquarters.setRegistrationCertificate(request.getRegistrationCertificate());
+            }
 
             // 审核通过后，激活状态也一同改为活跃
             alumniHeadquarters.setActiveStatus(1);
@@ -431,6 +437,8 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
             updateWrapper.eq(AlumniHeadquarters::getHeadquartersId, headquartersId)
                     .set(AlumniHeadquarters::getApprovalStatus, 2)
                     .set(AlumniHeadquarters::getLogo, null)
+                    .set(AlumniHeadquarters::getBgImg, null)
+                    .set(AlumniHeadquarters::getRegistrationCertificate, null)
                     .set(AlumniHeadquarters::getDescription, null)
                     .set(AlumniHeadquarters::getContactInfo, null)
                     .set(AlumniHeadquarters::getAddress, null)
