@@ -276,6 +276,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 localPlatformDetailVo.setPrincipalPosition(null);
             if (privacyMap.getOrDefault("local_platform_phone", 0) == 0)
                 localPlatformDetailVo.setLocalPlatformPhone(null);
+            if (privacyMap.getOrDefault("importantEvents", 0) == 0)
+                localPlatformDetailVo.setImportantEvents(null);
         } catch (Exception e) {
             log.error("应用校促会隐私设置失败 - PlatformId: {}", id, e);
             // 异常时保持原有字段值

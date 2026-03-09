@@ -124,6 +124,98 @@
   background-color: #f9f9f9;
 }
 
+.section-title.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-btn {
+  font-size: 24rpx;
+  color: #40B2E6;
+  font-weight: normal;
+  border: 1rpx solid #40B2E6;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.event-year-item {
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  background-color: #fafafa;
+}
+
+.year-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx dashed #ddd;
+  padding-bottom: 12rpx;
+}
+
+.year-input {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.delete-icon {
+  font-size: 24rpx;
+  color: #ff4d4f;
+  margin-left: 20rpx;
+}
+
+.event-detail-list {
+  padding-left: 20rpx;
+}
+
+.event-detail-item {
+  position: relative;
+  margin-bottom: 16rpx;
+  padding-right: 60rpx;
+}
+
+.event-textarea {
+  width: 100%;
+  border: 1rpx solid #ddd;
+  border-radius: 6rpx;
+  padding: 12rpx;
+  font-size: 26rpx;
+  color: #555;
+  background-color: #fff;
+  min-height: 80rpx;
+  box-sizing: border-box;
+}
+
+.delete-event {
+  position: absolute;
+  top: 50%;
+  right: 10rpx;
+  transform: translateY(-50%);
+  width: 36rpx;
+  height: 36rpx;
+  background-color: #ff4d4f;
+  color: #fff;
+  text-align: center;
+  line-height: 32rpx;
+  font-size: 32rpx;
+  border-radius: 50%;
+}
+
+.add-event-btn {
+  font-size: 24rpx;
+  color: #40B2E6;
+  text-align: center;
+  padding: 10rpx;
+  border: 1rpx dashed #40B2E6;
+  border-radius: 6rpx;
+  margin-top: 10rpx;
+}
+
 .submit-section {
   margin-top: 40rpx;
   margin-bottom: 40rpx;
