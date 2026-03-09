@@ -18,6 +18,7 @@
     "pages/school/list/list",
     "pages/school/detail/detail",
     "pages/school/create/create",
+    "pages/school/invite-info/invite-info",
     "pages/alumni/list/list",
     "pages/alumni/detail/detail",
     "pages/coupon/list/list",

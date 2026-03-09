@@ -75,7 +75,24 @@ page {
   font-size: 28rpx;
   color: #666666;
   margin-bottom: 16rpx;
-  display: block;
+  display: inline-block;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16rpx;
+}
+
+.label-row .label {
+  margin-bottom: 0;
+}
+
+.invite-hint {
+  font-size: 24rpx;
+  color: #1890FF;
+  cursor: pointer;
 }
 
 .form-item.required .label::before {
@@ -327,4 +344,28 @@ page {
   font-size: 24rpx;
   color: #1890FF;
   margin-left: 8rpx;
+}
+
+/* 验证状态加载样式 */
+.verify-loading {
+  display: flex;
+  align-items: center;
+  margin-top: 10rpx;
+  color: #1890FF;
+  font-size: 24rpx;
+}
+
+.loading-icon {
+  width: 24rpx;
+  height: 24rpx;
+  border: 2rpx solid #1890FF;
+  border-top-color: transparent;
+  border-radius: 50%;
+  margin-right: 10rpx;
+  animation: loading-rotate 0.8s linear infinite;
+}
+
+@keyframes loading-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

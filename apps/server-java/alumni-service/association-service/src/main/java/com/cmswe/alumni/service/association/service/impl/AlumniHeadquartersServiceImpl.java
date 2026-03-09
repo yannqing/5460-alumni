@@ -300,6 +300,34 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
     }
 
     @Override
+    public boolean verifyCreateCode(ApplyActivateHeadquartersRequest request) {
+        if (request == null || request.getHeadquartersId() == null || request.getCreateCode() == null) {
+            throw new BusinessException("验证失败，参数不能为空");
+        }
+
+        Long headquartersId = request.getHeadquartersId();
+        Integer createCode = request.getCreateCode();
+
+        // 1. 查询数据库中的校友总会信息
+        AlumniHeadquarters alumniHeadquarters = this.getById(headquartersId);
+        if (alumniHeadquarters == null) {
+            throw new BusinessException("验证失败，校友总会不存在");
+        }
+
+        // 2. 验证状态
+        if (alumniHeadquarters.getActiveStatus() != null && alumniHeadquarters.getActiveStatus() == 1) {
+            throw new BusinessException("该校友总会已激活，无需重复操作");
+        }
+
+        // 3. 对比创建码
+        if (!createCode.equals(alumniHeadquarters.getCreateCode())) {
+            throw new BusinessException("验证失败，创建码不正确");
+        }
+
+        return true;
+    }
+
+    @Override
     public PageVo<InactiveAlumniHeadquartersVo> selectInactiveByPage(QueryAlumniHeadquartersListDto pageRequest) {
         if (pageRequest == null) {
             throw new BusinessException("参数为空");

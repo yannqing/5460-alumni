@@ -206,10 +206,13 @@ const request = (params) => {
         resolve(res)
       } else {
         // 其它业务错误，正常弹出后端提示
-        msg && wx.showToast({
-          icon: 'none',
-          title: msg
-        })
+        // 如果请求带有 silent: true 参数，则不弹出 Toast 提示
+        if (!params.silent && msg) {
+          wx.showToast({
+            icon: 'none',
+            title: msg
+          })
+        }
         resolve(res);
       }
     }
