@@ -15,8 +15,8 @@ import com.cmswe.alumni.common.vo.InvitationRankVo;
 import com.cmswe.alumni.common.vo.InvitationRecordItemVo;
 import com.cmswe.alumni.common.vo.InviteeRegisterCheckVo;
 import com.cmswe.alumni.common.vo.PosterTemplateItemVo;
-import com.cmswe.alumni.common.dto.InviterCountDto;
 import java.util.List;
+import java.time.LocalDateTime;
 import com.cmswe.alumni.common.entity.InvitationRecord;
 import com.cmswe.alumni.common.entity.PosterTemplate;
 import com.cmswe.alumni.common.entity.PointsChange;
@@ -82,17 +82,17 @@ public class InvitationServiceImpl implements InvitationService {
             throw new BusinessException(400, "邀请人和被邀请人不能相同");
         }
 
-        // 2. 防止重复确认：同一条邀请记录只处理一次
-        long exists = invitationRecordMapper.selectCount(
+        // 2. 严格新用户判定：该被邀请人在全站范围内不能有任何邀请记录
+        // 只有“邀请关系空白”的用户才是“真·新用户”
+        long existsCount = invitationRecordMapper.selectCount(
                 new LambdaQueryWrapper<InvitationRecord>()
-                        .eq(InvitationRecord::getInviterWxId, inviterWxId)
                         .eq(InvitationRecord::getInviteeWxId, inviteeWxId));
-        if (exists > 0) {
-            log.info("邀请已确认过，跳过重复处理 inviterWxId={}, inviteeWxId={}", inviterWxId, inviteeWxId);
-            return true;
+        if (existsCount > 0) {
+            log.info("该用户已存在邀请记录，不符合“真·新用户”定义，跳过绑定。inviteeWxId={}", inviteeWxId);
+            return false;
         }
 
-        // 3. 获取被邀请人是否认证（alumni_info.certification_status: 1=已认证）
+        // 3. 获取被邀请人是否已认证（虽然是新用户，但为了逻辑严密仍做检查）
         int isVerified = 0;
         AlumniInfo alumniInfo = alumniInfoMapper.findByWxIdOrUserId(inviteeWxId);
         if (alumniInfo != null && alumniInfo.getCertificationStatus() != null
@@ -100,43 +100,17 @@ public class InvitationServiceImpl implements InvitationService {
             isVerified = 1;
         }
 
-        // 4. 写入邀请记录表
+        // 4. 仅写入邀请记录，不再此处发放积分
         InvitationRecord record = new InvitationRecord();
         record.setInviterWxId(inviterWxId);
         record.setInviteeWxId(inviteeWxId);
         record.setIsRegister(isVerified);
+        record.setCreateTime(LocalDateTime.now());
+        record.setUpdateTime(LocalDateTime.now());
         invitationRecordMapper.insert(record);
 
-        // 5. 查询邀请人当前积分
-        WxUserInfo inviterInfo = wxUserInfoMapper.findByWxId(inviterWxId);
-        int originalPoints = (inviterInfo != null && inviterInfo.getIntegral() != null) ? inviterInfo.getIntegral() : 0;
-        int afterPoints = originalPoints + 1;
-
-        // 6. 更新邀请人积分（wx_user_info.integral + 1）
-        LambdaUpdateWrapper<WxUserInfo> updateWrapper = new LambdaUpdateWrapper<WxUserInfo>()
-                .setSql("integral = COALESCE(integral, 0) + 1")
-                .eq(WxUserInfo::getWxId, inviterWxId);
-        int updated = wxUserInfoMapper.update(null, updateWrapper);
-        if (updated == 0) {
-            // wx_user_info 可能不存在该用户记录，需要先插入
-            WxUserInfo newInfo = new WxUserInfo();
-            newInfo.setWxId(inviterWxId);
-            newInfo.setIntegral(1);
-            wxUserInfoMapper.insert(newInfo);
-            originalPoints = 0;
-            afterPoints = 1;
-        }
-
-        // 7. 记录积分变化
-        PointsChange pointsChange = new PointsChange();
-        pointsChange.setWxId(inviterWxId);
-        pointsChange.setType(POINTS_TYPE_INVITE);
-        pointsChange.setOriginalPoints(originalPoints);
-        pointsChange.setAfterPoints(afterPoints);
-        pointsChangeMapper.insert(pointsChange);
-
-        log.info("确认邀请成功 inviterWxId={}, inviteeWxId={}, isVerified={}, originalPoints={}, afterPoints={}",
-                inviterWxId, inviteeWxId, isVerified, originalPoints, afterPoints);
+        log.info("邀请关系绑定成功（等待认证发奖）: inviterWxId={}, inviteeWxId={}, isVerified={}",
+                inviterWxId, inviteeWxId, isVerified);
 
         return true;
     }

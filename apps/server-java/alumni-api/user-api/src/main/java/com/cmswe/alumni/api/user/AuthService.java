@@ -26,7 +26,7 @@ public interface AuthService {
      * @return 登录响应信息（与正式登录接口返回一致）
      * @throws JsonProcessingException JSON处理异常
      */
-    WxInitResponse testLogin(Long wxId) throws JsonProcessingException;
+    WxInitResponse testLogin(Long wxId, String inviterWxUuid) throws JsonProcessingException;
 
     /**
      * 用户注册接口（完善用户基本信息和教育经历）

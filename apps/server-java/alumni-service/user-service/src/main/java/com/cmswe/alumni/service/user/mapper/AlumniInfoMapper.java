@@ -23,10 +23,10 @@ public interface AlumniInfoMapper extends BaseMapper<AlumniInfo> {
     AlumniInfo findByUserId(@Param("userId") Long userId);
 
     /**
-     * 根据wx_id或user_id查询校友信息（兼容不同表结构）
+     * 根据wx_id查询校友信息
      * @param wxId 用户wxId
      * @return 校友信息
      */
-    @Select("SELECT * FROM alumni_info WHERE (wx_id = #{wxId} OR user_id = #{wxId}) AND is_delete = 0 LIMIT 1")
+    @Select("SELECT * FROM alumni_info WHERE wx_id = #{wxId} AND is_delete = 0 LIMIT 1")
     AlumniInfo findByWxIdOrUserId(@Param("wxId") Long wxId);
 }

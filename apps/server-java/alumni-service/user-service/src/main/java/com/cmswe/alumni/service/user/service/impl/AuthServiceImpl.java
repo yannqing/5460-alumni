@@ -149,25 +149,27 @@ public class AuthServiceImpl implements AuthService {
         //8. 检查用户基本信息是否完善
         boolean isProfileComplete = checkUserProfileComplete(loginUser.getWxId());
 
-        //9. 构建响应，仅首次登录时返回被邀请人和邀请人wxid
+        //9. 构建响应，仅首次登录或未曾被邀请过的用户尝试处理邀请绑定
         WxInitResponse.WxInitResponseBuilder responseBuilder = WxInitResponse.builder()
                 .token(token)
                 .roles(roleList)
                 .certificationFlag(loginUser.getCertificationFlag())
                 .isProfileComplete(isProfileComplete);
-        if (isFirstLogin) {
-            Long inviterWxIdLong = parseInviterWxId(inviterWxUuid);
-            if (inviterWxIdLong != null) {
-                ConfirmInvitationDto confirmInvitationDto = ConfirmInvitationDto.builder()
-                        .inviterWxId(String.valueOf(inviterWxIdLong))
-                        .inviteeWxId(String.valueOf(loginUser.getWxId()))
-                        .build();
-                try {
-                    invitationService.confirmInvitation(confirmInvitationDto);
-                    log.info("调用邀请确认接口成功：inviterWxId={}, inviteeWxId={}", inviterWxIdLong, loginUser.getWxId());
-                } catch (Exception e) {
-                    log.error("调用邀请确认接口失败：inviterWxId={}, inviteeWxId={}, error={}", inviterWxIdLong, loginUser.getWxId(), e.getMessage());
-                }
+
+        // 处理邀请关系逻辑：
+        // 只有满足“微信身份空白（isFirstLogin = true）”的用户才尝试绑定邀请关系
+        Long inviterWxIdLong = parseInviterWxId(inviterWxUuid);
+        if (inviterWxIdLong != null && isFirstLogin) {
+            ConfirmInvitationDto confirmInvitationDto = ConfirmInvitationDto.builder()
+                    .inviterWxId(String.valueOf(inviterWxIdLong))
+                    .inviteeWxId(String.valueOf(loginUser.getWxId()))
+                    .build();
+            try {
+                // confirmInvitation 内部现在会检查“邀请关系空白”
+                invitationService.confirmInvitation(confirmInvitationDto);
+            } catch (Exception e) {
+                log.error("处理邀请绑定逻辑失败：inviterWxId={}, inviteeWxId={}, error={}", 
+                        inviterWxIdLong, loginUser.getWxId(), e.getMessage());
             }
         }
 
@@ -384,14 +386,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public WxInitResponse testLogin(Long wxId) throws JsonProcessingException {
+    public WxInitResponse testLogin(Long wxId, String inviterWxUuid) throws JsonProcessingException {
         // 1. 参数校验
         if (wxId == null) {
             log.error("testLogin 参数错误: wxId为空");
             throw new BusinessException(400, "参数错误：wxId不能为空");
         }
 
-        log.info("开始测试登录 - 用户ID: {}", wxId);
+        log.info("开始测试登录 - 用户ID: {}, 邀请人ID: {}", wxId, inviterWxUuid);
 
         // 2. 查询用户信息
         WxUser loginUser = wxUserMapper.selectById(wxId);
@@ -400,20 +402,37 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(404, "用户不存在");
         }
 
-        // 3. 生成JWT Token（与正式登录保持一致）
+        // 3. 处理邀请关系逻辑（与正式登录保持一致：仅限身份空白用户）
+        Long inviterWxIdLong = parseInviterWxId(inviterWxUuid);
+        boolean isFirstLoginTest = (loginUser.getOpenid() == null || loginUser.getOpenid().trim().isEmpty());
+        if (inviterWxIdLong != null && isFirstLoginTest) {
+            ConfirmInvitationDto confirmInvitationDto = ConfirmInvitationDto.builder()
+                    .inviterWxId(String.valueOf(inviterWxIdLong))
+                    .inviteeWxId(String.valueOf(loginUser.getWxId()))
+                    .build();
+            try {
+                // confirmInvitation 内部现在会检查“邀请关系空白”
+                invitationService.confirmInvitation(confirmInvitationDto);
+            } catch (Exception e) {
+                log.error("测试登录中处理邀请绑定逻辑失败：inviterWxId={}, inviteeWxId={}, error={}", 
+                        inviterWxIdLong, loginUser.getWxId(), e.getMessage());
+            }
+        }
+
+        // 4. 生成JWT Token（与正式登录保持一致）
         String token = jwtUtils.token(JSON.toJSONString(loginUser), null);
 
         log.info("为用户生成测试Token - 用户ID: {}, OpenID: {}", loginUser.getWxId(), loginUser.getOpenid());
 
-        // 4. 获取用户角色信息
+        // 5. 获取用户角色信息
         List<RoleListVo> roleList = roleService.getRoleListVoByWxId(loginUser.getWxId());
 
         log.info("查询到用户角色 - 用户ID: {}, 角色数量: {}", loginUser.getWxId(), roleList.size());
 
-        // 5. 检查用户基本信息是否完善
+        // 6. 检查用户基本信息是否完善
         boolean isProfileComplete = checkUserProfileComplete(loginUser.getWxId());
 
-        // 6. 返回用户信息 + Token + 角色信息 + 信息完善标识
+        // 7. 返回用户信息 + Token + 角色信息 + 信息完善标识
         WxInitResponse response = WxInitResponse.builder()
                 .token(token)
                 .roles(roleList)

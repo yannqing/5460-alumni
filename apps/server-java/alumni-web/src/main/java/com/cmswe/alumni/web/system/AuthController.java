@@ -49,14 +49,23 @@ public class AuthController {
 
     @Operation(summary = "测试登录（本地调试用，传入微信用户ID）")
     @PostMapping("/testLogin")
-    public BaseResponse<WxInitResponse> testLogin(@RequestBody java.util.Map<String, Long> request)
+    public BaseResponse<WxInitResponse> testLogin(@RequestBody java.util.Map<String, Object> request)
             throws JsonProcessingException {
-        Long wxId = request.get("wxId");
+        Object wxIdObj = request.get("wxId");
+        Long wxId = null;
+        if (wxIdObj instanceof Number) {
+            wxId = ((Number) wxIdObj).longValue();
+        } else if (wxIdObj instanceof String) {
+            wxId = Long.parseLong((String) wxIdObj);
+        }
+
         if (wxId == null) {
             return ResultUtils.failure(Code.FAILURE, null, "参数错误：wxId不能为空");
         }
 
-        WxInitResponse wxInitResponse = authService.testLogin(wxId);
+        String inviterWxUuid = (String) request.get("inviterWxUuid");
+
+        WxInitResponse wxInitResponse = authService.testLogin(wxId, inviterWxUuid);
 
         return ResultUtils.success(Code.SUCCESS, wxInitResponse, "测试登录成功");
     }

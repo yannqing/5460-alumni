@@ -103,7 +103,7 @@ public class WechatMiniUtil {
             params.put("page", page);
             params.put("width", width);
             params.put("check_path", false);
-            params.put("env_version", "release"); // 正式版为 release，体验版为 trial，开发版为 develop
+            params.put("env_version", "develop"); // 正式版为 release，体验版为 trial，开发版为 develop
 
             log.info("调用微信生成小程序码接口, scene={}, page={}", scene, page);
 
