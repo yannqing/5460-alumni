@@ -62,8 +62,8 @@
         <text class="detail-label">社会任职</text>
         <text class="detail-value">{{currentAlumniDetail.chargeSocialAffiliation || '无'}}</text>
       </view>
-      <!-- 驻会代表信息 -->
-      <view class="detail-section-title" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhName}}">驻会代表</view>
+      <!-- 联系人信息 -->
+      <view class="detail-section-title" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhName}}">联系人</view>
       <view class="detail-item" wx:if="{{currentAlumniDetail && currentAlumniDetail.zhName}}">
         <text class="detail-label">姓名</text>
         <text class="detail-value">{{currentAlumniDetail.zhName || '无'}}</text>

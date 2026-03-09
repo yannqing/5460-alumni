@@ -110,6 +110,18 @@ page {
   display: block;
 }
 
+.label-with-hint {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.label-hint {
+  font-size: 24rpx;
+  color: #999999;
+}
+
 .form-item.required .label::before {
   content: '*';
   color: #ff4d4f;

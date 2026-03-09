@@ -33,6 +33,12 @@ public class AlumniAssociationApplication implements Serializable {
     private Long schoolId;
 
     /**
+     * 母校曾用名
+     */
+    @TableField(value = "former_school_name")
+    private String formerSchoolName;
+
+    /**
      * 所属校处会ID（可选）
      */
     @TableField(value = "platform_id")

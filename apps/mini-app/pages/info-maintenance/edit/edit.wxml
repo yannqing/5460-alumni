@@ -10,12 +10,11 @@
         <!-- 校友会名称 -->
         <view class="form-card">
           <view class="form-label">校友会名称</view>
-          <input 
-            class="form-input" 
-            placeholder="请输入校友会名称" 
-            value="{{formData.associationName}}" 
-            bindinput="handleInput" 
-            data-field="associationName"
+          <input
+            class="form-input disabled"
+            placeholder="请输入校友会名称"
+            value="{{formData.associationName}}"
+            disabled="{{true}}"
           />
         </view>
 
@@ -149,13 +148,13 @@
           />
         </view>
 
-        <!-- 驻会代表信息 -->
-        <view class="form-section-title">驻会代表</view>
+        <!-- 联系人信息 -->
+        <view class="form-section-title">联系人</view>
         <view class="form-card">
           <view class="form-label">姓名</view>
           <input
             class="form-input {{formData.zhWxId ? 'disabled' : ''}}"
-            placeholder="请输入驻会代表姓名"
+            placeholder="请输入联系人姓名"
             value="{{formData.zhName}}"
             bindinput="handleInput"
             data-field="zhName"
@@ -177,7 +176,7 @@
           <view class="form-label">职务</view>
           <input
             class="form-input"
-            placeholder="请输入驻会代表职务"
+            placeholder="请输入联系人职务"
             value="{{formData.zhRole}}"
             bindinput="handleInput"
             data-field="zhRole"
@@ -187,7 +186,7 @@
           <view class="form-label">联系电话</view>
           <input
             class="form-input"
-            placeholder="请输入驻会代表联系电话"
+            placeholder="请输入联系人联系电话"
             value="{{formData.zhPhone}}"
             bindinput="handleInput"
             data-field="zhPhone"
@@ -198,7 +197,7 @@
           <view class="form-label">社会任职</view>
           <input
             class="form-input"
-            placeholder="请输入驻会代表社会任职"
+            placeholder="请输入联系人社会任职"
             value="{{formData.zhSocialAffiliation}}"
             bindinput="handleInput"
             data-field="zhSocialAffiliation"
