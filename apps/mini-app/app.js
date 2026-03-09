@@ -45,7 +45,14 @@ App({
 
     // 自动初始化登录
     try {
-      await this.initApp()
+      // 从启动参数中提取邀请人 UUID (scene)
+      let inviterWxUuid = ''
+      if (opt && opt.query && opt.query.scene) {
+        inviterWxUuid = decodeURIComponent(opt.query.scene)
+        console.log('[App] 从 onLaunch 启动参数中获取到邀请人 ID:', inviterWxUuid)
+      }
+
+      await this.initApp(inviterWxUuid)
       console.log('登录初始化成功')
 
       // 登录成功后初始化 WebSocket
@@ -61,9 +68,21 @@ App({
   },
 
   onShow(options) {
-    // 如果有邀请人参数，触发登录
+    // 处理从外部（扫码/分享）进入时的邀请场景
     if (options.query && options.query.scene) {
-      this.login(options.query.scene)
+      const inviterWxUuid = decodeURIComponent(options.query.scene)
+      console.log('[App] 从 onShow 启动参数中获取到邀请人 ID:', inviterWxUuid)
+      
+      // 检查当前是否已登录。如果未登录或正在登录中，login 函数会自动处理锁竞争
+      // 这里的目的是确保通过 scene 进入的用户都能正确触发邀请绑定逻辑
+      const isLogin = this.checkHasLogined()
+      if (!isLogin || this.isLoginInProgress()) {
+        this.login(inviterWxUuid)
+      } else {
+        // 如果已经登录了，可能需要单独调一个绑定邀请关系的接口，
+        // 但根据后端逻辑，目前主要在首次登录时触发。
+        console.log('[App] 用户已登录，跳过通过 scene 触发的重复登录流程')
+      }
     }
   },
 

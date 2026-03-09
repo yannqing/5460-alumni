@@ -47,7 +47,16 @@ const request = (params) => {
   const app = getApp()
 
   const data = params.data || {}
-  const baseUrl = app.globalData.baseUrl
+  
+  // 优先从全局数据获取 baseUrl，如果没有（如在 App.onLaunch 过程中），则从 config 获取
+  let baseUrl = ''
+  if (app && app.globalData && app.globalData.baseUrl) {
+    baseUrl = app.globalData.baseUrl
+  } else {
+    // 兜底：直接从配置文件根据当前环境获取
+    baseUrl = config.getBaseUrlByEnvVersion()
+  }
+  
   const fullUrl = data.isAllUrl ? params.url : baseUrl + params.url
   
   // 获取基础请求头（包含 token）

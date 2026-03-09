@@ -131,6 +131,9 @@ async function login(inviter_wx_uuid) {
       const testParams = {
         wxId: config.testLogin.wxId
       }
+      
+      // 测试模式也支持传入邀请人 ID
+      inviter_wx_uuid && (testParams.inviterWxUuid = inviter_wx_uuid)
 
       // 直接使用 post 方法调用 config 中配置的接口路径
       const { post } = require('./request.js')
@@ -163,7 +166,7 @@ async function login(inviter_wx_uuid) {
       }
 
       // 如果有邀请人，加入参数
-      inviter_wx_uuid && (params.inviter_wx_uuid = inviter_wx_uuid)
+      inviter_wx_uuid && (params.inviterWxUuid = inviter_wx_uuid)
 
       console.log('准备发送的请求参数:', params)
 
@@ -300,8 +303,9 @@ async function getUserInfo() {
 /**
  * 初始化小程序 - 页面调用入口
  * 检查是否已登录，未登录则自动登录
+ * @param {string} inviter_wx_uuid - 可选，邀请人的 UUID
  */
-async function initApp() {
+async function initApp(inviter_wx_uuid) {
   let uinfoData = {}
   const isLogin = await checkHasLogined()
 
@@ -310,10 +314,10 @@ async function initApp() {
     // 如果已登录但数据为空，重新登录获取数据
     if (!uinfoData || Object.keys(uinfoData).length === 0) {
       console.log('已登录但数据为空，重新登录获取数据...')
-      uinfoData = await login()
+      uinfoData = await login(inviter_wx_uuid)
     }
   } else {
-    uinfoData = await login()
+    uinfoData = await login(inviter_wx_uuid)
   }
 
   return uinfoData

@@ -36,6 +36,8 @@ Page({
     isAgreed: false,
     // 表单验证状态
     isFormValid: false,
+    // 是否为开发模式
+    isDevelopMode: false,
     // 3D 插图 (暂时使用占位)
     illustration: ''
   },
@@ -45,8 +47,14 @@ Page({
     this.searchSchoolDebounced = debounce(this.searchSchool, 500)
 
     const systemInfo = wx.getSystemInfoSync()
+    
+    // 判断是否为开发模式
+    const accountInfo = wx.getAccountInfoSync()
+    const isDevelopMode = accountInfo.miniProgram.envVersion === 'develop'
+
     this.setData({
-      statusBarHeight: systemInfo.statusBarHeight || 20
+      statusBarHeight: systemInfo.statusBarHeight || 20,
+      isDevelopMode
     })
   },
 
@@ -152,6 +160,18 @@ Page({
   // 阻止冒泡
   preventBubble() {
     // 阻止冒泡
+  },
+
+  // 开发模式下直接填充测试手机号
+  handleTestPhone() {
+    this.setData({
+      'formData.phone': '18823234345'
+    })
+    this.validateForm()
+    wx.showToast({
+      title: '已填充测试手机号',
+      icon: 'none'
+    })
   },
 
   // 获取微信手机号（新方式：基础库 2.21.2+）

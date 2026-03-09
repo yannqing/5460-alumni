@@ -96,14 +96,25 @@
             <text class="phone-value">{{formData.phone}}</text>
             <view class="phone-change" bindtap="clearPhone">更换</view>
           </view>
-          <button
-            wx:else
-            class="get-phone-btn"
-            open-type="getPhoneNumber"
-            bindgetphonenumber="onGetPhoneNumber"
-          >
-            <text class="btn-text">获取微信手机号</text>
-          </button>
+          <block wx:else>
+            <!-- 开发模式：直接点击填充 -->
+            <button
+              wx:if="{{isDevelopMode}}"
+              class="get-phone-btn"
+              bindtap="handleTestPhone"
+            >
+              <text class="btn-text">点击填充测试手机号</text>
+            </button>
+            <!-- 正式/体验模式：获取微信手机号 -->
+            <button
+              wx:else
+              class="get-phone-btn"
+              open-type="getPhoneNumber"
+              bindgetphonenumber="onGetPhoneNumber"
+            >
+              <text class="btn-text">获取微信手机号</text>
+            </button>
+          </block>
         </view>
       </view>
     </view>
