@@ -45,6 +45,8 @@ Page({
 
         loading: false,
         submitting: false,
+        verifying: false, // 正在自动验证中
+        isVerified: false, // 是否已通过创建码验证
         defaultAvatar: config.defaultAvatar,
         headerImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png`
     },
@@ -52,6 +54,8 @@ Page({
     onLoad(options) {
         // 创建搜索防抖函数
         this.searchUnionDebounced = debounce(this.filterUnions, 500)
+        // 创建自动验证防抖函数
+        this.autoVerifyDebounced = debounce(this.verifyCode, 800)
 
         this.loadInitialData()
 
@@ -118,9 +122,20 @@ Page({
     // 通用输入处理
     handleInput(e) {
         const field = e.currentTarget.dataset.field
-        this.setData({
-            [`formData.${field}`]: e.detail.value
-        })
+        const value = e.detail.value
+        const updateData = {
+            [`formData.${field}`]: value
+        }
+        // 如果修改了创建码，重置验证状态并尝试自动验证
+        if (field === 'createCode') {
+            updateData.isVerified = false
+            this.setData(updateData)
+            if (value && this.data.formData.headquartersId) {
+                this.autoVerifyDebounced()
+            }
+        } else {
+            this.setData(updateData)
+        }
     },
 
     // --- 下拉框控制 ---
@@ -142,7 +157,8 @@ Page({
         this.setData({
             'formData.headquartersName': value,
             'formData.headquartersId': '', // 清空ID，因为修改了名称
-            showUnionResults: true
+            showUnionResults: true,
+            isVerified: false // 修改名称需重新验证
         })
 
         if (value.trim()) {
@@ -179,27 +195,8 @@ Page({
         const updateData = {
             'formData.headquartersId': union.headquartersId,
             'formData.headquartersName': union.headquartersName,
-            showUnionResults: false
-        }
-
-        // 保存校友总会logo
-        if (union.logo) {
-            updateData.unionLogoUrl = union.logo
-        }
-
-        // 保存校友总会logo
-        if (union.logo) {
-            updateData.unionLogoUrl = union.logo
-        }
-
-        // 保存校友总会logo
-        if (union.logo) {
-            updateData.unionLogoUrl = union.logo
-        }
-
-        // 保存校友总会logo
-        if (union.logo) {
-            updateData.unionLogoUrl = union.logo
+            showUnionResults: false,
+            isVerified: false // 切换校友总会，重置验证状态
         }
 
         // 保存校友总会logo
@@ -213,6 +210,11 @@ Page({
         }
 
         this.setData(updateData)
+
+        // 如果已经有创建码，则立即触发验证
+        if (this.data.formData.createCode) {
+            this.verifyCode()
+        }
     },
 
 
@@ -422,6 +424,38 @@ Page({
         })
     },
 
+    // 验证创建码
+    async verifyCode() {
+        const { formData, isVerified, verifying } = this.data
+
+        // 如果已经验证通过或正在验证中，不再重复触发
+        if (isVerified || verifying) return
+
+        if (!formData.headquartersId || !formData.createCode) {
+            return
+        }
+
+        this.setData({ verifying: true })
+        try {
+            const res = await unionApi.verifyCreateCode({
+                headquartersId: formData.headquartersId,
+                createCode: formData.createCode
+            })
+
+            if (res.data && res.data.code === 200) {
+                this.setData({ isVerified: true })
+                wx.showToast({ title: '验证通过', icon: 'success' })
+            } else {
+                // 验证失败时静默处理，不弹窗提示，避免干扰用户连续输入
+                // 只有成功时才会展开下方内容
+            }
+        } catch (error) {
+            console.error('验证创建码失败:', error)
+        } finally {
+            this.setData({ verifying: false })
+        }
+    },
+
     async submitForm() {
         if (this.data.submitting) { return }
 
@@ -513,6 +547,13 @@ Page({
     goToFeedback() {
         wx.navigateTo({
             url: '/pages/feedback/feedback?type=1&title=' + encodeURIComponent('创建校友总会遇到问题')
+        })
+    },
+
+    // 跳转到获取邀请码说明页
+    goToInviteInfo() {
+        wx.navigateTo({
+            url: '/pages/school/invite-info/invite-info'
         })
     }
 })

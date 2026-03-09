@@ -59,6 +59,14 @@ public class AlumniHeadquartersController {
         return ResultUtils.success(Code.SUCCESS, result, "激活成功");
     }
 
+    @PostMapping("/verifyCode")
+    @Operation(summary = "验证创建码/邀请码是否正确")
+    public BaseResponse<Boolean> verifyCreateCode(
+            @RequestBody ApplyActivateHeadquartersRequest request) {
+        boolean result = alumniHeadquartersService.verifyCreateCode(request);
+        return ResultUtils.success(Code.SUCCESS, result, result ? "验证通过" : "验证码错误");
+    }
+
     @PostMapping("/inactive/page")
     @Operation(summary = "分页查询未激活校友总会列表（仅ID和名称）")
     public BaseResponse<PageVo<InactiveAlumniHeadquartersVo>> selectInactivePage(

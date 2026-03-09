@@ -43,6 +43,14 @@ public interface AlumniHeadquartersService extends IService<AlumniHeadquarters> 
     boolean applyActivateHeadquarters(ApplyActivateHeadquartersRequest request, Long userId);
 
     /**
+     * 验证创建码/邀请码是否正确
+     *
+     * @param request 包含 headquartersId 和 createCode
+     * @return 验证结果
+     */
+    boolean verifyCreateCode(ApplyActivateHeadquartersRequest request);
+
+    /**
      * 分页查询未激活校友总会列表 (仅返回 id 和 名称)
      * 
      * @param pageRequest 分页参数
