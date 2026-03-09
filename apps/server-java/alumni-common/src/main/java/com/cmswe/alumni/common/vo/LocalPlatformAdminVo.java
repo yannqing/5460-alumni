@@ -59,6 +59,12 @@ public class LocalPlatformAdminVo implements Serializable {
     @Schema(description = "联系电话")
     private String phone;
 
+    @Schema(description = "校促会重大事记（JSON格式）")
+    private String importantEvents;
+
+    @Schema(description = "小程序链接列表（JSON数组格式）")
+    private String miniProgramLinks;
+
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 

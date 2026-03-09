@@ -228,12 +228,14 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             localPlatformDetailVo.setMiniProgramLinks(new ArrayList<>());
         }
 
-        // 4.5.6 查询主页展示成员（is_show=1，status=1）
+        // 4.5.6 查询主页展示成员（is_show=1，status=1，按sort升序）
         List<LocalPlatformMember> showMembersList = localPlatformMemberService.list(
                 new LambdaQueryWrapper<LocalPlatformMember>()
                         .eq(LocalPlatformMember::getLocalPlatformId, id)
                         .eq(LocalPlatformMember::getIsShow, 1)
-                        .eq(LocalPlatformMember::getStatus, 1));
+                        .eq(LocalPlatformMember::getStatus, 1)
+                        .orderByAsc(LocalPlatformMember::getSort)
+                        .orderByAsc(LocalPlatformMember::getId));
         List<LocalPlatformShowMemberVo> showMemberVos = showMembersList.stream()
                 .map(m -> LocalPlatformShowMemberVo.builder()
                         .id(m.getId())
@@ -276,6 +278,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 localPlatformDetailVo.setPrincipalPosition(null);
             if (privacyMap.getOrDefault("local_platform_phone", 0) == 0)
                 localPlatformDetailVo.setLocalPlatformPhone(null);
+            if (privacyMap.getOrDefault("importantEvents", 0) == 0)
+                localPlatformDetailVo.setImportantEvents(null);
         } catch (Exception e) {
             log.error("应用校促会隐私设置失败 - PlatformId: {}", id, e);
             // 异常时保持原有字段值
@@ -1067,7 +1071,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
-    public boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId, String roleName, String contactInformation, String socialDuties, Integer isShow) {
+    public boolean updateMemberRole(Long operatorWxId, Long localPlatformId, Long wxId, Long roleOrId, String roleName, String contactInformation, String socialDuties, Integer isShow, Integer sort) {
         // 1. 参数校验
         if (operatorWxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "操作人用户ID不能为空");
@@ -1080,8 +1084,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         }
 
 
-        log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}, 是否展示: {}",
-                operatorWxId, localPlatformId, wxId, roleOrId, roleName, contactInformation, socialDuties, isShow);
+        log.info("开始更新校处会成员角色 - 操作人ID: {}, 校处会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}, 是否展示: {}, 排序权重: {}",
+                operatorWxId, localPlatformId, wxId, roleOrId, roleName, contactInformation, socialDuties, isShow, sort);
 
         // 2. 查询校处会是否存在
         LocalPlatform localPlatform = this.getById(localPlatformId);
@@ -1131,6 +1135,9 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (isShow != null) {
             member.setIsShow(isShow);
         }
+        if (sort != null) {
+            member.setSort(sort);
+        }
 
         boolean updateResult = localPlatformMemberService.updateById(member);
 
@@ -1138,8 +1145,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员信息失败");
         }
 
-        log.info("更新校处会成员角色成功 - 校处会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}",
-                localPlatformId, wxId, oldRoleOrId, roleOrId);
+        log.info("更新校处会成员角色成功 - 校处会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}, 排序权重: {}",
+                localPlatformId, wxId, oldRoleOrId, roleOrId, sort);
 
         return true;
     }
@@ -1147,7 +1154,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateMemberRoleV2(Long operatorWxId, Long localPlatformId, Long id, String username,
-            Long roleOrId, String roleName, Integer isShow) {
+            Long roleOrId, String roleName, Integer isShow, Integer sort) {
         // 1. 参数校验
         if (operatorWxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "操作人用户ID不能为空");
@@ -1160,8 +1167,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         }
 
 
-        log.info("开始处理校处会成员角色V2 - 操作人ID: {}, 校处会ID: {}, 成员ID: {}, 成员用户名: {}, 新角色ID: {}, 角色名称: {}, 是否展示: {}",
-                operatorWxId, localPlatformId, id, username, roleOrId, roleName, isShow);
+        log.info("开始处理校处会成员角色V2 - 操作人ID: {}, 校处会ID: {}, 成员ID: {}, 成员用户名: {}, 新角色ID: {}, 角色名称: {}, 是否展示: {}, 排序权重: {}",
+                operatorWxId, localPlatformId, id, username, roleOrId, roleName, isShow, sort);
 
         // 2. 查询校处会是否存在
         LocalPlatform localPlatform = this.getById(localPlatformId);
@@ -1200,6 +1207,9 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         member.setRoleName(roleName); // 设置角色名称
         if (isShow != null) {
             member.setIsShow(isShow);
+        }
+        if (sort != null) {
+            member.setSort(sort);
         }
         member.setIsNu(1); // 设为架构成员
         member.setStatus(1); // 设为正常状态
@@ -1561,7 +1571,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
-    public boolean addPresetMember(Long localPlatformId, String username, String roleName, Long roleOrId, String contactInformation, String socialDuties, Integer isShow) {
+    public boolean addPresetMember(Long localPlatformId, String username, String roleName, Long roleOrId, String contactInformation, String socialDuties, Integer isShow, Integer sort) {
         // 1. 参数校验
         if (localPlatformId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校促会ID不能为空");
@@ -1572,8 +1582,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
 
 
 
-        log.info("开始添加校促会预设成员 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}, 联系方式: {}, 社会职务: {}, 是否展示: {}",
-                localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow);
+        log.info("开始添加校促会预设成员 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}, 联系方式: {}, 社会职务: {}, 是否展示: {}, 排序权重: {}",
+                localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow, sort);
 
         // 2. 查询校促会是否存在
         LocalPlatform localPlatform = this.getById(localPlatformId);
@@ -1606,6 +1616,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         presetMember.setContactInformation(contactInformation);
         presetMember.setSocialDuties(socialDuties);
         presetMember.setIsShow(isShow);
+        presetMember.setSort(sort);
         presetMember.setJoinTime(java.time.LocalDateTime.now());
         presetMember.setStatus(1); // 状态：1-正常
         presetMember.setIsNu(1); // 1-是组织架构成员
@@ -1615,8 +1626,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.OPERATION_ERROR, "添加预设成员失败");
         }
 
-        log.info("添加校促会预设成员成功 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}",
-                localPlatformId, username, roleName, roleOrId);
+        log.info("添加校促会预设成员成功 - 校促会ID: {}, 用户名: {}, 角色名称: {}, 角色ID: {}, 排序权重: {}",
+                localPlatformId, username, roleName, roleOrId, sort);
 
         return saveResult;
     }
@@ -1676,14 +1687,14 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
-    public boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties, Integer isShow) {
+    public boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties, Integer isShow, Integer sort) {
         // 1. 参数校验
         if (memberId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员ID不能为空");
         }
 
-        log.info("开始更新校促会预设成员信息 - 成员ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}, 是否展示: {}",
-                memberId, username, roleName, contactInformation, socialDuties, isShow);
+        log.info("开始更新校促会预设成员信息 - 成员ID: {}, 用户名: {}, 角色名称: {}, 联系方式: {}, 社会职务: {}, 是否展示: {}, 排序权重: {}",
+                memberId, username, roleName, contactInformation, socialDuties, isShow, sort);
 
         // 2. 查询成员记录是否存在
         LocalPlatformMember member = localPlatformMemberService.getById(memberId);
@@ -1712,6 +1723,9 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (isShow != null) {
             member.setIsShow(isShow);
         }
+        if (sort != null) {
+            member.setSort(sort);
+        }
 
         boolean updateResult = localPlatformMemberService.updateById(member);
 
@@ -1719,7 +1733,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             throw new BusinessException(ErrorType.OPERATION_ERROR, "更新预设成员信息失败");
         }
 
-        log.info("更新校促会预设成员信息成功 - 成员ID: {}", memberId);
+        log.info("更新校促会预设成员信息成功 - 成员ID: {}, 排序权重: {}", memberId, sort);
 
         return updateResult;
     }
@@ -1813,7 +1827,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId, String roleName, Integer isShow) {
+    public boolean addMemberToStructure(Long localPlatformId, Long memberId, Long roleOrId, String roleName, Integer isShow, Integer sort) {
         if (localPlatformId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校促会ID不能为空");
         }
@@ -1826,8 +1840,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (roleName == null || roleName.trim().isEmpty()) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "职位名称不能为空");
         }
-        log.info("为校促会架构添加成员 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 职位名称: {}, 是否展示: {}",
-                localPlatformId, memberId, roleOrId, roleName, isShow);
+        log.info("为校促会架构添加成员 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 职位名称: {}, 是否展示: {}, 排序权重: {}",
+                localPlatformId, memberId, roleOrId, roleName, isShow, sort);
 
         // 1. 校验成员是否存在且属于该校促会
         LocalPlatformMember member = localPlatformMemberService.getById(memberId);
@@ -1858,14 +1872,17 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         if (isShow != null) {
             member.setIsShow(isShow);
         }
+        if (sort != null) {
+            member.setSort(sort);
+        }
         member.setIsNu(1);
 
         boolean result = localPlatformMemberService.updateById(member);
         if (!result) {
             throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员架构角色失败");
         }
-        log.info("为校促会架构添加成员成功 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 职位名称: {}, 是否展示: {}",
-                localPlatformId, memberId, roleOrId, roleName, isShow);
+        log.info("为校促会架构添加成员成功 - 校促会ID: {}, 成员ID: {}, 角色ID: {}, 职位名称: {}, 是否展示: {}, 排序权重: {}",
+                localPlatformId, memberId, roleOrId, roleName, isShow, sort);
         return true;
     }
 

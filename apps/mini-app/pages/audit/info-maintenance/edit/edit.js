@@ -51,7 +51,8 @@ Page({
             status: detail.status || 1,
             principalName: detail.principalName || '',
             principalPosition: detail.principalPosition || '',
-            phone: detail.phone || ''
+            phone: detail.phone || '',
+            importantEvents: typeof detail.importantEvents === 'string' ? JSON.parse(detail.importantEvents || '[]') : (detail.importantEvents || [])
           }
         })
       } else {
@@ -115,12 +116,87 @@ Page({
     })
   },
 
+  // 添加年份
+  addYear() {
+    const { importantEvents } = this.data.formData
+    importantEvents.push({
+      year: '',
+      events: ['']
+    })
+    this.setData({
+      'formData.importantEvents': importantEvents
+    })
+  },
+
+  // 删除年份
+  deleteYear(e) {
+    const { index } = e.currentTarget.dataset
+    const { importantEvents } = this.data.formData
+    importantEvents.splice(index, 1)
+    this.setData({
+      'formData.importantEvents': importantEvents
+    })
+  },
+
+  // 更新年份
+  handleYearChange(e) {
+    const { index } = e.currentTarget.dataset
+    const { value } = e.detail
+    this.setData({
+      [`formData.importantEvents[${index}].year`]: value
+    })
+  },
+
+  // 添加事件
+  addEvent(e) {
+    const { yearIndex } = e.currentTarget.dataset
+    const { importantEvents } = this.data.formData
+    importantEvents[yearIndex].events.push('')
+    this.setData({
+      'formData.importantEvents': importantEvents
+    })
+  },
+
+  // 删除事件
+  deleteEvent(e) {
+    const { yearIndex, eventIndex } = e.currentTarget.dataset
+    const { importantEvents } = this.data.formData
+    importantEvents[yearIndex].events.splice(eventIndex, 1)
+    this.setData({
+      'formData.importantEvents': importantEvents
+    })
+  },
+
+  // 更新事件内容
+  handleEventChange(e) {
+    const { yearIndex, eventIndex } = e.currentTarget.dataset
+    const { value } = e.detail
+    this.setData({
+      [`formData.importantEvents[${yearIndex}].events[${eventIndex}]`]: value
+    })
+  },
+
   // 提交表单
   async submitForm() {
     try {
       this.setData({ loading: true })
 
-      const res = await app.api.localPlatformApi.updateLocalPlatform(this.data.formData)
+      // 深拷贝并转换 JSON 字段
+      const submitData = { ...this.data.formData }
+      if (submitData.importantEvents) {
+        // 过滤掉空的年份和事件
+        const filteredEvents = submitData.importantEvents
+          .filter(item => item.year || item.events.some(e => e))
+          .map(item => ({
+            year: item.year,
+            events: item.events.filter(e => e)
+          }))
+          .filter(item => item.events.length > 0)
+        
+        submitData.importantEvents = JSON.stringify(filteredEvents)
+      }
+
+      const res = await app.api.localPlatformApi.updateLocalPlatform(submitData)
 
       if (res.data && res.data.code === 200 && res.data.data) {
         wx.showToast({

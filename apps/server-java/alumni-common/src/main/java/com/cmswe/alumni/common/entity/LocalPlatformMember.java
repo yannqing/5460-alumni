@@ -100,6 +100,12 @@ public class LocalPlatformMember implements Serializable {
     private Integer isShow;
 
     /**
+     * 排序权重, 数值越小越靠前
+     */
+    @TableField(value = "sort")
+    private Integer sort;
+
+    /**
      * 逻辑删除
      */
     @TableLogic

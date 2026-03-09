@@ -138,6 +138,43 @@
         />
       </view>
     </view>
+
+    <!-- 重大事记 -->
+    <view class="form-section">
+      <view class="section-title flex-between">
+        <text>重大事记</text>
+        <view class="add-btn" bindtap="addYear">+ 添加年份</view>
+      </view>
+      
+      <view class="event-year-item" wx:for="{{formData.importantEvents}}" wx:key="index" wx:for-index="yearIndex">
+        <view class="year-header">
+          <input 
+            class="year-input" 
+            value="{{item.year}}" 
+            placeholder="年份 (如: 2023)" 
+            bindinput="handleYearChange" 
+            data-index="{{yearIndex}}"
+          />
+          <view class="delete-icon" bindtap="deleteYear" data-index="{{yearIndex}}">删除</view>
+        </view>
+        
+        <view class="event-detail-list">
+          <view class="event-detail-item" wx:for="{{item.events}}" wx:key="eventIndex" wx:for-item="event" wx:for-index="eventIndex">
+            <textarea 
+              class="event-textarea" 
+              value="{{event}}" 
+              placeholder="请输入事件详情" 
+              bindinput="handleEventChange" 
+              data-year-index="{{yearIndex}}" 
+              data-event-index="{{eventIndex}}"
+              auto-height
+            />
+            <view class="delete-event" bindtap="deleteEvent" data-year-index="{{yearIndex}}" data-event-index="{{eventIndex}}">×</view>
+          </view>
+          <view class="add-event-btn" bindtap="addEvent" data-year-index="{{yearIndex}}">+ 添加事件</view>
+        </view>
+      </view>
+    </view>
     
     <!-- 图片上传 -->
     <view class="form-section">

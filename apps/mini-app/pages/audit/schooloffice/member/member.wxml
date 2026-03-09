@@ -161,6 +161,17 @@
             class="switch-component"
           />
         </view>
+        <view class="form-item">
+          <text class="label">排序权重</text>
+          <input 
+            class="field-input" 
+            placeholder="数值越小越靠前" 
+            placeholder-class="field-placeholder"
+            type="number"
+            value="{{inviteForm.sort}}"
+            bindinput="onInviteSortInput"
+          />
+        </view>
       </view>
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideInviteModal">取消</button>
@@ -230,6 +241,17 @@
             checked="{{editingMember.isShowOnHome === 1}}" 
             bindchange="onEditIsShowOnHomeChange"
             class="switch-component"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">排序权重</text>
+          <input 
+            class="field-input" 
+            placeholder="数值越小越靠前" 
+            placeholder-class="field-placeholder"
+            type="number"
+            value="{{editingMember.sort}}"
+            bindinput="onEditSortInput"
           />
         </view>
       </view>
@@ -305,6 +327,17 @@
             checked="{{presetForm.isShowOnHome === 1}}" 
             bindchange="onPresetIsShowOnHomeChange"
             class="switch-component"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">排序权重</text>
+          <input 
+            class="field-input" 
+            placeholder="数值越小越靠前" 
+            placeholder-class="field-placeholder"
+            type="number"
+            value="{{presetForm.sort}}"
+            bindinput="onPresetSortInput"
           />
         </view>
       </view>

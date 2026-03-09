@@ -56,5 +56,11 @@ public class UpdateLocalPlatformDto implements Serializable {
     @Schema(description = "联系电话")
     private String phone;
 
+    @Schema(description = "校促会重大事记（JSON格式）")
+    private String importantEvents;
+
+    @Schema(description = "小程序链接列表（JSON数组格式）")
+    private String miniProgramLinks;
+
     private static final long serialVersionUID = 1L;
 }
