@@ -263,3 +263,148 @@
   font-size: 28rpx;
   color: #666;
 }
+
+/* 联系人选择相关 */
+.contact-select-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #f9f9f9;
+}
+
+.contact-select-text.placeholder {
+  color: #999;
+}
+
+.contact-select-arrow {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.contact-clear-btn {
+  font-size: 24rpx;
+  color: #40B2E6;
+  margin-top: 8rpx;
+}
+
+/* 选择联系人弹窗 */
+.contact-member-picker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+.contact-member-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.contact-member-content {
+  position: absolute;
+  left: 40rpx;
+  right: 40rpx;
+  bottom: 80rpx;
+  max-height: 70vh;
+  background-color: #fff;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-member-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.contact-member-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.contact-member-close {
+  font-size: 40rpx;
+  color: #999;
+}
+
+.contact-member-search {
+  display: flex;
+  padding: 16rpx;
+  gap: 16rpx;
+}
+
+.contact-member-search-input {
+  flex: 1;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+}
+
+.contact-member-search-btn {
+  padding: 16rpx 24rpx;
+  background-color: #40B2E6;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+}
+
+.contact-member-list {
+  flex: 1;
+  max-height: 400rpx;
+  padding: 0 16rpx 16rpx;
+}
+
+.contact-member-loading,
+.contact-member-empty {
+  padding: 40rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+}
+
+.contact-member-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.contact-member-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  background-color: #f0f0f0;
+}
+
+.contact-member-info {
+  flex: 1;
+}
+
+.contact-member-name {
+  font-size: 30rpx;
+  color: #333;
+  display: block;
+}
+
+.contact-member-role {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}

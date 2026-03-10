@@ -153,6 +153,7 @@ Page({
           contactName: data.contactName || null,
           contactPosition: data.contactPosition || null,
           contactPhone: data.contactPhone || null,
+          wxId: data.wxId || null,
           // 小程序链接
           miniProgramLinks: data.miniProgramLinks || [],
           // 主页展示成员、校促会重大事记
@@ -529,6 +530,22 @@ Page({
       // 无 wxId，跳转到模拟个人详情页（显示假数据）
       wx.navigateTo({
         url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(username)}`
+      })
+    }
+  },
+
+  // 查看主要联系人详情（同 viewMemberDetail 逻辑）
+  viewContactDetail(e) {
+    const { wxId, username } = e.currentTarget.dataset
+    const name = username || '匿名用户'
+
+    if (wxId) {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${wxId}`
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(name)}`
       })
     }
   }

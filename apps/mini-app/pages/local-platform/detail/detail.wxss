@@ -382,10 +382,22 @@ page {
   opacity: 0.8;
 }
 
+.show-member-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16rpx;
+}
+
 .show-member-name {
   font-size: 28rpx;
   color: #333;
   font-weight: 600;
+}
+
+.show-member-phone {
+  font-size: 24rpx;
+  color: #666;
 }
 
 .show-member-role {

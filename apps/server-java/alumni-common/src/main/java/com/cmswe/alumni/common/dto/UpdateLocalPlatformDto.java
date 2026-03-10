@@ -56,6 +56,9 @@ public class UpdateLocalPlatformDto implements Serializable {
     @Schema(description = "联系人电话")
     private String contactPhone;
 
+    @Schema(description = "联系人wxid")
+    private Long wxId;
+
     @Schema(description = "校促会重大事记（JSON格式）")
     private String importantEvents;
 
