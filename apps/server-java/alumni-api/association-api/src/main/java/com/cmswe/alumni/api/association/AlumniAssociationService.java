@@ -121,9 +121,10 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @param alumniAssociationId 校友会ID
      * @param wxId                成员用户ID
      * @param roleOrId            新的组织架构角色ID
+     * @param roleName            角色名称
      * @return 更新是否成功
      */
-    boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId);
+    boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId, String roleName);
 
     /**
      * 更新校友会成员的组织架构角色 V2版本（基于username）

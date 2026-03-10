@@ -38,6 +38,12 @@ public class UpdateMemberRoleDto implements Serializable {
     @NotNull(message = "组织架构角色 ID不能为空")
     private Long roleOrId;
 
+    /**
+     * 角色名称
+     */
+    @Schema(description = "角色名称")
+    private String roleName;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

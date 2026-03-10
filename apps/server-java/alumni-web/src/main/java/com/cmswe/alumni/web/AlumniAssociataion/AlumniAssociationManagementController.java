@@ -386,15 +386,16 @@ public class AlumniAssociationManagementController {
 
                 Long operatorWxId = securityUser.getWxUser().getWxId();
 
-                log.info("更新校友会成员角色，操作人 ID: {}, 校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",
+                log.info("更新校友会成员角色，操作人 ID: {}, 校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}, 角色名称: {}",
                                 operatorWxId, updateDto.getAlumniAssociationId(), updateDto.getWxId(),
-                                updateDto.getRoleOrId());
+                                updateDto.getRoleOrId(), updateDto.getRoleName());
 
                 boolean result = alumniAssociationService.updateMemberRole(
                                 operatorWxId,
                                 updateDto.getAlumniAssociationId(),
                                 updateDto.getWxId(),
-                                updateDto.getRoleOrId());
+                                updateDto.getRoleOrId(),
+                                updateDto.getRoleName());
 
                 if (result) {
                         log.info("更新校友会成员角色成功，校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",

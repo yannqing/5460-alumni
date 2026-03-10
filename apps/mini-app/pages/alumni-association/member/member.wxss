@@ -784,6 +784,33 @@
   border-color: #1890ff;
 }
 
+/* 角色选择器样式（使用特定前缀避免与校友会选择器冲突） */
+.role-picker-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1rpx solid #eee;
+  padding: 0 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+  height: 80rpx;
+  background-color: #fff;
+  line-height: 80rpx;
+}
+
+.role-picker-text {
+  flex: 1;
+  color: #333;
+}
+
+.role-picker-arrow {
+  color: #999;
+  font-size: 24rpx;
+  margin-left: 10rpx;
+}
+
 /* 编辑弹窗开关项布局 */
 .form-item-switch {
   display: flex;
@@ -932,4 +959,152 @@
   font-size: 24rpx;
   color: #666;
   line-height: 36rpx;
+}
+
+/* 邀请弹窗增大 */
+.invite-modal-content {
+  width: 90% !important;
+  max-width: 680rpx !important;
+}
+
+/* 邀请方式选择标签 */
+.invite-method-tabs {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 30rpx;
+}
+
+.invite-method-tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+
+.invite-method-tab.active {
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.invite-method-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background-color: #1890ff;
+  border-radius: 2rpx;
+}
+
+/* 邀请方式内容区域 */
+.invite-method-content {
+  min-height: 300rpx;
+}
+
+/* 链接邀请样式 */
+.invite-link-section {
+  padding: 0;
+}
+
+.invite-link-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.invite-link-desc {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 20rpx;
+  line-height: 36rpx;
+}
+
+.invite-link-box {
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.invite-link-text {
+  font-size: 26rpx;
+  color: #333;
+  word-break: break-all;
+  line-height: 40rpx;
+}
+
+/* 二维码邀请样式 */
+.invite-qrcode-section {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.invite-qrcode-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+  width: 100%;
+}
+
+.invite-qrcode-desc {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 30rpx;
+  line-height: 36rpx;
+  width: 100%;
+}
+
+.invite-qrcode-box {
+  width: 320rpx;
+  height: 320rpx;
+  background-color: #f5f5f5;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  overflow: hidden;
+}
+
+.invite-qrcode-img {
+  width: 280rpx;
+  height: 280rpx;
+}
+
+.invite-qrcode-canvas {
+  width: 280rpx;
+  height: 280rpx;
+}
+
+.invite-qrcode-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.invite-qrcode-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.invite-qrcode-section .invite-tip {
+  width: 100%;
 }

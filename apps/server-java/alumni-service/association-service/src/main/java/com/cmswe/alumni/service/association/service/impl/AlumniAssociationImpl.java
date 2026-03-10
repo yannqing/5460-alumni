@@ -1318,7 +1318,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId) {
+    public boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId, String roleName) {
         // 1. 参数校验
         if (operatorWxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "操作人用户ID不能为空");
@@ -1333,8 +1333,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
         }
 
-        log.info("开始更新校友会成员角色 - 操作人ID: {}, 校友会ID: {}, 成员用户ID: {}, 新角色ID: {}",
-                operatorWxId, alumniAssociationId, wxId, roleOrId);
+        log.info("开始更新校友会成员角色 - 操作人ID: {}, 校友会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}",
+                operatorWxId, alumniAssociationId, wxId, roleOrId, roleName);
 
         // 2. 查询校友会是否存在
         AlumniAssociation alumniAssociation = this.getById(alumniAssociationId);
@@ -1367,17 +1367,20 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
         }
 
-        // 5. 更新成员角色
+        // 5. 更新成员角色和角色名称
         Long oldRoleOrId = member.getRoleOrId();
         member.setRoleOrId(roleOrId);
+        if (roleName != null && !roleName.trim().isEmpty()) {
+            member.setRoleName(roleName);
+        }
         boolean updateResult = alumniAssociationMemberService.updateById(member);
 
         if (!updateResult) {
             throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员角色失败");
         }
 
-        log.info("更新校友会成员角色成功 - 校友会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}",
-                alumniAssociationId, wxId, oldRoleOrId, roleOrId);
+        log.info("更新校友会成员角色成功 - 校友会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}, 角色名称: {}",
+                alumniAssociationId, wxId, oldRoleOrId, roleOrId, roleName);
 
         // 6. 发送角色更新通知
         sendRoleUpdateNotification(operatorWxId, wxId, alumniAssociationId,

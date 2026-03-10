@@ -12,7 +12,7 @@
     <view class="form-title">基本信息</view>
 
     <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
-      <text class="label">母校全称</text>
+      <text class="label">母校全称（现用名）</text>
       <input class="input" placeholder="请输入关键字" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
         <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
@@ -25,9 +25,8 @@
     <view class="form-item">
       <view class="label-with-hint">
         <text class="label">曾用名</text>
-        <text class="label-hint">以毕业证书为准</text>
       </view>
-      <input class="input" placeholder="请输入母校曾用名（选填）" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" />
+      <input class="input" placeholder="请输入母校曾用名（以毕业证书为准）" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" />
     </view>
 
     <view class="form-item required">
@@ -171,20 +170,20 @@
       <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
     </view>
     <view class="form-item required">
-      <text class="label">联系人联系电话</text>
+      <text class="label">联系电话</text>
       <input class="input" placeholder="请输入联系人联系电话" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" />
     </view>
     <view class="form-item required">
-      <text class="label">联系人职务（校友会内职务）</text>
+      <text class="label">校友会职务</text>
       <input class="input" placeholder="请输入联系人职务" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" />
     </view>
     <view class="form-item required">
-      <text class="label">联系人社会职务</text>
+      <text class="label">社会职务</text>
       <input class="input" placeholder="请输入联系人社会职务" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" />
     </view>
 
     <view class="form-subsection-title" style="display: flex; justify-content: space-between; align-items: center;">
-      <text>校友会负责人员信息</text>
+      <text>校友会负责人信息</text>
       <view class="add-btn" bindtap="addMember">+ 添加成员</view>
     </view>
 
@@ -217,7 +216,7 @@
             <input class="input member-full-input" placeholder="请输入联系方式" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
           </view>
           <view class="member-form-row">
-            <text class="member-label required">职务</text>
+            <text class="member-label required">校友会职务</text>
             <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
           </view>
           <view class="member-form-row">

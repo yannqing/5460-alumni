@@ -290,6 +290,125 @@ public class WechatApiServiceImpl implements WechatApiService {
     }
 
     /**
+     * 生成小程序码
+     * 使用微信小程序码接口 wxacode/getUnlimited
+     */
+    @Override
+    public Map<String, Object> generateMiniProgramQrcode(String page, String scene) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            log.info("生成小程序码，page: {}, scene: {}", page, scene);
+
+            // 获取access_token
+            String accessToken = getAccessToken();
+            if (accessToken == null) {
+                log.error("获取access_token失败");
+                result.put("success", false);
+                result.put("error", "获取access_token失败");
+                return result;
+            }
+
+            // 调用微信小程序码接口
+            String url = String.format(
+                    "%s/wxa/getwxacodeunlimit?access_token=%s",
+                    wechatApiBaseUrl, accessToken
+            );
+
+            // 构建请求体
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("scene", scene);
+            if (page != null && !page.isEmpty()) {
+                requestBody.put("page", page);
+            }
+            requestBody.put("check_path", false);  // 不检查page是否存在
+            requestBody.put("env_version", "release");  // 正式版
+
+            String jsonBody = objectMapper.writeValueAsString(requestBody);
+            log.info("请求小程序码API，URL: {}, Body: {}", url, jsonBody);
+
+            // 调用微信API并获取图片数据
+            byte[] imageData = callWechatQrcodeApi(url, jsonBody);
+
+            if (imageData == null || imageData.length == 0) {
+                result.put("success", false);
+                result.put("error", "生成小程序码失败");
+                return result;
+            }
+
+            // 检查是否返回的是JSON错误信息
+            if (imageData.length < 1000) {
+                String responseStr = new String(imageData, "UTF-8");
+                if (responseStr.contains("errcode")) {
+                    log.error("生成小程序码失败，响应: {}", responseStr);
+                    JsonNode jsonNode = objectMapper.readTree(responseStr);
+                    result.put("success", false);
+                    result.put("error", jsonNode.has("errmsg") ? jsonNode.get("errmsg").asText() : "生成失败");
+                    return result;
+                }
+            }
+
+            // 将图片转换为Base64
+            String base64Image = java.util.Base64.getEncoder().encodeToString(imageData);
+            String dataUrl = "data:image/png;base64," + base64Image;
+
+            result.put("success", true);
+            result.put("qrcodeUrl", dataUrl);
+            log.info("小程序码生成成功，图片大小: {} bytes", imageData.length);
+
+            return result;
+
+        } catch (Exception e) {
+            log.error("生成小程序码异常", e);
+            result.put("success", false);
+            result.put("error", "生成小程序码异常: " + e.getMessage());
+            return result;
+        }
+    }
+
+    /**
+     * 调用微信小程序码API（返回二进制图片数据）
+     */
+    private byte[] callWechatQrcodeApi(String urlStr, String jsonBody) throws Exception {
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        try {
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+
+            // 写入请求体
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonBody.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+            log.info("小程序码API响应码: {}", responseCode);
+
+            if (responseCode >= 200 && responseCode < 300) {
+                // 读取二进制数据
+                java.io.InputStream is = conn.getInputStream();
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = is.read(buffer)) != -1) {
+                    baos.write(buffer, 0, len);
+                }
+                is.close();
+                return baos.toByteArray();
+            } else {
+                log.error("小程序码API HTTP错误: {}", responseCode);
+                return null;
+            }
+
+        } finally {
+            conn.disconnect();
+        }
+    }
+
+    /**
      * 手机号脱敏
      */
     private String maskPhone(String phone) {

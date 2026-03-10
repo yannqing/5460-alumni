@@ -55,15 +55,12 @@
           <view class="card">
             <view class="text-bold mb-20">基本信息</view>
             <!-- 核心成员展示 -->
-            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="core-members-section">
-              <view class="core-members-title">核心成员</view>
-              <view class="core-members-list">
-                <view class="core-member-item" wx:for="{{coreMemberList}}" wx:key="index" bindtap="viewCoreMemberDetail" data-member="{{item}}">
-                  <view class="core-member-info">
-                    <text class="core-member-name">{{item.username || '-'}}</text>
-                    <text class="core-member-role">{{item.roleName || '-'}}</text>
-                  </view>
-                  <text wx:if="{{item.userAffiliation}}" class="core-member-affiliation">{{item.userAffiliation}}</text>
+            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
+              <view class="show-members-title">核心成员</view>
+              <view class="show-members-list">
+                <view class="show-member-item" wx:for="{{coreMemberList}}" wx:key="index" bindtap="viewCoreMemberDetail" data-member="{{item}}">
+                  <text class="show-member-name">{{item.username || '-'}}</text>
+                  <text class="show-member-role">{{item.roleName || '-'}}</text>
                 </view>
               </view>
             </view>
