@@ -79,20 +79,20 @@
         </view>
       </view>
 
-      <!-- 负责人信息 -->
+      <!-- 联系人信息 -->
       <view class="info-group-card">
-        <view class="section-title">负责人信息</view>
+        <view class="section-title">联系人信息</view>
         <view class="info-item">
-          <text class="info-label">负责人姓名</text>
-          <text class="info-value">{{platformDetail.principalName || '未设置'}}</text>
+          <text class="info-label">联系人姓名</text>
+          <text class="info-value">{{platformDetail.contactName || '未设置'}}</text>
         </view>
         <view class="info-item">
-          <text class="info-label">负责人职务</text>
-          <text class="info-value">{{platformDetail.principalPosition || '未设置'}}</text>
+          <text class="info-label">联系人职务</text>
+          <text class="info-value">{{platformDetail.contactPosition || '未设置'}}</text>
         </view>
         <view class="info-item">
-          <text class="info-label">联系电话</text>
-          <text class="info-value">{{platformDetail.phone || '未设置'}}</text>
+          <text class="info-label">联系人电话</text>
+          <text class="info-value">{{platformDetail.contactPhone || '未设置'}}</text>
         </view>
         <view class="info-item">
           <text class="info-label">联系信息</text>

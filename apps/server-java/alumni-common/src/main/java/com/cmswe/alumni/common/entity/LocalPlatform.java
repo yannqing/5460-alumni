@@ -94,22 +94,22 @@ public class LocalPlatform implements Serializable {
     private LocalDateTime updateTime;
 
     /**
-     * 负责人姓名
+     * 联系人姓名
      */
-    @TableField(value = "principal_name")
-    private String principalName;
+    @TableField(value = "contact_name")
+    private String contactName;
 
     /**
-     * 负责人职务
+     * 联系人职务
      */
-    @TableField(value = "principal_position")
-    private String principalPosition;
+    @TableField(value = "contact_position")
+    private String contactPosition;
 
     /**
-     * 联系电话
+     * 联系人电话
      */
-    @TableField(value = "phone")
-    private String phone;
+    @TableField(value = "contact_phone")
+    private String contactPhone;
 
     /**
      * 小程序链接列表（JSON数组格式）

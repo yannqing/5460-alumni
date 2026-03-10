@@ -106,22 +106,22 @@ public class LocalPlatformDetailVo implements Serializable {
     private List<HomePageArticleVo> articleList;
 
     /**
-     * 负责人姓名
+     * 联系人姓名
      */
-    @Schema(description = "负责人姓名")
-    private String principalName;
+    @Schema(description = "联系人姓名")
+    private String contactName;
 
     /**
-     * 负责人职务
+     * 联系人职务
      */
-    @Schema(description = "负责人职务")
-    private String principalPosition;
+    @Schema(description = "联系人职务")
+    private String contactPosition;
 
     /**
-     * 联系电话
+     * 联系人电话
      */
-    @Schema(description = "联系电话")
-    private String localPlatformPhone;
+    @Schema(description = "联系人电话")
+    private String contactPhone;
 
     /**
      * 小程序链接列表

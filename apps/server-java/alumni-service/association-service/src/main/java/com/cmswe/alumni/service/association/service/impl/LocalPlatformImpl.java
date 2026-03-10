@@ -209,9 +209,7 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                 .collect(Collectors.toList());
         localPlatformDetailVo.setArticleList(articleListVos);
 
-        // 4.5 手动映射字段 (因为VO中重命名为 localPlatformPhone 与 实体类 phone 不一致，BeanUtils无法自动映射)
-        // 映射必须在隐私脱敏逻辑之前，否则脱敏设置的 null 会被重新覆盖
-        localPlatformDetailVo.setLocalPlatformPhone(localPlatform.getPhone());
+        // 4.5 实体与VO字段一致，BeanUtils已自动映射 contactName/contactPosition/contactPhone
 
         // 4.5.5 解析小程序链接JSON
         if (localPlatform.getMiniProgramLinks() != null && !localPlatform.getMiniProgramLinks().trim().isEmpty()) {
@@ -267,17 +265,17 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     .collect(Collectors.toMap(com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting::getFieldCode,
                             com.cmswe.alumni.common.entity.LocalPlatformPrivacySetting::getVisibility, (v1, v2) -> v1));
 
-            // 根据配置脱敏
+            // 根据配置脱敏（兼容旧配置 principalName/principalPosition/local_platform_phone）
             if (privacyMap.getOrDefault("description", 0) == 0)
                 localPlatformDetailVo.setDescription(null);
             if (privacyMap.getOrDefault("memberCount", 0) == 0)
                 localPlatformDetailVo.setMemberCount(null);
-            if (privacyMap.getOrDefault("principalName", 0) == 0)
-                localPlatformDetailVo.setPrincipalName(null);
-            if (privacyMap.getOrDefault("principalPosition", 0) == 0)
-                localPlatformDetailVo.setPrincipalPosition(null);
-            if (privacyMap.getOrDefault("local_platform_phone", 0) == 0)
-                localPlatformDetailVo.setLocalPlatformPhone(null);
+            if (privacyMap.getOrDefault("contactName", privacyMap.getOrDefault("principalName", 1)) == 0)
+                localPlatformDetailVo.setContactName(null);
+            if (privacyMap.getOrDefault("contactPosition", privacyMap.getOrDefault("principalPosition", 1)) == 0)
+                localPlatformDetailVo.setContactPosition(null);
+            if (privacyMap.getOrDefault("contactPhone", privacyMap.getOrDefault("local_platform_phone", 1)) == 0)
+                localPlatformDetailVo.setContactPhone(null);
             if (privacyMap.getOrDefault("importantEvents", 0) == 0)
                 localPlatformDetailVo.setImportantEvents(null);
         } catch (Exception e) {
@@ -1565,8 +1563,6 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
         }
         LocalPlatform localPlatform = new LocalPlatform();
         org.springframework.beans.BeanUtils.copyProperties(updateDto, localPlatform);
-        // 特殊处理单字段不一致 (DTO中的phone对应Entity中的phone)
-        localPlatform.setPhone(updateDto.getPhone());
         return this.updateById(localPlatform);
     }
 

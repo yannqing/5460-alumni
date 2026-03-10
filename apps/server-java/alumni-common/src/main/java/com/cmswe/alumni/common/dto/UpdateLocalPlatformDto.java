@@ -47,14 +47,14 @@ public class UpdateLocalPlatformDto implements Serializable {
     @Schema(description = "状态：0-禁用 1-启用")
     private Integer status;
 
-    @Schema(description = "负责人姓名")
-    private String principalName;
+    @Schema(description = "联系人姓名")
+    private String contactName;
 
-    @Schema(description = "负责人职务")
-    private String principalPosition;
+    @Schema(description = "联系人职务")
+    private String contactPosition;
 
-    @Schema(description = "联系电话")
-    private String phone;
+    @Schema(description = "联系人电话")
+    private String contactPhone;
 
     @Schema(description = "校促会重大事记（JSON格式）")
     private String importantEvents;

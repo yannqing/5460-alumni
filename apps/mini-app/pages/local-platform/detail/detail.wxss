@@ -320,6 +320,32 @@ page {
   margin-left: 10rpx;
 }
 
+/* 联系人信息 */
+.contact-info-section {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.contact-info-title {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.contact-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.contact-info-item {
+  font-size: 26rpx;
+  color: #555;
+  line-height: 1.6;
+}
+
 /* 主页展示成员 */
 .show-members-section {
   margin-top: 24rpx;
