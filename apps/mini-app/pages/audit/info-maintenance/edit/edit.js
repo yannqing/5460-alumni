@@ -1,12 +1,15 @@
 // pages/audit/info-maintenance/edit/edit.js
 const app = getApp()
+const { fileApi } = require('../../../../api/api.js')
 
 Page({
   data: {
     platformId: 0,
     platformDetail: null,
     formData: {},
-    loading: false
+    loading: false,
+    uploadingAvatar: false,
+    uploadingBgImage: false
   },
 
   onLoad(options) {
@@ -90,20 +93,41 @@ Page({
     })
   },
 
-  // 上传图片
+  // 上传图片（调用 fileApi 上传到服务器，避免 tmp 临时路径）
   uploadImage(e) {
     const { field } = e.currentTarget.dataset
+    const that = this
 
     wx.chooseImage({
       count: 1,
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success: (res) => {
-        const tempFilePaths = res.tempFilePaths
-        // 这里应该调用上传接口，暂时直接使用临时路径
-        this.setData({
-          [`formData.${field}`]: tempFilePaths[0]
-        })
+        const tempFilePath = res.tempFilePaths[0]
+        const uploadKey = field === 'avatar' ? 'uploadingAvatar' : 'uploadingBgImage'
+        that.setData({ [uploadKey]: true })
+        wx.showLoading({ title: '上传中...', mask: true })
+
+        fileApi
+          .uploadImage(tempFilePath)
+          .then(res => {
+            if (res.code === 200 && res.data && res.data.fileUrl) {
+              that.setData({
+                [`formData.${field}`]: res.data.fileUrl,
+                [uploadKey]: false
+              })
+              wx.showToast({ title: '上传成功', icon: 'success' })
+            } else {
+              wx.showToast({ title: res.msg || '上传失败', icon: 'none' })
+              that.setData({ [uploadKey]: false })
+            }
+          })
+          .catch(err => {
+            wx.showToast({ title: err.msg || '上传失败', icon: 'none' })
+            console.error('上传图片失败:', err)
+            that.setData({ [uploadKey]: false })
+          })
+          .finally(() => wx.hideLoading())
       }
     })
   },

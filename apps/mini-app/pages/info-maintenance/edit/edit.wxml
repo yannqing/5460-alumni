@@ -77,18 +77,20 @@
           <view class="form-label">背景图</view>
           <view class="upload-container">
             <view class="image-list">
-              <view class="image-item" wx:for="{{bgImageList}}" wx:key="index">
-                <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
-                <view class="image-delete-btn" data-index="{{index}}" bindtap="onDeleteBgImage">
+              <view class="image-item" wx:if="{{formData.bgImg}}">
+                <image class="list-image" src="{{formData.bgImg}}" mode="aspectFill"></image>
+                <view class="image-delete-btn" bindtap="onDeleteBgImage">
                   <text class="delete-icon">×</text>
                 </view>
+                <view class="image-loading" wx:if="{{uploadingBgImage}}">
+                  <text class="loading-text">上传中...</text>
+                </view>
               </view>
-              <view class="upload-btn" bindtap="onUploadBgImage" wx:if="{{bgImageList.length < 9}}">
+              <view class="upload-btn" bindtap="onUploadBgImage" wx:if="{{!formData.bgImg}}">
                 <text class="upload-icon">+</text>
-                <text class="upload-text">上传背景图</text>
+                <text class="upload-text">点击上传背景图</text>
               </view>
             </view>
-            <text class="image-count">最多上传9张图片</text>
           </view>
         </view>
 

@@ -27,7 +27,6 @@ Page({
     },
     submitting: false,
     uploadingLogo: false,
-    bgImageList: [],
     uploadingBgImage: false,
     // 绑定用户相关
     showBindUserModal: false,
@@ -54,20 +53,15 @@ Page({
 
       if (res.data && res.data.code === 200 && res.data.data) {
         const data = res.data.data
-        // 处理背景图数组
-        let bgImageList = []
+        // 处理背景图（兼容数组和单张，只取第一张）
+        let bgImg = ''
         if (data.bgImg) {
           try {
-            // 移除可能的首尾空格和引号
-            const cleanedStr = data.bgImg.trim().replace(/^["']|['"]$/g, '')
-            // 解析JSON数组
-            const bgImgArray = JSON.parse(cleanedStr)
-            // 确保返回的是数组
-            if (Array.isArray(bgImgArray)) {
-              bgImageList = bgImgArray.map(url => ({ url }))
-            }
-          } catch (error) {
-            console.error('Failed to parse bgImg:', error)
+            const cleanedStr = (data.bgImg || '').toString().trim().replace(/^["']|['"]$/g, '')
+            const parsed = JSON.parse(cleanedStr)
+            bgImg = Array.isArray(parsed) ? (parsed[0] || '') : (parsed || '')
+          } catch {
+            bgImg = typeof data.bgImg === 'string' ? data.bgImg : ''
           }
         }
 
@@ -78,7 +72,7 @@ Page({
             contactInfo: data.contactInfo || '',
             location: data.location || '',
             logo: data.logo || '',
-            bgImg: data.bgImg || '',
+            bgImg: bgImg,
             status: data.status || 1,
             // 主要负责人信息
             chargeWxId: data.chargeWxId || '',
@@ -92,7 +86,6 @@ Page({
             zhPhone: data.zhPhone || '',
             zhSocialAffiliation: data.zhSocialAffiliation || '',
           },
-          bgImageList: bgImageList,
         })
       }
     } catch (error) {
@@ -189,51 +182,38 @@ Page({
     })
   },
 
-  // 上传背景图
+  // 上传背景图（与 logo 逻辑一致，仅支持单张）
   onUploadBgImage() {
     const that = this
 
     wx.chooseImage({
-      count: 9 - that.data.bgImageList.length,
+      count: 1,
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success(res) {
-        const tempFilePaths = res.tempFilePaths
+        const tempFilePath = res.tempFilePaths[0]
         that.setData({ uploadingBgImage: true })
 
-        // 显示加载状态
         wx.showLoading({
           title: '上传中...',
           mask: true,
         })
 
-        // 上传多张图片
-        const uploadPromises = tempFilePaths.map(filePath => {
-          return fileApi.uploadImage(filePath)
-        })
-
-        Promise.all(uploadPromises)
-          .then(results => {
-            // 处理上传结果
-            const uploadedUrls = results
-              .filter(res => res.code === 200 && res.data && res.data.fileUrl)
-              .map(res => res.data.fileUrl)
-
-            if (uploadedUrls.length > 0) {
-              // 更新图片URL数组
-              const bgImageList = [...that.data.bgImageList, ...uploadedUrls.map(url => ({ url }))]
+        fileApi
+          .uploadImage(tempFilePath)
+          .then(res => {
+            if (res.code === 200 && res.data && res.data.fileUrl) {
               that.setData({
-                bgImageList: bgImageList,
-                [`formData.bgImg`]: JSON.stringify(bgImageList.map(item => item.url)),
+                [`formData.bgImg`]: res.data.fileUrl,
                 uploadingBgImage: false,
               })
               wx.showToast({
-                title: `上传成功 ${uploadedUrls.length} 张`,
+                title: '上传成功',
                 icon: 'success',
               })
             } else {
               wx.showToast({
-                title: '上传失败',
+                title: res.msg || '上传失败',
                 icon: 'none',
               })
               that.setData({ uploadingBgImage: false })
@@ -254,23 +234,26 @@ Page({
       fail(err) {
         console.error('选择图片失败:', err)
         that.setData({ uploadingBgImage: false })
-        wx.hideLoading()
       },
     })
   },
 
   // 删除背景图
-  onDeleteBgImage(e) {
-    const index = e.currentTarget.dataset.index
-    const bgImageList = [...this.data.bgImageList]
-    bgImageList.splice(index, 1)
-    this.setData({
-      bgImageList: bgImageList,
-      [`formData.bgImg`]: JSON.stringify(bgImageList.map(item => item.url)),
-    })
-    wx.showToast({
-      title: '删除成功',
-      icon: 'success',
+  onDeleteBgImage() {
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除背景图吗？',
+      success: res => {
+        if (res.confirm) {
+          this.setData({
+            [`formData.bgImg`]: '',
+          })
+          wx.showToast({
+            title: '删除成功',
+            icon: 'success',
+          })
+        }
+      },
     })
   },
 
@@ -285,7 +268,7 @@ Page({
         contactInfo: formData.contactInfo,
         location: formData.location,
         logo: formData.logo,
-        bgImg: formData.bgImg,
+        bgImg: formData.bgImg ? JSON.stringify([formData.bgImg]) : '',
         status: formData.status,
         // 主要负责人信息
         chargeWxId: formData.chargeWxId,

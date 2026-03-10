@@ -187,8 +187,9 @@
             <image src="{{formData.avatar}}" class="uploader-image" />
             <view class="uploader-delete" bindtap="deleteImage" data-field="avatar">×</view>
           </view>
-          <view class="uploader-add" bindtap="uploadImage" data-field="avatar">
-            <text>+</text>
+          <view class="uploader-add" bindtap="uploadImage" data-field="avatar" wx:if="{{!formData.avatar}}">
+            <text wx:if="{{!uploadingAvatar}}">+</text>
+            <text wx:else>上传中...</text>
           </view>
         </view>
       </view>
@@ -200,8 +201,9 @@
             <image src="{{formData.bgImg}}" class="uploader-image" />
             <view class="uploader-delete" bindtap="deleteImage" data-field="bgImg">×</view>
           </view>
-          <view class="uploader-add" bindtap="uploadImage" data-field="bgImg">
-            <text>+</text>
+          <view class="uploader-add" bindtap="uploadImage" data-field="bgImg" wx:if="{{!formData.bgImg}}">
+            <text wx:if="{{!uploadingBgImage}}">+</text>
+            <text wx:else>上传中...</text>
           </view>
         </view>
       </view>
