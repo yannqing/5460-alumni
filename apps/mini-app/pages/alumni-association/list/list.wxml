@@ -89,23 +89,23 @@
                 <view wx:else class="uncertified-tag">未认证</view>
               </view>
 
-              <!-- 学校名称和地点信息在一行展示 -->
+              <!-- 学校名称和人数信息在一行展示 -->
               <view class="meta-row">
                 <view wx:if="{{item.schoolName || item.schoolId}}" class="meta-item school-name-item">
                   <image class="location-icon" src="{{iconSchool}}" mode="aspectFit" />
                   <text class="truncate">{{item.schoolName || item.schoolId}}</text>
                 </view>
-                <view wx:if="{{item.location}}" class="meta-item location-item">
-                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                  <text class="truncate">{{item.location}}</text>
+                <view wx:if="{{item.memberCount > 0}}" class="meta-item member-count-item">
+                  <image class="location-icon" src="{{iconPeople}}" mode="aspectFit" />
+                  <text>{{item.memberCount}}人</text>
                 </view>
               </view>
 
-              <!-- 人数信息在学校和地点下面一行展示 -->
+              <!-- 地址信息在学校和人数下面一行展示 -->
               <view class="meta-row">
-                <view wx:if="{{item.memberCount > 0}}" class="meta-item">
-                  <image class="location-icon" src="{{iconPeople}}" mode="aspectFit" />
-                  <text>{{item.memberCount}}人</text>
+                <view wx:if="{{item.location}}" class="meta-item location-item">
+                  <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
+                  <text class="truncate">{{item.location}}</text>
                 </view>
               </view>
 
