@@ -7,15 +7,22 @@ Page({
   data: {
     alumniId: '',
     alumniInfo: null,
-    defaultAvatar: config.defaultAvatar
+    defaultAvatar: config.defaultAvatar,
+    // 校友认证等级图片
+    alumniCertFirstImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_first_certification.png',
+    alumniCertSecondImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_second_certification.png',
+    alumniCertThirdImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_third_certification.png',
   },
 
   onLoad(options) {
     const { wxid, username, id } = options
-    
+
     // 解码username参数，解决中文乱码问题
     const decodedUsername = username ? decodeURIComponent(username) : ''
-    
+
     // 如果通过组织架构跳转（有wxid或username参数）
     if (wxid !== undefined || decodedUsername) {
       if (wxid) {
@@ -59,7 +66,7 @@ Page({
           identifyType: 0,
           schoolId: '',
           school: '母校',
-          wxId: ''
+          wxId: '',
         }
         this.setData({ alumniInfo: tempAlumniInfo })
       }
@@ -87,14 +94,14 @@ Page({
       } else {
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('加载校友详情失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -108,16 +115,16 @@ Page({
     const config = require('../../../utils/config.js')
 
     // 空值处理函数
-    const formatValue = (val) => {
+    const formatValue = val => {
       if (val === null || val === undefined || val === '' || val === '未设置') {
         return {
           value: '不方便透露',
-          isNull: true
+          isNull: true,
         }
       }
       return {
         value: val,
-        isNull: false
+        isNull: false,
       }
     }
 
@@ -166,7 +173,7 @@ Page({
         major: edu.major || '',
         className: edu.className || '',
         educationLevel: edu.educationLevel || '',
-        type: edu.type === 1 ? '主要经历' : '次要经历'
+        type: edu.type === 1 ? '主要经历' : '次要经历',
       }
     })
 
@@ -178,7 +185,7 @@ Page({
       startDate: work.startDate || '',
       endDate: work.endDate || (work.isCurrent === 1 ? '至今' : ''),
       isCurrent: work.isCurrent === 1,
-      workDescription: work.workDescription || ''
+      workDescription: work.workDescription || '',
     }))
 
     // 格式化展示字段
@@ -219,20 +226,22 @@ Page({
       identifyType: data.identifyType,
       schoolId: data.schoolId,
       school: data.school || '母校',
-      wxId: data.wxId || data.userId // 确保用于关注的 ID 存在
+      wxId: data.wxId || data.userId, // 确保用于关注的 ID 存在
     }
   },
 
   // 跳转到私信页面
   goToChat() {
     const { alumniInfo, alumniId } = this.data
-    if (!alumniInfo) {return}
+    if (!alumniInfo) {
+      return
+    }
 
     // 如果不是好友，提示无法私信（根据用户需求：判断是否可以私信）
     if (!alumniInfo.isFriend) {
       wx.showToast({
         title: '你们双方不是互相关注的好友，无法进行私信',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -241,7 +250,7 @@ Page({
     const avatar = encodeURIComponent(alumniInfo.avatarUrl)
 
     wx.navigateTo({
-      url: `/pages/chat/detail/detail?id=${alumniId}&name=${name}&avatar=${avatar}&type=chat`
+      url: `/pages/chat/detail/detail?id=${alumniId}&name=${name}&avatar=${avatar}&type=chat`,
     })
   },
 
@@ -251,9 +260,18 @@ Page({
     // 否则根据生日计算
     if (constellationCode) {
       const zodiacMap = {
-        1: '白羊座', 2: '金牛座', 3: '双子座', 4: '巨蟹座',
-        5: '狮子座', 6: '处女座', 7: '天秤座', 8: '天蝎座',
-        9: '射手座', 10: '摩羯座', 11: '水瓶座', 12: '双鱼座'
+        1: '白羊座',
+        2: '金牛座',
+        3: '双子座',
+        4: '巨蟹座',
+        5: '狮子座',
+        6: '处女座',
+        7: '天秤座',
+        8: '天蝎座',
+        9: '射手座',
+        10: '摩羯座',
+        11: '水瓶座',
+        12: '双鱼座',
       }
       return zodiacMap[constellationCode] || ''
     }
@@ -278,7 +296,7 @@ Page({
       { name: '天秤座', start: [9, 23], end: [10, 23] },
       { name: '天蝎座', start: [10, 24], end: [11, 22] },
       { name: '射手座', start: [11, 23], end: [12, 21] },
-      { name: '摩羯座', start: [12, 22], end: [1, 19] }
+      { name: '摩羯座', start: [12, 22], end: [1, 19] },
     ]
 
     for (const zodiac of zodiacDates) {
@@ -294,7 +312,7 @@ Page({
           return zodiac.name
         }
       } else {
-        if (month === startMonth && day >= startDay || month === endMonth && day <= endDay) {
+        if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
           return zodiac.name
         }
       }
@@ -307,7 +325,7 @@ Page({
     if (!alumniInfo || !alumniInfo.wxId) {
       wx.showToast({
         title: '数据加载中，请稍后',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -330,7 +348,7 @@ Page({
 
       this.setData({
         'alumniInfo.isFollowed': newFollowed,
-        'alumniInfo.followStatus': newFollowStatus
+        'alumniInfo.followStatus': newFollowStatus,
       })
 
       // 通过 EventChannel 通知上一页（列表页）更新状态
@@ -340,18 +358,18 @@ Page({
           id: alumniInfo.wxId,
           isFollowed: newFollowed,
           followStatus: newFollowStatus,
-          isFriend: this.data.alumniInfo.isFriend // 保持好友状态一致
+          isFriend: this.data.alumniInfo.isFriend, // 保持好友状态一致
         })
       }
 
       wx.showToast({
         title: result.message,
-        icon: 'success'
+        icon: 'success',
       })
     } else {
       wx.showToast({
         title: result.message,
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -360,13 +378,13 @@ Page({
     const schoolId = e.currentTarget.dataset.id
     if (schoolId) {
       wx.navigateTo({
-        url: `/pages/school/detail/detail?id=${schoolId}`
+        url: `/pages/school/detail/detail?id=${schoolId}`,
       })
     } else {
       // 如果没有ID，可以根据学校名称搜索或跳转到列表页
       wx.showToast({
         title: '母校信息加载中',
-        icon: 'loading'
+        icon: 'loading',
       })
     }
   },
@@ -375,8 +393,8 @@ Page({
     const associationId = e.currentTarget.dataset.id
     if (associationId) {
       wx.navigateTo({
-        url: `/pages/alumni-association/detail/detail?id=${associationId}`
+        url: `/pages/alumni-association/detail/detail?id=${associationId}`,
       })
     }
-  }
+  },
 })

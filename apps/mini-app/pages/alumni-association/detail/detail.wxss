@@ -1,5 +1,12 @@
 /* pages/alumni-association/detail/detail.wxss */
 
+/* 认证等级图片 */
+.cert-badge-img {
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
 /* 页面容器 */
 .container {
   min-height: 100vh;

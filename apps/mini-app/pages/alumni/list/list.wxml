@@ -83,9 +83,9 @@
               <view class="card-title-row">
                 <text class="card-title">{{item.name}}</text>
                 <!-- 校友认证等级标签 -->
-                <view wx:if="{{item.certificationFlag === 1}}" class="alumni-cert-badge alumni-cert-level-1">一级认证</view>
-                <view wx:elif="{{item.certificationFlag === 2}}" class="alumni-cert-badge alumni-cert-level-2">二级认证</view>
-                <view wx:elif="{{item.certificationFlag === 3}}" class="alumni-cert-badge alumni-cert-level-3">三级认证</view>
+                <image wx:if="{{item.certificationFlag === 1}}" class="alumni-cert-badge-img" src="{{alumniCertFirstImg}}" mode="heightFix" />
+                <image wx:elif="{{item.certificationFlag === 2}}" class="alumni-cert-badge-img" src="{{alumniCertSecondImg}}" mode="heightFix" />
+                <image wx:elif="{{item.certificationFlag === 3}}" class="alumni-cert-badge-img" src="{{alumniCertThirdImg}}" mode="heightFix" />
                 <view wx:else class="uncertified-tag">未认证</view>
               </view>
 

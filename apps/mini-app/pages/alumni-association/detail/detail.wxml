@@ -25,9 +25,9 @@
               <view class="name-row">
                 <text class="text-primary text-bold">{{associationInfo.name}}</text>
                 <!-- 认证等级标签 -->
-                <view wx:if="{{associationInfo.certificationFlag === 1}}" class="cert-tag cert-level-1">一级认证</view>
-                <view wx:elif="{{associationInfo.certificationFlag === 2}}" class="cert-tag cert-level-2">二级认证</view>
-                <view wx:elif="{{associationInfo.certificationFlag === 3}}" class="cert-tag cert-level-3">三级认证</view>
+                <image wx:if="{{associationInfo.certificationFlag === 1}}" class="cert-badge-img" src="{{certFirstImg}}" mode="heightFix" />
+                <image wx:elif="{{associationInfo.certificationFlag === 2}}" class="cert-badge-img" src="{{certSecondImg}}" mode="heightFix" />
+                <image wx:elif="{{associationInfo.certificationFlag === 3}}" class="cert-badge-img" src="{{certThirdImg}}" mode="heightFix" />
                 <view wx:else class="uncertified-tag">未认证</view>
               </view>
               <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row">
