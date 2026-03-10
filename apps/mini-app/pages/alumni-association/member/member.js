@@ -61,6 +61,18 @@ Page({
     this.initPage()
   },
 
+  // 分享给好友（邀请加入校友会）
+  onShareAppMessage() {
+    const alumniAssociationId = this.data.selectedAlumniAssociationId
+    const alumniAssociationName = this.data.selectedAlumniAssociationName || '校友会'
+
+    return {
+      title: `邀请您加入「${alumniAssociationName}」`,
+      path: `/pages/alumni-association/apply/apply?id=${alumniAssociationId}`,
+      imageUrl: '', // 可以设置分享图片
+    }
+  },
+
   // 初始化页面数据
   async initPage() {
     await this.loadAlumniAssociationList()
@@ -420,51 +432,94 @@ Page({
       return
     }
 
-    // 先下载图片
-    wx.downloadFile({
-      url: qrcodeUrl,
-      success: res => {
-        if (res.statusCode === 200) {
+    // 检查是否是 Base64 data URL
+    if (qrcodeUrl.startsWith('data:image')) {
+      // 从 data URL 中提取 Base64 数据
+      const base64Data = qrcodeUrl.replace(/^data:image\/\w+;base64,/, '')
+      const filePath = `${wx.env.USER_DATA_PATH}/invite_qrcode_${Date.now()}.png`
+
+      // 将 Base64 写入临时文件
+      const fs = wx.getFileSystemManager()
+      fs.writeFile({
+        filePath: filePath,
+        data: base64Data,
+        encoding: 'base64',
+        success: () => {
           // 保存到相册
           wx.saveImageToPhotosAlbum({
-            filePath: res.tempFilePath,
+            filePath: filePath,
             success: () => {
               wx.showToast({
                 title: '已保存到相册',
                 icon: 'success',
               })
+              // 删除临时文件
+              fs.unlink({ filePath: filePath })
             },
             fail: err => {
               console.error('[Debug] 保存图片失败:', err)
-              // 检查是否是权限问题
-              if (err.errMsg.indexOf('auth deny') !== -1) {
-                wx.showModal({
-                  title: '提示',
-                  content: '需要您授权保存图片到相册',
-                  confirmText: '去设置',
-                  success: modalRes => {
-                    if (modalRes.confirm) {
-                      wx.openSetting()
-                    }
-                  },
-                })
-              } else {
-                wx.showToast({
-                  title: '保存失败',
-                  icon: 'none',
-                })
-              }
+              this.handleSaveImageError(err)
             },
           })
-        }
-      },
-      fail: () => {
-        wx.showToast({
-          title: '下载图片失败',
-          icon: 'none',
-        })
-      },
-    })
+        },
+        fail: err => {
+          console.error('[Debug] 写入临时文件失败:', err)
+          wx.showToast({
+            title: '保存失败',
+            icon: 'none',
+          })
+        },
+      })
+    } else {
+      // 远程URL，使用 downloadFile
+      wx.downloadFile({
+        url: qrcodeUrl,
+        success: res => {
+          if (res.statusCode === 200) {
+            wx.saveImageToPhotosAlbum({
+              filePath: res.tempFilePath,
+              success: () => {
+                wx.showToast({
+                  title: '已保存到相册',
+                  icon: 'success',
+                })
+              },
+              fail: err => {
+                console.error('[Debug] 保存图片失败:', err)
+                this.handleSaveImageError(err)
+              },
+            })
+          }
+        },
+        fail: () => {
+          wx.showToast({
+            title: '下载图片失败',
+            icon: 'none',
+          })
+        },
+      })
+    }
+  },
+
+  // 处理保存图片错误
+  handleSaveImageError(err) {
+    if (err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
+      wx.showModal({
+        title: '提示',
+        content: '需要您授权保存图片到相册',
+        confirmText: '去设置',
+        success: modalRes => {
+          if (modalRes.confirm) {
+            wx.openSetting()
+          }
+        },
+      })
+    } else {
+      wx.showToast({
+        title: '保存失败',
+        icon: 'none',
+      })
+    }
   },
 
   // 阻止冒泡
@@ -741,9 +796,9 @@ Page({
         }
       }
 
-      // 所属单位/职位
+      // 所属单位/职位 -> 提交到 roleName 字段
       if (editingMember.editUserAffiliation !== undefined) {
-        updateData.userAffiliation = editingMember.editUserAffiliation.trim()
+        updateData.roleName = editingMember.editUserAffiliation.trim()
       }
 
       // 主页展示

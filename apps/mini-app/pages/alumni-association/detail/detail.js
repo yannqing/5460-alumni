@@ -14,7 +14,7 @@ Page({
     associationId: '',
     associationInfo: null,
     activeTab: 0,
-    tabs: ['基本信息', '组织架构', '最新动态', '成员列表'],
+    tabs: ['单位概况', '组织架构', '最新动态', '成员列表'],
     members: [],
     // 图谱数据（预留后端接口）
     graphData: null,

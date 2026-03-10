@@ -1039,6 +1039,30 @@
   line-height: 40rpx;
 }
 
+/* 分享邀请信息样式 */
+.invite-share-info {
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.invite-share-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12rpx;
+}
+
+.invite-share-hint {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+
 /* 二维码邀请样式 */
 .invite-qrcode-section {
   padding: 0;

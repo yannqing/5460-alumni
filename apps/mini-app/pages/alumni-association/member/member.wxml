@@ -142,14 +142,15 @@
         <!-- 链接邀请内容 -->
         <view class="invite-method-content" wx:if="{{inviteMethod === 'link'}}">
           <view class="invite-link-section">
-            <view class="invite-link-title">邀请链接</view>
-            <view class="invite-link-desc">复制链接发送给好友，好友点击链接即可申请加入校友会</view>
-            <view class="invite-link-box">
-              <text class="invite-link-text">{{inviteLink || '请先选择校友会'}}</text>
+            <view class="invite-link-title">分享邀请</view>
+            <view class="invite-link-desc">点击下方按钮，将邀请卡片分享给微信好友，好友点击即可申请加入校友会</view>
+            <view class="invite-share-info">
+              <text class="invite-share-name">{{selectedAlumniAssociationName || '校友会'}}</text>
+              <text class="invite-share-hint">邀请您加入</text>
             </view>
             <view class="invite-tip">
               <text class="invite-tip-icon">i</text>
-              <text class="invite-tip-text">好友通过链接申请后，需等待管理员审核</text>
+              <text class="invite-tip-text">好友通过分享卡片申请后，需等待管理员审核</text>
             </view>
           </view>
         </view>
@@ -178,7 +179,7 @@
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideInviteModal">取消</button>
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'search'}}" bindtap="submitInvite">确定邀请</button>
-        <button class="btn btn-confirm" wx:if="{{inviteMethod === 'link'}}" bindtap="copyInviteLink">复制链接</button>
+        <button class="btn btn-confirm" wx:if="{{inviteMethod === 'link'}}" open-type="share">分享给好友</button>
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'qrcode'}}" bindtap="saveQrcode">保存二维码</button>
       </view>
     </view>

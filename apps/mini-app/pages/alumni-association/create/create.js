@@ -297,7 +297,6 @@ Page({
     const updateData = {
       'formData.schoolId': school.schoolId,
       'formData.schoolName': school.schoolName,
-      'formData.associationName': school.schoolName, // 自动填充校友会名称为学校名称
       schoolLogoUrl: schoolLogo,
       showSchoolResults: false,
     }
