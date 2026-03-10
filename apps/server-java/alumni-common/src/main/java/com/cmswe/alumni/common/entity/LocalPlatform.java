@@ -112,6 +112,12 @@ public class LocalPlatform implements Serializable {
     private String contactPhone;
 
     /**
+     * 联系人wxid
+     */
+    @TableField(value = "wx_id", updateStrategy = FieldStrategy.IGNORED)
+    private Long wxId;
+
+    /**
      * 小程序链接列表（JSON数组格式）
      */
     @TableField(value = "mini_program_links")

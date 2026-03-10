@@ -103,7 +103,7 @@ Component({
     },
 
     onToggleExpand(e) {
-      const { id } = e.currentTarget.dataset
+      const id = (e.detail && e.detail.id) || (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id)
       const newList = this.toggleExpandRecursive([...this.data.displayList], id)
       this.setData({
         displayList: newList
@@ -162,9 +162,10 @@ Component({
       })
     },
 
-    // 开始编辑成员名称
+    // 开始编辑成员名称（支持组件事件 e.detail）
     onStartEditMember(e) {
-      const { roleid, memberid } = e.currentTarget.dataset
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const { roleid, memberid } = ds
       // 统一转换为字符串，确保匹配（格式与 member._editId 一致）
       const editingId = `${String(roleid)}_${String(memberid)}`
       console.log('开始编辑，roleid:', roleid, 'memberid:', memberid, 'editingId:', editingId)
@@ -232,11 +233,13 @@ Component({
       console.log('输入框聚焦')
     },
 
-    // 成员名称输入
+    // 成员名称输入（支持组件事件 e.detail）
     onMemberNameInput(e) {
       console.log('输入事件触发:', e.detail.value)
-      const { roleid, memberid } = e.currentTarget.dataset
-      const value = e.detail.value || ''
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const roleid = ds.roleid
+      const memberid = ds.memberid
+      const value = (e.detail && e.detail.value) || ''
       const editId = `${String(roleid)}_${String(memberid)}`
       
       // 找到对应的成员，获取 member._editId（与输入框绑定的 key 一致）
@@ -273,8 +276,9 @@ Component({
 
     // 成员职位输入
     onMemberRoleNameInput(e) {
-      const { roleid, memberid } = e.currentTarget.dataset
-      const value = e.detail.value || ''
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const { roleid, memberid } = ds
+      const value = (e.detail && e.detail.value) || ''
       const editId = `${String(roleid)}_${String(memberid)}`
       
       // 找到对应的成员，获取 member._editId（与输入框绑定的 key 一致）
@@ -327,7 +331,8 @@ Component({
 
     // 保存成员名称
     async onSaveMemberName(e) {
-      const { roleid, memberid } = e.currentTarget.dataset
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const { roleid, memberid } = ds
       const editId = `${String(roleid)}_${String(memberid)}`
       
       console.log('保存成员名称，editId:', editId, 'roleid:', roleid, 'memberid:', memberid)
@@ -442,7 +447,8 @@ Component({
 
     // 点击添加成员按钮
     onAddMemberClick(e) {
-      const { roleid } = e.currentTarget.dataset
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const roleid = ds.roleid
       console.log('点击添加成员，roleid:', roleid)
       // 只设置 newMemberRoleId，不添加临时成员到列表（由WXML条件渲染处理）
       const editId = `new_${String(roleid)}`
@@ -458,8 +464,9 @@ Component({
 
     // 新成员名称输入
     onNewMemberNameInput(e) {
-      const { roleid } = e.currentTarget.dataset
-      const value = e.detail.value
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const roleid = ds.roleid
+      const value = (e.detail && e.detail.value) || ''
       const editId = `new_${String(roleid)}`
       
       // 计算输入框宽度（根据内容长度，中文字符按28rpx，英文字符按10rpx计算）
@@ -488,8 +495,9 @@ Component({
 
     // 新成员职位输入
     onNewMemberRoleNameInput(e) {
-      const { roleid } = e.currentTarget.dataset
-      const value = e.detail.value
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const roleid = ds.roleid
+      const value = (e.detail && e.detail.value) || ''
       const editId = `new_${String(roleid)}`
       
       // 计算输入框宽度
@@ -551,7 +559,8 @@ Component({
 
     // 保存新成员
     async onSaveNewMember(e) {
-      const { roleid } = e.currentTarget.dataset
+      const ds = e.detail || (e.currentTarget && e.currentTarget.dataset) || {}
+      const roleid = ds.roleid
       const editId = `new_${String(roleid)}`
       
       console.log('保存新成员，roleid:', roleid, 'editId:', editId)
@@ -669,9 +678,9 @@ Component({
 
     // 点击成员：有 wxId 时跳转个人主页，无 wxId 时保持原逻辑（跳转显示匿名信息）
     onMemberClick(e) {
-      const ds = e.currentTarget.dataset
-      // 使用 data-id 传递 wxId，兼容后端返回 number 或 string
-      const id = (ds.id != null && ds.id !== '') ? String(ds.id) : ''
+      const ds = (e.detail && (e.detail.id !== undefined || e.detail.wxid !== undefined)) ? e.detail : (e.currentTarget && e.currentTarget.dataset) || {}
+      // 使用 data-id 传递 wxId，兼容后端返回 number 或 string，支持组件事件 e.detail
+      const id = (ds.id != null && ds.id !== '') ? String(ds.id) : ((ds.wxid != null && ds.wxid !== '') ? String(ds.wxid) : '')
       const username = ds.username || '匿名用户'
       // 同时传 id 和 wxid，校友详情页优先用 wxid 判断
       wx.navigateTo({

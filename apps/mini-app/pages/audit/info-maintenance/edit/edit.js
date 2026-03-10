@@ -1,6 +1,7 @@
 // pages/audit/info-maintenance/edit/edit.js
 const app = getApp()
-const { fileApi } = require('../../../../api/api.js')
+const { fileApi, localPlatformManagementApi } = require('../../../../api/api.js')
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
@@ -9,7 +10,16 @@ Page({
     formData: {},
     loading: false,
     uploadingAvatar: false,
-    uploadingBgImage: false
+    uploadingBgImage: false,
+    // 联系人是否入住平台：true=是，false=否
+    contactOnPlatform: false,
+    // 成员搜索相关
+    memberList: [],
+    memberSearchKeyword: '',
+    memberSearchResults: [],
+    memberSearchLoading: false,
+    showContactMemberPicker: false,
+    defaultUserAvatarUrl: config.defaultAvatar
   },
 
   onLoad(options) {
@@ -38,8 +48,10 @@ Page({
 
       if (res.data && res.data.code === 200 && res.data.data) {
         const detail = res.data.data
+        const hasWxId = detail.wxId != null && detail.wxId !== ''
         this.setData({
           platformDetail: detail,
+          contactOnPlatform: !!hasWxId,
           formData: {
             platformId: detail.platformId,
             platformName: detail.platformName || '',
@@ -55,6 +67,7 @@ Page({
             contactName: detail.contactName || '',
             contactPosition: detail.contactPosition || '',
             contactPhone: detail.contactPhone || '',
+            wxId: hasWxId ? detail.wxId : null,
             importantEvents: typeof detail.importantEvents === 'string' ? JSON.parse(detail.importantEvents || '[]') : (detail.importantEvents || [])
           }
         })
@@ -82,6 +95,120 @@ Page({
 
     this.setData({
       [`formData.${field}`]: value
+    })
+  },
+
+  // 设置联系人是否入住平台
+  setContactOnPlatform(e) {
+    const onPlatform = e.currentTarget.dataset.onPlatform === 'true'
+    this.setData({
+      contactOnPlatform: onPlatform,
+      'formData.wxId': null
+    })
+    if (onPlatform) {
+      this.loadMemberList()
+      // 不再清空 contactName，保留原有姓名
+    } else {
+      this.setData({
+        showContactMemberPicker: false,
+        memberSearchKeyword: '',
+        memberSearchResults: []
+      })
+    }
+  },
+
+  // 打开联系人选择弹窗
+  openContactMemberPicker() {
+    this.loadMemberList()
+    this.setData({
+      showContactMemberPicker: true,
+      memberSearchKeyword: '',
+      memberSearchResults: []
+    })
+  },
+
+  // 关闭联系人选择弹窗
+  closeContactMemberPicker() {
+    this.setData({
+      showContactMemberPicker: false,
+      memberSearchKeyword: '',
+      memberSearchResults: []
+    })
+  },
+
+  // 加载校促会成员列表
+  async loadMemberList() {
+    try {
+      this.setData({ memberSearchLoading: true })
+      const res = await localPlatformManagementApi.getMemberList(this.data.platformId)
+      if (res.data && res.data.code === 200) {
+        const list = res.data.data || []
+        this.setData({
+          memberList: list,
+          memberSearchLoading: false
+        })
+        return list
+      }
+    } catch (error) {
+      console.error('加载成员列表失败:', error)
+      this.setData({ memberSearchLoading: false })
+      wx.showToast({ title: '加载成员列表失败', icon: 'none' })
+    }
+    return []
+  },
+
+  // 搜索联系人（前端过滤）
+  onContactSearchInput(e) {
+    const keyword = (e.detail.value || '').trim()
+    this.setData({ memberSearchKeyword: keyword })
+    if (!keyword) {
+      this.setData({ memberSearchResults: [] })
+      return
+    }
+    const { memberList } = this.data
+    const kw = keyword.toLowerCase()
+    const results = memberList.filter(m => {
+      const name = (m.username || m.nickname || '').toLowerCase()
+      return name.includes(kw)
+    })
+    this.setData({ memberSearchResults: results })
+  },
+
+  // 搜索成员（点击搜索按钮）
+  searchContactMembers() {
+    const keyword = this.data.memberSearchKeyword.trim()
+    if (!keyword) {
+      this.setData({ memberSearchResults: [] })
+      return
+    }
+    const { memberList } = this.data
+    const kw = keyword.toLowerCase()
+    const results = memberList.filter(m => {
+      const name = (m.username || m.nickname || '').toLowerCase()
+      return name.includes(kw)
+    })
+    this.setData({ memberSearchResults: results })
+  },
+
+  // 选择联系人（入住平台的成员）
+  selectContactMember(e) {
+    const member = e.currentTarget.dataset.member
+    // 保持 wxId 为字符串，避免 JS 大数精度丢失
+    const wxId = member.wxId != null && member.wxId !== '' ? String(member.wxId) : null
+    this.setData({
+      'formData.contactName': member.username || member.nickname || '未命名',
+      'formData.wxId': wxId,
+      showContactMemberPicker: false,
+      memberSearchKeyword: '',
+      memberSearchResults: []
+    })
+  },
+
+  // 清空已选联系人（仅当入住平台时）
+  clearContactMember() {
+    this.setData({
+      'formData.contactName': '',
+      'formData.wxId': null
     })
   },
 
@@ -207,6 +334,8 @@ Page({
 
       // 深拷贝并转换 JSON 字段
       const submitData = { ...this.data.formData }
+      // 联系人是否入住平台：否则传 wxId 为 null
+      submitData.wxId = this.data.contactOnPlatform ? (submitData.wxId || null) : null
       if (submitData.importantEvents) {
         // 过滤掉空的年份和事件
         const filteredEvents = submitData.importantEvents

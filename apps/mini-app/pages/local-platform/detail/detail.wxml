@@ -68,13 +68,17 @@
                             </view>
                         </view>
                         <view class="basic-info-item">简介：{{platformInfo.description || '不方便透露'}}</view>
-                        <!-- 联系人信息（姓名、职务、电话）- 有信息时才展示 -->
-                        <view wx:if="{{platformInfo.contactName || platformInfo.contactPosition || platformInfo.contactPhone}}" class="contact-info-section">
-                            <view class="contact-info-title">联系人信息</view>
-                            <view class="contact-info-list">
-                                <view wx:if="{{platformInfo.contactName}}" class="contact-info-item">联系人：{{platformInfo.contactName}}</view>
-                                <view wx:if="{{platformInfo.contactPosition}}" class="contact-info-item">职务：{{platformInfo.contactPosition}}</view>
-                                <view wx:if="{{platformInfo.contactPhone}}" class="contact-info-item">电话：{{platformInfo.contactPhone}}</view>
+                        <!-- 联系人信息（样式与主要负责人一致，可点击跳转个人页）- 有信息时展示，放在主要负责人上面 -->
+                        <view wx:if="{{platformInfo.contactName || platformInfo.contactPosition || platformInfo.contactPhone}}" class="show-members-section">
+                            <view class="show-members-title">主要联系人</view>
+                            <view class="show-members-list">
+                                <view class="show-member-item" bindtap="viewContactDetail" data-wx-id="{{platformInfo.wxId}}" data-username="{{platformInfo.contactName}}">
+                                    <view class="show-member-left">
+                                        <text class="show-member-name">{{platformInfo.contactName || '-'}}</text>
+                                        <text wx:if="{{platformInfo.contactPhone}}" class="show-member-phone">{{platformInfo.contactPhone}}</text>
+                                    </view>
+                                    <text class="show-member-role">{{platformInfo.contactPosition || '-'}}</text>
+                                </view>
                             </view>
                         </view>
                         <!-- 主页展示成员列表 -->

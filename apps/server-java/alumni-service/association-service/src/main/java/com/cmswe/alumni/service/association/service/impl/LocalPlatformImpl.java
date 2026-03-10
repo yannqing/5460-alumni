@@ -402,12 +402,13 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
 
         log.info("开始查询组织架构树 - 校处会ID: {}", localPlatformId);
 
-        // 2. 查询该校处会的所有组织架构角色
+        // 2. 查询该校处会的所有组织架构角色（按 sort 升序，同级别排序）
         List<OrganizeArchiRole> allRoles = organizeArchiRoleService.list(
                 new LambdaQueryWrapper<OrganizeArchiRole>()
                         .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
                         .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
                         .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+                        .orderByAsc(OrganizeArchiRole::getSort)
                         .orderByAsc(OrganizeArchiRole::getRoleOrId));
 
         if (allRoles.isEmpty()) {
@@ -415,12 +416,13 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             return new ArrayList<>();
         }
 
-        // 3. 查询该校处会的所有成员
+        // 3. 查询该校处会的所有成员（按 sort 升序，同级别排序）
         List<LocalPlatformMember> allMembers = localPlatformMemberService.list(
                 new LambdaQueryWrapper<LocalPlatformMember>()
                         .eq(LocalPlatformMember::getLocalPlatformId, localPlatformId)
                         .eq(LocalPlatformMember::getStatus, 1) // 1-正常
-        );
+                        .orderByAsc(LocalPlatformMember::getSort)
+                        .orderByAsc(LocalPlatformMember::getId));
 
         // 4. 提取所有成员的wxId并批量查询用户信息
         Map<Long, WxUserInfo> userInfoMap = new HashMap<>();
@@ -452,11 +454,12 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     .roleOrName(role.getRoleOrName())
                     .roleOrCode(role.getRoleOrCode())
                     .remark(role.getRemark())
+                    .sort(role.getSort())
                     .children(new ArrayList<>())
                     .members(new ArrayList<>())
                     .build();
 
-            // 为该角色添加成员信息
+            // 为该角色添加成员信息（membersByRole 已按 sort 排序，因 allMembers 查询时已排序）
             List<LocalPlatformMember> roleMembers = membersByRole.getOrDefault(role.getRoleOrId(), new ArrayList<>());
             List<OrganizationMemberVo> memberVos = roleMembers.stream()
                     .map(member -> {
@@ -499,10 +502,28 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             }
         }
 
+        // 8. 按 sort 同级别排序（数值越小越靠前）
+        sortTreeBySort(rootNodes);
+
         log.info("查询组织架构树成功 - 校处会ID: {}, 根节点数: {}, 总角色数: {}",
                 localPlatformId, rootNodes.size(), roleNodeMap.size());
 
         return rootNodes;
+    }
+
+    /**
+     * 按 sort 字段对树节点进行同级别排序（数值越小越靠前，null 视为最大值排最后）
+     */
+    private void sortTreeBySort(List<OrganizationTreeVo> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            return;
+        }
+        nodes.sort(Comparator.comparing(OrganizationTreeVo::getSort, Comparator.nullsLast(Comparator.naturalOrder())));
+        for (OrganizationTreeVo node : nodes) {
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                sortTreeBySort(node.getChildren());
+            }
+        }
     }
 
     @Override
@@ -514,12 +535,13 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
 
         log.info("开始查询组织架构树V2 - 校处会ID: {}", localPlatformId);
 
-        // 2. 查询该校处会的所有组织架构角色
+        // 2. 查询该校处会的所有组织架构角色（按 sort 升序，同级别排序）
         List<OrganizeArchiRole> allRoles = organizeArchiRoleService.list(
                 new LambdaQueryWrapper<OrganizeArchiRole>()
                         .eq(OrganizeArchiRole::getOrganizeId, localPlatformId)
                         .eq(OrganizeArchiRole::getOrganizeType, 1) // 1-校处会
                         .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+                        .orderByAsc(OrganizeArchiRole::getSort)
                         .orderByAsc(OrganizeArchiRole::getRoleOrId));
 
         if (allRoles.isEmpty()) {
@@ -527,13 +549,14 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             return new ArrayList<>();
         }
 
-        // 3. 查询该校处会的所有成员（仅查询架构成员 is_nu = 1）
+        // 3. 查询该校处会的所有成员（仅查询架构成员 is_nu = 1，按 sort 升序同级别排序）
         List<LocalPlatformMember> allMembers = localPlatformMemberService.list(
                 new LambdaQueryWrapper<LocalPlatformMember>()
                         .eq(LocalPlatformMember::getLocalPlatformId, localPlatformId)
                         .eq(LocalPlatformMember::getIsNu, 1) // 仅架构成员
                         .eq(LocalPlatformMember::getStatus, 1) // 1-正常
-        );
+                        .orderByAsc(LocalPlatformMember::getSort)
+                        .orderByAsc(LocalPlatformMember::getId));
 
         // 4. 提取所有非空wxId的成员并批量查询用户信息
         Map<Long, WxUserInfo> userInfoMap = new HashMap<>();
@@ -568,11 +591,12 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
                     .roleOrName(role.getRoleOrName())
                     .roleOrCode(role.getRoleOrCode())
                     .remark(role.getRemark())
+                    .sort(role.getSort())
                     .children(new ArrayList<>())
                     .members(new ArrayList<>())
                     .build();
 
-            // 为该角色添加成员信息
+            // 为该角色添加成员信息（membersByRole 已按 sort 排序，因 allMembers 查询时已排序）
             List<LocalPlatformMember> roleMembers = membersByRole.getOrDefault(role.getRoleOrId(), new ArrayList<>());
             List<OrganizationMemberV2Vo> memberVos = roleMembers.stream()
                     .map(member -> {
@@ -621,10 +645,28 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             }
         }
 
+        // 8. 按 sort 同级别排序（数值越小越靠前）
+        sortTreeBySortV2(rootNodes);
+
         log.info("查询组织架构树V2成功 - 校处会ID: {}, 根节点数: {}, 总角色数: {}",
                 localPlatformId, rootNodes.size(), roleNodeMap.size());
 
         return rootNodes;
+    }
+
+    /**
+     * 按 sort 字段对树节点进行同级别排序（数值越小越靠前，null 视为最大值排最后）
+     */
+    private void sortTreeBySortV2(List<OrganizationTreeV2Vo> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            return;
+        }
+        nodes.sort(Comparator.comparing(OrganizationTreeV2Vo::getSort, Comparator.nullsLast(Comparator.naturalOrder())));
+        for (OrganizationTreeV2Vo node : nodes) {
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                sortTreeBySortV2(node.getChildren());
+            }
+        }
     }
 
     @Override

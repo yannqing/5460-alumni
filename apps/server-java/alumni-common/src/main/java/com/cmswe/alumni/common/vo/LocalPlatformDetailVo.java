@@ -2,6 +2,8 @@ package com.cmswe.alumni.common.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.cmswe.alumni.common.dto.MiniProgramLinkDto;
 import com.cmswe.alumni.common.entity.LocalPlatform;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -122,6 +124,13 @@ public class LocalPlatformDetailVo implements Serializable {
      */
     @Schema(description = "联系人电话")
     private String contactPhone;
+
+    /**
+     * 联系人wxid（是否入住平台时使用，字符串避免前端雪花ID精度丢失）
+     */
+    @Schema(description = "联系人wxid")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long wxId;
 
     /**
      * 小程序链接列表
