@@ -56,7 +56,8 @@
     "pages/info-maintenance/index/index",
     "pages/info-maintenance/edit/edit",
     "pages/register/register",
-    "pages/feedback/feedback"
+    "pages/feedback/feedback",
+    "pages/certification-info/certification-info"
   ],
   "subpackages": [
     {

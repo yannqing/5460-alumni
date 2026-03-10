@@ -1,0 +1,69 @@
+/* pages/certification-info/certification-info.wxss */
+
+/* 页面样式重置 */
+page {
+  background-color: #f8f9fb;
+  height: 100vh;
+}
+
+.certification-info-page {
+  min-height: 100vh;
+  background-color: #f8f9fb;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.info-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.info-header {
+  margin-bottom: 32rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+}
+
+.cert-item {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.cert-level-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.cert-level-img {
+  height: 36rpx;
+  flex-shrink: 0;
+}
+
+.cert-level-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.cert-description {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.6;
+  padding-left: 48rpx;
+}

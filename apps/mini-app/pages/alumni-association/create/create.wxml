@@ -212,8 +212,8 @@
             </view>
           </view>
           <view class="member-form-row">
-            <text class="member-label required">联系方式</text>
-            <input class="input member-full-input" placeholder="请输入联系方式" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
+            <text class="member-label required">联系电话</text>
+            <input class="input member-full-input" placeholder="请输入联系电话" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">校友会职务</text>

@@ -83,10 +83,10 @@
               <view class="card-title-row">
                 <text class="card-title">{{item.name}}</text>
                 <!-- 认证等级标签 -->
-                <image wx:if="{{item.certificationFlag === 1}}" class="cert-badge-img" src="{{certFirstImg}}" mode="heightFix" />
-                <image wx:elif="{{item.certificationFlag === 2}}" class="cert-badge-img" src="{{certSecondImg}}" mode="heightFix" />
-                <image wx:elif="{{item.certificationFlag === 3}}" class="cert-badge-img" src="{{certThirdImg}}" mode="heightFix" />
-                <view wx:else class="uncertified-tag">未认证</view>
+                <image wx:if="{{item.certificationFlag === 1}}" class="cert-badge-img" src="{{certFirstImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <image wx:elif="{{item.certificationFlag === 2}}" class="cert-badge-img" src="{{certSecondImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <image wx:elif="{{item.certificationFlag === 3}}" class="cert-badge-img" src="{{certThirdImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <view wx:else class="uncertified-tag" catchtap="goToCertificationInfo">未认证</view>
               </view>
 
               <!-- 学校名称和人数信息在一行展示 -->

@@ -1588,4 +1588,11 @@ Page({
       url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`,
     })
   },
+
+  // 跳转到认证说明页面
+  goToCertificationInfo() {
+    wx.navigateTo({
+      url: '/pages/certification-info/certification-info',
+    })
+  },
 })

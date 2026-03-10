@@ -408,6 +408,13 @@ Page({
     })
   },
 
+  // 跳转到认证说明页面
+  goToCertificationInfo() {
+    wx.navigateTo({
+      url: '/pages/certification-info/certification-info',
+    })
+  },
+
   // 关注/取消关注（使用工具类方法）
   async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset

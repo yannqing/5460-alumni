@@ -397,4 +397,11 @@ Page({
       })
     }
   },
+
+  // 跳转到认证说明页面
+  goToCertificationInfo() {
+    wx.navigateTo({
+      url: '/pages/certification-info/certification-info',
+    })
+  },
 })

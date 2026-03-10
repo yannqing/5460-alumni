@@ -83,10 +83,10 @@
               <view class="card-title-row">
                 <text class="card-title">{{item.name}}</text>
                 <!-- 校友认证等级标签 -->
-                <image wx:if="{{item.certificationFlag === 1}}" class="alumni-cert-badge-img" src="{{alumniCertFirstImg}}" mode="heightFix" />
-                <image wx:elif="{{item.certificationFlag === 2}}" class="alumni-cert-badge-img" src="{{alumniCertSecondImg}}" mode="heightFix" />
-                <image wx:elif="{{item.certificationFlag === 3}}" class="alumni-cert-badge-img" src="{{alumniCertThirdImg}}" mode="heightFix" />
-                <view wx:else class="uncertified-tag">未认证</view>
+                <image wx:if="{{item.certificationFlag === 1}}" class="alumni-cert-badge-img" src="{{alumniCertFirstImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <image wx:elif="{{item.certificationFlag === 2}}" class="alumni-cert-badge-img" src="{{alumniCertSecondImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <image wx:elif="{{item.certificationFlag === 3}}" class="alumni-cert-badge-img" src="{{alumniCertThirdImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <view wx:else class="uncertified-tag" catchtap="goToCertificationInfo">未认证</view>
               </view>
 
               <!-- 学校和地点信息展示 -->
