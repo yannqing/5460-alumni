@@ -240,17 +240,73 @@ Page({
 
   // 查看用户协议
   viewUserAgreement() {
-    wx.showToast({
-      title: '用户协议',
-      icon: 'none',
+    wx.showLoading({
+      title: '加载中...',
+    })
+    wx.downloadFile({
+      url: 'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/documents/privacy/user.pdf',
+      success: function (res) {
+        wx.hideLoading()
+        const filePath = res.tempFilePath
+        wx.openDocument({
+          filePath: filePath,
+          fileType: 'pdf',
+          success: function (res) {
+            console.log('打开用户协议成功')
+          },
+          fail: function (err) {
+            console.error('打开用户协议失败', err)
+            wx.showToast({
+              title: '打开文档失败',
+              icon: 'none',
+            })
+          },
+        })
+      },
+      fail: function (err) {
+        wx.hideLoading()
+        console.error('下载用户协议失败', err)
+        wx.showToast({
+          title: '下载文档失败',
+          icon: 'none',
+        })
+      },
     })
   },
 
   // 查看隐私政策
   viewPrivacyPolicy() {
-    wx.showToast({
-      title: '隐私政策',
-      icon: 'none',
+    wx.showLoading({
+      title: '加载中...',
+    })
+    wx.downloadFile({
+      url: 'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/documents/privacy/privicy.pdf',
+      success: function (res) {
+        wx.hideLoading()
+        const filePath = res.tempFilePath
+        wx.openDocument({
+          filePath: filePath,
+          fileType: 'pdf',
+          success: function (res) {
+            console.log('打开隐私政策成功')
+          },
+          fail: function (err) {
+            console.error('打开隐私政策失败', err)
+            wx.showToast({
+              title: '打开文档失败',
+              icon: 'none',
+            })
+          },
+        })
+      },
+      fail: function (err) {
+        wx.hideLoading()
+        console.error('下载隐私政策失败', err)
+        wx.showToast({
+          title: '下载文档失败',
+          icon: 'none',
+        })
+      },
     })
   },
 
