@@ -468,7 +468,7 @@ view, text, picker, input, button, image, navigator {
 }
 
 .member-count-item {
-  margin-left: -5rpx;
+  transform: translateX(-20rpx);
 }
 
 .truncate {

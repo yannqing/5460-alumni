@@ -105,8 +105,9 @@ function uploadFile(filePath, uploadUrl, fileFieldName, originalName = '', extra
     formData.originalName = originalName
   }
 
-  // 云托管模式：使用 wx.cloud.callContainer (情况A)
-  if (config.IS_CLOUD_HOST) {
+  // 云托管 callContainer 传二进制易触发 -606001（部分大图/特定图片失败），文件上传改用 wx.uploadFile
+  const USE_CALLCONTAINER_FOR_UPLOAD = false
+  if (USE_CALLCONTAINER_FOR_UPLOAD && config.IS_CLOUD_HOST) {
     console.log('[FileUpload] 云托管模式：使用 wx.cloud.callContainer 上传文件')
     const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2, 12)
 
