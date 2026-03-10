@@ -29,13 +29,28 @@
         <!-- 验证通过后才展示以下内容 -->
         <block wx:if="{{isVerified}}">
           <view class="form-item">
+            <text class="label">成立日期</text>
+            <input class="input" placeholder="请输入成立日期 (YYYY-MM-DD)" value="{{formData.establishedDate}}" data-field="establishedDate" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item">
             <text class="label">校友总会描述</text>
             <textarea class="textarea" placeholder="请输入校友总会描述" value="{{formData.description}}" data-field="description" bindinput="handleInput" />
           </view>
 
           <view class="form-item">
-            <text class="label">联系信息</text>
-            <input class="input" placeholder="请输入联系信息" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+            <text class="label">联系人</text>
+            <input class="input" placeholder="请输入联系人" value="{{formData.contactPerson}}" data-field="contactPerson" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item">
+            <text class="label">联系电话</text>
+            <input class="input" placeholder="请输入联系电话" value="{{formData.phone}}" data-field="phone" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item">
+            <text class="label">联系邮箱</text>
+            <input class="input" placeholder="请输入联系邮箱" value="{{formData.email}}" data-field="email" bindinput="handleInput" />
           </view>
 
           <view class="form-item">
@@ -49,23 +64,8 @@
           </view>
 
           <view class="form-item">
-            <text class="label">微信公众号</text>
+            <text class="label">公众号</text>
             <input class="input" placeholder="请输入微信公众号" value="{{formData.wechatPublicAccount}}" data-field="wechatPublicAccount" bindinput="handleInput" />
-          </view>
-
-          <view class="form-item">
-            <text class="label">联系邮箱</text>
-            <input class="input" placeholder="请输入联系邮箱" value="{{formData.email}}" data-field="email" bindinput="handleInput" />
-          </view>
-
-          <view class="form-item">
-            <text class="label">联系电话</text>
-            <input class="input" placeholder="请输入联系电话" value="{{formData.phone}}" data-field="phone" bindinput="handleInput" />
-          </view>
-
-          <view class="form-item">
-            <text class="label">成立日期</text>
-            <input class="input" placeholder="请输入成立日期 (YYYY-MM-DD)" value="{{formData.establishedDate}}" data-field="establishedDate" bindinput="handleInput" />
           </view>
 
           <view class="form-item">
@@ -110,7 +110,7 @@
             </view>
           </view>
 
-          <view class="form-item">
+          <view class="form-item required">
             <text class="label">社会团体法人登记证书</text>
             <view class="logo-options">
               <view class="upload-row">

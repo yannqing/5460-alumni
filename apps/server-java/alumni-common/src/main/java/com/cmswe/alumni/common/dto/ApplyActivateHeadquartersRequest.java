@@ -1,6 +1,7 @@
 package com.cmswe.alumni.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -82,6 +83,12 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     private String phone;
 
     /**
+     * 联系人
+     */
+    @Schema(description = "联系人")
+    private String contactPerson;
+
+    /**
      * 成立日期
      */
     @Schema(description = "成立日期")
@@ -102,7 +109,8 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     /**
      * 社会团体法人登记证书
      */
-    @Schema(description = "社会团体法人登记证书")
+    @Schema(description = "社会团体法人登记证书", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "社会团体法人登记证书不能为空")
     private String registrationCertificate;
 
     /**

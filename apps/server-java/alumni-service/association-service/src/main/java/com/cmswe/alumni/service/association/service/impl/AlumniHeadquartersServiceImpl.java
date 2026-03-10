@@ -267,6 +267,9 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
         if (StringUtils.isNotBlank(request.getPhone())) {
             alumniHeadquarters.setPhone(request.getPhone());
         }
+        if (StringUtils.isNotBlank(request.getContactPerson())) {
+            alumniHeadquarters.setContactPerson(request.getContactPerson());
+        }
         if (request.getEstablishedDate() != null) {
             alumniHeadquarters.setEstablishedDate(request.getEstablishedDate());
         }
@@ -446,6 +449,7 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                     .set(AlumniHeadquarters::getWechatPublicAccount, null)
                     .set(AlumniHeadquarters::getEmail, null)
                     .set(AlumniHeadquarters::getPhone, null)
+                    .set(AlumniHeadquarters::getContactPerson, null)
                     .set(AlumniHeadquarters::getEstablishedDate, null)
                     .set(AlumniHeadquarters::getMemberCount, 0)
                     .set(AlumniHeadquarters::getActiveStatus, 0)

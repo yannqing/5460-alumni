@@ -488,15 +488,6 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         }
 
         // 3. 更新字段（只更新非空字段）
-        if (updateAlumniAssociationDto.getAssociationName() != null) {
-            existingAssociation.setAssociationName(updateAlumniAssociationDto.getAssociationName());
-        }
-        if (updateAlumniAssociationDto.getSchoolId() != null) {
-            existingAssociation.setSchoolId(updateAlumniAssociationDto.getSchoolId());
-        }
-        if (updateAlumniAssociationDto.getPlatformId() != null) {
-            existingAssociation.setPlatformId(updateAlumniAssociationDto.getPlatformId());
-        }
         if (updateAlumniAssociationDto.getContactInfo() != null) {
             existingAssociation.setContactInfo(updateAlumniAssociationDto.getContactInfo());
         }
@@ -536,9 +527,6 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         }
         if (updateAlumniAssociationDto.getZhSocialAffiliation() != null) {
             existingAssociation.setZhSocialAffiliation(updateAlumniAssociationDto.getZhSocialAffiliation());
-        }
-        if (updateAlumniAssociationDto.getStatus() != null) {
-            existingAssociation.setStatus(updateAlumniAssociationDto.getStatus());
         }
 
         // 4. 执行更新
