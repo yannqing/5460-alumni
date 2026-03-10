@@ -36,6 +36,12 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
     private Long schoolId;
 
     /**
+     * 母校曾用名
+     */
+    @Schema(description = "母校曾用名")
+    private String formerSchoolName;
+
+    /**
      * 所属校处会ID（可选）
      */
     @Schema(description = "所属校处会ID（可选）")

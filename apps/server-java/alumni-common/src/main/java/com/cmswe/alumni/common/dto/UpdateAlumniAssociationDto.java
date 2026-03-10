@@ -26,24 +26,6 @@ public class UpdateAlumniAssociationDto implements Serializable {
     private Long alumniAssociationId;
 
     /**
-     * 校友会名称
-     */
-    @Schema(description = "校友会名称")
-    private String associationName;
-
-    /**
-     * 所属母校ID
-     */
-    @Schema(description = "所属母校ID")
-    private Long schoolId;
-
-    /**
-     * 所属校处会ID
-     */
-    @Schema(description = "所属校处会ID")
-    private Long platformId;
-
-    /**
      * 联系信息
      */
     @Schema(description = "联系信息（json 格式）")
@@ -126,12 +108,6 @@ public class UpdateAlumniAssociationDto implements Serializable {
      */
     @Schema(description = "驻会代表社会职务")
     private String zhSocialAffiliation;
-
-    /**
-     * 状态：0-禁用 1-启用
-     */
-    @Schema(description = "状态：0-禁用 1-启用")
-    private Integer status;
 
     @Serial
     private static final long serialVersionUID = 1L;

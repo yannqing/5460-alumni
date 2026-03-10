@@ -14,23 +14,29 @@
     <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
       <text class="label">母校全称</text>
       <input class="input" placeholder="请输入关键字" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
-      <text wx:if="{{formData.previousName}}" class="school-previous-name">曾用名：{{formData.previousName}}</text>
       <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
         <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
         <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
           <text>{{item.schoolName}}</text>
-          <text wx:if="{{item.previousName}}" class="previous-name">（曾用名：{{item.previousName}}）</text>
         </view>
       </scroll-view>
     </view>
-    
+
+    <view class="form-item">
+      <view class="label-with-hint">
+        <text class="label">曾用名</text>
+        <text class="label-hint">以毕业证书为准</text>
+      </view>
+      <input class="input" placeholder="请输入母校曾用名（选填）" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" />
+    </view>
+
     <view class="form-item required">
       <text class="label">校友会全称</text>
       <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
     </view>
 
     <view class="form-item required">
-      <text class="label">常驻地点</text>
+      <text class="label">办公地点</text>
       <picker
         mode="region"
         value="{{regionValue}}"
@@ -39,34 +45,6 @@
       >
         <view class="picker-content">
           {{formData.location || '请选择省/市/区'}}
-        </view>
-      </picker>
-    </view>
-
-    <view class="form-item required">
-      <text class="label">是否已经是校促会会员</text>
-      <radio-group class="platform-member-radio" bindchange="handlePlatformMemberChange">
-        <label class="radio-label-inline">
-          <radio value="yes" checked="{{isPlatformMember}}" color="#1890FF" /> 是
-        </label>
-        <label class="radio-label-inline">
-          <radio value="no" checked="{{!isPlatformMember}}" color="#1890FF" /> 否
-        </label>
-      </radio-group>
-    </view>
-
-    <view class="form-item required" wx:if="{{isPlatformMember}}">
-      <text class="label">相关地区</text>
-      <picker
-        mode="selector"
-        range="{{platformList}}"
-        range-key="platformName"
-        value="{{platformIndex}}"
-        bindchange="handlePlatformChange"
-        class="input"
-      >
-        <view class="picker-content">
-          {{formData.platformName || '请选择相关地区(校促会)'}}
         </view>
       </picker>
     </view>
@@ -187,18 +165,18 @@
       </view>
     </view>
 
-    <view class="form-title">成员信息</view>
+    <view class="form-title">校友会信息</view>
     <view class="form-item required">
       <text class="label">联系人姓名</text>
       <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
     </view>
     <view class="form-item required">
-      <text class="label">联系人职务</text>
-      <input class="input" placeholder="请输入联系人职务" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" />
-    </view>
-    <view class="form-item required">
       <text class="label">联系人联系电话</text>
       <input class="input" placeholder="请输入联系人联系电话" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">联系人职务（校友会内职务）</text>
+      <input class="input" placeholder="请输入联系人职务" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" />
     </view>
     <view class="form-item required">
       <text class="label">联系人社会职务</text>
@@ -213,14 +191,10 @@
     <block wx:for="{{members}}" wx:key="index">
       <view class="member-item">
         <view class="member-header">
-          <text class="member-index">{{index === 0 ? '主要负责人' : '成员 ' + index}}</text>
+          <text class="member-index">{{index === 0 ? '主要负责人' : '其他负责人' + index}}</text>
           <text wx:if="{{index > 0}}" class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
         </view>
         <view class="member-form-group">
-          <view class="member-form-row">
-            <text class="member-label required">职务</text>
-            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
-          </view>
           <view class="member-form-row">
             <text class="member-label required">姓名</text>
             <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble">
@@ -239,12 +213,16 @@
             </view>
           </view>
           <view class="member-form-row">
-            <text class="member-label required">社会职务</text>
-            <input class="input member-full-input" placeholder="请输入社会职务" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" />
-          </view>
-          <view class="member-form-row">
             <text class="member-label required">联系方式</text>
             <input class="input member-full-input" placeholder="请输入联系方式" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
+          </view>
+          <view class="member-form-row">
+            <text class="member-label required">职务</text>
+            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
+          </view>
+          <view class="member-form-row">
+            <text class="member-label required">社会职务</text>
+            <input class="input member-full-input" placeholder="请输入社会职务" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" />
           </view>
         </view>
       </view>
