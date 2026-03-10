@@ -2,6 +2,8 @@ page {
   background-color: #f5f5f5;
   margin: 0;
   padding: 0;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .white-background-content {
@@ -11,15 +13,25 @@ page {
   position: relative;
   z-index: 1;
   padding-top: 20rpx;
-  min-height: 100vh;
+  height: calc(100vh - 88px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .container {
-  padding: 40rpx;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40rpx;
 }
 
 .info-text {
   font-size: 32rpx;
   color: #333;
-  margin-top: 20rpx;
+  text-align: center;
+  line-height: 1.8;
 }

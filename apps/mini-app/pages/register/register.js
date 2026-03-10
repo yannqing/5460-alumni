@@ -280,7 +280,7 @@ Page({
       title: '加载中...',
     })
     wx.downloadFile({
-      url: 'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/documents/privacy/privicy.pdf',
+      url: 'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/documents/privacy/privacy.pdf',
       success: function (res) {
         wx.hideLoading()
         const filePath = res.tempFilePath

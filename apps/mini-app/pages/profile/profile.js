@@ -13,17 +13,17 @@ Page({
     stats: {
       coupons: 0,
       followedShops: 0,
-      footprints: 0
+      footprints: 0,
     },
     couponTab: 'unused', // unused, used, expired
     couponStats: {
       unused: 0,
       used: 0,
-      expired: 0
+      expired: 0,
     },
     privacySettings: {
       allowSearch: true,
-      allowFootprint: true
+      allowFootprint: true,
     },
     showCardModal: false,
     alumniCardQrcode: '',
@@ -31,7 +31,7 @@ Page({
     // 关注和粉丝统计
     followStats: {
       followingCount: 0,
-      fansCount: 0
+      fansCount: 0,
     },
     // 是否有管理权限（控制"管理入口"和"我的文章"按钮显示）
     hasManagementPermission: false,
@@ -42,10 +42,17 @@ Page({
     iconWdsc: config.getIconUrl('wdsc@3x.png'),
     iconGrys: config.getIconUrl('grys@3x.png'),
     // 页面装饰图片（使用远程服务器上的图片）
-    imageTopBg: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grdbt@2x.png',   // 顶部背景图
-    imageBanner: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grjrt@2x.png',   // 中间 Banner 图
+    imageTopBg: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grdbt@2x.png', // 顶部背景图
+    imageBanner: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grjrt@2x.png', // 中间 Banner 图
     // 默认头像
-    defaultAvatar: config.defaultAvatar
+    defaultAvatar: config.defaultAvatar,
+    // 校友认证等级图片
+    alumniCertFirstImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_first_certification.png',
+    alumniCertSecondImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_second_certification.png',
+    alumniCertThirdImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_third_certification.png',
   },
 
   onLoad() {
@@ -58,10 +65,10 @@ Page({
     // 设置自定义 tabBar 选中状态
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 4
-      });
+        selected: 4,
+      })
       // 更新未读消息数
-      this.getTabBar().updateUnreadCount();
+      this.getTabBar().updateUnreadCount()
     }
     // 每次显示页面时都重新加载用户信息，确保数据实时更新
     this.updateCurrentTime()
@@ -76,7 +83,7 @@ Page({
     const hours = String(now.getHours()).padStart(2, '0')
     const minutes = String(now.getMinutes()).padStart(2, '0')
     this.setData({
-      currentTime: `${hours}:${minutes}`
+      currentTime: `${hours}:${minutes}`,
     })
   },
 
@@ -96,12 +103,12 @@ Page({
       avatarUrl: userInfo.avatarUrl || '',
       school: userInfo.school || userInfo.schoolName || '',
       major: userInfo.major || '',
-      graduateYear: userInfo.graduateYear || userInfo.enrollYear || ''
+      graduateYear: userInfo.graduateYear || userInfo.enrollYear || '',
     }
 
     this.setData({
       userInfo: formattedUserInfo,
-      isLogin: true // 静默登录始终为已登录状态
+      isLogin: true, // 静默登录始终为已登录状态
     })
   },
 
@@ -131,11 +138,11 @@ Page({
               const userInfoData = res.data.data
               app.globalData.userData = {
                 ...(app.globalData.userData || {}),
-                ...userInfoData
+                ...userInfoData,
               }
               app.globalData.userInfo = {
                 ...(app.globalData.userInfo || {}),
-                ...userInfoData
+                ...userInfoData,
               }
               userData = app.globalData.userData
               userInfo = app.globalData.userInfo
@@ -144,11 +151,11 @@ Page({
               // 兼容另一种数据结构
               app.globalData.userData = {
                 ...(app.globalData.userData || {}),
-                ...res.data
+                ...res.data,
               }
               app.globalData.userInfo = {
                 ...(app.globalData.userInfo || {}),
-                ...res.data
+                ...res.data,
               }
               userData = app.globalData.userData
               userInfo = app.globalData.userInfo
@@ -159,7 +166,7 @@ Page({
                 hasRes: !!res,
                 hasData: !!(res && res.data),
                 code: res && res.data ? res.data.code : 'N/A',
-                hasDataData: !!(res && res.data && res.data.data)
+                hasDataData: !!(res && res.data && res.data.data),
               })
             }
           } catch (error) {
@@ -184,11 +191,11 @@ Page({
                   const userInfoData = res.data.data
                   app.globalData.userData = {
                     ...(app.globalData.userData || {}),
-                    ...userInfoData
+                    ...userInfoData,
                   }
                   app.globalData.userInfo = {
                     ...(app.globalData.userInfo || {}),
-                    ...userInfoData
+                    ...userInfoData,
                   }
                   userData = app.globalData.userData
                   userInfo = app.globalData.userInfo
@@ -208,7 +215,14 @@ Page({
     }
 
     // 兼容多种头像字段名：avatarUrl, avatar, headImg
-    const rawAvatarUrl = userInfo.avatarUrl || userInfo.avatar || userInfo.headImg || userData.avatarUrl || userData.avatar || userData.headImg || ''
+    const rawAvatarUrl =
+      userInfo.avatarUrl ||
+      userInfo.avatar ||
+      userInfo.headImg ||
+      userData.avatarUrl ||
+      userData.avatar ||
+      userData.headImg ||
+      ''
 
     // 使用 config.getImageUrl 处理图片URL，确保使用正确的 baseUrl
     const config = require('../../utils/config.js')
@@ -229,18 +243,24 @@ Page({
     const formattedUserInfo = {
       nickname: userInfo.nickname || userData.nickname || '用户',
       avatarUrl: avatarUrl,
-      school: userInfo.school || userInfo.schoolName || userData.school || userData.schoolName || '',
+      school:
+        userInfo.school || userInfo.schoolName || userData.school || userData.schoolName || '',
       major: userInfo.major || userData.major || '',
-      graduateYear: userInfo.graduateYear || userInfo.enrollYear || userData.graduateYear || userData.enrollYear || '',
+      graduateYear:
+        userInfo.graduateYear ||
+        userInfo.enrollYear ||
+        userData.graduateYear ||
+        userData.enrollYear ||
+        '',
       realName: realName,
       phone: userInfo.phone || userData.phone || '',
       hasEducation: (userInfo.alumniEducationList || userData.alumniEducationList || []).length > 0,
-      certificationFlag: userInfo.certificationFlag || userData.certificationFlag || 0
+      certificationFlag: userInfo.certificationFlag || userData.certificationFlag || 0,
     }
 
     this.setData({
       userInfo: formattedUserInfo,
-      isLogin: true
+      isLogin: true,
     })
   },
 
@@ -249,7 +269,8 @@ Page({
     const userData = app.globalData.userData || {}
 
     // 设置认证状态（从后端数据获取）
-    const certificationStatus = userData.certificationStatus || userData.is_apply_acard === 1 ? 'verified' : 'none'
+    const certificationStatus =
+      userData.certificationStatus || userData.is_apply_acard === 1 ? 'verified' : 'none'
 
     // 设置统计数据（从后端接口获取，这里先设为0，后续对接接口）
     this.setData({
@@ -257,15 +278,15 @@ Page({
       stats: {
         coupons: userData.couponCount || 0,
         followedShops: userData.followedShopCount || 0,
-        footprints: userData.footprintCount || 0
+        footprints: userData.footprintCount || 0,
       },
       couponStats: {
         unused: userData.unusedCouponCount || 0,
         used: userData.usedCouponCount || 0,
-        expired: userData.expiredCouponCount || 0
+        expired: userData.expiredCouponCount || 0,
       },
       alumniCardQrcode: userData.alumniCardQrcode || '',
-      alumniCardNumber: userData.alumniCardNumber || ''
+      alumniCardNumber: userData.alumniCardNumber || '',
     })
 
     // 加载关注和粉丝统计
@@ -283,8 +304,8 @@ Page({
         this.setData({
           followStats: {
             followingCount: stats.followingCount || 0,
-            fansCount: stats.fansCount || stats.followerCount || 0
-          }
+            fansCount: stats.fansCount || stats.followerCount || 0,
+          },
         })
       }
     } catch (error) {
@@ -295,28 +316,29 @@ Page({
   // 跳转到我的关注页面
   goToMyFollow() {
     wx.navigateTo({
-      url: '/pages/my-follow/my-follow?tab=follow'
+      url: '/pages/my-follow/my-follow?tab=follow',
     })
   },
 
   // 跳转到我的粉丝页面
   goToMyFans() {
     wx.navigateTo({
-      url: '/pages/my-follow/my-follow?tab=fans'
+      url: '/pages/my-follow/my-follow?tab=fans',
     })
   },
 
-
   navigateTo(e) {
     const { url } = e.currentTarget.dataset
-    if (!url) { return }
+    if (!url) {
+      return
+    }
 
     wx.navigateTo({ url })
   },
 
   editProfile() {
     wx.navigateTo({
-      url: '/pages/profile/edit/edit'
+      url: '/pages/profile/edit/edit',
     })
   },
 
@@ -324,7 +346,7 @@ Page({
   switchCouponTab(e) {
     const { tab } = e.currentTarget.dataset
     this.setData({
-      couponTab: tab
+      couponTab: tab,
     })
   },
 
@@ -334,14 +356,14 @@ Page({
       return
     }
     this.setData({
-      showCardModal: true
+      showCardModal: true,
     })
   },
 
   // 隐藏校友卡
   hideAlumniCard() {
     this.setData({
-      showCardModal: false
+      showCardModal: false,
     })
   },
 
@@ -350,17 +372,15 @@ Page({
     const { key } = e.currentTarget.dataset
     const value = e.detail.value
     this.setData({
-      [`privacySettings.${key}`]: value
+      [`privacySettings.${key}`]: value,
     })
 
     // TODO: 调用后端接口保存隐私设置
     wx.showToast({
       title: value ? '已开启' : '已关闭',
-      icon: 'success'
+      icon: 'success',
     })
   },
-
-
 
   /**
    * 检查用户是否有管理权限
@@ -369,8 +389,15 @@ Page({
   checkManagementPermission() {
     const hasPermission = hasManagementPermission()
     this.setData({
-      hasManagementPermission: hasPermission
+      hasManagementPermission: hasPermission,
     })
     console.log('[Profile] 管理权限检查结果:', hasPermission)
-  }
+  },
+
+  // 跳转到认证说明页面
+  goToCertificationInfo() {
+    wx.navigateTo({
+      url: '/pages/certification-info/certification-info',
+    })
+  },
 })
