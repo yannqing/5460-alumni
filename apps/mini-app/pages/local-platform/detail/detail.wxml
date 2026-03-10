@@ -68,6 +68,15 @@
                             </view>
                         </view>
                         <view class="basic-info-item">简介：{{platformInfo.description || '不方便透露'}}</view>
+                        <!-- 联系人信息（姓名、职务、电话）- 有信息时才展示 -->
+                        <view wx:if="{{platformInfo.contactName || platformInfo.contactPosition || platformInfo.contactPhone}}" class="contact-info-section">
+                            <view class="contact-info-title">联系人信息</view>
+                            <view class="contact-info-list">
+                                <view wx:if="{{platformInfo.contactName}}" class="contact-info-item">联系人：{{platformInfo.contactName}}</view>
+                                <view wx:if="{{platformInfo.contactPosition}}" class="contact-info-item">职务：{{platformInfo.contactPosition}}</view>
+                                <view wx:if="{{platformInfo.contactPhone}}" class="contact-info-item">电话：{{platformInfo.contactPhone}}</view>
+                            </view>
+                        </view>
                         <!-- 主页展示成员列表 -->
                         <view wx:if="{{platformInfo.showMembers && platformInfo.showMembers.length > 0}}" class="show-members-section">
                             <view class="show-members-title">主要负责人</view>

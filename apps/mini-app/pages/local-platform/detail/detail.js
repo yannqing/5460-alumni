@@ -150,9 +150,9 @@ Page({
           location: data.city || '',
           description: data.description || '',
           memberCount: data.memberCount || 0,
-          principalName: data.principalName || null,
-          principalPosition: data.principalPosition || null,
-          localPlatformPhone: data.localPlatformPhone || null,
+          contactName: data.contactName || null,
+          contactPosition: data.contactPosition || null,
+          contactPhone: data.contactPhone || null,
           // 小程序链接
           miniProgramLinks: data.miniProgramLinks || [],
           // 主页展示成员、校促会重大事记

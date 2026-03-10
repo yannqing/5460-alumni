@@ -16,12 +16,15 @@
         <result property="status" column="status" jdbcType="TINYINT"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="contactName" column="contact_name" jdbcType="VARCHAR"/>
+        <result property="contactPosition" column="contact_position" jdbcType="VARCHAR"/>
+        <result property="contactPhone" column="contact_phone" jdbcType="VARCHAR"/>
         <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         platform_id, avatar, platform_name, city, scope, contact_info, description, bg_img,
-        status, create_time, update_time, is_delete
+        status, create_time, update_time, contact_name, contact_position, contact_phone, is_delete
     </sql>
 
 </mapper>

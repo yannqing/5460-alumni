@@ -52,9 +52,9 @@ Page({
             monthlyHomepageArticleQuota: detail.monthlyHomepageArticleQuota || 0,
             bgImg: detail.bgImg || '',
             status: detail.status || 1,
-            principalName: detail.principalName || '',
-            principalPosition: detail.principalPosition || '',
-            phone: detail.phone || '',
+            contactName: detail.contactName || '',
+            contactPosition: detail.contactPosition || '',
+            contactPhone: detail.contactPhone || '',
             importantEvents: typeof detail.importantEvents === 'string' ? JSON.parse(detail.importantEvents || '[]') : (detail.importantEvents || [])
           }
         })
