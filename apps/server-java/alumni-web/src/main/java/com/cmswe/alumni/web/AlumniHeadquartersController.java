@@ -15,6 +15,7 @@ import com.cmswe.alumni.common.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,7 +51,7 @@ public class AlumniHeadquartersController {
     @PostMapping("/applyActivate")
     @Operation(summary = "申请激活校友总会（输入邀请码）")
     public BaseResponse<Boolean> applyActivateHeadquarters(
-            @RequestBody ApplyActivateHeadquartersRequest request,
+            @Valid @RequestBody ApplyActivateHeadquartersRequest request,
             @AuthenticationPrincipal SecurityUser securityUser) {
         Long wxId = securityUser != null && securityUser.getWxUser() != null
                 ? securityUser.getWxUser().getWxId()

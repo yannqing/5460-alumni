@@ -24,6 +24,7 @@ Page({
             logo: '',
             bgImg: '',
             description: '',
+            contactPerson: '',
             contactInfo: '',
             address: '',
             website: '',
@@ -552,6 +553,11 @@ Page({
             return
         }
 
+        if (!formData.registrationCertificate || !formData.registrationCertificate.trim()) {
+            wx.showToast({ title: '请上传社会团体法人登记证书', icon: 'none' })
+            return
+        }
+
         // 验证日期格式
         if (formData.establishedDate) {
             const dateRegex = /^\d{4}-\d{2}-\d{2}$/
@@ -572,6 +578,7 @@ Page({
             headquartersId: formData.headquartersId,
             createCode: formData.createCode,
             description: formData.description || undefined,
+            contactPerson: formData.contactPerson || undefined,
             contactInfo: formData.contactInfo ? JSON.stringify({ content: formData.contactInfo }) : undefined,
             address: formData.address || undefined,
             website: formData.website || undefined,
@@ -593,10 +600,8 @@ Page({
             submitData.bgImg = formData.bgImg
         }
 
-        // 传递登记证书字段（可选）
-        if (formData.registrationCertificate) {
-            submitData.registrationCertificate = formData.registrationCertificate
-        }
+        // 传递登记证书字段（必填，已在前面校验）
+        submitData.registrationCertificate = formData.registrationCertificate
 
         console.log('最终提交数据:', submitData)
 

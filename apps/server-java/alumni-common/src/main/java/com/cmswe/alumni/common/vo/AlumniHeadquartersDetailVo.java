@@ -96,6 +96,12 @@ public class AlumniHeadquartersDetailVo implements Serializable {
     private String phone;
 
     /**
+     * 联系人
+     */
+    @Schema(description = "联系人")
+    private String contactPerson;
+
+    /**
      * 成立日期
      */
     @Schema(description = "成立日期")

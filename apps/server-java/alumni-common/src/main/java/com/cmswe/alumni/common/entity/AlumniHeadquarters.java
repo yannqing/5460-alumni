@@ -85,6 +85,12 @@ public class AlumniHeadquarters implements Serializable {
     private String phone;
 
     /**
+     * 联系人
+     */
+    @TableField(value = "contact_person")
+    private String contactPerson;
+
+    /**
      * 成立日期
      */
     @TableField(value = "established_date")
