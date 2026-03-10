@@ -1101,6 +1101,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                     .roleOrName(role.getRoleOrName())
                     .roleOrCode(role.getRoleOrCode())
                     .remark(role.getRemark())
+                    .sort(role.getSort())
                     .children(new ArrayList<>())
                     .members(new ArrayList<>())
                     .build();
@@ -1149,10 +1150,28 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             }
         }
 
+        // 8. 按 sort 同级别排序（数值越小越靠前）
+        sortTreeBySort(rootNodes);
+
         log.info("查询组织架构树成功 - 校友会ID: {}, 根节点数: {}, 总角色数: {}",
                 alumniAssociationId, rootNodes.size(), roleNodeMap.size());
 
         return rootNodes;
+    }
+
+    /**
+     * 按 sort 字段对树节点进行同级别排序（数值越小越靠前，null 视为最大值排最后）
+     */
+    private void sortTreeBySort(List<OrganizationTreeVo> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            return;
+        }
+        nodes.sort(Comparator.comparing(OrganizationTreeVo::getSort, Comparator.nullsLast(Comparator.naturalOrder())));
+        for (OrganizationTreeVo node : nodes) {
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                sortTreeBySort(node.getChildren());
+            }
+        }
     }
 
     @Override
@@ -1164,12 +1183,13 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         log.info("开始查询组织架构树V2 - 校友会ID: {}", alumniAssociationId);
 
-        // 2. 查询该校友会的所有组织架构角色
+        // 2. 查询该校友会的所有组织架构角色（按 sort 升序，同级别排序）
         List<OrganizeArchiRole> allRoles = organizeArchiRoleService.list(
                 new LambdaQueryWrapper<OrganizeArchiRole>()
                         .eq(OrganizeArchiRole::getOrganizeId, alumniAssociationId)
                         .eq(OrganizeArchiRole::getOrganizeType, 0) // 0-校友会
                         .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
+                        .orderByAsc(OrganizeArchiRole::getSort)
                         .orderByAsc(OrganizeArchiRole::getRoleOrId));
 
         if (allRoles.isEmpty()) {
@@ -1218,6 +1238,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                     .roleOrName(role.getRoleOrName())
                     .roleOrCode(role.getRoleOrCode())
                     .remark(role.getRemark())
+                    .sort(role.getSort())
                     .children(new ArrayList<>())
                     .members(new ArrayList<>())
                     .build();
@@ -1272,10 +1293,28 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             }
         }
 
+        // 8. 按 sort 同级别排序（数值越小越靠前）
+        sortTreeBySortV2(rootNodes);
+
         log.info("查询组织架构树V2成功 - 校友会ID: {}, 根节点数: {}, 总角色数: {}",
                 alumniAssociationId, rootNodes.size(), roleNodeMap.size());
 
         return rootNodes;
+    }
+
+    /**
+     * 按 sort 字段对树节点进行同级别排序（数值越小越靠前，null 视为最大值排最后）
+     */
+    private void sortTreeBySortV2(List<OrganizationTreeV2Vo> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            return;
+        }
+        nodes.sort(Comparator.comparing(OrganizationTreeV2Vo::getSort, Comparator.nullsLast(Comparator.naturalOrder())));
+        for (OrganizationTreeV2Vo node : nodes) {
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                sortTreeBySortV2(node.getChildren());
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -1,0 +1,153 @@
+<view wx:if="{{node}}" class="tree-node {{depth === 0 ? 'level-1' : 'tree-node-child'}}" style="{{depth > 0 ? 'margin-left: ' + (depth * 30) + 'rpx' : ''}}">
+  <view class="node-header {{depth > 0 ? 'node-header-child' : ''}}" bindtap="onToggleExpand" data-id="{{node.uniqueId}}">
+    <image wx:if="{{depth > 0}}" class="indent-icon" src="{{iconIndent}}" mode="aspectFit"></image>
+    <view class="node-title">
+      <text class="role-name">{{node.roleOrName}}</text>
+      <text wx:if="{{node.members.length > 0 || (node.expanded && node.remark)}}" class="member-count-inline">{{node.expanded && node.remark ? node.remark : (node.members.length + '人')}}</text>
+    </view>
+    <view class="node-meta">
+      <image class="arrow-icon" src="{{node.expanded ? iconArrowDown : iconArrowRight}}" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <view class="node-content" wx:if="{{node.expanded}}">
+    <view class="node-members" wx:if="{{node.members.length > 0 || (isEditMode && isLocalPlatform && canEdit)}}">
+      <view class="org-member-grid">
+        <view class="org-member-item" wx:for="{{node.members}}" wx:key="wxId" wx:for-item="member">
+          <view class="org-member-info">
+            <view class="member-bullet"></view>
+            <view wx:if="{{isEditMode && isLocalPlatform && canEdit && editingMemberId == member._editId}}" class="member-edit-container">
+              <view class="member-edit-row">
+                <view class="member-edit-input">
+                  <input 
+                    class="member-input" 
+                    type="text"
+                    value="{{inputValues[member._editId] !== undefined ? inputValues[member._editId] : (member.username || '')}}" 
+                    placeholder="请输入名称"
+                    data-roleid="{{node.roleOrId || node.roleId || node.id}}"
+                    data-memberid="{{member.wxId || member.id || member.userId}}"
+                    bindinput="onMemberNameInput"
+                    bindfocus="onMemberInputFocus"
+                    adjust-position="{{true}}"
+                    style="width: {{inputWidths[member._editId] || 164}}rpx;"
+                  />
+                </view>
+                <view class="save-btn" bindtap="onSaveMemberName" data-roleid="{{node.roleOrId || node.roleId || node.id}}" data-memberid="{{member.wxId || member.id || member.userId}}">
+                  <text class="save-icon">✓</text>
+                </view>
+              </view>
+              <view class="member-edit-row">
+                <view class="member-edit-input">
+                  <input 
+                    class="member-input" 
+                    type="text"
+                    value="{{roleNameValues[member._editId] !== undefined ? roleNameValues[member._editId] : (member.roleName || '')}}" 
+                    placeholder="请输入职位"
+                    data-roleid="{{node.roleOrId || node.roleId || node.id}}"
+                    data-memberid="{{member.wxId || member.id || member.userId}}"
+                    bindinput="onMemberRoleNameInput"
+                    bindfocus="onMemberInputFocus"
+                    adjust-position="{{true}}"
+                    style="width: {{roleNameWidths[member._editId] || 164}}rpx;"
+                  />
+                </view>
+              </view>
+            </view>
+            <view wx:else class="member-name-role">
+              <text
+                wx:if="{{isEditMode && isLocalPlatform && canEdit && !member.isTemp}}"
+                class="org-member-name edit-clickable"
+                bindtap="onStartEditMember"
+                data-roleid="{{node.roleOrId || node.roleId || node.id}}"
+                data-memberid="{{member.wxId || member.id || member.userId}}"
+              >{{member.wxId ? (member.name || member.nickname || '匿名用户') : (member.username || '匿名用户')}}</text>
+              <text
+                wx:else
+                class="org-member-name clickable"
+                bindtap="onMemberClick"
+                data-id="{{member.wxId ? '' + member.wxId : ''}}"
+                data-username="{{member.wxId ? (member.name || member.nickname || '匿名用户') : (member.username || '匿名用户')}}"
+              >{{member.wxId ? (member.name || member.nickname || '匿名用户') : (member.username || '匿名用户')}}</text>
+              <text wx:if="{{member.roleName}}" class="org-member-role">{{member.roleName}}</text>
+            </view>
+          </view>
+        </view>
+        <view wx:if="{{isEditMode && isLocalPlatform && canEdit && newMemberRoleId === (node.roleOrId || node.roleId || node.id)}}" class="org-member-item">
+          <view class="org-member-info">
+            <view class="member-bullet"></view>
+            <view class="member-edit-container">
+              <view class="member-edit-row">
+                <view class="member-edit-input">
+                  <input 
+                    class="member-input" 
+                    placeholder="请输入名称"
+                    value="{{inputValues['new_' + (node.roleOrId || node.roleId || node.id)] || ''}}"
+                    data-roleid="{{node.roleOrId || node.roleId || node.id}}"
+                    bindinput="onNewMemberNameInput"
+                    bindfocus="onMemberInputFocus"
+                    focus="{{true}}"
+                    style="width: {{inputWidths['new_' + (node.roleOrId || node.roleId || node.id)] || 164}}rpx;"
+                  />
+                </view>
+                <view class="save-btn" bindtap="onSaveNewMember" data-roleid="{{node.roleOrId || node.roleId || node.id}}">
+                  <text class="save-icon">✓</text>
+                </view>
+              </view>
+              <view class="member-edit-row">
+                <view class="member-edit-input">
+                  <input 
+                    class="member-input" 
+                    placeholder="请输入职位"
+                    value="{{roleNameValues['new_' + (node.roleOrId || node.roleId || node.id)] || ''}}"
+                    data-roleid="{{node.roleOrId || node.roleId || node.id}}"
+                    bindinput="onNewMemberRoleNameInput"
+                    bindfocus="onMemberInputFocus"
+                    style="width: {{roleNameWidths['new_' + (node.roleOrId || node.roleId || node.id)] || 164}}rpx;"
+                  />
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{isEditMode && isLocalPlatform && canEdit}}" class="add-member-btn-wrapper">
+        <view class="add-member-btn" bindtap="onAddMemberClick" data-roleid="{{node.roleOrId || node.roleId || node.id}}">
+          <text class="add-icon">+</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 子节点：使用递归组件 -->
+    <view class="children-nodes" wx:if="{{node.children && node.children.length > 0}}">
+      <org-tree-node
+        wx:for="{{node.children}}"
+        wx:key="uniqueId"
+        node="{{item}}"
+        depth="{{depth + 1}}"
+        iconIndent="{{iconIndent}}"
+        iconArrowDown="{{iconArrowDown}}"
+        iconArrowRight="{{iconArrowRight}}"
+        isEditMode="{{isEditMode}}"
+        isLocalPlatform="{{isLocalPlatform}}"
+        canEdit="{{canEdit}}"
+        editingMemberId="{{editingMemberId}}"
+        newMemberRoleId="{{newMemberRoleId}}"
+        inputValues="{{inputValues}}"
+        inputWidths="{{inputWidths}}"
+        roleNameValues="{{roleNameValues}}"
+        roleNameWidths="{{roleNameWidths}}"
+        bind:toggleexpand="onToggleExpand"
+        bind:memberclick="onMemberClick"
+        bind:starteditmember="onStartEditMember"
+        bind:membernameinput="onMemberNameInput"
+        bind:memberrolenameinput="onMemberRoleNameInput"
+        bind:memberinputfocus="onMemberInputFocus"
+        bind:savemembername="onSaveMemberName"
+        bind:addmemberclick="onAddMemberClick"
+        bind:newmembernameinput="onNewMemberNameInput"
+        bind:newmemberrolenameinput="onNewMemberRoleNameInput"
+        bind:savenewmember="onSaveNewMember"
+      />
+    </view>
+  </view>
+</view>
