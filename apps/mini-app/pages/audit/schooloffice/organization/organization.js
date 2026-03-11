@@ -1,6 +1,7 @@
 // pages/audit/schooloffice/organization/organization.js
 const { localPlatformManagementApi, localPlatformApi } = require('../../../../api/api.js')
 const app = getApp()
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
@@ -13,6 +14,8 @@ Page({
     roleLoading: false, // 角色加载状态
     selectedOrganizeId: 0, // 存储选中的organizeId
     expandedRoles: {}, // 存储展开状态的角色ID
+    expandedMembers: {}, // 存储展开状态的成员列表
+    defaultUserAvatarUrl: config.defaultAvatar,
     hasSingleSchoolOffice: false, // 是否只有一个校促会权限
     // 编辑弹窗相关
     showEditModal: false,
@@ -20,9 +23,9 @@ Page({
     editForm: {
       roleOrName: '',
       remark: '',
-      roleOrCode: '',
       status: 1,
-      pid: '0' // 父角色ID，0表示顶级
+      pid: '0', // 父角色ID，0表示顶级
+      sort: 0
     },
     editParentOptions: [], // 编辑时的父级选项列表
     editSelectedParentIndex: 0, // 编辑时选中的父级索引
@@ -35,12 +38,24 @@ Page({
     showAddModal: false,
     addForm: {
       roleOrName: '',
-      roleOrCode: '',
       remark: '',
-      pid: '0' // 默认顶级
+      pid: '0', // 默认顶级
+      sort: 0
     },
     parentOptions: [], // 父级选项列表
-    selectedParentName: '' // 选中的父级名称
+    selectedParentName: '', // 选中的父级名称
+    // 添加成员到架构相关
+    showAddMemberModal: false,
+    currentRole: null, // 当前操作的角色
+    memberList: [], // 校促会成员列表
+    memberLoading: false, // 成员列表加载状态
+    memberRoleName: '', // 成员在架构下的职务
+    // 节点详情弹窗相关
+    showNodeDetailModal: false,
+    currentDetailRole: null, // 当前查看详情的节点
+    // 新增弹窗相关
+    addModalTitle: '新增顶级架构',
+    addParentRole: null // 当前添加子节点的父节点
   },
 
   onLoad(options) {
@@ -254,11 +269,14 @@ Page({
       if (res.data && res.data.code === 200) {
         console.log('[Debug] 角色列表接口调用成功，获取到的角色列表:', res.data.data)
 
+        // 过滤掉未分配角色
+        const filteredRoleList = (res.data.data || []).filter(role => role.roleOrName !== '未分配角色')
+        
         // 初始化展开状态：默认全部展开
-        const expandedRoles = this.initExpandedState(res.data.data || [])
+        const expandedRoles = this.initExpandedState(filteredRoleList)
 
         this.setData({
-          roleList: res.data.data || [],
+          roleList: filteredRoleList,
           roleLoading: false,
           expandedRoles: expandedRoles
         })
@@ -313,6 +331,14 @@ Page({
     this.setData({ expandedRoles })
   },
 
+  // 切换成员列表展开/收缩状态
+  toggleMembers(e) {
+    const roleOrId = e.currentTarget.dataset.roleOrId
+    const expandedMembers = { ...this.data.expandedMembers }
+    expandedMembers[roleOrId] = !expandedMembers[roleOrId]
+    this.setData({ expandedMembers })
+  },
+
   // 打开编辑弹窗
   openEditModal(e) {
     const { role } = e.currentTarget.dataset
@@ -328,7 +354,7 @@ Page({
     const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
     
     // 获取当前父级名称
-    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级角色（无父级）'
+    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构(无父级)'
 
     this.setData({
       showEditModal: true,
@@ -336,9 +362,9 @@ Page({
       editForm: {
         roleOrName: role.roleOrName || '',
         remark: role.remark || '',
-        roleOrCode: role.roleOrCode || '',
         status: role.status !== undefined ? role.status : 1,
-        pid: currentPid
+        pid: currentPid,
+        sort: role.sort !== undefined ? role.sort : 0
       },
       editParentOptions: editParentOptions,
       editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
@@ -354,9 +380,9 @@ Page({
       editForm: {
         roleOrName: '',
         remark: '',
-        roleOrCode: '',
         status: 1,
-        pid: '0'
+        pid: '0',
+        sort: 0
       },
       editParentOptions: [],
       editSelectedParentIndex: 0,
@@ -400,7 +426,7 @@ Page({
     // 校验必填项
     if (!editForm.roleOrName.trim()) {
       wx.showToast({
-        title: '请输入角色名',
+        title: '请输入架构名称',
         icon: 'none'
       })
       return
@@ -412,11 +438,11 @@ Page({
       const res = await this.callUpdateRoleApi({
         organizeId: selectedOrganizeId,
         roleOrId: editingRole.roleOrId,
-        pid: editForm.pid === '0' ? null : editForm.pid, // 0表示顶级，传null
+        pid: editForm.pid, // 0表示顶级
         roleOrName: editForm.roleOrName.trim(),
         remark: editForm.remark.trim(),
-        roleOrCode: editForm.roleOrCode.trim(),
-        status: editForm.status
+        status: editForm.status,
+        sort: parseInt(editForm.sort) || 0
       })
 
       wx.hideLoading()
@@ -479,7 +505,7 @@ Page({
     // 添加"设为顶级"选项
     result.push({
       roleOrId: '0',
-      roleOrName: '设为顶级角色',
+      roleOrName: '设为顶级架构(无父级)',
       level: 0,
       isRoot: true
     })
@@ -504,7 +530,7 @@ Page({
     return result
   },
 
-  // 获取编辑时可选的父级角色列表
+  // 获取编辑时可选的父级架构列表
   getAvailableParentsForEdit(editingRole) {
     const { roleList } = this.data
     const excludeIds = this.getDescendantIds(editingRole)
@@ -512,10 +538,10 @@ Page({
 
     const result = []
 
-    // 添加"顶级角色（无父级）"选项
+    // 添加"顶级架构（无父级）"选项
     result.push({
       roleOrId: '0',
-      roleOrName: '顶级角色（无父级）',
+      roleOrName: '顶级架构(无父级)',
       level: 0,
       isRoot: true
     })
@@ -589,10 +615,9 @@ Page({
       const res = await this.callUpdateRoleApi({
         organizeId: this.data.selectedOrganizeId,
         roleOrId: movingRole.roleOrId,
-        pid: parentId === '0' ? null : parentId, // 0 表示顶级，传 null
+        pid: parentId, // 0 表示顶级
         roleOrName: movingRole.roleOrName,
         remark: movingRole.remark || '',
-        roleOrCode: movingRole.roleOrCode || '',
         status: movingRole.status !== undefined ? movingRole.status : 1
       })
 
@@ -646,9 +671,10 @@ Page({
         roleOrName: '',
         roleOrCode: '',
         remark: '',
-        pid: '0'
+        pid: '0',
+        sort: 0
       },
-      selectedParentName: '顶级角色（无父级）',
+      selectedParentName: '顶级架构(无父级)',
       parentOptions: parentOptions
     })
   },
@@ -658,10 +684,10 @@ Page({
     const { roleList } = this.data
     const result = []
 
-    // 添加"顶级角色"选项
+    // 添加"顶级架构"选项
     result.push({
       roleOrId: '0',
-      roleOrName: '顶级角色（无父级）',
+      roleOrName: '顶级架构(无父级)',
       level: 0
     })
 
@@ -689,9 +715,9 @@ Page({
       showAddModal: false,
       addForm: {
         roleOrName: '',
-        roleOrCode: '',
         remark: '',
-        pid: '0'
+        pid: '0',
+        sort: 0
       },
       parentOptions: []
     })
@@ -721,25 +747,17 @@ Page({
   getSelectedParentName() {
     const { addForm, parentOptions } = this.data
     const selected = parentOptions.find(item => item.roleOrId === addForm.pid)
-    return selected ? selected.roleOrName : '请选择父级'
+    return selected ? selected.roleOrName : '请选择上级'
   },
 
-  // 提交新增角色
+  // 提交新增分支
   async submitAdd() {
     const { addForm, selectedOrganizeId } = this.data
 
     // 校验必填项
     if (!addForm.roleOrName.trim()) {
       wx.showToast({
-        title: '请输入角色名',
-        icon: 'none'
-      })
-      return
-    }
-    
-    if (!addForm.roleOrCode.trim()) {
-      wx.showToast({
-        title: '请输入角色唯一代码',
+        title: '请输入架构名称',
         icon: 'none'
       })
       return
@@ -754,8 +772,8 @@ Page({
         organizeType: 1, // 校促会类型为1
         pid: addForm.pid, // 保持字符串形式，与校友会页面保持一致
         roleOrName: addForm.roleOrName.trim(),
-        roleOrCode: addForm.roleOrCode.trim(),
-        remark: addForm.remark.trim()
+        remark: addForm.remark.trim(),
+        sort: parseInt(addForm.sort) || 0
       })
 
       wx.hideLoading()
@@ -797,8 +815,8 @@ Page({
       organizeType: data.organizeType, // 已经是数字类型
       pid: String(data.pid), // 转换为字符串形式，与校友会页面保持一致
       roleOrName: data.roleOrName, // 角色名，字符串类型
-      roleOrCode: data.roleOrCode, // 角色唯一代码，字符串类型
-      remark: data.remark // 角色含义，字符串类型
+      remark: data.remark, // 角色含义，字符串类型
+      sort: data.sort
     }
 
     console.log('[Debug] 调用新增角色接口，请求数据:', requestData)
@@ -813,8 +831,8 @@ Page({
       roleOrId: String(data.roleOrId),
       roleOrName: data.roleOrName,
       remark: data.remark,
-      roleOrCode: data.roleOrCode,
-      status: data.status
+      status: data.status,
+      sort: data.sort
     }
     // pid 可能为 null 或 0，需要特殊处理
     if (data.pid !== null && data.pid !== undefined) {
@@ -890,5 +908,423 @@ Page({
     console.log('[Debug] organizeId:', strOrganizeId, '类型:', typeof strOrganizeId)
     
     return localPlatformManagementApi.deleteRole(strRoleOrId, strOrganizeId)
+  },
+
+  // 打开添加成员到架构弹窗
+  openAddMemberModal(e) {
+    const { role } = e.currentTarget.dataset
+    this.setData({
+      currentRole: role,
+      showAddMemberModal: true,
+      memberRoleName: '' // 重置职务输入
+    })
+    this.loadMemberList()
+  },
+
+  // 关闭添加成员到架构弹窗
+  closeAddMemberModal() {
+    this.setData({
+      showAddMemberModal: false,
+      currentRole: null,
+      memberList: [],
+      memberRoleName: ''
+    })
+  },
+
+  // 成员职务输入处理
+  onMemberRoleNameInput(e) {
+    this.setData({
+      memberRoleName: e.detail.value
+    })
+  },
+
+  // 加载校促会成员列表
+  async loadMemberList() {
+    try {
+      this.setData({ memberLoading: true })
+      const { selectedOrganizeId } = this.data
+      const res = await localPlatformManagementApi.getMemberList(selectedOrganizeId)
+      
+      if (res.data && res.data.code === 200) {
+        // Add selected property to each member
+        const members = (res.data.data || []).map(member => ({
+          ...member,
+          selected: false
+        }))
+        this.setData({
+          memberList: members
+        })
+      } else {
+        console.error('[Debug] 获取成员列表失败:', res)
+        this.setData({ memberList: [] })
+      }
+    } catch (error) {
+      console.error('[Debug] 加载成员列表失败:', error)
+      this.setData({ memberList: [] })
+    } finally {
+      this.setData({ memberLoading: false })
+    }
+  },
+
+  // 选择/取消选择成员
+  toggleMemberSelection(e) {
+    const { index } = e.currentTarget.dataset
+    const memberList = [...this.data.memberList]
+    memberList[index].selected = !memberList[index].selected
+    this.setData({ memberList })
+  },
+
+  // 提交添加成员到架构
+  async submitAddMembers() {
+    const { currentRole, memberList, selectedOrganizeId, memberRoleName } = this.data
+
+    // 校验职务
+    if (!memberRoleName || !memberRoleName.trim()) {
+      wx.showToast({
+        title: '请输入成员职务',
+        icon: 'none'
+      })
+      return
+    }
+
+    // Get selected members
+    const selectedMembers = memberList.filter(member => member.selected)
+
+    if (selectedMembers.length === 0) {
+      wx.showToast({
+        title: '请选择至少一个成员',
+        icon: 'none'
+      })
+      return
+    }
+
+    try {
+      wx.showLoading({ title: '添加中...' })
+
+      // 批量添加成员
+      const promises = selectedMembers.map(member => {
+        return localPlatformManagementApi.addMemberToStructure({
+          localPlatformId: selectedOrganizeId,
+          memberId: member.memberId, // 使用正确的字段名 memberId
+          roleOrId: currentRole.roleOrId,
+          roleName: memberRoleName.trim() // 新增职务字段
+        })
+      })
+      
+      const results = await Promise.all(promises)
+      
+      // 检查是否所有请求都成功
+      const allSuccess = results.every(res => res.data && res.data.code === 200)
+      
+      if (allSuccess) {
+        wx.showToast({
+          title: '添加成功',
+          icon: 'success'
+        })
+        this.closeAddMemberModal()
+        // 重新加载角色列表以更新成员信息
+        await this.loadRoleList(selectedOrganizeId)
+      } else {
+        wx.showToast({
+          title: '部分成员添加失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 添加成员失败:', error)
+      wx.showToast({
+        title: '添加失败',
+        icon: 'none'
+      })
+    } finally {
+      wx.hideLoading()
+    }
+  },
+
+  // 从架构中删除成员
+  async removeMemberFromStructure(e) {
+    const { member, role } = e.currentTarget.dataset
+    const { selectedOrganizeId } = this.data
+
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要将 ${member.name || member.nickname || member.username} 从 ${role.roleOrName} 中移除吗？`,
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...' })
+
+            const result = await localPlatformManagementApi.removeMemberFromStructure({
+              localPlatformId: selectedOrganizeId,
+              memberId: member.id || member.memberId // 兼容不同的字段名
+            })
+
+            if (result.data && result.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+              // 重新加载角色列表以更新成员信息
+              await this.loadRoleList(selectedOrganizeId)
+            } else {
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              })
+            }
+          } catch (error) {
+            console.error('[Debug] 删除成员失败:', error)
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          } finally {
+            wx.hideLoading()
+          }
+        }
+      }
+    })
+  },
+
+  // ========== 树形展示相关方法 ==========
+
+  // 打开节点详情弹窗
+  openNodeDetailModal(e) {
+    const { role } = e.currentTarget.dataset
+    console.log('[Debug] 打开节点详情弹窗，节点数据:', role)
+    this.setData({
+      showNodeDetailModal: true,
+      currentDetailRole: role
+    })
+  },
+
+  // 关闭节点详情弹窗
+  closeNodeDetailModal() {
+    this.setData({
+      showNodeDetailModal: false,
+      currentDetailRole: null
+    })
+  },
+
+  // 打开新增顶级架构弹窗
+  openAddTopLevelModal() {
+    if (!this.data.selectedSchoolOfficeId) {
+      wx.showToast({
+        title: '请先选择校促会',
+        icon: 'none'
+      })
+      return
+    }
+
+    this.setData({
+      showAddModal: true,
+      addModalTitle: '新增顶级架构',
+      addParentRole: null,
+      addForm: {
+        roleOrName: '',
+        remark: '',
+        pid: '0',
+        sort: 0
+      },
+      selectedParentName: '顶级架构(无父级)'
+    })
+  },
+
+  // 打开新增子架构弹窗（从详情弹窗中）
+  openAddChildModal() {
+    const { currentDetailRole } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    console.log('[Debug] 打开新增子架构弹窗，父节点:', currentDetailRole)
+
+    // 关闭详情弹窗，打开新增弹窗
+    this.setData({
+      showNodeDetailModal: false,
+      showAddModal: true,
+      addModalTitle: '新增子架构',
+      addParentRole: currentDetailRole,
+      addForm: {
+        roleOrName: '',
+        remark: '',
+        pid: String(currentDetailRole.roleOrId),
+        sort: 0
+      },
+      selectedParentName: currentDetailRole.roleOrName
+    })
+  },
+
+  // 从详情弹窗打开添加成员弹窗
+  openAddMemberModalFromDetail() {
+    const { currentDetailRole } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    // 关闭详情弹窗，打开添加成员弹窗
+    this.setData({
+      showNodeDetailModal: false,
+      currentRole: currentDetailRole,
+      showAddMemberModal: true,
+      memberRoleName: '' // 重置职务输入
+    })
+    this.loadMemberList()
+  },
+
+  // 从详情弹窗删除成员
+  async removeMemberFromDetailModal(e) {
+    const { member } = e.currentTarget.dataset
+    const { currentDetailRole, selectedOrganizeId } = this.data
+
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要将 ${member.name || member.nickname || member.username} 从 ${currentDetailRole.roleOrName} 中移除吗？`,
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...' })
+
+            const result = await localPlatformManagementApi.removeMemberFromStructure({
+              localPlatformId: selectedOrganizeId,
+              memberId: member.id || member.memberId
+            })
+
+            if (result.data && result.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+              // 关闭详情弹窗
+              this.setData({
+                showNodeDetailModal: false,
+                currentDetailRole: null
+              })
+              // 重新加载角色列表以更新成员信息
+              await this.loadRoleList(selectedOrganizeId)
+            } else {
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              })
+            }
+          } catch (error) {
+            console.error('[Debug] 删除成员失败:', error)
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          } finally {
+            wx.hideLoading()
+          }
+        }
+      }
+    })
+  },
+
+  // 从详情弹窗打开编辑弹窗
+  openEditModalFromDetail() {
+    const { currentDetailRole } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    console.log('[Debug] 从详情弹窗打开编辑弹窗，角色数据:', currentDetailRole)
+
+    // 关闭详情弹窗
+    this.setData({
+      showNodeDetailModal: false
+    })
+
+    // 获取可选的父级列表（排除自己及其子节点）
+    const editParentOptions = this.getAvailableParentsForEdit(currentDetailRole)
+
+    // 设置当前父级ID（默认为0表示顶级）
+    const currentPid = currentDetailRole.pid === null || currentDetailRole.pid === undefined ? '0' : String(currentDetailRole.pid)
+
+    // 查找当前父级在选项列表中的索引
+    const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
+
+    // 获取当前父级名称
+    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构(无父级)'
+
+    this.setData({
+      showEditModal: true,
+      editingRole: currentDetailRole,
+      editForm: {
+        roleOrName: currentDetailRole.roleOrName || '',
+        remark: currentDetailRole.remark || '',
+        status: currentDetailRole.status !== undefined ? currentDetailRole.status : 1,
+        pid: currentPid,
+        sort: currentDetailRole.sort !== undefined ? currentDetailRole.sort : 0
+      },
+      editParentOptions: editParentOptions,
+      editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
+      editSelectedParentName: editSelectedParentName
+    })
+  },
+
+  // 从详情弹窗删除角色
+  deleteRoleFromDetail() {
+    const { currentDetailRole, selectedOrganizeId } = this.data
+    if (!currentDetailRole) {
+      return
+    }
+
+    const roleOrId = currentDetailRole.roleOrId
+
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这个架构吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...' })
+
+            // 调用删除接口
+            const deleteRes = await this.callDeleteRoleApi(roleOrId, selectedOrganizeId)
+
+            wx.hideLoading()
+
+            if (deleteRes.data && deleteRes.data.code === 200) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+
+              // 关闭详情弹窗
+              this.setData({
+                showNodeDetailModal: false,
+                currentDetailRole: null
+              })
+
+              // 重新加载角色列表
+              await this.loadRoleList(selectedOrganizeId)
+            } else {
+              // 显示后端返回的错误信息
+              const errorMsg = (deleteRes.data && deleteRes.data.msg) || '删除失败'
+              wx.showModal({
+                title: '删除失败',
+                content: errorMsg,
+                showCancel: false,
+                confirmText: '知道了'
+              })
+            }
+          } catch (error) {
+            wx.hideLoading()
+            console.error('[Debug] 删除角色失败:', error)
+            wx.showModal({
+              title: '删除失败',
+              content: '网络请求失败，请稍后重试',
+              showCancel: false,
+              confirmText: '知道了'
+            })
+          }
+        }
+      }
+    })
   }
 })

@@ -1,188 +1,221 @@
 // API接口统一管理
 const { get, post, put, del, request } = require('../utils/request.js')
 
-
-
 // ==================== 母校相关接口 ====================
 const schoolApi = {
   // 分页查询母校列表（使用 POST 请求，参数在 body 中）列表和搜索都是用这个接口，注意分页参数
-  getSchoolPage: (params) => post('/school/page', params),
+  getSchoolPage: params => post('/school/page', params),
   // 根据id查询母校信息
-  getSchoolDetail: (id) => get(`/school/${id}`),
+  getSchoolDetail: id => get(`/school/${id}`),
   // 关注母校
-  followSchool: (id) => post(`/schools/${id}/follow`),
+  followSchool: id => post(`/schools/${id}/follow`),
   // 取消关注母校
-  unfollowSchool: (id) => del(`/schools/${id}/follow`),
+  unfollowSchool: id => del(`/schools/${id}/follow`),
   // 获取我的关注列表
-  getMyFollowSchools: (params) => get('/schools/my-follow', params),
+  getMyFollowSchools: params => get('/schools/my-follow', params),
   // 获取母校的校友会列表
   getSchoolAssociations: (id, params) => get(`/schools/${id}/associations`, params),
 }
 
-
-
 // ==================== 校友会相关接口 ====================
 const associationApi = {
   // 分页查询校友会列表（使用 POST 请求，参数在 body 中）列表和搜索都是用这个接口，注意分页参数
-  getAssociationList: (params) => post('/AlumniAssociation/page', params),
+  getAssociationList: params => post('/AlumniAssociation/page', params),
   // 根据id查询校友会详情
-  getAssociationDetail: (id) => get(`/AlumniAssociation/${id}`),
+  getAssociationDetail: id => get(`/AlumniAssociation/${id}`),
   // 加入校友会
-  joinAssociation: (id) => post(`/associations/${id}/join`),
+  joinAssociation: id => post(`/associations/${id}/join`),
   // 退出校友会
-  leaveAssociation: (id) => post(`/associations/${id}/leave`),
+  leaveAssociation: id => post(`/associations/${id}/leave`),
   // 获取我加入的校友会列表
-  getMyAssociations: (params) => get('/users/my-associations', params),
+  getMyAssociations: params => get('/users/my-associations', params),
   // 获取校友会成员列表
   getAssociationMembers: (id, params) => get(`/associations/${id}/members`, params),
   // 分页查询校友会成员列表
-  getMemberPage: (params) => post('/AlumniAssociation/member/page', params),
+  getMemberPage: params => post('/AlumniAssociation/member/page', params),
   // 获取校友会活动列表
   getAssociationActivities: (id, params) => get(`/associations/${id}/activities`, params),
   // 关注校友会
-  followAssociation: (id) => post(`/associations/${id}/follow`),
+  followAssociation: id => post(`/associations/${id}/follow`),
   // 取消关注校友会
-  unfollowAssociation: (id) => del(`/associations/${id}/follow`),
+  unfollowAssociation: id => del(`/associations/${id}/follow`),
   // 分页查询本人是会长的校友会列表（超级管理员可查看所有）
-  getMyPresidentAssociations: (params) => post('/AlumniAssociation/my-president/page', params),
+  getMyPresidentAssociations: params => post('/AlumniAssociation/my-president/page', params),
   // 申请加入校友会（普通用户）
-  applyToJoinAssociation: (data) => post('/AlumniAssociationJoinApplication/apply', data),
+  applyToJoinAssociation: data => post('/AlumniAssociationJoinApplication/apply', data),
   // 申请创建校友会
-  applyCreateAssociation: (data) => post('/AlumniAssociationApplication/apply', data),
+  applyCreateAssociation: data => post('/AlumniAssociationApplication/apply', data),
   // 查看用户自己的校友会申请详情
-  getApplicationDetail: (alumniAssociationId) => get(`/AlumniAssociationApplication/detail/${alumniAssociationId}`),
+  getApplicationDetail: alumniAssociationId =>
+    get(`/AlumniAssociationApplication/detail/${alumniAssociationId}`),
   // 撤销校友会申请
-  cancelApplication: (applicationId) => put(`/AlumniAssociationApplication/cancel/${applicationId}`),
+  cancelApplication: applicationId => put(`/AlumniAssociationApplication/cancel/${applicationId}`),
   // 编辑并重新提交待审核的校友会申请（普通用户）
-  updateApplication: (data) => put('/AlumniAssociationApplication/update', data),
+  updateApplication: data => put('/AlumniAssociationApplication/update', data),
   // 退出校友会
-  quitAssociation: (data) => post('/AlumniAssociationJoinApplication/quit', data),
+  quitAssociation: data => post('/AlumniAssociationJoinApplication/quit', data),
   // 获取组织结构列表
-  getOrganizationRoles: (params) => post('/alumniAssociationManagement/role/list', params),
+  getOrganizationRoles: params => post('/alumniAssociationManagement/role/list', params),
+  // 申请加入校促会
+  applyJoinPlatform: data => post('/AlumniAssociation/applyJoinPlatform', data),
+  // 查询加入申请列表
+  queryJoinApplyPage: params => post('/AlumniAssociation/queryJoinApplyPage', params),
+  // 审核加入校促会申请
+  reviewJoinPlatform: data => post('/AlumniAssociation/reviewJoinPlatform', data),
+  // 系统管理员分页查询所有校友会创建申请列表
+  querySystemAdminApplicationPage: params =>
+    post('/AlumniAssociationApplication/querySystemAdminApplicationPage', params),
+  // 系统管理员审核校友会创建申请
+  reviewApplication: data => post('/AlumniAssociationApplication/reviewApplication', data),
+  // 获取组织架构模板列表
+  getOrganizeTemplateList: params => get('/organizeArchiTemplate/list', params),
+  // 生成小程序码
+  generateMiniProgramQrcode: data => post('/AlumniAssociation/qrcode/generate', data),
 }
 
 // ==================== 校友总会相关接口 ====================
 const unionApi = {
   // 根据 id 查询校友总会详情
-  getUnionDetail: (id) => get(`/AlumniHeadquarters/${id}`),
+  getUnionDetail: id => get(`/AlumniHeadquarters/${id}`),
+  // 分页查询校友总会列表
+  getUnionPage: params => post('/AlumniHeadquarters/page', params),
+  // 申请激活校友总会
+  applyActivate: data => post('/AlumniHeadquarters/applyActivate', data),
+  // 获取未激活的校友总会列表
+  getInactiveUnionPage: params => post('/AlumniHeadquarters/inactive/page', params),
+  // 获取待审核的校友总会列表
+  getPendingUnionPage: params => post('/AlumniHeadquarters/pending/page', params),
+  // 审核校友总会
+  auditUnion: data => post('/AlumniHeadquarters/audit', data),
+  // 验证创建码/邀请码
+  verifyCreateCode: data =>
+    request({ url: '/AlumniHeadquarters/verifyCode', method: 'POST', data: data, silent: true }),
+  // 查看校友总会申请详情
+  getApplyDetail: headquartersId =>
+    get(`/AlumniHeadquarters/admin/applyDetail`, { headquartersId }),
 }
 
 // ==================== 校促会相关接口 ====================
 const localPlatformApi = {
   // 分页查询校促会列表（使用 POST 请求，参数在 body 中）
-  getLocalPlatformPage: (params) => post('/localPlatform/page', params),
+  getLocalPlatformPage: params => post('/localPlatform/page', params),
   // 根据id查询校促会详情
-  getLocalPlatformDetail: (id) => get(`/localPlatform/${id}`),
+  getLocalPlatformDetail: id => get(`/localPlatform/${id}`),
+  // 获取校促会管理端详情
+  getLocalPlatformManagementDetail: platformId =>
+    get(`/localPlatformManagement/detail/${platformId}`),
   // 分页查询校促会审核列表
-  queryAssociationApplicationPage: (params) => post('/localPlatformManagement/queryAssociationApplicationPage', params),
+  queryAssociationApplicationPage: params =>
+    post('/localPlatformManagement/queryAssociationApplicationPage', params),
   // 获取校促会审核详情
-  getAssociationApplicationDetail: (id) => get(`/localPlatformManagement/getAssociationApplication/${id}`),
+  getAssociationApplicationDetail: id =>
+    get(`/localPlatformManagement/getAssociationApplication/${id}`),
   // 批准校促会审核
-  approveAssociationApplication: (id) => post(`/localPlatformManagement/approveAssociationApplication/${id}`),
+  approveAssociationApplication: id =>
+    post(`/localPlatformManagement/approveAssociationApplication/${id}`),
   // 拒绝校促会审核
-  rejectAssociationApplication: (id) => post(`/localPlatformManagement/rejectAssociationApplication/${id}`),
+  rejectAssociationApplication: id =>
+    post(`/localPlatformManagement/rejectAssociationApplication/${id}`),
   // 审核校促会申请（新接口）
-  reviewAssociationApplication: (data) => post('/localPlatformManagement/reviewAssociationApplication', data),
+  reviewAssociationApplication: data =>
+    post('/localPlatformManagement/reviewAssociationApplication', data),
   // 获取校促会下的校友会列表
-  getPlatformAssociations: (params) => post('/localPlatform/alumniAssociations/page', params),
+  getPlatformAssociations: params => post('/localPlatform/alumniAssociations/page', params),
   // 更新校促会成员角色
-  updateMemberRole: (data) => put('/localPlatformManagement/updateMemberRole/v2', data),
+  updateMemberRole: data => put('/localPlatformManagement/updateMemberRole/v2', data),
+  // 更新校促会信息
+  updateLocalPlatform: data => put('/localPlatformManagement/update', data),
+  // 获取校促会隐私设置
+  getLocalPlatformPrivacySetting: platformId =>
+    get(`/localPlatformManagement/privacy/${platformId}`),
+  // 修改校促会隐私设置
+  updateLocalPlatformPrivacySetting: data => post('/localPlatformManagement/privacy/update', data),
 }
-
-
 
 // ==================== 校友相关接口 ====================
 const alumniApi = {
   // 查询校友列表（新接口）
-  queryAlumniList: (params) => post('/users/query/alumni', params),
+  queryAlumniList: params => post('/users/query/alumni', params),
   // 获取校友信息（根据隐私设置）
-  getAlumniInfo: (id) => get(`/users/getAlumniInfo/${id}`),
+  getAlumniInfo: id => get(`/users/getAlumniInfo/${id}`),
   // 关注校友
-  followAlumni: (id) => post(`/alumni/${id}/follow`),
+  followAlumni: id => post(`/alumni/${id}/follow`),
   // 取消关注校友
-  unfollowAlumni: (id) => del(`/alumni/${id}/follow`),
+  unfollowAlumni: id => del(`/alumni/${id}/follow`),
   // 获取推荐校友
-  getRecommendAlumni: (params) => get('/alumni/recommend', params),
+  getRecommendAlumni: params => get('/alumni/recommend', params),
 }
-
-
 
 // ==================== 优惠券相关接口 ====================
 const couponApi = {
   // 获取优惠券列表
-  getCouponList: (params) => get('/coupons', params),
+  getCouponList: params => get('/coupons', params),
   // 获取优惠券详情
-  getCouponDetail: (id) => get(`/coupons/${id}`),
+  getCouponDetail: id => get(`/coupons/${id}`),
   // 领取优惠券
-  receiveCoupon: (id) => post(`/coupons/${id}/receive`),
+  receiveCoupon: id => post(`/coupons/${id}/receive`),
   // 抢购优惠券
-  rushCoupon: (id) => post(`/coupons/${id}/rush`),
+  rushCoupon: id => post(`/coupons/${id}/rush`),
   // 获取我的优惠券
-  getMyCoupons: (params) => get('/coupon/my-coupons', params),
+  getMyCoupons: params => get('/coupon/my-coupons', params),
   // 获取抢购列表
-  getRushList: (params) => get('/coupons/rush-list', params),
+  getRushList: params => get('/coupons/rush-list', params),
   // 新的领取优惠券接口
-  claimCoupon: (data) => post('/coupon/claim', data),
+  claimCoupon: data => post('/coupon/claim', data),
   // 根据优惠券码查询优惠券信息（用于核销）
-  getCouponByCode: (code) => get(`/coupon/verify/${code}`),
+  getCouponByCode: code => get(`/coupon/verify/${code}`),
   // 核销优惠券
-  verifyCoupon: (data) => post('/coupon/verify', data),
+  verifyCoupon: data => post('/coupon/verify', data),
   // 获取用户券详情（含核销码生成）
-  getUserCouponDetail: (userCouponId) => get(`/coupon/user-coupon/${userCouponId}`),
+  getUserCouponDetail: userCouponId => get(`/coupon/user-coupon/${userCouponId}`),
   // 刷新优惠券核销码
-  refreshCouponCode: (userCouponId) => post(`/coupon/user-coupon/refresh-code/${userCouponId}`),
+  refreshCouponCode: userCouponId => post(`/coupon/user-coupon/refresh-code/${userCouponId}`),
 }
-
-
 
 // ==================== 圈子相关接口 ====================
 const circleApi = {
   // 获取圈子列表
-  getCircleList: (params) => get('/circles', params),
+  getCircleList: params => get('/circles', params),
   // 获取圈子详情
-  getCircleDetail: (id) => get(`/circles/${id}`),
+  getCircleDetail: id => get(`/circles/${id}`),
   // 加入圈子
-  joinCircle: (id) => post(`/circles/${id}/join`),
+  joinCircle: id => post(`/circles/${id}/join`),
   // 退出圈子
-  leaveCircle: (id) => post(`/circles/${id}/leave`),
+  leaveCircle: id => post(`/circles/${id}/leave`),
   // 获取圈子动态
   getCirclePosts: (id, params) => get(`/circles/${id}/posts`, params),
   // 发布动态
-  publishPost: (data) => post('/circles/posts', data),
+  publishPost: data => post('/circles/posts', data),
 }
-
-
 
 // ==================== 商家相关接口 ====================
 const merchantApi = {
   // 分页查询商铺列表（使用 POST 请求，参数在 body 中）
-  getMerchantPage: (params) => post('/merchant/page', params),
+  getMerchantPage: params => post('/merchant/page', params),
   // 获取商家列表
-  getMerchantList: (params) => get('/merchants', params),
+  getMerchantList: params => get('/merchants', params),
   // 获取商家详情
-  getMerchantDetail: (id) => get(`/merchants/${id}`),
+  getMerchantDetail: id => get(`/merchants/${id}`),
   // 新商家详情接口
-  getMerchantInfo: (id) => get(`/merchant/${id}`),
+  getMerchantInfo: id => get(`/merchant/${id}`),
   // 获取待审核商家详情
-  getPendingMerchantDetail: (merchantId) => get(`/merchant/pending/${merchantId}`),
+  getPendingMerchantDetail: merchantId => get(`/merchant/pending/${merchantId}`),
   // 关注商家
-  followMerchant: (id) => post(`/merchants/${id}/follow`),
+  followMerchant: id => post(`/merchants/${id}/follow`),
   // 取消关注商家
-  unfollowMerchant: (id) => del(`/merchants/${id}/follow`),
+  unfollowMerchant: id => del(`/merchants/${id}/follow`),
   // 获取店铺详情
-  getShopDetail: (shopId) => get(`/merchant/shop/${shopId}`),
+  getShopDetail: shopId => get(`/merchant/shop/${shopId}`),
   // 获取我的商户列表
-  getMyMerchants: (params) => get('/merchant-management/my-merchants', params),
+  getMyMerchants: params => get('/merchant-management/my-merchants', params),
 }
-
-
 
 // ==================== 商铺相关接口 ====================
 const shopApi = {
   // 关注商铺
-  followShop: (id) => post(`/shops/${id}/follow`),
+  followShop: id => post(`/shops/${id}/follow`),
   // 取消关注商铺
-  unfollowShop: (id) => del(`/shops/${id}/follow`),
+  unfollowShop: id => del(`/shops/${id}/follow`),
   // 获取本人可用的门店列表
   getAvailableShops: () => get('/shop/my/available'),
 }
@@ -191,57 +224,60 @@ const shopApi = {
 const nearbyApi = {
   // 统一附近查询（附近优惠，附近场所，附近校友）
   // queryType: 1-商铺, 2-企业/场所, 3-校友
-  getNearby: (data) => post('/NearbyBenefits/nearby', data),
+  getNearby: data => post('/NearbyBenefits/nearby', data),
   // 获取商铺详情（POST请求，使用request body）
-  getShopDetail: (data) => post('/NearbyBenefits/shops/detail', data),
+  getShopDetail: data => post('/NearbyBenefits/shops/detail', data),
 }
-
-
 
 // ==================== 活动相关接口 ====================
 const activityApi = {
   // 获取活动列表
-  getActivityList: (params) => get('/activities', params),
+  getActivityList: params => get('/activities', params),
+  // 查询所有公开活动列表（分页）
+  getPublicActivityList: params => post('/activity/public/list', params),
+  // 查询首页展示的活动列表
+  getHomepageActivityList: params => post('/activity/homepage/list', params),
   // 获取活动详情
-  getActivityDetail: (id) => get(`/activity/${id}`),
+  getActivityDetail: id => get(`/activity/${id}`),
   // 报名活动
   joinActivity: (id, data) => post(`/activities/${id}/join`, data),
   // 取消报名
-  cancelActivity: (id) => post(`/activities/${id}/cancel`),
+  cancelActivity: id => post(`/activities/${id}/cancel`),
 }
-
-
 
 // ==================== 用户相关接口 ====================
 const userApi = {
   // 获取用户信息
   getUserInfo: () => get('/users/getInfo'),
   // 更新用户信息
-  updateUserInfo: (data) => put('/users/update', data),
+  updateUserInfo: data => put('/users/update', data),
   // 获取我的关注
-  getMyFollows: (params) => get('/user/follows', params),
+  getMyFollows: params => get('/user/follows', params),
   // 获取我的粉丝
-  getMyFans: (params) => get('/user/fans', params),
+  getMyFans: params => get('/user/fans', params),
   // 获取个人隐私设置
   getPrivacy: () => get('/users/getPrivacy'),
   // 更新个人隐私设置
-  updatePrivacy: (data) => put('/users/update/privacy', data),
+  updatePrivacy: data => put('/users/update/privacy', data),
+  // 获取微信手机号（通过 button 组件回调中的 code）
+  getPhoneNumber: data => post('/auth/getPhoneNumber', data),
+  // 获取用户管理的组织列表
+  // type: 0-校友会 1-校促会 2-商户 3-校友总会
+  getManagedOrganizations: params => get('/users/managed-organizations', params),
 }
-
-
 
 // ==================== 搜索相关接口 ====================
 const searchApi = {
   // 统一搜索接口
-  unifiedSearch: (params) => post('/search/unified', params),
+  unifiedSearch: params => post('/search/unified', params),
   // 综合搜索
-  search: (params) => get('/search', params),
+  search: params => get('/search', params),
   // 搜索母校
-  searchSchools: (params) => get('/search/schools', params),
+  searchSchools: params => get('/search/schools', params),
   // 搜索校友会
-  searchAssociations: (params) => get('/search/associations', params),
+  searchAssociations: params => get('/search/associations', params),
   // 搜索校友
-  searchAlumni: (params) => get('/search/alumni', params),
+  searchAlumni: params => get('/search/alumni', params),
   // 获取热门搜索
   getHotSearch: () => get('/search/hot'),
   // 获取搜索历史
@@ -250,8 +286,6 @@ const searchApi = {
   clearSearchHistory: () => del('/search/history'),
 }
 
-
-
 // ==================== 文件上传相关接口 ====================
 // 使用独立的文件上传工具
 const fileUploadUtil = require('../utils/fileUpload.js')
@@ -259,13 +293,14 @@ const fileUploadUtil = require('../utils/fileUpload.js')
 // 文件上传/下载接口路径配置
 const FILE_API_PATHS = {
   // 上传接口
-  UPLOAD_IMAGE: '/file/upload/images',      // 上传图片
-  UPLOAD_AUDIO: '/file/upload/audio',      // 上传音频
-  UPLOAD_VIDEO: '/file/upload/video',      // 上传视频（待后端提供接口）
-  UPLOAD_OTHER: '/file/upload/other',      // 上传其他格式文件（待后端提供接口）
+  UPLOAD_IMAGE: '/file/upload/images', // 上传图片
+  UPLOAD_AUDIO: '/file/upload/audio', // 上传音频
+  UPLOAD_VIDEO: '/file/upload/video', // 上传视频（待后端提供接口）
+  UPLOAD_OTHER: '/file/upload/other', // 上传其他格式文件（待后端提供接口）
+  UPLOAD_DOCUMENT: '/file/upload/document', // 上传文档（pdf, doc, docx, xls, xlsx, ppt, pptx, txt, md, csv, rtf, odt, ods, odp）
 
   // 下载接口
-  DOWNLOAD_FILE: '/file/download/{fileId}' // 下载文件（{fileId} 会被替换为实际文件ID）
+  DOWNLOAD_FILE: '/file/download/{fileId}', // 下载文件（{fileId} 会被替换为实际文件ID）
 }
 
 const fileApi = {
@@ -289,36 +324,39 @@ const fileApi = {
     return fileUploadUtil.uploadOtherFile(filePath, FILE_API_PATHS.UPLOAD_OTHER, originalName)
   },
 
+  // 上传文档文件（支持 pdf, doc, docx, xls, xlsx, ppt, pptx, txt, md, csv, rtf, odt, ods, odp）
+  // 文件大小限制：5MB
+  uploadDocument: (filePath, originalName) => {
+    return fileUploadUtil.uploadDocument(filePath, FILE_API_PATHS.UPLOAD_DOCUMENT, originalName)
+  },
+
   // 下载文件
   downloadFile: (fileId, savePath) => {
     return fileUploadUtil.downloadFile(fileId, FILE_API_PATHS.DOWNLOAD_FILE, savePath)
   },
 
   // 保存文件到本地
-  saveFileToLocal: (tempFilePath) => {
+  saveFileToLocal: tempFilePath => {
     return fileUploadUtil.saveFileToLocal(tempFilePath)
-  }
+  },
 }
-
-
-
 
 // ==================== 关注相关接口 ====================
 const followApi = {
   // 添加关注
   // targetType: 1-用户, 2-校友会, 3-母校, 4-商户
   // followStatus: 1-正常关注, 2-特别关注, 3-免打扰, 4-已取消
-  addFollow: (params) => post('/follow/add', params),
+  addFollow: params => post('/follow/add', params),
   // 取消关注
-  removeFollow: (params) => del('/follow/remove', params),
+  removeFollow: params => del('/follow/remove', params),
   // 更新关注状态
-  updateFollowStatus: (params) => put('/follow/updateStatus', params),
+  updateFollowStatus: params => put('/follow/updateStatus', params),
   // 分页查询我关注的列表
-  getMyFollowingList: (params) => post('/follow/following/page', params),
+  getMyFollowingList: params => post('/follow/following/page', params),
   // 分页查询我的粉丝列表
-  getMyFollowerList: (params) => post('/follow/follower/page', params),
+  getMyFollowerList: params => post('/follow/follower/page', params),
   // 分页查询好友列表（互相关注）
-  getMyFriendList: (params) => post('/follow/friend/page', params),
+  getMyFriendList: params => post('/follow/friend/page', params),
   // 获取关注和粉丝统计（旧接口，保留兼容）
   getFollowStats: () => get('/follow/stats'),
   // 获取当前用户的关注统计
@@ -329,8 +367,11 @@ const followApi = {
 const authApi = {
   // 认证登录（静默登录）
   // 用 wx.login 的 code 换取 token 和用户信息
+  auth: data => post('/auth/login', data),
 
-  auth: (data) => post('/auth/login', data),
+  // 用户注册（更新用户信息并添加教育经历）
+  // data: { name, schoolId, gender, phone }
+  register: data => post('/auth/register', data),
   // auth: (data) => {
   //   // 将参数拼接到 URL 上（查询参数）
   //   let url = '/auth/login'
@@ -366,29 +407,28 @@ const authApi = {
 // ==================== 聊天相关接口 ====================
 const chatApi = {
   // 获取会话列表
-  getConversations: (params) => get('/chat/conversations', params),
+  getConversations: params => get('/chat/conversations', params),
 
   // 获取聊天历史记录
-  getChatHistory: (params) => post('/chat/history', params),
+  getChatHistory: params => post('/chat/history', params),
 
   // 发送消息
-  sendMessage: (data) => post('/chat/send', data),
+  sendMessage: data => post('/chat/send', data),
 
   // 获取与某人的聊天记录
   getChatMessages: (userId, params) => get(`/chat/messages/${userId}`, params),
 
-
   // 标记会话已读（传对方的 wxId/userId）
-  markConversationRead: (otherWxId) => put(`/chat/read/${otherWxId}`),
+  markConversationRead: otherWxId => put(`/chat/read/${otherWxId}`),
 
   // 删除会话（传会话ID）
-  deleteConversation: (conversationId) => del(`/chat/conversation/${conversationId}`),
+  deleteConversation: conversationId => del(`/chat/conversation/${conversationId}`),
 
   // 删除聊天记录（旧接口，保留兼容）
-  deleteChat: (userId) => del(`/chat/${userId}`),
+  deleteChat: userId => del(`/chat/${userId}`),
 
   // 清空聊天记录
-  clearChatHistory: (userId) => post(`/chat/${userId}/clear`),
+  clearChatHistory: userId => post(`/chat/${userId}/clear`),
 
   // 获取未读消息数量
   getUnreadCount: () => get('/chat/unread/count'),
@@ -397,22 +437,27 @@ const chatApi = {
   getUnreadTotal: () => get('/chat/unread/total'),
 
   // 获取在线用户列表
-  getOnlineUsers: (params) => get('/chat/online/users', params),
+  getOnlineUsers: params => get('/chat/online/users', params),
 
   // 检查用户是否在线
-  checkUserOnline: (userId) => get(`/chat/user/${userId}/online`),
+  checkUserOnline: userId => get(`/chat/user/${userId}/online`),
 
   // 保存草稿
-  saveDraft: (conversationId, draftContent) => put(`/chat/conversation/${conversationId}/draft?draftContent=${encodeURIComponent(draftContent)}`, { conversationId }),
+  saveDraft: (conversationId, draftContent) =>
+    put(
+      `/chat/conversation/${conversationId}/draft?draftContent=${encodeURIComponent(draftContent)}`,
+      { conversationId }
+    ),
 
   // 撤回消息
-  recallMessage: (messageId) => del(`/chat/recall/${messageId}`),
+  recallMessage: messageId => del(`/chat/recall/${messageId}`),
 
   // 置顶/取消置顶会话（conversationId 作为路径参数，isPinned 作为查询参数）
-  pinConversation: (conversationId, isPinned) => put(`/chat/conversation/${conversationId}/pin?isPinned=${isPinned}`, {}),
+  pinConversation: (conversationId, isPinned) =>
+    put(`/chat/conversation/${conversationId}/pin?isPinned=${isPinned}`, {}),
 
   // 上传聊天图片
-  uploadChatImage: (filePath) => {
+  uploadChatImage: filePath => {
     return new Promise((resolve, reject) => {
       const token = wx.getStorageSync('token')
       const app = getApp()
@@ -423,9 +468,9 @@ const chatApi = {
         filePath: filePath,
         name: 'file',
         header: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        success: (res) => {
+        success: res => {
           try {
             const data = JSON.parse(res.data)
             resolve({ data })
@@ -433,13 +478,13 @@ const chatApi = {
             reject(error)
           }
         },
-        fail: reject
+        fail: reject,
       })
     })
   },
 
   // 上传聊天语音
-  uploadChatVoice: (filePath) => {
+  uploadChatVoice: filePath => {
     return new Promise((resolve, reject) => {
       const token = wx.getStorageSync('token')
       const app = getApp()
@@ -450,9 +495,9 @@ const chatApi = {
         filePath: filePath,
         name: 'file',
         header: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        success: (res) => {
+        success: res => {
           try {
             const data = JSON.parse(res.data)
             resolve({ data })
@@ -460,52 +505,56 @@ const chatApi = {
             reject(error)
           }
         },
-        fail: reject
+        fail: reject,
       })
     })
   },
 
   // 获取用户通知列表
-  getNotificationList: (params) => post('/chat/notifications', params),
+  getNotificationList: params => post('/chat/notifications', params),
 
   // 标记通知为已读（单条或全部）
   // notificationId 为空时标记全部已读，有值时标记单条已读
-  markNotificationRead: (notificationId) => {
+  markNotificationRead: notificationId => {
     const url = notificationId
       ? `/chat/notifications/read?notificationId=${notificationId}`
       : '/chat/notifications/read'
     return put(url)
-  }
+  },
+
+  // 处理邀请（同意/拒绝）
+  // data: { invitationId, notificationId, agree }
+  handleInvitation: data => post('/chat/invitation/handle', data),
 }
 
 // ==================== 首页文章相关接口 ====================
 const homeArticleApi = {
   // 分页查询首页文章列表
-  getPage: (params) => post('/home/articles', params),
+  getPage: params => post('/home/articles', params),
   // 分页查询本人创建的文章列表
-  getMyArticlePage: (params) => post('/home-page-article/my-page', params),
+  getMyArticlePage: params => post('/home-page-article/my-page', params),
   // 新增首页文章
-  createArticle: (data) => post('/home-page-article/create', data),
+  createArticle: data => post('/home-page-article/create', data),
   // 根据ID查询文章详情
-  getHomeArticleDetail: (id) => get(`/home-page-article/${id}`),
+  getHomeArticleDetail: id => get(`/home-page-article/${id}`),
   // 更新首页文章
-  updateArticle: (data) => put('/home-page-article/update', data),
+  updateArticle: data => put('/home-page-article/update', data),
   // 删除文章
-  deleteArticle: (id) => del(`/home-page-article/${id}`),
+  deleteArticle: id => del(`/home-page-article/${id}`),
   // 获取管理的组织列表
-  getManagedOrganizations: (params) => post('/home-page-article/managed-organizations', params),
+  getManagedOrganizations: params => post('/home-page-article/managed-organizations', params),
 }
 
 // ==================== 文章审核相关接口 ====================
 const articleApplyApi = {
   // 获取待审核记录列表（分页）
-  getPendingList: (params) => post('/home-page-article-apply/pending/page', params),
+  getPendingList: params => post('/home-page-article-apply/pending/page', params),
   // 获取已审核记录列表（分页）
-  getApprovedList: (params) => post('/home-page-article-apply/approved/page', params),
+  getApprovedList: params => post('/home-page-article-apply/approved/page', params),
   // 审核文章
-  approveArticle: (data) => post('/home-page-article-apply/approve', data),
+  approveArticle: data => post('/home-page-article-apply/approve', data),
   // 获取审核记录列表（分页）
-  getApplyPage: (params) => post('/home-page-article-apply/page', params),
+  getApplyPage: params => post('/home-page-article-apply/page', params),
 }
 
 // ==================== 轮播图相关接口 ====================
@@ -513,13 +562,13 @@ const bannerApi = {
   // 获取首页轮播图列表
   getBannerList: () => get('/home/banners'),
   // 分页查询轮播图列表
-  getBannerPage: (params) => post('/banner-management/page', params),
+  getBannerPage: params => post('/banner-management/page', params),
   // 新增轮播图
-  createBanner: (data) => post('/banner-management/create', data),
+  createBanner: data => post('/banner-management/create', data),
   // 更新轮播图
-  updateBanner: (data) => put('/banner-management/update', data),
+  updateBanner: data => put('/banner-management/update', data),
   // 删除轮播图
-  deleteBanner: (id) => del(`/banner-management/${id}`),
+  deleteBanner: id => del(`/banner-management/${id}`),
 }
 
 // ==================== 企业/场所相关接口 ====================
@@ -527,75 +576,202 @@ const placeApi = {
   // 获取我的企业/场所列表
   getMyPlaces: () => get('/alumni-place/my-list'),
   // 获取企业/场所详情
-  getPlaceDetail: (id) => get(`/alumni-place/${id}`),
+  getPlaceDetail: id => get(`/alumni-place/${id}`),
   // 申请企业/场所
-  applyForPlace: (params) => post('/alumni-place/apply', params),
+  applyForPlace: params => post('/alumni-place/apply', params),
   // 更新企业/场所信息
-  updatePlace: (params) => post('/alumni-place/management/update', params),
+  updatePlace: params => post('/alumni-place/management/update', params),
   // 获取企业详情（管理端）
-  getPlaceManagementDetail: (id) => get(`/alumni-place/management/${id}`),
+  getPlaceManagementDetail: id => get(`/alumni-place/management/${id}`),
   // 获取企业申请列表
-  getPlaceApplicationPage: (params) => post('/alumni-place/management/application/page', params),
+  getPlaceApplicationPage: params => post('/alumni-place/management/application/page', params),
   // 审核企业申请
-  approvePlaceApplication: (data) => post('/alumni-place/management/application/approve', data),
+  approvePlaceApplication: data => post('/alumni-place/management/application/approve', data),
 }
 
 // ==================== 校促会管理相关接口 ====================
 const localPlatformManagementApi = {
   // 获取校促会成员列表
-  getMemberPage: (localPlatformId) => post('/localPlatform/members/page', { localPlatformId }),
+  getMemberPage: localPlatformId => post('/localPlatform/members/page', { localPlatformId }),
   // 获取校促会角色列表
-  getRoleList: (organizeId, organizeType = 1) => post('/localPlatformManagement/role/list', { organizeId, organizeType }),
+  getRoleList: (organizeId, organizeType = 1) =>
+    post('/localPlatformManagement/role/list', { organizeId, organizeType }),
   // 新增校促会角色
-  addRole: (data) => post('/localPlatformManagement/role/add', data),
+  addRole: data => post('/localPlatformManagement/role/add', data),
   // 更新校促会角色
-  updateRole: (data) => put('/localPlatformManagement/role/update', data),
+  updateRole: data => put('/localPlatformManagement/role/update', data),
   // 删除校促会角色
-  deleteRole: (roleOrId, organizeId) => del('/localPlatformManagement/role/delete', { roleOrId, organizeId }),
+  deleteRole: (roleOrId, organizeId) =>
+    del('/localPlatformManagement/role/delete', { roleOrId, organizeId }),
   // 邀请校促会成员
-  inviteMember: (localPlatformId, wxId, roleOrId) => post('/localPlatformManagement/inviteMember', { localPlatformId, wxId, roleOrId }),
+  inviteMember: (
+    localPlatformId,
+    wxId,
+    roleOrId,
+    username,
+    roleName,
+    contactInformation,
+    socialDuties,
+    isShow,
+    sort
+  ) =>
+    post('/localPlatformManagement/inviteMember', {
+      localPlatformId,
+      wxId,
+      roleOrId,
+      username,
+      roleName,
+      contactInformation,
+      socialDuties,
+      isShow,
+      sort,
+    }),
   // 删除校促会成员
-  deleteMember: (localPlatformId, wxId) => del('/localPlatformManagement/deleteMember', { localPlatformId, wxId }),
+  deleteMember: (localPlatformId, wxId) =>
+    del('/localPlatformManagement/deleteMember', { localPlatformId, wxId }),
   // 更新校促会成员角色
-  updateMemberRole: (localPlatformId, wxId, roleOrId) => put('/localPlatformManagement/updateMemberRole', { localPlatformId, wxId, roleOrId }),
+  updateMemberRole: (
+    localPlatformId,
+    wxId,
+    roleOrId,
+    username,
+    roleName,
+    contactInformation,
+    socialDuties,
+    isShow,
+    sort
+  ) =>
+    put('/localPlatformManagement/updateMemberRole', {
+      localPlatformId,
+      wxId,
+      roleOrId,
+      username,
+      roleName,
+      contactInformation,
+      socialDuties,
+      isShow,
+      sort,
+    }),
+  // 添加预设成员
+  addPresetMember: (
+    localPlatformId,
+    username,
+    roleName,
+    roleOrId,
+    contactInformation,
+    socialDuties,
+    isShow,
+    sort
+  ) =>
+    post('/localPlatformManagement/addPresetMember', {
+      localPlatformId,
+      username,
+      roleName,
+      roleOrId,
+      contactInformation,
+      socialDuties,
+      isShow,
+      sort,
+    }),
+  // 更新预设成员信息
+  updatePresetMemberInfo: (
+    memberId,
+    username,
+    roleName,
+    contactInformation,
+    socialDuties,
+    isShow,
+    sort
+  ) =>
+    put('/localPlatformManagement/updatePresetMemberInfo', {
+      memberId,
+      username,
+      roleName,
+      contactInformation,
+      socialDuties,
+      isShow,
+      sort,
+    }),
+  // 删除预设成员
+  deletePresetMember: memberId => del('/localPlatformManagement/deletePresetMember', { memberId }),
+  // 更新预设成员（关联注册用户）
+  updatePresetMember: (memberId, wxId) =>
+    put('/localPlatformManagement/updatePresetMember', { memberId, wxId }),
+  // 为校促会架构添加成员
+  addMemberToStructure: data => post('/localPlatformManagement/member/addToStructure', data),
+  // 从校促会架构移除成员
+  removeMemberFromStructure: data =>
+    del('/localPlatformManagement/member/removeFromStructure', data),
+  // 获取校促会成员列表（用于添加到架构）
+  getMemberList: localPlatformId => get(`/localPlatformManagement/member/list/${localPlatformId}`),
 }
 
 // ==================== 校友会管理相关接口 ====================
 const alumniAssociationManagementApi = {
-  // 获取校友会成员列表
-  getMemberList: (alumniAssociationId) => post('/alumniAssociationManagement/queryMemberList', { alumniAssociationId }),
+  // 获取校友会成员列表（支持 keyword 搜索）
+  getMemberList: (alumniAssociationId, keyword) =>
+    post('/alumniAssociationManagement/queryMemberList', { alumniAssociationId, keyword }),
   // 获取校友会角色列表
-  getRoleList: (organizeId) => post('/alumniAssociationManagement/role/list', { organizeId }),
+  getRoleList: organizeId => post('/alumniAssociationManagement/role/list', { organizeId }),
   // 新增校友会角色
-  addRole: (data) => post('/alumniAssociationManagement/role/add', data),
+  addRole: data => post('/alumniAssociationManagement/role/add', data),
   // 更新校友会角色
-  updateRole: (data) => put('/alumniAssociationManagement/role/update', data),
+  updateRole: data => put('/alumniAssociationManagement/role/update', data),
   // 删除校友会角色
-  deleteRole: (roleOrId, organizeId) => del('/alumniAssociationManagement/role/delete', { roleOrId, organizeId }),
-  // 邀请校友会成员
-  inviteMember: (alumniAssociationId, wxId, roleOrId) => post('/alumniAssociationManagement/inviteMember', { alumniAssociationId, wxId, roleOrId }),
+  deleteRole: (roleOrId, organizeId) =>
+    del('/alumniAssociationManagement/role/delete', { roleOrId, organizeId }),
+  // 邀请校友会成员（roleOrId 可选）
+  inviteMember: (alumniAssociationId, wxId, roleOrId) => {
+    const data = { alumniAssociationId, wxId }
+    if (roleOrId) {
+      data.roleOrId = roleOrId
+    }
+    return post('/alumniAssociationManagement/inviteMember', data)
+  },
   // 删除校友会成员
-  deleteMember: (alumniAssociationId, wxId) => del('/alumniAssociationManagement/deleteMember', { alumniAssociationId, wxId }),
+  deleteMember: (alumniAssociationId, id, wxId) =>
+    del('/alumniAssociationManagement/deleteMember', { alumniAssociationId, id, wxId }),
   // 更新校友会成员角色
-  updateMemberRole: (alumniAssociationId, wxId, roleOrId) => put('/alumniAssociationManagement/updateMemberRole', { alumniAssociationId, wxId, roleOrId }),
+  updateMemberRole: (alumniAssociationId, wxId, roleOrId) =>
+    put('/alumniAssociationManagement/updateMemberRole', { alumniAssociationId, wxId, roleOrId }),
+  // 添加成员到分支（组织架构角色）
+  addMemberToBranch: (alumniAssociationId, wxId, roleOrId) =>
+    post('/alumniAssociationManagement/addMemberToBranch', { alumniAssociationId, wxId, roleOrId }),
+  // 从分支移除成员
+  removeMemberFromBranch: (alumniAssociationId, wxId) =>
+    del('/alumniAssociationManagement/removeMemberFromBranch', { alumniAssociationId, wxId }),
+  // 更新校友会成员信息（所有字段除id外都是可选的）
+  // data: { id, username?, roleName?, userPhone?, userAffiliation?, isShowOnHome? }
+  updateMemberInfo: data => put('/alumniAssociationManagement/updateMemberInfo', data),
+  // 添加未注册成员到校友会
+  // data: { alumniAssociationId, username, roleName, userPhone, userAffiliation }
+  addUnregisteredMember: data => post('/alumniAssociationManagement/addUnregisteredMember', data),
   // 发布活动
-  publishActivity: (data) => post('/alumniAssociationManagement/activity/publish', data),
+  publishActivity: data => post('/alumniAssociationManagement/activity/publish', data),
   // 获取活动详情
-  getActivityDetail: (activityId) => get(`/alumniAssociationManagement/activity/detail/${activityId}`),
+  getActivityDetail: activityId =>
+    get(`/alumniAssociationManagement/activity/detail/${activityId}`),
   // 更新活动
-  updateActivity: (data) => put('/alumniAssociationManagement/activity/update', data),
+  updateActivity: data => put('/alumniAssociationManagement/activity/update', data),
   // 删除活动
-  deleteActivity: (activityId) => del(`/alumniAssociationManagement/activity/delete/${activityId}`),
+  deleteActivity: activityId => del(`/alumniAssociationManagement/activity/delete/${activityId}`),
   // 获取校友会活动列表
-  getActivities: (alumniAssociationId) => get(`/alumniAssociationManagement/activities/${alumniAssociationId}`),
+  getActivities: alumniAssociationId =>
+    get(`/alumniAssociationManagement/activities/${alumniAssociationId}`),
 }
 
 // ==================== 校友会加入申请相关接口 ====================
 const joinApplicationApi = {
   // 获取加入申请列表
-  getApplicationPage: (params) => post('/AlumniAssociationJoinApplication/page', params),
+  getApplicationPage: params => post('/AlumniAssociationJoinApplication/page', params),
   // 审核加入申请
-  reviewApplication: (params) => post('/AlumniAssociationJoinApplication/review', params),
+  reviewApplication: params => post('/AlumniAssociationJoinApplication/review', params),
+}
+
+// ==================== 用户反馈相关接口 ====================
+const feedbackApi = {
+  // 提交用户反馈
+  submit: data => post('/feedback/submit', data),
 }
 
 module.exports = {
@@ -623,4 +799,5 @@ module.exports = {
   articleApplyApi,
   bannerApi,
   placeApi,
+  feedbackApi,
 }

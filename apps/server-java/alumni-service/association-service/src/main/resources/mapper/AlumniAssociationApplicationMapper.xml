@@ -8,6 +8,7 @@
         <id property="applicationId" column="application_id" jdbcType="BIGINT"/>
         <result property="associationName" column="association_name" jdbcType="VARCHAR"/>
         <result property="schoolId" column="school_id" jdbcType="BIGINT"/>
+        <result property="formerSchoolName" column="former_school_name" jdbcType="VARCHAR"/>
         <result property="platformId" column="platform_id" jdbcType="BIGINT"/>
         <result property="chargeWxId" column="charge_wx_id" jdbcType="BIGINT"/>
         <result property="chargeName" column="charge_name" jdbcType="VARCHAR"/>
@@ -30,7 +31,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        application_id, association_name, school_id, platform_id, charge_wx_id, charge_name, charge_role_id,
+        application_id, association_name, school_id, former_school_name, platform_id, charge_wx_id, charge_name, charge_role_id,
         contact_info, location, logo, application_reason, initial_members, application_status,
         reviewer_id, review_time, review_comment, apply_time, attachment_ids, created_association_id,
         create_time, update_time, is_delete

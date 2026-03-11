@@ -40,6 +40,12 @@ public class AlumniAssociation implements Serializable {
     private Long platformId;
 
     /**
+     * 认证标识（0-未认证，1-校友总会，2-校促会，3-校友总会）
+     */
+    @TableField(value = "certification_flag")
+    private Integer certificationFlag;
+
+    /**
      * 联系信息
      */
     @TableField(value = "contact_info")
@@ -68,6 +74,66 @@ public class AlumniAssociation implements Serializable {
      */
     @TableField(value = "logo")
     private String logo;
+
+    /**
+     * 校友会简介
+     */
+    @TableField(value = "association_profile")
+    private String associationProfile;
+
+    /**
+     * 主要负责人微信用户ID
+     */
+    @TableField(value = "charge_wx_id", updateStrategy = FieldStrategy.ALWAYS)
+    private Long chargeWxId;
+
+    /**
+     * 主要负责人姓名
+     */
+    @TableField(value = "charge_name")
+    private String chargeName;
+
+    /**
+     * 主要负责人架构角色
+     */
+    @TableField(value = "charge_role")
+    private String chargeRole;
+
+    /**
+     * 主要负责人社会职务
+     */
+    @TableField(value = "charge_social_affiliation")
+    private String chargeSocialAffiliation;
+
+    /**
+     * 驻会代表微信用户ID
+     */
+    @TableField(value = "zh_wx_id", updateStrategy = FieldStrategy.ALWAYS)
+    private Long zhWxId;
+
+    /**
+     * 驻会代表姓名
+     */
+    @TableField(value = "zh_name")
+    private String zhName;
+
+    /**
+     * 驻会代表联系电话
+     */
+    @TableField(value = "zh_phone")
+    private String zhPhone;
+
+    /**
+     * 驻会代表架构角色
+     */
+    @TableField(value = "zh_role")
+    private String zhRole;
+
+    /**
+     * 驻会代表社会职务
+     */
+    @TableField(value = "zh_social_affiliation")
+    private String zhSocialAffiliation;
 
     /**
      * 背景图（json 数组）

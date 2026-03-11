@@ -32,6 +32,14 @@
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
 }
 
+.form-section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1890ff;
+  padding: 30rpx 0 20rpx 0;
+  margin-top: 10rpx;
+}
+
 .form-label {
   font-size: 28rpx;
   color: #666;
@@ -63,6 +71,17 @@
   resize: none;
   background-color: #f9f9f9;
   line-height: 1.6;
+}
+
+.form-textarea-large {
+  min-height: 360rpx;
+}
+
+.textarea-count {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 12rpx;
 }
 
 .status-selector {
@@ -227,4 +246,249 @@ button::after {
   font-size: 24rpx;
   color: #999;
   display: block;
+}
+
+/* 禁用输入框样式 */
+.form-input.disabled {
+  background-color: #f0f0f0;
+  color: #999;
+}
+
+/* 绑定用户行 */
+.bind-user-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.bind-user-status {
+  font-size: 26rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+}
+
+.bind-user-status.registered {
+  color: #52c41a;
+  background-color: #f6ffed;
+  border: 1rpx solid #b7eb8f;
+}
+
+.bind-user-status.unregistered {
+  color: #ff4d4f;
+  background-color: #fff1f0;
+  border: 1rpx solid #ffccc7;
+}
+
+.bind-user-btn {
+  font-size: 26rpx;
+  color: #1890ff;
+  background-color: #e6f7ff;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #91d5ff;
+}
+
+.replace-user-btn {
+  font-size: 26rpx;
+  color: #fa8c16;
+  background-color: #fff7e6;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #ffd591;
+}
+
+.bind-user-info {
+  flex: 1;
+}
+
+.bind-user-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 绑定用户弹窗 */
+.bind-user-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.bind-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.bind-modal-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.bind-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.bind-modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.bind-modal-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+}
+
+.bind-modal-body {
+  flex: 1;
+  padding: 20rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.bind-search-box {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+  flex-shrink: 0;
+}
+
+.bind-search-input {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  background-color: #fafafa;
+}
+
+.bind-search-btn {
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 30rpx;
+  background-color: #1890ff;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.bind-search-results {
+  flex: 1;
+  min-height: 300rpx;
+  max-height: 500rpx;
+}
+
+.bind-search-tip,
+.bind-search-loading,
+.bind-search-empty {
+  padding: 60rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.bind-user-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.bind-user-item.selected {
+  background-color: #f6ffed;
+}
+
+.bind-user-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  flex-shrink: 0;
+}
+
+.bind-user-item-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bind-user-item-name {
+  font-size: 28rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bind-user-item-phone {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+
+.bind-select-icon {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #d9d9d9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #fff;
+}
+
+.bind-select-icon.checked {
+  background-color: #52c41a;
+  border-color: #52c41a;
+}
+
+.bind-modal-footer {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.bind-btn-cancel,
+.bind-btn-confirm {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx;
+  font-size: 32rpx;
+}
+
+.bind-btn-cancel {
+  color: #666;
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.bind-btn-confirm {
+  color: #1890ff;
+  font-weight: 600;
 }

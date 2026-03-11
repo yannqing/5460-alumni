@@ -1,0 +1,2 @@
+/* 复用 org-structure 的树节点样式 */
+@import "../org-structure/org-structure.wxss";

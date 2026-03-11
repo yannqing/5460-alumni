@@ -37,6 +37,10 @@
             <groupId>com.cmswe</groupId>
             <artifactId>system-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.cmswe</groupId>
+            <artifactId>system-service</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

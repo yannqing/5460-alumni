@@ -5,26 +5,27 @@
 
   <view class="edit-container">
     <scroll-view scroll-y class="form-scroll">
-      <view class="avatar-card card">
-        <view class="avatar-wrap" bindtap="chooseAvatar">
-          <image class="avatar" src="{{form.avatarUrl || defaultAvatar}}" mode="aspectFill" />
-          <view class="avatar-mask">
-            <text>更换头像</text>
-          </view>
-        </view>
-        <view class="avatar-tip">建议使用清晰的本人照片，大小不超过10MB</view>
-      </view>
-
-      <view class="background-card card">
-        <view class="section-title">个人背景</view>
-        <view class="background-wrap" bindtap="chooseBackground">
-          <image wx:if="{{form.bgImg}}" class="background-img" src="{{form.bgImg}}" mode="aspectFill" />
+      <!-- 背景和头像区域（参考校友详情页样式） -->
+      <view class="profile-header">
+        <view class="background-area" bindtap="chooseBackground">
+          <image wx:if="{{form.bgImg}}" class="background-image" src="{{form.bgImg}}" mode="aspectFill"></image>
           <view wx:else class="default-bg-gradient"></view>
-          <view class="background-mask">
-            <text>{{form.bgImg ? '更换背景图' : '设置背景图'}}</text>
+          <view class="header-overlay"></view>
+          <view class="background-edit-hint">
+            <text class="edit-icon">📷</text>
+            <text class="edit-text">{{form.bgImg ? '更换背景' : '设置背景'}}</text>
           </view>
         </view>
-        <view class="avatar-tip">将展示在您的名片详情页顶部</view>
+
+        <view class="profile-avatar-section">
+          <view class="avatar-wrap" bindtap="chooseAvatar">
+            <image class="avatar-circle" src="{{form.avatarUrl || defaultAvatar}}" mode="aspectFill"></image>
+            <view class="avatar-edit-mask">
+              <text class="avatar-edit-icon">📷</text>
+            </view>
+          </view>
+          <view class="avatar-tip">点击更换头像</view>
+        </view>
       </view>
 
       <view class="section-card card">
@@ -62,10 +63,7 @@
         <view class="form-item">
           <view class="label label-required">手机号</view>
           <view class="input-wrapper">
-            <input class="input" type="number" maxlength="11" placeholder="手机号码" value="{{form.phone}}" data-field="phone" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'phone'}}" data-field="phone" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
+            <input class="input input-disabled" type="number" maxlength="11" placeholder="手机号码" value="{{form.phone}}" disabled="{{true}}" />
           </view>
         </view>
         <view class="form-item">
@@ -88,15 +86,6 @@
           <view class="input-wrapper">
             <input class="input" placeholder="请输入微信号" value="{{form.wxNum}}" data-field="wxNum" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
             <view class="save-btn" wx:if="{{editingField === 'wxNum'}}" data-field="wxNum" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
-          </view>
-        </view>
-        <view class="form-item">
-          <view class="label">QQ号</view>
-          <view class="input-wrapper">
-            <input class="input" type="number" placeholder="请输入QQ号" value="{{form.qqNum}}" data-field="qqNum" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'qqNum'}}" data-field="qqNum" catchtap="handleSaveField">
               <text class="save-icon">✓</text>
             </view>
           </view>
@@ -125,24 +114,23 @@
             </view>
           </view>
         </view>
-      </view>
-
-      <view class="section-card card">
-        <view class="section-title">位置信息</view>
         <view class="form-item">
-          <view class="label">当前所在省市</view>
-          <view class="input-wrapper">
-            <input class="input" placeholder="请输入所在省市" value="{{form.curProvince}}" data-field="curProvince" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'curProvince'}}" data-field="curProvince" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
-          </view>
+          <view class="label">籍贯所在地</view>
+          <picker mode="region" value="{{hometownRegion}}" bindchange="handleHometownChange" custom-item="暂不选择">
+            <view class="picker-value">{{hometownDisplayText || '请选择籍贯所在地'}}</view>
+          </picker>
         </view>
         <view class="form-item">
-          <view class="label">当前所在市区</view>
+          <view class="label">证件类型</view>
+          <picker mode="selector" range="{{identifyTypeOptions}}" value="{{form.identifyTypeIndex}}" bindchange="handleIdentifyTypeChange">
+            <view class="picker-value">{{identifyTypeOptions[form.identifyTypeIndex] || '请选择'}}</view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <view class="label">证件号</view>
           <view class="input-wrapper">
-            <input class="input" placeholder="请输入所在市区" value="{{form.curCity}}" data-field="curCity" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'curCity'}}" data-field="curCity" catchtap="handleSaveField">
+            <input class="input" placeholder="请输入证件号" value="{{form.identifyCode}}" data-field="identifyCode" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
+            <view class="save-btn" wx:if="{{editingField === 'identifyCode'}}" data-field="identifyCode" catchtap="handleSaveField">
               <text class="save-icon">✓</text>
             </view>
           </view>
@@ -287,6 +275,13 @@
             </view>
 
             <view class="form-item">
+              <view class="label">工作地点</view>
+              <picker mode="region" value="{{form.workExperienceList[workIndex].workAddressRegion || []}}" bindchange="handleWorkAddressChange" data-index="{{workIndex}}" custom-item="暂不选择">
+                <view class="picker-value">{{form.workExperienceList[workIndex].workAddress || '请选择工作地点'}}</view>
+              </picker>
+            </view>
+
+            <view class="form-item">
               <view class="label">入职日期</view>
               <picker mode="date" value="{{form.workExperienceList[workIndex].startDate}}" bindchange="handleWorkDateChange" data-index="{{workIndex}}" data-field="startDate">
                 <view class="picker-value">{{form.workExperienceList[workIndex].startDate || '请选择入职日期'}}</view>
@@ -307,11 +302,6 @@
               </picker>
             </view>
 
-            <view class="form-item">
-              <view class="label">工作内容/项目成就</view>
-              <textarea class="textarea" placeholder="请输入工作内容或项目成就" value="{{form.workExperienceList[workIndex].workDescription || ''}}" data-index="{{workIndex}}" data-field="workDescription" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" style="height: 100px;" />
-            </view>
-
           </view>
 
           <!-- 展开/折叠按钮（只有多个工作经历时才显示） -->
@@ -321,25 +311,6 @@
 
           <view class="add-work-btn" bindtap="addWorkExperience">
             <text>+ 添加工作经历</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="section-card card">
-        <view class="section-title">证件信息</view>
-        <view class="form-item">
-          <view class="label">证件类型</view>
-          <picker mode="selector" range="{{identifyTypeOptions}}" value="{{form.identifyTypeIndex}}" bindchange="handleIdentifyTypeChange">
-            <view class="picker-value">{{identifyTypeOptions[form.identifyTypeIndex] || '请选择'}}</view>
-          </picker>
-        </view>
-        <view class="form-item">
-          <view class="label">证件号</view>
-          <view class="input-wrapper">
-            <input class="input" placeholder="请输入证件号" value="{{form.identifyCode}}" data-field="identifyCode" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
-            <view class="save-btn" wx:if="{{editingField === 'identifyCode'}}" data-field="identifyCode" catchtap="handleSaveField">
-              <text class="save-icon">✓</text>
-            </view>
           </view>
         </view>
       </view>
@@ -367,6 +338,12 @@
         </view>
       </view>
     </scroll-view>
+
+    <!-- 反馈入口 -->
+    <view class="feedback-hint-section">
+      <text class="feedback-hint-text">遇到问题或信息有误？</text>
+      <text class="feedback-hint-link" bindtap="goToFeedback">点击反馈</text>
+    </view>
 
     <view class="bottom-action">
       <button class="btn btn-primary" loading="{{saving}}" bindtap="saveProfile">保存资料</button>

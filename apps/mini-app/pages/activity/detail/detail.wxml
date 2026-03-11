@@ -1,13 +1,12 @@
 <!--pages/activity/detail/detail.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="活动详情" showBack="{{true}}"></custom-nav-bar>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="活动详情">
+  <view class="container activity-detail-page">
+    <view wx:if="{{loading}}" class="loading-wrap">
+      <view class="loading">加载中...</view>
+    </view>
 
-<view class="container activity-detail-page">
-  <view wx:if="{{loading}}" class="loading-wrap">
-    <view class="loading">加载中...</view>
-  </view>
-
-  <view wx:elif="{{activityInfo}}">
+    <view wx:elif="{{activityInfo}}">
     <!-- 活动封面图 -->
     <image class="cover-image" src="{{activityInfo.coverImage}}" mode="aspectFill"></image>
 
@@ -138,8 +137,9 @@
     </view>
   </view>
 
-  <view wx:else class="empty-state">
-    <text class="empty-text">活动信息加载失败或不存在</text>
-    <button class="retry-btn" bindtap="onLoad">重新加载</button>
+    <view wx:else class="empty-state">
+      <text class="empty-text">活动信息加载失败或不存在</text>
+      <button class="retry-btn" bindtap="onLoad">重新加载</button>
+    </view>
   </view>
-</view>
+</custom-nav-bar>

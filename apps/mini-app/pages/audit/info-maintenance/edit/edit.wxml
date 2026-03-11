@@ -1,0 +1,321 @@
+<!--pages/audit/info-maintenance/edit/edit.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑校促会信息">
+<view class="page">
+  <view class="edit-form" wx:if="{{platformDetail}}">
+    <!-- 基本资料 -->
+    <view class="form-section">
+      <view class="section-title">基本资料</view>
+      
+      <view class="form-item">
+        <text class="form-label">校促会名称</text>
+        <input 
+          class="form-input" 
+          value="{{formData.platformName}}" 
+          placeholder="请输入校促会名称" 
+          bindinput="handleInput" 
+          data-field="platformName"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">会员总数</text>
+        <input 
+          class="form-input" 
+          type="number" 
+          value="{{formData.memberCount}}" 
+          placeholder="请输入会员数量" 
+          bindinput="handleInput" 
+          data-field="memberCount"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">所在城市</text>
+        <input 
+          class="form-input" 
+          value="{{formData.city}}" 
+          placeholder="请输入所在城市" 
+          bindinput="handleInput" 
+          data-field="city"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">管辖范围</text>
+        <input 
+          class="form-input" 
+          value="{{formData.scope}}" 
+          placeholder="请输入管辖范围" 
+          bindinput="handleInput" 
+          data-field="scope"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">联系信息</text>
+        <input 
+          class="form-input" 
+          value="{{formData.contactInfo}}" 
+          placeholder="请输入联系信息" 
+          bindinput="handleInput" 
+          data-field="contactInfo"
+        />
+      </view>
+      
+
+      
+      <view class="form-item">
+        <text class="form-label">状态</text>
+        <view class="status-selector">
+          <view 
+            class="status-option {{formData.status === 1 ? 'active' : ''}}" 
+            bindtap="setStatus" 
+            data-status="1"
+          >
+            启用
+          </view>
+          <view 
+            class="status-option {{formData.status === 0 ? 'active' : ''}}" 
+            bindtap="setStatus" 
+            data-status="0"
+          >
+            禁用
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 联系人信息 -->
+    <view class="form-section">
+      <view class="section-title">联系人信息</view>
+      
+      <view class="form-item">
+        <text class="form-label">联系人是否入住平台</text>
+        <view class="status-selector">
+          <view 
+            class="status-option {{contactOnPlatform ? 'active' : ''}}" 
+            bindtap="setContactOnPlatform" 
+            data-on-platform="true"
+          >
+            是
+          </view>
+          <view 
+            class="status-option {{!contactOnPlatform ? 'active' : ''}}" 
+            bindtap="setContactOnPlatform" 
+            data-on-platform="false"
+          >
+            否
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">联系人姓名</text>
+        <block wx:if="{{!contactOnPlatform}}">
+          <input 
+            class="form-input" 
+            value="{{formData.contactName}}" 
+            placeholder="请输入联系人姓名" 
+            bindinput="handleInput" 
+            data-field="contactName"
+          />
+        </block>
+        <block wx:else>
+          <view class="contact-select-box" bindtap="openContactMemberPicker">
+            <text class="contact-select-text {{formData.contactName ? '' : 'placeholder'}}">{{formData.contactName || '点击搜索选择联系人'}}</text>
+            <text class="contact-select-arrow">▼</text>
+          </view>
+          <view class="contact-clear-btn" wx:if="{{formData.contactName}}" catchtap="clearContactMember">清空</view>
+        </block>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">联系人职务</text>
+        <input 
+          class="form-input" 
+          value="{{formData.contactPosition}}" 
+          placeholder="请输入联系人职务" 
+          bindinput="handleInput" 
+          data-field="contactPosition"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">联系人电话</text>
+        <input 
+          class="form-input" 
+          value="{{formData.contactPhone}}" 
+          placeholder="请输入联系人电话" 
+          bindinput="handleInput" 
+          data-field="contactPhone"
+        />
+      </view>
+    </view>
+    
+    <!-- 业务简介 -->
+    <view class="form-section">
+      <view class="section-title">业务简介</view>
+      
+      <view class="form-item">
+        <textarea 
+          class="form-textarea" 
+          value="{{formData.description}}" 
+          placeholder="请输入业务简介" 
+          bindinput="handleInput" 
+          data-field="description"
+          auto-height
+        />
+      </view>
+    </view>
+
+    <!-- 重大事记 -->
+    <view class="form-section">
+      <view class="section-title flex-between">
+        <text>重大事记</text>
+        <view class="add-btn" bindtap="addYear">+ 添加年份</view>
+      </view>
+      
+      <view class="event-year-item" wx:for="{{formData.importantEvents}}" wx:key="index" wx:for-index="yearIndex">
+        <view class="year-header">
+          <input 
+            class="year-input" 
+            value="{{item.year}}" 
+            placeholder="年份 (如: 2023)" 
+            bindinput="handleYearChange" 
+            data-index="{{yearIndex}}"
+          />
+          <view class="delete-icon" bindtap="deleteYear" data-index="{{yearIndex}}">删除</view>
+        </view>
+        
+        <view class="event-detail-list">
+          <view class="event-detail-item" wx:for="{{item.events}}" wx:key="eventIndex" wx:for-item="event" wx:for-index="eventIndex">
+            <textarea 
+              class="event-textarea" 
+              value="{{event}}" 
+              placeholder="请输入事件详情" 
+              bindinput="handleEventChange" 
+              data-year-index="{{yearIndex}}" 
+              data-event-index="{{eventIndex}}"
+              auto-height
+            />
+            <view class="delete-event" bindtap="deleteEvent" data-year-index="{{yearIndex}}" data-event-index="{{eventIndex}}">×</view>
+          </view>
+          <view class="add-event-btn" bindtap="addEvent" data-year-index="{{yearIndex}}">+ 添加事件</view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 图片上传 -->
+    <view class="form-section">
+      <view class="section-title">图片设置</view>
+      
+      <view class="form-item">
+        <text class="form-label">校促会头像</text>
+        <view class="uploader">
+          <view class="uploader-item" wx:if="{{formData.avatar}}">
+            <image src="{{formData.avatar}}" class="uploader-image" />
+            <view class="uploader-delete" bindtap="deleteImage" data-field="avatar">×</view>
+          </view>
+          <view class="uploader-add" bindtap="uploadImage" data-field="avatar" wx:if="{{!formData.avatar}}">
+            <text wx:if="{{!uploadingAvatar}}">+</text>
+            <text wx:else>上传中...</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">背景图片</text>
+        <view class="uploader">
+          <view class="uploader-item" wx:if="{{formData.bgImg}}">
+            <image src="{{formData.bgImg}}" class="uploader-image" />
+            <view class="uploader-delete" bindtap="deleteImage" data-field="bgImg">×</view>
+          </view>
+          <view class="uploader-add" bindtap="uploadImage" data-field="bgImg" wx:if="{{!formData.bgImg}}">
+            <text wx:if="{{!uploadingBgImage}}">+</text>
+            <text wx:else>上传中...</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button 
+        class="submit-button" 
+        bindtap="submitForm" 
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        保存修改
+      </button>
+    </view>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:else class="loading">
+    <view class="loading-spinner"></view>
+    <text>正在加载数据...</text>
+  </view>
+  
+  <!-- 选择联系人（入住平台成员）弹窗 -->
+  <view class="contact-member-picker" wx:if="{{showContactMemberPicker}}">
+    <view class="contact-member-overlay" bindtap="closeContactMemberPicker"></view>
+    <view class="contact-member-content">
+      <view class="contact-member-header">
+        <text class="contact-member-title">选择联系人</text>
+        <text class="contact-member-close" bindtap="closeContactMemberPicker">×</text>
+      </view>
+      <view class="contact-member-search">
+        <input
+          class="contact-member-search-input"
+          placeholder="输入姓名搜索"
+          value="{{memberSearchKeyword}}"
+          bindinput="onContactSearchInput"
+          confirm-type="search"
+          bindconfirm="searchContactMembers"
+        />
+        <view class="contact-member-search-btn" bindtap="searchContactMembers">搜索</view>
+      </view>
+      <scroll-view class="contact-member-list" scroll-y show-scrollbar="{{false}}">
+        <view wx:if="{{memberSearchLoading}}" class="contact-member-loading">
+          <text>加载中...</text>
+        </view>
+        <block wx:elif="{{memberSearchKeyword && memberSearchResults.length > 0}}">
+          <view
+            class="contact-member-item"
+            wx:for="{{memberSearchResults}}"
+            wx:key="wxId"
+            bindtap="selectContactMember"
+            data-member="{{item}}"
+          >
+            <image class="contact-member-avatar" src="{{item.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+            <view class="contact-member-info">
+              <text class="contact-member-name">{{item.username || item.nickname || '未命名'}}</text>
+              <text class="contact-member-role" wx:if="{{item.roleName}}">{{item.roleName}}</text>
+            </view>
+          </view>
+        </block>
+        <block wx:elif="{{!memberSearchKeyword && memberList.length > 0}}">
+          <view
+            class="contact-member-item"
+            wx:for="{{memberList}}"
+            wx:key="wxId"
+            bindtap="selectContactMember"
+            data-member="{{item}}"
+          >
+            <image class="contact-member-avatar" src="{{item.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+            <view class="contact-member-info">
+              <text class="contact-member-name">{{item.username || item.nickname || '未命名'}}</text>
+              <text class="contact-member-role" wx:if="{{item.roleName}}">{{item.roleName}}</text>
+            </view>
+          </view>
+        </block>
+        <view wx:else class="contact-member-empty">
+          <text wx:if="{{memberSearchKeyword}}">未找到匹配的成员</text>
+          <text wx:else>请输入关键词搜索，或等待加载成员列表</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>
+</custom-nav-bar>

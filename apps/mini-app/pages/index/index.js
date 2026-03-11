@@ -1,6 +1,7 @@
 // pages/index/index.js
-const { homeArticleApi, associationApi, bannerApi } = require('../../api/api');
+const { homeArticleApi, associationApi, bannerApi, activityApi } = require('../../api/api');
 const config = require('../../utils/config.js');
+const auth = require('../../utils/auth.js');
 const app = getApp();
 
 Page({
@@ -25,6 +26,23 @@ Page({
     hasMore: true,
     refreshing: false,
 
+    // 热门活动相关
+    activityList: [],
+    activityLoading: false,
+    activityThemes: {
+      0: { name: '草稿', theme: 'draft' },
+      1: { name: '报名中', theme: 'signup' },
+      2: { name: '报名结束', theme: 'signup-end' },
+      3: { name: '进行中', theme: 'ing' },
+      4: { name: '已结束', theme: 'end' },
+      5: { name: '已取消', theme: 'cancelled' },
+      'default': { name: '未知', theme: '' }
+    },
+
+    // 热门商铺相关
+    shopList: [],
+    shopLoading: false,
+
     // 预留字段，防止报错
     recommendedPeople: [],
 
@@ -37,131 +55,197 @@ Page({
     },
     // 轮播图列表
     bannerList: [],
-    currentBannerIndex: 0,
-    // 轮播图 translateY 值
+    // 轮播图 translateY 值 (已由 sticky 替代)
     bannerTranslateY: 0,
-    // 文章列表 scroll-view 高度
-    articleScrollHeight: 0,
     // 导航菜单是否固定
     navFixed: false,
-    // 当前页面滚动位置
-    _scrollTop: 0,
-    // 触摸事件相关
-    _touchStartY: 0,
-    _touchCurrentY: 0,
     // 状态栏高度
-    statusBarHeight: 20
+    statusBarHeight: 20,
+    // 下拉刷新是否启用
+    refresherEnabled: false,
+    // 手动刷新高度
+    refresherHeight: 0,
+    // 当前滚动位置
+    scrollTop: 0
   },
+
+
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
     const systemInfo = wx.getSystemInfoSync();
-    this.setData({
-      statusBarHeight: systemInfo.statusBarHeight || 20
-    });
-    this.getBannerList();
-    this.getArticleList(true);
-    // 添加滚动事件监听
-    wx.pageScrollTo({ scrollTop: 0, duration: 0 });
-    // 计算 scroll-view 高度
-    this.calculateScrollViewHeight();
-  },
+    const rpxRatio = systemInfo.windowWidth / 750;
 
-  /**
-   * 计算 scroll-view 高度
-   */
-  calculateScrollViewHeight: function () {
-    try {
-      const systemInfo = wx.getSystemInfoSync();
-      const screenHeight = systemInfo.windowHeight;
-      // 计算其他元素的高度（轮播图 + 导航菜单）
-      // 轮播图高度：450rpx 转换为 px
-      const bannerHeight = 450 / 2;
-      // 导航菜单高度：进一步压缩预留空间
-      const navHeight = 80;
-      // 计算 scroll-view 可用高度
-      const scrollViewHeight = screenHeight - (bannerHeight + navHeight);
-      this.setData({
-        articleScrollHeight: Math.max(scrollViewHeight, 300) // 确保最小高度为 300px
-      });
-    } catch (error) {
-      console.error('计算 scroll-view 高度失败:', error);
-      this.setData({
-        articleScrollHeight: 500 // 默认高度
-      });
-    }
+    // 获取胶囊按钮位置，用于精准对齐
+    const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+    const navBarHeight = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height;
+
+    const statusBarHeight = systemInfo.statusBarHeight || 20;
+    const navStickyTop = statusBarHeight + (navBarHeight || 44);
+
+    // 关键计算：
+    // 轮播图高度 450rpx，导航栏向上偏移 120rpx
+    // 导航栏在 Header 组合内的相对起始位置 = 450rpx - 120rpx = 330rpx
+    const bannerHeightPx = 450 * rpxRatio;
+    const navOverlapPx = 120 * rpxRatio;
+    const navTopInGroupPx = bannerHeightPx - navOverlapPx;
+
+    // 当导航栏到达 navStickyTop 时，Header 组合的 top 值应该是：
+    // stickyGroupTop = navStickyTop - navTopInGroupPx
+    const stickyGroupTop = navStickyTop - navTopInGroupPx;
+
+    this.setData({
+      statusBarHeight: statusBarHeight,
+      navBarHeight: navBarHeight || 44,
+      navStickyTop: navStickyTop,
+      stickyGroupTop: stickyGroupTop,
+      // 触发状态切换的滚动距离：就是 Header 组合从初始位置（0）滚动到 stickyGroupTop 位置的距离
+      // 初始时 HeaderTop=0，我们要让它停在 stickyGroupTop。
+      // 因为 sticky 是相对于视口的，当容器 top < stickyGroupTop 时，它会停在 stickyGroupTop。
+      // 所以滚动距离阈值 = -stickyGroupTop
+      scrollThreshold: -stickyGroupTop,
+      rpxRatio: rpxRatio
+    });
+
+    this.getBannerList();
+    this.getActivityList();
+    this.getShopList();
+    this.getArticleList(true);
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
+    if (this._observer) {
+      this._observer.disconnect();
+    }
   },
 
   /**
-   * 页面滚动事件处理函数
+   * 滚动事件处理函数 (由 scroll-view 触发)
    */
-  onPageScroll: function (e) {
-    const scrollTop = e.scrollTop;
-    // 保存当前滚动位置
-    this.setData({
-      _scrollTop: scrollTop
-    });
+  onScroll: function (e) {
+    const scrollTop = e.detail.scrollTop;
+    this.setData({ scrollTop: scrollTop }); // 关键：更新当前滚动高度
+    const threshold = this.data.scrollThreshold || 77;
 
-    // 实现导航菜单的固定效果
-    const navFixed = scrollTop > 150;
-
-    // 计算轮播图的 translateY 值
-    // 核心思路：轮播图和导航菜单应该保持相对静止
-    // 当导航菜单固定时，轮播图的位置需要相应调整
-
-    // 导航菜单原始 margin-top 是 -120rpx（约 -60px）
-    const navMarginTop = -60; // 导航菜单原始 margin-top（-120rpx 转换为 px）
-
-    // 计算轮播图位置
-    // 无论导航菜单是否固定，轮播图都应该与导航菜单保持相对静止
-    // 轮播图的位置 = -scrollTop + (导航菜单固定时的位置补偿)
-    let bannerTranslateY;
-
-    if (navFixed) {
-      // 导航菜单固定时
-      // 导航菜单固定后，它的顶部位置变为 0
-      // 为了保持轮播图和导航菜单的相对位置不变
-      // 轮播图需要向上移动 navMarginTop 的距离
-      bannerTranslateY = Math.max(scrollTop * -1 + navMarginTop, -240); // 最大移动距离调整为 -240px
+    // 增加逻辑判断
+    if (this.data.navFixed) {
+      if (scrollTop < threshold) {
+        this.setData({
+          navFixed: false
+        });
+      }
     } else {
-      // 导航菜单未固定时
-      // 轮播图正常跟随页面滚动
-      bannerTranslateY = Math.max(scrollTop * -1, -180); // 最大移动距离保持 -180px
+      if (scrollTop >= threshold) {
+        this.setData({
+          navFixed: true
+        });
+      }
+    }
+  },
+
+  /**
+   * 触摸开始事件
+   */
+  onTouchStart: function (e) {
+    this.touchStartX = e.touches[0].clientX;
+    this.touchStartY = e.touches[0].clientY;
+    this.isPullDown = false;
+    this.canPullDown = false; // 重置标记
+
+    // 获取文章列表的起始位置，判断触摸起点是否在文章列表区域
+    const query = wx.createSelectorQuery();
+    query.select('#article-list-start').boundingClientRect((rect) => {
+      if (rect) {
+        // 只有触摸点在列表开始位置下方，且页面处于顶部（scrollTop很小）时，才允许下拉
+        // 这里用 10 作为容错
+        this.canPullDown = this.touchStartY > rect.top && this.data.scrollTop <= 10;
+        console.log('[Index] TouchStart rect.top:', rect.top, 'touchStartY:', this.touchStartY, 'scrollTop:', this.data.scrollTop, 'canPullDown:', this.canPullDown);
+      }
+    }).exec();
+  },
+
+  /**
+   * 触摸移动事件
+   */
+  onTouchMove: function (e) {
+    if (!this.canPullDown || this.data.refreshing) return;
+
+    const touchY = e.touches[0].clientY;
+    const moveY = touchY - this.touchStartY;
+
+    if (moveY > 0) {
+      // 下拉阻尼感
+      const height = Math.min(80, moveY * 0.4);
+      this.setData({
+        refresherHeight: height
+      });
+      this.isPullDown = true;
+    }
+  },
+
+  /**
+   * 触摸结束事件
+   */
+  onTouchEnd: function (e) {
+    if (!this.isPullDown) {
+      this.canPullDown = false;
+      return;
     }
 
-    // 更新轮播图位置
-    this.setData({
-      bannerTranslateY: bannerTranslateY
-    });
-
-    if (navFixed !== this.data.navFixed) {
+    if (this.data.refresherHeight >= 45) {
+      // 达到触发阈值，执行刷新
       this.setData({
-        navFixed: navFixed
+        refresherHeight: 50,
+        refreshing: true
+      });
+      this.onPullDownRefreshInternal();
+    } else {
+      // 未达到阈值，回弹
+      this.setData({
+        refresherHeight: 0
       });
     }
+    this.isPullDown = false;
+    this.canPullDown = false;
   },
 
   /**
-   * 页面下拉刷新事件处理函数
+   * 内部触发下拉刷新
    */
-  onPullDownRefresh: async function () {
-    console.log('[Index] 下拉刷新触发');
-    this.setData({ refreshing: true });
+  async onPullDownRefreshInternal() {
+    console.log('[Index] 手动下拉刷新开始');
     try {
-      await this.getArticleList(true);
+      await Promise.all([
+        this.getBannerList(),
+        this.getActivityList(),
+        this.getShopList(),
+        this.getArticleList(true)
+      ]);
+    } catch (err) {
+      console.error('[Index] 刷新异常:', err);
     } finally {
-      wx.stopPullDownRefresh();
-      this.setData({ refreshing: false });
+      // 延迟关闭，让动画显示完整
+      setTimeout(() => {
+        this.setData({
+          refreshing: false,
+          refresherHeight: 0
+        });
+      }, 500);
     }
   },
+
+  /**
+   * 页面下拉刷新重定向
+   */
+  onPullDownRefresh: function () {
+    this.onPullDownRefreshInternal();
+  },
+
 
   /**
    * 生命周期函数--监听页面显示
@@ -174,77 +258,6 @@ Page({
       // 更新未读消息数
       this.getTabBar().updateUnreadCount();
     }
-    // 重新计算 scroll-view 高度，确保在不同设备上都能正确显示
-    this.calculateScrollViewHeight();
-  },
-
-  /**
-   * 列表下拉刷新处理函数
-   */
-  onListRefresh: function () {
-    console.log('[Index] 列表下拉刷新触发')
-    this.setData({ refreshing: true });
-    this.getArticleList(true);
-  },
-
-  /**
-   * scroll-view 触摸开始事件处理函数
-   */
-  onScrollViewTouchStart: function (e) {
-    this.setData({
-      _touchStartY: e.touches[0].pageY
-    });
-  },
-
-  /**
-   * scroll-view 触摸移动事件处理函数
-   * 确保先实现校友功能卡片的滑动极限状态，再进行列表的局部滑动
-   */
-  onScrollViewTouchMove: function (e) {
-    const currentY = e.touches[0].pageY;
-    const deltaY = currentY - this.data._touchStartY;
-
-    // 无论什么位置滑动，都先检查校友功能卡片的状态
-    // 1. 向上滑动（手指向下移动，deltaY > 0）：
-    //    - 首先让校友功能卡片达到固定状态（极限状态）
-    //    - 只有当校友功能卡片完全固定后，才允许列表向上滚动
-    if (deltaY > 0) {
-      // 如果导航区域还没有固定，说明校友功能卡片还未达到极限状态
-      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的固定
-      if (!this.data.navFixed) {
-        return false;
-      }
-    }
-
-    // 2. 向下滑动（手指向上移动，deltaY < 0）：
-    //    - 首先让校友功能卡片回到初始状态（解除固定）
-    //    - 只有当校友功能卡片完全回到初始状态后，才允许列表向下滚动
-    if (deltaY < 0) {
-      // 如果导航区域已经固定，说明校友功能卡片还未回到初始状态
-      // 阻止 scroll-view 的滚动，让页面级滚动先处理校友功能卡片的解除固定
-      if (this.data.navFixed) {
-        return false;
-      }
-    }
-  },
-
-  /**
-   * 触摸开始事件处理函数
-   */
-  onTouchStart: function (e) {
-    this.setData({
-      _touchStartY: e.touches[0].pageY
-    });
-  },
-
-  /**
-   * 触摸结束事件处理函数
-   */
-  onTouchEnd: function () {
-    this.setData({
-      _touchStartY: 0,
-      _touchCurrentY: 0
-    });
   },
 
   /**
@@ -260,7 +273,7 @@ Page({
    * 获取首页文章列表
    */
   async getArticleList(reset = false) {
-    if (this.data.loading && !reset) {return;}
+    if (this.data.loading && !reset) { return; }
 
     this.setData({ loading: true });
 
@@ -299,8 +312,6 @@ Page({
           // 处理作者名：使用 publishUsername 字段
           const username = item.publishUsername || '官方发布';
 
-          // 处理头像：直接使用 publisherAvatar 字段
-          // 如果都没有且是校友会类型，使用 publishWxId 获取校友会头像
           let avatar = '';
           if (item.publisherAvatar) {
             // 直接使用 publisherAvatar 字段
@@ -314,8 +325,8 @@ Page({
               avatar = config.getImageUrl(avatar);
             }
           } else {
-            // 如果头像为空，且发布类型是校友会，且 publishWxId 存在，标记需要异步获取
-            avatar = null; // 保持为 null，后续异步获取
+            // 如果头像为空，使用默认头像（与校友会列表保持一致）
+            avatar = config.getImageUrl(config.defaultAvatar);
           }
 
           // 处理发布类型
@@ -412,10 +423,10 @@ Page({
             cover: cover,
             time: time,
             publishType: publishType, // 保存 publishType 字段
-            publishWxId: item.publishWxId || item.publish_wx_id || null, // 保存 publishWxId，用于获取校友会头像
+            publishWxId: item.publishWxId || item.publish_wx_id || null, // 优先使用后端返回的组织 ID
             articleType: item.articleType || item.article_type || 1, // 保存文章类型：1-公众号，2-内部路径，3-第三方链接
             articleLink: item.articleLink || item.article_link || '', // 保存文章链接
-            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 1) && (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
+            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 'ASSOCIATION' || publishType === 1) && (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
             hasChildren: hasChildren, // 是否有子文章
             children: children // 子文章列表
           };
@@ -428,10 +439,18 @@ Page({
         this.setData({
           articleList: reset ? newList : this.data.articleList.concat(newList),
           page: nextPage,
-          hasMore: currentTotal < total && newList.length > 0, // 如果返回的数据为空，说明没有更多了
+          hasMore: newList.length >= size, // 只要返回的数据达到一页数量，就认为可能有下一页
           loading: false,
           refreshing: false
         });
+
+        // 如果不是重置加载，且返回结果少于一页大小，说明已经到末尾了
+        if (!reset && newList.length < size) {
+          wx.showToast({
+            title: '没有数据啦～',
+            icon: 'none'
+          });
+        }
 
         // 异步获取缺失的头像（校友会类型）
         this.fetchMissingAvatars(newList);
@@ -465,6 +484,18 @@ Page({
       return;
     }
     const url = e.currentTarget.dataset.url;
+
+    // 如果目标是注册页，直接跳转不拦截
+    if (url && url.includes('/pages/register/register')) {
+      wx.navigateTo({ url: url });
+      return;
+    }
+
+    // 检查用户基本信息是否完善，未完善则跳转注册页
+    if (!auth.checkProfileAndRedirect(url)) {
+      return;
+    }
+
     if (url) {
       wx.navigateTo({
         url: url,
@@ -485,19 +516,52 @@ Page({
   },
 
   /**
+   * 点击发布者（校友会/校促会）跳转详情
+   */
+  onPublisherTap(e) {
+    const { index } = e.currentTarget.dataset;
+    const item = this.data.articleList[index];
+
+    if (!item || !item.publishWxId) {
+      console.warn('[Index] 发布者 ID 为空，无法跳转', { item });
+      return;
+    }
+
+    const { publishType, publishWxId } = item;
+    let url = '';
+
+    // publishType 处理逻辑（支持大写、小写及数字）
+    const typeStr = String(publishType || '').toUpperCase();
+
+    if (typeStr === 'ASSOCIATION' || publishType === 1) {
+      url = `/pages/alumni-association/detail/detail?id=${publishWxId}`;
+    } else if (typeStr === 'LOCAL_PLATFORM' || publishType === 2) {
+      url = `/pages/local-platform/detail/detail?id=${publishWxId}`;
+    } else if (typeStr === 'ALUMNI' || typeStr === 'USER') {
+      url = `/pages/alumni/detail/detail?id=${publishWxId}`;
+    }
+
+    if (url) {
+      wx.navigateTo({ url });
+    } else {
+      console.log('[Index] 未知的发布者类型或 ID 为空:', { publishType, publishWxId });
+    }
+  },
+
+  /**
    * 异步获取缺失的头像（校友会类型）
    */
   async fetchMissingAvatars(records) {
-    if (!records || records.length === 0) {return;}
+    if (!records || records.length === 0) { return; }
 
     // 找出需要获取头像的记录
     const needFetchList = records.filter(item =>
       item.needFetchAvatar &&
       item.publishWxId &&
-      (item.publishType === 'association' || item.publishType === 1)
+      (item.publishType === 'association' || item.publishType === 'ASSOCIATION' || item.publishType === 1)
     );
 
-    if (needFetchList.length === 0) {return;}
+    if (needFetchList.length === 0) { return; }
 
     // 批量获取校友会信息
     const fetchPromises = needFetchList.map(async (item) => {
@@ -778,7 +842,7 @@ Page({
               // 优先使用 fileUrl 作为图片路径直接访问
               if (item.bannerImage.fileUrl) {
                 imageUrl = config.getImageUrl(item.bannerImage.fileUrl);
-              } 
+              }
               // 如果 fileUrl 不存在，使用 baseUrl + filePath
               else if (item.bannerImage.filePath) {
                 imageUrl = config.getImageUrl(item.bannerImage.filePath);
@@ -832,6 +896,222 @@ Page({
   onBannerChange(e) {
     this.setData({
       currentBannerIndex: e.detail.current
+    });
+  },
+
+  /**
+   * 获取热门活动列表
+   */
+  async getActivityList() {
+    this.setData({ activityLoading: true });
+
+    try {
+      const res = await activityApi.getPublicActivityList({
+        current: 1,
+        pageSize: 2
+      });
+
+      const result = res.data || res;
+
+      if (result.code === 200) {
+        const records = result.data?.records || result.data?.list || [];
+
+        // 映射接口数据到组件使用的格式
+        const activityList = records.map(item => {
+          // 处理封面图
+          let posterUrl = '';
+          if (item.coverImage) {
+            if (typeof item.coverImage === 'object') {
+              posterUrl = item.coverImage.fileUrl || item.coverImage.filePath || '';
+            } else {
+              posterUrl = item.coverImage;
+            }
+            if (posterUrl) {
+              posterUrl = config.getImageUrl(posterUrl);
+            }
+          }
+
+          // 处理活动时间格式
+          let startTime = item.startTime || '';
+          if (startTime && startTime.includes('T')) {
+            startTime = startTime.replace('T', ' ').substring(0, 16);
+          }
+
+          // 处理主办方头像
+          let organizerAvatar = '';
+          if (item.organizerAvatar) {
+            if (typeof item.organizerAvatar === 'object') {
+              organizerAvatar = item.organizerAvatar.fileUrl || item.organizerAvatar.filePath || '';
+            } else {
+              organizerAvatar = item.organizerAvatar;
+            }
+            if (organizerAvatar) {
+              organizerAvatar = config.getImageUrl(organizerAvatar);
+            }
+          }
+
+          return {
+            activity_uuid: item.activityId || item.id || '',
+            activity_theme: item.activityTitle || item.title || '',
+            activity_poster: {
+              preview_url: posterUrl
+            },
+            activity_status: item.status || 1,
+            activity_starttime: startTime,
+            activity_address: item.address || item.activityAddress || '',
+            activity_fees: item.fees || item.activityFees || '0.00',
+            type: {
+              activity_type_name: item.activityCategory || item.categoryName || ''
+            },
+            // 主办方信息
+            organizerType: item.organizerType,
+            organizerId: item.organizerId || '',
+            organizerName: item.organizerName || '',
+            organizerAvatar: organizerAvatar,
+            // 新接口字段（兼容）
+            activityTitle: item.activityTitle || item.title || '',
+            startTime: startTime,
+            province: item.province || '',
+            city: item.city || '',
+            district: item.district || '',
+            address: item.address || ''
+          };
+        });
+
+        this.setData({
+          activityList: activityList,
+          activityLoading: false
+        });
+
+        console.log('[Index] 获取活动列表成功:', activityList.length);
+      } else {
+        console.warn('[Index] 获取活动列表非200:', result);
+        this.setData({
+          activityList: [],
+          activityLoading: false
+        });
+      }
+    } catch (err) {
+      console.error('[Index] 获取活动列表失败:', err);
+      this.setData({
+        activityList: [],
+        activityLoading: false
+      });
+    }
+  },
+
+  /**
+   * 跳转到活动列表页
+   */
+  gotoActivityList() {
+    wx.navigateTo({
+      url: '/pages/alumni-activity/list/list'
+    });
+  },
+
+  /**
+   * 跳转到活动详情页
+   */
+  gotoActivityDetail(e) {
+    const { item } = e.currentTarget.dataset;
+    if (!item || !item.activity_uuid) {
+      wx.showToast({
+        title: '活动信息错误',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.navigateTo({
+      url: `/pages/activity/detail/detail?id=${item.activity_uuid}`,
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  /**
+   * 获取热门商铺列表
+   * TODO: 接口暂时置空，后续接入真实接口
+   */
+  async getShopList() {
+    this.setData({ shopLoading: true });
+
+    try {
+      // TODO: 替换为真实接口
+      // const res = await shopApi.getHotList();
+      // if (res.data && res.data.code === 200) {
+      //   this.setData({
+      //     shopList: res.data.data || [],
+      //     shopLoading: false
+      //   });
+      // }
+
+      // 暂时模拟示例数据（清空显示空状态）
+      setTimeout(() => {
+        this.setData({
+          shopList: [],
+          shopLoading: false
+        });
+      }, 1000);
+    } catch (err) {
+      console.error('[Index] 获取商铺列表失败:', err);
+      this.setData({
+        shopList: [],
+        shopLoading: false
+      });
+    }
+  },
+
+  /**
+   * 跳转到商铺列表页
+   */
+  gotoShopList() {
+    wx.navigateTo({
+      url: '/pages/merchant/list/list',
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  /**
+   * 商铺建设中提示
+   */
+  showShopBuilding() {
+    wx.showToast({
+      title: '建设中，请稍后',
+      icon: 'none'
+    });
+  },
+
+  /**
+   * 跳转到商铺详情页
+   */
+  gotoShopDetail(e) {
+    const { item } = e.currentTarget.dataset;
+    if (!item || !item.shop_id) {
+      wx.showToast({
+        title: '商铺信息错误',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.navigateTo({
+      url: `/pages/merchant/detail/detail?id=${item.shop_id}`,
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none'
+        });
+      }
     });
   }
 });

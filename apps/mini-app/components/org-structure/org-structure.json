@@ -1,4 +1,7 @@
 {
-  "component": true
+  "component": true,
+  "usingComponents": {
+    "org-tree-node": "/components/org-tree-node/org-tree-node"
+  }
 }
 

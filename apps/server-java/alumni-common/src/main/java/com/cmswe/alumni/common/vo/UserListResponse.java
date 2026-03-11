@@ -104,10 +104,10 @@ public class UserListResponse implements Serializable {
     private AlumniEducationListVo primaryEducation;
 
     /**
-     * 是否是校友（是否通过校友认证）
+     * 认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）
      */
-    @Schema(description = "是否是校友（是否通过校友认证）")
-    private Boolean isAlumni;
+    @Schema(description = "认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）")
+    private Integer certificationFlag;
 
     @Serial
     private static final long serialVersionUID = 1L;

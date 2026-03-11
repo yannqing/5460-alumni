@@ -41,8 +41,7 @@ public class UpdateLocalPlatformMemberRoleV2Dto implements Serializable {
     /**
      * 新的组织架构角色 ID
      */
-    @Schema(description = "新的组织架构角色 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "组织架构角色 ID不能为空")
+    @Schema(description = "新的组织架构角色 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long roleOrId;
 
     /**
@@ -50,6 +49,18 @@ public class UpdateLocalPlatformMemberRoleV2Dto implements Serializable {
      */
     @Schema(description = "角色名称")
     private String roleName;
+
+    /**
+     * 是否在主页展示
+     */
+    @Schema(description = "是否在主页展示(0否,1是)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer isShow;
+
+    /**
+     * 排序权重, 数值越小越靠前
+     */
+    @Schema(description = "排序权重, 数值越小越靠前", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer sort;
 
     @Serial
     private static final long serialVersionUID = 1L;

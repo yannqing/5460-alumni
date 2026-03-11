@@ -9,18 +9,28 @@ Page({
         iconLocation: config.getIconUrl('position.png'),
         iconScope: config.getIconUrl('xx.png'),
         iconContact: config.getIconUrl('phone.png'),
-        topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png`,
+        topImageUrl: 'https://cni-alumni.yannqing.com/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png',
         keyword: '',
         filters: [
             { label: '城市', options: ['全部城市'], selected: 0 },
             { label: '注册时间', options: ['升序', '降序'], selected: 0 },
             { label: '关注', options: ['我的关注'], selected: 0 }
         ],
+        // 关注筛选下拉选择器
+        followFilterOptions: ['全部', '我的关注'],
+        followFilterIndex: 0,
+        myFollow: 0, // 0-全部，1-仅我关注的
         platformList: [],
         current: 1,
         pageSize: 10,
         hasMore: true,
         loading: false,
+        refreshing: false,
+        scrollTop: 0,
+        refresherHeight: 0,
+        scrollThreshold: 100,
+        isAlumniAdmin: false,
+
 
         // 地区筛选（与母校列表页一致）- 自定义省市级选择器（只到市）
         region: [], // 地区选择器的值 [省, 市]
@@ -37,9 +47,116 @@ Page({
     },
 
     onLoad() {
+        // 计算图片区域高度用于吸顶阈值
+        this.initMeasurements()
+
+        // 检查权限
+        this.checkAlumniAdminPermission()
+
         // 初始化省市级数据
         this.initRegionData()
         this.loadPlatformList(true)
+    },
+
+    // 检查用户是否拥有校友会管理员权限
+    checkAlumniAdminPermission() {
+        try {
+            const roles = wx.getStorageSync('roles') || []
+            const isAlumniAdmin = roles.some(role => role.roleCode === 'ORGANIZE_ALUMNI_ADMIN')
+            this.setData({ isAlumniAdmin })
+        } catch (error) {
+            console.error('获取权限信息失败:', error)
+            this.setData({ isAlumniAdmin: false })
+        }
+    },
+
+    // 初始化测量数据
+    initMeasurements() {
+        setTimeout(() => {
+            const query = wx.createSelectorQuery()
+            query.select('.banner-area').boundingClientRect()
+            query.exec((res) => {
+                if (res && res[0]) {
+                    this.setData({
+                        scrollThreshold: res[0].height
+                    })
+                }
+            })
+        }, 300)
+    },
+
+
+    onPullDownRefresh() {
+        // 页面级下拉刷新已禁用，直接停止
+        wx.stopPullDownRefresh()
+    },
+
+    /**
+     * 滚动事件
+     */
+    onScroll: function (e) {
+        this.setData({ scrollTop: e.detail.scrollTop });
+    },
+
+    /**
+     * 触摸开始事件
+     */
+    onTouchStart: function (e) {
+        if (this.data.scrollTop <= 5) {
+            this.startY = e.touches[0].pageY;
+            this.canPull = true;
+        } else {
+            this.canPull = false;
+        }
+    },
+
+    /**
+     * 触摸移动事件
+     */
+    onTouchMove: function (e) {
+        if (!this.canPull || this.data.refreshing) return;
+
+        const moveY = e.touches[0].pageY;
+        const diff = (moveY - this.startY) * 0.5; // 阻尼效果
+
+        if (diff > 0) {
+            this.setData({
+                refresherHeight: Math.min(diff, 80)
+            });
+        }
+    },
+
+    /**
+     * 触摸结束事件
+     */
+    onTouchEnd: function () {
+        if (!this.canPull || this.data.refreshing) return;
+
+        if (this.data.refresherHeight >= 40) {
+            this.setData({
+                refreshing: true,
+                refresherHeight: 60,
+                current: 1
+            });
+            this.loadPlatformList(true);
+        } else {
+            this.setData({
+                refresherHeight: 0
+            });
+        }
+    },
+
+    // scroll-view 下拉刷新（保留兼容接口，主要走 onTouchEnd）
+    onScrollViewRefresh() {
+        this.setData({ refreshing: true })
+        this.loadPlatformList(true)
+    },
+
+
+    onReachBottom() {
+        if (this.data.hasMore && !this.data.loading) {
+            this.loadPlatformList(false)
+        }
     },
 
     // 初始化省市级数据（与母校列表页完全一致）
@@ -153,13 +270,15 @@ Page({
 
         this.setData({ loading: true })
 
-        const { keyword, filters, current, pageSize } = this.data
+        const { keyword, filters, current, pageSize, myFollow } = this.data
         const [cityFilter, sortFilter, followFilter] = filters
 
         // 构建请求参数
         const params = {
             current: reset ? 1 : current,
-            pageSize: pageSize
+            pageSize: pageSize,
+            // 关注筛选：0-全部，1-仅我关注的
+            myFollow: myFollow
         }
 
         // 平台名称搜索
@@ -215,23 +334,29 @@ Page({
                 this.setData({
                     platformList: finalList,
                     current: reset ? 2 : current + 1,
-                    hasMore: false,
-                    loading: false
+                    hasMore: records.length >= pageSize,
+                    loading: false,
+                    refreshing: false,
+                    refresherHeight: 0
                 })
+
+                wx.stopPullDownRefresh()
             } else {
-                this.setData({ loading: false })
+                this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
                 wx.showToast({
                     title: res.data?.msg || '加载失败',
                     icon: 'none'
                 })
+                wx.stopPullDownRefresh()
             }
         } catch (error) {
             console.error('加载校促会列表失败:', error)
-            this.setData({ loading: false })
+            this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
             wx.showToast({
                 title: '加载失败，请重试',
                 icon: 'none'
             })
+            wx.stopPullDownRefresh()
         }
     },
 
@@ -403,11 +528,15 @@ Page({
         this.loadPlatformList(true)
     },
 
-    // 关注筛选变更
-    onFollowChange(e) {
-        wx.navigateTo({
-            url: '/pages/my-follow/my-follow'
+    // 关注筛选变更（下拉选择器）
+    onFollowFilterChange(e) {
+        const index = parseInt(e.detail.value)
+        this.setData({
+            followFilterIndex: index,
+            myFollow: index, // 0-全部，1-仅我关注的
+            current: 1
         })
+        this.loadPlatformList(true)
     },
 
     viewDetail(e) {
@@ -420,7 +549,7 @@ Page({
         const platformName = e.currentTarget.dataset.platformName
         console.log('传递的平台名称:', platformName)
         wx.navigateTo({
-            url: `/pages/alumni-association/create/create?platformName=${encodeURIComponent(platformName)}`
+            url: `/pages/local-platform/apply/apply?platformName=${encodeURIComponent(platformName)}`
         })
     }
 })

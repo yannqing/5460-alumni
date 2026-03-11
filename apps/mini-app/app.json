@@ -10,17 +10,15 @@
     "pages/profile/privacy/privacy",
     "pages/profile/cooperation/cooperation",
     "pages/profile/alumni-association/alumni-association",
+    "pages/profile/my-invitation/my-invitation",
+    "pages/profile/invitation-poster/invitation-poster",
+    "pages/profile/invitation-rank/invitation-rank",
     "pages/profile/my-card/my-card",
     "pages/merchant/apply/apply",
     "pages/school/list/list",
     "pages/school/detail/detail",
-    "pages/alumni-association/list/list",
-    "pages/alumni-association/detail/detail",
-    "pages/alumni-association/apply/apply",
-    "pages/alumni-association/create/create",
-    "pages/alumni-association/organization/organization",
-    "pages/alumni-association/organization-detail/organization-detail",
-    "pages/alumni-association/member/member",
+    "pages/school/create/create",
+    "pages/school/invite-info/invite-info",
     "pages/alumni/list/list",
     "pages/alumni/detail/detail",
     "pages/coupon/list/list",
@@ -34,6 +32,7 @@
     "pages/activity/list/list",
     "pages/activity/detail/detail",
     "pages/activity/detail-new/detail-new",
+    "pages/alumni-activity/list/list",
     "pages/notification/list/list",
     "pages/notification/detail/detail",
     "pages/notification/notification-list/notification-list",
@@ -43,54 +42,98 @@
     "pages/alumni-union/detail/detail",
     "pages/local-platform/list/list",
     "pages/local-platform/detail/detail",
+    "pages/local-platform/apply/apply",
     "pages/promotion/detail/detail",
-    "pages/enterprise/list/list",
-    "pages/enterprise/detail/detail",
-    "pages/enterprise/my-enterprise/my-enterprise",
-    "pages/enterprise/apply-enterprise/apply-enterprise",
-    "pages/enterprise/detail-new/detail-new",
-    "pages/enterprise/edit/edit",
     "pages/shop/list/list",
     "pages/shop/detail/detail",
     "pages/shop/shop-detail/shop-detail",
     "pages/chat/detail/detail",
     "pages/my-favorites/my-favorites",
-    "pages/audit/index/index",
-    "pages/audit/carousel/carousel",
-    "pages/audit/carousel/create/create",
-    "pages/audit/carousel/edit/edit",
-    "pages/audit/list/list",
-    "pages/audit/user/list/list",
-    "pages/audit/content/list/list",
-    "pages/audit/merchant/list/list",
-    "pages/audit/merchant/shop/shop",
-    "pages/audit/merchant/architecture/architecture",
-    "pages/audit/merchant/member/member",
-    "pages/audit/merchant/coupon/coupon",
-    "pages/audit/merchant/coupon/verify/verify",
-    "pages/audit/merchant/topic/topic",
-    "pages/audit/merchant/topic/publish/publish",
-    "pages/audit/merchant/topic/edit/edit",
-    "pages/audit/schooloffice/list/list",
-    "pages/audit/merchant/apply/apply",
-    "pages/audit/merchant/apply-detail/apply-detail",
-    "pages/audit/merchant/shop-audit/shop-audit",
-    "pages/audit/schooloffice/detail/detail",
-    "pages/audit/schooloffice/organization/organization",
-    "pages/audit/schooloffice/member/member",
-    "pages/audit/join-audit/index",
-    "pages/audit/article/manage/manage",
-    "pages/audit/enterprise/index",
-    "pages/article/detail/detail",
-    "pages/article/form/form",
-    "pages/article/audit-list/audit-list",
-    "pages/article/web-view/web-view",
     "pages/article-publish/index/index",
     "pages/article-publish/detail/detail",
     "pages/activity/publish/publish",
     "pages/activity/edit/edit",
     "pages/info-maintenance/index/index",
-    "pages/info-maintenance/edit/edit"
+    "pages/info-maintenance/edit/edit",
+    "pages/register/register",
+    "pages/feedback/feedback",
+    "pages/certification-info/certification-info"
+  ],
+  "subpackages": [
+    {
+      "root": "pages/alumni-association",
+      "name": "alumni-association",
+      "pages": [
+        "list/list",
+        "detail/detail",
+        "apply/apply",
+        "create/create",
+        "organization/organization",
+        "organization-detail/organization-detail",
+        "member/member"
+      ]
+    },
+    {
+      "root": "pages/audit",
+      "name": "audit",
+      "pages": [
+        "index/index",
+        "carousel/carousel",
+        "carousel/create/create",
+        "carousel/edit/edit",
+        "list/list",
+        "user/list/list",
+        "content/list/list",
+        "merchant/list/list",
+        "merchant/shop/shop",
+        "merchant/architecture/architecture",
+        "merchant/member/member",
+        "merchant/coupon/coupon",
+        "merchant/coupon/verify/verify",
+        "merchant/topic/topic",
+        "merchant/topic/publish/publish",
+        "merchant/topic/edit/edit",
+        "schooloffice/list/list",
+        "merchant/apply/apply",
+        "merchant/apply-detail/apply-detail",
+        "merchant/shop-audit/shop-audit",
+        "schooloffice/detail/detail",
+        "schooloffice/organization/organization",
+        "schooloffice/member/member",
+        "join-audit/index",
+        "article/manage/manage",
+        "enterprise/index",
+        "headquarters/list/list",
+        "headquarters/detail/detail",
+        "alumni-association/list/list",
+        "alumni-association/detail/detail",
+        "info-maintenance/index/index",
+        "info-maintenance/edit/edit",
+        "alumni-association-certification/list/list"
+      ]
+    },
+    {
+      "root": "pages/enterprise",
+      "name": "enterprise",
+      "pages": [
+        "list/list",
+        "detail/detail",
+        "my-enterprise/my-enterprise",
+        "apply-enterprise/apply-enterprise",
+        "detail-new/detail-new",
+        "edit/edit"
+      ]
+    },
+    {
+      "root": "pages/article",
+      "name": "article",
+      "pages": [
+        "detail/detail",
+        "form/form",
+        "audit-list/audit-list",
+        "web-view/web-view"
+      ]
+    }
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -121,8 +164,8 @@
       {
         "pagePath": "pages/chat/list/list",
         "text": "5460",
-        "iconPath": "assets/icons/5460@2x.png",
-        "selectedIconPath": "assets/icons/5460@2x.png"
+        "iconPath": "assets/icons/home@2x.png",
+        "selectedIconPath": "assets/icons/home@2x.png"
       },
       {
         "pagePath": "pages/search/search",
@@ -141,15 +184,6 @@
   "networkTimeout": {
     "request": 10000,
     "downloadFile": 10000
-  },
-  "requiredPrivateInfos": [
-    "chooseLocation",
-    "getLocation"
-  ],
-  "permission": {
-    "scope.userLocation": {
-      "desc": "你的位置信息将用于查找附近的商铺、校友和活动"
-    }
   },
   "qqmapKey": "JKGBZ-RNQCZ-4JDXO-ZWSSP-QKTCH-LKBR4",
   "debug": true,

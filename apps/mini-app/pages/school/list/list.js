@@ -1,9 +1,9 @@
 // pages/school/list/list.js
-const { schoolApi } = require('../../../api/api.js')
+const { unionApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
 
-const DEFAULT_SCHOOL_AVATAR = config.defaultAvatar
+const DEFAULT_AVATAR = config.defaultAvatar
 
 Page({
   data: {
@@ -18,39 +18,49 @@ Page({
     // 导航栏高度
     statusBarHeight: 0,
     navBarHeight: 0,
+    // 固定头部高度
+    fixedHeaderHeight: 300,
 
     // 筛选条件
-    sortType: 'default', // default: 默认, alumni: 校友数, association: 校友会数, name: 名称
+    sortType: 'default',
 
-    // 地区筛选（新增）- 自定义省市级选择器（只到市）
+    // 地区筛选
     region: [], // 地区选择器的值 [省, 市]
     regionDisplayText: '全部城市', // 地区显示文本
     regionData: [[], []], // 多列选择器的数据 [[省份列表], [城市列表]]
     regionIndex: [0, 0], // 当前选中的索引 [省索引, 市索引]
     provinceCityMap: {}, // 省份城市映射表
 
-    // 办学层次筛选（新增）- 从上到下按从高到低排序
-    selectedLevel: '全部', // 选中的办学层次
-    levelList: ['全部', '本科', '专科'],
-
     // 筛选器配置
     filters: [
-      { label: '类型', options: ['全部', '本科', '专科'], selected: 0 },
-      { label: '城市', options: ['全部城市'], selected: 0 },
-
-      { label: '关注', options: ['我的关注'], selected: 0 }
+      { label: '办学层次', options: ['全部', '本科', '专科', '中专', '高中', '初中', '小学'], selected: 0 }
     ],
     showFilterOptions: false,
     activeFilterIndex: -1,
+    schoolLevel: '', // 办学层次筛选值
+
+    // 关注筛选
+    followFilterOptions: ['全部', '我的关注'],
+    followFilterIndex: 0,
+    myFollow: 0, // 我的关注筛选（0-全部，1-仅我关注的）
 
     // 列表数据
-    schoolList: [],
-    current: 1,  // 当前页码（与后端 current 字段对应）
+    headquartersList: [],
+    current: 1,  // 当前页码
     pageSize: 10,
     hasMore: true,
     loading: false,
-    refreshing: false
+    refreshing: false,
+    // 手动刷新相关
+    refresherHeight: 0,
+    scrollTop: 0,
+    // 吸顶相关
+    navFixed: false,
+    scrollThreshold: 100, // 初始高度，后续动态计算
+    headerHeight: 120 // 初始高度，后续动态计算
   },
+
+
 
   async onLoad(options) {
     // 获取系统信息
@@ -74,7 +84,29 @@ Page({
     // 确保已登录后再加载数据
     await this.ensureLogin()
     this.loadSchoolList(true)
+
+    // 计算关键高度以用于吸顶和下拉判定
+    this.initMeasurements()
   },
+
+  /**
+   * 初始化高度测量
+   */
+  initMeasurements() {
+    setTimeout(() => {
+      const query = wx.createSelectorQuery()
+      query.select('.banner-area').boundingClientRect()
+      query.exec((res) => {
+        if (res && res[0]) {
+          this.setData({
+            scrollThreshold: res[0].height
+          })
+          console.log('[SchoolList] measurement result - scrollThreshold:', res[0].height);
+        }
+      })
+    }, 500) // 延迟确保布局完成
+  },
+
 
   // 初始化省市级数据
   initRegionData() {
@@ -183,7 +215,7 @@ Page({
     // 页面显示时重新检查登录状态
     this.ensureLogin().then(() => {
       // 如果列表为空，重新加载
-      if (this.data.schoolList.length === 0) {
+      if (this.data.headquartersList.length === 0) {
         this.loadSchoolList(true)
       }
     })
@@ -213,10 +245,96 @@ Page({
     this.loadSchoolList(true)
   },
 
+  /**
+   * 滚动事件
+   */
+  onScroll: function (e) {
+    const scrollTop = e.detail.scrollTop;
+    this.setData({ scrollTop: scrollTop });
+
+    // 状态判定：使用一个小偏移量（2px）增加稳定性
+    const threshold = this.data.scrollThreshold || 100;
+    const isFixed = scrollTop >= threshold - 2;
+
+    if (this.data.navFixed !== isFixed) {
+      this.setData({ navFixed: isFixed });
+    }
+  },
+
+
+  /**
+   * 触摸开始事件
+   */
+  onTouchStart: function (e) {
+    this.touchStartX = e.touches[0].clientX;
+    this.touchStartY = e.touches[0].clientY;
+    this.isPullDown = false;
+    this.canPullDown = false;
+
+    // 判定逻辑：只有在顶部且触摸点在吸顶/Header区域下方时才允许
+    const navAndHeaderHeight = this.data.statusBarHeight + this.data.navBarHeight + (this.data.navFixed ? this.data.headerHeight : (this.data.scrollThreshold + this.data.headerHeight));
+
+    // 增加一点偏移容错
+    if (this.data.scrollTop <= 10 && this.touchStartY > navAndHeaderHeight) {
+      this.canPullDown = true;
+      console.log('[SchoolList] PullDown enabled. touchStartY:', this.touchStartY, 'boundary:', navAndHeaderHeight);
+    }
+  },
+
+
+  /**
+   * 触摸移动事件
+   */
+  onTouchMove: function (e) {
+    if (!this.canPullDown || this.data.refreshing) return;
+
+    const touchY = e.touches[0].clientY;
+    const moveY = touchY - this.touchStartY;
+
+    if (moveY > 0) {
+      const height = Math.min(80, moveY * 0.4);
+      this.setData({
+        refresherHeight: height
+      });
+      this.isPullDown = true;
+    }
+  },
+
+  /**
+   * 触摸结束事件
+   */
+  onTouchEnd: function (e) {
+    if (!this.isPullDown) {
+      this.canPullDown = false;
+      return;
+    }
+
+    if (this.data.refresherHeight >= 45) {
+      this.setData({
+        refresherHeight: 50,
+        refreshing: true
+      });
+      this.loadSchoolList(true);
+    } else {
+      this.setData({
+        refresherHeight: 0
+      });
+    }
+    this.isPullDown = false;
+    this.canPullDown = false;
+  },
+
+  // 页面级下拉刷新（已禁用）
   onPullDownRefresh() {
-    this.setData({ refreshing: true, current: 1 })
+    wx.stopPullDownRefresh()
+  },
+
+
+  // scroll-view 下拉刷新 (重写)
+  onScrollViewRefresh() {
     this.loadSchoolList(true)
   },
+
 
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
@@ -224,47 +342,36 @@ Page({
     }
   },
 
-  // 加载学校列表
+  // 加载校友总会列表
   async loadSchoolList(reset = false) {
     if (this.data.loading) { return }
 
     this.setData({ loading: true })
 
     try {
-      const { keyword, sortType, region, selectedLevel, current, pageSize } = this.data
+      const { keyword, region, current, pageSize, myFollow, schoolLevel } = this.data
 
-      // 从地区选择器中提取省份和城市（只使用省和市，忽略区）
-      // region 格式: [省, 市]，例如: ['山西省', '太原市']
-      let selectedProvince = undefined
-      let selectedCity = undefined
+      // 从地区选择器中提取城市（只取城市部分）
+      let city = undefined
       if (region && region.length > 0) {
-        selectedProvince = region[0] || undefined
-        selectedCity = region[1] || undefined
+        // 如果有城市，使用城市；否则使用省份
+        city = region.length > 1 && region[1] ? region[1] : region[0]
+        // 如果是"全部"则不传
+        if (city === '全部' || !city) {
+          city = undefined
+        }
       }
 
-      // 构建请求参数（与后端 /school/page 的字段保持一致）
-      // 后端字段：current, pageSize, sortField, sortOrder, schoolName, location, description, previousName
-      // 新增字段：province, city, level（后端需要支持这些字段的查询）
-      // 注意：后端使用 AND 关系，如果同时传多个字段，要求同时满足所有条件
-      // 因此搜索时只传 schoolName，避免同时传 previousName 和 description 导致查不到数据
+      // 构建请求参数
       const params = {
-        current: reset ? 1 : current, // 使用当前页码进行请求
-        size: pageSize,
-        // 搜索关键字：只搜索 schoolName（学校名称）
-        // 如果同时传 schoolName、previousName、description，后端会要求同时满足三个条件（AND），几乎查不到数据
-        // 因此只传 schoolName，让后端按学校名称筛选即可
-        schoolName: keyword ? keyword.trim() : undefined,
-        previousName: keyword ? keyword.trim() : undefined,
-        mergedInstitutions: keyword ? keyword.trim() : undefined,
-        // 地区筛选（新增）- 从 region 选择器中提取
-        province: selectedProvince || undefined,
-        city: selectedCity || undefined,
-        // 办学层次筛选（新增）
-        level: selectedLevel && selectedLevel !== '全部' ? selectedLevel : undefined,
-        // 排序字段/顺序（根据 sortType 映射）
-        // 默认排序按 schoolId 升序，与数据库保持一致
-        sortField: this.getSortField(sortType),
-        sortOrder: this.getSortOrder(sortType)
+        current: reset ? 1 : current,
+        pageSize: pageSize,
+        sortField: "createTime",
+        sortOrder: "ascend",
+        headquartersName: keyword ? keyword.trim() : undefined,
+        city: city || undefined, // 城市筛选
+        schoolLevel: schoolLevel || undefined, // 办学层次筛选
+        myFollow: myFollow // 我的关注筛选（0-全部，1-仅我关注的）
       }
 
       // 移除 undefined 参数
@@ -274,70 +381,46 @@ Page({
         }
       })
 
-      const res = await schoolApi.getSchoolPage(params)
+      const res = await unionApi.getUnionPage(params)
 
       if (res.data && res.data.code === 200) {
         const responseData = res.data.data || {}
-        const list = responseData.records || responseData.list || []
-        const total = responseData.total || 0
-        const currentPage = responseData.current || responseData.page || 1
-        const totalPages = responseData.pages || Math.ceil(total / pageSize)
+        const list = responseData.records || []
 
-        // 数据映射（与后端母校字段保持同步）
-        // 后端字段示例：
-        // {
-        //   "schoolId": 252733488053902380,
-        //   "logo": null,
-        //   "schoolName": "中央美术学院",
-        //   "province": "北京市",
-        //   "city": "朝阳区",
-        //   "level": "本科",
-        //   "description": null,
-        //   "foundingDate": null,
-        //   "location": null,
-        //   "officialCertification": 0
-        // }
+        // 数据映射
         const mappedList = list.map(item => ({
-          // 列表项内部仍使用 id/name/icon/location 等字段，方便前端共用
-          id: item.schoolId,
-          name: item.schoolName,
-          icon: item.logo || DEFAULT_SCHOOL_AVATAR,
-          // 优先使用后端的 location，没有则用 省份+城市 拼接
-          location: item.location || `${item.province || ''}${item.city || ''}`,
-          level: item.level || '',
-          description: item.description || '',
-          foundingDate: item.foundingDate || '',
-          // 后端的认证字段：0/1
-          isCertified: item.officialCertification === 1,
-          // 关注状态字段（初始值）
-          isFollowed: false,
-          followStatus: 4, // 关注状态：1-正常关注，4-未关注
-          // 预留字段，后端后续补充时可直接使用
-          officialCertification: item.officialCertification
+          id: item.headquartersId,
+          name: item.headquartersName,
+          logo: item.logo || DEFAULT_AVATAR,
+          memberCount: item.memberCount || 0,
+          address: item.address || '暂无位置信息',
+          phone: item.phone || '暂无联系电话',
+          isFollowed: item.isFollowed || false // 是否已关注
         }))
 
         // 更新列表数据
-        const finalList = reset ? mappedList : [...this.data.schoolList, ...mappedList]
+        const finalList = reset ? mappedList : [...this.data.headquartersList, ...mappedList]
 
         if (reset) {
           this.setData({
-            schoolList: finalList,
+            headquartersList: finalList,
             current: 2, // 下次加载第2页
             hasMore: mappedList.length >= pageSize,
             loading: false,
-            refreshing: false
+            refreshing: false,
+            refresherHeight: 0 // 重置手动刷新高度
           })
         } else {
           this.setData({
-            schoolList: finalList,
+            headquartersList: finalList,
             current: current + 1, // 下次加载下一页
             hasMore: mappedList.length >= pageSize,
             loading: false
           })
         }
 
-        // 加载完列表后，获取关注状态（使用工具类方法）
-        loadAndUpdateFollowStatus(this, 'schoolList', FollowTargetType.SCHOOL)
+        // 加载完列表后，获取关注状态
+        loadAndUpdateFollowStatus(this, 'headquartersList', FollowTargetType.HEADQUARTERS)
       } else {
         // API 返回错误
         this.setData({
@@ -367,22 +450,7 @@ Page({
     this.loadSchoolList(false)
   },
 
-  // 获取排序字段（根据前端 sortType 映射到后端 sortField）
-  getSortField(sortType) {
-    const map = {
-      'default': undefined,         // 默认排序：不传参数，让后端按数据库默认排序（school_id升序）
-      'alumni': 'alumniCount',      // 校友数量
-      'association': 'associationCount', // 校友会数量
-      'name': 'schoolName'          // 名称排序
-    }
-    return map[sortType]
-  },
 
-  // 获取排序顺序（根据前端 sortType 映射到后端 sortOrder）
-  getSortOrder(sortType) {
-    // 默认排序不传参数，其他排序使用升序
-    return sortType === 'default' ? undefined : 'ascend'
-  },
 
   // 搜索
   onSearchInput(e) {
@@ -527,141 +595,67 @@ Page({
   },
 
 
-  // 查看详情或选择学校
+  // 查看详情
   viewDetail(e) {
-    const { id } = e.currentTarget.dataset
-    const { selectMode, schoolList } = this.data
-
-    if (selectMode) {
-      // 选择模式：返回选中的学校
-      const school = schoolList.find(item => String(item.id) === String(id))
-      if (school) {
-        const app = getApp()
-        app.globalData.selectedSchool = {
-          schoolId: school.id,
-          schoolName: school.name,
-          logo: school.icon,
-          province: school.province,
-          city: school.city,
-          level: school.level,
-          foundingDate: school.foundingDate,
-          officialCertification: school.isCertified ? 1 : 0
-        }
-        // 通知编辑页面
-        const pages = getCurrentPages()
-        const prevPage = pages[pages.length - 2]
-        if (prevPage && prevPage.setSelectedSchool) {
-          prevPage.setSelectedSchool(app.globalData.selectedSchool)
-        }
-        wx.navigateBack()
-      }
-    } else {
-      // 普通模式：跳转到详情页
-      wx.navigateTo({
-        url: `/pages/school/detail/detail?id=${id}`
-      })
-    }
-  },
-
-  // 关注/取消关注
-  async toggleFollow(e) {
-    const { id, followed } = e.currentTarget.dataset
-    const { schoolList } = this.data
-
-    const index = schoolList.findIndex(item => item.id === id)
-    if (index === -1) { return }
-
-    // 调用通用关注接口，显示确认框
-    const result = await toggleFollow(
-      followed,
-      FollowTargetType.SCHOOL, // 3-母校
-      id,
-      1, // followStatus: 1-正常关注
-      true // 显示确认框
-    )
-
-    // 如果用户取消了操作，不做处理
-    if (result.canceled) {
-      return
-    }
-
-    if (result.success) {
-      // 更新列表中的关注状态和 followStatus
-      schoolList[index].isFollowed = !followed
-      schoolList[index].followStatus = !followed ? 1 : 4
-      this.setData({ schoolList })
-
-      wx.showToast({
-        title: result.message,
-        icon: 'success'
-      })
-    } else {
-      wx.showToast({
-        title: result.message,
-        icon: 'none'
-      })
-    }
-  },
-
-  // 关注/取消关注（使用工具类方法）
-  async toggleFollow(e) {
-    const { id, followed } = e.currentTarget.dataset
-    await handleListItemFollow(this, 'schoolList', id, followed, FollowTargetType.SCHOOL)
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({
+      url: `/pages/school/detail/detail?id=${id}`
+    })
   },
 
   // 跳转到我的关注
   goToMyFollow() {
     wx.navigateTo({
-      url: '/pages/my-follow/my-follow?type=school'
+      url: '/pages/my-follow/my-follow'
     })
   },
 
-  // 类型筛选变更
+  // 关注筛选变更（下拉选择器）
+  onFollowFilterChange(e) {
+    const index = parseInt(e.detail.value)
+    const myFollow = index === 1 ? 1 : 0 // 0-全部，1-仅我关注的
+
+    this.setData({
+      followFilterIndex: index,
+      myFollow: myFollow,
+      current: 1
+    })
+
+    // 重新加载数据
+    this.loadSchoolList(true)
+  },
+
+  // 办学层次筛选变更
   onTypeChange(e) {
-    const optionIndex = e.detail.value
-    const { filters } = this.data
-    filters[0].selected = optionIndex
+    const index = parseInt(e.detail.value)
+    const options = this.data.filters[0].options
+    const schoolLevel = index === 0 ? '' : options[index] // 索引0表示"全部"，不传值
 
-    this.setData({ filters })
+    // 更新 filters 中的 selected
+    const filters = this.data.filters
+    filters[0].selected = index
 
-    // 根据选择的筛选条件更新数据
-    const selectedOption = filters[0].options[optionIndex]
-    let level = '全部'
-    if (selectedOption === '本科') {
-      level = '本科'
-    } else if (selectedOption === '专科') {
-      level = '专科'
-    }
-    this.setData({ selectedLevel: level, current: 1 })
+    this.setData({
+      filters: filters,
+      schoolLevel: schoolLevel,
+      current: 1
+    })
+
+    // 重新加载数据
     this.loadSchoolList(true)
   },
 
-  // 排序筛选变更
-  onSortChange(e) {
-    const optionIndex = e.detail.value
-    const { filters } = this.data
-    filters[2].selected = optionIndex
-
-    this.setData({ filters })
-
-    // 根据选择的筛选条件更新数据
-    const selectedOption = filters[2].options[optionIndex]
-    let sortType = 'default'
-    if (selectedOption === '校友数量') {
-      sortType = 'alumni'
-    } else if (selectedOption === '校友会数量') {
-      sortType = 'association'
-    } else if (selectedOption === '名称排序') {
-      sortType = 'name'
-    }
-    this.setData({ sortType, current: 1 })
-    this.loadSchoolList(true)
+  // 关注/取消关注校友总会
+  async toggleFollow(e) {
+    const { id, followed } = e.currentTarget.dataset
+    const isFollowed = followed === true || followed === 'true'
+    await handleListItemFollow(this, 'headquartersList', id, isFollowed, FollowTargetType.HEADQUARTERS)
   },
 
-  // 关注筛选变更
-  onFollowChange(e) {
+  // 跳转到创建校友总会页面
+  navigateToCreate() {
     wx.navigateTo({
-      url: '/pages/my-follow/my-follow'
+      url: '/pages/school/create/create'
     })
   }
 })

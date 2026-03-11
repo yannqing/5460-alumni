@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.cmswe.alumni.common.dto.CreateHomePageArticleDto;
 import com.cmswe.alumni.common.dto.QueryHomePageArticleListDto;
 import com.cmswe.alumni.common.dto.QueryMyHomePageArticleListDto;
+import com.cmswe.alumni.common.dto.QueryOrganizationArticleListDto;
 import com.cmswe.alumni.common.dto.UpdateHomePageArticleDto;
 import com.cmswe.alumni.common.entity.HomePageArticle;
 import com.cmswe.alumni.common.vo.HomePageArticleDetailVo;
@@ -65,4 +66,25 @@ public interface HomePageArticleService extends IService<HomePageArticle> {
      * @param publishWxId 发布者ID
      */
     void checkAndDeductQuota(String publishType, Long publishWxId);
+
+    /**
+     * 分页查询校友会的已发布文章列表
+     * @param queryDto 查询参数
+     * @return 分页结果
+     */
+    PageVo<HomePageArticleVo> getAssociationArticlePage(QueryOrganizationArticleListDto queryDto);
+
+    /**
+     * 分页查询校促会的已发布文章列表
+     * @param queryDto 查询参数
+     * @return 分页结果
+     */
+    PageVo<HomePageArticleVo> getPlatformArticlePage(QueryOrganizationArticleListDto queryDto);
+
+    /**
+     * 根据ID查询已发布的文章详情（包含子文章）
+     * @param homeArticleId 文章ID
+     * @return 文章详情
+     */
+    HomePageArticleDetailVo getPublishedArticleDetailById(Long homeArticleId);
 }

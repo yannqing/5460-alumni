@@ -167,6 +167,11 @@ public class AlumniAssociationJoinApplicationServiceImpl
         application.setApplicationStatus(0); // 0-待审核
         application.setApplyTime(LocalDateTime.now());
 
+        // 保存基本信息到申请记录中
+        application.setName(applyDto.getName());
+        application.setIdentifyCode(applyDto.getIdentifyCode());
+        application.setPhone(applyDto.getPhone());
+
         // 保存教育经历信息到申请记录中
         application.setSchoolId(applyDto.getSchoolId());
         application.setEnrollmentYear(applyDto.getEnrollmentYear());
@@ -598,6 +603,29 @@ public class AlumniAssociationJoinApplicationServiceImpl
         // 校友会信息
         if (association != null) {
             vo.setAlumniAssociationName(association.getAssociationName());
+            // 校友会详细信息
+            vo.setAssociationSchoolId(association.getSchoolId());
+            vo.setPlatformId(association.getPlatformId());
+            vo.setCertificationFlag(association.getCertificationFlag());
+            vo.setRole(association.getRole());
+            vo.setContactInfo(association.getContactInfo());
+            vo.setLocation(association.getLocation());
+            vo.setMemberCount(association.getMemberCount());
+            vo.setMonthlyHomepageArticleQuota(association.getMonthlyHomepageArticleQuota());
+            vo.setLogo(association.getLogo());
+            vo.setAssociationProfile(association.getAssociationProfile());
+            vo.setChargeWxId(association.getChargeWxId());
+            vo.setChargeName(association.getChargeName());
+            vo.setChargeRole(association.getChargeRole());
+            vo.setChargeSocialAffiliation(association.getChargeSocialAffiliation());
+            vo.setZhWxId(association.getZhWxId());
+            vo.setZhName(association.getZhName());
+            vo.setZhPhone(association.getZhPhone());
+            vo.setZhSocialAffiliation(association.getZhSocialAffiliation());
+            vo.setBgImg(association.getBgImg());
+            vo.setStatus(association.getStatus());
+            vo.setCreateTime(association.getCreateTime());
+            vo.setUpdateTime(association.getUpdateTime());
         }
 
         // 用户信息
@@ -948,15 +976,15 @@ public class AlumniAssociationJoinApplicationServiceImpl
         log.info("用户剩余校友会数量 - 用户ID: {}, 剩余数量: {}", wxId, remainingAssociationCount);
 
         if (remainingAssociationCount == 0) {
-            // 用户不再是任何校友会成员，更新 isAlumni 为 0
+            // 用户不再是任何校友会成员，更新 certificationFlag 为 0
             WxUser wxUser = userService.getById(wxId);
-            if (wxUser != null && wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1) {
-                wxUser.setIsAlumni(0);
+            if (wxUser != null && wxUser.getCertificationFlag() != null && wxUser.getCertificationFlag() > 0) {
+                wxUser.setCertificationFlag(0);
                 boolean updateAlumniStatus = userService.updateById(wxUser);
                 if (updateAlumniStatus) {
-                    log.info("用户校友状态已更新 - 用户ID: {}, isAlumni: 1 -> 0", wxId);
+                    log.info("用户认证状态已更新 - 用户ID: {}, certificationFlag: {} -> 0", wxId, wxUser.getCertificationFlag());
                 } else {
-                    log.warn("用户校友状态更新失败 - 用户ID: {}", wxId);
+                    log.warn("用户认证状态更新失败 - 用户ID: {}", wxId);
                 }
             }
         }

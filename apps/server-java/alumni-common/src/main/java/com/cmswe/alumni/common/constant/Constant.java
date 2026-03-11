@@ -26,7 +26,10 @@ public class Constant {
     };
 
     public static String[] anonymousMatch = {
-            "/auth/**",
+            "/auth/login",
+            "/auth/getPhoneNumber",
+            "/auth/testLogin",
+            "/auth/logout",
        "/doc.html/**",
        "/webjars/**",
             "/file/**",
@@ -48,6 +51,9 @@ public class Constant {
     // 音频类型文件的一级类型
     public static final String AUDIO_FILE_TYPE = "audio";
 
+    // 文档类型文件的一级类型
+    public static final String DOCUMENT_FILE_TYPE = "document";
+
     // 允许的图片文件扩展名
     public static final Set<String> ALLOWED_IMAGE_EXTENSIONS = new HashSet<>(Arrays.asList(
             "jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "ico", "tiff", "tif"
@@ -61,6 +67,11 @@ public class Constant {
     // 允许的音频文件扩展名
     public static final Set<String> ALLOWED_AUDIO_EXTENSIONS = new HashSet<>(Arrays.asList(
             "mp3", "wav", "flac", "aac", "ogg", "wma", "m4a", "opus"
+    ));
+
+    // 允许的文档文件扩展名
+    public static final Set<String> ALLOWED_DOCUMENT_EXTENSIONS = new HashSet<>(Arrays.asList(
+            "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "md", "csv", "rtf", "odt", "ods", "odp"
     ));
 
     public static final Integer UPLOAD_FILE_COUNT = 3;

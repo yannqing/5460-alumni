@@ -2,57 +2,256 @@
   <view class="white-background-content">
     <view class="container" bindtap="closeAllDropdowns">
   <image src="{{headerImageUrl}}" class="header-image" mode="aspectFit"></image>
+
+    <!-- 隐私提示 -->
+    <view class="privacy-notice">
+      <text class="privacy-text">您所填写的信息仅用于平台审核，不会对外公开</text>
+    </view>
+
   <view class="form-card">
     <view class="form-title">基本信息</view>
 
     <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
-      <text class="label">申请学校</text>
-      <input class="input" placeholder="请输入并选择学校" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
+      <text class="label">母校全称（现用名）</text>
+      <input class="input" placeholder="请输入关键字" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
       <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
         <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
         <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
-          {{item.schoolName}}
+          <text>{{item.schoolName}}</text>
         </view>
       </scroll-view>
     </view>
-    
+
+    <view class="form-item">
+      <view class="label-with-hint">
+        <text class="label">曾用名</text>
+      </view>
+      <input class="input" placeholder="请输入母校曾用名（以毕业证书为准）" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" />
+    </view>
+
     <view class="form-item required">
-      <text class="label">校友会名称</text>
+      <text class="label">校友会全称</text>
       <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
     </view>
-    
+
     <view class="form-item required">
-      <text class="label">相关地区</text>
-      <picker 
-        mode="selector" 
-        range="{{platformList}}" 
-        range-key="platformName" 
-        value="{{platformIndex}}" 
-        bindchange="handlePlatformChange"
+      <text class="label">办公地点</text>
+      <picker
+        mode="region"
+        value="{{regionValue}}"
+        bindchange="handleRegionChange"
         class="input"
       >
         <view class="picker-content">
-          {{formData.platformName || '请选择相关地区(校促会)'}}
+          {{formData.location || '请选择省/市/区'}}
         </view>
       </picker>
     </view>
 
     <view class="form-item required">
-      <text class="label">联系人姓名</text>
-      <input class="input" placeholder="请输入联系人姓名" value="{{formData.chargeName}}" data-field="chargeName" bindinput="handleInput" />
+      <text class="label">组织架构模板</text>
+      <picker
+        mode="selector"
+        range="{{templateList}}"
+        range-key="templateName"
+        value="{{templateIndex}}"
+        bindchange="handleTemplateChange"
+        class="input"
+      >
+        <view class="picker-content">
+          {{selectedTemplate.templateName || '请选择组织架构模板'}}
+        </view>
+      </picker>
+      <view wx:if="{{selectedTemplate.description}}" class="template-description">
+        {{selectedTemplate.description}}
+      </view>
+      <!-- 组织架构树形预览 -->
+      <view wx:if="{{templateTreeData.length > 0}}" class="template-tree-preview">
+        <view class="tree-preview-title">架构预览</view>
+        <scroll-view scroll-x scroll-y class="tree-scroll-container">
+          <view class="tree-container">
+            <!-- 递归渲染树节点（最多支持6层） -->
+            <block wx:for="{{templateTreeData}}" wx:key="nodeId" wx:for-item="n1">
+              <view class="tree-node-row">
+                <view class="tree-node level-1 {{n1.children.length > 0 ? 'has-children' : ''}}">
+                  <view class="node-content">{{n1.roleOrName}}</view>
+                </view>
+              </view>
+              <view wx:if="{{n1.children.length > 0}}" class="tree-children-row">
+                <block wx:for="{{n1.children}}" wx:key="nodeId" wx:for-item="n2">
+                  <view class="tree-branch">
+                    <view class="tree-node level-2 {{n2.children.length > 0 ? 'has-children' : ''}}">
+                      <view class="node-content">{{n2.roleOrName}}</view>
+                    </view>
+                    <view wx:if="{{n2.children.length > 0}}" class="tree-sub-children">
+                      <block wx:for="{{n2.children}}" wx:key="nodeId" wx:for-item="n3">
+                        <view class="tree-branch">
+                          <view class="tree-node level-3 {{n3.children.length > 0 ? 'has-children' : ''}}">
+                            <view class="node-content">{{n3.roleOrName}}</view>
+                          </view>
+                          <view wx:if="{{n3.children.length > 0}}" class="tree-sub-children">
+                            <block wx:for="{{n3.children}}" wx:key="nodeId" wx:for-item="n4">
+                              <view class="tree-branch">
+                                <view class="tree-node level-4 {{n4.children.length > 0 ? 'has-children' : ''}}">
+                                  <view class="node-content">{{n4.roleOrName}}</view>
+                                </view>
+                                <view wx:if="{{n4.children.length > 0}}" class="tree-sub-children">
+                                  <block wx:for="{{n4.children}}" wx:key="nodeId" wx:for-item="n5">
+                                    <view class="tree-branch">
+                                      <view class="tree-node level-5 {{n5.children.length > 0 ? 'has-children' : ''}}">
+                                        <view class="node-content">{{n5.roleOrName}}</view>
+                                      </view>
+                                      <view wx:if="{{n5.children.length > 0}}" class="tree-sub-children">
+                                        <block wx:for="{{n5.children}}" wx:key="nodeId" wx:for-item="n6">
+                                          <view class="tree-branch">
+                                            <view class="tree-node level-6 {{n6.children.length > 0 ? 'has-children' : ''}}">
+                                              <view class="node-content">{{n6.roleOrName}}</view>
+                                            </view>
+                                            <view wx:if="{{n6.children.length > 0}}" class="tree-sub-children">
+                                              <block wx:for="{{n6.children}}" wx:key="nodeId" wx:for-item="n7">
+                                                <view class="tree-branch">
+                                                  <view class="tree-node level-7 {{n7.children.length > 0 ? 'has-children' : ''}}">
+                                                    <view class="node-content">{{n7.roleOrName}}</view>
+                                                  </view>
+                                                  <view wx:if="{{n7.children.length > 0}}" class="tree-sub-children">
+                                                    <block wx:for="{{n7.children}}" wx:key="nodeId" wx:for-item="n8">
+                                                      <view class="tree-branch">
+                                                        <view class="tree-node level-8 {{n8.children.length > 0 ? 'has-children' : ''}}">
+                                                          <view class="node-content">{{n8.roleOrName}}</view>
+                                                        </view>
+                                                        <view wx:if="{{n8.children.length > 0}}" class="tree-sub-children">
+                                                          <block wx:for="{{n8.children}}" wx:key="nodeId" wx:for-item="n9">
+                                                            <view class="tree-branch">
+                                                              <view class="tree-node level-9 {{n9.children.length > 0 ? 'has-children' : ''}}">
+                                                                <view class="node-content">{{n9.roleOrName}}</view>
+                                                              </view>
+                                                              <view wx:if="{{n9.children.length > 0}}" class="tree-sub-children">
+                                                                <block wx:for="{{n9.children}}" wx:key="nodeId" wx:for-item="n10">
+                                                                  <view class="tree-branch">
+                                                                    <view class="tree-node level-10">
+                                                                      <view class="node-content">{{n10.roleOrName}}</view>
+                                                                    </view>
+                                                                  </view>
+                                                                </block>
+                                                              </view>
+                                                            </view>
+                                                          </block>
+                                                        </view>
+                                                      </view>
+                                                    </block>
+                                                  </view>
+                                                </view>
+                                              </block>
+                                            </view>
+                                          </view>
+                                        </block>
+                                      </view>
+                                    </view>
+                                  </block>
+                                </view>
+                              </view>
+                            </block>
+                          </view>
+                        </view>
+                      </block>
+                    </view>
+                  </view>
+                </block>
+              </view>
+            </block>
+          </view>
+        </scroll-view>
+      </view>
     </view>
 
+    <view class="form-title">校友会信息</view>
     <view class="form-item required">
-      <text class="label">联系人电话</text>
-      <input class="input" placeholder="请输入联系人电话" value="{{formData.contactInfo}}" data-field="contactInfo" bindinput="handleInput" />
+      <text class="label">联系人姓名</text>
+      <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">联系电话</text>
+      <input class="input" placeholder="请输入联系人联系电话" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">校友会职务</text>
+      <input class="input" placeholder="请输入联系人职务" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" />
+    </view>
+    <view class="form-item required">
+      <text class="label">社会职务</text>
+      <input class="input" placeholder="请输入联系人社会职务" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" />
     </view>
 
+    <view class="form-subsection-title" style="display: flex; justify-content: space-between; align-items: center;">
+      <text>校友会负责人信息</text>
+      <view class="add-btn" bindtap="addMember">+ 添加成员</view>
+    </view>
+
+    <block wx:for="{{members}}" wx:key="index">
+      <view class="member-item">
+        <view class="member-header">
+          <text class="member-index">{{index === 0 ? '主要负责人' : '其他负责人' + index}}</text>
+          <text wx:if="{{index > 0}}" class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
+        </view>
+        <view class="member-form-group">
+          <view class="member-form-row">
+            <text class="member-label required">姓名</text>
+            <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble">
+              <input class="input member-full-input" placeholder="请输入姓名搜索" value="{{item.name}}" data-index="{{index}}" bindinput="handleMemberNameInput" bindfocus="handleMemberNameFocus" />
+              <scroll-view scroll-y class="search-results" wx:if="{{memberSearchResults[index] && memberSearchResults[index].length > 0}}">
+                <view wx:if="{{memberSearchResults[index].length === 0}}" class="search-placeholder">未找到相关人员</view>
+                <view wx:for="{{memberSearchResults[index]}}" wx:key="userId" wx:for-index="userIndex" class="search-item member-search-item" bindtap="selectMember" data-index="{{index}}" data-user-index="{{userIndex}}">
+                  <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" />
+                  <image wx:else src="/images/default-avatar.png" class="member-avatar" />
+                  <view class="member-info">
+                    <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
+                    <text class="member-school">{{item.school || '暂无学校信息'}}</text>
+                  </view>
+                </view>
+              </scroll-view>
+            </view>
+          </view>
+          <view class="member-form-row">
+            <text class="member-label required">联系电话</text>
+            <input class="input member-full-input" placeholder="请输入联系电话" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
+          </view>
+          <view class="member-form-row">
+            <text class="member-label required">校友会职务</text>
+            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
+          </view>
+          <view class="member-form-row">
+            <text class="member-label required">社会职务</text>
+            <input class="input member-full-input" placeholder="请输入社会职务" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" />
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view class="form-title">申请材料</view>
     <view class="form-item">
       <text class="label">校友会logo</text>
-      <view class="upload-container">
-        <input class="input" placeholder="请输入校友会logo" value="{{formData.logo}}" data-field="logo" bindinput="handleInput" style="display: none;" />
-        <button class="upload-btn" bindtap="chooseLogo">选择图片</button>
-        <image wx:if="{{formData.logo}}" src="{{formData.logo}}" class="uploaded-image" mode="aspectFit" />
+      <view class="logo-options">
+        <radio-group class="radio-group" bindchange="handleLogoTypeChange">
+          <label class="radio-label">
+            <radio value="default" checked="{{formData.logoType === 'default'}}" color="#3F61CA" /> 使用平台默认logo
+          </label>
+          <label class="radio-label">
+            <radio value="school" checked="{{formData.logoType === 'school'}}" color="#3F61CA" /> 使用学校logo
+          </label>
+          <label class="radio-label">
+            <radio value="upload" checked="{{formData.logoType === 'upload'}}" color="#3F61CA" /> 自己上传校友会logo
+          </label>
+        </radio-group>
+        
+        <view class="logo-preview-box">
+          <view wx:if="{{formData.logoType === 'upload'}}" class="upload-action">
+            <button class="upload-btn" bindtap="chooseLogo">选择图片</button>
+          </view>
+          <view wx:if="{{formData.logo}}" class="logo-preview-wrapper">
+            <image src="{{formData.logo}}" class="logo-preview" mode="aspectFit" />
+            <view wx:if="{{formData.logoType === 'upload'}}" class="logo-delete" bindtap="deleteLogo">×</view>
+          </view>
+        </view>
       </view>
     </view>
 
@@ -70,9 +269,22 @@
     </view>
 
     <view class="form-item">
-      <text class="label">申请材料</text>
+      <text class="label">申请理由</text>
+      <textarea class="textarea" placeholder="选填" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item required">
+      <text class="label">校友会简介</text>
+      <textarea class="textarea" placeholder="请输入校友会简介" value="{{formData.associationProfile}}" data-field="associationProfile" bindinput="handleInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">附件</text>
       <view class="upload-container">
-        <button class="upload-btn" bindtap="chooseAttachment">选择文件</button>
+        <view class="upload-btn-group">
+          <button class="upload-btn" bindtap="chooseAttachment">选择文档</button>
+          <button class="upload-btn" bindtap="chooseAttachmentImage">选择图片</button>
+        </view>
         <view wx:if="{{attachments.length > 0}}" class="attachments-list">
           <view wx:for="{{attachments}}" wx:key="index" class="attachment-item">
             <text class="attachment-name">{{item.name}}</text>
@@ -81,52 +293,17 @@
         </view>
       </view>
     </view>
-    
 
-
-    <view class="form-item required">
-      <text class="label">申请理由</text>
-      <textarea class="textarea" placeholder="请输入申请理由" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
-    </view>
-  </view>
-
-  <view class="form-card" style="margin-top: 20rpx;">
-    <view class="form-header">
-      <view class="form-title">其余人员信息</view>
-      <view class="add-btn" bindtap="addMember">+ 添加成员</view>
+    <!-- 反馈入口 -->
+    <view class="feedback-hint-section">
+      <text class="feedback-hint-text">遇到问题或信息有误？</text>
+      <text class="feedback-hint-link" bindtap="goToFeedback">点击反馈</text>
     </view>
 
-    <block wx:for="{{members}}" wx:key="index">
-      <view class="member-item">
-        <view class="member-header">
-          <text class="member-index">成员 {{index + 1}}</text>
-          <text class="delete-btn" bindtap="deleteMember" data-index="{{index}}">删除</text>
-        </view>
-        <view class="form-row">
-          <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble">
-            <input class="input member-input" placeholder="姓名" value="{{item.name}}" data-index="{{index}}" bindinput="handleMemberNameInput" bindfocus="handleMemberNameFocus" />
-            <scroll-view scroll-y class="search-results" wx:if="{{memberSearchResults[index] && memberSearchResults[index].length > 0}}">
-              <view wx:if="{{memberSearchResults[index].length === 0}}" class="search-placeholder">未找到相关人员</view>
-              <view wx:for="{{memberSearchResults[index]}}" wx:key="userId" wx:for-index="userIndex" class="search-item member-search-item" bindtap="selectMember" data-index="{{index}}" data-user-index="{{userIndex}}">
-                <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" />
-                <image wx:else src="/images/default-avatar.png" class="member-avatar" />
-                <view class="member-info">
-                  <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
-                  <text class="member-school">{{item.school || '暂无学校信息'}}</text>
-                </view>
-              </view>
-            </scroll-view>
-          </view>
-          <input class="input member-input" placeholder="角色 (如:副会长)" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
-        </view>
-      </view>
-    </block>
-    
-    <view wx:if="{{members.length === 0}}" class="empty-tip">暂无其他成员，请点击上方按钮添加</view>
     <view class="form-actions">
       <button class="submit-btn" bindtap="submitForm">提交申请</button>
     </view>
-    </view>
+  </view>
   </view>
 </view>
 </custom-nav-bar>

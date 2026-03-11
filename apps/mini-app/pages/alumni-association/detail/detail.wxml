@@ -24,15 +24,13 @@
             <view class="flex-1 ml-20">
               <view class="name-row">
                 <text class="text-primary text-bold">{{associationInfo.name}}</text>
-                <view wx:if="{{associationInfo.certifications && associationInfo.certifications.length}}" class="cert-tag-wrap">
-                  <block wx:for="{{associationInfo.certifications}}" wx:key="id">
-                    <view class="cert-tag" data-type="{{item.type}}" data-id="{{item.id}}" catchtap="handleCertificationTap">
-                      {{item.label}}
-                    </view>
-                  </block>
-                </view>
+                <!-- 认证等级标签 -->
+                <image wx:if="{{associationInfo.certificationFlag === 1}}" class="cert-badge-img" src="{{certFirstImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <image wx:elif="{{associationInfo.certificationFlag === 2}}" class="cert-badge-img" src="{{certSecondImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <image wx:elif="{{associationInfo.certificationFlag === 3}}" class="cert-badge-img" src="{{certThirdImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                <view wx:else class="uncertified-tag" catchtap="goToCertificationInfo">未认证</view>
               </view>
-              <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row" catchtap="viewSchoolDetail">
+              <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row">
                 <view class="school-tag">{{associationInfo.schoolName}}</view>
               </view>
               <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
@@ -51,54 +49,91 @@
           </view>
         </view>
 
-        <view class="tabs">
-          <view class="tab-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
-            {{item}}
-          </view>
-        </view>
+        <tab-bar tabs="{{tabs}}" activeTab="{{activeTab}}" bind:tabchange="onTabChange" />
 
         <view wx:if="{{activeTab === 0}}" class="tab-content">
           <view class="card">
             <view class="text-bold mb-20">基本信息</view>
-            <view wx:if="{{associationInfo.description}}" class="text-secondary">{{associationInfo.description}}</view>
-            <view class="divider"></view>
-            <view wx:if="{{associationInfo.president}}" class="text-secondary">会长：{{associationInfo.president}}</view>
-            <view class="text-secondary mt-10">成员：{{associationInfo.memberCount || 0}}人</view>
-            <view wx:if="{{associationInfo.establishedYear}}" class="text-secondary mt-10">成立于：{{associationInfo.establishedYear}}年</view>
-            <view wx:if="{{associationInfo.contactInfo}}" class="text-secondary mt-10">联系信息：{{associationInfo.contactInfo}}</view>
-          </view>
+            <view class="basic-info-item">成员数量：{{associationInfo.memberCount || 0}}人</view>
+            <view wx:if="{{associationInfo.description}}" class="basic-info-item">简介：{{associationInfo.description}}</view>
 
-          <!-- 通知列表 -->
-          <view class="card mt-20 dashboard-card">
+            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
+              <view class="show-members-title">主要负责人</view>
+              <view class="show-members-list">
+                <view class="show-member-item" bindtap="viewCoreMemberDetail">
+                  <view class="show-member-left">
+                    <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
+                    <text wx:if="{{associationInfo.contactInfo}}" class="show-member-contact">{{associationInfo.contactInfo}}</text>
+                  </view>
+                  <text class="show-member-role">{{associationInfo.chargeRole || '-'}}</text>
+                </view>
+              </view>
+            </view>
+
+
+            <!-- 核心成员展示 -->
+            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
+              <view class="show-members-title">其他负责人</view>
+              <view class="show-members-list">
+                <view class="show-member-item" wx:for="{{coreMemberList}}" wx:key="index" bindtap="viewCoreMemberDetail" data-member="{{item}}">
+                  <text class="show-member-name">{{item.username || '-'}}</text>
+                  <text class="show-member-role">{{item.roleName || '-'}}</text>
+                </view>
+              </view>
+            </view>
+
+
+
+            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
+              <view class="show-members-title">主要联系人</view>
+              <view class="show-members-list">
+                <view class="show-member-item" bindtap="viewCoreMemberDetail">
+                  <text class="show-member-name">{{associationInfo.zhName || '-'}}</text>
+                  <text class="show-member-role">{{associationInfo.zhRole || '-'}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 组织结构标签页 -->
+        <view wx:if="{{activeTab === 1}}" class="tab-content">
+          <view class="card dashboard-card">
             <view class="section-header">
               <view class="section-title">
-                <view class="text-bold">通知</view>
-                <view class="section-subtitle">最新提醒、重要动态</view>
+                <view class="text-bold">组织架构</view>
+                <view class="section-subtitle">组织架构展示</view>
               </view>
-              <view class="text-placeholder" bindtap="handleDeveloping">查看更多</view>
             </view>
-            <view class="dashboard-list notification" wx:for="{{notifications}}" wx:key="id" bindtap="viewNotificationDetail" data-id="{{item.id}}">
-              <view class="dashboard-item">
-                <view class="item-leading">
-                  <view class="item-icon notify-icon">通</view>
-                </view>
-                <view class="item-content">
-                  <view class="item-title">{{item.title}}</view>
-                  <view class="item-desc">{{item.content}}</view>
-                  <view class="item-meta">
-                    <text>{{item.time}}</text>
-                    <view wx:if="{{!item.isRead}}" class="status-dot"></view>
+
+            <view class="role-list-section">
+              <!-- 骨架屏 -->
+              <view wx:if="{{organizationLoading}}" class="skeleton-role-list">
+                <view class="role-item skeleton-item" wx:for="[1,2,3]" wx:key="*this">
+                  <view class="role-header">
+                    <view class="role-name-container">
+                      <text class="expand-icon">▶</text>
+                      <view class="skeleton-role-name"></view>
+                    </view>
+                    <view class="skeleton-role-count"></view>
                   </view>
                 </view>
-                <view class="item-extra">
-                  <text class="chevron">›</text>
-                </view>
               </view>
+              
+              <!-- 空状态 -->
+              <view wx:elif="{{roleList.length === 0}}" class="empty-container">
+                <text class="empty-text">暂无角色数据</text>
+              </view>
+              
+              <org-structure list="{{roleList}}" loading="{{organizationLoading}}" empty-text="暂无角色数据" />
             </view>
           </view>
+        </view>
 
+        <!-- 最新动态标签页 -->
+        <view wx:if="{{activeTab === 2}}" class="tab-content">
           <!-- 活动列表 -->
-          <view class="card mt-20 dashboard-card">
+          <view class="card dashboard-card" wx:if="{{activityList && activityList.length > 0}}">
             <view class="section-header">
               <view class="section-title">
                 <view class="text-bold">活动</view>
@@ -130,135 +165,42 @@
             </view>
           </view>
 
-          <!-- 附近权益列表 -->
-          <!-- <view class="card mt-20 dashboard-card">
+          <!-- 资讯列表 -->
+          <view class="card mt-20 dashboard-card" wx:if="{{articleList && articleList.length > 0}}">
             <view class="section-header">
               <view class="section-title">
-                <view class="text-bold">附近权益</view>
-                <view class="section-subtitle">优选商户权益随时用</view>
-              </view>
-              <view class="text-placeholder" bindtap="handleDeveloping">查看更多</view>
-            </view>
-            <view class="dashboard-list benefit" wx:for="{{nearbyBenefits}}" wx:key="id" bindtap="viewBenefitDetail" data-id="{{item.id}}">
-              <view class="dashboard-item">
-                <view class="item-leading benefit-leading">
-                  <view class="benefit-tag">{{item.discount}}</view>
-                </view>
-                <view class="item-content">
-                  <view class="item-title">
-                    {{item.title}}
-                    <view wx:if="{{item.isNew}}" class="new-badge-inline">上新</view>
-                  </view>
-                  <view class="item-desc">{{item.merchant}}</view>
-                  <view class="item-meta">
-                    <text>距离{{item.distance}}</text>
-                  </view>
-                </view>
-                <view class="item-extra">
-                  <view class="item-chip ghost">查看</view>
-                  <text class="chevron">›</text>
-                </view>
+                <view class="text-bold">资讯</view>
+                <view class="section-subtitle">最新动态与通知</view>
               </view>
             </view>
-          </view> -->
-
-          <!-- 校友企业列表 -->
-          <!-- <view class="card mt-20 dashboard-card">
-            <view class="section-header">
-              <view class="section-title">
-                <view class="text-bold">校友企业</view>
-                <view class="section-subtitle">优秀校友创办的企业</view>
-              </view>
-            </view>
-            <view class="dashboard-list enterprise" wx:for="{{enterpriseList}}" wx:key="placeId">
-              <view class="dashboard-item" bindtap="viewEnterpriseDetail" data-id="{{item.placeId}}">
+            <view class="dashboard-list news">
+              <view class="dashboard-item news-item" wx:for="{{articleList}}" wx:key="id" bindtap="goToArticleDetail" data-id="{{item.id}}">
                 <view class="item-leading">
-                  <block wx:if="{{item.logo}}">
-                    <image class="item-logo" src="{{item.logo}}" mode="aspectFill" />
-                  </block>
-                  <block wx:else>
-                    <view class="item-icon enterprise-icon">企</view>
-                  </block>
+                  <image class="item-cover" src="{{item.cover}}" mode="aspectFill" />
                 </view>
                 <view class="item-content">
-                  <view class="item-title">{{item.placeName}}</view>
-                  <view class="item-meta location-row">
-                    <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                    <text>{{item.province}}{{item.city}}{{item.district}}</text>
+                  <view class="news-header">
+                    <view class="item-title">{{item.title}}</view>
                   </view>
-                </view>
-              </view>
-            </view>
-          </view> -->
-
-          <!-- 校友商铺列表 -->
-          <!-- <view class="card mt-20 dashboard-card">
-            <view class="section-header">
-              <view class="section-title">
-                <view class="text-bold">校友商铺</view>
-                <view class="section-subtitle">校友经营的优质商铺</view>
-              </view>
-              <view class="text-placeholder" bindtap="handleDeveloping">查看更多</view>
-            </view>
-            <view class="dashboard-list shop" wx:for="{{alumniShops}}" wx:key="id" bindtap="viewShopDetail" data-id="{{item.id}}">
-              <view class="dashboard-item">
-                <view class="item-leading">
-                  <view class="item-icon shop-icon">商</view>
-                </view>
-                <view class="item-content">
-                  <view class="item-title">{{item.name}}</view>
-                  <view class="item-desc">{{item.description}}</view>
-                  <view class="item-meta">
-                    <text class="rating-text">⭐ {{item.rating}}</text>
-                    <text class="meta-divider">·</text>
-                    <text>{{item.category}}</text>
-                    <text class="meta-divider">·</text>
-                    <text>距离{{item.distance}}</text>
-                  </view>
-                </view>
-                <view class="item-extra">
-                  <text class="chevron">›</text>
-                </view>
-              </view>
-            </view>
-          </view> -->
-        </view>
-
-        <!-- 组织结构标签页 -->
-        <view wx:if="{{activeTab === 1}}" class="tab-content">
-          <view class="card dashboard-card">
-            <view class="section-header">
-              <view class="section-title">
-                <view class="text-bold">组织架构</view>
-                <view class="section-subtitle">组织架构展示</view>
-              </view>
-            </view>
-            
-            <view class="role-list-section">
-              <!-- 骨架屏 -->
-              <view wx:if="{{organizationLoading}}" class="skeleton-role-list">
-                <view class="role-item skeleton-item" wx:for="[1,2,3]" wx:key="*this">
-                  <view class="role-header">
-                    <view class="role-name-container">
-                      <text class="expand-icon">▶</text>
-                      <view class="skeleton-role-name"></view>
+                  <view class="news-footer">
+                    <view class="item-meta">
+                      <text class="news-time">{{item.time}}</text>
                     </view>
-                    <view class="skeleton-role-count"></view>
                   </view>
                 </view>
               </view>
-              
-              <!-- 空状态 -->
-              <view wx:elif="{{roleList.length === 0}}" class="empty-container">
-                <text class="empty-text">暂无角色数据</text>
-              </view>
-              
-              <org-structure list="{{roleList}}" loading="{{organizationLoading}}" empty-text="暂无角色数据" />
             </view>
+          </view>
+
+          <!-- 空状态 -->
+          <view class="empty-container" wx:if="{{(!activityList || activityList.length === 0) && (!articleList || articleList.length === 0)}}">
+            <view class="empty-icon">📭</view>
+            <view class="empty-text">暂无最新动态</view>
+            <view class="empty-desc">该校友会还没有发布活动或资讯</view>
           </view>
         </view>
 
-        <view wx:if="{{activeTab === 2}}">
+        <view wx:if="{{activeTab === 3}}">
           <view class="member-list">
             <!-- 骨架屏 -->
             <view wx:if="{{loading && members.length === 0}}" class="skeleton-list">
@@ -300,3 +242,37 @@
     </view>
   </view>
 </custom-nav-bar>
+
+<!-- 悬浮添加按钮 (FAB) -->
+<view class="fab-btn" wx:if="{{showFab}}" bindtap="showActionSheet">
+  <view class="fab-icon">+</view>
+</view>
+
+<!-- 弹窗/动作面板 -->
+<view class="action-sheet-mask {{showAction ? 'show' : ''}}" bindtap="hideActionSheet">
+  <view class="action-sheet {{showAction ? 'show' : ''}}" catchtap="true">
+    <view class="action-header">
+      <view class="action-title">快捷管理</view>
+      <view class="action-subtitle">选择您要执行的操作</view>
+    </view>
+    <view class="action-body">
+      <view class="action-item" bindtap="navToAddActivity">
+        <view class="item-icon-wrap activity-bg">
+          <text class="action-emoji">🏃</text>
+        </view>
+        <view class="item-info">
+          <text class="item-name">新增活动</text>
+        </view>
+      </view>
+      <view class="action-item" bindtap="navToAddNews">
+        <view class="item-icon-wrap news-bg">
+          <text class="action-emoji">📰</text>
+        </view>
+        <view class="item-info">
+          <text class="item-name">新增资讯</text>
+        </view>
+      </view>
+    </view>
+    <view class="action-footer" bindtap="hideActionSheet">取消</view>
+  </view>
+</view>

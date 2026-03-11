@@ -2,6 +2,7 @@
     "navigationBarTitleText": "城市",
     "navigationStyle": "custom",
     "enablePullDownRefresh": false,
+    "backgroundTextStyle": "dark",
     "usingComponents": {
         "message-notification": "/components/message-notification/message-notification",
         "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"

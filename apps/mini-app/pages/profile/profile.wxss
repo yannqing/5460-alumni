@@ -215,7 +215,49 @@
   flex-shrink: 0;
 }
 
+/* 未认证标签 */
+.uncertified-tag {
+  margin-left: 20rpx;
+  padding: 4rpx 16rpx;
+  font-size: 22rpx;
+  color: #999999;
+  background: #f5f5f5;
+  border-radius: 20rpx;
+  border: 1rpx solid #e0e0e0;
+  flex-shrink: 0;
+}
 
+/* 校友认证等级图片样式 */
+.alumni-cert-badge-img {
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+/* 校友认证等级标签（已废弃，改用图片） */
+.alumni-cert-badge {
+  margin-left: 20rpx;
+  padding: 4rpx 16rpx;
+  font-size: 22rpx;
+  color: #ffffff;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 校友一级认证 - 蓝色 */
+.alumni-cert-level-1 {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+}
+
+/* 校友二级认证 - 紫色 */
+.alumni-cert-level-2 {
+  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+}
+
+/* 校友三级认证 - 红色 */
+.alumni-cert-level-3 {
+  background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+}
 
 /* 下方主体内容块 */
 .block_1 {
@@ -664,7 +706,7 @@
   background-color: rgba(255,255,255,1.000000);
   border-radius: 29rpx;
   width: 678rpx;
-  height: 380rpx;
+  min-height: 380rpx;
   display: flex;
   flex-direction: column;
   margin: -2rpx 0 0 42rpx;
@@ -694,6 +736,12 @@
   display: flex;
   justify-content: flex-start;
   margin: 24rpx 0 0 76rpx;
+}
+
+/* 其他功能第二行（我的邀请在我的券包下面，每行四个） */
+.list_6_row2 {
+  margin-top: 24rpx;
+  margin-bottom: 0;
 }
 
 .image-text_9-0 {

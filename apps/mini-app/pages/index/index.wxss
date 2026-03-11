@@ -1,29 +1,29 @@
 /* pages/index/index.wxss */
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: #f8f8f8;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.main-scroller {
+  flex: 1;
+  height: 100%;
+  width: 100%;
 }
 
 /* 顶部 Banner */
 .header-banner {
   height: 450rpx;
   position: relative;
-  left: 0;
-  right: 0;
   z-index: 10;
-  overflow: hidden;
+  background-color: #f8f8f8; /* 兜底背景色，防止图片加载时透明 */
 }
 
 .banner-swiper {
   width: 100%;
   height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
 }
 
 .banner-image {
@@ -36,10 +36,6 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(180deg, #40B2E6 0%, #6BC5ED 100%);
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
 }
 
 .banner-content {
@@ -55,11 +51,11 @@
   flex-direction: column;
   align-items: center;
   z-index: 1;
-  pointer-events: none; /* 允许触摸事件穿透到 swiper */
+  pointer-events: none;
 }
 
 .platform-tag {
-  pointer-events: auto; /* logo 区域恢复触摸事件 */
+  pointer-events: auto;
 }
 
 /* 轮播图指示器样式 */
@@ -74,11 +70,13 @@
 }
 
 .platform-tag {
-  position: absolute;
+  position: fixed;
   left: 30rpx;
-  background-color: rgba(255, 255, 255, 0.0);
+  background-color: transparent;
   border-radius: 30rpx;
+  z-index: 1000; /* 确保在所有内容（包括吸顶菜单）之上 */
 }
+
 
 .platform-logo {
   width: 130rpx;
@@ -86,56 +84,55 @@
   display: block;
 }
 
-.slogan-container {
-  margin-top: 180rpx;
-  display: flex;
-  align-items: baseline;
-  gap: 20rpx;
+/* 核心吸顶包裹容器：为内部的 sticky 元素提供边界 */
+.sticky-wrapper {
+  position: relative;
+  width: 100%;
 }
 
-.slogan-main {
-  font-size: 56rpx;
-  font-weight: bold;
-  font-style: italic;
-  letter-spacing: 4rpx;
+/* 把 Banner 和 Nav 组合在一起的容器 */
+.sticky-header-group {
+  width: 100%;
+  pointer-events: none; /* 穿透到内部元素 */
+  background-color: #f8f8f8; /* 关键：吸顶组合增加实体背景，防止滚动穿透 */
 }
 
-.slogan-side {
-  font-size: 28rpx;
-  opacity: 0.8;
-}
-
-.sub-slogan {
-  font-size: 32rpx;
-  margin-top: 24rpx;
-  opacity: 0.95;
-  font-weight: 500;
+.sticky-header-group > view {
+  pointer-events: auto; /* 内部元素恢复交互 */
 }
 
 /* 导航区域 */
 .nav-container {
   margin: -120rpx 15rpx 0;
   background-color: #fff;
-  border-radius: 20rpx;
+  border-top-left-radius: 20rpx;
+  border-top-right-radius: 20rpx;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   padding: 60rpx 20rpx 35rpx;
+  /* 显式提升层级，确保在轮播图之上 */
   position: relative;
-  left: 0;
-  right: 0;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
   z-index: 20;
-  transition: all 0.3s ease;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  transition: all 0.25s ease-out;
+  background-color: #fff; /* 确保背景不透明 */
 }
 
-/* 导航区域固定在顶部的样式 */
+/* 导航区域被吸顶时的状态 (已取消扩展示效，保持卡片感) */
 .nav-container.fixed {
-  position: fixed;
-  top: 0;
-  left: 15rpx;
-  right: 15rpx;
-  margin-top: 0;
-  border-radius: 0 0 20rpx 20rpx;
-  z-index: 999;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  margin-left: 15rpx;
+  margin-right: 15rpx;
+  border-top-left-radius: 20rpx;
+  border-top-right-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  background-color: #fff;
+}
+
+.scroll-sentinel {
+  height: 1rpx;
+  width: 100%;
+  visibility: hidden;
 }
 
 .nav-header {
@@ -216,39 +213,58 @@
   font-weight: 500;
 }
 
+/* 手动下拉刷新 */
+.manual-refresher {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f8f8;
+  transition: height 0.2s ease-out, opacity 0.2s;
+}
+
+.dot-container {
+  display: flex;
+  gap: 12rpx;
+  padding: 20rpx 0;
+}
+
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #38C7D4;
+}
+
+.dot.animating {
+  animation: dot-pulse 1s infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
 /* 文章列表容器 */
-.article-container {
+.article-list {
   background-color: #f8f8f8;
   margin-top: 0;
   position: relative;
   z-index: 5;
-  height: calc(100vh - 220rpx);
-  overflow: hidden;
-  transition: all 0.3s ease;
+  min-height: calc(100vh - 200rpx);
+  padding: 0 0 100rpx 0;
 }
 
-/* 文章列表 scroll-view */
-.article-scroll-view {
-  width: 100%;
-  background-color: #f8f8f8;
-  margin-top: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  height: 100%;
-}
-
-/* 滚动条样式 */
-.article-scroll-view::-webkit-scrollbar {
-  width: 0;
-  display: none;
-}
-
-/* 文章列表 */
-.article-list {
-  padding: 0 0 20rpx 0;
-  background-color: #f8f8f8;
-  margin-top: 0;
-}
 
 .article-item {
   background-color: #fff;
@@ -428,3 +444,447 @@
   color: #999;
   font-size: 26rpx;
 }
+
+/* ========== 热门活动组件样式 ========== */
+.hot-activity-section {
+  padding: 0 15rpx;
+  margin-bottom: 20rpx;
+  margin-top: 20rpx;
+}
+
+.hot-activity-box {
+  background: transparent;
+  border-radius: 20rpx;
+  overflow: visible;
+}
+
+/* 顶部Banner图片 */
+.hot-activity-banner,
+.hot-shop-banner {
+  width: 100%;
+  display: block;
+  position: relative;
+}
+
+.banner-img {
+  width: 100%;
+  display: block;
+}
+
+.banner-title {
+  position: absolute;
+  left: 24rpx;
+  top: 30%;
+  transform: translateY(-50%);
+  height: 50rpx;
+}
+
+.banner-more {
+  position: absolute;
+  right: 34rpx;
+  top: 22%;
+  transform: translateY(-50%);
+  font-size: 18rpx;
+  color: #701FFF;
+}
+
+/* 活动列表 */
+.hot-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 20rpx 24rpx 24rpx;
+  margin-top: -70rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+/* 活动卡片 */
+.activity-card {
+  position: relative;
+  display: flex;
+  gap: 20rpx;
+  padding: 16rpx;
+  background: transparent;
+  border-radius: 16rpx;
+}
+
+.activity-card:active {
+  background: rgba(0, 0, 0, 0.03);
+  transform: scale(0.99);
+}
+
+/* 活动封面 */
+.activity-cover-wrapper {
+  position: relative;
+  width: 240rpx;
+  height: 170rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.activity-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 状态标签 */
+.activity-status {
+  position: absolute;
+  top: 12rpx;
+  left: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 6rpx 16rpx 6rpx 12rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(270deg, #999999 0%, #CCCCCC 100%);
+}
+
+.activity-status.draft {
+  background: linear-gradient(270deg, #999999 0%, #BBBBBB 100%);
+}
+
+.activity-status.signup {
+  background: linear-gradient(270deg, #E02E22 0%, #F66359 55%, #F4675E 100%);
+}
+
+.activity-status.signup-end {
+  background: linear-gradient(270deg, #FF9500 0%, #FFB340 100%);
+}
+
+.activity-status.ing {
+  background: linear-gradient(270deg, #0FCB36 0%, #0DB230 55%, #07AD2A 100%);
+}
+
+.activity-status.end {
+  background: linear-gradient(270deg, #999999 0%, #AAAAAA 55%, #BBBBBB 100%);
+}
+
+.activity-status.cancelled {
+  background: linear-gradient(270deg, #666666 0%, #888888 100%);
+}
+
+.status-dot {
+  width: 10rpx;
+  height: 10rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 4rpx rgba(255, 255, 255, 0.5);
+}
+
+.status-text {
+  font-size: 20rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 活动类型标签 */
+.activity-type-tag {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12rpx 0 12rpx 0;
+  padding: 6rpx 14rpx;
+}
+
+.type-text {
+  font-size: 20rpx;
+  color: #23B850;
+  font-weight: 500;
+}
+
+/* 活动信息 */
+.activity-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  overflow: hidden;
+  padding-top: 4rpx;
+}
+
+.activity-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #131315;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 主办方信息 */
+.activity-organizer {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.organizer-avatar {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.organizer-name {
+  font-size: 22rpx;
+  color: #666;
+  max-width: 150rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.organizer-type {
+  font-size: 18rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  flex-shrink: 0;
+}
+
+.activity-time,
+.activity-address {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.info-icon {
+  font-size: 22rpx;
+  flex-shrink: 0;
+}
+
+.info-text {
+  font-size: 22rpx;
+  color: #7c7c7c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 价格标签 */
+.activity-price-tag {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  background-color: rgba(239, 239, 239, 0.8);
+  border-radius: 16rpx;
+  padding: 6rpx 16rpx;
+}
+
+.price-text {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #963145;
+}
+
+.price-text.free {
+  color: #23B850;
+}
+
+/* 空状态 */
+.hot-activity-empty,
+.hot-shop-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 24rpx 40rpx;
+  margin-top: -70rpx;
+  gap: 16rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+.empty-img {
+  width: 100%;
+}
+
+.empty-icon {
+  font-size: 64rpx;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 加载中 */
+.hot-activity-loading,
+.hot-shop-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30rpx 24rpx;
+  margin-top: -70rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 12rpx;
+}
+
+.loading-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #ff6b4a;
+  animation: loading-dot-pulse 1s infinite ease-in-out;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loading-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+/* ========== 热门商铺组件样式 ========== */
+.hot-shop-section {
+  padding: 0 15rpx;
+  margin-bottom: 20rpx;
+}
+
+.hot-shop-box {
+  background: transparent;
+  border-radius: 20rpx;
+  overflow: visible;
+}
+
+/* 商铺列表 */
+.hot-shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 20rpx 24rpx 24rpx;
+  margin-top: -70rpx;
+  background: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+}
+
+/* 商铺卡片 */
+.shop-card {
+  position: relative;
+  display: flex;
+  gap: 20rpx;
+  padding: 16rpx;
+  background: transparent;
+  border-radius: 16rpx;
+}
+
+.shop-card:active {
+  background: rgba(0, 0, 0, 0.03);
+  transform: scale(0.99);
+}
+
+/* 商铺封面 */
+.shop-cover-wrapper {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.shop-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 商铺类型标签 */
+.shop-type-tag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(24, 144, 255, 0.9);
+  border-radius: 0 8rpx 0 12rpx;
+  padding: 4rpx 12rpx;
+}
+
+.shop-type-tag .type-text {
+  font-size: 18rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 商铺信息 */
+.shop-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  overflow: hidden;
+  padding-top: 4rpx;
+}
+
+.shop-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #131315;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shop-desc {
+  display: flex;
+  align-items: center;
+}
+
+.desc-text {
+  font-size: 24rpx;
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.shop-address {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+/* 优惠标签 */
+.shop-discount-tag {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  background: linear-gradient(135deg, #ff6b4a 0%, #ff9068 100%);
+  border-radius: 16rpx;
+  padding: 6rpx 16rpx;
+}
+
+.discount-text {
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #fff;
+}
+
+.loading-dot.shop {
+  background-color: #1890ff;
+}
+

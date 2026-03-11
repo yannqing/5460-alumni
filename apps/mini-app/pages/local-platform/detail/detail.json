@@ -5,7 +5,9 @@
   "onReachBottomDistance": 50,
   "usingComponents": {
     "org-structure": "/components/org-structure/org-structure",
-    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar",
+    "message-notification": "/components/message-notification/message-notification",
+    "tab-bar": "/components/tab-bar/tab-bar"
   }
 }
 

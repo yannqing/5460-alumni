@@ -1,113 +1,274 @@
-<!--pages/index/index.wxml-->
-<!-- 消息通知组件 -->
-<message-notification />
-
-<view class="container" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
-  <!-- 顶部 Banner 区域 -->
-  <view class="header-banner" style="transform: translateY({{bannerTranslateY}}px); transition: transform 0.1s ease-out;">
-    <!-- 轮播图背景 -->
-    <swiper 
-      wx:if="{{bannerList.length > 0}}"
-      class="banner-swiper" 
-      indicator-dots="{{bannerList.length > 1}}"
-      autoplay="{{bannerList.length > 1}}"
-      interval="3000"
-      duration="500"
-      circular="{{bannerList.length > 1}}"
-      bindchange="onBannerChange"
-      touchable="{{true}}"
-      disable-touch="{{false}}"
-    >
-      <swiper-item wx:for="{{bannerList}}" wx:key="bannerId" wx:for-item="banner">
-        <image class="banner-image" src="{{banner.imageUrl}}" mode="aspectFill"></image>
-      </swiper-item>
-    </swiper>
-    <!-- 如果没有轮播图，显示默认背景 -->
-    <view wx:else class="banner-default-bg"></view>
-    
-    <!-- 内容层（文字等） -->
-    <view class="banner-content">
-      <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
-        <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
-      </view>
-    </view>
+<view class="container">
+  <!-- 顶部 Logo：外置到 scroll-view 之外，实现真正的全场固定 -->
+  <view class="platform-tag" style="top: {{statusBarHeight + 7}}px;">
+    <image class="platform-logo" src="{{icon5460}}" mode="aspectFit"></image>
   </view>
 
-  <!-- 导航菜单区域 -->
-  <view class="nav-container {{navFixed ? 'fixed' : ''}}">
-    <view class="nav-header">
-      <view class="nav-title-tag">校友功能</view>
-    </view>
-    <view class="nav-grid">
-      <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
-        <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
-        <text class="nav-text">校友总会</text>
-      </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
-        <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
-        <text class="nav-text">校友会</text>
-      </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/alumni/list/list">
-        <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
-        <text class="nav-text">校友</text>
-      </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list" data-disabled="true">
-        <view class="nav-icon-wrapper">
-          <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
-          <view class="nav-construction-tag">建设中</view>
+  <!-- 使用 scroll-view 代替页面原生滚动 -->
+  <scroll-view 
+    class="main-scroller" 
+    scroll-y 
+    enhanced 
+    bounces="{{false}}"
+    show-scrollbar="{{false}}" 
+    fast-deceleration="{{true}}"
+    scroll-anchoring="{{true}}"
+    bindscrolltolower="onReachBottom"
+    bindscroll="onScroll"
+    scroll-with-animation
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    lower-threshold="200"
+  >
+
+
+    <!-- 核心布局建议：将吸顶 Header 和 列表内容放在同一个容器下，确保吸顶边界涵盖整个列表 -->
+    <view class="sticky-wrapper">
+      <!-- 把 Banner 和校友功能卡片包在一起，实现"相对静止"移动 -->
+      <view class="sticky-header-group" style="position: sticky; top: {{stickyGroupTop}}px; z-index: 200;">
+        <!-- 顶部 Banner 区域 -->
+        <view class="header-banner">
+          <swiper 
+            wx:if="{{bannerList.length > 0}}"
+            class="banner-swiper" 
+            indicator-dots="{{bannerList.length > 1}}"
+            autoplay="{{bannerList.length > 1}}"
+            interval="3000"
+            duration="500"
+            circular="{{bannerList.length > 1}}"
+            bindchange="onBannerChange"
+          >
+            <swiper-item wx:for="{{bannerList}}" wx:key="bannerId" wx:for-item="banner">
+              <image class="banner-image" src="{{banner.imageUrl}}" mode="aspectFill" lazy-load></image>
+            </swiper-item>
+          </swiper>
+          <view wx:else class="banner-default-bg"></view>
+          
+          <view class="banner-content">
+            <!-- 原本在这里的 logo 已移出 -->
+          </view>
         </view>
-        <text class="nav-text">商户</text>
-      </view>
-      <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
-        <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
-        <text class="nav-text">城市</text>
-      </view>
-    </view>
-  </view>
 
-  <!-- 文章列表容器 -->
-  <view class="article-container">
-    <!-- 文章列表区域 - 使用 scroll-view 实现局部滚动 -->
-    <scroll-view 
-      class="article-scroll-view"
-      scroll-y="true"
-      bindscrolltolower="onReachBottom"
-      refresher-enabled="{{true}}"
-      refresher-triggered="{{refreshing}}"
-      bindrefresherrefresh="onListRefresh"
-      scroll-with-animation="true"
-      style="height: {{articleScrollHeight}}px;"
-      bindtouchstart="onScrollViewTouchStart"
-      catchtouchmove="onScrollViewTouchMove"
-    >
+        <!-- 导航菜单区域：校友功能容器 -->
+        <!-- 它们在同一个组合里，相对静止，一起由组合的 sticky top 控制位置 -->
+        <view class="nav-container {{navFixed ? 'fixed' : ''}}">
+          <view class="nav-header">
+            <view class="nav-title-tag">校友功能</view>
+          </view>
+          <view class="nav-grid">
+            <view class="nav-item" bindtap="navTo" data-url="/pages/school/list/list">
+              <image class="nav-icon" src="{{iconSchool}}" mode="aspectFit"></image>
+              <text class="nav-text">校友总会</text>
+            </view>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/alumni-association/list/list">
+              <image class="nav-icon" src="{{iconAssociation}}" mode="aspectFit"></image>
+              <text class="nav-text">校友会</text>
+            </view>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/alumni/list/list">
+              <image class="nav-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
+              <text class="nav-text">校友</text>
+            </view>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/merchant/list/list" data-disabled="true">
+              <view class="nav-icon-wrapper">
+                <image class="nav-icon" src="{{iconCircle}}" mode="aspectFit"></image>
+                <view class="nav-construction-tag">建设中</view>
+              </view>
+              <text class="nav-text">商户</text>
+            </view>
+            <view class="nav-item" bindtap="navTo" data-url="/pages/local-platform/list/list">
+              <image class="nav-icon" src="{{iconActivity}}" mode="aspectFit"></image>
+              <text class="nav-text">城市</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 哨兵节点 -->
+      <view class="scroll-sentinel" id="post-header"></view>
+
+      <!-- 手动下拉刷新区域：位于菜单下，文章列表上 -->
+      <view class="manual-refresher" style="height: {{refresherHeight}}px; opacity: {{refresherHeight > 0 ? 1 : 0}};">
+        <view class="dot-container">
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+          <view class="dot {{refreshing || refresherHeight > 40 ? 'animating' : ''}}"></view>
+        </view>
+      </view>
+
+      <!-- 热门活动组件 -->
+      <view class="hot-activity-section" id="article-list-start">
+        <view class="hot-activity-box">
+          <!-- 顶部图片 -->
+          <view class="hot-activity-banner" bindtap="gotoActivityList">
+            <image class="banner-img" src="/assets/home/home_page_activity.png" mode="widthFix"></image>
+            <image class="banner-title" src="/assets/home/home_page_activity_title.png" mode="heightFix"></image>
+            <text class="banner-more">查看更多</text>
+          </view>
+
+          <!-- 活动列表 -->
+          <view class="hot-activity-list" wx:if="{{activityList.length > 0}}">
+            <view
+              class="activity-card"
+              wx:for="{{activityList}}"
+              wx:key="activity_uuid"
+              bindtap="gotoActivityDetail"
+              data-item="{{item}}"
+            >
+              <!-- 左侧：活动封面 -->
+              <view class="activity-cover-wrapper">
+                <image
+                  class="activity-cover"
+                  src="{{item.activity_poster.preview_url}}"
+                  mode="aspectFill"
+                  lazy-load
+                ></image>
+                <!-- 状态标签 -->
+                <view class="activity-status {{activityThemes[item.activity_status].theme}}">
+                  <view class="status-dot"></view>
+                  <text class="status-text">{{activityThemes[item.activity_status].name}}</text>
+                </view>
+                <!-- 活动类型标签 -->
+                <view class="activity-type-tag" wx:if="{{item.type.activity_type_name}}">
+                  <text class="type-text">{{item.type.activity_type_name}}</text>
+                </view>
+              </view>
+
+              <!-- 右侧：活动信息 -->
+              <view class="activity-info">
+                <text class="activity-title">{{item.activityTitle || item.activity_theme}}</text>
+                <!-- 主办方信息 -->
+                <view class="activity-organizer" wx:if="{{item.organizerName}}">
+                  <image class="organizer-avatar" src="{{item.organizerAvatar}}" mode="aspectFill" />
+                  <text class="organizer-name">{{item.organizerName}}</text>
+                  <text class="organizer-type" wx:if="{{item.organizerType === 1}}">校友会</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 2}}">校促会</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 3}}">商户</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 4}}">母校</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 5}}">门店</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 6}}">校友总会</text>
+                </view>
+                <view class="activity-time">
+                  <text class="info-icon">📅</text>
+                  <text class="info-text">{{item.startTime || item.activity_starttime}}</text>
+                </view>
+                <view class="activity-address" wx:if="{{item.address || item.activity_address}}">
+                  <text class="info-icon">📍</text>
+                  <text class="info-text">{{item.province}}{{item.city}}{{item.district}}{{item.address || item.activity_address}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 空状态 -->
+          <view class="hot-activity-empty" wx:if="{{!activityLoading && activityList.length === 0}}">
+            <image class="empty-img" src="/assets/home/home_page_empty.png" mode="widthFix"></image>
+          </view>
+
+          <!-- 加载中 -->
+          <view class="hot-activity-loading" wx:if="{{activityLoading}}">
+            <view class="loading-dots">
+              <view class="loading-dot"></view>
+              <view class="loading-dot"></view>
+              <view class="loading-dot"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 热门商铺组件 -->
+      <view class="hot-shop-section">
+        <view class="hot-shop-box">
+          <!-- 顶部图片 -->
+          <view class="hot-shop-banner">
+            <image class="banner-img" src="/assets/home/home_page_shop.png" mode="widthFix"></image>
+            <image class="banner-title" src="/assets/home/home_page_shop_title.png" mode="heightFix"></image>
+            <text class="banner-more" catchtap="showShopBuilding" bindtap="gotoShopList">查看更多</text>
+          </view>
+
+          <!-- 商铺列表 -->
+          <view class="hot-shop-list" wx:if="{{shopList.length > 0}}">
+            <view
+              class="shop-card"
+              wx:for="{{shopList}}"
+              wx:key="shop_id"
+              bindtap="gotoShopDetail"
+              data-item="{{item}}"
+            >
+              <!-- 左侧：商铺封面 -->
+              <view class="shop-cover-wrapper">
+                <image
+                  class="shop-cover"
+                  src="{{item.shop_logo}}"
+                  mode="aspectFill"
+                  lazy-load
+                ></image>
+                <!-- 商铺类型标签 -->
+                <view class="shop-type-tag" wx:if="{{item.shop_type_name}}">
+                  <text class="type-text">{{item.shop_type_name}}</text>
+                </view>
+              </view>
+
+              <!-- 右侧：商铺信息 -->
+              <view class="shop-info">
+                <text class="shop-name">{{item.shop_name}}</text>
+                <view class="shop-desc" wx:if="{{item.shop_desc}}">
+                  <text class="desc-text">{{item.shop_desc}}</text>
+                </view>
+                <view class="shop-address" wx:if="{{item.shop_address}}">
+                  <text class="info-icon">📍</text>
+                  <text class="info-text">{{item.shop_address}}</text>
+                </view>
+              </view>
+
+              <!-- 优惠标签 -->
+              <view class="shop-discount-tag" wx:if="{{item.discount_info}}">
+                <text class="discount-text">{{item.discount_info}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 空状态 -->
+          <view class="hot-shop-empty" wx:if="{{!shopLoading && shopList.length === 0}}">
+            <image class="empty-img" src="/assets/home/home_page_empty.png" mode="widthFix"></image>
+          </view>
+
+          <!-- 加载中 -->
+          <view class="hot-shop-loading" wx:if="{{shopLoading}}">
+            <view class="loading-dots">
+              <view class="loading-dot shop"></view>
+              <view class="loading-dot shop"></view>
+              <view class="loading-dot shop"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 文章列表 -->
       <view class="article-list">
         <view class="article-item" wx:for="{{articleList}}" wx:key="id" wx:for-index="idx" bindtap="goToDetail" data-id="{{item.id}}" data-index="{{idx}}">
           <view class="article-header">
-            <view class="user-info">
+            <view class="user-info" catchtap="onPublisherTap" data-index="{{idx}}">
               <view class="user-avatar-wrapper">
-                <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+                <image class="user-avatar" src="{{item.avatar}}" mode="aspectFill" lazy-load></image>
               </view>
               <text class="user-name">{{item.username}}</text>
             </view>
             <text class="publish-time">{{item.time}}</text>
           </view>
           <view class="article-body">
-            <!-- 封面图：始终显示图片框 -->
             <view class="article-cover-wrapper {{item.hasChildren ? 'with-title-overlay' : ''}}">
-              <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}"></image>
-              <!-- 如果有子文章，标题显示在图片上 -->
+              <image class="article-cover" src="{{item.cover}}" mode="aspectFill" wx:if="{{item.cover}}" lazy-load></image>
               <view wx:if="{{item.hasChildren}}" class="cover-title-overlay">
                 <view class="overlay-title">{{item.title}}</view>
               </view>
             </view>
 
-            <!-- 如果没有子文章，正常显示标题和描述 -->
             <view wx:if="{{!item.hasChildren}}" class="article-content">
               <view class="article-title">{{item.title}}</view>
               <view class="article-desc">{{item.description}}</view>
             </view>
 
-            <!-- 如果有子文章，显示子文章列表 -->
             <view wx:if="{{item.hasChildren}}" class="children-list">
               <view
                 wx:for="{{item.children}}"
@@ -121,20 +282,22 @@
                   <view class="child-title">{{child.title}}</view>
                 </view>
                 <view class="child-cover-wrapper">
-                  <image wx:if="{{child.cover}}" class="child-cover" src="{{child.cover}}" mode="aspectFill"></image>
+                  <image wx:if="{{child.cover}}" class="child-cover" src="{{child.cover}}" mode="aspectFill" lazy-load></image>
                 </view>
               </view>
             </view>
           </view>
         </view>
 
-        <!-- 加载更多/无数据提示 -->
         <view class="loading-more" wx:if="{{loading}}">加载中...</view>
         <view class="no-more" wx:if="{{!hasMore && articleList.length > 0}}">没有更多了</view>
         <view class="empty-state" wx:if="{{!loading && articleList.length === 0}}">
           <text>暂无内容</text>
         </view>
       </view>
-    </scroll-view>
-  </view>
+    </view>
+
+  </scroll-view>
 </view>
+<message-notification />
+

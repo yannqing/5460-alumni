@@ -12,9 +12,9 @@ Page({
     loading: true,
     // 校友会列表
     associations: [],
-    // 顶部标签：基本信息 / 组织结构 / 会员单位
+    // 单位概况 / 组织结构 / 最新动态 / 会员单位
     activeTab: 0,
-    tabs: ['基本信息', '组织架构', '会员单位'],
+    tabs: ['单位概况', '组织架构', '最新动态', '会员单位'],
     // 组织结构数据
     roleList: [], // 存储角色列表
     organizationLoading: false, // 组织结构加载状态
@@ -25,7 +25,8 @@ Page({
     associationLoading: false,
     // 组织结构编辑相关
     canEditOrg: false, // 是否有编辑权限
-    isEditOrgMode: false // 是否处于编辑模式
+    isEditOrgMode: false, // 是否处于编辑模式
+    articleList: [] // 资讯列表
   },
 
   onLoad(options) {
@@ -81,8 +82,8 @@ Page({
 
   // 下拉刷新
   onPullDownRefresh() {
-    // 如果当前单位标签页，刷新校友会列表
-    if (this.data.activeTab === 2) {
+    // 如果当前是会员单位标签页，刷新校友会列表
+    if (this.data.activeTab === 3) {
       this.loadAssociations(true).finally(() => {
         wx.stopPullDownRefresh()
       })
@@ -95,7 +96,7 @@ Page({
   // 上拉加载更多
   onReachBottom() {
     // 如果当前是会员单位标签页且有更多数据，加载更多
-    if (this.data.activeTab === 2 && this.data.hasMore) {
+    if (this.data.activeTab === 3 && this.data.hasMore) {
       this.loadAssociations()
     }
   },
@@ -106,7 +107,7 @@ Page({
 
     try {
       const res = await localPlatformApi.getLocalPlatformDetail(this.data.platformId)
-
+      console.log("local platform:", res)
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
 
@@ -148,11 +149,58 @@ Page({
           cover: cover,
           location: data.city || '',
           description: data.description || '',
-          memberCount: data.memberCount || 0
+          memberCount: data.memberCount || 0,
+          contactName: data.contactName || null,
+          contactPosition: data.contactPosition || null,
+          contactPhone: data.contactPhone || null,
+          wxId: data.wxId || null,
+          // 小程序链接
+          miniProgramLinks: data.miniProgramLinks || [],
+          // 主页展示成员、校促会重大事记
+          showMembers: data.showMembers || [],
+          importantEvents: data.importantEvents || []
         }
+
+        // 处理并格式化文章列表 (资讯部分)
+        const formattedArticleList = (data.articleList || []).map(article => {
+          // 处理封面图：极其稳健逻辑，兼容对象、URL字符串、路径及 ID
+          let cover = '';
+          const rawCover = article.coverImg || article.cover_img;
+
+          if (rawCover) {
+            if (typeof rawCover === 'object') {
+              cover = rawCover.fileUrl || rawCover.filePath || rawCover.thumbnailUrl || '';
+            } else if (typeof rawCover === 'string') {
+              // 包含斜杠或以http开头则视为路径/URL，否则视为 ID
+              if (rawCover.startsWith('http') || rawCover.indexOf('/') !== -1) {
+                cover = rawCover;
+              } else {
+                cover = `/file/download/${rawCover}`;
+              }
+            } else {
+              cover = `/file/download/${rawCover}`;
+            }
+          }
+
+          // 顶级字段兜底
+          if (!cover) {
+            cover = article.fileUrl || article.thumbnailUrl || article.coverImage || article.cover_image || '';
+          }
+
+          const finalCover = cover ? config.getImageUrl(cover) : config.getImageUrl(config.defaultCover);
+
+          return {
+            ...article,
+            id: article.homeArticleId || article.id,
+            title: article.articleTitle || '无标题',
+            cover: finalCover,
+            time: this.formatDate(article.createTime)
+          }
+        })
 
         this.setData({
           platformInfo,
+          articleList: formattedArticleList,
           loading: false
         })
 
@@ -160,6 +208,9 @@ Page({
         wx.setNavigationBarTitle({
           title: platformInfo.city || '校促会'
         })
+
+        // 加载会员单位列表（用于基本信息页的头像预览）
+        this.loadAssociations(true)
       } else {
         wx.showToast({
           title: res.data?.msg || '加载失败',
@@ -177,25 +228,40 @@ Page({
     }
   },
 
+  // tab-bar 组件事件处理
+  onTabChange(e) {
+    const index = e.detail.index;
+    this.handleTabSwitch(index);
+  },
+
   // 顶部 Tab 切换
   switchTab(e) {
-    const index = e.currentTarget.dataset.index
-    this.setData({ activeTab: index })
+    const index = e.currentTarget.dataset.index;
+    this.handleTabSwitch(index);
+  },
+
+  handleTabSwitch(index) {
+    this.setData({ activeTab: index });
 
     // 切换到组织结构标签时，加载组织结构数据
     if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
       if (this.data.roleList.length === 0) {
-        this.loadOrganizationTree()
+        this.loadOrganizationTree();
       }
     }
-    // 切换到会员单位时加载数据
-    else if (index === 2) {
+    // 切换到会员单位时加载数据 (index 3)
+    else if (index === 3) {
       // 如果是首次切换到会员单位，重新加载数据
       if (this.data.associations.length === 0) {
-        this.loadAssociations(true)
+        this.loadAssociations(true);
       }
     }
+  },
+
+  // 跳转到会员单位 Tab
+  goToMemberTab() {
+    this.handleTabSwitch(3);
   },
 
   // 加载组织架构树
@@ -337,6 +403,151 @@ Page({
     wx.navigateTo({
       url: '/pages/alumni-association/create/create'
     })
+  },
+
+  // 格式化日期 (月-日 时:分)
+  formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString.replace('T', ' '));
+    if (isNaN(date.getTime())) return '';
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${month}-${day} ${hours}:${minutes}`;
+  },
+
+  // 点击小程序链接
+  onMiniProgramLinkTap(e) {
+    const { url, text } = e.currentTarget.dataset
+
+    if (!url) {
+      wx.showToast({
+        title: '链接暂未配置',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 使用 shortLink 直接打开小程序
+    wx.navigateToMiniProgram({
+      shortLink: url,
+      envVersion: 'release',
+      success() {
+        console.log('打开小程序成功:', text)
+      },
+      fail(err) {
+        // 用户取消时不提示
+        if (err.errMsg && err.errMsg.includes('cancel')) {
+          return
+        }
+        console.error('打开小程序失败:', err)
+        wx.showToast({
+          title: '打开失败，请稍后重试',
+          icon: 'none'
+        })
+      }
+    })
+  },
+
+  // 跳转到文章详情
+  goToArticleDetail(e) {
+    const id = e.currentTarget.dataset.id;
+    const article = this.data.articleList.find(a => a.id === id);
+
+    if (!article) {
+      wx.showToast({
+        title: '文章数据不存在',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const articleType = article.articleType || 1;
+    const articleLink = article.articleLink || '';
+    const articleTitle = article.title || '资讯详情';
+
+    // 1: 公众号文章
+    if (articleType === 1) {
+      if (articleLink) {
+        wx.openOfficialAccountArticle({
+          url: articleLink,
+          fail() {
+            wx.showToast({
+              title: '无法打开文章',
+              icon: 'none'
+            });
+          }
+        });
+      } else {
+        wx.showToast({
+          title: '文章链接为空',
+          icon: 'none'
+        });
+      }
+    }
+    // 2: 内部路径
+    else if (articleType === 2) {
+      if (articleLink) {
+        wx.navigateTo({
+          url: articleLink,
+          fail() {
+            wx.navigateTo({
+              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
+            });
+          }
+        });
+      }
+    }
+    // 3: 第三方链接
+    else if (articleType === 3) {
+      wx.navigateTo({
+        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
+      });
+    }
+    // 默认跳转到普通详情页
+    else {
+      wx.navigateTo({
+        url: `/pages/article/detail/detail?id=${id}`
+      });
+    }
+  },
+
+  // 查看人员详情
+  viewMemberDetail(e) {
+    const { member } = e.currentTarget.dataset
+    if (!member) return
+
+    const wxId = member.wxId
+    const username = member.username || '匿名用户'
+
+    if (wxId) {
+      // 有 wxId，跳转到正式个人详情页
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${wxId}`
+      })
+    } else {
+      // 无 wxId，跳转到模拟个人详情页（显示假数据）
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(username)}`
+      })
+    }
+  },
+
+  // 查看主要联系人详情（同 viewMemberDetail 逻辑）
+  viewContactDetail(e) {
+    const { wxId, username } = e.currentTarget.dataset
+    const name = username || '匿名用户'
+
+    if (wxId) {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${wxId}`
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(name)}`
+      })
+    }
   }
 })
 

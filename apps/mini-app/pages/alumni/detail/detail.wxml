@@ -18,7 +18,11 @@
               <view class="name-area">
                 <view class="nickname-wrap">
                   <view class="nickname-text">{{alumniInfo.nickname.value}}</view>
-                  <image wx:if="{{alumniInfo.isAlumni}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
+                  <!-- 校友认证等级标签 -->
+                  <image wx:if="{{alumniInfo.certificationFlag === 1}}" class="alumni-cert-badge-img" src="{{alumniCertFirstImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                  <image wx:elif="{{alumniInfo.certificationFlag === 2}}" class="alumni-cert-badge-img" src="{{alumniCertSecondImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                  <image wx:elif="{{alumniInfo.certificationFlag === 3}}" class="alumni-cert-badge-img" src="{{alumniCertThirdImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+                  <view wx:else class="uncertified-tag" catchtap="goToCertificationInfo">未认证</view>
                 </view>
                 <view class="signature-text {{alumniInfo.signature.isNull ? 'text-null' : ''}}">{{alumniInfo.signature.value}}</view>
               </view>

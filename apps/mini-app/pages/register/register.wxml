@@ -1,0 +1,154 @@
+<!--pages/register/register.wxml-->
+<view class="register-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-content">
+      <view class="back-btn" bindtap="goBack">
+        <image class="back-icon" src="/assets/icons/back.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主内容区域 -->
+  <view class="main-content" style="padding-top: {{statusBarHeight + 44}}px;" bindtap="closeSchoolResults">
+    <!-- 头部欢迎区域 -->
+    <view class="header-section">
+      <view class="welcome-text">
+        <view class="welcome-line1">您好，欢迎使用</view>
+        <view class="welcome-line2">5460校友服务平台</view>
+      </view>
+      <view class="illustration-wrapper">
+        <image wx:if="{{illustration}}" class="illustration" src="{{illustration}}" mode="aspectFit"></image>
+        <view wx:else class="illustration-placeholder">
+          <text class="placeholder-icon">5460</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 表单区域 -->
+    <view class="form-section">
+      <!-- 真实姓名 -->
+      <view class="form-item">
+        <view class="form-label">真实姓名</view>
+        <view class="form-input-wrapper">
+          <input
+            class="form-input"
+            type="text"
+            placeholder="请输入您的真实姓名"
+            placeholder-class="input-placeholder"
+            value="{{formData.realName}}"
+            bindinput="onNameInput"
+          />
+        </view>
+      </view>
+
+      <!-- 性别 -->
+      <view class="form-item">
+        <view class="form-label">性别</view>
+        <view class="gender-selector">
+          <view
+            class="gender-option {{formData.gender === 'male' ? 'active' : ''}}"
+            bindtap="selectGender"
+            data-gender="male"
+          >
+            <view class="gender-text">男</view>
+          </view>
+          <view
+            class="gender-option {{formData.gender === 'female' ? 'active' : ''}}"
+            bindtap="selectGender"
+            data-gender="female"
+          >
+            <view class="gender-text">女</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 最高学历 -->
+      <view class="form-item school-search-wrapper" catchtap="preventBubble">
+        <view class="form-label">毕业院校</view>
+        <view class="form-input-wrapper">
+          <input
+            class="form-input"
+            type="text"
+            placeholder="请输入学校名称搜索"
+            placeholder-class="input-placeholder"
+            value="{{formData.school}}"
+            bindinput="handleSchoolInput"
+            bindfocus="handleSchoolFocus"
+          />
+        </view>
+        <text wx:if="{{formData.previousName}}" class="school-previous-name-hint">曾用名：{{formData.previousName}}</text>
+        <scroll-view scroll-y class="school-search-results" wx:if="{{showSchoolResults}}">
+          <view wx:if="{{schoolSearchList.length === 0 && formData.school}}" class="search-placeholder">未找到相关学校</view>
+          <view wx:if="{{schoolSearchList.length === 0 && !formData.school}}" class="search-placeholder">请输入关键字搜索</view>
+          <view wx:for="{{schoolSearchList}}" wx:key="schoolId" class="school-search-item" bindtap="selectSchool" data-index="{{index}}">
+            <text class="school-name">{{item.schoolName}}</text>
+            <text wx:if="{{item.previousName}}" class="school-previous-name">（曾用名：{{item.previousName}}）</text>
+          </view>
+        </scroll-view>
+      </view>
+
+      <!-- 手机号 -->
+      <view class="form-item">
+        <view class="form-label">手机号</view>
+        <view class="phone-input-wrapper">
+          <view class="phone-display" wx:if="{{formData.phone}}">
+            <text class="phone-value">{{formData.phone}}</text>
+            <view class="phone-change" bindtap="clearPhone">更换</view>
+          </view>
+          <block wx:else>
+            <!-- 开发模式：直接点击填充 -->
+            <button
+              wx:if="{{isDevelopMode}}"
+              class="get-phone-btn"
+              bindtap="handleTestPhone"
+            >
+              <text class="btn-text">点击填充测试手机号</text>
+            </button>
+            <!-- 正式/体验模式：获取微信手机号 -->
+            <button
+              wx:else
+              class="get-phone-btn"
+              open-type="getPhoneNumber"
+              bindgetphonenumber="onGetPhoneNumber"
+            >
+              <text class="btn-text">获取微信手机号</text>
+            </button>
+          </block>
+        </view>
+      </view>
+    </view>
+
+    <!-- 用户协议 -->
+    <view class="agreement-section">
+      <view class="agreement-checkbox" bindtap="toggleAgreement">
+        <view class="checkbox-icon {{isAgreed ? 'checked' : ''}}">
+          <text wx:if="{{isAgreed}}" class="check-text">✓</text>
+        </view>
+      </view>
+      <view class="agreement-text">
+        <text>我已阅读</text>
+        <text class="link" bindtap="viewUserAgreement">用户协议</text>
+        <text>和</text>
+        <text class="link" bindtap="viewPrivacyPolicy">隐私政策</text>
+        <text>并理解相关条款</text>
+      </view>
+    </view>
+
+    <!-- 反馈入口 -->
+    <view class="feedback-hint-section">
+      <text class="feedback-hint-text">找不到学校或遇到问题？</text>
+      <text class="feedback-hint-link" bindtap="goToFeedback">点击反馈</text>
+    </view>
+
+    <!-- 注册按钮 -->
+    <view class="submit-section">
+      <button
+        class="submit-btn {{isFormValid ? 'active' : 'disabled'}}"
+        bindtap="submitRegister"
+      >
+        注册
+      </button>
+    </view>
+  </view>
+</view>

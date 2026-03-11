@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 /**
  * 校友总会表
+ * 
  * @TableName alumni_headquarters
  */
 @TableName(value = "alumni_headquarters")
@@ -34,6 +35,12 @@ public class AlumniHeadquarters implements Serializable {
      */
     @TableField(value = "school_id")
     private Long schoolId;
+
+    /**
+     * logo
+     */
+    @TableField(value = "logo")
+    private String logo;
 
     /**
      * 校友总会描述
@@ -78,6 +85,12 @@ public class AlumniHeadquarters implements Serializable {
     private String phone;
 
     /**
+     * 联系人
+     */
+    @TableField(value = "contact_person")
+    private String contactPerson;
+
+    /**
      * 成立日期
      */
     @TableField(value = "established_date")
@@ -106,6 +119,24 @@ public class AlumniHeadquarters implements Serializable {
      */
     @TableField(value = "level")
     private Integer level;
+
+    /**
+     * 背景图
+     */
+    @TableField(value = "bg_img")
+    private String bgImg;
+
+    /**
+     * 社会团体法人登记证书
+     */
+    @TableField(value = "registration_certificate")
+    private String registrationCertificate;
+
+    /**
+     * 创建码
+     */
+    @TableField(value = "create_code")
+    private Integer createCode;
 
     /**
      * 创建人ID
@@ -144,6 +175,7 @@ public class AlumniHeadquarters implements Serializable {
 
     /**
      * 获取排序字段方法
+     * 
      * @param sortField 排序字段名
      * @return 排序方法引用
      */

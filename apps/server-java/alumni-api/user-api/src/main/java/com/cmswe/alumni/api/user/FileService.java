@@ -35,4 +35,12 @@ public interface FileService extends IService<Files> {
      * @throws IOException IO 异常
      */
     FilesVo uploadAudioAndReturnVo(MultipartFile audio, HttpServletRequest request) throws IOException;
+
+    /**
+     * 上传文档文件并返回FilesVo
+     * @param document 文档文件
+     * @return 返回FilesVo
+     * @throws IOException IO 异常
+     */
+    FilesVo uploadDocumentAndReturnVo(MultipartFile document, HttpServletRequest request) throws IOException;
 }

@@ -26,6 +26,12 @@ public class QueryAlumniAssociationMemberListRequest extends PageRequest impleme
     private Long alumniAssociationId;
 
     /**
+     * 搜索关键词（模糊匹配姓名、昵称、用户名）
+     */
+    @Schema(description = "搜索关键词（对已注册成员匹配姓名或昵称，对未注册成员匹配用户名）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String keyword;
+
+    /**
      * 用户昵称
      */
     @Schema(description = "用户昵称", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

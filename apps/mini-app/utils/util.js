@@ -39,7 +39,9 @@ const formatNumber = n => {
 const throttle = (fn, delay = 1000) => {
   let timer = null
   return function (...args) {
-    if (timer) {return}
+    if (timer) {
+      return
+    }
     timer = setTimeout(() => {
       fn.apply(this, args)
       timer = null
@@ -53,7 +55,9 @@ const throttle = (fn, delay = 1000) => {
 const debounce = (fn, delay = 500) => {
   let timer = null
   return function (...args) {
-    if (timer) {clearTimeout(timer)}
+    if (timer) {
+      clearTimeout(timer)
+    }
     timer = setTimeout(() => {
       fn.apply(this, args)
     }, delay)
@@ -63,8 +67,10 @@ const debounce = (fn, delay = 500) => {
 /**
  * 深拷贝
  */
-const deepClone = (obj) => {
-  if (obj === null || typeof obj !== 'object') {return obj}
+const deepClone = obj => {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
   const clone = Array.isArray(obj) ? [] : {}
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -77,7 +83,7 @@ const deepClone = (obj) => {
 /**
  * 相对时间格式化
  */
-const formatRelativeTime = (timestamp) => {
+const formatRelativeTime = timestamp => {
   const now = Date.now()
   const diff = now - timestamp
 
@@ -103,15 +109,17 @@ const formatRelativeTime = (timestamp) => {
 /**
  * 手机号脱敏
  */
-const maskPhone = (phone) => {
-  if (!phone) {return ''}
+const maskPhone = phone => {
+  if (!phone) {
+    return ''
+  }
   return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
 }
 
 /**
  * 数字格式化（超过万显示w）
  */
-const formatNumber2 = (num) => {
+const formatNumber2 = num => {
   if (num >= 10000) {
     return (num / 10000).toFixed(1) + 'w'
   }
@@ -121,26 +129,26 @@ const formatNumber2 = (num) => {
 /**
  * 验证手机号
  */
-const validatePhone = (phone) => {
+const validatePhone = phone => {
   return /^1[3-9]\d{9}$/.test(phone)
 }
 
 /**
  * 验证邮箱
  */
-const validateEmail = (email) => {
+const validateEmail = email => {
   return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email)
 }
 
 /**
  * 获取图片信息
  */
-const getImageInfo = (url) => {
+const getImageInfo = url => {
   return new Promise((resolve, reject) => {
     wx.getImageInfo({
       src: url,
       success: resolve,
-      fail: reject
+      fail: reject,
     })
   })
 }
@@ -155,7 +163,7 @@ const chooseImage = (count = 1) => {
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success: resolve,
-      fail: reject
+      fail: reject,
     })
   })
 }
@@ -166,19 +174,19 @@ const chooseImage = (count = 1) => {
 const previewImage = (current, urls) => {
   wx.previewImage({
     current,
-    urls
+    urls,
   })
 }
 
 /**
  * 复制到剪贴板
  */
-const copyToClipboard = (text) => {
+const copyToClipboard = text => {
   return new Promise((resolve, reject) => {
     wx.setClipboardData({
       data: text,
       success: resolve,
-      fail: reject
+      fail: reject,
     })
   })
 }
@@ -186,22 +194,25 @@ const copyToClipboard = (text) => {
 /**
  * 拨打电话
  */
-const makePhoneCall = (phoneNumber) => {
+const makePhoneCall = phoneNumber => {
   wx.makePhoneCall({
-    phoneNumber
+    phoneNumber,
   })
 }
 
 /**
  * 获取位置信息
+ * 暂时注释：等待微信公众平台权限申请通过后恢复
  */
 const getLocation = () => {
   return new Promise((resolve, reject) => {
-    wx.getLocation({
-      type: 'gcj02',
-      success: resolve,
-      fail: reject
-    })
+    // wx.getLocation({
+    //   type: 'gcj02',
+    //   success: resolve,
+    //   fail: reject
+    // })
+    console.log('[Util] wx.getLocation 已暂时禁用')
+    reject(new Error('wx.getLocation 暂时禁用，等待权限申请'))
   })
 }
 

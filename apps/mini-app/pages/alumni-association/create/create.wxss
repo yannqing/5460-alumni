@@ -30,6 +30,28 @@ page {
   vertical-align: top;
 }
 
+/* 隐私提示样式 */
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f9ff;
+  border: 1rpx solid #bae6fd;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  margin: 20rpx 0 10rpx;
+}
+
+.privacy-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.privacy-text {
+  font-size: 24rpx;
+  color: #0369a1;
+}
+
 .form-card {
   background-color: #fff;
   border-radius: 16rpx;
@@ -42,6 +64,16 @@ page {
   font-weight: 600;
   margin-bottom: 30rpx;
   color: #333;
+}
+
+/* 基本信息下的子项标题（驻会代表、主要负责人） */
+.form-subsection-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-top: 24rpx;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+  color: #555;
 }
 
 .form-header {
@@ -76,6 +108,18 @@ page {
   color: #666666;
   margin-bottom: 16rpx;
   display: block;
+}
+
+.label-with-hint {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.label-hint {
+  font-size: 24rpx;
+  color: #999999;
 }
 
 .form-item.required .label::before {
@@ -123,6 +167,15 @@ page {
 .picker {
   /* color: #999; Removed placeholder color for picker */
   padding: 0 20rpx;
+}
+
+/* 模板描述样式 */
+.template-description {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 12rpx;
+  padding: 0 4rpx;
+  line-height: 1.5;
 }
 
 /* 搜索结果下拉列表 */
@@ -229,6 +282,41 @@ page {
   position: relative;
 }
 
+.logo-options {
+  background-color: #fff;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20rpx;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.radio-label radio {
+  transform: scale(0.8);
+  margin-right: 10rpx;
+}
+
+.logo-preview-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 10rpx;
+}
+
+.upload-action {
+  width: 100%;
+  margin-bottom: 20rpx;
+}
+
 .upload-btn {
   border: 1rpx solid #eee;
   padding: 20rpx;
@@ -243,11 +331,53 @@ page {
   line-height: 40rpx;
 }
 
+.upload-btn-group {
+  display: flex;
+  gap: 20rpx;
+}
+
+.upload-btn-group .upload-btn {
+  flex: 1;
+}
+
+.logo-preview-wrapper {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1rpx solid #eee;
+}
+
+.logo-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #f9f9f9;
+}
+
+.logo-delete {
+  position: absolute;
+  top: -15rpx;
+  right: -15rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(255, 77, 79, 0.9);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  line-height: 1;
+  z-index: 10;
+}
+
 .uploaded-image {
   width: 200rpx;
   height: 200rpx;
   margin-top: 20rpx;
-  border-radius: 8rpx;
+  border-radius: 50%;
 }
 
 /* 申请材料上传样式 */
@@ -321,4 +451,307 @@ page {
 
 .member-search-item:active {
   background-color: #f9f9f9;
+}
+
+/* 学校曾用名样式 */
+.previous-name {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 8rpx;
+}
+
+.school-previous-name {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  padding-left: 4rpx;
+}
+
+/* 校促会会员单选框样式 */
+.platform-member-radio {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.radio-label-inline {
+  display: flex;
+  align-items: center;
+  margin-right: 60rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.radio-label-inline radio {
+  transform: scale(0.8);
+  margin-right: 8rpx;
+}
+
+/* 成员表单样式 */
+.member-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.member-form-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.member-label {
+  font-size: 26rpx;
+  color: #666;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.member-label.required::before {
+  content: '*';
+  color: #ff4d4f;
+  margin-right: 4rpx;
+}
+
+.member-full-input {
+  flex: 1;
+  background-color: #fff;
+}
+
+.member-name-search {
+  flex: 1;
+  position: relative;
+}
+
+/* ========== 组织架构树形预览样式 ========== */
+.template-tree-preview {
+  margin-top: 24rpx;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f5ff 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  border: 1rpx solid #e6e9f0;
+}
+
+.tree-preview-title {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.tree-preview-title::before {
+  content: '';
+  display: inline-block;
+  width: 6rpx;
+  height: 24rpx;
+  background: #1890FF;
+  border-radius: 3rpx;
+  margin-right: 12rpx;
+}
+
+.tree-scroll-container {
+  width: 100%;
+  max-height: 600rpx;
+  white-space: nowrap;
+}
+
+.tree-container {
+  display: inline-block;
+  min-width: 100%;
+  padding: 20rpx 10rpx;
+}
+
+/* 树节点行 */
+.tree-node-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+  position: relative;
+}
+
+/* 有子节点的节点下方的垂直线 */
+.tree-node.has-children::after {
+  content: '';
+  position: absolute;
+  bottom: -24rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2rpx;
+  height: 24rpx;
+  background-color: #c0c4cc;
+}
+
+/* 子节点行 */
+.tree-children-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20rpx;
+  margin-top: 24rpx;
+  padding-top: 0;
+  position: relative;
+}
+
+/* 分支容器 */
+.tree-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding-top: 24rpx;
+}
+
+/* 分支顶部的垂直连接线 */
+.tree-branch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2rpx;
+  height: 24rpx;
+  background-color: #c0c4cc;
+}
+
+/* 分支顶部的水平连接线 - 默认覆盖整个宽度加两侧gap */
+.tree-branch::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -10rpx;
+  right: -10rpx;
+  height: 2rpx;
+  background-color: #c0c4cc;
+}
+
+/* 第一个分支：水平线从中心开始向右 */
+.tree-branch:first-child::after {
+  left: 50%;
+}
+
+/* 最后一个分支：水平线从左侧到中心 */
+.tree-branch:last-child::after {
+  right: 50%;
+}
+
+/* 只有一个分支时不显示水平线 */
+.tree-branch:only-child::after {
+  display: none;
+}
+
+/* 子节点容器 */
+.tree-sub-children {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  padding-top: 0;
+  position: relative;
+}
+
+/* 子节点容器内的分支，gap较小，调整水平线延伸距离 */
+.tree-sub-children > .tree-branch::after {
+  left: -8rpx;
+  right: -8rpx;
+}
+
+.tree-sub-children > .tree-branch:first-child::after {
+  left: 50%;
+}
+
+.tree-sub-children > .tree-branch:last-child::after {
+  right: 50%;
+}
+
+.tree-sub-children > .tree-branch:only-child::after {
+  display: none;
+}
+
+/* 节点样式 */
+.tree-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+
+.node-content {
+  padding: 14rpx 28rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  text-align: center;
+  white-space: nowrap;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+/* 不同层级的颜色 */
+.level-1 .node-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-size: 26rpx;
+  padding: 16rpx 32rpx;
+}
+
+.level-2 .node-content {
+  background: linear-gradient(135deg, #1890FF 0%, #40a9ff 100%);
+}
+
+.level-3 .node-content {
+  background: linear-gradient(135deg, #13c2c2 0%, #36cfc9 100%);
+}
+
+.level-4 .node-content {
+  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+}
+
+.level-5 .node-content {
+  background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%);
+  color: #333;
+}
+
+.level-6 .node-content {
+  background: linear-gradient(135deg, #fa541c 0%, #ff7a45 100%);
+}
+
+.level-7 .node-content {
+  background: linear-gradient(135deg, #eb2f96 0%, #f759ab 100%);
+}
+
+.level-8 .node-content {
+  background: linear-gradient(135deg, #722ed1 0%, #9254de 100%);
+}
+
+.level-9 .node-content {
+  background: linear-gradient(135deg, #2f54eb 0%, #597ef7 100%);
+}
+
+.level-10 .node-content {
+  background: linear-gradient(135deg, #08979c 0%, #36cfc9 100%);
+}
+
+/* 反馈入口提示 */
+.feedback-hint-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30rpx;
+  padding: 0 10rpx;
+}
+
+.feedback-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.feedback-hint-link {
+  font-size: 24rpx;
+  color: #1890FF;
+  margin-left: 8rpx;
 }

@@ -35,6 +35,18 @@ public class InitialMemberDto implements Serializable {
     @Schema(description = "成员架构角色")
     private String role;
 
+    /**
+     * 成员联系电话
+     */
+    @Schema(description = "成员联系电话")
+    private String phone;
+
+    /**
+     * 成员社会职务
+     */
+    @Schema(description = "成员社会职务")
+    private String affiliation;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

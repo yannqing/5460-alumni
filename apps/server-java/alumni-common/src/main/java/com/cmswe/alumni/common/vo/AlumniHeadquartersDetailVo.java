@@ -66,6 +66,24 @@ public class AlumniHeadquartersDetailVo implements Serializable {
     private String wechatPublicAccount;
 
     /**
+     * logo
+     */
+    @Schema(description = "logo")
+    private String logo;
+
+    /**
+     * 背景图
+     */
+    @Schema(description = "背景图")
+    private String bgImg;
+
+    /**
+     * 社会团体法人登记证书
+     */
+    @Schema(description = "社会团体法人登记证书")
+    private String registrationCertificate;
+
+    /**
      * 联系邮箱
      */
     @Schema(description = "联系邮箱")
@@ -76,6 +94,12 @@ public class AlumniHeadquartersDetailVo implements Serializable {
      */
     @Schema(description = "联系电话")
     private String phone;
+
+    /**
+     * 联系人
+     */
+    @Schema(description = "联系人")
+    private String contactPerson;
 
     /**
      * 成立日期
@@ -106,6 +130,12 @@ public class AlumniHeadquartersDetailVo implements Serializable {
      */
     @Schema(description = "级别：1-校级 2-省级 3-国家级 4-国际级")
     private Integer level;
+
+    /**
+     * 创建码
+     */
+    @Schema(description = "创建码")
+    private Integer createCode;
 
     /**
      * 创建人信息

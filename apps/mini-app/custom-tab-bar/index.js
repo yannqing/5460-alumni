@@ -1,3 +1,6 @@
+const auth = require('../utils/auth.js');
+const config = require('../utils/config.js');
+
 Component({
   data: {
     selected: 0,
@@ -20,8 +23,8 @@ Component({
       {
         pagePath: "/pages/chat/list/list",
         text: "5460",
-        iconPath: "/assets/icons/5460@2x.png",
-        selectedIconPath: "/assets/icons/5460@2x.png"
+        iconPath: `https://${config.DOMAIN}/upload/images/assets/icons/5460@2x.png`,
+        selectedIconPath: `https://${config.DOMAIN}/upload/images/assets/icons/5460@2x.png`
       },
       {
         pagePath: "/pages/search/search",
@@ -45,23 +48,32 @@ Component({
 
   methods: {
     switchTab(e) {
-    const data = e.currentTarget.dataset;
-    const index = data.index;
-    const url = data.path;
-    
-    // 禁用"发现"按钮（index === 1）的跳转
-    if (index === 1) {
-      return;
-    }
-    
-    wx.switchTab({ 
-      url,
-      success: () => {
-        // 切换页面后更新未读消息数
-        this.updateUnreadCount();
+      const data = e.currentTarget.dataset;
+      const index = data.index;
+      const url = data.path;
+
+      // 禁用"发现"按钮（index === 1）的跳转
+      if (index === 1) {
+        return;
       }
-    });
-  },
+
+      // 如果当前已经在首页（index === 0），不需要检查
+      // 其他页面需要检查用户基本信息是否完善
+      if (index !== 0) {
+        // 检查用户基本信息是否完善，未完善则跳转注册页
+        if (!auth.checkProfileAndRedirect(url)) {
+          return;
+        }
+      }
+
+      wx.switchTab({
+        url,
+        success: () => {
+          // 切换页面后更新未读消息数
+          this.updateUnreadCount();
+        }
+      });
+    },
 
     // 更新未读消息数
     updateUnreadCount() {

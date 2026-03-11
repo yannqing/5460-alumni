@@ -2,10 +2,12 @@
 
 /* 页面容器 */
 page {
-  background: #3F61CA;
+  background: #F5F5F5;
   padding: 0;
   margin: 0;
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -15,31 +17,55 @@ view, text, scroll-view, picker, input, button, image {
 
 .container {
   width: 100%;
-  min-height: 100vh;
-  background: #3F61CA;
+  height: 100vh;
+  background: #F5F5F5;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* 固定顶部背景 */
-.fixed-top-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 350rpx;
+/* 屏蔽旧的固定高度逻辑 */
+.main-scroller {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-area {
   background: #3F61CA;
-  z-index: 5;
+  width: 100%;
 }
 
-/* 顶部图片 */
+.sticky-header-container {
+  background: #3F61CA;
+  width: 100%;
+  z-index: 100;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15); /* 默认带一点阴影，让过渡更自然 */
+}
+
+.sticky-wrapper {
+  position: relative;
+  width: 100%;
+  background: #F5F5F5;
+}
+
+
+
+/* 顶部图片区域 */
+.banner-area {
+  background: #3F61CA;
+  width: 100%;
+}
+
+/* 顶部图片容器点：用于计算吸顶阈值 */
 .top-image-container {
   width: 100%;
-  padding: 20rpx 30rpx;
+  padding: 20rpx 30rpx 10rpx; /* 减小底部间距使过渡更紧凑 */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 8;
   position: relative;
 }
 
@@ -49,22 +75,11 @@ view, text, scroll-view, picker, input, button, image {
   border-radius: 12rpx;
 }
 
-/* 头部容器（包含搜索栏和筛选条件） */
-.header-container {
-  position: sticky;
-  top: 180rpx;
-  z-index: 15;
-  background: #3F61CA;
-  border-bottom: none;
-  bottom: 0;
-}
-
-/* 搜索栏 */
+/* 搜索栏：优化垂直间距 */
 .search-bar {
-  padding: 20rpx 26rpx;
+  padding: 10rpx 26rpx 20rpx;
   box-shadow: none;
   border-bottom: none !important;
-  margin-bottom: 30rpx;
 }
 
 .search-input-wrap {
@@ -123,24 +138,29 @@ view, text, scroll-view, picker, input, button, image {
   justify-content: center;
 }
 
-/* 筛选区域 */
+
+/* 筛选区域：优化吸顶时的形状 */
 .filter-section {
   display: flex;
   align-items: center;
   padding: 0 30rpx 20rpx;
-  margin-bottom: 0;
   background: #F5F5F5;
   border-top-left-radius: 30rpx;
   border-top-right-radius: 30rpx;
   overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-  border-bottom: none !important;
-  border-top: none !important;
   position: relative;
   z-index: 1;
   min-height: 85rpx;
   justify-content: space-around;
+  transition: border-radius 0.3s ease;
 }
+
+/* 当吸顶时，如果需要更方正的底边，可以取消圆角（可选） */
+.is-sticky .filter-section {
+  /* border-top-left-radius: 0; */
+  /* border-top-right-radius: 0; */
+}
+
 
 .filter-item {
   flex: 1;
@@ -165,7 +185,7 @@ view, text, scroll-view, picker, input, button, image {
   color: #111313;
 }
 
-/* 修复 picker 组件默认下划线问题 - 更全面的选择器 */
+/* 修复 picker 组件默认下划线问题 */
 picker {
   border-bottom: none !important;
   outline: none !important;
@@ -178,7 +198,6 @@ picker {
   -webkit-appearance: none !important;
 }
 
-/* 确保 picker 内部 text 元素没有下划线 */
 picker text {
   border-bottom: none !important;
   outline: none !important;
@@ -189,75 +208,81 @@ picker text {
   margin: 0 !important;
 }
 
-/* 修复 picker 组件可能的伪元素下划线 */
-picker::after {
-  display: none !important;
-  content: none !important;
-  border-bottom: none !important;
-}
-
+picker::after,
 picker::before {
   display: none !important;
   content: none !important;
   border-bottom: none !important;
 }
 
-/* 确保整个筛选区域没有意外的边框或下划线 */
-.filter-section::after {
-  display: none !important;
-  content: none !important;
-  border-bottom: none !important;
-}
-
+.filter-section::after,
 .filter-section::before {
   display: none !important;
   content: none !important;
   border-bottom: none !important;
 }
 
-/* 确保 header-container 没有边框 */
-.header-container::after {
-  display: none !important;
-  content: none !important;
-  border-bottom: none !important;
+/* 手动下拉刷新 */
+.manual-refresher {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #F5F5F5;
+  transition: height 0.2s ease-out, opacity 0.2s;
 }
 
-.header-container::before {
-  display: none !important;
-  content: none !important;
-  border-bottom: none !important;
+.dot-container {
+  display: flex;
+  gap: 12rpx;
+  padding: 20rpx 0;
 }
 
-/* 特别针对可能出现下划线的元素 */
-view, text, picker, input, button, image, navigator {
-  border-bottom: none !important;
-  outline: none !important;
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #38C7D4;
 }
 
-/* 特别针对筛选区域的元素 */
-.filter-section view,
-.filter-section text,
-.filter-section picker,
-.filter-section input {
-  border-bottom: none !important;
-  outline: none !important;
+.dot.animating {
+  animation: dot-pulse 1s infinite ease-in-out;
 }
 
-.filter-item view,
-.filter-item text,
-.filter-item picker {
-  border-bottom: none !important;
-  outline: none !important;
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
 }
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
+/* 列表滚动容器已融合入 main-scroller，此处仅作为占位 */
+.list-scroll-view {
+  width: 100%;
+}
+
 
 /* 学校列表 */
 .association-list {
   padding: 30rpx 30rpx 20rpx;
   background-color: #F5F5F5;
-  min-height: 100vh;
+  min-height: 100%;
   background: #F5F5F5;
   position: relative;
   z-index: 0;
+}
+
+/* 底部安全区域 */
+.bottom-safe-area {
+  height: env(safe-area-inset-bottom);
+  padding-bottom: 40rpx;
 }
 
 .association-card {
@@ -423,7 +448,6 @@ view, text, picker, input, button, image, navigator {
 .card-location-wrap {
   display: flex;
   align-items: center;
-  margin-left: 38rpx;
   flex: 1;
   min-width: 0;
 }
@@ -437,15 +461,16 @@ view, text, picker, input, button, image, navigator {
   text-overflow: ellipsis;
 }
 
-.card-location {
+/* 关注按钮行 */
+.action-row {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  font-size: 24rpx;
-  font-family: 'PingFang SC', 'PingFang SC Medium', sans-serif;
-  font-weight: 500;
-  color: #999999;
-  margin-bottom: 16rpx;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.card-action {
+  flex-shrink: 0;
 }
 
 .follow-btn {
@@ -461,7 +486,6 @@ view, text, picker, input, button, image, navigator {
   line-height: 30.8rpx;
   font-weight: 500;
   border-radius: 20.83rpx;
-  margin-top: 6rpx;
 }
 
 .card-footer {
@@ -529,4 +553,27 @@ view, text, picker, input, button, image, navigator {
 
 .full-width {
   width: 100%;
+}
+
+/* 右下角+号按钮 */
+.add-button {
+  position: fixed;
+  bottom: 100rpx;
+  right: 40rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #3F61CA;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.add-button-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 300;
+  line-height: 1;
 }

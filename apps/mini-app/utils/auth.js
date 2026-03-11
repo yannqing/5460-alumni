@@ -116,38 +116,63 @@ async function login(inviter_wx_uuid) {
     console.log('=== 开始登录流程 ===')
     console.log('邀请人的uuid', inviter_wx_uuid)
 
-  // 1. 调用 wx.login 获取 code
-  const wxcode = await wxaCode();
+    // 引入配置，判断是否使用测试登录
+    const config = require('./config.js')
+    const useTestLogin = config.shouldUseTestLogin()
 
-  console.log('获取到的微信 code:', wxcode)
-  console.log('code 类型:', typeof wxcode)
-  console.log('code 长度:', wxcode ? wxcode.length : 0)
+    let response
 
-  // 验证 code 是否有效
-  if (!wxcode || typeof wxcode !== 'string' || wxcode.trim() === '' || wxcode === '登录失败') {
-    const errorMsg = '获取微信登录code失败，请重试'
-    console.error('微信code无效:', wxcode)
-    wx.showToast({
-      title: errorMsg,
-      icon: 'none',
-      duration: 2000
-    })
-    throw new Error(errorMsg)
-  }
-  
-    // 2. 构建请求参数
-    // 确保 code 是字符串类型
-    const params = {
-      code: String(wxcode).trim()  // 确保是字符串且去除首尾空格
+    if (useTestLogin) {
+      // ========== 测试登录模式（仅开发版生效）==========
+      console.log('[Auth] 使用测试登录模式')
+      console.log('[Auth] 测试登录 wxId:', config.testLogin.wxId)
+      console.log('[Auth] 测试登录接口:', config.testLogin.apiPath)
+
+      const testParams = {
+        wxId: config.testLogin.wxId
+      }
+      
+      // 测试模式也支持传入邀请人 ID
+      inviter_wx_uuid && (testParams.inviterWxUuid = inviter_wx_uuid)
+
+      // 直接使用 post 方法调用 config 中配置的接口路径
+      const { post } = require('./request.js')
+      response = await post(config.testLogin.apiPath, testParams)
+    } else {
+      // ========== 正式登录模式 ==========
+      // 1. 调用 wx.login 获取 code
+      const wxcode = await wxaCode();
+
+      console.log('获取到的微信 code:', wxcode)
+      console.log('code 类型:', typeof wxcode)
+      console.log('code 长度:', wxcode ? wxcode.length : 0)
+
+      // 验证 code 是否有效
+      if (!wxcode || typeof wxcode !== 'string' || wxcode.trim() === '' || wxcode === '登录失败') {
+        const errorMsg = '获取微信登录code失败，请重试'
+        console.error('微信code无效:', wxcode)
+        wx.showToast({
+          title: errorMsg,
+          icon: 'none',
+          duration: 2000
+        })
+        throw new Error(errorMsg)
+      }
+
+      // 2. 构建请求参数
+      // 确保 code 是字符串类型
+      const params = {
+        code: String(wxcode).trim()  // 确保是字符串且去除首尾空格
+      }
+
+      // 如果有邀请人，加入参数
+      inviter_wx_uuid && (params.inviterWxUuid = inviter_wx_uuid)
+
+      console.log('准备发送的请求参数:', params)
+
+      // 3. 调用后端认证登录接口
+      response = await authApi.auth(params)
     }
-
-  // 如果有邀请人，加入参数
-  inviter_wx_uuid && (params.inviter_wx_uuid = inviter_wx_uuid)
-  
-  console.log('准备发送的请求参数:', params)
-
-  // 3. 调用后端认证登录接口
-  const response = await authApi.auth(params)
   console.log('登录接口完整响应:', response)
   
   const {
@@ -176,6 +201,11 @@ async function login(inviter_wx_uuid) {
       wx.setStorageSync('roles', [])
       console.warn('[Auth] 登录响应中没有角色信息')
     }
+
+    // 存储用户基本信息完善状态
+    const isProfileComplete = data.isProfileComplete === true
+    wx.setStorageSync('isProfileComplete', isProfileComplete)
+    console.log('[Auth] 用户基本信息完善状态:', isProfileComplete)
 
     // 取用户唯一ID（优先 wxId，补充常见字段）
     let userId =
@@ -228,6 +258,7 @@ async function login(inviter_wx_uuid) {
       wxId: data.wxId || data.wx_id || data.wx_uuid || data.wxUid || data.userId || data.id || data.uuid || ''
     }
     app.globalData.token = data.token || ''
+    app.globalData.isProfileComplete = data.isProfileComplete === true
 
     // 二次加工用户信息（包括角色处理）
     formatUserInfoData(data)
@@ -272,8 +303,9 @@ async function getUserInfo() {
 /**
  * 初始化小程序 - 页面调用入口
  * 检查是否已登录，未登录则自动登录
+ * @param {string} inviter_wx_uuid - 可选，邀请人的 UUID
  */
-async function initApp() {
+async function initApp(inviter_wx_uuid) {
   let uinfoData = {}
   const isLogin = await checkHasLogined()
 
@@ -282,10 +314,10 @@ async function initApp() {
     // 如果已登录但数据为空，重新登录获取数据
     if (!uinfoData || Object.keys(uinfoData).length === 0) {
       console.log('已登录但数据为空，重新登录获取数据...')
-      uinfoData = await login()
+      uinfoData = await login(inviter_wx_uuid)
     }
   } else {
-    uinfoData = await login()
+    uinfoData = await login(inviter_wx_uuid)
   }
 
   return uinfoData
@@ -429,6 +461,55 @@ function hasManagementPermission() {
   return false
 }
 
+/**
+ * 检查用户基本信息是否完善
+ * @returns {boolean} 是否完善
+ */
+function checkProfileComplete() {
+  // 优先从 globalData 读取，其次从缓存读取
+  const app = getApp()
+  if (app && app.globalData && app.globalData.isProfileComplete !== undefined) {
+    return app.globalData.isProfileComplete === true
+  }
+  return wx.getStorageSync('isProfileComplete') === true
+}
+
+/**
+ * 检查用户基本信息是否完善，如果未完善则跳转到注册页
+ * @param {string} targetUrl - 目标页面URL（可选，用于日志记录）
+ * @returns {boolean} 是否可以继续导航（true-可以，false-已拦截并跳转到注册页）
+ */
+function checkProfileAndRedirect(targetUrl = '') {
+  const isComplete = checkProfileComplete()
+
+  if (!isComplete) {
+    console.log('[Auth] 用户基本信息未完善，拦截导航:', targetUrl)
+    wx.navigateTo({
+      url: '/pages/register/register',
+      fail: () => {
+        // 如果跳转失败（可能在注册页），静默处理
+        console.log('[Auth] 跳转注册页失败，可能已在注册页')
+      }
+    })
+    return false
+  }
+
+  return true
+}
+
+/**
+ * 更新用户基本信息完善状态（注册成功后调用）
+ * @param {boolean} isComplete - 是否完善
+ */
+function updateProfileComplete(isComplete) {
+  const app = getApp()
+  if (app && app.globalData) {
+    app.globalData.isProfileComplete = isComplete
+  }
+  wx.setStorageSync('isProfileComplete', isComplete)
+  console.log('[Auth] 更新用户基本信息完善状态:', isComplete)
+}
+
 module.exports = {
   login,
   initApp,
@@ -443,5 +524,9 @@ module.exports = {
   hasManagementPermission,
   // 登录锁相关
   isLoginInProgress,
-  waitForLogin
+  waitForLogin,
+  // 用户信息完善检查
+  checkProfileComplete,
+  checkProfileAndRedirect,
+  updateProfileComplete
 };

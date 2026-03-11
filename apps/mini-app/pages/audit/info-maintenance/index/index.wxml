@@ -1,0 +1,173 @@
+<!--pages/audit/info-maintenance/index/index.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="信息维护">
+<view class="page">
+  <view class="group_5">
+    <text class="text_14">信息维护</text>
+    <text class="label_text">请选择要管理的校促会</text>
+    <view class="text-wrapper_8" bindtap="{{hasSinglePlatform ? '' : 'showPlatformSelector'}}">
+      <text class="text_15">{{selectedPlatformName || '请选择校促会'}}</text>
+    </view>
+  </view>
+
+  <!-- 校促会选择器弹窗 -->
+  <view class="platform-picker" wx:if="{{showPlatformPicker}}">
+    <view class="picker-overlay" bindtap="cancelPlatformSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校促会</text>
+        <text class="picker-cancel" bindtap="cancelPlatformSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view 
+          class="picker-item"
+          wx:for="{{platformList}}"
+          wx:key="id"
+          data-platform-id="{{item.id}}"
+          data-platform-name="{{item.platformName}}"
+          bindtap="selectPlatform"
+        >
+          <text class="item-name">{{item.platformName}}</text>
+          <text class="item-check" wx:if="{{selectedPlatformId == item.id}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{platformList.length === 0}}">
+          <text>暂无校促会数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 信息维护内容 -->
+  <view class="content-section" wx:if="{{selectedPlatformId}}">
+    <view wx:if="{{loading}}" class="loading">
+      <view class="loading-spinner"></view>
+      <text>正在获取详细数据...</text>
+    </view>
+    <view wx:elif="{{platformDetail}}" class="detail-card">
+      <!-- 背景横幅 -->
+      <view class="detail-header">
+        <image class="header-bg" src="{{platformDetail.bgImg || defaultBackground}}" mode="aspectFill" />
+        <view class="header-content">
+          <view class="header-left">
+            <view class="logo-container">
+              <image class="headquarters-logo" src="{{platformDetail.avatar || defaultAlumniAvatar}}" mode="aspectFill" />
+            </view>
+          </view>
+          <view class="headquarters-basic">
+            <text class="headquarters-name">{{platformDetail.platformName || '无'}}</text>
+          </view>
+        </view>
+      </view> <!-- end detail-header -->
+
+      <!-- 基本资料 -->
+      <view class="info-group-card">
+        <view class="section-title">基本资料</view>
+        <view class="info-item">
+          <text class="info-label">校促会名称</text>
+          <text class="info-value">{{platformDetail.platformName || '未设置'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">会员总数</text>
+          <text class="info-value">{{platformDetail.memberCount || 0}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">所在城市</text>
+          <text class="info-value">{{platformDetail.city || '未设置'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">管辖范围</text>
+          <text class="info-value">{{platformDetail.scope || '未设置'}}</text>
+        </view>
+      </view>
+
+      <!-- 联系人信息 -->
+      <view class="info-group-card">
+        <view class="section-title">联系人信息</view>
+        <view class="info-item">
+          <text class="info-label">联系人姓名</text>
+          <text class="info-value">{{platformDetail.contactName || '未设置'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系人职务</text>
+          <text class="info-value">{{platformDetail.contactPosition || '未设置'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系人电话</text>
+          <text class="info-value">{{platformDetail.contactPhone || '未设置'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系信息</text>
+          <text class="info-value">{{platformDetail.contactInfo || '未设置'}}</text>
+        </view>
+      </view>
+
+      <!-- 业务简介 -->
+      <view class="info-group-card">
+        <view class="section-title">业务简介</view>
+        <view class="info-item" style="border-bottom: none;">
+          <text class="info-value multi-line">{{platformDetail.description || '暂无详细描述信息'}}</text>
+        </view>
+      </view>
+      
+      <!-- 操作按钮 -->
+      <view class="button-section">
+        <button class="primary-button" bindtap="navigateToEdit">编辑信息</button>
+        <button class="secondary-button" bindtap="showPrivacySettings">隐私设置</button>
+      </view>
+
+      <!-- 隐私设置弹窗 -->
+      <view class="privacy-modal" wx:if="{{showPrivacyModal}}">
+        <view class="modal-overlay" bindtap="closePrivacyModal"></view>
+        <view class="modal-content">
+          <view class="modal-header">
+            <text class="modal-title">隐私设置</text>
+            <text class="modal-close" bindtap="closePrivacyModal">×</text>
+          </view>
+          <view class="modal-body">
+            <view class="privacy-description">
+              <text class="description-text">开关说明：</text>
+              <text class="description-detail">开启（绿色）：信息可见</text>
+              <text class="description-detail">关闭（灰色）：信息隐藏</text>
+            </view>
+            <view wx:if="{{privacyLoading}}" class="loading">
+              <view class="loading-spinner"></view>
+              <text>正在获取隐私设置...</text>
+            </view>
+            <view wx:elif="{{privacySettings && privacySettings.length > 0}}" class="privacy-list">
+              <view class="privacy-item" wx:for="{{privacySettings}}" wx:key="localPlatformPrivacySettingId">
+                <text class="privacy-field-name">{{item.fieldName}}</text>
+                <switch 
+                  class="privacy-switch" 
+                  checked="{{item.visibility === 1}}" 
+                  bindchange="togglePrivacySetting" 
+                  data-platform-id="{{selectedPlatformId}}" 
+                  data-field-code="{{item.fieldCode}}" 
+                  data-visibility="{{item.visibility}}"
+                />
+              </view>
+            </view>
+            <view wx:else class="empty-state">
+              <text>暂无隐私设置数据</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+
+    </view>
+    
+    <!-- 空状态 -->
+    <view wx:else class="error-state">
+      <view class="error-icon">🏢</view>
+      <view class="error-text">暂无校促会详细信息</view>
+    </view>
+  </view>
+
+  <!-- 未选择状态 -->
+  <view class="content-section" wx:else>
+    <view class="error-state" style="margin-top: 20rpx;">
+      <view class="error-icon">📍</view>
+      <view class="error-text">请先在上方的下拉框中选择校促会</view>
+    </view>
+  </view>
+</view>
+</custom-nav-bar>

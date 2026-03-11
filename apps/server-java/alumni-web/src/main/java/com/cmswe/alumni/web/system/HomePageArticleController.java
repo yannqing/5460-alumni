@@ -153,4 +153,16 @@ public class HomePageArticleController {
 
         return ResultUtils.success(Code.SUCCESS, result, "查询成功");
     }
+
+    /**
+     * 根据ID查询已发布的文章详情（包含子文章）
+     * @param id 文章ID
+     * @return 文章详情
+     */
+    @GetMapping("/published/{id}")
+    @Operation(summary = "根据ID查询已发布的文章详情")
+    public BaseResponse<HomePageArticleDetailVo> getPublishedArticleById(@PathVariable Long id) {
+        HomePageArticleDetailVo articleDetail = homePageArticleService.getPublishedArticleDetailById(id);
+        return ResultUtils.success(Code.SUCCESS, articleDetail, "查询成功");
+    }
 }

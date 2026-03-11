@@ -14,7 +14,7 @@ Page({
       // },
       {
         id: 3,
-        name: '文章管理',
+        name: '资讯管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/article/manage/manage'
@@ -32,6 +32,20 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/carousel/carousel'
+      },
+      {
+        id: 5,
+        name: '审核校友总会',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/headquarters/list/list'
+      },
+      {
+        id: 6,
+        name: '校友会审核',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/alumni-association/list/list'
       }
       // {
       //   id: 3,
@@ -53,28 +67,49 @@ Page({
       // }
     ],
     // 校促会功能列表
-  schoolOfficeFunctions: [
-    {
-      id: 1,
-      name: '校友会审核',
-      icon: config.getIconUrl('xyhsh@3x.png'),
-      iconType: 'image',
-      url: '/pages/audit/schooloffice/list/list'
-    },
-    {
-      id: 3,
-      name: '成员管理',
-      icon: config.getIconUrl('xchcygl@3x.png'),
-      iconType: 'image',
-      url: '/pages/audit/schooloffice/member/member'
-    },
-    {
-      id: 2,
-      name: '架构管理',
-      icon: config.getIconUrl('jggl@3x.png'),
-      iconType: 'image',
-      url: '/pages/audit/schooloffice/organization/organization'
-    },
+    schoolOfficeFunctions: [
+      {
+        id: 1,
+        name: '校友会审核',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/schooloffice/list/list'
+      },
+      {
+        id: 3,
+        name: '成员管理',
+        icon: config.getIconUrl('xchcygl@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/schooloffice/member/member'
+      },
+      {
+        id: 2,
+        name: '架构管理',
+        icon: config.getIconUrl('jggl@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/schooloffice/organization/organization'
+      },
+      {
+        id: 4,
+        name: '资讯管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/article/manage/manage'
+      },
+      {
+        id: 5,
+        name: '信息维护',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/info-maintenance/index/index'
+      },
+      {
+        id: 6,
+        name: '校友会认证',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/alumni-association-certification/list/list'
+      },
       // {
       //   id: 4,
       //   name: '资料库',
@@ -163,6 +198,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/info-maintenance/index/index'
+      },
+      {
+        id: 9,
+        name: '资讯管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/article/manage/manage'
       },
       // {
       //   id: 4,
@@ -276,7 +318,7 @@ Page({
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight || 20
     })
-    
+
     // 页面加载
     this.checkPermissions()
   },
@@ -285,7 +327,7 @@ Page({
   hasPermission(permissionCode) {
     // 获取用户的原始角色列表（从缓存中读取）
     const originalRoles = wx.getStorageSync('roles') || []
-    
+
     // 遍历所有角色
     for (const role of originalRoles) {
       // 检查角色是否有permissions数组
@@ -315,22 +357,22 @@ Page({
     const app = getApp()
     const userConfig = app.globalData.userConfig || {}
     const roles = userConfig.roles || {}
-    
+
     // 获取用户的原始角色列表（从缓存中读取）
     const originalRoles = wx.getStorageSync('roles') || []
-    
+
     // 默认不显示任何功能模块
     let showSchoolOfficeFunctions = false
     let showAlumniFunctions = false
     let showMerchantFunctions = false
-    
+
     // 检查用户角色（同时支持对象格式和数组格式）
     let hasSuperAdmin = false
     let hasLocalAdmin = false
     let hasAlumniAdmin = false
     let hasMerchantAdmin = false
     let hasShopAdmin = false
-    
+
     // 方法1：检查对象格式的角色（userConfig.roles）
     if (typeof roles === 'object' && roles !== null) {
       hasSuperAdmin = roles['SYSTEM_SUPER_ADMIN']
@@ -339,7 +381,7 @@ Page({
       hasMerchantAdmin = roles['ORGANIZE_MERCHANT_ADMIN']
       hasShopAdmin = roles['ORGANIZE_SHOP_ADMIN']
     }
-    
+
     // 方法2：如果对象格式检查失败，使用数组格式检查（originalRoles）
     if (!hasSuperAdmin && !hasLocalAdmin && !hasAlumniAdmin && !hasMerchantAdmin && !hasShopAdmin) {
       hasSuperAdmin = originalRoles.some(role => role.roleCode === 'SYSTEM_SUPER_ADMIN')
@@ -348,20 +390,24 @@ Page({
       hasMerchantAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_MERCHANT_ADMIN')
       hasShopAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_SHOP_ADMIN')
     }
-    
+
     // 过滤系统管理功能（auditFunctions）
     const filteredAuditFunctions = this.data.auditFunctions.filter(item => {
       // 根据功能名称检查对应权限
       if (item.name === '文章审核') {
         return this.hasPermission('HOME_PAGE_ARTICLE_REVIEW')
-      } else if (item.name === '文章管理') {
+      } else if (item.name === '资讯管理') {
         return this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
       } else if (item.name === '轮播图管理') {
         return this.hasPermission('HOME_PAGE_BANNER_MANAGEMENT')
+      } else if (item.name === '审核校友总会') {
+        return true // 取消权限限制，所有人都可以查看
+      } else if (item.name === '校友会审核') {
+        return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_APPLICATION')
       }
       return false
     })
-    
+
     // 过滤校促会管理功能（schoolOfficeFunctions）
     const filteredSchoolOfficeFunctions = this.data.schoolOfficeFunctions.filter(item => {
       // 根据功能名称检查对应权限
@@ -371,10 +417,16 @@ Page({
         return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
       } else if (item.name === '架构管理') {
         return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
+      } else if (item.name === '资讯管理') {
+        return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
+      } else if (item.name === '信息维护') {
+        return true // 取消权限限制，所有人都可以查看
+      } else if (item.name === '校友会认证') {
+        return true // 取消权限限制，所有人都可以查看
       }
       return false
     })
-    
+
     // 过滤校友会管理功能（alumniFunctions）
     const filteredAlumniFunctions = this.data.alumniFunctions.filter(item => {
       // 根据功能名称检查对应权限
@@ -394,10 +446,12 @@ Page({
         return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT')
       } else if (item.name === '信息维护') {
         return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION')
+      } else if (item.name === '资讯管理') {
+        return this.hasPermission('ALUMNI_ASSOCIATION_ARTICLE_MANAGEMENT')
       }
       return false
     })
-    
+
     // 过滤商家管理功能（merchantFunctions）
     const filteredMerchantFunctions = this.data.merchantFunctions.filter(item => {
       // 根据功能名称检查对应权限
@@ -416,7 +470,7 @@ Page({
       }
       return false
     })
-    
+
     // 根据角色设置其他功能模块显示权限
     if (hasLocalAdmin || this.hasPermission('LOCAL_PLATFORM_CONFIG')) {
       showSchoolOfficeFunctions = true
@@ -427,7 +481,7 @@ Page({
     if (hasLocalAdmin || hasAlumniAdmin || hasMerchantAdmin || hasShopAdmin || this.hasPermission('MERCHANT_CONFIG')) {
       showMerchantFunctions = true
     }
-    
+
     // 更新数据，根据权限过滤功能列表
     this.setData({
       auditFunctions: filteredAuditFunctions,

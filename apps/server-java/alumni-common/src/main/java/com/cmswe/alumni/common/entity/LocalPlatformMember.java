@@ -58,6 +58,18 @@ public class LocalPlatformMember implements Serializable {
     private String roleName;
 
     /**
+     * 联系方式
+     */
+    @TableField(value = "contact_information")
+    private String contactInformation;
+
+    /**
+     * 社会职务
+     */
+    @TableField(value = "social_duties")
+    private String socialDuties;
+
+    /**
      * 加入时间
      */
     @TableField(value = "join_time")
@@ -80,6 +92,18 @@ public class LocalPlatformMember implements Serializable {
      */
     @TableField(value = "updated_time")
     private LocalDateTime updatedTime;
+
+    /**
+     * 是否在主页展示：0-否，1-是
+     */
+    @TableField(value = "is_show")
+    private Integer isShow;
+
+    /**
+     * 排序权重, 数值越小越靠前
+     */
+    @TableField(value = "sort")
+    private Integer sort;
 
     /**
      * 逻辑删除

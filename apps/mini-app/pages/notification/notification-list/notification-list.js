@@ -115,7 +115,11 @@ Page({
           readTime: item.readTime,
           extraData: item.extraData,
           createdTime: this.formatTime(item.createdTime),
-          rawCreatedTime: item.createdTime
+          rawCreatedTime: item.createdTime,
+          // 新增邀请相关字段
+          actionType: item.actionType || null,  // INVITATION, APPROVAL, CONFIRM 等
+          actionData: item.actionData || null,  // JSON字符串
+          actionStatus: item.actionStatus      // 0-待处理, 1-已同意, 2-已拒绝, 3-已过期
         }))
 
         // 追加或替换列表
@@ -153,7 +157,8 @@ Page({
       'COMMENT': '评论',
       'LIKE': '点赞',
       'REPLY': '回复',
-      'MENTION': '提及'
+      'MENTION': '提及',
+      'INVITATION': '邀请'
     }
     return typeMap[type] || type
   },
@@ -306,6 +311,60 @@ Page({
       }
     } catch (error) {
       console.error('标记已读失败:', error)
+    }
+  },
+
+  // 处理邀请（同意/拒绝）
+  handleInvitation(e) {
+    const { item, agree } = e.currentTarget.dataset
+    const agreeText = agree ? '同意' : '拒绝'
+    const confirmText = agree ? '确定同意加入该校友会吗？' : '确定拒绝该邀请吗？'
+
+    wx.showModal({
+      title: '确认操作',
+      content: confirmText,
+      success: (res) => {
+        if (res.confirm) {
+          this.submitInvitationHandle(item, agree)
+        }
+      }
+    })
+  },
+
+  // 提交邀请处理请求
+  async submitInvitationHandle(item, agree) {
+    try {
+      wx.showLoading({ title: '处理中...', mask: true })
+
+      const res = await chatApi.handleInvitation({
+        invitationId: item.relatedId,
+        notificationId: item.notificationId,
+        agree: agree
+      })
+
+      wx.hideLoading()
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: agree ? '已同意邀请' : '已拒绝邀请',
+          icon: 'success'
+        })
+
+        // 刷新列表
+        this.refreshList()
+      } else {
+        wx.showToast({
+          title: res.data?.message || '操作失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      console.error('处理邀请失败:', error)
+      wx.showToast({
+        title: '操作失败，请重试',
+        icon: 'none'
+      })
     }
   },
 

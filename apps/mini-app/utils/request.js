@@ -47,7 +47,16 @@ const request = (params) => {
   const app = getApp()
 
   const data = params.data || {}
-  const baseUrl = app.globalData.baseUrl
+  
+  // 优先从全局数据获取 baseUrl，如果没有（如在 App.onLaunch 过程中），则从 config 获取
+  let baseUrl = ''
+  if (app && app.globalData && app.globalData.baseUrl) {
+    baseUrl = app.globalData.baseUrl
+  } else {
+    // 兜底：直接从配置文件根据当前环境获取
+    baseUrl = config.getBaseUrlByEnvVersion()
+  }
+  
   const fullUrl = data.isAllUrl ? params.url : baseUrl + params.url
   
   // 获取基础请求头（包含 token）
@@ -81,7 +90,49 @@ const request = (params) => {
     // 统一的成功回调处理
     const handleSuccess = async function (res) {
       // 无论状态码如何，都尝试解析响应数据
-      const responseData = res.data || {}
+      let responseData = res.data || {}
+      
+      // 处理大数字精度问题：注意，wx.request和wx.cloud.callContainer返回的res.data已经是解析后的对象
+      // 因此我们需要在前端处理层面确保所有ID都被转换为字符串
+      if (res.data) {
+        // 递归处理对象中的大数字，将其转换为字符串
+        const processLargeNumbers = (obj) => {
+          if (obj === null || typeof obj !== 'object') {
+            // 检查是否是大数字（超过JavaScript安全整数范围）
+            if (typeof obj === 'number') {
+              // JavaScript Number.MAX_SAFE_INTEGER = 9007199254740991 (16 digits)
+              // 任何超过16位的数字或接近安全整数范围的数字都转换为字符串
+              if (obj > Number.MAX_SAFE_INTEGER || obj < Number.MIN_SAFE_INTEGER || obj.toString().length >= 16) {
+                return obj.toString();
+              }
+            }
+            return obj;
+          }
+          
+          if (Array.isArray(obj)) {
+            return obj.map(processLargeNumbers);
+          }
+          
+          const result = {};
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              result[key] = processLargeNumbers(obj[key]);
+            }
+          }
+          return result;
+        };
+        
+        try {
+          // 处理响应数据中的大数字
+          responseData = processLargeNumbers(res.data);
+          // 更新res.data
+          res.data = responseData;
+        } catch (e) {
+          console.warn('处理大数字精度时出错:', e);
+          // 出错时使用原始数据
+        }
+      }
+      
       const { code, msg } = responseData
 
       // 后端约定的 token 相关错误码：
@@ -164,10 +215,13 @@ const request = (params) => {
         resolve(res)
       } else {
         // 其它业务错误，正常弹出后端提示
-        msg && wx.showToast({
-          icon: 'none',
-          title: msg
-        })
+        // 如果请求带有 silent: true 参数，则不弹出 Toast 提示
+        if (!params.silent && msg) {
+          wx.showToast({
+            icon: 'none',
+            title: msg
+          })
+        }
         resolve(res);
       }
     }

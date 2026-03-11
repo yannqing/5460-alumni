@@ -45,6 +45,42 @@ public class OrganizationMemberResponse extends UserListResponse {
     @Schema(description = "当前登录用户是否关注了该成员：true-已关注 false-未关注 null-未登录")
     private Boolean isFollowed;
 
+    /**
+     * 是否已加入平台：true-已加入 false-未加入（预设成员）
+     */
+    @Schema(description = "是否已加入平台：true-已加入 false-未加入（预设成员）")
+    private Boolean joined;
+
+    /**
+     * 成员 ID（来自 local_platform_member 表）
+     */
+    @Schema(description = "成员 ID（来自 local_platform_member 表）")
+    private Long id;
+
+    /**
+     * 联系方式
+     */
+    @Schema(description = "联系方式")
+    private String contactInformation;
+
+    /**
+     * 社会职务
+     */
+    @Schema(description = "社会职务")
+    private String socialDuties;
+
+    /**
+     * 是否展示在主页（0-否，1-是）
+     */
+    @Schema(description = "是否展示在主页（0-否，1-是）")
+    private Integer isShowOnHome;
+
+    /**
+     * 是否展示（0-否，1-是）
+     */
+    @Schema(description = "是否展示（0-否，1-是）")
+    private Integer isShow;
+
     @Serial
     private static final long serialVersionUID = 1L;
 

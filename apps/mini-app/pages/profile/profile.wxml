@@ -28,8 +28,11 @@
         </view>
         <view class="nickname-badge-row">
           <text class="text_6">{{userInfo.nickname || '用户名'}}</text>
-          <!-- 校友会认证徽章 -->
-          <image wx:if="{{userInfo.isAlumni === 1}}" class="cert-badge-image" src="/assets/certification/alumni_certification3.png" mode="heightFix"></image>
+          <!-- 校友认证等级标签 -->
+          <image wx:if="{{userInfo.certificationFlag === 1}}" class="alumni-cert-badge-img" src="{{alumniCertFirstImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+          <image wx:elif="{{userInfo.certificationFlag === 2}}" class="alumni-cert-badge-img" src="{{alumniCertSecondImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+          <image wx:elif="{{userInfo.certificationFlag === 3}}" class="alumni-cert-badge-img" src="{{alumniCertThirdImg}}" mode="heightFix" catchtap="goToCertificationInfo" />
+          <view wx:else class="uncertified-tag" catchtap="goToCertificationInfo">未认证</view>
         </view>
       </view>
 
@@ -119,6 +122,12 @@
         <view class="image-text_9-2" bindtap="navigateTo" data-url="/pages/enterprise/my-enterprise/my-enterprise">
           <image src="{{iconSwhz}}" class="label_10-2"></image>
           <text lines="1" class="text-group_3-2">我的企业</text>
+        </view>
+      </view>
+      <view class="list_6 list_6_row2">
+        <view class="image-text_9-3" bindtap="navigateTo" data-url="/pages/profile/my-invitation/my-invitation">
+          <image src="{{iconSwhz}}" class="label_10-3"></image>
+          <text lines="1" class="text-group_3-3">我的邀请</text>
         </view>
       </view>
       <view class="image-text_10" wx:if="{{couponStats.unused > 0}}" bindtap="navigateTo" data-url="/pages/coupon/list/list?type=my&tab=unused">

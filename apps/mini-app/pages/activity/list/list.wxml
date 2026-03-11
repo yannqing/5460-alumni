@@ -5,7 +5,7 @@
 <view class="page">
   <!-- 校友会选择卡片（与成员管理/架构管理一致，固定不滚动） -->
   <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
-    <text class="text_14">校友活动</text>
+    <text class="text_14">校友会组织</text>
     <text class="label_text">选择校友会</text>
     <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
       <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
@@ -64,7 +64,7 @@
     </scroll-view>
   </view>
 
-  <!-- 校友会选择器弹窗 -->
+  <!-- 校友会选择器弹窗（与架构管理一致） -->
   <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
     <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
     <view class="picker-content">
@@ -74,14 +74,23 @@
       </view>
       <view class="picker-list">
         <view
-          class="picker-item"
+          class="picker-item {{selectedAlumniAssociationId == item.alumniAssociationId ? 'selected' : ''}}"
           wx:for="{{alumniAssociationList}}"
           wx:key="alumniAssociationId"
           data-alumni-association-id="{{item.alumniAssociationId}}"
           data-alumni-association-name="{{item.alumniAssociationName}}"
           bindtap="selectAlumniAssociation"
         >
-          <text class="item-name">{{item.alumniAssociationName}}</text>
+          <view class="picker-item-left">
+            <image class="picker-item-logo" src="{{item.logo}}" mode="aspectFill" wx:if="{{item.logo}}"></image>
+            <view class="picker-item-logo-placeholder" wx:else>
+              <text>{{item.alumniAssociationName[0] || '校'}}</text>
+            </view>
+            <view class="picker-item-info">
+              <text class="item-name">{{item.alumniAssociationName}}</text>
+              <text class="item-location" wx:if="{{item.location}}">{{item.location}}</text>
+            </view>
+          </view>
           <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
         </view>
         <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">

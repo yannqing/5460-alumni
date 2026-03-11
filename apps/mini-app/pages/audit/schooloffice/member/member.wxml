@@ -13,11 +13,12 @@
   <!-- 成员列表卡片（与校友会审核页 group_7 一致：固定标题，仅内部 scroll-list 滚动） -->
   <view class="group_7">
     <view class="member-list-header">
-      <text class="text_20">成员列表</text>
-      <view class="invite-btn-wrap">
-        <button class="invite-btn" bindtap="showInviteModal">+邀请加入</button>
+        <text class="text_20">成员列表</text>
+        <view class="invite-btn-wrap">
+          <button class="invite-btn preset-btn" bindtap="showPresetModal">+预设成员</button>
+          <button class="invite-btn" bindtap="showInviteModal">+邀请加入</button>
+        </view>
       </view>
-    </view>
     <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
       <view wx:if="{{memberLoading}}" class="loading-state">
         <text>加载成员中...</text>
@@ -29,11 +30,18 @@
               <image class="avatar-img" src="{{item.avatarUrl || defaultUserAvatarUrl}}"></image>
             </view>
             <view class="member-text-group">
-              <text class="member-name">{{item.name || item.nickname || '未命名'}}</text>
+              <view class="name-row">
+                <text class="member-name">{{item.name || item.nickname || '未命名'}}</text>
+                <text class="member-joined-tag" wx:if="{{item.joined}}">已注册</text>
+                <text class="member-joined-tag unregistered" wx:else bindtap="showLinkModal" data-member="{{item}}">未注册</text>
+              </view>
               <text class="member-gender-text" wx:if="{{item.gender}}">{{item.gender === 1 ? '男' : '女'}}</text>
+              <text class="member-role-name" wx:if="{{item.roleName}}">职务: {{item.roleName}}</text>
+              <text class="member-role-name" wx:if="{{item.contactInformation}}">联系方式: {{item.contactInformation}}</text>
+              <text class="member-role-name" wx:if="{{item.socialDuties}}">社会职务: {{item.socialDuties}}</text>
             </view>
           </view>
-          <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</view>
+          <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通职务'}}</view>
           <view class="member-actions">
             <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
             <view class="delete-btn" catchtap="deleteMember" data-member="{{item}}">删除</view>
@@ -115,6 +123,55 @@
             </view>
           </picker>
         </view>
+        <view class="form-item">
+          <text class="label">职务</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入职务" 
+            placeholder-class="field-placeholder"
+            value="{{inviteForm.roleName}}"
+            bindinput="onRoleNameInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">联系方式</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入联系方式" 
+            placeholder-class="field-placeholder"
+            value="{{inviteForm.contactInformation}}"
+            bindinput="onContactInformationInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">社会职务</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入社会职务" 
+            placeholder-class="field-placeholder"
+            value="{{inviteForm.socialDuties}}"
+            bindinput="onSocialDutiesInput"
+          />
+        </view>
+        <view class="form-item switch-item">
+          <text class="label">主页展示</text>
+          <switch 
+            checked="{{inviteForm.isShowOnHome === 1}}" 
+            bindchange="onInviteIsShowOnHomeChange"
+            class="switch-component"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">排序权重</text>
+          <input 
+            class="field-input" 
+            placeholder="数值越小越靠前" 
+            placeholder-class="field-placeholder"
+            type="number"
+            value="{{inviteForm.sort}}"
+            bindinput="onInviteSortInput"
+          />
+        </view>
       </view>
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideInviteModal">取消</button>
@@ -148,6 +205,55 @@
             </view>
           </picker>
         </view>
+        <view class="form-item">
+          <text class="label">职务</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入职务" 
+            placeholder-class="field-placeholder"
+            value="{{editingMember.roleName}}"
+            bindinput="onEditRoleNameInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">联系方式</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入联系方式" 
+            placeholder-class="field-placeholder"
+            value="{{editingMember.contactInformation}}"
+            bindinput="onEditContactInformationInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">社会职务</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入社会职务" 
+            placeholder-class="field-placeholder"
+            value="{{editingMember.socialDuties}}"
+            bindinput="onEditSocialDutiesInput"
+          />
+        </view>
+        <view class="form-item switch-item">
+          <text class="label">主页展示</text>
+          <switch 
+            checked="{{editingMember.isShowOnHome === 1}}" 
+            bindchange="onEditIsShowOnHomeChange"
+            class="switch-component"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">排序权重</text>
+          <input 
+            class="field-input" 
+            placeholder="数值越小越靠前" 
+            placeholder-class="field-placeholder"
+            type="number"
+            value="{{editingMember.sort}}"
+            bindinput="onEditSortInput"
+          />
+        </view>
       </view>
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideEditModal">取消</button>
@@ -156,4 +262,130 @@
     </view>
   </view>
 </view>
+
+  <!-- 预设成员弹窗 -->
+  <view class="invite-modal" wx:if="{{showPresetModal}}">
+    <view class="modal-overlay" bindtap="hidePresetModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">预设成员</text>
+        <text class="modal-close" bindtap="hidePresetModal">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="label">用户名</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入用户名" 
+            placeholder-class="field-placeholder"
+            value="{{presetForm.username}}"
+            bindinput="onPresetUsernameInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">校促会身份</text>
+          <picker bindchange="onPresetRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{presetForm.roleIndex || 0}}">
+            <view class="role-selector">
+              <text class="selector-text">{{presetForm.roleOrName || '请选择身份'}}</text>
+              <text class="selector-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="label">职务</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入职务" 
+            placeholder-class="field-placeholder"
+            value="{{presetForm.roleName}}"
+            bindinput="onPresetRoleNameInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">联系方式</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入联系方式" 
+            placeholder-class="field-placeholder"
+            value="{{presetForm.contactInformation}}"
+            bindinput="onPresetContactInformationInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">社会职务</text>
+          <input 
+            class="field-input" 
+            placeholder="请输入社会职务" 
+            placeholder-class="field-placeholder"
+            value="{{presetForm.socialDuties}}"
+            bindinput="onPresetSocialDutiesInput"
+          />
+        </view>
+        <view class="form-item switch-item">
+          <text class="label">主页展示</text>
+          <switch 
+            checked="{{presetForm.isShowOnHome === 1}}" 
+            bindchange="onPresetIsShowOnHomeChange"
+            class="switch-component"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">排序权重</text>
+          <input 
+            class="field-input" 
+            placeholder="数值越小越靠前" 
+            placeholder-class="field-placeholder"
+            type="number"
+            value="{{presetForm.sort}}"
+            bindinput="onPresetSortInput"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="btn btn-cancel" bindtap="hidePresetModal">取消</button>
+        <button class="btn btn-confirm" bindtap="submitPreset">确定预设</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关联注册用户弹窗 -->
+  <view class="invite-modal" wx:if="{{showLinkModal}}">
+    <view class="modal-overlay" bindtap="hideLinkModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">关联注册用户</text>
+        <text class="modal-close" bindtap="hideLinkModal">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="alumni-name-field" catchtap="preventBubble">
+          <view class="field-label">校友姓名</view>
+          <view class="field-input-wrapper">
+            <input 
+              class="field-input" 
+              placeholder="请输入校友姓名进行搜索"
+              placeholder-class="field-placeholder"
+              adjust-position="{{false}}"
+              bindinput="onLinkUsernameInput"
+              bindfocus="onMemberNameFocus"
+              value="{{linkForm.name}}"
+            />
+          </view>
+          <scroll-view scroll-y class="alumni-search-dropdown" show-scrollbar="{{false}}" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
+            <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="alumni-search-item" bindtap="selectLinkAlumni" data-index="{{index}}">
+              <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="alumni-avatar" mode="aspectFill" />
+              <image wx:else src="{{defaultUserAvatarUrl}}" class="alumni-avatar" mode="aspectFill" />
+              <view class="alumni-item-info">
+                <text class="alumni-item-name">{{item.name || item.nickname || item.realName}}</text>
+                <text class="alumni-item-school">{{item.school || '暂无学校信息'}}</text>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="btn btn-cancel" bindtap="hideLinkModal">取消</button>
+        <button class="btn btn-confirm" bindtap="submitLink">确定关联</button>
+      </view>
+    </view>
+  </view>
 </custom-nav-bar>

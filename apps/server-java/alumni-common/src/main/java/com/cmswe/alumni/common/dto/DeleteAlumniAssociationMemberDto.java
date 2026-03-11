@@ -25,10 +25,15 @@ public class DeleteAlumniAssociationMemberDto implements Serializable {
     private Long alumniAssociationId;
 
     /**
-     * 成员用户ID
+     * 成员记录ID（当删除未注册成员时使用此字段）
      */
-    @Schema(description = "成员用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "成员用户ID不能为空")
+    @Schema(description = "成员记录ID")
+    private Long id;
+
+    /**
+     * 成员用户ID（当删除已注册成员时使用此字段）
+     */
+    @Schema(description = "成员用户ID")
     private Long wxId;
 
     @Serial

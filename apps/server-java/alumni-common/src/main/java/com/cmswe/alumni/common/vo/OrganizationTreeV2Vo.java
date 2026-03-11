@@ -55,6 +55,12 @@ public class OrganizationTreeV2Vo implements Serializable {
     private String remark;
 
     /**
+     * 排序，数值越小越靠前
+     */
+    @Schema(description = "排序")
+    private Integer sort;
+
+    /**
      * 成员列表
      */
     @Schema(description = "该角色下的成员列表")

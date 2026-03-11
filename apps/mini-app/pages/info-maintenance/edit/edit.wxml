@@ -10,25 +10,26 @@
         <!-- 校友会名称 -->
         <view class="form-card">
           <view class="form-label">校友会名称</view>
-          <input 
-            class="form-input" 
-            placeholder="请输入校友会名称" 
-            value="{{formData.associationName}}" 
-            bindinput="handleInput" 
-            data-field="associationName"
+          <input
+            class="form-input disabled"
+            placeholder="请输入校友会名称"
+            value="{{formData.associationName}}"
+            disabled="{{true}}"
           />
         </view>
 
-        <!-- 联系信息 -->
+        <!-- 校友会简介 -->
         <view class="form-card">
-          <view class="form-label">联系信息</view>
-          <textarea 
-            class="form-textarea" 
-            placeholder="请输入联系信息" 
-            value="{{formData.contactInfo}}" 
-            bindinput="handleInput" 
-            data-field="contactInfo"
+          <view class="form-label">校友会简介</view>
+          <textarea
+            class="form-textarea form-textarea-large"
+            placeholder="请输入校友会简介"
+            value="{{formData.associationProfile}}"
+            bindinput="handleInput"
+            data-field="associationProfile"
+            maxlength="1000"
           />
+          <view class="textarea-count">{{formData.associationProfile.length || 0}}/1000</view>
         </view>
 
         <!-- 常驻地点 -->
@@ -76,19 +77,133 @@
           <view class="form-label">背景图</view>
           <view class="upload-container">
             <view class="image-list">
-              <view class="image-item" wx:for="{{bgImageList}}" wx:key="index">
-                <image class="list-image" src="{{item.url}}" mode="aspectFill"></image>
-                <view class="image-delete-btn" data-index="{{index}}" bindtap="onDeleteBgImage">
+              <view class="image-item" wx:if="{{formData.bgImg}}">
+                <image class="list-image" src="{{formData.bgImg}}" mode="aspectFill"></image>
+                <view class="image-delete-btn" bindtap="onDeleteBgImage">
                   <text class="delete-icon">×</text>
                 </view>
+                <view class="image-loading" wx:if="{{uploadingBgImage}}">
+                  <text class="loading-text">上传中...</text>
+                </view>
               </view>
-              <view class="upload-btn" bindtap="onUploadBgImage" wx:if="{{bgImageList.length < 9}}">
+              <view class="upload-btn" bindtap="onUploadBgImage" wx:if="{{!formData.bgImg}}">
                 <text class="upload-icon">+</text>
-                <text class="upload-text">上传背景图</text>
+                <text class="upload-text">点击上传背景图</text>
               </view>
             </view>
-            <text class="image-count">最多上传9张图片</text>
           </view>
+        </view>
+
+        <!-- 主要负责人信息 -->
+        <view class="form-section-title">主要负责人</view>
+        <view class="form-card">
+          <view class="form-label">姓名</view>
+          <input
+            class="form-input {{formData.chargeWxId ? 'disabled' : ''}}"
+            placeholder="请输入负责人姓名"
+            value="{{formData.chargeName}}"
+            bindinput="handleInput"
+            data-field="chargeName"
+            disabled="{{!!formData.chargeWxId}}"
+          />
+          <view class="bind-user-row">
+            <view class="bind-user-status {{formData.chargeWxId ? 'registered' : 'unregistered'}}">
+              {{formData.chargeWxId ? '已绑定' : '未绑定'}}
+            </view>
+            <view class="bind-user-btn" wx:if="{{!formData.chargeWxId}}" bindtap="showBindUserModal" data-type="charge">
+              绑定用户
+            </view>
+            <view class="replace-user-btn" wx:if="{{formData.chargeWxId}}" bindtap="replaceUser" data-type="charge">
+              更换负责人
+            </view>
+          </view>
+        </view>
+        <view class="form-card">
+          <view class="form-label">职务</view>
+          <input
+            class="form-input"
+            placeholder="请输入负责人职务"
+            value="{{formData.chargeRole}}"
+            bindinput="handleInput"
+            data-field="chargeRole"
+          />
+        </view>
+        <view class="form-card">
+          <view class="form-label">联系电话</view>
+          <input
+            class="form-input"
+            placeholder="请输入负责人联系电话"
+            value="{{formData.contactInfo}}"
+            bindinput="handleInput"
+            data-field="contactInfo"
+            type="number"
+          />
+        </view>
+        <view class="form-card">
+          <view class="form-label">社会任职</view>
+          <input
+            class="form-input"
+            placeholder="请输入负责人社会任职"
+            value="{{formData.chargeSocialAffiliation}}"
+            bindinput="handleInput"
+            data-field="chargeSocialAffiliation"
+          />
+        </view>
+
+        <!-- 联系人信息 -->
+        <view class="form-section-title">联系人</view>
+        <view class="form-card">
+          <view class="form-label">姓名</view>
+          <input
+            class="form-input {{formData.zhWxId ? 'disabled' : ''}}"
+            placeholder="请输入联系人姓名"
+            value="{{formData.zhName}}"
+            bindinput="handleInput"
+            data-field="zhName"
+            disabled="{{!!formData.zhWxId}}"
+          />
+          <view class="bind-user-row">
+            <view class="bind-user-status {{formData.zhWxId ? 'registered' : 'unregistered'}}">
+              {{formData.zhWxId ? '已绑定' : '未绑定'}}
+            </view>
+            <view class="bind-user-btn" wx:if="{{!formData.zhWxId}}" bindtap="showBindUserModal" data-type="zh">
+              绑定用户
+            </view>
+            <view class="replace-user-btn" wx:if="{{formData.zhWxId}}" bindtap="replaceUser" data-type="zh">
+              更换代表
+            </view>
+          </view>
+        </view>
+        <view class="form-card">
+          <view class="form-label">职务</view>
+          <input
+            class="form-input"
+            placeholder="请输入联系人职务"
+            value="{{formData.zhRole}}"
+            bindinput="handleInput"
+            data-field="zhRole"
+          />
+        </view>
+        <view class="form-card">
+          <view class="form-label">联系电话</view>
+          <input
+            class="form-input"
+            placeholder="请输入联系人联系电话"
+            value="{{formData.zhPhone}}"
+            bindinput="handleInput"
+            data-field="zhPhone"
+            type="number"
+          />
+        </view>
+        <view class="form-card">
+          <view class="form-label">社会任职</view>
+          <input
+            class="form-input"
+            placeholder="请输入联系人社会任职"
+            value="{{formData.zhSocialAffiliation}}"
+            bindinput="handleInput"
+            data-field="zhSocialAffiliation"
+          />
         </view>
 
         <!-- 提交按钮 -->
@@ -96,6 +211,61 @@
           <button class="submit-button" form-type="submit" loading="{{submitting}}">保存修改</button>
         </view>
       </form>
+    </view>
+  </view>
+
+  <!-- 绑定用户弹窗 -->
+  <view class="bind-user-modal" wx:if="{{showBindUserModal}}">
+    <view class="bind-modal-overlay" bindtap="hideBindUserModal"></view>
+    <view class="bind-modal-content">
+      <view class="bind-modal-header">
+        <text class="bind-modal-title">搜索用户</text>
+        <text class="bind-modal-close" bindtap="hideBindUserModal">×</text>
+      </view>
+      <view class="bind-modal-body">
+        <view class="bind-search-box">
+          <input
+            class="bind-search-input"
+            placeholder="输入姓名或手机号搜索"
+            value="{{bindSearchKeyword}}"
+            bindinput="onBindSearchInput"
+            confirm-type="search"
+            bindconfirm="onBindSearch"
+          />
+          <view class="bind-search-btn" bindtap="onBindSearch">搜索</view>
+        </view>
+        <scroll-view class="bind-search-results" scroll-y>
+          <view class="bind-search-tip" wx:if="{{!bindSearching && bindUserList.length === 0 && !bindSearched}}">
+            请输入关键词搜索用户
+          </view>
+          <view class="bind-search-loading" wx:if="{{bindSearching}}">
+            搜索中...
+          </view>
+          <view class="bind-search-empty" wx:if="{{!bindSearching && bindUserList.length === 0 && bindSearched}}">
+            未找到匹配的用户
+          </view>
+          <view
+            class="bind-user-item {{selectedBindUser && selectedBindUser.wxId === item.wxId ? 'selected' : ''}}"
+            wx:for="{{bindUserList}}"
+            wx:key="wxId"
+            bindtap="selectBindUser"
+            data-user="{{item}}"
+          >
+            <image class="bind-user-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+            <view class="bind-user-item-info">
+              <text class="bind-user-item-name">{{item.name || item.nickname || '未知用户'}}</text>
+              <text class="bind-user-item-phone" wx:if="{{item.phone}}">{{item.phone}}</text>
+            </view>
+            <view class="bind-select-icon {{selectedBindUser && selectedBindUser.wxId === item.wxId ? 'checked' : ''}}">
+              <text wx:if="{{selectedBindUser && selectedBindUser.wxId === item.wxId}}">✓</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+      <view class="bind-modal-footer">
+        <view class="bind-btn-cancel" bindtap="hideBindUserModal">取消</view>
+        <view class="bind-btn-confirm" bindtap="confirmBindUser">确定</view>
+      </view>
     </view>
   </view>
 </custom-nav-bar>

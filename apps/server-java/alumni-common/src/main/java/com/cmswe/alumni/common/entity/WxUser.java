@@ -70,10 +70,10 @@ public class WxUser implements Serializable {
     private Integer isEnabled;
 
     /**
-     * 是否成为校友
+     * 认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）
      */
-    @TableField(value = "is_alumni")
-    private Integer isAlumni;
+    @TableField(value = "certification_flag")
+    private Integer certificationFlag;
 
     /**
      * 创建时间

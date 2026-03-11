@@ -404,6 +404,24 @@
   margin-top: 5rpx;
 }
 
+/* 标签组容器（角色+状态标签上下排列） */
+.member-tags-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8rpx;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+/* 状态标签容器（未注册+主页展示横向排列） */
+.member-status-tags {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+}
+
 .member-role-tag {
   background-color: rgba(24,144,255,1);
   border-radius: 18rpx;
@@ -413,7 +431,6 @@
   justify-content: center;
   min-width: 94rpx;
   padding: 0 16rpx;
-  margin-left: 24rpx;
   flex-shrink: 0;
   font-size: 22rpx;
   letter-spacing: 0rpx;
@@ -742,4 +759,419 @@
   font-size: 28rpx;
   color: #333;
   font-weight: 600;
+}
+
+/* 编辑弹窗容器 - 更大的宽度 */
+.edit-modal .modal-content {
+  width: 90%;
+  max-width: 680rpx;
+}
+
+/* 编辑弹窗表单输入框 */
+.form-input {
+  border: 1rpx solid #eee;
+  padding: 0 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+  height: 80rpx;
+  background-color: #fff;
+  line-height: 80rpx;
+}
+
+.form-input:focus {
+  border-color: #1890ff;
+}
+
+/* 角色选择器样式（使用特定前缀避免与校友会选择器冲突） */
+.role-picker-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1rpx solid #eee;
+  padding: 0 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+  height: 80rpx;
+  background-color: #fff;
+  line-height: 80rpx;
+}
+
+.role-picker-text {
+  flex: 1;
+  color: #333;
+}
+
+.role-picker-arrow {
+  color: #999;
+  font-size: 24rpx;
+  margin-left: 10rpx;
+}
+
+/* 编辑弹窗开关项布局 */
+.form-item-switch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-item-switch .label {
+  margin-bottom: 0 !important;
+}
+
+/* 编辑弹窗内容区域滚动 */
+.edit-modal .modal-body {
+  max-height: 60vh;
+  padding: 30rpx;
+  box-sizing: border-box;
+}
+
+/* 编辑弹窗底部按钮 */
+.edit-modal .modal-footer {
+  display: flex;
+  padding: 20rpx 30rpx;
+  gap: 20rpx;
+}
+
+.edit-modal .modal-footer .btn {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 28rpx;
+}
+
+/* 校友会选择器项样式（带logo和location） */
+.alumni-association-picker .picker-item-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.alumni-association-picker .picker-item-logo {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+
+.alumni-association-picker .picker-item-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.alumni-association-picker .item-location {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alumni-association-picker .picker-item.selected {
+  background-color: #f6ffed;
+}
+
+.alumni-association-picker .picker-item.selected .item-name {
+  color: #52c41a;
+  font-weight: 600;
+}
+
+/* 未注册标签样式 */
+.unregistered-tag {
+  font-size: 20rpx;
+  color: #ff4d4f;
+  background-color: #fff1f0;
+  border: 1rpx solid #ffa39e;
+  border-radius: 18rpx;
+  padding: 2rpx 12rpx;
+  line-height: 28rpx;
+  height: 32rpx;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 主页展示标签样式 */
+.show-on-home-tag {
+  font-size: 20rpx;
+  color: #52c41a;
+  background-color: #f6ffed;
+  border: 1rpx solid #b7eb8f;
+  border-radius: 18rpx;
+  padding: 2rpx 12rpx;
+  line-height: 28rpx;
+  height: 32rpx;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 可点击样式 */
+.member-item-left.clickable {
+  cursor: pointer;
+}
+
+.member-item-left.clickable:active {
+  opacity: 0.7;
+}
+
+/* 邀请流程说明提示 */
+.invite-tip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 24rpx;
+  padding: 16rpx 20rpx;
+  background-color: #f6f8fa;
+  border-radius: 8rpx;
+}
+
+.invite-tip-icon {
+  width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #1890ff;
+  background-color: #e6f4ff;
+  border-radius: 50%;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.invite-tip-text {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 36rpx;
+}
+
+/* 邀请弹窗增大 */
+.invite-modal-content {
+  width: 90% !important;
+  max-width: 680rpx !important;
+}
+
+/* 邀请方式选择标签 */
+.invite-method-tabs {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 30rpx;
+}
+
+.invite-method-tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+
+.invite-method-tab.active {
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.invite-method-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background-color: #1890ff;
+  border-radius: 2rpx;
+}
+
+/* 邀请方式内容区域 */
+.invite-method-content {
+  min-height: 300rpx;
+}
+
+/* 链接邀请样式 */
+.invite-link-section {
+  padding: 0;
+}
+
+.invite-link-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.invite-link-desc {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 20rpx;
+  line-height: 36rpx;
+}
+
+.invite-link-box {
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.invite-link-text {
+  font-size: 26rpx;
+  color: #333;
+  word-break: break-all;
+  line-height: 40rpx;
+}
+
+/* 分享邀请信息样式 */
+.invite-share-info {
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.invite-share-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12rpx;
+}
+
+.invite-share-hint {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 二维码邀请样式 */
+.invite-qrcode-section {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.invite-qrcode-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+  width: 100%;
+}
+
+.invite-qrcode-desc {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 30rpx;
+  line-height: 36rpx;
+  width: 100%;
+}
+
+.invite-qrcode-box {
+  width: 320rpx;
+  height: 320rpx;
+  background-color: #f5f5f5;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  overflow: hidden;
+}
+
+.invite-qrcode-img {
+  width: 280rpx;
+  height: 280rpx;
+}
+
+.invite-qrcode-canvas {
+  width: 280rpx;
+  height: 280rpx;
+}
+
+.invite-qrcode-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.invite-qrcode-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.invite-qrcode-section .invite-tip {
+  width: 100%;
+}
+
+/* 添加未注册成员表单样式 */
+.unregistered-form-section {
+  padding: 0;
+}
+
+.unregistered-form-section .form-item {
+  margin-bottom: 30rpx;
+}
+
+.unregistered-form-section .form-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+  display: block;
+  font-weight: 500;
+}
+
+.unregistered-form-section .required {
+  color: #ff4d4f;
+  margin-left: 4rpx;
+}
+
+.unregistered-form-section .form-input {
+  border: 1rpx solid #e0e0e0;
+  padding: 0 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+  height: 80rpx;
+  background-color: #fafafa;
+  line-height: 80rpx;
+}
+
+.unregistered-form-section .form-input:focus {
+  border-color: #1890ff;
+  background-color: #fff;
+}
+
+.unregistered-form-section .invite-tip {
+  margin-top: 20rpx;
 }

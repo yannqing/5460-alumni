@@ -53,53 +53,53 @@ Page({
   async loadPlatformList() {
     try {
       console.log('[Debug] 开始加载校促会列表')
-      
+
       // 从 storage 中获取角色列表
       const roles = wx.getStorageSync('roles') || []
       console.log('[Debug] 从storage获取的角色列表:', roles)
-      
+
       // 查找所有校促会管理员角色
       const schoolOfficeAdminRoles = roles.filter(role => role.roleCode === 'ORGANIZE_LOCAL_ADMIN')
       console.log('[Debug] 找到的校促会管理员角色:', schoolOfficeAdminRoles)
-      
+
       if (schoolOfficeAdminRoles.length > 0) {
         // 收集所有有效的organizeId
         const organizeIds = schoolOfficeAdminRoles
           .filter(role => role.organization && role.organization.organizeId)
           .map(role => role.organization.organizeId)
-        
+
         console.log('[Debug] 获取到的organizeIds:', organizeIds)
-        
+
         if (organizeIds.length > 0) {
           // 去重，确保每个organizeId只处理一次
           const uniqueOrganizeIds = [...new Set(organizeIds)]
           console.log('[Debug] 去重后的organizeIds:', uniqueOrganizeIds)
-          
+
           // 先创建基本的校促会列表
           const basicPlatformList = uniqueOrganizeIds.map(organizeId => ({
             id: organizeId,
             platformId: organizeId,
             platformName: `校促会 (ID: ${organizeId})`
           }))
-          
+
           this.setData({
             platformList: basicPlatformList
           })
           console.log('[Debug] 直接使用organizeIds创建校促会列表:', basicPlatformList)
-          
+
           // 尝试调用接口获取更详细的信息（可选）
           try {
             // 并行调用所有校促会的详情接口
-            const detailPromises = uniqueOrganizeIds.map(organizeId => 
+            const detailPromises = uniqueOrganizeIds.map(organizeId =>
               app.api.localPlatformApi.getLocalPlatformDetail(organizeId)
                 .catch(error => {
                   console.log(`[Debug] 获取校促会 ${organizeId} 详情失败，使用基本数据:`, error)
                   return null // 接口失败时返回null，后续过滤
                 })
             )
-            
+
             const detailResults = await Promise.all(detailPromises)
-            
+
             // 处理接口返回结果，更新校促会列表
             const updatedPlatformList = basicPlatformList.map((platform, index) => {
               const result = detailResults[index]
@@ -113,12 +113,12 @@ Page({
               }
               return platform // 接口失败时使用基本数据
             })
-            
+
             this.setData({
               platformList: updatedPlatformList
             })
             console.log('[Debug] 已更新校促会列表:', updatedPlatformList)
-            
+
             // 判断权限数量，处理自动选择逻辑
             this.handlePlatformSelection(updatedPlatformList)
           } catch (apiError) {
@@ -181,28 +181,28 @@ Page({
   async selectPlatform(e) {
     const { platformId, platformName } = e.currentTarget.dataset
     console.log('[Debug] 选择的校促会:', { platformId, platformName })
-    
+
     this.setData({
       selectedPlatformId: platformId,
       selectedPlatformName: platformName,
       showPlatformPicker: false
     })
-    
+
     // 更新查询参数
     this.setData({
       'pageParams.platformId': platformId,
       'pageParams.current': 1
     })
-    
+
     try {
       // 调用 /localPlatform/{id} 接口，入参为 platformId
       console.log('[Debug] 准备调用 /localPlatform/{id} 接口，platformId:', platformId)
-      
+
       // 使用正确的API方法名和参数格式
       const res = await app.api.localPlatformApi.getLocalPlatformDetail(platformId)
-      
+
       console.log('[Debug] 接口调用结果:', res)
-      
+
       if (res.data && res.data.code === 200 && res.data.data) {
         console.log('[Debug] 接口调用成功，获取到的校促会信息:', res.data.data)
         // 接口调用成功，可以在这里处理返回的数据
@@ -212,7 +212,7 @@ Page({
     } catch (apiError) {
       console.error('[Debug] 调用 /localPlatform/{id} 接口失败:', apiError)
     }
-    
+
     // 重新加载数据
     this.loadApplicationList()
   },
@@ -224,27 +224,27 @@ Page({
 
   // 加载校促会审核列表
   async loadApplicationList() {
-    this.setData({ 
-      loading: true 
+    this.setData({
+      loading: true
     })
-    
+
     try {
       console.log('[Debug] 开始加载校促会审核列表，参数:', this.data.pageParams)
-      
+
       // 调用后端API获取审核列表
       const res = await app.api.localPlatformApi.queryAssociationApplicationPage(this.data.pageParams)
-      
+
       console.log('[Debug] 接口调用结果:', res)
-      
+
       if (res.data && res.data.code === 200 && res.data.data) {
         console.log('[Debug] 接口调用成功，获取到的审核列表:', res.data.data)
-        
+
         // 确保每条记录都有 applicationStatus 字段，并处理头像、申请人、提交时间
         const records = res.data.data.records || []
         const processedRecords = records.map(record => {
           const status = parseInt(record.applicationStatus, 10)
           const rawLogo = record.logo || record.associationLogo || ''
-          const displayLogo = rawLogo ? config.getImageUrl(rawLogo) : config.defaultAlumniAvatar
+          const displayLogo = rawLogo ? config.getImageUrl(rawLogo) : config.defaultAvatar
           // 申请人：优先 chargeName，其次 applicantName、applicant
           const displayApplicant = record.chargeName || record.applicantName || record.applicant || '未知'
           // 提交时间：待审核时 reviewTime 为空，优先用 createTime/submitTime/applyTime；已通过/已拒绝可有 reviewTime
@@ -260,7 +260,7 @@ Page({
             displaySubmitTime
           }
         })
-        
+
         // 根据当前标签过滤数据
         let filteredData = processedRecords
         if (this.data.currentTab === 1) {
@@ -270,7 +270,7 @@ Page({
         } else if (this.data.currentTab === 3) {
           filteredData = processedRecords.filter(item => item.applicationStatus === 2)
         }
-        
+
         this.setData({
           applicationList: filteredData,
           loading: false
@@ -297,7 +297,7 @@ Page({
     // 确保 status 是数字类型，处理 null/undefined 情况
     const statusNum = status === null || status === undefined ? 0 : parseInt(status, 10)
     console.log('[Debug] statusNum:', statusNum)
-    
+
     const statusMap = {
       0: '待审核',
       1: '已通过',
@@ -310,12 +310,12 @@ Page({
   // 获取状态样式类
   getStatusClass(status) {
     console.log('[Debug] getStatusClass called with status:', status)
-    
+
     // 根据状态值返回对应的样式类
-    if (status === 0) {return 'pending'}
-    if (status === 1) {return 'approved'}
-    if (status === 2) {return 'rejected'}
-    if (status === 3) {return 'withdrawn'}
+    if (status === 0) { return 'pending' }
+    if (status === 1) { return 'approved' }
+    if (status === 2) { return 'rejected' }
+    if (status === 3) { return 'withdrawn' }
     return ''
   },
 
@@ -331,26 +331,26 @@ Page({
   async approveApplication(e) {
     const { id } = e.currentTarget.dataset
     console.log('[Debug] 批准申请，applicationId:', id, '类型:', typeof id)
-    
+
     try {
       wx.showLoading({
         title: '处理中...'
       })
-      
+
       // 准备审核参数
       const reviewData = {
         applicationId: id, // 直接使用字符串类型，避免数字精度丢失
         reviewResult: 1, // 1-通过
         reviewComment: '' // 通过时可以为空
       }
-      
+
       console.log('[Debug] 审核参数:', reviewData)
-      
+
       // 使用封装的 API 方法，确保云托管环境下的正确处理
       const res = await app.api.localPlatformApi.reviewAssociationApplication(reviewData)
-      
+
       console.log('[Debug] 批准申请结果:', res)
-      
+
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: '批准成功',
@@ -380,7 +380,7 @@ Page({
   rejectApplication(e) {
     const { id } = e.currentTarget.dataset
     console.log('[Debug] 拒绝申请，applicationId:', id, '类型:', typeof id)
-    
+
     // 弹出输入框，让用户输入审核意见
     wx.showModal({
       title: '拒绝申请',
@@ -397,26 +397,26 @@ Page({
             })
             return
           }
-          
+
           try {
             wx.showLoading({
               title: '处理中...'
             })
-            
+
             // 准备审核参数
             const reviewData = {
               applicationId: id, // 直接使用字符串类型，避免数字精度丢失
               reviewResult: 2, // 2-拒绝
               reviewComment: reviewComment
             }
-            
+
             console.log('[Debug] 拒绝审核参数:', reviewData)
-            
+
             // 使用封装的 API 方法，确保云托管环境下的正确处理
             const apiRes = await app.api.localPlatformApi.reviewAssociationApplication(reviewData)
-            
+
             console.log('[Debug] 拒绝申请结果:', apiRes)
-            
+
             if (apiRes.data && apiRes.data.code === 200) {
               wx.showToast({
                 title: '拒绝成功',

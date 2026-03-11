@@ -109,6 +109,11 @@ public class QueryAlumniListDto extends PageRequest implements Serializable {
     @Schema(description = "出生日期", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private LocalDate birthDate;
 
+    /**
+     * 我的关注：0-全部 1-仅我关注的
+     */
+    @Schema(description = "我的关注：0-全部 1-仅我关注的", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer myFollow;
 
     @Serial
     private static final long serialVersionUID = 1L;

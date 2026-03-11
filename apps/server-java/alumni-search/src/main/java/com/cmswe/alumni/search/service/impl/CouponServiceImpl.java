@@ -107,8 +107,8 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
             if (wxUser == null) {
                 throw new BusinessException("用户不存在");
             }
-            if (wxUser.getIsAlumni() == null || wxUser.getIsAlumni() != 1) {
-                throw new BusinessException("该优惠券仅限校友领取");
+            if (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
+                throw new BusinessException("该优惠券仅限认证校友领取");
             }
         }
 

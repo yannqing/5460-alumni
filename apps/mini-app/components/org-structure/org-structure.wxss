@@ -98,6 +98,27 @@
   box-sizing: border-box;
 }
 
+/* 递归子节点：通过行内 style 的 margin-left 实现层级缩进，每层 30rpx */
+.tree-node-child .node-header,
+.node-header.node-header-child {
+  width: 589rpx;
+  min-width: 560rpx;
+  height: 101rpx;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+  border-radius: 7rpx;
+  border: none;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.tree-node-child .role-name,
+.tree-node-child .member-count-inline {
+  font-weight: 600;
+  font-size: 29rpx;
+  color: #1F1F1F;
+  line-height: 40rpx;
+}
+
 .node-header {
   display: flex;
   justify-content: space-between;
@@ -135,9 +156,10 @@
   min-width: 0;
 }
 
-/* 第二级和第三级缩进图标 */
+/* 第二级、第三级及递归子节点缩进图标 */
 .level-2 .node-header,
-.level-3 .node-header {
+.level-3 .node-header,
+.node-header.node-header-child {
   position: relative;
 }
 

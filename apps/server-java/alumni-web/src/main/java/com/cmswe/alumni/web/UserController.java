@@ -89,8 +89,13 @@ public class UserController {
     @PrivacyFilter
     @PostMapping("/query/alumni")
     @Operation(summary = "查询校友列表")
-    public BaseResponse<Page<UserListResponse>> getAlumniList(@RequestBody QueryAlumniListDto queryAlumniListDto) {
-        Page<UserListResponse> userListResponsePage = userService.queryAlumniList(queryAlumniListDto);
+    public BaseResponse<Page<UserListResponse>> getAlumniList(
+            @RequestBody QueryAlumniListDto queryAlumniListDto,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser != null && securityUser.getWxUser() != null
+                ? securityUser.getWxUser().getWxId()
+                : null;
+        Page<UserListResponse> userListResponsePage = userService.queryAlumniList(queryAlumniListDto, wxId);
         return ResultUtils.success(Code.SUCCESS, userListResponsePage);
     }
 
@@ -128,6 +133,17 @@ public class UserController {
         Long wxId = securityUser.getWxUser().getWxId();
         List<AlumniAssociationListVo> associations = alumniAssociationService.getMyJoinedAssociations(wxId);
         return ResultUtils.success(Code.SUCCESS, associations, "查询成功");
+    }
+
+    @GetMapping("/managed-organizations")
+    @Operation(summary = "根据本人角色，获取所有可管理的组织列表")
+    public BaseResponse<List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo>> getManagedOrganizations(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @RequestParam(required = false) Integer type) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> organizations =
+                userService.getManagedOrganizations(wxId, type);
+        return ResultUtils.success(Code.SUCCESS, organizations, "查询成功");
     }
 }
 

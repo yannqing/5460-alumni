@@ -33,6 +33,12 @@ public class AlumniAssociationApplication implements Serializable {
     private Long schoolId;
 
     /**
+     * 母校曾用名
+     */
+    @TableField(value = "former_school_name")
+    private String formerSchoolName;
+
+    /**
      * 所属校处会ID（可选）
      */
     @TableField(value = "platform_id")
@@ -69,6 +75,36 @@ public class AlumniAssociationApplication implements Serializable {
     private String contactInfo;
 
     /**
+     * 主要负责人社会职务
+     */
+    @TableField(value = "msocial_affiliation")
+    private String msocialAffiliation;
+
+    /**
+     * 驻会代表姓名
+     */
+    @TableField(value = "zh_name")
+    private String zhName;
+
+    /**
+     * 驻会代表架构角色
+     */
+    @TableField(value = "zh_role")
+    private String zhRole;
+
+    /**
+     * 驻会代表联系电话
+     */
+    @TableField(value = "zh_phone")
+    private String zhPhone;
+
+    /**
+     * 驻会代表社会职务
+     */
+    @TableField(value = "zhsocial_affiliation")
+    private String zhSocialAffiliation;
+
+    /**
      * 常驻地点
      */
     @TableField(value = "location")
@@ -85,6 +121,18 @@ public class AlumniAssociationApplication implements Serializable {
      */
     @TableField(value = "application_reason")
     private String applicationReason;
+
+    /**
+     * 校友会简介
+     */
+    @TableField(value = "association_profile")
+    private String associationProfile;
+
+    /**
+     * 组织架构模板ID
+     */
+    @TableField(value = "template_id")
+    private Long templateId;
 
     /**
      * 初始成员列表（JSON格式）

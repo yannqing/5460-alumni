@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.system.ActivityService;
 import com.cmswe.alumni.common.dto.PublishTopicDto;
+import com.cmswe.alumni.common.dto.QueryPublicActivityDto;
 import com.cmswe.alumni.common.dto.QueryShopActivityDto;
 import com.cmswe.alumni.common.dto.UpdateActivityDto;
 import com.cmswe.alumni.common.entity.Activity;
@@ -255,5 +256,110 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         }
 
         return result;
+    }
+
+    /**
+     * 查询所有公开活动列表（is_public=1，status=1/2/3/4）
+     *
+     * @param queryDto 查询参数
+     * @return 活动列表分页数据
+     */
+    @Override
+    public PageVo<ActivityListVo> getPublicActivities(QueryPublicActivityDto queryDto) {
+        // 1. 获取分页参数
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+
+        // 2. 构建查询条件
+        LambdaQueryWrapper<Activity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(Activity::getIsPublic, 1) // 只查询公开的活动
+                .in(Activity::getStatus, 1, 2, 3, 4) // 状态：1-报名中 2-报名结束 3-进行中 4-已结束
+                .like(StringUtils.hasText(queryDto.getActivityCategory()),
+                      Activity::getActivityCategory, queryDto.getActivityCategory())
+                .eq(queryDto.getOrganizerType() != null,
+                    Activity::getOrganizerType, queryDto.getOrganizerType())
+                .eq(queryDto.getOrganizerId() != null,
+                    Activity::getOrganizerId, queryDto.getOrganizerId())
+                .orderByDesc(Activity::getCreateTime); // 倒序排列（最新的在上面）
+
+        // 3. 执行分页查询
+        Page<Activity> activityPage = this.page(new Page<>(current, pageSize), queryWrapper);
+
+        // 4. 转换为VO
+        List<ActivityListVo> voList = activityPage.getRecords().stream()
+                .map(this::convertToListVo)
+                .collect(Collectors.toList());
+
+        // 5. 构建分页结果
+        Page<ActivityListVo> resultPage = new Page<>(current, pageSize, activityPage.getTotal());
+        resultPage.setRecords(voList);
+
+        log.info("查询公开活动列表成功 - 共{}条记录", activityPage.getTotal());
+        return PageVo.of(resultPage);
+    }
+
+    /**
+     * 查询首页展示的活动列表（is_public=1，status=1/2/3/4，show_on_homepage=1）
+     *
+     * @param queryDto 查询参数
+     * @return 活动列表分页数据
+     */
+    @Override
+    public PageVo<ActivityListVo> getHomepageActivities(QueryPublicActivityDto queryDto) {
+        // 1. 获取分页参数
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+
+        // 2. 构建查询条件
+        LambdaQueryWrapper<Activity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(Activity::getIsPublic, 1) // 只查询公开的活动
+                .eq(Activity::getShowOnHomepage, 1) // 只查询展示在首页的活动
+                .in(Activity::getStatus, 1, 2, 3, 4) // 状态：1-报名中 2-报名结束 3-进行中 4-已结束
+                .like(StringUtils.hasText(queryDto.getActivityCategory()),
+                      Activity::getActivityCategory, queryDto.getActivityCategory())
+                .eq(queryDto.getOrganizerType() != null,
+                    Activity::getOrganizerType, queryDto.getOrganizerType())
+                .eq(queryDto.getOrganizerId() != null,
+                    Activity::getOrganizerId, queryDto.getOrganizerId())
+                .orderByDesc(Activity::getCreateTime); // 倒序排列（最新的在上面）
+
+        // 3. 执行分页查询
+        Page<Activity> activityPage = this.page(new Page<>(current, pageSize), queryWrapper);
+
+        // 4. 转换为VO
+        List<ActivityListVo> voList = activityPage.getRecords().stream()
+                .map(this::convertToListVo)
+                .collect(Collectors.toList());
+
+        // 5. 构建分页结果
+        Page<ActivityListVo> resultPage = new Page<>(current, pageSize, activityPage.getTotal());
+        resultPage.setRecords(voList);
+
+        log.info("查询首页活动列表成功 - 共{}条记录", activityPage.getTotal());
+        return PageVo.of(resultPage);
+    }
+
+    /**
+     * 将Activity转换为ActivityListVo
+     *
+     * @param activity 活动实体
+     * @return ActivityListVo
+     */
+    private ActivityListVo convertToListVo(Activity activity) {
+        ActivityListVo vo = new ActivityListVo();
+        BeanUtils.copyProperties(activity, vo);
+
+        // 转换ID为String避免前端精度丢失
+        vo.setActivityId(String.valueOf(activity.getActivityId()));
+        if (activity.getOrganizerId() != null) {
+            vo.setOrganizerId(String.valueOf(activity.getOrganizerId()));
+        }
+        if (activity.getViewCount() != null) {
+            vo.setViewCount(String.valueOf(activity.getViewCount()));
+        }
+
+        return vo;
     }
 }

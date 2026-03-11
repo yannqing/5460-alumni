@@ -58,6 +58,24 @@ public class AlumniAssociationMember implements Serializable {
     private String roleName;
 
     /**
+     * 用户的联系电话
+     */
+    @TableField(value = "user_phone")
+    private String userPhone;
+
+    /**
+     * 用户的社会职务
+     */
+    @TableField(value = "user_affiliation")
+    private String userAffiliation;
+
+    /**
+     * 是否展示在主页（0-否，1-是）
+     */
+    @TableField(value = "is_show_on_home")
+    private Integer isShowOnHome;
+
+    /**
      * 加入时间
      */
     @TableField(value = "join_time")

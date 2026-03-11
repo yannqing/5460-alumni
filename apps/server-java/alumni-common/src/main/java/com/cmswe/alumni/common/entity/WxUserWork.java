@@ -46,6 +46,12 @@ public class WxUserWork implements Serializable {
     private String industry;
 
     /**
+     * 工作地址
+     */
+    @TableField(value = "work_address")
+    private String workAddress;
+
+    /**
      * 入职日期
      */
     @TableField(value = "start_date")

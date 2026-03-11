@@ -1,0 +1,4 @@
+--校促会隐私设置
+INSERT INTO cni_alumni.sys_config (config_id, parent_id, ancestors, config_name, config_key, config_value, data_type, is_system, status, remark, create_time, update_time, is_delete) VALUES (31, 24, DEFAULT, '联系人姓名', 'contactName', 'LocalPlatformDetailVo', 'STRING', DEFAULT, DEFAULT, null, DEFAULT, DEFAULT, DEFAULT)
+INSERT INTO cni_alumni.sys_config (config_id, parent_id, ancestors, config_name, config_key, config_value, data_type, is_system, status, remark, create_time, update_time, is_delete) VALUES (32, 24, DEFAULT, '联系人职务', 'contactPosition', 'LocalPlatformDetailVo', 'STRING', DEFAULT, DEFAULT, null, DEFAULT, DEFAULT, DEFAULT)
+INSERT INTO cni_alumni.sys_config (config_id, parent_id, ancestors, config_name, config_key, config_value, data_type, is_system, status, remark, create_time, update_time, is_delete) VALUES (33, 24, DEFAULT, '联系人电话', 'contactPhone', 'LocalPlatformDetailVo', 'STRING', DEFAULT, DEFAULT, null, DEFAULT, DEFAULT, DEFAULT)

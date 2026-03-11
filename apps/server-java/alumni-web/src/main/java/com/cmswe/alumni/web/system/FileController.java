@@ -62,6 +62,24 @@ public class FileController {
     }
 
     /**
+     * 上传文档接口
+     * @param document 文档文件
+     * @return 返回文件vo
+     * @throws IOException IO 异常
+     */
+    @Operation(summary = "上传文档文件", description = "支持pdf、doc、docx、xls、xlsx、ppt、pptx、txt、md、csv、rtf、odt、ods、odp格式")
+    @PostMapping("/upload/document")
+    public BaseResponse<FilesVo> uploadDocument(@RequestParam("document") MultipartFile document,
+                                                HttpServletRequest request) throws IOException {
+        if (document != null && document.getSize() > MAX_FILE_SIZE_BYTES) {
+            return ResultUtils.failure("文件大小不能超过5MB");
+        }
+        FilesVo filesVo = fileService.uploadDocumentAndReturnVo(document, request);
+
+        return ResultUtils.success(Code.SUCCESS, filesVo, "上传成功！");
+    }
+
+    /**
      * 下载文件
      * @param fileId 要下载的文件id
      * @return 返回文件

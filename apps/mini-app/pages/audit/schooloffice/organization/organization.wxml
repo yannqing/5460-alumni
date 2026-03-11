@@ -10,81 +10,91 @@
     </view>
   </view>
 
-  <!-- 角色列表卡片（与校友会审核页 group_7 一致：固定标题，仅内部 scroll-list 滚动，样式按设计稿 group_15/group_19） -->
+  <!-- 角色列表卡片 -->
   <view class="group_7">
     <view class="group_19">
-      <text class="text_25">校促会角色列表</text>
-      <view class="text-wrapper_13" bindtap="openAddModal">+新增分支</view>
+      <text class="text_25">校促会架构列表</text>
+      <view class="text-wrapper_13" bindtap="openAddTopLevelModal">+新增顶级架构</view>
     </view>
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
+    <scroll-view class="scroll-list" scroll-y scroll-x enable-back-to-top enhanced show-scrollbar="{{false}}">
       <view wx:if="{{roleLoading}}" class="loading-state">
-        <text>加载角色中...</text>
+        <text>加载架构中...</text>
       </view>
-      <view class="role-list" wx:else>
-      <!-- 一级角色 -->
-      <block wx:for="{{roleList}}" wx:key="roleOrId">
-        <view class="role-item level-1" bindlongpress="onRoleLongPress" data-role="{{item}}">
-          <view class="role-left">
-            <view
-              class="expand-icon {{expandedRoles[item.roleOrId] ? 'expanded' : ''}}"
-              wx:if="{{item.children && item.children.length > 0}}"
-              catchtap="toggleExpand"
-              data-role-or-id="{{item.roleOrId}}"
-            >
-              <text class="arrow">▶</text>
-            </view>
-            <view class="expand-placeholder" wx:else></view>
-            <view class="role-name">{{item.roleOrName}}</view>
-          </view>
-          <view class="role-actions">
-            <view class="edit-btn" catchtap="openEditModal" data-role="{{item}}">编辑</view>
-            <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{item.roleOrId}}">删除</view>
-          </view>
-        </view>
-        <!-- 二级角色 -->
-        <block wx:if="{{expandedRoles[item.roleOrId]}}">
-          <block wx:for="{{item.children}}" wx:for-item="child" wx:key="roleOrId">
-            <view class="role-item level-2" bindlongpress="onRoleLongPress" data-role="{{child}}">
-              <view class="role-left">
-                <view
-                  class="expand-icon {{expandedRoles[child.roleOrId] ? 'expanded' : ''}}"
-                  wx:if="{{child.children && child.children.length > 0}}"
-                  catchtap="toggleExpand"
-                  data-role-or-id="{{child.roleOrId}}"
-                >
-                  <text class="arrow">▶</text>
-                </view>
-                <view class="expand-placeholder" wx:else></view>
-                <view class="role-name">{{child.roleOrName}}</view>
-              </view>
-              <view class="role-actions">
-                <view class="edit-btn" catchtap="openEditModal" data-role="{{child}}">编辑</view>
-                <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{child.roleOrId}}">删除</view>
-              </view>
-            </view>
-            <!-- 三级角色 -->
-            <block wx:if="{{expandedRoles[child.roleOrId]}}">
-              <block wx:for="{{child.children}}" wx:for-item="grandChild" wx:key="roleOrId">
-                <view class="role-item level-3" bindlongpress="onRoleLongPress" data-role="{{grandChild}}">
-                  <view class="role-left">
-                    <view class="expand-placeholder"></view>
-                    <view class="role-name">{{grandChild.roleOrName}}</view>
-                  </view>
-                  <view class="role-actions">
-                    <view class="edit-btn" catchtap="openEditModal" data-role="{{grandChild}}">编辑</view>
-                    <view class="delete-btn" catchtap="deleteRole" data-role-or-id="{{grandChild.roleOrId}}">删除</view>
+      <!-- 树形展示（从左到右布局） -->
+      <view wx:elif="{{roleList.length > 0}}" class="template-tree-preview">
+        <scroll-view scroll-y scroll-x class="tree-scroll-container">
+          <view class="tree-container">
+            <!-- 递归渲染树节点（最多支持5层，从左到右） -->
+            <block wx:for="{{roleList}}" wx:key="roleOrId" wx:for-item="n1">
+              <view class="tree-node-row">
+                <!-- 一级节点 -->
+                <view class="tree-node level-1 {{n1.children && n1.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n1}}">
+                  <view class="node-content">
+                    <text class="node-name">{{n1.roleOrName}}</text>
+                    <text class="node-member-count" wx:if="{{n1.members && n1.members.length > 0}}">({{n1.members.length}}人)</text>
                   </view>
                 </view>
-              </block>
+                <!-- 二级节点列 -->
+                <view wx:if="{{n1.children && n1.children.length > 0}}" class="tree-children-row">
+                  <block wx:for="{{n1.children}}" wx:key="roleOrId" wx:for-item="n2">
+                    <view class="tree-branch">
+                      <view class="tree-node level-2 {{n2.children && n2.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n2}}">
+                        <view class="node-content">
+                          <text class="node-name">{{n2.roleOrName}}</text>
+                          <text class="node-member-count" wx:if="{{n2.members && n2.members.length > 0}}">({{n2.members.length}}人)</text>
+                        </view>
+                      </view>
+                      <!-- 三级节点列 -->
+                      <view wx:if="{{n2.children && n2.children.length > 0}}" class="tree-sub-children">
+                        <block wx:for="{{n2.children}}" wx:key="roleOrId" wx:for-item="n3">
+                          <view class="tree-branch">
+                            <view class="tree-node level-3 {{n3.children && n3.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n3}}">
+                              <view class="node-content">
+                                <text class="node-name">{{n3.roleOrName}}</text>
+                                <text class="node-member-count" wx:if="{{n3.members && n3.members.length > 0}}">({{n3.members.length}}人)</text>
+                              </view>
+                            </view>
+                            <!-- 四级节点列 -->
+                            <view wx:if="{{n3.children && n3.children.length > 0}}" class="tree-sub-children">
+                              <block wx:for="{{n3.children}}" wx:key="roleOrId" wx:for-item="n4">
+                                <view class="tree-branch">
+                                  <view class="tree-node level-4 {{n4.children && n4.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n4}}">
+                                    <view class="node-content">
+                                      <text class="node-name">{{n4.roleOrName}}</text>
+                                      <text class="node-member-count" wx:if="{{n4.members && n4.members.length > 0}}">({{n4.members.length}}人)</text>
+                                    </view>
+                                  </view>
+                                  <!-- 五级节点列 -->
+                                  <view wx:if="{{n4.children && n4.children.length > 0}}" class="tree-sub-children">
+                                    <block wx:for="{{n4.children}}" wx:key="roleOrId" wx:for-item="n5">
+                                      <view class="tree-branch">
+                                        <view class="tree-node level-5" bindtap="openNodeDetailModal" data-role="{{n5}}">
+                                          <view class="node-content">
+                                            <text class="node-name">{{n5.roleOrName}}</text>
+                                            <text class="node-member-count" wx:if="{{n5.members && n5.members.length > 0}}">({{n5.members.length}}人)</text>
+                                          </view>
+                                        </view>
+                                      </view>
+                                    </block>
+                                  </view>
+                                </view>
+                              </block>
+                            </view>
+                          </view>
+                        </block>
+                      </view>
+                    </view>
+                  </block>
+                </view>
+              </view>
             </block>
-          </block>
-        </block>
-      </block>
+          </view>
+        </scroll-view>
+      </view>
 
       <!-- 空状态 -->
-      <view class="empty-state" wx:if="{{roleList.length === 0}}">
-        <text>{{selectedSchoolOfficeId ? '暂无角色数据' : '请先选择校促会'}}</text>
-      </view>
+      <view class="empty-state" wx:elif="{{roleList.length === 0}}">
+        <text>{{selectedSchoolOfficeId ? '暂无架构数据' : '请先选择校促会'}}</text>
       </view>
     </scroll-view>
   </view>
@@ -98,7 +108,7 @@
         <text class="picker-cancel" bindtap="cancelSchoolOfficeSelect">取消</text>
       </view>
       <view class="picker-list">
-        <view 
+        <view
           class="picker-item"
           wx:for="{{schoolOfficeList}}"
           wx:key="schoolOfficeId"
@@ -116,29 +126,91 @@
     </view>
   </view>
 
+  <!-- 节点详情弹窗 -->
+  <view class="node-detail-modal" wx:if="{{showNodeDetailModal}}">
+    <view class="node-detail-modal-overlay" bindtap="closeNodeDetailModal"></view>
+    <view class="node-detail-modal-content">
+      <view class="node-detail-modal-header">
+        <text class="node-detail-modal-title">{{currentDetailRole.roleOrName}}</text>
+        <text class="node-detail-modal-close" bindtap="closeNodeDetailModal">×</text>
+      </view>
+      <scroll-view class="node-detail-modal-body" scroll-y enhanced show-scrollbar="{{false}}">
+        <!-- 节点基本信息 -->
+        <view class="node-info-section">
+          <view class="node-info-title">基本信息</view>
+          <view class="node-info-item">
+            <text class="node-info-label">架构名称</text>
+            <text class="node-info-value">{{currentDetailRole.roleOrName || '-'}}</text>
+          </view>
+          <view class="node-info-item">
+            <text class="node-info-label">架构职能</text>
+            <text class="node-info-value">{{currentDetailRole.remark || '-'}}</text>
+          </view>
+          <view class="node-info-item">
+            <text class="node-info-label">排序权重</text>
+            <text class="node-info-value">{{currentDetailRole.sort !== undefined ? currentDetailRole.sort : '0'}}</text>
+          </view>
+          <view class="node-info-item">
+            <text class="node-info-label">状态</text>
+            <text class="node-info-value {{currentDetailRole.status === 1 ? 'status-active' : 'status-inactive'}}">{{currentDetailRole.status === 1 ? '启用' : '禁用'}}</text>
+          </view>
+        </view>
+
+        <!-- 成员列表 -->
+        <view class="node-members-section">
+          <view class="node-members-header">
+            <text class="node-members-title">成员列表 ({{currentDetailRole.members.length || 0}}人)</text>
+            <view class="node-add-member-btn" catchtap="openAddMemberModalFromDetail">+ 添加成员</view>
+          </view>
+          <view wx:if="{{currentDetailRole.members && currentDetailRole.members.length > 0}}" class="node-members-list">
+            <view class="node-member-item" wx:for="{{currentDetailRole.members}}" wx:key="id" wx:for-item="member">
+              <view class="node-member-avatar">
+                <image src="{{member.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+              </view>
+              <view class="node-member-info">
+                <view class="node-member-name">{{member.name || member.nickname || member.username}}</view>
+                <view class="node-member-role">{{member.roleName}}</view>
+              </view>
+              <view class="node-member-delete" catchtap="removeMemberFromDetailModal" data-member="{{member}}">移除</view>
+            </view>
+          </view>
+          <view wx:else class="node-members-empty">
+            <text>暂无成员，点击上方按钮添加</text>
+          </view>
+        </view>
+      </scroll-view>
+      <!-- 操作按钮 -->
+      <view class="node-detail-modal-actions">
+        <view class="node-action-btn node-action-add-child" catchtap="openAddChildModal">新增子架构</view>
+        <view class="node-action-btn node-action-edit" catchtap="openEditModalFromDetail">编辑</view>
+        <view class="node-action-btn node-action-delete" catchtap="deleteRoleFromDetail">删除</view>
+      </view>
+    </view>
+  </view>
+
   <!-- 编辑角色弹窗 -->
   <view class="edit-modal" wx:if="{{showEditModal}}">
     <view class="edit-modal-overlay" bindtap="closeEditModal"></view>
     <view class="edit-modal-content">
       <view class="edit-modal-header">
-        <text class="edit-modal-title">编辑角色</text>
+        <text class="edit-modal-title">编辑架构</text>
         <text class="edit-modal-close" bindtap="closeEditModal">×</text>
       </view>
       <view class="edit-modal-body">
-        <!-- 角色名 -->
+        <!-- 架构名称 -->
         <view class="edit-form-item">
-          <text class="edit-label required">角色名</text>
+          <text class="edit-label required">架构名称</text>
           <input
             class="edit-input"
-            placeholder="请输入角色名"
+            placeholder="请输入架构名称"
             value="{{editForm.roleOrName}}"
             bindinput="onEditInputChange"
             data-field="roleOrName"
           />
         </view>
-        <!-- 父级角色 -->
+        <!-- 上级架构 -->
         <view class="edit-form-item">
-          <text class="edit-label">父级角色</text>
+          <text class="edit-label">上级架构</text>
           <picker
             mode="selector"
             range="{{editParentOptions}}"
@@ -147,31 +219,33 @@
             bindchange="onEditParentChange"
           >
             <view class="add-picker">
-              <text class="add-picker-text">{{editSelectedParentName || '请选择父级'}}</text>
+              <text class="add-picker-text">{{editSelectedParentName || '顶级架构(无父级)'}}</text>
               <text class="add-picker-arrow">▼</text>
             </view>
           </picker>
         </view>
-        <!-- 角色代码 -->
+
+        <!-- 架构职能 -->
         <view class="edit-form-item">
-          <text class="edit-label">角色代码</text>
+          <text class="edit-label">架构职能</text>
           <input
             class="edit-input"
-            placeholder="请输入角色代码"
-            value="{{editForm.roleOrCode}}"
-            bindinput="onEditInputChange"
-            data-field="roleOrCode"
-          />
-        </view>
-        <!-- 角色含义 -->
-        <view class="edit-form-item">
-          <text class="edit-label">角色含义</text>
-          <input
-            class="edit-input"
-            placeholder="请输入角色含义"
+            placeholder="请输入架构职能"
             value="{{editForm.remark}}"
             bindinput="onEditInputChange"
             data-field="remark"
+          />
+        </view>
+        <!-- 排序 -->
+        <view class="edit-form-item">
+          <text class="edit-label">排序权重</text>
+          <input
+            class="edit-input"
+            type="number"
+            placeholder="数值越小越靠前，默认0"
+            value="{{editForm.sort}}"
+            bindinput="onEditInputChange"
+            data-field="sort"
           />
         </view>
         <!-- 状态 -->
@@ -223,62 +297,54 @@
     </view>
   </view>
 
-  <!-- 新增角色弹窗 -->
+  <!-- 新增顶级架构弹窗 -->
   <view class="add-modal" wx:if="{{showAddModal}}">
     <view class="add-modal-overlay" bindtap="closeAddModal"></view>
     <view class="add-modal-content">
       <view class="add-modal-header">
-        <text class="add-modal-title">新增角色</text>
+        <text class="add-modal-title">{{addModalTitle || '新增顶级架构'}}</text>
         <text class="add-modal-close" bindtap="closeAddModal">×</text>
       </view>
       <view class="add-modal-body">
-        <!-- 角色名 -->
+        <!-- 架构名称 -->
         <view class="add-form-item">
-          <text class="add-label required">角色名</text>
+          <text class="add-label required">架构名称</text>
           <input
             class="add-input"
-            placeholder="请输入角色名"
+            placeholder="请输入架构名称"
             value="{{addForm.roleOrName}}"
             bindinput="onAddInputChange"
             data-field="roleOrName"
           />
         </view>
-        <!-- 父级角色 -->
-        <view class="add-form-item">
-          <text class="add-label">父级角色</text>
-          <picker
-            mode="selector"
-            range="{{parentOptions}}"
-            range-key="roleOrName"
-            value="{{selectedParentIndex}}"
-            bindchange="onParentChange"
-          >
-            <view class="add-picker">
-              <text class="add-picker-text">{{selectedParentName || '请选择父级'}}</text>
-              <text class="add-picker-arrow">▼</text>
-            </view>
-          </picker>
+        <!-- 上级架构（新增子架构时显示，新增顶级架构时隐藏） -->
+        <view class="add-form-item" wx:if="{{addParentRole}}">
+          <text class="add-label">上级架构</text>
+          <view class="add-picker disabled">
+            <text class="add-picker-text">{{addParentRole.roleOrName}}</text>
+          </view>
         </view>
-        <!-- 角色代码 -->
+        <!-- 架构职能 -->
         <view class="add-form-item">
-          <text class="add-label">角色代码</text>
+          <text class="add-label">架构职能</text>
           <input
             class="add-input"
-            placeholder="请输入角色代码"
-            value="{{addForm.roleOrCode}}"
-            bindinput="onAddInputChange"
-            data-field="roleOrCode"
-          />
-        </view>
-        <!-- 角色含义 -->
-        <view class="add-form-item">
-          <text class="add-label">角色含义</text>
-          <input
-            class="add-input"
-            placeholder="请输入角色含义"
+            placeholder="请输入架构职能"
             value="{{addForm.remark}}"
             bindinput="onAddInputChange"
             data-field="remark"
+          />
+        </view>
+        <!-- 排序 -->
+        <view class="add-form-item">
+          <text class="add-label">排序权重</text>
+          <input
+            class="add-input"
+            type="number"
+            placeholder="数值越小越靠前，默认0"
+            value="{{addForm.sort}}"
+            bindinput="onAddInputChange"
+            data-field="sort"
           />
         </view>
       </view>
@@ -289,4 +355,51 @@
     </view>
   </view>
 </view>
+
+  <!-- 添加成员到架构弹窗 -->
+  <view class="add-member-modal" wx:if="{{showAddMemberModal}}">
+    <view class="add-member-modal-overlay" bindtap="closeAddMemberModal"></view>
+    <view class="add-member-modal-content">
+      <view class="add-member-modal-header">
+        <text class="add-member-modal-title">添加成员到「{{currentRole.roleOrName}}」</text>
+        <text class="add-member-modal-close" bindtap="closeAddMemberModal">×</text>
+      </view>
+      <view class="add-member-modal-body">
+        <!-- 职务输入 -->
+        <view class="add-member-role-input">
+          <text class="add-member-role-label required">成员职务</text>
+          <input
+            class="add-member-role-field"
+            placeholder="请输入成员在此架构下的职务"
+            value="{{memberRoleName}}"
+            bindinput="onMemberRoleNameInput"
+          />
+        </view>
+        <view wx:if="{{memberLoading}}" class="loading-state">
+          <text>加载成员中...</text>
+        </view>
+        <scroll-view class="member-list" wx:else scroll-y show-scrollbar="{{false}}">
+          <view class="member-item" wx:for="{{memberList}}" wx:key="wxId" bindtap="toggleMemberSelection" data-index="{{index}}">
+            <view class="member-avatar">
+              <image src="{{item.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+            </view>
+            <view class="member-info">
+              <view class="member-name">{{item.username || item.nickname}}</view>
+              <view class="member-role">{{item.roleName}}</view>
+            </view>
+            <view class="member-checkbox {{item.selected ? 'checked' : ''}}">
+              <text wx:if="{{item.selected}}">✓</text>
+            </view>
+          </view>
+          <view class="empty-state" wx:if="{{memberList.length === 0}}">
+            <text>暂无成员数据</text>
+          </view>
+        </scroll-view>
+      </view>
+      <view class="add-member-modal-footer">
+        <view class="add-member-btn-cancel" bindtap="closeAddMemberModal">取消</view>
+        <view class="add-member-btn-confirm" bindtap="submitAddMembers">确定添加</view>
+      </view>
+    </view>
+  </view>
 </custom-nav-bar>

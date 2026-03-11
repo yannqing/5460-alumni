@@ -43,10 +43,9 @@ public class AddOrganizeArchiRoleDto implements Serializable {
     private String roleOrName;
 
     /**
-     * 角色唯一代码
+     * 角色唯一代码（后端自动生成，前端无需传此字段）
      */
-    @NotBlank(message = "角色代码不能为空")
-    @Schema(description = "角色唯一代码")
+    @Schema(description = "角色唯一代码（后端自动生成，前端无需传此字段）", accessMode = Schema.AccessMode.READ_ONLY)
     private String roleOrCode;
 
     /**
@@ -54,6 +53,12 @@ public class AddOrganizeArchiRoleDto implements Serializable {
      */
     @Schema(description = "角色含义")
     private String remark;
+
+    /**
+     * 排序
+     */
+    @Schema(description = "排序，数值越小越靠前")
+    private Integer sort;
 
     @Serial
     private static final long serialVersionUID = 1L;

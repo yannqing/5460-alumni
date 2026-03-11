@@ -1,5 +1,10 @@
 // pages/alumni-association/member/member.js
-const { alumniApi, alumniAssociationManagementApi, associationApi } = require('../../../api/api.js')
+const {
+  alumniApi,
+  alumniAssociationManagementApi,
+  associationApi,
+  userApi,
+} = require('../../../api/api.js')
 const app = getApp()
 const config = require('../../../utils/config.js')
 
@@ -31,10 +36,14 @@ Page({
     memberLoading: false, // 成员加载状态
     // 邀请成员相关
     showInviteModal: false,
+    inviteMethod: 'search', // 邀请方式：search/link/qrcode
+    inviteLink: '', // 邀请链接
+    inviteQrcodeUrl: '', // 邀请二维码图片URL
+    qrcodeLoading: false, // 二维码生成中
     inviteForm: {
       name: '',
       wxId: '',
-      roleOrId: ''
+      roleOrId: '',
     },
     // 校友搜索结果
     alumniSearchResults: [],
@@ -43,8 +52,14 @@ Page({
     showEditModal: false,
     editingMember: {},
     roleList: [],
-    defaultAvatar: config.defaultAvatar,
-    defaultUserAvatarUrl: `https://${config.DOMAIN}/upload/images/assets/images/avatar.png`
+    defaultUserAvatarUrl: config.defaultAvatar,
+    // 添加未注册成员表单
+    unregisteredForm: {
+      username: '',
+      roleName: '',
+      userPhone: '',
+      userAffiliation: '',
+    },
   },
 
   onLoad(options) {
@@ -53,156 +68,90 @@ Page({
     this.initPage()
   },
 
+  // 分享给好友（邀请加入校友会）
+  onShareAppMessage() {
+    const alumniAssociationId = this.data.selectedAlumniAssociationId
+    const alumniAssociationName = this.data.selectedAlumniAssociationName || '校友会'
+
+    return {
+      title: `邀请您加入「${alumniAssociationName}」`,
+      path: `/pages/alumni-association/apply/apply?id=${alumniAssociationId}`,
+      imageUrl: '', // 可以设置分享图片
+    }
+  },
+
   // 初始化页面数据
   async initPage() {
     await this.loadAlumniAssociationList()
   },
 
-  // 加载校友会列表（从缓存中获取校友会管理员的alumniAssociationId，然后调用接口）
+  // 加载校友会列表（调用接口获取用户管理的校友会组织）
   async loadAlumniAssociationList() {
     try {
       console.log('[Debug] 开始加载校友会列表')
 
-      // 从 storage 中获取角色列表
-      const roles = wx.getStorageSync('roles') || []
-      console.log('[Debug] 从storage获取的角色列表:', roles)
+      // 调用接口获取用户管理的组织列表，type=0 表示校友会
+      const res = await userApi.getManagedOrganizations({ type: 0 })
+      console.log('[Debug] 获取用户管理的校友会列表:', res)
 
-      // 查找所有校友会管理员角色（根据roleCode）
-      const alumniAdminRoles = roles.filter(role =>
-        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
-      )
-      console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
+      if (res.data && res.data.code === 200) {
+        const organizationList = res.data.data || []
+        console.log('[Debug] 接口返回的组织列表:', organizationList)
 
-      // 设置是否有校友会管理员身份
-      this.setData({
-        hasAlumniAdminPermission: alumniAdminRoles.length > 0
-      })
-
-      if (alumniAdminRoles.length > 0) {
-        console.log('[Debug] 存在校友会管理员角色，开始处理每个角色')
-
-        // 存储所有校友会数据
-        const alumniAssociationList = []
-
-        // 遍历所有校友会管理员角色，创建校友会数据
-        for (const alumniAdminRole of alumniAdminRoles) {
-          console.log('[Debug] 处理校友会管理员角色:', alumniAdminRole)
-
-          // 尝试从不同可能的位置获取ID
-          let alumniAssociationId = null
-
-          // 检查直接字段
-          if (alumniAdminRole.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.alumniAssociationId
-            console.log('[Debug] 从直接字段获取到alumniAssociationId:', alumniAssociationId)
-          }
-          // 检查嵌套的organization字段
-          else if (alumniAdminRole.organization && alumniAdminRole.organization.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.organization.alumniAssociationId
-            console.log('[Debug] 从organization字段获取到alumniAssociationId:', alumniAssociationId)
-          }
-          // 检查organizeId字段（作为备用）
-          else if (alumniAdminRole.organizeId) {
-            alumniAssociationId = alumniAdminRole.organizeId
-            console.log('[Debug] 从organizeId字段获取到ID:', alumniAssociationId)
-          }
-          // 检查嵌套的organization.organizeId字段
-          else if (alumniAdminRole.organization && alumniAdminRole.organization.organizeId) {
-            alumniAssociationId = alumniAdminRole.organization.organizeId
-            console.log('[Debug] 从organization.organizeId字段获取到ID:', alumniAssociationId)
-          }
-
-          console.log('[Debug] 最终获取到的alumniAssociationId:', alumniAssociationId)
-
-          if (alumniAssociationId) {
-            // 获取协会名称（如果直接提供）
-            const associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会'
-
-            // 创建基本的校友会对象
-            const basicAlumniData = {
-              id: alumniAssociationId,
-              alumniAssociationId: alumniAssociationId,
-              alumniAssociationName: `${associationName} (ID: ${alumniAssociationId})`,
-              organizeId: alumniAdminRole.organizeId || alumniAssociationId // 存储organizeId
-            }
-
-            // 检查是否已经存在相同ID的校友会
-            const existingIndex = alumniAssociationList.findIndex(item =>
-              item.alumniAssociationId === alumniAssociationId
-            )
-
-            // 如果不存在，则添加到列表
-            if (existingIndex === -1) {
-              alumniAssociationList.push(basicAlumniData)
-              console.log('[Debug] 添加校友会到列表:', basicAlumniData)
-            } else {
-              console.log('[Debug] 校友会已存在，跳过:', alumniAssociationId)
-            }
-          }
-        }
-
-        // 设置校友会列表
+        // 设置是否有校友会管理员身份
         this.setData({
-          alumniAssociationList: alumniAssociationList
+          hasAlumniAdminPermission: organizationList.length > 0,
         })
-        console.log('[Debug] 最终校友会列表:', alumniAssociationList)
 
-        // 尝试为所有校友会调用接口获取更详细的信息
-        try {
-          // 创建一个新的列表来存储更新后的校友会数据
-          const updatedList = [...alumniAssociationList]
+        if (organizationList.length > 0) {
+          // 将接口返回的数据映射为页面需要的格式
+          const alumniAssociationList = organizationList.map(org => {
+            // 处理logo头像
+            let logo = org.logo || ''
+            if (logo && !logo.startsWith('http://') && !logo.startsWith('https://')) {
+              logo = config.getImageUrl(logo)
+            }
 
-          // 使用Promise.all并行获取所有校友会的详细信息
-          const detailPromises = updatedList.map(async (alumni, index) => {
-            try {
-              const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
-              if (res.data && res.data.code === 200 && res.data.data) {
-                console.log(`[Debug] 获取校友会 ${index + 1} 详细信息成功:`, res.data.data)
-
-                // 更新校友会的详细信息
-                return {
-                  ...res.data.data,
-                  id: res.data.data.alumniAssociationId || res.data.data.id || alumni.alumniAssociationId,
-                  alumniAssociationId: res.data.data.alumniAssociationId || alumni.alumniAssociationId,
-                  alumniAssociationName: res.data.data.associationName || res.data.data.name || alumni.alumniAssociationName,
-                  organizeId: res.data.data.organizeId || alumni.alumniAssociationId // 确保有organizeId
-                }
-              }
-              return alumni // 如果接口调用失败，返回原始数据
-            } catch (error) {
-              console.log(`[Debug] 获取校友会 ${index + 1} 详细信息失败:`, error)
-              return alumni // 如果发生错误，返回原始数据
+            return {
+              id: org.id,
+              alumniAssociationId: org.id,
+              alumniAssociationName: org.name || '校友会',
+              organizeId: org.id,
+              logo: logo,
+              location: org.location || '',
+              type: org.type,
             }
           })
 
-          // 等待所有请求完成
-          const detailedAlumniList = await Promise.all(detailPromises)
-
-          // 更新校友会列表
+          // 设置校友会列表
           this.setData({
-            alumniAssociationList: detailedAlumniList
+            alumniAssociationList: alumniAssociationList,
           })
-          console.log('[Debug] 已更新所有校友会详细信息:', detailedAlumniList)
+          console.log('[Debug] 最终校友会列表:', alumniAssociationList)
 
           // 判断权限数量，处理自动选择逻辑
-          this.handleAlumniAssociationSelection(detailedAlumniList)
-        } catch (apiError) {
-          console.log('[Debug] 获取校友会详细信息失败:', apiError)
-          // 继续使用之前创建的基本数据
           this.handleAlumniAssociationSelection(alumniAssociationList)
+        } else {
+          // 没有找到管理的校友会
+          console.warn('[Debug] 用户没有管理的校友会')
+          this.setData({
+            alumniAssociationList: [],
+            hasAlumniAdminPermission: false,
+          })
         }
       } else {
-        // 没有找到校友会管理员角色，设置为空数组
-        console.warn('[Debug] 没有找到校友会管理员角色')
+        console.error('[Debug] 获取校友会列表接口调用失败:', res)
         this.setData({
-          alumniAssociationList: []
+          alumniAssociationList: [],
+          hasAlumniAdminPermission: false,
         })
       }
     } catch (error) {
       console.error('[Debug] 加载校友会列表失败:', error)
       // 发生错误时，设置为空数组
       this.setData({
-        alumniAssociationList: []
+        alumniAssociationList: [],
+        hasAlumniAdminPermission: false,
       })
     }
   },
@@ -216,7 +165,7 @@ Page({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
         selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
         selectedOrganizeId: singleAlumni.alumniAssociationId,
-        hasSingleAlumniAssociation: true
+        hasSingleAlumniAssociation: true,
       })
       console.log('[Debug] 只有一个校友会权限，自动选择:', singleAlumni)
       // 加载成员列表
@@ -224,13 +173,13 @@ Page({
     } else if (alumniAssociationList.length > 1) {
       // 多个校友会权限，正常显示选择器
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 有多个校友会权限，正常显示选择器')
     } else {
       // 没有校友会权限
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 没有校友会权限')
     }
@@ -250,19 +199,24 @@ Page({
     console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
 
     // 获取对应的校友会对象
-    const selectedAlumni = this.data.alumniAssociationList.find(item => item.alumniAssociationId === alumniAssociationId)
+    const selectedAlumni = this.data.alumniAssociationList.find(
+      item => item.alumniAssociationId === alumniAssociationId
+    )
     console.log('[Debug] 找到的校友会对象:', selectedAlumni)
 
     this.setData({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
       showAlumniAssociationPicker: false,
-      selectedOrganizeId: alumniAssociationId // 确保使用校友会ID
+      selectedOrganizeId: alumniAssociationId, // 确保使用校友会ID
     })
 
     try {
       // 调用 /AlumniAssociation/{id} 接口，入参为 alumniAssociationId
-      console.log('[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:', alumniAssociationId)
+      console.log(
+        '[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:',
+        alumniAssociationId
+      )
 
       const res = await this.getAlumniAssociationDetail(alumniAssociationId)
 
@@ -293,13 +247,13 @@ Page({
       if (res.data && res.data.code === 200) {
         this.setData({
           memberList: (res.data.data && res.data.data.records) || [],
-          memberLoading: false
+          memberLoading: false,
         })
         console.log('[Debug] 成员列表加载完成:', (res.data.data && res.data.data.records) || [])
       } else {
         this.setData({
           memberList: [],
-          memberLoading: false
+          memberLoading: false,
         })
         console.error('[Debug] 成员列表接口调用失败，返回数据:', res)
       }
@@ -307,7 +261,7 @@ Page({
       console.error('[Debug] 加载成员列表失败:', error)
       this.setData({
         memberList: [],
-        memberLoading: false
+        memberLoading: false,
       })
     }
   },
@@ -328,45 +282,258 @@ Page({
   },
 
   // 显示邀请成员弹窗
-  async showInviteModal() {
+  showInviteModal() {
+    // 检查是否已选择校友会
+    if (!this.data.selectedAlumniAssociationId) {
+      wx.showToast({
+        title: '请先选择校友会',
+        icon: 'none',
+      })
+      return
+    }
+
+    // 生成邀请链接
+    const inviteLink = this.generateInviteLink()
+
     this.setData({
       showInviteModal: true,
+      inviteMethod: 'search',
+      inviteLink: inviteLink,
+      inviteQrcodeUrl: '',
       inviteForm: {
         name: '',
         wxId: '',
-        roleOrId: '',
-        roleOrName: '',
-        roleIndex: 0
       },
       alumniSearchResults: [],
       showAlumniSearchResults: false,
-      roleList: []
     })
-
-    // 获取角色列表
-    await this.loadRoleList()
-  },
-
-  // 邀请成员时角色选择变化
-  onRoleChange(e) {
-    const index = e.detail.value
-    const selectedRole = this.data.roleList[index]
-    if (selectedRole) {
-      this.setData({
-        'inviteForm.roleOrId': selectedRole.roleOrId,
-        'inviteForm.roleOrName': selectedRole.roleOrName,
-        'inviteForm.roleIndex': index
-      })
-    }
   },
 
   // 隐藏邀请成员弹窗
   hideInviteModal() {
     this.setData({
       showInviteModal: false,
+      inviteMethod: 'search',
+      inviteLink: '',
+      inviteQrcodeUrl: '',
       alumniSearchResults: [],
-      showAlumniSearchResults: false
+      showAlumniSearchResults: false,
+      // 清空未注册成员表单
+      unregisteredForm: {
+        username: '',
+        roleName: '',
+        userPhone: '',
+        userAffiliation: '',
+      },
     })
+  },
+
+  // 切换邀请方式
+  switchInviteMethod(e) {
+    const method = e.currentTarget.dataset.method
+    this.setData({ inviteMethod: method })
+
+    // 如果切换到二维码方式，生成二维码
+    if (method === 'qrcode' && !this.data.inviteQrcodeUrl) {
+      this.generateInviteQrcode()
+    }
+  },
+
+  // 生成邀请链接
+  generateInviteLink() {
+    const alumniAssociationId = this.data.selectedAlumniAssociationId
+    const alumniAssociationName = this.data.selectedAlumniAssociationName
+
+    // 构建小程序页面路径
+    const path = `/pages/alumni-association/apply/apply?id=${alumniAssociationId}`
+
+    // 返回页面路径作为邀请信息
+    return `邀请您加入「${alumniAssociationName || '校友会'}」，打开小程序后访问：${path}`
+  },
+
+  // 生成邀请二维码
+  async generateInviteQrcode() {
+    const alumniAssociationId = this.data.selectedAlumniAssociationId
+    if (!alumniAssociationId) {
+      wx.showToast({
+        title: '请先选择校友会',
+        icon: 'none',
+      })
+      return
+    }
+
+    this.setData({ qrcodeLoading: true })
+
+    try {
+      // 构建小程序码的页面路径
+      const page = 'pages/alumni-association/apply/apply'
+      const scene = `id=${alumniAssociationId}`
+
+      console.log('[Debug] 生成小程序码请求参数:', { page, scene })
+
+      // 调用后端接口生成小程序码
+      const res = await associationApi.generateMiniProgramQrcode({
+        page: page,
+        scene: scene,
+      })
+
+      console.log('[Debug] 生成小程序码响应:', res)
+
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const qrcodeUrl = res.data.data.qrcodeUrl || res.data.data
+        console.log('[Debug] 获取到小程序码URL:', qrcodeUrl ? '有效' : '无效')
+        this.setData({
+          inviteQrcodeUrl: qrcodeUrl,
+          qrcodeLoading: false,
+        })
+      } else {
+        // 如果后端接口不可用，使用备用方案：显示提示信息
+        const errMsg = res.data && res.data.msg ? res.data.msg : '未知错误'
+        console.warn('[Debug] 生成小程序码失败:', errMsg, res)
+        this.setData({ qrcodeLoading: false })
+        wx.showToast({
+          title: errMsg || '暂不支持生成二维码，请使用链接邀请',
+          icon: 'none',
+          duration: 2000,
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 生成小程序码失败:', error)
+      this.setData({ qrcodeLoading: false })
+      wx.showToast({
+        title: '生成二维码失败',
+        icon: 'none',
+      })
+    }
+  },
+
+  // 复制邀请链接
+  copyInviteLink() {
+    const inviteLink = this.data.inviteLink
+    if (!inviteLink) {
+      wx.showToast({
+        title: '请先选择校友会',
+        icon: 'none',
+      })
+      return
+    }
+
+    wx.setClipboardData({
+      data: inviteLink,
+      success: () => {
+        wx.showToast({
+          title: '链接已复制',
+          icon: 'success',
+        })
+      },
+      fail: () => {
+        wx.showToast({
+          title: '复制失败',
+          icon: 'none',
+        })
+      },
+    })
+  },
+
+  // 保存二维码到相册
+  saveQrcode() {
+    const qrcodeUrl = this.data.inviteQrcodeUrl
+    if (!qrcodeUrl) {
+      wx.showToast({
+        title: '请等待二维码生成完成',
+        icon: 'none',
+      })
+      return
+    }
+
+    // 检查是否是 Base64 data URL
+    if (qrcodeUrl.startsWith('data:image')) {
+      // 从 data URL 中提取 Base64 数据
+      const base64Data = qrcodeUrl.replace(/^data:image\/\w+;base64,/, '')
+      const filePath = `${wx.env.USER_DATA_PATH}/invite_qrcode_${Date.now()}.png`
+
+      // 将 Base64 写入临时文件
+      const fs = wx.getFileSystemManager()
+      fs.writeFile({
+        filePath: filePath,
+        data: base64Data,
+        encoding: 'base64',
+        success: () => {
+          // 保存到相册
+          wx.saveImageToPhotosAlbum({
+            filePath: filePath,
+            success: () => {
+              wx.showToast({
+                title: '已保存到相册',
+                icon: 'success',
+              })
+              // 删除临时文件
+              fs.unlink({ filePath: filePath })
+            },
+            fail: err => {
+              console.error('[Debug] 保存图片失败:', err)
+              this.handleSaveImageError(err)
+            },
+          })
+        },
+        fail: err => {
+          console.error('[Debug] 写入临时文件失败:', err)
+          wx.showToast({
+            title: '保存失败',
+            icon: 'none',
+          })
+        },
+      })
+    } else {
+      // 远程URL，使用 downloadFile
+      wx.downloadFile({
+        url: qrcodeUrl,
+        success: res => {
+          if (res.statusCode === 200) {
+            wx.saveImageToPhotosAlbum({
+              filePath: res.tempFilePath,
+              success: () => {
+                wx.showToast({
+                  title: '已保存到相册',
+                  icon: 'success',
+                })
+              },
+              fail: err => {
+                console.error('[Debug] 保存图片失败:', err)
+                this.handleSaveImageError(err)
+              },
+            })
+          }
+        },
+        fail: () => {
+          wx.showToast({
+            title: '下载图片失败',
+            icon: 'none',
+          })
+        },
+      })
+    }
+  },
+
+  // 处理保存图片错误
+  handleSaveImageError(err) {
+    if (err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
+      wx.showModal({
+        title: '提示',
+        content: '需要您授权保存图片到相册',
+        confirmText: '去设置',
+        success: modalRes => {
+          if (modalRes.confirm) {
+            wx.openSetting()
+          }
+        },
+      })
+    } else {
+      wx.showToast({
+        title: '保存失败',
+        icon: 'none',
+      })
+    }
   },
 
   // 阻止冒泡
@@ -379,7 +546,7 @@ Page({
     const value = e.detail.value
     this.setData({
       'inviteForm.name': value,
-      showAlumniSearchResults: true
+      showAlumniSearchResults: true,
     })
 
     if (value.trim()) {
@@ -401,16 +568,18 @@ Page({
 
   // 搜索校友
   async searchAlumni(keyword) {
-    if (!keyword) { return }
+    if (!keyword) {
+      return
+    }
     try {
       const res = await alumniApi.queryAlumniList({
         current: 1,
         pageSize: 10,
-        name: keyword.trim()
+        name: keyword.trim(),
       })
       if (res.data && res.data.code === 200) {
         this.setData({
-          alumniSearchResults: res.data.data.records || []
+          alumniSearchResults: res.data.data.records || [],
         })
       }
     } catch (e) {
@@ -425,56 +594,171 @@ Page({
 
     if (selectedAlumni) {
       // 从selectedAlumni中获取wxId，尝试所有可能的字段名，保留字符串形式
-      const wxId = selectedAlumni.wxId || selectedAlumni.id || selectedAlumni.userId || selectedAlumni.user_id || selectedAlumni.wx_id || '0'
+      const wxId =
+        selectedAlumni.wxId ||
+        selectedAlumni.id ||
+        selectedAlumni.userId ||
+        selectedAlumni.user_id ||
+        selectedAlumni.wx_id ||
+        '0'
 
       this.setData({
-        'inviteForm.name': selectedAlumni.name || selectedAlumni.nickname || selectedAlumni.realName,
+        'inviteForm.name':
+          selectedAlumni.name || selectedAlumni.nickname || selectedAlumni.realName,
         'inviteForm.wxId': wxId,
         alumniSearchResults: [],
-        showAlumniSearchResults: false
+        showAlumniSearchResults: false,
       })
     }
   },
 
-
-
   // 提交邀请
+  // 注意：此接口不再直接添加成员，而是发送邀请通知，用户需要同意后才能加入
   async submitInvite() {
     try {
-      const { wxId, roleOrId } = this.data.inviteForm
+      const { wxId } = this.data.inviteForm
       const alumniAssociationId = this.data.selectedAlumniAssociationId
 
       // 验证必填参数
-      if (!wxId || wxId === 0 || !roleOrId || !alumniAssociationId) {
+      if (!wxId || wxId === 0 || !alumniAssociationId) {
         wx.showToast({
-          title: '请通过搜索选择校友并选择身份',
-          icon: 'none'
+          title: '请通过搜索选择校友',
+          icon: 'none',
         })
         return
       }
 
-      // 调用邀请成员接口，直接传递字符串形式的wxId和roleOrId，避免大整数精度丢失
-      const res = await this.inviteMemberAPI(alumniAssociationId, wxId, roleOrId)
+      // 调用邀请成员接口，直接传递字符串形式的wxId，避免大整数精度丢失
+      // roleOrId 现在是可选参数，不再需要传递
+      const res = await this.inviteMemberAPI(alumniAssociationId, wxId)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
-          title: '邀请成功',
-          icon: 'success'
+          title: '邀请通知已发送，等待用户确认',
+          icon: 'success',
+          duration: 2000,
         })
         this.hideInviteModal()
-        // 刷新成员列表
-        await this.loadMemberList(alumniAssociationId)
+        // 注意：不再刷新成员列表，因为用户还未确认邀请
       } else {
         wx.showToast({
           title: (res.data && res.data.msg) || '邀请失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('[Debug] 邀请成员失败:', error)
       wx.showToast({
         title: '邀请失败',
-        icon: 'none'
+        icon: 'none',
+      })
+    }
+  },
+
+  // 未注册成员表单输入处理
+  onUnregisteredUsernameInput(e) {
+    this.setData({
+      'unregisteredForm.username': e.detail.value,
+    })
+  },
+
+  onUnregisteredRoleNameInput(e) {
+    this.setData({
+      'unregisteredForm.roleName': e.detail.value,
+    })
+  },
+
+  onUnregisteredUserPhoneInput(e) {
+    this.setData({
+      'unregisteredForm.userPhone': e.detail.value,
+    })
+  },
+
+  onUnregisteredUserAffiliationInput(e) {
+    this.setData({
+      'unregisteredForm.userAffiliation': e.detail.value,
+    })
+  },
+
+  // 提交添加未注册成员
+  async submitAddUnregistered() {
+    try {
+      const { username, roleName, userPhone, userAffiliation } = this.data.unregisteredForm
+      const alumniAssociationId = this.data.selectedAlumniAssociationId
+
+      // 验证必填字段
+      if (!username || !username.trim()) {
+        wx.showToast({
+          title: '请输入姓名',
+          icon: 'none',
+        })
+        return
+      }
+
+      if (!roleName || !roleName.trim()) {
+        wx.showToast({
+          title: '请输入角色名称',
+          icon: 'none',
+        })
+        return
+      }
+
+      if (!userPhone || !userPhone.trim()) {
+        wx.showToast({
+          title: '请输入手机号',
+          icon: 'none',
+        })
+        return
+      }
+
+      // 验证手机号格式
+      const phoneRegex = /^1[3-9]\d{9}$/
+      if (!phoneRegex.test(userPhone.trim())) {
+        wx.showToast({
+          title: '请输入正确的手机号',
+          icon: 'none',
+        })
+        return
+      }
+
+      if (!alumniAssociationId) {
+        wx.showToast({
+          title: '请先选择校友会',
+          icon: 'none',
+        })
+        return
+      }
+
+      // 调用添加未注册成员接口
+      const res = await alumniAssociationManagementApi.addUnregisteredMember({
+        alumniAssociationId,
+        username: username.trim(),
+        roleName: roleName.trim(),
+        userPhone: userPhone.trim(),
+        userAffiliation: userAffiliation ? userAffiliation.trim() : '',
+      })
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '添加成功',
+          icon: 'success',
+          duration: 2000,
+        })
+        // 关闭弹窗
+        this.hideInviteModal()
+        // 刷新成员列表
+        await this.loadMemberList(alumniAssociationId)
+      } else {
+        wx.showToast({
+          title: (res.data && res.data.message) || '添加失败',
+          icon: 'none',
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 添加未注册成员失败:', error)
+      wx.showToast({
+        title: '添加失败',
+        icon: 'none',
       })
     }
   },
@@ -493,7 +777,7 @@ Page({
         // 将树形结构的角色数据扁平化为一维数组
         const flattenedRoles = this.flattenRoleTree(res.data.data || [])
         this.setData({
-          roleList: flattenedRoles
+          roleList: flattenedRoles,
         })
       }
     } catch (error) {
@@ -526,7 +810,7 @@ Page({
     return alumniAssociationManagementApi.getRoleList(organizeId)
   },
 
-  // 调用邀请成员接口
+  // 调用邀请成员接口（roleOrId 可选）
   inviteMemberAPI(alumniAssociationId, wxId, roleOrId) {
     return alumniAssociationManagementApi.inviteMember(alumniAssociationId, wxId, roleOrId)
   },
@@ -534,38 +818,64 @@ Page({
   // 打开编辑成员弹窗
   async openEditModal(e) {
     const member = e.currentTarget.dataset.member
+    // 获取当前成员的角色ID
+    const currentRoleId = member.organizeArchiRole ? member.organizeArchiRole.roleOrId : ''
+
     this.setData({
       editingMember: {
         ...member,
-        newRoleId: (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || '',
-        newRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
-        roleIndex: 0
+        // 编辑表单字段（用户名和手机号仅未注册用户可编辑）
+        editUsername: member.name || member.nickname || '',
+        editUserPhone: member.userPhone || member.phone || '',
+        editUserAffiliation: member.userAffiliation || '',
+        editIsShowOnHome: member.isShowOnHome || 0,
+        // 角色相关
+        editRoleOrId: currentRoleId,
+        editRoleName: member.organizeArchiRole ? member.organizeArchiRole.roleOrName : '普通成员',
       },
-      showEditModal: true
+      showEditModal: true,
     })
 
     // 加载角色列表
     await this.loadRoleList()
-
-    // 设置默认角色索引
-    const roleId = (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || ''
-    const roleIndex = this.data.roleList.findIndex(role => role.roleOrId === roleId)
-    if (roleIndex !== -1) {
-      this.setData({
-        'editingMember.roleIndex': roleIndex
-      })
-    }
   },
 
-  // 编辑成员时角色选择变化
+  // 编辑表单输入处理 - 用户名
+  onEditUsernameInput(e) {
+    this.setData({
+      'editingMember.editUsername': e.detail.value,
+    })
+  },
+
+  // 编辑表单输入处理 - 手机号
+  onEditUserPhoneInput(e) {
+    this.setData({
+      'editingMember.editUserPhone': e.detail.value,
+    })
+  },
+
+  // 编辑表单输入处理 - 所属单位/职位
+  onEditUserAffiliationInput(e) {
+    this.setData({
+      'editingMember.editUserAffiliation': e.detail.value,
+    })
+  },
+
+  // 编辑表单 - 主页展示开关
+  onEditIsShowOnHomeChange(e) {
+    this.setData({
+      'editingMember.editIsShowOnHome': e.detail.value ? 1 : 0,
+    })
+  },
+
+  // 编辑表单 - 角色选择
   onEditRoleChange(e) {
     const index = e.detail.value
     const selectedRole = this.data.roleList[index]
     if (selectedRole) {
       this.setData({
-        'editingMember.newRoleId': selectedRole.roleOrId,
-        'editingMember.newRoleName': selectedRole.roleOrName,
-        'editingMember.roleIndex': index
+        'editingMember.editRoleOrId': selectedRole.roleOrId,
+        'editingMember.editRoleName': selectedRole.roleOrName,
       })
     }
   },
@@ -573,33 +883,84 @@ Page({
   // 关闭编辑成员弹窗
   hideEditModal() {
     this.setData({
-      showEditModal: false
+      showEditModal: false,
+      editingMember: {},
     })
   },
 
-  // 提交编辑成员角色
+  // 提交编辑成员信息
   async submitEdit() {
     try {
       const { editingMember } = this.data
-      const { newRoleId, wxId } = editingMember
       const alumniAssociationId = this.data.selectedAlumniAssociationId
 
-      // 验证必填参数
-      if (!newRoleId || !wxId || !alumniAssociationId) {
+      // 验证必填参数 - 需要成员id
+      if (!editingMember.id) {
         wx.showToast({
-          title: '请选择新角色',
-          icon: 'none'
+          title: '成员信息异常',
+          icon: 'none',
         })
         return
       }
 
-      // 调用更新成员角色接口
-      const res = await this.updateMemberRoleAPI(alumniAssociationId, wxId, newRoleId)
+      // 构建更新数据，只传入有变化的字段
+      const updateData = {
+        id: editingMember.id,
+      }
+
+      // 用户名和手机号仅未注册用户可编辑
+      if (!editingMember.wxId) {
+        if (editingMember.editUsername && editingMember.editUsername.trim()) {
+          updateData.username = editingMember.editUsername.trim()
+        }
+        if (editingMember.editUserPhone && editingMember.editUserPhone.trim()) {
+          updateData.userPhone = editingMember.editUserPhone.trim()
+        }
+      }
+
+      // 所属单位/职位 -> 提交到 roleName 字段
+      if (editingMember.editUserAffiliation !== undefined) {
+        updateData.roleName = editingMember.editUserAffiliation.trim()
+      }
+
+      // 主页展示
+      updateData.isShowOnHome = editingMember.editIsShowOnHome
+
+      console.log('[Debug] 更新成员信息，请求数据:', updateData)
+
+      // 调用更新成员信息接口
+      const res = await alumniAssociationManagementApi.updateMemberInfo(updateData)
 
       if (res.data && res.data.code === 200) {
+        // 检查角色是否有变化，如果有变化则更新角色
+        const originalRoleId = editingMember.organizeArchiRole
+          ? editingMember.organizeArchiRole.roleOrId
+          : ''
+        const newRoleId = editingMember.editRoleOrId || ''
+
+        if (newRoleId && String(newRoleId) !== String(originalRoleId)) {
+          console.log('[Debug] 角色有变化，更新角色:', { originalRoleId, newRoleId })
+          // 调用更新角色接口
+          const roleRes = await this.updateMemberRoleAPI(
+            alumniAssociationId,
+            editingMember.wxId,
+            newRoleId
+          )
+          if (roleRes.data && roleRes.data.code === 200) {
+            console.log('[Debug] 角色更新成功')
+          } else {
+            console.error('[Debug] 角色更新失败:', roleRes)
+            wx.showToast({
+              title: (roleRes.data && roleRes.data.msg) || '角色更新失败',
+              icon: 'none',
+            })
+            return
+          }
+        }
+
         wx.showToast({
           title: '修改成功',
-          icon: 'success'
+          icon: 'success',
         })
         this.hideEditModal()
         // 刷新成员列表
@@ -607,14 +968,14 @@ Page({
       } else {
         wx.showToast({
           title: (res.data && res.data.msg) || '修改失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
-      console.error('[Debug] 修改成员角色失败:', error)
+      console.error('[Debug] 修改成员信息失败:', error)
       wx.showToast({
         title: '修改失败',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -622,41 +983,41 @@ Page({
   // 删除成员
   async deleteMember(e) {
     const member = e.currentTarget.dataset.member
-    const { wxId } = member
+    const { id, wxId } = member
     const alumniAssociationId = this.data.selectedAlumniAssociationId
 
     // 确认删除
     wx.showModal({
       title: '确认删除',
       content: `确定要删除成员 "${member.name || member.nickname || '未命名'}" 吗？`,
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           try {
-            // 调用删除成员接口
-            const result = await this.deleteMemberAPI(alumniAssociationId, wxId)
+            // 调用删除成员接口，传递 id 和 wxId
+            const result = await this.deleteMemberAPI(alumniAssociationId, id, wxId)
 
             if (result.data && result.data.code === 200) {
               wx.showToast({
                 title: '删除成功',
-                icon: 'success'
+                icon: 'success',
               })
               // 刷新成员列表
               await this.loadMemberList(alumniAssociationId)
             } else {
               wx.showToast({
-                title: (result.data && result.data.msg) || '删除失败',
-                icon: 'none'
+                title: (result.data && result.data.message) || '删除失败',
+                icon: 'none',
               })
             }
           } catch (error) {
             console.error('[Debug] 删除成员失败:', error)
             wx.showToast({
               title: '删除失败',
-              icon: 'none'
+              icon: 'none',
             })
           }
         }
-      }
+      },
     })
   },
 
@@ -666,7 +1027,27 @@ Page({
   },
 
   // 调用删除成员接口
-  deleteMemberAPI(alumniAssociationId, wxId) {
-    return alumniAssociationManagementApi.deleteMember(alumniAssociationId, wxId)
-  }
+  deleteMemberAPI(alumniAssociationId, id, wxId) {
+    return alumniAssociationManagementApi.deleteMember(alumniAssociationId, id, wxId)
+  },
+
+  // 点击成员跳转到用户详情页
+  onMemberTap(e) {
+    const member = e.currentTarget.dataset.member
+    const wxId = member.wxId
+
+    if (!wxId) {
+      // 没有 wxId，提示未注册
+      wx.showToast({
+        title: '该成员尚未注册',
+        icon: 'none',
+      })
+      return
+    }
+
+    // 有 wxId，跳转到用户详情页
+    wx.navigateTo({
+      url: `/pages/user/detail/detail?id=${wxId}`,
+    })
+  },
 })

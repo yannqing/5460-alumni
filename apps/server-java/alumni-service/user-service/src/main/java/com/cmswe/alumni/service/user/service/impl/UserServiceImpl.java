@@ -13,11 +13,11 @@ import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.model.UserOnlineStatusKaf;
 import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.kafka.utils.KafkaUtils;
+import com.cmswe.alumni.api.association.SchoolService;
 import com.cmswe.alumni.common.entity.*;
 import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.vo.*;
 import com.cmswe.alumni.common.vo.TagVo;
-import com.cmswe.alumni.service.association.mapper.SchoolMapper;
 import com.cmswe.alumni.service.system.mapper.SysConfigMapper;
 import com.cmswe.alumni.service.system.service.SysTagRelationService;
 import com.cmswe.alumni.api.user.UserService;
@@ -55,7 +55,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     private SysConfigMapper sysConfigMapper;
 
     @Resource
-    private SchoolMapper schoolMapper;
+    private SchoolService schoolService;
 
     @Resource
     private AlumniEducationMapper alumniEducationMapper;
@@ -80,6 +80,24 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
     @Resource
     private WxUserMapper wxUserMapper;
+
+    @Resource
+    private com.cmswe.alumni.api.user.RoleUserService roleUserService;
+
+    @Resource
+    private com.cmswe.alumni.api.user.RoleService roleService;
+
+    @org.springframework.context.annotation.Lazy
+    @Resource
+    private com.cmswe.alumni.api.association.AlumniAssociationService alumniAssociationService;
+
+    @org.springframework.context.annotation.Lazy
+    @Resource
+    private com.cmswe.alumni.api.association.LocalPlatformService localPlatformService;
+
+    @org.springframework.context.annotation.Lazy
+    @Resource
+    private com.cmswe.alumni.api.search.ShopService shopService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -187,7 +205,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         List<AlumniEducationListVo> alumniEducationListVos = alumniEducations.stream().map(alumniEducation -> {
             AlumniEducationListVo alumniEducationListVo = AlumniEducationListVo.objToVo(alumniEducation);
             if (alumniEducation.getSchoolId() != null) {
-                School school = schoolMapper.selectById(alumniEducation.getSchoolId());
+                School school = schoolService.getById(alumniEducation.getSchoolId());
                 SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
                 schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
                 alumniEducationListVo.setSchoolInfo(schoolListVo);
@@ -274,8 +292,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                 userPrivacySettingServiceOne.setFieldName(sysConfig.getConfigName());
                 userPrivacySettingServiceOne.setFieldCode(sysConfig.getConfigKey());
                 userPrivacySettingServiceOne.setType(1);            // 用户配置
-                userPrivacySettingServiceOne.setVisibility(1);      // 默认可见
-                userPrivacySettingServiceOne.setSearchable(1);      // 默认可见
+                userPrivacySettingServiceOne.setVisibility(0);      // 默认可见
+                userPrivacySettingServiceOne.setSearchable(0);      // 默认可见
 
                 userPrivacySettingService.save(userPrivacySettingServiceOne);
             }
@@ -340,7 +358,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         List<AlumniEducationListVo> alumniEducationListVos = alumniEducations.stream().map(alumniEducation -> {
             AlumniEducationListVo alumniEducationListVo = AlumniEducationListVo.objToVo(alumniEducation);
             if (alumniEducation.getSchoolId() != null) {
-                School school = schoolMapper.selectById(alumniEducation.getSchoolId());
+                School school = schoolService.getById(alumniEducation.getSchoolId());
                 SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
                 schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
                 alumniEducationListVo.setSchoolInfo(schoolListVo);
@@ -388,12 +406,12 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         AlumniDetailVo alumniDetailVo = new AlumniDetailVo();
         BeanUtils.copyProperties(baseUserDetail, alumniDetailVo);
 
-        //4. 查询 wx_users 表获取 is_alumni 字段
+        //4. 查询 wx_users 表获取 certification_flag 字段
         WxUser wxUser = wxUserMapper.selectById(id);
         if (wxUser != null) {
-            alumniDetailVo.setIsAlumni(wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1);
+            alumniDetailVo.setCertificationFlag(wxUser.getCertificationFlag());
         } else {
-            alumniDetailVo.setIsAlumni(false);
+            alumniDetailVo.setCertificationFlag(0);
         }
 
         //5. 如果提供了 currentUserId，查询关注状态
@@ -438,7 +456,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     }
 
     @Override
-    public Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto) {
+    public Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId) {
         if (queryAlumniListDto == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL);
         }
@@ -458,10 +476,24 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         Integer gender = queryAlumniListDto.getGender();
         String identifyCode = queryAlumniListDto.getIdentifyCode();
         LocalDate birthDate = queryAlumniListDto.getBirthDate();
+        Integer myFollow = queryAlumniListDto.getMyFollow();
         int current = queryAlumniListDto.getCurrent();
         int pageSize = queryAlumniListDto.getPageSize();
         String sortField = queryAlumniListDto.getSortField();
         String sortOrder = queryAlumniListDto.getSortOrder();
+
+        // 处理"我的关注"筛选：查询用户关注的校友 ID 列表
+        List<Long> followedUserIds = null;
+        if (myFollow != null && myFollow == 1 && wxId != null) {
+            followedUserIds = userFollowService.getFollowedTargetIds(wxId, 1); // 1-用户
+
+            // 如果用户没有关注任何校友，直接返回空结果
+            if (followedUserIds.isEmpty()) {
+                Page<UserListResponse> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return emptyPage;
+            }
+        }
 
         // 设置默认排序字段
         if (sortField == null) {
@@ -512,6 +544,11 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         // 过滤：name 和 nickname 不能同时为空（至少有一个不为空）
         queryWrapper.and(wrapper -> wrapper.isNotNull(WxUserInfo::getName).or().isNotNull(WxUserInfo::getNickname));
 
+        // 应用"我的关注"筛选
+        if (followedUserIds != null && !followedUserIds.isEmpty()) {
+            queryWrapper.in(WxUserInfo::getWxId, followedUserIds);
+        }
+
         // 排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
         if ("createdTime".equals(sortField)) {
             queryWrapper.orderBy(true, CommonConstant.SORT_ORDER_ASC.equals(sortOrder), WxUserInfo::getCreatedTime);
@@ -520,9 +557,9 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
         Page<WxUserInfo> wxUserInfoPage = wxUserInfoMapper.selectPage(new Page<>(current, pageSize), queryWrapper);
 
-        // 批量查询主要教育经历和校友状态
+        // 批量查询主要教育经历和认证标识
         Map<Long, AlumniEducationListVo> primaryEducationMap = new HashMap<>();
-        Map<Long, Boolean> isAlumniMap = new HashMap<>();
+        Map<Long, Integer> certificationFlagMap = new HashMap<>();
 
         if (!wxUserInfoPage.getRecords().isEmpty()) {
             List<Long> wxIds = wxUserInfoPage.getRecords().stream()
@@ -530,12 +567,12 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                     .distinct()
                     .collect(Collectors.toList());
 
-            // 批量查询 wx_users 表获取 is_alumni 字段
+            // 批量查询 wx_users 表获取 certification_flag 字段
             List<WxUser> wxUsers = wxUserMapper.selectBatchIds(wxIds);
-            isAlumniMap = wxUsers.stream()
+            certificationFlagMap = wxUsers.stream()
                     .collect(Collectors.toMap(
                             WxUser::getWxId,
-                            wxUser -> wxUser.getIsAlumni() != null && wxUser.getIsAlumni() == 1,
+                            wxUser -> wxUser.getCertificationFlag() != null ? wxUser.getCertificationFlag() : 0,
                             (v1, v2) -> v1
                     ));
 
@@ -556,7 +593,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                         .collect(Collectors.toList());
 
                 if (!schoolIds.isEmpty()) {
-                    List<School> schools = schoolMapper.selectBatchIds(schoolIds);
+                    List<School> schools = schoolService.listByIds(schoolIds);
                     schoolMap = schools.stream()
                             .map(school -> {
                                 SchoolListVo vo = SchoolListVo.objToVo(school);
@@ -587,7 +624,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         }
 
         Map<Long, AlumniEducationListVo> finalPrimaryEducationMap = primaryEducationMap;
-        Map<Long, Boolean> finalIsAlumniMap = isAlumniMap;
+        Map<Long, Integer> finalCertificationFlagMap = certificationFlagMap;
 
         List<UserListResponse> userListResponses = wxUserInfoPage.getRecords().stream().map(wxUserInfo -> {
             UserListResponse userListResponse = UserListResponse.ObjToVo(wxUserInfo);
@@ -603,8 +640,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             // 设置主要教育经历
             userListResponse.setPrimaryEducation(finalPrimaryEducationMap.get(wxUserInfo.getWxId()));
 
-            // 设置校友认证状态
-            userListResponse.setIsAlumni(finalIsAlumniMap.getOrDefault(wxUserInfo.getWxId(), false));
+            // 设置认证标识
+            userListResponse.setCertificationFlag(finalCertificationFlagMap.getOrDefault(wxUserInfo.getWxId(), 0));
 
             return userListResponse;
         }).toList();
@@ -691,7 +728,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         // 校验教育经历数据
         for (AlumniEducationDto educationDto : alumniEducationList) {
             // 校验学校是否存在
-            School school = schoolMapper.selectById(educationDto.getSchoolId());
+            School school = schoolService.getById(educationDto.getSchoolId());
             if (school == null) {
                 throw new BusinessException(ErrorType.ARGS_ERROR, "学校ID不存在: " + educationDto.getSchoolId());
             }
@@ -857,6 +894,234 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             log.error("生成token失败，{}", identifier, e);
             throw new RuntimeException("Token生成失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type) {
+        // 1. 参数校验
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+
+        log.info("查询用户可管理的组织列表 - 用户ID: {}, 类型: {}", wxId, type);
+
+        List<ManagedOrganizationListVo> result = new ArrayList<>();
+
+        // 2. 查询用户的角色
+        List<Role> userRoles = roleService.getRolesByUserId(wxId);
+
+        // 3. 判断是否是系统管理员
+        boolean isSystemAdmin = userRoles.stream()
+                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
+
+        if (isSystemAdmin) {
+            // 系统管理员：返回所有启用的组织
+            result.addAll(getAllOrganizationsByType(type));
+        } else {
+            // 普通用户：根据角色权限查询可管理的组织
+            result.addAll(getManagedOrganizationsByRole(wxId, type));
+        }
+
+        log.info("查询用户可管理的组织列表成功 - 用户ID: {}, 类型: {}, 组织数量: {}", wxId, type, result.size());
+        return result;
+    }
+
+    /**
+     * 获取所有组织（系统管理员）
+     *
+     * @param type 组织类型（null-全部）
+     * @return 组织列表
+     */
+    private List<ManagedOrganizationListVo> getAllOrganizationsByType(Integer type) {
+        List<ManagedOrganizationListVo> result = new ArrayList<>();
+
+        // 0-校友会
+        if (type == null || type == 0) {
+            List<AlumniAssociation> associations = alumniAssociationService.list(
+                    new LambdaQueryWrapper<AlumniAssociation>()
+                            .eq(AlumniAssociation::getStatus, 1)
+                            .orderByDesc(AlumniAssociation::getCreateTime));
+
+            associations.forEach(association -> {
+                ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                vo.setId(association.getAlumniAssociationId());
+                vo.setType(0);
+                vo.setLogo(association.getLogo());
+                vo.setName(association.getAssociationName());
+                vo.setLocation(association.getLocation());
+                result.add(vo);
+            });
+        }
+
+        // 1-校促会
+        if (type == null || type == 1) {
+            List<LocalPlatform> platforms = localPlatformService.list(
+                    new LambdaQueryWrapper<LocalPlatform>()
+                            .eq(LocalPlatform::getStatus, 1)
+                            .orderByDesc(LocalPlatform::getCreateTime));
+
+            platforms.forEach(platform -> {
+                ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                vo.setId(platform.getPlatformId());
+                vo.setType(1);
+                vo.setLogo(platform.getAvatar());
+                vo.setName(platform.getPlatformName());
+                vo.setLocation(platform.getCity());
+                result.add(vo);
+            });
+        }
+
+        // 2-商户（门店）
+        if (type == null || type == 2) {
+            List<Shop> shops = shopService.list(
+                    new LambdaQueryWrapper<Shop>()
+                            .eq(Shop::getStatus, 1)
+                            .eq(Shop::getReviewStatus, 1)
+                            .orderByDesc(Shop::getCreateTime));
+
+            shops.forEach(shop -> {
+                ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                vo.setId(shop.getShopId());
+                vo.setType(2);
+                vo.setLogo(null); // Shop 表没有 logo 字段
+                vo.setName(shop.getShopName());
+                // 拼接完整地址
+                String location = (shop.getCity() != null ? shop.getCity() : "") +
+                        (shop.getDistrict() != null ? shop.getDistrict() : "") +
+                        (shop.getAddress() != null ? shop.getAddress() : "");
+                vo.setLocation(location.isEmpty() ? null : location);
+                result.add(vo);
+            });
+        }
+
+        // 3-校友总会（目前系统中没有对应的表，暂不处理）
+        if (type != null && type == 3) {
+            log.warn("校友总会类型（type=3）暂未实现");
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据角色权限获取可管理的组织
+     *
+     * @param wxId 用户ID
+     * @param type 组织类型（null-全部）
+     * @return 组织列表
+     */
+    private List<ManagedOrganizationListVo> getManagedOrganizationsByRole(Long wxId, Integer type) {
+        List<ManagedOrganizationListVo> result = new ArrayList<>();
+
+        // 查询用户的组织角色
+        LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RoleUser::getWxId, wxId)
+                .isNotNull(RoleUser::getOrganizeId);
+
+        // 如果指定了类型，添加类型过滤
+        if (type != null) {
+            // RoleUser.type: 1-校处会，2-校友会，3-商户
+            // 请求参数 type: 0-校友会，1-校促会，2-商户
+            Integer roleUserType = convertTypeToRoleUserType(type);
+            if (roleUserType != null) {
+                queryWrapper.eq(RoleUser::getType, roleUserType);
+            }
+        }
+
+        List<RoleUser> roleUsers = roleUserService.list(queryWrapper);
+
+        if (roleUsers.isEmpty()) {
+            log.info("用户无管理的组织 - 用户ID: {}", wxId);
+            return result;
+        }
+
+        // 按类型分组
+        Map<Integer, List<Long>> organizeIdsByType = roleUsers.stream()
+                .collect(Collectors.groupingBy(
+                        RoleUser::getType,
+                        Collectors.mapping(RoleUser::getOrganizeId, Collectors.toList())
+                ));
+
+        // 查询校友会（type=2）
+        if (organizeIdsByType.containsKey(2)) {
+            List<Long> associationIds = organizeIdsByType.get(2);
+            if (!associationIds.isEmpty()) {
+                List<AlumniAssociation> associations = alumniAssociationService.listByIds(associationIds);
+                associations.forEach(association -> {
+                    if (association.getStatus() == 1) { // 只返回启用的
+                        ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                        vo.setId(association.getAlumniAssociationId());
+                        vo.setType(0);
+                        vo.setLogo(association.getLogo());
+                        vo.setName(association.getAssociationName());
+                        vo.setLocation(association.getLocation());
+                        result.add(vo);
+                    }
+                });
+            }
+        }
+
+        // 查询校促会（type=1）
+        if (organizeIdsByType.containsKey(1)) {
+            List<Long> platformIds = organizeIdsByType.get(1);
+            if (!platformIds.isEmpty()) {
+                List<LocalPlatform> platforms = localPlatformService.listByIds(platformIds);
+                platforms.forEach(platform -> {
+                    if (platform.getStatus() == 1) { // 只返回启用的
+                        ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                        vo.setId(platform.getPlatformId());
+                        vo.setType(1);
+                        vo.setLogo(platform.getAvatar());
+                        vo.setName(platform.getPlatformName());
+                        vo.setLocation(platform.getCity());
+                        result.add(vo);
+                    }
+                });
+            }
+        }
+
+        // 查询商户（type=3）
+        if (organizeIdsByType.containsKey(3)) {
+            List<Long> shopIds = organizeIdsByType.get(3);
+            if (!shopIds.isEmpty()) {
+                List<Shop> shops = shopService.listByIds(shopIds);
+                shops.forEach(shop -> {
+                    if (shop.getStatus() == 1 && shop.getReviewStatus() == 1) { // 只返回营业中且审核通过的
+                        ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                        vo.setId(shop.getShopId());
+                        vo.setType(2);
+                        vo.setLogo(null); // Shop 表没有 logo 字段
+                        vo.setName(shop.getShopName());
+                        // 拼接完整地址
+                        String location = (shop.getCity() != null ? shop.getCity() : "") +
+                                (shop.getDistrict() != null ? shop.getDistrict() : "") +
+                                (shop.getAddress() != null ? shop.getAddress() : "");
+                        vo.setLocation(location.isEmpty() ? null : location);
+                        result.add(vo);
+                    }
+                });
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 将请求参数的类型转换为 RoleUser 表的类型
+     *
+     * @param type 请求参数类型（0-校友会，1-校促会，2-商户，3-校友总会）
+     * @return RoleUser 类型（1-校处会，2-校友会，3-商户）
+     */
+    private Integer convertTypeToRoleUserType(Integer type) {
+        if (type == null) {
+            return null;
+        }
+        return switch (type) {
+            case 0 -> 2; // 校友会
+            case 1 -> 1; // 校促会
+            case 2 -> 3; // 商户
+            case 3 -> null; // 校友总会（暂不支持）
+            default -> null;
+        };
     }
 }
 

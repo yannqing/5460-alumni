@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -511,5 +512,27 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
             log.error("[UserFollowService] 发送关注通知异常 - From: {}, To: {}, Error: {}",
                     fromUserId, toUserId, e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<Long> getFollowedTargetIds(Long wxId, Integer targetType) {
+        if (wxId == null || targetType == null) {
+            log.warn("获取关注目标ID列表失败 - 参数为空: wxId={}, targetType={}", wxId, targetType);
+            return new ArrayList<>();
+        }
+
+        LambdaQueryWrapper<UserFollow> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(UserFollow::getWxId, wxId)
+                .eq(UserFollow::getTargetType, targetType)
+                .select(UserFollow::getTargetId);
+
+        List<UserFollow> follows = this.list(queryWrapper);
+        List<Long> targetIds = follows.stream()
+                .map(UserFollow::getTargetId)
+                .collect(Collectors.toList());
+
+        log.debug("获取用户关注目标ID列表 - wxId: {}, targetType: {}, count: {}", wxId, targetType, targetIds.size());
+        return targetIds;
     }
 }

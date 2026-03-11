@@ -16,27 +16,27 @@ Page({
       isTop: false,
       publishUsername: '', // 发布者名称
       publishType: 1, // 发布类型 (1-校友会, 2-商铺, 3-校友)，默认校友会
-      publishAssociationId: null // 选中的发布者ID（校友会或商铺）
+      publishAssociationId: null, // 选中的发布者ID（校友会或商铺）
+      applyStatus: null // 审核状态 (0-待审核, 1-审核通过, 2-审核拒绝)
     },
     articleTypes: ['公众号', '内部路径', '第三方链接'], // 对应值 1, 2, 3
     publishTypes: ['校友会', '校友'], // 发布类型选项（移除母校和商铺）
     publisherList: [], // 发布者列表（校友会列表）
     selectedPublisherIndex: -1, // 选中的发布者索引
-    isEdit: false
+    isEdit: false,
+    pageTitle: '新增文章' // 页面标题
   },
 
   async onLoad(options) {
     if (options.id) {
-      this.setData({ isEdit: true })
-      // 编辑模式：设置标题为"文章编辑"
-      wx.setNavigationBarTitle({
-        title: '编辑文章'
+      this.setData({
+        isEdit: true,
+        pageTitle: '编辑文章'
       })
       this.loadDetail(options.id)
     } else {
-      // 新增模式：设置标题为"新增文章"
-      wx.setNavigationBarTitle({
-        title: '新增文章'
+      this.setData({
+        pageTitle: '新增文章'
       })
       // 新增模式：默认是校友会，自动加载校友会列表
       if (this.data.formData.publishType === 1) {
@@ -153,12 +153,18 @@ Page({
           articleType = parseInt(data.articleType) || 1;
         }
         
+        // 获取审核状态
+        let applyStatus = null;
+        if (data.applyStatus !== undefined && data.applyStatus !== null) {
+          applyStatus = data.applyStatus;
+        }
+
         this.setData({
           formData: {
             id: String(articleId), // 确保ID为字符串
             articleTitle: data.articleTitle || data.title || '',
             cover: cover,
-            coverImg: typeof data.coverImg === 'object' ? (data.coverImg.fileId || data.coverImg.id) : (data.coverImg || ''), 
+            coverImg: typeof data.coverImg === 'object' ? (data.coverImg.fileId || data.coverImg.id) : (data.coverImg || ''),
             content: data.content || '',
             description: data.description || '',
             articleType: articleType, // 确保是数字类型
@@ -167,7 +173,8 @@ Page({
             isTop: data.isTop === true || data.isTop === 1 || data.top === true,
             publishUsername: data.publishUsername || '',
             publishType: publishType, // 确保是数字类型
-            publishAssociationId: data.publishAssociationId || data.publishWxId || null
+            publishAssociationId: data.publishAssociationId || data.publishWxId || null,
+            applyStatus: applyStatus // 保存审核状态
           },
           selectedPublisherIndex: selectedIndex >= 0 ? selectedIndex : -1
         });
@@ -390,6 +397,40 @@ Page({
     if (formData.publishType === 1) {
       if (!formData.publishAssociationId || !formData.publishUsername) {
         return wx.showToast({ title: '请选择发布者', icon: 'none' });
+      }
+    }
+
+    // 编辑模式下，根据审核状态显示确认提示
+    if (isEdit && formData.applyStatus !== null && formData.applyStatus !== undefined) {
+      let confirmMessage = '';
+
+      if (formData.applyStatus === 1) {
+        // 审核通过的文章
+        confirmMessage = '编辑已审核通过的文章将导致文章进入重新审核流程，确定要继续吗？';
+      } else if (formData.applyStatus === 0) {
+        // 待审核的文章
+        confirmMessage = '编辑待审核的文章将导致审核队列重新排序，确定要继续吗？';
+      }
+
+      if (confirmMessage) {
+        const confirmed = await new Promise((resolve) => {
+          wx.showModal({
+            title: '提示',
+            content: confirmMessage,
+            confirmText: '继续编辑',
+            cancelText: '取消',
+            success: (res) => {
+              resolve(res.confirm);
+            },
+            fail: () => {
+              resolve(false);
+            }
+          });
+        });
+
+        if (!confirmed) {
+          return; // 用户取消，不执行保存
+        }
       }
     }
 

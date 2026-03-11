@@ -291,6 +291,7 @@
   background: #fff;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
+  z-index: 100;
 }
 
 .submit-btn {

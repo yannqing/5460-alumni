@@ -214,8 +214,6 @@
                   <button class="select-location-btn" bindtap="onChooseLocation">选择位置</button>
                 </view>
 
-
-                <view class="submit-placeholder"></view>
                 </view>
           </view>
           
@@ -302,6 +300,7 @@
               </view>
             </view>
           </view>
+          <view class="submit-placeholder"></view>
         </view>
       </scroll-view>
     </view>

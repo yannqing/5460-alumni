@@ -30,6 +30,11 @@
     <view class="article-list" wx:if="{{loading}}">
       <view class="skeleton-card" wx:for="{{[1,2,3,4]}}" wx:key="*this">
         <view class="skeleton-content">
+          <!-- 发布者骨架 -->
+          <view class="skeleton-publisher">
+            <view class="skeleton-avatar skeleton-animate"></view>
+            <view class="skeleton-publisher-name skeleton-animate"></view>
+          </view>
           <view class="skeleton-header">
             <view class="skeleton-title skeleton-animate"></view>
             <view class="skeleton-tag skeleton-animate"></view>
@@ -50,8 +55,17 @@
       <!-- 文章卡片 -->
       <view class="block_9" bindtap="viewDetail" data-id="{{item.id}}">
         <view class="section_7">
+          <!-- 发布者信息 -->
+          <view class="publisher-info">
+            <image class="publisher-avatar" src="{{item.publisherAvatar}}" mode="aspectFill" wx:if="{{item.publisherAvatar}}"></image>
+            <view class="publisher-avatar placeholder" wx:else>
+              <text class="avatar-placeholder-text">{{item.publishUsername[0] || 'U'}}</text>
+            </view>
+            <text class="publisher-name">{{item.publishUsername}}</text>
+          </view>
+          <!-- 文章标题和状态 -->
           <view class="box_9">
-            <text lines="1" class="text_24">{{item.nickname}}</text>
+            <text lines="1" class="text_24">{{item.articleTitle}}</text>
             <view class="text-wrapper_12 {{item.status}}">
               <text lines="1" class="text_25">{{item.statusText}}</text>
             </view>
@@ -61,8 +75,8 @@
             <text lines="1" class="text_27">{{item.submitTime}}</text>
           </view>
           <view class="edit-action">
-            <!-- 待审核状态：显示通过和拒绝按钮 -->
-            <block wx:if="{{item.status === 'pending'}}">
+            <!-- 待审核状态且有审核权限：显示通过和拒绝按钮 -->
+            <block wx:if="{{item.status === 'pending' && canReview}}">
               <view class="approve-btn-wrapper" catchtap="onApproveTap" data-id="{{item.applyId}}">
                 <text lines="1" class="approve-btn-text">通过</text>
               </view>
@@ -70,7 +84,7 @@
                 <text lines="1" class="reject-btn-text">拒绝</text>
               </view>
             </block>
-            <!-- 非待审核状态：显示编辑和删除按钮 -->
+            <!-- 非待审核状态或没有审核权限：显示编辑和删除按钮 -->
             <block wx:else>
               <view class="edit-btn-wrapper" catchtap="onEditTap" data-id="{{item.id}}">
                 <text lines="1" class="edit-btn-text">编辑</text>
@@ -91,8 +105,13 @@
       <text class="empty-text">暂无数据</text>
     </view>
 
+    <!-- 加载更多中 -->
+    <view class="loading-more" wx:if="{{loadingMore}}">
+      <text>加载中...</text>
+    </view>
+
     <!-- 没有更多数据 -->
-    <view class="no-more" wx:if="{{!loading && !hasMore && filteredArticleList.length > 0}}">
+    <view class="no-more" wx:if="{{!loading && !loadingMore && !hasMore && filteredArticleList.length > 0}}">
       <text>没有更多数据了</text>
     </view>
     </view>
@@ -101,70 +120,6 @@
   <!-- 发布文章按钮 -->
   <view class="publish-btn-container">
     <button class="publish-btn" bindtap="onPublishTap">发布文章</button>
-  </view>
-
-  <!-- 编辑弹框 -->
-  <view class="modal-overlay" wx:if="{{isEditModalVisible}}" bindtap="hideEditModal"></view>
-  <view class="edit-modal" wx:if="{{isEditModalVisible}}">
-    <view class="modal-header">
-      <text class="modal-title">编辑文章</text>
-      <text class="modal-close" bindtap="hideEditModal">×</text>
-    </view>
-    <view class="modal-content">
-      <view class="form-item">
-        <text class="form-label">文章标题</text>
-        <input 
-          class="form-input" 
-          type="text" 
-          placeholder="请输入文章标题" 
-          value="{{editForm.articleTitle}}" 
-          data-field="articleTitle" 
-          bindinput="onEditInput"
-        />
-      </view>
-      <view class="form-item">
-        <text class="form-label">封面图</text>
-        <view class="cover-upload-container">
-          <image 
-            class="cover-preview" 
-            src="{{editForm.coverImgUrl}}" 
-            mode="aspectFill" 
-            wx:if="{{editForm.coverImgUrl}}"
-          ></image>
-          <view class="cover-placeholder" wx:else>
-            <text class="placeholder-text">点击上传封面图</text>
-          </view>
-          <button class="upload-btn" bindtap="onCoverUploadTap">
-            {{editForm.coverImgUrl ? '更换封面' : '上传封面'}}
-          </button>
-        </view>
-      </view>
-      <view class="form-item">
-        <text class="form-label">文章描述</text>
-        <textarea 
-          class="form-textarea" 
-          placeholder="请输入文章描述" 
-          value="{{editForm.description}}" 
-          data-field="description" 
-          bindinput="onEditInput"
-        ></textarea>
-      </view>
-      <view class="form-item">
-        <text class="form-label">文章链接</text>
-        <input 
-          class="form-input" 
-          type="text" 
-          placeholder="请输入文章链接" 
-          value="{{editForm.articleLink}}" 
-          data-field="articleLink" 
-          bindinput="onEditInput"
-        />
-      </view>
-    </view>
-    <view class="modal-footer">
-      <button class="modal-btn cancel-btn" bindtap="hideEditModal">取消</button>
-      <button class="modal-btn confirm-btn" bindtap="onSubmitEdit">确定</button>
-    </view>
   </view>
 
   <!-- 审核弹框 -->

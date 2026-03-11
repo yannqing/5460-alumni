@@ -198,6 +198,12 @@ public class WxUserInfo implements Serializable {
     private LocalDateTime updatedTime;
 
     /**
+     * 积分
+     */
+    @TableField(value = "integral")
+    private Integer integral;
+
+    /**
      * 是否删除（0-未删除，1-已删除）
      */
     @TableLogic

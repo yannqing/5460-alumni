@@ -134,8 +134,8 @@ public class FileUtils {
         byte[] bytes = file.getBytes();
         java.nio.file.Files.write(filePath, bytes);
 
-        // 构建访问URL
-        String accessUrl = uploadPrefixPath + File.separator + subPath + File.separator + datePath + File.separator + newFileName;
+        // 构建访问URL（URL 必须使用正斜杠 /，不能使用 File.separator）
+        String accessUrl = uploadPrefixPath + "/" + subPath + "/" + datePath + "/" + newFileName;
 
         return accessUrl;
     }

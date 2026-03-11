@@ -73,21 +73,43 @@ function mapUserInfoToForm(userInfo) {
   })
 
   // 工作经历映射
-  const workExperienceList = (userInfo.workExperienceList || []).map(work => ({
-    userWorkId: work.userWorkId ? String(work.userWorkId) : null,
-    companyName: work.companyName || '',
-    position: work.position || '',
-    industry: work.industry || '',
-    startDate: work.startDate || '',
-    endDate: work.endDate || '',
-    isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
-    workDescription: work.workDescription || ''
-  }))
+  const workExperienceList = (userInfo.workExperienceList || []).map(work => {
+    // 解析工作地址为数组（用于region picker）
+    const workAddress = work.workAddress || ''
+    const workAddressRegion = workAddress ? workAddress.split(' ').filter(s => s) : []
+    return {
+      userWorkId: work.userWorkId ? String(work.userWorkId) : null,
+      companyName: work.companyName || '',
+      position: work.position || '',
+      industry: work.industry || '',
+      workAddress: workAddress,
+      workAddressRegion: workAddressRegion,
+      startDate: work.startDate || '',
+      endDate: work.endDate || '',
+      isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
+      workDescription: work.workDescription || ''
+    }
+  })
 
   // 处理头像URL，确保使用正确的 baseUrl
   const config = require('../../../utils/config.js')
   const rawAvatarUrl = userInfo.avatarUrl || ''
   const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : config.defaultAvatar
+
+  // 处理籍贯显示文本（三级：省、市、区）
+  const originProvince = userInfo.originProvince || userInfo.curProvince || ''
+  const curCity = userInfo.curCity || ''
+  const curCounty = userInfo.curCounty || ''
+  let hometownDisplayText = ''
+  if (originProvince) {
+    hometownDisplayText = originProvince
+    if (curCity) {
+      hometownDisplayText += ' ' + curCity
+      if (curCounty) {
+        hometownDisplayText += ' ' + curCounty
+      }
+    }
+  }
 
   return {
     // 基础信息
@@ -208,6 +230,7 @@ function mapFormToUpdateData(form) {
         companyName: work.companyName || null,
         position: work.position || null,
         industry: work.industry || null,
+        workAddress: work.workAddress || null,
         startDate: work.startDate || null,
         endDate: work.endDate || null,
         isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
@@ -320,7 +343,10 @@ Page({
     identifyTypeOptions: ['身份证', '护照'],
     maritalStatusOptions: ['未知', '未婚', '已婚', '离异', '丧偶'],
     // 星座选项：与后端数据库定义一致（1-摩羯座 2-水瓶座 3-双鱼座 4-白羊座 5-金牛座 6-双子座 7-巨蟹座 8-狮子座 9-处女座 10-天秤座 11-天蝎座 12-射手座）
-    constellationOptions: ['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座']
+    constellationOptions: ['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座'],
+    // 籍贯所在地（省、市）
+    hometownRegion: [],
+    hometownDisplayText: ''
   },
 
   async onLoad() {
@@ -377,8 +403,30 @@ Page({
       if (userInfo) {
         // 使用统一的数据映射函数
         const formData = mapUserInfoToForm(userInfo)
+
+        // 处理籍贯显示（三级：省、市、区）
+        const originProvince = userInfo.originProvince || userInfo.curProvince || ''
+        const curCity = userInfo.curCity || ''
+        const curCounty = userInfo.curCounty || ''
+        let hometownDisplayText = ''
+        let hometownRegion = []
+        if (originProvince) {
+          hometownDisplayText = originProvince
+          hometownRegion = [originProvince]
+          if (curCity) {
+            hometownDisplayText += ' ' + curCity
+            hometownRegion.push(curCity)
+            if (curCounty) {
+              hometownDisplayText += ' ' + curCounty
+              hometownRegion.push(curCounty)
+            }
+          }
+        }
+
         this.setData({
-          form: formData
+          form: formData,
+          hometownDisplayText: hometownDisplayText,
+          hometownRegion: hometownRegion
         })
         // 计算默认展示的教育经历索引
         this.updateDefaultEducationIndex()
@@ -461,13 +509,23 @@ Page({
         return
       }
 
-      // 检查文件大小 (10MB)
+      // 检查文件大小
       const fileSize = chooseRes.tempFiles?.[0]?.size || 0
-      const maxSize = 10 * 1024 * 1024
+      const config = require('../../../utils/config.js')
+
+      // 云托管模式下，限制为 100KB；非云托管模式下，限制为 10MB
+      const maxSize = config.IS_CLOUD_HOST ? 100 * 1024 : 10 * 1024 * 1024
+      const maxSizeText = config.IS_CLOUD_HOST ? '100KB' : '10MB'
+
+      console.log('[Background Upload] 文件大小:', (fileSize / 1024).toFixed(2), 'KB')
+      console.log('[Background Upload] 云托管模式:', config.IS_CLOUD_HOST)
+      console.log('[Background Upload] 大小限制:', maxSizeText)
+
       if (fileSize > maxSize) {
         wx.showToast({
-          title: '图片大小不能超过10MB',
-          icon: 'none'
+          title: '文件过大，请压缩后上传',
+          icon: 'none',
+          duration: 2000
         })
         return
       }
@@ -483,7 +541,6 @@ Page({
 
       // 调用公共的文件上传方法
       const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
-      wx.hideLoading()
 
       if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
         const rawImageUrl = uploadRes.data.fileUrl || ''
@@ -491,12 +548,17 @@ Page({
           const config = require('../../../utils/config.js')
           const imageUrl = config.getImageUrl(rawImageUrl)
 
-          // 更新表单中的背景图URL
+          // 更新表单中的背景图URL（用于显示）
           this.setData({ 'form.bgImg': imageUrl })
 
-          // 上传成功后自动保存
-          const updateData = { bgImg: imageUrl }
+          // 上传成功后自动保存（保存原始URL到后端）
+          const updateData = { bgImg: rawImageUrl }
           await this.saveSingleField(updateData, true)
+        } else {
+          wx.showToast({
+            title: '上传失败，未获取到图片地址',
+            icon: 'none'
+          })
         }
       } else {
         wx.showToast({
@@ -505,14 +567,18 @@ Page({
         })
       }
     } catch (error) {
-      wx.hideLoading()
       if (error.errMsg !== 'chooseMedia:fail cancel') {
         console.error('选择背景图失败:', error)
+        // 显示具体的错误信息
+        const errorMsg = error?.msg || error?.message || '上传失败，请重试'
         wx.showToast({
-          title: '选择图片失败',
-          icon: 'none'
+          title: errorMsg,
+          icon: 'none',
+          duration: 2000
         })
       }
+    } finally {
+      wx.hideLoading()
     }
   },
 
@@ -614,7 +680,7 @@ Page({
   // 点击勾选按钮保存字段
   async handleSaveField(e) {
     const { field } = e.currentTarget.dataset
-    if (!field) {return}
+    if (!field) { return }
 
     // 阻止事件冒泡和默认行为
     if (e.stopPropagation) {
@@ -815,6 +881,44 @@ Page({
     await this.saveSingleField(updateData, true)
   },
 
+  // 处理籍贯所在地选择
+  async handleHometownChange(e) {
+    const value = e.detail.value // [省, 市, 区]
+    const province = value[0] || ''
+    const city = value[1] || ''
+    const county = value[2] || ''
+
+    // 更新显示文本（显示省、市、区三级）
+    let displayText = ''
+    if (province && province !== '暂不选择') {
+      displayText = province
+      if (city && city !== '暂不选择') {
+        displayText += ' ' + city
+        if (county && county !== '暂不选择') {
+          displayText += ' ' + county
+        }
+      }
+    }
+
+    this.setData({
+      hometownRegion: value,
+      hometownDisplayText: displayText,
+      'form.originProvince': province !== '暂不选择' ? province : '',
+      'form.curProvince': province !== '暂不选择' ? province : '',
+      'form.curCity': city !== '暂不选择' ? city : '',
+      'form.curCounty': county !== '暂不选择' ? county : ''
+    })
+
+    // 选择后自动保存
+    const updateData = {
+      originProvince: province !== '暂不选择' ? province : null,
+      curProvince: province !== '暂不选择' ? province : null,
+      curCity: city !== '暂不选择' ? city : null,
+      curCounty: county !== '暂不选择' ? county : null
+    }
+    await this.saveSingleField(updateData, true)
+  },
+
   /**
    * 选择并上传头像
    * 使用统一的文件上传工具 fileApi.uploadImage
@@ -836,13 +940,23 @@ Page({
         return
       }
 
-      // 检查文件大小（10MB = 2 * 1024 * 1024 字节）
+      // 检查文件大小
       const fileSize = chooseRes.tempFiles?.[0]?.size || 0
-      const maxSize = 10 * 1024 * 1024 // 10MB
+      const config = require('../../../utils/config.js')
+
+      // 云托管模式下，限制为 100KB；非云托管模式下，限制为 10MB
+      const maxSize = config.IS_CLOUD_HOST ? 100 * 1024 : 10 * 1024 * 1024
+      const maxSizeText = config.IS_CLOUD_HOST ? '100KB' : '10MB'
+
+      console.log('[Avatar Upload] 文件大小:', (fileSize / 1024).toFixed(2), 'KB')
+      console.log('[Avatar Upload] 云托管模式:', config.IS_CLOUD_HOST)
+      console.log('[Avatar Upload] 大小限制:', maxSizeText)
+
       if (fileSize > maxSize) {
         wx.showToast({
-          title: '图片大小不能超过10MB',
-          icon: 'none'
+          title: '文件过大，请压缩后上传',
+          icon: 'none',
+          duration: 2000
         })
         return
       }
@@ -1039,7 +1153,7 @@ Page({
    * 联调时：只需要修改 saveToApi 函数中的接口调用
    */
   async saveProfile() {
-    if (!this.validateForm()) {return}
+    if (!this.validateForm()) { return }
 
     this.setData({ saving: true })
 
@@ -1181,11 +1295,11 @@ Page({
   // 获取默认展示的教育经历索引（主要经历优先，否则随机次要经历）
   getDefaultEducationIndex() {
     const educationList = this.data.form.educationList || []
-    if (educationList.length === 0) {return -1}
+    if (educationList.length === 0) { return -1 }
 
     // 先找主要经历（type === 1）
     const primaryIndex = educationList.findIndex(edu => edu.type === 1)
-    if (primaryIndex !== -1) {return primaryIndex}
+    if (primaryIndex !== -1) { return primaryIndex }
 
     // 没有主要经历，返回第一个次要经历
     return 0
@@ -1826,11 +1940,11 @@ Page({
   // 获取默认展示的工作经历索引（当前在职优先，否则第一个）
   getDefaultWorkIndex() {
     const workExperienceList = this.data.form.workExperienceList || []
-    if (workExperienceList.length === 0) {return -1}
+    if (workExperienceList.length === 0) { return -1 }
 
     // 先找当前在职的（isCurrent === 1）
     const currentIndex = workExperienceList.findIndex(work => work.isCurrent === 1)
-    if (currentIndex !== -1) {return currentIndex}
+    if (currentIndex !== -1) { return currentIndex }
 
     // 没有当前在职的，返回第一个
     return 0
@@ -1852,6 +1966,8 @@ Page({
       companyName: '',
       position: '',
       industry: '',
+      workAddress: '',
+      workAddressRegion: [],
       startDate: '',
       endDate: '',
       isCurrent: 0,
@@ -2016,6 +2132,49 @@ Page({
     this.updateDefaultWorkIndex()
   },
 
+  // 工作地点选择（地区选择器）
+  handleWorkAddressChange(e) {
+    const { index } = e.currentTarget.dataset
+    const value = e.detail.value // [省, 市, 区]
+    const indexNum = parseInt(index)
+
+    if (isNaN(indexNum)) {
+      return
+    }
+
+    // 组合显示文本（三级：省、市、区）
+    const province = value[0] || ''
+    const city = value[1] || ''
+    const county = value[2] || ''
+
+    let displayText = ''
+    if (province && province !== '暂不选择') {
+      displayText = province
+      if (city && city !== '暂不选择') {
+        displayText += ' ' + city
+        if (county && county !== '暂不选择') {
+          displayText += ' ' + county
+        }
+      }
+    }
+
+    const workExperienceList = this.data.form.workExperienceList || []
+    workExperienceList[indexNum] = {
+      ...workExperienceList[indexNum],
+      workAddress: displayText,
+      workAddressRegion: value
+    }
+
+    this.setData({
+      'form.workExperienceList': workExperienceList
+    })
+
+    // 选择后，确保确定按钮保持显示
+    this.setData({
+      editingWorkIndex: indexNum
+    })
+  },
+
   // 保存工作经历
   async handleSaveWorkExperience(e) {
     const { index } = e.currentTarget.dataset
@@ -2100,6 +2259,13 @@ Page({
       workBlurTimer: null
     })
   },
+
+  // 跳转到反馈页面
+  goToFeedback() {
+    wx.navigateTo({
+      url: '/pages/feedback/feedback?type=4&title=' + encodeURIComponent('编辑资料遇到问题')
+    })
+  }
 
 })
 

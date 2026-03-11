@@ -53,6 +53,13 @@ public class HomePageArticleVo implements Serializable {
     @Schema(description = "状态：0-禁用 1-启用")
     private Integer articleStatus;
 
+    @Schema(description = "审核状态：0-待审核 1-审核通过 2-审核拒绝")
+    private Integer applyStatus;
+
+    @Schema(description = "发布者ID（组织ID：校友会或校促会）")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long publishWxId;
+
     @Schema(description = "发布者名称")
     private String publishUsername;
 
@@ -61,10 +68,6 @@ public class HomePageArticleVo implements Serializable {
 
     @Schema(description = "发布者头像")
     private String publisherAvatar;
-
-    @Schema(description = "实际发布用户ID（通过token解析获取的操作者ID）")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long actualPublisherWxId;
 
     @Schema(description = "是否展示在首页（0-不展示，1-展示）")
     private Integer showOnHomepage;

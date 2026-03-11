@@ -1,7 +1,7 @@
 {
   "navigationBarTitleText": "校友总会",
   "navigationStyle": "custom",
-  "enablePullDownRefresh": true,
+  "enablePullDownRefresh": false,
   "backgroundTextStyle": "dark",
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification",

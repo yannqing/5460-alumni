@@ -33,17 +33,40 @@ Page({
     inviteForm: {
       name: '',
       wxId: '',
-      roleOrId: ''
+      roleOrId: '',
+      sort: ''
     },
     // 校友搜索结果
     alumniSearchResults: [],
     showAlumniSearchResults: false,
     // 编辑成员相关
     showEditModal: false,
-    editingMember: {},
+    editingMember: {
+      isShowOnHome: 0,
+      sort: ''
+    },
+    // 预设成员相关
+    showPresetModal: false,
+    presetForm: {
+      username: '',
+      roleName: '',
+      roleOrId: '',
+      roleOrName: '',
+      roleIndex: 0,
+        contactInformation: '',
+        socialDuties: '',
+        isShowOnHome: 0,
+        sort: ''
+      },
+    // 关联注册用户相关
+    showLinkModal: false,
+    linkForm: {
+      memberId: '',
+      wxId: '',
+      name: ''
+    },
     roleList: [],
-    defaultAvatar: config.defaultAvatar,
-    defaultUserAvatarUrl: `https://${config.DOMAIN}/upload/images/assets/images/avatar.png`
+    defaultUserAvatarUrl: config.defaultAvatar
   },
 
   onLoad(options) {
@@ -276,16 +299,24 @@ Page({
         // 获取原始成员列表
         const memberList = (res.data.data && res.data.data.records) || []
 
-        // 排序成员列表：pid=0的排在前面，然后按角色名称排序
+        // 排序成员列表：优先使用 sort 字段，然后 pid=0 的排在前面，最后按角色名称排序
         memberList.sort((a, b) => {
-          // 首先比较pid，pid=0的排在前面
+          // 首先比较 sort 权重，数值越小越靠前
+          const sortA = a.sort !== null && a.sort !== undefined ? Number(a.sort) : 999999
+          const sortB = b.sort !== null && b.sort !== undefined ? Number(b.sort) : 999999
+          
+          if (sortA !== sortB) {
+            return sortA - sortB
+          }
+
+          // 然后比较pid，pid=0的排在前面
           const pidA = a.organizeArchiRole ? a.organizeArchiRole.pid : null
           const pidB = b.organizeArchiRole ? b.organizeArchiRole.pid : null
 
           if (pidA === '0' && pidB !== '0') { return -1 }
           if (pidA !== '0' && pidB === '0') { return 1 }
 
-          // 如果pid相同，按角色名称排序
+          // 如果 sort 和 pid 都相同，按角色名称排序
           const roleNameA = a.organizeArchiRole ? a.organizeArchiRole.roleOrName : ''
           const roleNameB = b.organizeArchiRole ? b.organizeArchiRole.roleOrName : ''
 
@@ -347,7 +378,12 @@ Page({
         wxId: '',
         roleOrId: '',
         roleOrName: '',
-        roleIndex: 0
+        roleName: '',
+        roleIndex: 0,
+        contactInformation: '',
+        socialDuties: '',
+        isShowOnHome: 0,
+        sort: ''
       },
       alumniSearchResults: [],
       showAlumniSearchResults: false,
@@ -356,6 +392,63 @@ Page({
 
     // 获取角色列表
     await this.loadRoleList()
+  },
+
+  // 显示预设成员弹窗
+  async showPresetModal() {
+    // 检查是否已选择校促会
+    if (!this.data.selectedSchoolOfficeId || this.data.selectedSchoolOfficeId === 0) {
+      wx.showToast({
+        title: '请先选择校促会',
+        icon: 'none',
+        duration: 2000
+      })
+      return
+    }
+
+    this.setData({
+      showPresetModal: true,
+      presetForm: {
+        username: '',
+        roleName: '',
+        roleOrId: '',
+        roleOrName: '',
+        roleIndex: 0,
+        contactInformation: '',
+        socialDuties: '',
+        isShowOnHome: 0,
+        sort: ''
+      },
+      roleList: []
+    })
+
+    // 获取角色列表
+    await this.loadRoleList()
+  },
+
+  // 显示关联注册用户弹窗
+  showLinkModal(e) {
+    const member = e.currentTarget.dataset.member
+    // 检查是否已选择校促会
+    if (!this.data.selectedSchoolOfficeId || this.data.selectedSchoolOfficeId === 0) {
+      wx.showToast({
+        title: '请先选择校促会',
+        icon: 'none',
+        duration: 2000
+      })
+      return
+    }
+
+    this.setData({
+      showLinkModal: true,
+      linkForm: {
+        memberId: member.id || '',
+        wxId: '',
+        name: ''
+      },
+      alumniSearchResults: [],
+      showAlumniSearchResults: false
+    })
   },
 
   // 邀请成员时角色选择变化
@@ -371,10 +464,39 @@ Page({
     }
   },
 
+  // 预设成员时角色选择变化
+  onPresetRoleChange(e) {
+    const index = e.detail.value
+    const selectedRole = this.data.roleList[index]
+    if (selectedRole) {
+      this.setData({
+        'presetForm.roleOrId': selectedRole.roleOrId,
+        'presetForm.roleOrName': selectedRole.roleOrName,
+        'presetForm.roleIndex': index
+      })
+    }
+  },
+
   // 隐藏邀请成员弹窗
   hideInviteModal() {
     this.setData({
       showInviteModal: false,
+      alumniSearchResults: [],
+      showAlumniSearchResults: false
+    })
+  },
+
+  // 隐藏预设成员弹窗
+  hidePresetModal() {
+    this.setData({
+      showPresetModal: false
+    })
+  },
+
+  // 隐藏关联注册用户弹窗
+  hideLinkModal() {
+    this.setData({
+      showLinkModal: false,
       alumniSearchResults: [],
       showAlumniSearchResults: false
     })
@@ -398,6 +520,159 @@ Page({
     } else {
       this.setData({ alumniSearchResults: [] })
     }
+  },
+
+  // 处理联系方式输入
+  onContactInformationInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.contactInformation': value
+    })
+  },
+
+  // 处理社会职务输入
+  onSocialDutiesInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.socialDuties': value
+    })
+  },
+
+  // 处理职务输入
+  onRoleNameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.roleName': value
+    })
+  },
+
+  // 处理邀请成员排序权重输入
+  onInviteSortInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'inviteForm.sort': value
+    })
+  },
+
+  // 处理预设成员用户名输入
+  onPresetUsernameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'presetForm.username': value
+    })
+  },
+
+  // 处理预设成员职务输入
+  onPresetRoleNameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'presetForm.roleName': value
+    })
+  },
+
+  // 处理预设成员联系方式输入
+  onPresetContactInformationInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'presetForm.contactInformation': value
+    })
+  },
+
+  // 处理预设成员社会职务输入
+  onPresetSocialDutiesInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'presetForm.socialDuties': value
+    })
+  },
+
+  // 处理预设成员排序权重输入
+  onPresetSortInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'presetForm.sort': value
+    })
+  },
+
+  // 处理关联注册用户姓名输入
+  onLinkUsernameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'linkForm.name': value,
+      showAlumniSearchResults: true
+    })
+
+    if (value.trim()) {
+      this.searchAlumniDebounced(value)
+    } else {
+      this.setData({ alumniSearchResults: [] })
+    }
+  },
+
+  // 选择关联的校友
+  selectLinkAlumni(e) {
+    const index = e.currentTarget.dataset.index
+    const selectedAlumni = this.data.alumniSearchResults[index]
+    if (selectedAlumni) {
+      this.setData({
+        'linkForm.wxId': selectedAlumni.wxId,
+        'linkForm.name': selectedAlumni.name || selectedAlumni.nickname || selectedAlumni.realName,
+        showAlumniSearchResults: false
+      })
+    }
+  },
+
+  // 处理编辑弹窗职务输入
+  onEditRoleNameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.roleName': value
+    })
+  },
+
+  // 处理编辑弹窗联系方式输入
+  onEditContactInformationInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.contactInformation': value
+    })
+  },
+
+  // 处理编辑弹窗社会职务输入
+  onEditSocialDutiesInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.socialDuties': value
+    })
+  },
+
+  // 处理邀请成员时主页展示开关变化
+  onInviteIsShowOnHomeChange(e) {
+    this.setData({
+      'inviteForm.isShowOnHome': e.detail.value ? 1 : 0
+    })
+  },
+
+  // 处理预设成员时主页展示开关变化
+  onPresetIsShowOnHomeChange(e) {
+    this.setData({
+      'presetForm.isShowOnHome': e.detail.value ? 1 : 0
+    })
+  },
+
+  // 处理编辑成员时主页展示开关变化
+  onEditIsShowOnHomeChange(e) {
+    this.setData({
+      'editingMember.isShowOnHome': e.detail.value ? 1 : 0
+    })
+  },
+
+  // 处理编辑成员排序权重输入
+  onEditSortInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'editingMember.sort': value
+    })
   },
 
   // 处理校友姓名输入框聚焦
@@ -452,20 +727,29 @@ Page({
   // 提交邀请
   async submitInvite() {
     try {
-      const { wxId, roleOrId } = this.data.inviteForm
+      const { wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome, sort } = this.data.inviteForm
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
-      if (!wxId || wxId === 0 || !roleOrId || !localPlatformId) {
+      if (!wxId || wxId === 0 || !localPlatformId) {
         wx.showToast({
-          title: '请通过搜索选择校友并选择身份',
+          title: '请通过搜索选择校友',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 验证排序权重是否为数字
+      if (sort && !/^\d+$/.test(sort)) {
+        wx.showToast({
+          title: '排序权重必须为数字',
           icon: 'none'
         })
         return
       }
 
       // 调用邀请成员接口，直接传递字符串形式的wxId和roleOrId，避免大整数精度丢失
-      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId)
+      const res = await this.inviteMemberAPI(localPlatformId, wxId, roleOrId, name, roleName, contactInformation, socialDuties, isShowOnHome, sort ? parseInt(sort, 10) : null)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -485,6 +769,97 @@ Page({
       console.error('[Debug] 邀请成员失败:', error)
       wx.showToast({
         title: '邀请失败',
+        icon: 'none'
+      })
+    }
+  },
+
+  // 提交预设成员
+  async submitPreset() {
+    try {
+      const { username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome, sort } = this.data.presetForm
+      const localPlatformId = this.data.selectedSchoolOfficeId
+
+      // 验证必填参数
+      if (!username || !localPlatformId) {
+        wx.showToast({
+          title: '请填写用户名',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 验证排序权重是否为数字
+      if (sort && !/^\d+$/.test(sort)) {
+        wx.showToast({
+          title: '排序权重必须为数字',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 调用添加预设成员接口
+      const res = await this.addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShowOnHome, sort ? parseInt(sort, 10) : null)
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '预设成功',
+          icon: 'success'
+        })
+        this.hidePresetModal()
+        // 刷新成员列表
+        await this.loadMemberList(localPlatformId)
+      } else {
+        wx.showToast({
+          title: (res.data && res.data.msg) || '预设失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 预设成员失败:', error)
+      wx.showToast({
+        title: '预设失败',
+        icon: 'none'
+      })
+    }
+  },
+
+  // 提交关联注册用户
+  async submitLink() {
+    try {
+      const { memberId, wxId } = this.data.linkForm
+      const localPlatformId = this.data.selectedSchoolOfficeId
+
+      // 验证必填参数
+      if (!memberId || !wxId || !localPlatformId) {
+        wx.showToast({
+          title: '请选择要关联的校友',
+          icon: 'none'
+        })
+        return
+      }
+
+      // 调用更新预设成员接口（关联注册用户）
+      const res = await this.updatePresetMemberAPI(memberId, wxId)
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '关联成功',
+          icon: 'success'
+        })
+        this.hideLinkModal()
+        // 刷新成员列表
+        await this.loadMemberList(localPlatformId)
+      } else {
+        wx.showToast({
+          title: (res.data && res.data.msg) || '关联失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 关联注册用户失败:', error)
+      wx.showToast({
+        title: '关联失败',
         icon: 'none'
       })
     }
@@ -556,8 +931,8 @@ Page({
   },
 
   // 调用邀请成员接口
-  inviteMemberAPI(localPlatformId, wxId, roleOrId) {
-    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId)
+  inviteMemberAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.inviteMember(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort)
   },
 
   // 打开编辑成员弹窗
@@ -573,12 +948,22 @@ Page({
     }
 
     const member = e.currentTarget.dataset.member
+    console.log('[Debug] 准备编辑成员，原始数据:', member)
+    
+    // 只要 isShow 或 isShowOnHome 其中一个是 1，就视为已设置主页展示
+    const isShowValue = (member.isShow == 1 || member.isShowOnHome == 1) ? 1 : 0;
+    console.log('[Debug] 继承到的展示状态:', isShowValue)
+
     this.setData({
       editingMember: {
         ...member,
         newRoleId: (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || '',
         newRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
-        roleIndex: 0
+        roleName: member.roleName || '',
+        contactInformation: member.contactInformation || '',
+        socialDuties: member.socialDuties || '',
+        roleIndex: 0,
+        isShowOnHome: isShowValue
       },
       showEditModal: true
     })
@@ -620,20 +1005,46 @@ Page({
   async submitEdit() {
     try {
       const { editingMember } = this.data
-      const { newRoleId, wxId } = editingMember
+      const { newRoleId, wxId, name, roleName, contactInformation, socialDuties, id, isShowOnHome, sort } = editingMember
+      const isShow = isShowOnHome === 1 ? 1 : 0
       const localPlatformId = this.data.selectedSchoolOfficeId
 
       // 验证必填参数
-      if (!newRoleId || !wxId || !localPlatformId) {
+      if (!localPlatformId) {
         wx.showToast({
-          title: '请选择新角色',
+          title: '请先选择校促会',
           icon: 'none'
         })
         return
       }
 
-      // 调用更新成员角色接口
-      const res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId)
+      // 验证排序权重是否为数字
+      if (sort && !/^\d+$/.test(sort)) {
+        wx.showToast({
+          title: '排序权重必须为数字',
+          icon: 'none'
+        })
+        return
+      }
+
+      const finalSort = sort ? parseInt(sort, 10) : null
+
+      let res
+      // 判断是否为预设成员（预设成员没有 wxId）
+      if (!wxId) {
+        // 预设成员，使用更新预设成员信息接口
+        if (!id) {
+          wx.showToast({
+            title: '成员 ID 不存在',
+            icon: 'none'
+          })
+          return
+        }
+        res = await this.updatePresetMemberInfoAPI(id, name, roleName, contactInformation, socialDuties, isShow, finalSort)
+      } else {
+        // 真实成员，使用更新成员角色接口
+        res = await this.updateMemberRoleAPI(localPlatformId, wxId, newRoleId, name, roleName, contactInformation, socialDuties, isShow, finalSort)
+      }
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -650,7 +1061,7 @@ Page({
         })
       }
     } catch (error) {
-      console.error('[Debug] 修改成员角色失败:', error)
+      console.error('[Debug] 修改成员失败:', error)
       wx.showToast({
         title: '修改失败',
         icon: 'none'
@@ -661,8 +1072,16 @@ Page({
   // 删除成员
   async deleteMember(e) {
     const member = e.currentTarget.dataset.member
-    const { wxId } = member
+    const { wxId, id } = member
     const localPlatformId = this.data.selectedSchoolOfficeId
+
+    if (!localPlatformId) {
+      wx.showToast({
+        title: '请先选择校促会',
+        icon: 'none'
+      })
+      return
+    }
 
     // 确认删除
     wx.showModal({
@@ -671,9 +1090,23 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            // 调用删除成员接口
-            const result = await this.deleteMemberAPI(localPlatformId, wxId)
-
+            let result
+            // 判断是否为预设成员（预设成员没有 wxId）
+            if (!wxId) {
+              // 预设成员，使用删除预设成员接口
+              if (!id) {
+                wx.showToast({
+                  title: '成员 ID 不存在',
+                  icon: 'none'
+                })
+                return
+              }
+              result = await this.deletePresetMemberAPI(id)
+            } else {
+              // 真实成员，使用删除成员接口
+              result = await this.deleteMemberAPI(localPlatformId, wxId)
+            }
+            
             if (result.data && result.data.code === 200) {
               wx.showToast({
                 title: '删除成功',
@@ -705,7 +1138,27 @@ Page({
   },
 
   // 调用更新成员角色接口
-  updateMemberRoleAPI(localPlatformId, wxId, roleOrId) {
-    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId)
+  updateMemberRoleAPI(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.updateMemberRole(localPlatformId, wxId, roleOrId, username, roleName, contactInformation, socialDuties, isShow, sort)
+  },
+
+  // 调用添加预设成员接口
+  addPresetMemberAPI(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.addPresetMember(localPlatformId, username, roleName, roleOrId, contactInformation, socialDuties, isShow, sort)
+  },
+
+  // 调用更新预设成员信息接口
+  updatePresetMemberInfoAPI(memberId, username, roleName, contactInformation, socialDuties, isShow, sort) {
+    return localPlatformManagementApi.updatePresetMemberInfo(memberId, username, roleName, contactInformation, socialDuties, isShow, sort)
+  },
+
+  // 调用删除预设成员接口
+  deletePresetMemberAPI(memberId) {
+    return localPlatformManagementApi.deletePresetMember(memberId)
+  },
+
+  // 调用更新预设成员（关联注册用户）接口
+  updatePresetMemberAPI(memberId, wxId) {
+    return localPlatformManagementApi.updatePresetMember(memberId, wxId)
   }
 })

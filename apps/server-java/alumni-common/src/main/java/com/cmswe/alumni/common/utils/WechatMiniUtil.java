@@ -6,7 +6,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
@@ -104,7 +103,7 @@ public class WechatMiniUtil {
             params.put("page", page);
             params.put("width", width);
             params.put("check_path", false);
-            params.put("env_version", "release"); // 正式版为 release，体验版为 trial，开发版为 develop
+            params.put("env_version", "develop"); // 正式版为 release，体验版为 trial，开发版为 develop
 
             log.info("调用微信生成小程序码接口, scene={}, page={}", scene, page);
 
@@ -151,11 +150,73 @@ public class WechatMiniUtil {
     private AccessToken cachedToken;
 
     /**
+     * 获取用户手机号
+     * 官方文档: https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-info/phone-number/getPhoneNumber.html
+     *
+     * @param code 从前端 button 组件回调中获取的动态令牌 code
+     * @return 包含 phoneNumber、purePhoneNumber、countryCode 的 Map
+     */
+    public Map<String, Object> getUserPhoneNumber(String code) {
+        String accessToken = getAccessToken();
+        if (accessToken == null) {
+            throw new BusinessException(500, "获取微信Access Token失败");
+        }
+
+        String url = wechatApiBaseUrl + "/wxa/business/getuserphonenumber?access_token=" + accessToken;
+
+        try {
+            log.info("调用微信获取手机号接口, code={}", code);
+
+            // 构建请求参数
+            Map<String, Object> params = new java.util.HashMap<>();
+            params.put("code", code);
+
+            // 发送HTTP POST请求
+            String response = httpClientUtil.post(url, params, String.class);
+            log.info("微信获取手机号响应: {}", response);
+
+            // 解析响应JSON
+            Map<String, Object> result = objectMapper.readValue(response, Map.class);
+
+            // 检查是否有错误
+            if (result.containsKey("errcode")) {
+                Integer errcode = (Integer) result.get("errcode");
+                if (errcode != 0) {
+                    String errmsg = (String) result.get("errmsg");
+                    log.error("微信获取手机号失败, errcode={}, errmsg={}", errcode, errmsg);
+                    throw new BusinessException(500, "获取手机号失败: " + errmsg);
+                }
+            }
+
+            // 返回 phone_info 对象
+            if (result.containsKey("phone_info")) {
+                return (Map<String, Object>) result.get("phone_info");
+            } else {
+                throw new BusinessException(500, "获取手机号失败：响应数据格式错误");
+            }
+
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("调用微信获取手机号接口异常", e);
+            throw new BusinessException(500, "调用微信API失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 获取 Access Token
      */
     private synchronized String getAccessToken() {
         if (cachedToken != null && cachedToken.isValid()) {
             return cachedToken.token;
+        }
+
+        // 配置缺失时直接报错（避免吞错导致上层只看到“null”）
+        if (appId == null || appId.trim().isEmpty()) {
+            throw new BusinessException(500, "获取微信Access Token失败：未配置 wechat.mini.app-id");
+        }
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new BusinessException(500, "获取微信Access Token失败：未配置 wechat.mini.secret");
         }
 
         String url = String.format(
@@ -167,18 +228,30 @@ public class WechatMiniUtil {
             String response = httpClientUtil.get(url, String.class);
             Map<String, Object> result = objectMapper.readValue(response, Map.class);
 
+            // 微信错误响应通常包含 errcode/errmsg
+            if (result.containsKey("errcode")) {
+                Integer errcode = (Integer) result.get("errcode");
+                if (errcode != null && errcode != 0) {
+                    String errmsg = (String) result.get("errmsg");
+                    log.error("获取Access Token失败, appId={}, errcode={}, errmsg={}", appId, errcode, errmsg);
+                    throw new BusinessException(500, "获取微信Access Token失败: " + errmsg + " (errcode=" + errcode + ")");
+                }
+            }
+
             if (result.containsKey("access_token")) {
                 String token = (String) result.get("access_token");
                 Integer expiresIn = (Integer) result.get("expires_in");
                 cachedToken = new AccessToken(token, expiresIn);
                 return token;
             } else {
-                log.error("获取Access Token失败: {}", response);
-                return null;
+                log.error("获取Access Token失败, appId={}, response={}", appId, response);
+                throw new BusinessException(500, "获取微信Access Token失败");
             }
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("获取Access Token异常", e);
-            return null;
+            log.error("获取Access Token异常, appId={}", appId, e);
+            throw new BusinessException(500, "获取微信Access Token失败: " + e.getMessage());
         }
     }
 }

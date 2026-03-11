@@ -5,16 +5,20 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
+import com.cmswe.alumni.api.user.OrganizeArchiTemplateService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
 import com.cmswe.alumni.common.dto.InitialMemberDto;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationApplicationListDto;
+import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.entity.*;
 import com.cmswe.alumni.common.enums.ErrorType;
+import com.cmswe.alumni.common.entity.OrganizeArchiTemplate;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.SchoolListVo;
@@ -24,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +76,9 @@ public class AlumniAssociationApplicationServiceImpl
     @Resource
     private com.cmswe.alumni.api.association.AlumniAssociationMemberService alumniAssociationMemberService;
 
+    @Resource
+    private OrganizeArchiTemplateService organizeArchiTemplateService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean applyToCreateAssociation(Long wxId, ApplyCreateAlumniAssociationDto applyDto) {
@@ -112,14 +120,17 @@ public class AlumniAssociationApplicationServiceImpl
         }
 
         // 4. 检查是否已有相同学校和地点的待审核申请
-//        LambdaQueryWrapper<AlumniAssociationApplication> checkQuery = new LambdaQueryWrapper<>();
-//        checkQuery.eq(AlumniAssociationApplication::getSchoolId, applyDto.getSchoolId())
-//                .eq(AlumniAssociationApplication::getLocation, applyDto.getLocation())
-//                .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
-//        Long existingCount = this.count(checkQuery);
-//        if (existingCount > 0) {
-//            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校和地点已有待审核的校友会创建申请，请勿重复提交");
-//        }
+        // LambdaQueryWrapper<AlumniAssociationApplication> checkQuery = new
+        // LambdaQueryWrapper<>();
+        // checkQuery.eq(AlumniAssociationApplication::getSchoolId,
+        // applyDto.getSchoolId())
+        // .eq(AlumniAssociationApplication::getLocation, applyDto.getLocation())
+        // .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
+        // Long existingCount = this.count(checkQuery);
+        // if (existingCount > 0) {
+        // throw new BusinessException(ErrorType.ARGS_ERROR,
+        // "该学校和地点已有待审核的校友会创建申请，请勿重复提交");
+        // }
 
         // 4. 创建申请记录
         AlumniAssociationApplication application = new AlumniAssociationApplication();
@@ -130,6 +141,11 @@ public class AlumniAssociationApplicationServiceImpl
         application.setChargeName(applyDto.getChargeName());
         application.setChargeRole(applyDto.getChargeRole());
         application.setContactInfo(applyDto.getContactInfo());
+        application.setMsocialAffiliation(applyDto.getMsocialAffiliation());
+        application.setZhName(applyDto.getZhName());
+        application.setZhRole(applyDto.getZhRole());
+        application.setZhPhone(applyDto.getZhPhone());
+        application.setZhSocialAffiliation(applyDto.getZhSocialAffiliation());
 
         // 将背景图列表转换为 JSON 字符串
         if (applyDto.getBgImg() != null && !applyDto.getBgImg().isEmpty()) {
@@ -148,6 +164,8 @@ public class AlumniAssociationApplicationServiceImpl
         application.setLocation(applyDto.getLocation());
         application.setLogo(applyDto.getLogo());
         application.setApplicationReason(applyDto.getApplicationReason());
+        application.setAssociationProfile(applyDto.getAssociationProfile());
+        application.setTemplateId(applyDto.getTemplateId());
         application.setApplicationStatus(0); // 0-待审核
         application.setApplyTime(LocalDateTime.now());
 
@@ -203,8 +221,7 @@ public class AlumniAssociationApplicationServiceImpl
                     title,
                     content,
                     null,
-                    "ASSOCIATION_APPLICATION"
-            );
+                    "ASSOCIATION_APPLICATION");
 
             if (success) {
                 log.info("校友会创建申请提交通知已发送 - 用户: {}, 校友会: {}", wxId, associationName);
@@ -219,7 +236,8 @@ public class AlumniAssociationApplicationServiceImpl
     }
 
     @Override
-    public PageVo<AlumniAssociationApplicationListVo> queryApplicationPage(QueryAlumniAssociationApplicationListDto queryDto) {
+    public PageVo<AlumniAssociationApplicationListVo> queryApplicationPage(
+            QueryAlumniAssociationApplicationListDto queryDto) {
         // 1. 参数校验
         Optional.ofNullable(queryDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL, "查询参数不能为空"));
@@ -241,7 +259,8 @@ public class AlumniAssociationApplicationServiceImpl
         LambdaQueryWrapper<AlumniAssociationApplication> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .eq(AlumniAssociationApplication::getPlatformId, platformId)
-                .like(StringUtils.isNotBlank(associationName), AlumniAssociationApplication::getAssociationName, associationName)
+                .like(StringUtils.isNotBlank(associationName), AlumniAssociationApplication::getAssociationName,
+                        associationName)
                 .like(StringUtils.isNotBlank(chargeName), AlumniAssociationApplication::getChargeName, chargeName)
                 .like(StringUtils.isNotBlank(location), AlumniAssociationApplication::getLocation, location)
                 .eq(applicationStatus != null, AlumniAssociationApplication::getApplicationStatus, applicationStatus)
@@ -289,6 +308,81 @@ public class AlumniAssociationApplicationServiceImpl
 
         log.info("分页查询校友会创建申请列表成功 - 校处会ID: {}, 总记录数: {}, 当前页: {}, 每页大小: {}",
                 platformId, resultPage.getTotal(), current, pageSize);
+
+        return PageVo.of(resultPage);
+    }
+
+    @Override
+    public PageVo<AlumniAssociationApplicationListVo> querySystemAdminApplicationPage(
+            QuerySystemAdminApplicationListDto queryDto) {
+        // 1. 参数校验
+        Optional.ofNullable(queryDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL, "查询参数不能为空"));
+
+        // 2. 获取查询参数
+        Long schoolId = queryDto.getSchoolId();
+        Long platformId = queryDto.getPlatformId();
+        String associationName = queryDto.getAssociationName();
+        String chargeName = queryDto.getChargeName();
+        String location = queryDto.getLocation();
+        Integer applicationStatus = queryDto.getApplicationStatus();
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+
+        // 3. 构建查询条件
+        LambdaQueryWrapper<AlumniAssociationApplication> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(schoolId != null, AlumniAssociationApplication::getSchoolId, schoolId)
+                .eq(platformId != null, AlumniAssociationApplication::getPlatformId, platformId)
+                .like(StringUtils.isNotBlank(associationName), AlumniAssociationApplication::getAssociationName,
+                        associationName)
+                .like(StringUtils.isNotBlank(chargeName), AlumniAssociationApplication::getChargeName, chargeName)
+                .like(StringUtils.isNotBlank(location), AlumniAssociationApplication::getLocation, location)
+                .eq(applicationStatus != null, AlumniAssociationApplication::getApplicationStatus, applicationStatus)
+                .orderByDesc(AlumniAssociationApplication::getApplyTime);
+
+        // 4. 执行分页查询
+        Page<AlumniAssociationApplication> applicationPage = this.page(new Page<>(current, pageSize), queryWrapper);
+
+        // 5. 如果记录为空，直接返回
+        if (applicationPage.getRecords().isEmpty()) {
+            Page<AlumniAssociationApplicationListVo> emptyPage = new Page<>(current, pageSize);
+            emptyPage.setTotal(0);
+            return PageVo.of(emptyPage);
+        }
+
+        // 6. 提取所有 schoolId 并批量查询学校信息
+        List<Long> schoolIds = applicationPage.getRecords().stream()
+                .map(AlumniAssociationApplication::getSchoolId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, School> schoolMap = schoolMapper.selectBatchIds(schoolIds).stream()
+                .collect(Collectors.toMap(School::getSchoolId, Function.identity(), (v1, v2) -> v1));
+
+        // 7. 转换为VO对象
+        List<AlumniAssociationApplicationListVo> voList = applicationPage.getRecords().stream()
+                .map(application -> {
+                    AlumniAssociationApplicationListVo vo = AlumniAssociationApplicationListVo.objToVo(application);
+
+                    // 设置学校信息
+                    School school = schoolMap.get(application.getSchoolId());
+                    if (school != null) {
+                        SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
+                        schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
+                        vo.setSchoolInfo(schoolListVo);
+                    }
+
+                    return vo;
+                })
+                .collect(Collectors.toList());
+
+        // 8. 构建分页结果
+        Page<AlumniAssociationApplicationListVo> resultPage = new Page<>(current, pageSize, applicationPage.getTotal());
+        resultPage.setRecords(voList);
+
+        log.info("系统管理员分页查询校友会创建申请列表成功 - 总记录数: {}, 当前页: {}, 每页大小: {}",
+                resultPage.getTotal(), current, pageSize);
 
         return PageVo.of(resultPage);
     }
@@ -346,6 +440,19 @@ public class AlumniAssociationApplicationServiceImpl
             alumniAssociation.setBgImg(application.getBgImg()); // 同步背景图
             alumniAssociation.setLocation(application.getLocation());
             alumniAssociation.setLogo(application.getLogo());
+            alumniAssociation.setAssociationProfile(application.getAssociationProfile()); // 同步校友会简介
+
+            // 同步主要负责人信息
+            alumniAssociation.setChargeWxId(application.getChargeWxId());
+            alumniAssociation.setChargeName(application.getChargeName());
+            alumniAssociation.setChargeRole(application.getChargeRole());
+            alumniAssociation.setChargeSocialAffiliation(application.getMsocialAffiliation());
+
+            // 同步驻会代表信息
+            alumniAssociation.setZhName(application.getZhName());
+            alumniAssociation.setZhPhone(application.getZhPhone());
+            alumniAssociation.setZhSocialAffiliation(application.getZhSocialAffiliation());
+
             alumniAssociation.setStatus(1); // 启用
             alumniAssociation.setMemberCount(0); // 初始为0，后续更新
 
@@ -375,30 +482,20 @@ public class AlumniAssociationApplicationServiceImpl
             }
             log.info("为负责人分配组织管理员角色 - 用户ID: {}, 角色ID: {}", application.getChargeWxId(), organizeAdminRole.getRoleId());
 
-            // 5.4 创建负责人架构角色
-            OrganizeArchiRole chargeArchiRole = new OrganizeArchiRole();
-            chargeArchiRole.setOrganizeType(0); // 0-校友会
-            chargeArchiRole.setOrganizeId(alumniAssociationId);
-            chargeArchiRole.setRoleOrName("成员");
-            chargeArchiRole.setRoleOrCode("MEMBER");    // TODO 这里不能写死
-            chargeArchiRole.setRemark("普通成员");
-            chargeArchiRole.setStatus(1);
-            organizeArchiRoleService.save(chargeArchiRole);
-
-            Long chargeArchiRoleId = chargeArchiRole.getRoleOrId();
-            log.info("创建负责人架构角色 - 架构角色ID: {}, 名称: {}", chargeArchiRoleId, application.getChargeRole());
-
-            // 5.5 插入负责人到校友会成员表
+            // 5.4 插入负责人到校友会成员表（不创建架构角色，role_or_id 为空）
             AlumniAssociationMember chargeMember = new AlumniAssociationMember();
             chargeMember.setWxId(application.getChargeWxId());
             chargeMember.setAlumniAssociationId(alumniAssociationId);
-            chargeMember.setRoleOrId(chargeArchiRoleId);
+            // chargeMember.setRoleOrId(null); // 不再关联架构角色，保持为空
+            chargeMember.setUserPhone(application.getContactInfo()); // 负责人联系方式
+            chargeMember.setUserAffiliation(application.getMsocialAffiliation()); // 负责人社会职务
             chargeMember.setJoinTime(LocalDateTime.now());
             chargeMember.setStatus(1);
             boolean addChargeMemberResult = alumniAssociationMemberService.save(chargeMember);
             if (!addChargeMemberResult) {
                 throw new BusinessException(ErrorType.SYSTEM_ERROR, "添加负责人到成员表失败");
             }
+            log.info("添加负责人到成员表成功 - 用户ID: {}", application.getChargeWxId());
 
             int totalMemberCount = 1; // 负责人算一个成员
 
@@ -426,21 +523,13 @@ public class AlumniAssociationApplicationServiceImpl
                             continue;
                         }
 
-                        // 创建成员架构角色
-                        OrganizeArchiRole memberArchiRole = new OrganizeArchiRole();
-                        memberArchiRole.setOrganizeType(0); // 0-校友会
-                        memberArchiRole.setOrganizeId(alumniAssociationId);
-                        memberArchiRole.setRoleOrName(memberDto.getRole());
-                        memberArchiRole.setRoleOrCode("MEMBER_" + alumniAssociationId + "_" + memberDto.getWxId());
-                        memberArchiRole.setRemark("校友会成员");
-                        memberArchiRole.setStatus(1);
-                        organizeArchiRoleService.save(memberArchiRole);
-
-                        // 插入成员到校友会成员表
+                        // 插入成员到校友会成员表（不创建架构角色，role_or_id 为空）
                         AlumniAssociationMember member = new AlumniAssociationMember();
                         member.setWxId(memberDto.getWxId());
                         member.setAlumniAssociationId(alumniAssociationId);
-                        member.setRoleOrId(memberArchiRole.getRoleOrId());
+                        // member.setRoleOrId(null); // 不再关联架构角色，保持为空
+                        member.setUserPhone(memberDto.getPhone()); // 成员联系电话
+                        member.setUserAffiliation(memberDto.getAffiliation()); // 成员社会职务
                         member.setJoinTime(LocalDateTime.now());
                         member.setStatus(1);
                         alumniAssociationMemberService.save(member);
@@ -453,6 +542,21 @@ public class AlumniAssociationApplicationServiceImpl
                     log.error("解析初始成员列表失败", e);
                     throw new BusinessException(ErrorType.SYSTEM_ERROR, "解析初始成员信息失败");
                 }
+            }
+
+            // 5.6.5 根据模板创建组织架构
+            if (application.getTemplateId() != null) {
+                try {
+                    createOrganizeArchitecture(application.getTemplateId(), alumniAssociationId);
+                    log.info("根据模板创建组织架构成功 - 校友会ID: {}, 模板ID: {}",
+                            alumniAssociationId, application.getTemplateId());
+                } catch (Exception e) {
+                    log.error("根据模板创建组织架构失败 - 校友会ID: {}, 模板ID: {}",
+                            alumniAssociationId, application.getTemplateId(), e);
+                    throw new BusinessException(ErrorType.SYSTEM_ERROR, "创建组织架构失败: " + e.getMessage());
+                }
+            } else {
+                log.info("未选择组织架构模板，跳过架构创建 - 校友会ID: {}", alumniAssociationId);
             }
 
             // 5.7 更新校友会会员数量
@@ -499,8 +603,7 @@ public class AlumniAssociationApplicationServiceImpl
                     title,
                     content,
                     null,
-                    "ASSOCIATION_APPLICATION_APPROVED"
-            );
+                    "ASSOCIATION_APPLICATION_APPROVED");
 
             if (success) {
                 log.info("校友会创建申请通过通知已发送 - 用户: {}, 校友会: {}", chargeWxId, associationName);
@@ -527,8 +630,7 @@ public class AlumniAssociationApplicationServiceImpl
                     title,
                     content,
                     null,
-                    "ASSOCIATION_APPLICATION_REJECTED"
-            );
+                    "ASSOCIATION_APPLICATION_REJECTED");
 
             if (success) {
                 log.info("校友会创建申请拒绝通知已发送 - 用户: {}, 校友会: {}", chargeWxId, associationName);
@@ -539,5 +641,137 @@ public class AlumniAssociationApplicationServiceImpl
             log.error("发送校友会创建申请拒绝通知异常 - 用户: {}, 校友会: {}, Error: {}",
                     chargeWxId, associationName, e.getMessage(), e);
         }
+    }
+
+    /**
+     * 根据申请ID查询申请详情
+     *
+     * @param applicationId 申请ID
+     * @return 申请详情
+     */
+    @Override
+    public AlumniAssociationApplicationDetailVo getApplicationDetailById(Long applicationId) {
+        // 1. 参数校验
+        Optional.ofNullable(applicationId)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL, "申请ID不能为空"));
+
+        // 2. 查询申请记录
+        AlumniAssociationApplication application = this.getById(applicationId);
+        Optional.ofNullable(application)
+                .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND_ERROR, "申请记录不存在"));
+
+        // 3. 转换为VO
+        AlumniAssociationApplicationDetailVo detailVo = AlumniAssociationApplicationDetailVo.objToVo(application);
+
+        // 4. 查询并设置学校信息
+        if (application.getSchoolId() != null) {
+            School school = schoolMapper.selectById(application.getSchoolId());
+            if (school != null) {
+                SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
+                schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
+                detailVo.setSchoolInfo(schoolListVo);
+            }
+        }
+
+        log.info("查询申请详情成功 - 申请ID: {}", applicationId);
+        return detailVo;
+    }
+
+    /**
+     * 根据模板创建组织架构
+     *
+     * @param templateId          模板ID
+     * @param alumniAssociationId 校友会ID
+     */
+    private void createOrganizeArchitecture(Long templateId, Long alumniAssociationId) {
+        // 1. 查询模板
+        OrganizeArchiTemplate template = organizeArchiTemplateService.getById(templateId);
+        if (template == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "组织架构模板不存在");
+        }
+
+        if (template.getStatus() != 1) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "该模板已被禁用");
+        }
+
+        // 2. 解析模板JSON
+        try {
+            List<Map<String, Object>> templateNodes = objectMapper.readValue(
+                    template.getTemplateJson(),
+                    new TypeReference<List<Map<String, Object>>>() {}
+            );
+
+            // 3. 创建节点ID映射（旧ID -> 新ID）
+            Map<String, Long> nodeIdMapping = new HashMap<>();
+
+            // 4. 遍历模板节点，创建组织架构角色
+            for (Map<String, Object> nodeData : templateNodes) {
+                OrganizeArchiRole role = new OrganizeArchiRole();
+
+                // 生成新的角色ID
+                Long newRoleId = generateRoleId();
+                role.setRoleOrId(newRoleId);
+
+                // 处理父节点ID
+                Object pidObj = nodeData.get("pid");
+                if (pidObj != null && !"null".equals(String.valueOf(pidObj))) {
+                    String oldPid = String.valueOf(pidObj);
+                    Long newPid = nodeIdMapping.get(oldPid);
+                    role.setPid(newPid);
+                } else {
+                    role.setPid(null);
+                }
+
+                // 设置组织信息
+                role.setOrganizeType(0); // 0-校友会
+                role.setOrganizeId(alumniAssociationId);
+
+                // 设置角色信息
+                role.setRoleOrName((String) nodeData.get("roleOrName"));
+
+                // 生成唯一的角色代码（模板代码 + 校友会ID + 节点序号）
+                String templateRoleCode = (String) nodeData.get("roleOrCode");
+                String uniqueRoleCode = templateRoleCode + "_" + alumniAssociationId + "_" + newRoleId;
+                role.setRoleOrCode(uniqueRoleCode);
+
+                role.setRemark((String) nodeData.get("remark"));
+                role.setStatus(1); // 启用
+                role.setCreateTime(LocalDateTime.now());
+
+                // 保存到数据库
+                boolean saveResult = organizeArchiRoleService.save(role);
+                if (!saveResult) {
+                    throw new BusinessException(ErrorType.SYSTEM_ERROR, "创建组织架构角色失败");
+                }
+
+                // 记录ID映射
+                Object nodeIdObj = nodeData.get("nodeId");
+                if (nodeIdObj != null) {
+                    nodeIdMapping.put(String.valueOf(nodeIdObj), newRoleId);
+                }
+
+                log.info("创建组织架构角色成功 - 角色名: {}, 角色ID: {}, 校友会ID: {}",
+                        role.getRoleOrName(), newRoleId, alumniAssociationId);
+            }
+
+            log.info("根据模板创建组织架构完成 - 校友会ID: {}, 模板ID: {}, 创建角色数: {}",
+                    alumniAssociationId, templateId, templateNodes.size());
+
+        } catch (JsonProcessingException e) {
+            log.error("解析组织架构模板JSON失败 - 模板ID: {}", templateId, e);
+            throw new BusinessException(ErrorType.SYSTEM_ERROR, "解析组织架构模板失败");
+        }
+    }
+
+    /**
+     * 生成角色ID（使用雪花ID）
+     * 这里简单使用时间戳，实际应该使用雪花ID生成器
+     *
+     * @return 角色ID
+     */
+    private Long generateRoleId() {
+        // 这里使用MyBatis-Plus的ID生成策略会自动生成
+        // 临时使用时间戳 + 随机数
+        return System.currentTimeMillis() * 1000 + (long) (Math.random() * 1000);
     }
 }

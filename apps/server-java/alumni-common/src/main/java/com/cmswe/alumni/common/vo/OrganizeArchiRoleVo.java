@@ -75,6 +75,12 @@ public class OrganizeArchiRoleVo implements Serializable {
     private Integer status;
 
     /**
+     * 排序
+     */
+    @Schema(description = "排序，数值越小越靠前")
+    private Integer sort;
+
+    /**
      * 创建时间
      */
     @Schema(description = "创建时间")
@@ -85,6 +91,12 @@ public class OrganizeArchiRoleVo implements Serializable {
      */
     @Schema(description = "子角色列表")
     private List<OrganizeArchiRoleVo> children;
+
+    /**
+     * 成员列表
+     */
+    @Schema(description = "成员列表")
+    private List<OrganizationMemberV2Vo> members;
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -103,8 +115,9 @@ public class OrganizeArchiRoleVo implements Serializable {
         vo.setRoleOrId(String.valueOf(organizeArchiRole.getRoleOrId()));
         vo.setOrganizeId(String.valueOf(organizeArchiRole.getOrganizeId()));
         vo.setPid(organizeArchiRole.getPid() != null ? String.valueOf(organizeArchiRole.getPid()) : null);
-        // 初始化children为空列表
+        // 初始化children和members为空列表
         vo.setChildren(new ArrayList<>());
+        vo.setMembers(new ArrayList<>());
         return vo;
     }
 }

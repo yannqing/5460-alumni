@@ -86,6 +86,12 @@ public class OrganizeArchiRole implements Serializable {
     @TableField(value = "is_delete")
     private Integer isDelete;
 
+    /**
+     * 排序
+     */
+    @TableField(value = "sort")
+    private Integer sort;
+
     @Serial
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

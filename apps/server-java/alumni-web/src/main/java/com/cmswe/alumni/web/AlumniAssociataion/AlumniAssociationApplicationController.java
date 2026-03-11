@@ -4,8 +4,13 @@ import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
+import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
+import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
+import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
+import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
+import com.cmswe.alumni.common.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -49,5 +54,63 @@ public class AlumniAssociationApplicationController {
         }
     }
 
-    //
+    /**
+     * 系统管理员分页查询所有校友会创建申请列表
+     *
+     * @param queryDto 查询条件（可选母校ID、校处会ID、审核状态等）
+     * @return 校友会创建申请列表
+     */
+    @PostMapping("/querySystemAdminApplicationPage")
+    @Operation(summary = "系统管理员分页查询所有校友会创建申请列表")
+    public BaseResponse<PageVo<AlumniAssociationApplicationListVo>> querySystemAdminApplicationPage(
+            @Valid @RequestBody QuerySystemAdminApplicationListDto queryDto) {
+
+        PageVo<AlumniAssociationApplicationListVo> pageVo = alumniAssociationApplicationService
+                .querySystemAdminApplicationPage(queryDto);
+
+        return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
+    }
+
+    /**
+     * 系统管理员审核校友会创建申请
+     *
+     * @param securityUser 当前登录用户（系统管理员）
+     * @param reviewDto    审核信息
+     * @return 审核结果
+     */
+    @PostMapping("/reviewApplication")
+    @Operation(summary = "系统管理员审核校友会创建申请")
+    public BaseResponse<Boolean> reviewApplication(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody ReviewAlumniAssociationApplicationDto reviewDto) {
+
+        // 从当前登录用户中获取审核人ID
+        Long reviewerId = securityUser.getWxUser().getWxId();
+
+        boolean result = alumniAssociationApplicationService.reviewApplication(reviewerId, reviewDto);
+
+        if (result) {
+            String message = reviewDto.getReviewResult() == 1 ? "审核通过" : "审核拒绝";
+            return ResultUtils.success(Code.SUCCESS, true, message + "操作成功");
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "审核操作失败");
+        }
+    }
+
+    /**
+     * 根据申请ID查询申请详情
+     *
+     * @param applicationId 申请ID
+     * @return 申请详情
+     */
+    @GetMapping("/detail/{applicationId}")
+    @Operation(summary = "根据申请ID查询申请详情")
+    public BaseResponse<AlumniAssociationApplicationDetailVo> getApplicationDetail(
+            @PathVariable("applicationId") Long applicationId) {
+
+        AlumniAssociationApplicationDetailVo detailVo = alumniAssociationApplicationService
+                .getApplicationDetailById(applicationId);
+
+        return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
+    }
 }
