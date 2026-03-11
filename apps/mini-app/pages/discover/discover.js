@@ -14,19 +14,19 @@ Page({
     icon5460: config.getIconUrl('5460@3x.png'),
     mapCenter: {
       latitude: 31.2304, // 默认上海坐标
-      longitude: 121.4737
+      longitude: 121.4737,
     },
     mapScale: 15,
     mapMarkers: [],
     navTabs: [
       { id: 'coupon', label: '附近优惠', icon: config.getIconUrl('fjyh@3x.png') },
       { id: 'venue', label: '附近场所', icon: config.getIconUrl('fjcs@3x.png') },
-      { id: 'activity', label: '附近活动', icon: config.getIconUrl('fjhd@3x.png') }
+      { id: 'activity', label: '附近活动', icon: config.getIconUrl('fjhd@3x.png') },
     ],
     sortOptions: [
       { id: 'distance', label: '距离最近' },
       { id: 'popularity', label: '好评优先' },
-      { id: 'discount', label: '优惠力度' }
+      { id: 'discount', label: '优惠力度' },
     ],
     alumniList: [],
     activityList: [],
@@ -38,7 +38,7 @@ Page({
     hasMore: true,
     myLocation: null, // 自己的位置信息
     searchKeyword: '', // 搜索关键词
-    imageCache: {} // 图片URL缓存，避免重复处理
+    imageCache: {}, // 图片URL缓存，避免重复处理
   },
 
   onLoad() {
@@ -50,14 +50,14 @@ Page({
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 1
-      });
+        selected: 1,
+      })
       // 更新未读消息数
-      this.getTabBar().updateUnreadCount();
+      this.getTabBar().updateUnreadCount()
     }
     // 如果当前是地图模式，确保地图定位到用户位置
     if (this.data.viewMode === 'map') {
-      this.getLocation();
+      this.getLocation()
     }
   },
 
@@ -69,11 +69,11 @@ Page({
     if (location && location.latitude && location.longitude) {
       const currentLocation = {
         latitude: location.latitude,
-        longitude: location.longitude
+        longitude: location.longitude,
       }
       this.setData({
         myLocation: currentLocation,
-        mapCenter: currentLocation
+        mapCenter: currentLocation,
       })
       // 如果当前是地图模式，更新标记
       if (this.data.viewMode === 'map') {
@@ -96,7 +96,7 @@ Page({
       console.error('[Discover] 刷新失败:', error)
       wx.showToast({
         title: '刷新失败',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       this.setData({ refreshing: false })
@@ -114,9 +114,9 @@ Page({
     }
     // 根据选中的tab加载更多数据
     const tabToQueryType = {
-      'coupon': 1,  // 商铺
-      'venue': 2,   // 企业/场所
-      'alumni': 3   // 校友
+      coupon: 1, // 商铺
+      venue: 2, // 企业/场所
+      alumni: 3, // 校友
     }
     const queryType = tabToQueryType[this.data.selectedTab]
     if (queryType) {
@@ -129,9 +129,9 @@ Page({
 
     // 根据选中的tab调用统一接口
     const tabToQueryType = {
-      'coupon': 1,  // 商铺
-      'venue': 2,   // 企业/场所
-      'alumni': 3   // 校友
+      coupon: 1, // 商铺
+      venue: 2, // 企业/场所
+      alumni: 3, // 校友
     }
 
     const queryType = tabToQueryType[this.data.selectedTab]
@@ -160,15 +160,16 @@ Page({
 
       // 如果全局数据中没有位置信息，显示失败
       if (!location) {
-        const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
+        const emptyList =
+          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
         this.setData({
           [emptyList]: [],
-          loading: false
+          loading: false,
         })
         wx.showToast({
           title: '获取位置失败，请重试',
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
         return
       }
@@ -182,7 +183,7 @@ Page({
         longitude: location.longitude,
         radius: 30, // 默认30公里
         current: currentPage,
-        pageSize: this.data.pageSize
+        pageSize: this.data.pageSize,
       }
 
       // 如果有搜索关键词，添加到请求参数
@@ -196,15 +197,16 @@ Page({
       // 检查响应是否成功
       if (!res || !res.data) {
         console.error('[Discover] 响应数据格式错误:', res)
-        const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
+        const emptyList =
+          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
         this.setData({
           [emptyList]: reset ? [] : this.data[emptyList],
           loading: false,
-          hasMore: false
+          hasMore: false,
         })
         wx.showToast({
           title: '请求失败，请重试',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
@@ -212,16 +214,17 @@ Page({
       // 检查业务错误码
       if (res.data.code !== 200) {
         console.error('[Discover] 接口返回错误:', res.data.code, res.data.msg)
-        const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
+        const emptyList =
+          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
         this.setData({
           [emptyList]: reset ? [] : this.data[emptyList],
           loading: false,
-          hasMore: false
+          hasMore: false,
         })
         wx.showToast({
           title: res.data.msg || '请求失败，请重试',
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
         return
       }
@@ -235,11 +238,12 @@ Page({
 
         // 如果没有数据
         if (records.length === 0) {
-          const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
+          const emptyList =
+            queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
           this.setData({
             [emptyList]: reset ? [] : this.data[emptyList],
             loading: false,
-            hasMore: false
+            hasMore: false,
           })
           return
         }
@@ -253,7 +257,7 @@ Page({
             if (shop.shopImages) {
               // 生成缓存键
               const cacheKey = `shop_${shop.shopId || shop.id}_image`
-              
+
               // 检查缓存
               if (this.data.imageCache[cacheKey]) {
                 image = this.data.imageCache[cacheKey]
@@ -269,7 +273,10 @@ Page({
                     if (imageStr.startsWith('[') && imageStr.endsWith(']')) {
                       // 直接提取第一个图片 URL，不使用 JSON.parse
                       const firstImage = imageStr.slice(1, -1).split(',')[0].trim()
-                      if (firstImage && (firstImage.startsWith('"') || firstImage.startsWith('`'))) {
+                      if (
+                        firstImage &&
+                        (firstImage.startsWith('"') || firstImage.startsWith('`'))
+                      ) {
                         // 移除引号或反引号
                         const cleanUrl = firstImage.replace(/^["`]|["`]$/g, '')
                         if (cleanUrl) {
@@ -284,7 +291,7 @@ Page({
                     }
                   }
                 }
-                
+
                 if (imageUrl) {
                   image = config.getImageUrl(imageUrl)
                   // 缓存结果
@@ -315,7 +322,7 @@ Page({
                 // 预计算优惠券折扣和类型
                 const discountValue = coupon.discountValue || 0
                 const couponType = coupon.couponType || 0
-                
+
                 // 简化折扣计算
                 let discount = '优惠'
                 if (discountValue) {
@@ -343,7 +350,9 @@ Page({
                 let expireDate = '有效期至长期有效'
                 if (coupon.validEndTime) {
                   // 简化日期处理
-                  expireDate = '有效期至' + (coupon.validEndTime.split('T')[0] || coupon.validEndTime.split(' ')[0])
+                  expireDate =
+                    '有效期至' +
+                    (coupon.validEndTime.split('T')[0] || coupon.validEndTime.split(' ')[0])
                 }
 
                 return {
@@ -354,7 +363,7 @@ Page({
                   couponId: coupon.couponId,
                   remainQuantity: coupon.remainQuantity || 0,
                   minSpend: coupon.minSpend || 0,
-                  isAlumniOnly: coupon.isAlumniOnly || 0
+                  isAlumniOnly: coupon.isAlumniOnly || 0,
                 }
               })
             }
@@ -380,7 +389,7 @@ Page({
               status: shop.status || 1,
               phone: shop.phone || '',
               businessHours: shop.businessHours || '',
-              description: shop.description || ''
+              description: shop.description || '',
             }
           })
 
@@ -392,9 +401,9 @@ Page({
             couponList: currentList,
             currentPage: currentPage,
             hasMore: hasMore,
-            loading: false
+            loading: false,
           })
-          
+
           // 只在地图模式且数据有变化时更新标记
           if (this.data.viewMode === 'map' && records.length > 0) {
             // 延迟更新标记，避免频繁调用
@@ -446,10 +455,18 @@ Page({
             let address = venue.address || ''
             if (!address && (venue.province || venue.city || venue.district)) {
               const addressParts = []
-              if (venue.province) {addressParts.push(venue.province)}
-              if (venue.city && venue.city !== venue.province) {addressParts.push(venue.city)}
-              if (venue.district) {addressParts.push(venue.district)}
-              if (venue.address) {addressParts.push(venue.address)}
+              if (venue.province) {
+                addressParts.push(venue.province)
+              }
+              if (venue.city && venue.city !== venue.province) {
+                addressParts.push(venue.city)
+              }
+              if (venue.district) {
+                addressParts.push(venue.district)
+              }
+              if (venue.address) {
+                addressParts.push(venue.address)
+              }
               address = addressParts.join('')
             }
 
@@ -475,23 +492,26 @@ Page({
               clickCount: venue.clickCount || 0,
               businessHours: venue.businessHours || '',
               latitude: venue.latitude,
-              longitude: venue.longitude
+              longitude: venue.longitude,
             }
           })
 
           const currentList = reset ? venueList : this.data.venueList.concat(venueList)
           const hasMore = currentList.length < total && records.length > 0
 
-          this.setData({
-            venueList: currentList,
-            currentPage: currentPage,
-            hasMore: hasMore,
-            loading: false
-          }, () => {
-            if (this.data.viewMode === 'map') {
-              this.updateMapMarkers()
+          this.setData(
+            {
+              venueList: currentList,
+              currentPage: currentPage,
+              hasMore: hasMore,
+              loading: false,
+            },
+            () => {
+              if (this.data.viewMode === 'map') {
+                this.updateMapMarkers()
+              }
             }
-          })
+          )
         } else if (queryType === 3) {
           // 校友类型
           const alumniList = records.map(alumni => {
@@ -533,76 +553,87 @@ Page({
               latitude: alumni.latitude,
               longitude: alumni.longitude,
               followStatus: alumni.followStatus || null, // 关注状态
-              isFollowed: alumni.isFollowed || false // 是否已关注
+              isFollowed: alumni.isFollowed || false, // 是否已关注
             }
           })
 
           const currentList = reset ? alumniList : this.data.alumniList.concat(alumniList)
           const hasMore = currentList.length < total && records.length > 0
 
-          this.setData({
-            alumniList: currentList,
-            currentPage: currentPage,
-            hasMore: hasMore,
-            loading: false
-          }, () => {
-            if (this.data.viewMode === 'map') {
-              this.updateMapMarkers()
+          this.setData(
+            {
+              alumniList: currentList,
+              currentPage: currentPage,
+              hasMore: hasMore,
+              loading: false,
+            },
+            () => {
+              if (this.data.viewMode === 'map') {
+                this.updateMapMarkers()
+              }
             }
-          })
+          )
         }
       } else {
-        const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
+        const emptyList =
+          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
         this.setData({
           [emptyList]: reset ? [] : this.data[emptyList],
           loading: false,
-          hasMore: false
+          hasMore: false,
         })
       }
     } catch (error) {
       console.error('[Discover] 加载附近数据失败:', error)
-      const emptyList = queryType === 1 ? 'couponList' : (queryType === 2 ? 'venueList' : 'alumniList')
+      const emptyList =
+        queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
       this.setData({
         [emptyList]: reset ? [] : this.data[emptyList],
         loading: false,
-        hasMore: false
+        hasMore: false,
       })
       wx.showToast({
         title: '加载失败',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
 
   getCurrentLocation() {
     return new Promise((resolve, reject) => {
-      // 使用微信官方接口获取位置信息
-      wx.getLocation({
-        type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
-        altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
-        success: (res) => {
-          console.log('[Discover] 获取到当前位置:', res.latitude, res.longitude)
-          resolve({
-            latitude: res.latitude,
-            longitude: res.longitude
-          })
-        },
-        fail: (err) => {
-          console.error('[Discover] 获取位置失败:', err)
-          // 如果获取位置失败，提示用户并尝试使用默认位置
-          if (err.errMsg && err.errMsg.includes('auth deny')) {
-            wx.showToast({
-              title: '需要位置权限',
-              icon: 'none',
-              duration: 2000
-            })
-          }
-          // 使用默认位置（无锡，靠近店铺位置）
-          resolve({
-            latitude: 31.5907370,
-            longitude: 120.3597840
-          })
-        }
+      // 暂时注释：等待微信公众平台权限申请通过后恢复
+      // wx.getLocation({
+      //   type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
+      //   altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
+      //   success: (res) => {
+      //     console.log('[Discover] 获取到当前位置:', res.latitude, res.longitude)
+      //     resolve({
+      //       latitude: res.latitude,
+      //       longitude: res.longitude
+      //     })
+      //   },
+      //   fail: (err) => {
+      //     console.error('[Discover] 获取位置失败:', err)
+      //     // 如果获取位置失败，提示用户并尝试使用默认位置
+      //     if (err.errMsg && err.errMsg.includes('auth deny')) {
+      //       wx.showToast({
+      //         title: '需要位置权限',
+      //         icon: 'none',
+      //         duration: 2000
+      //       })
+      //     }
+      //     // 使用默认位置（无锡，靠近店铺位置）
+      //     resolve({
+      //       latitude: 31.5907370,
+      //       longitude: 120.3597840
+      //     })
+      //   }
+      // })
+      console.log('[Discover] wx.getLocation 已暂时禁用，使用默认位置')
+      // 使用默认位置（无锡，靠近店铺位置）
+      resolve({
+        latitude: 31.590737,
+        longitude: 120.359784,
       })
     })
   },
@@ -623,12 +654,12 @@ Page({
             config.defaultAvatar,
             config.defaultAvatar,
             config.defaultAvatar,
-            config.defaultAvatar
+            config.defaultAvatar,
           ],
           location: '北京市朝阳区',
           signedUp: true,
-          signedCount: 22
-        }
+          signedCount: 22,
+        },
       ]
 
       this.setData({
@@ -636,7 +667,7 @@ Page({
         venueList: [],
         alumniList: [],
         activityList: mockActivityList,
-        loading: false
+        loading: false,
       })
       this.updateMapMarkers()
     }, 500)
@@ -645,7 +676,7 @@ Page({
   handleSearchInput(e) {
     this.setData({
       searchValue: e.detail.value,
-      searchKeyword: e.detail.value
+      searchKeyword: e.detail.value,
     })
   },
 
@@ -653,14 +684,14 @@ Page({
     const { searchValue, selectedTab } = this.data
     // 保存搜索关键词，直接在当前页面加载搜索结果
     this.setData({
-      searchKeyword: searchValue.trim()
+      searchKeyword: searchValue.trim(),
     })
 
     // 使用当前选中的tab进行搜索，直接加载数据
     const tabToQueryType = {
-      'coupon': 1,  // 商铺
-      'venue': 2,   // 企业/场所
-      'alumni': 3   // 校友
+      coupon: 1, // 商铺
+      venue: 2, // 企业/场所
+      alumni: 3, // 校友
     }
     const queryType = tabToQueryType[selectedTab]
 
@@ -671,7 +702,7 @@ Page({
       // 活动tab跳转到搜索页面
       if (searchValue.trim()) {
         wx.navigateTo({
-          url: `/pages/search/search?keyword=${searchValue}`
+          url: `/pages/search/search?keyword=${searchValue}`,
         })
       }
     }
@@ -683,7 +714,7 @@ Page({
     this.setData({
       selectedTab: tabId,
       searchKeyword: '',
-      searchValue: ''
+      searchValue: '',
     })
     // 根据选中的标签加载对应数据
     this.loadDiscoverData()
@@ -695,42 +726,47 @@ Page({
     }
   },
 
-
   handleSortChange(e) {
     const sortId = e.currentTarget.dataset.id
     this.setData({
-      sortType: sortId
+      sortType: sortId,
     })
     // TODO: 根据排序类型重新排序列表
   },
 
   getLocation() {
-    wx.showLoading({ title: '定位中...' })
-    wx.getLocation({
-      type: 'gcj02',
-      success: (res) => {
-        wx.hideLoading()
-        const myLocation = {
-          latitude: res.latitude,
-          longitude: res.longitude
-        }
-        this.setData({
-          mapCenter: myLocation,
-          myLocation: myLocation
-        })
-        this.updateMapMarkers()
-        wx.showToast({
-          title: '定位成功',
-          icon: 'success'
-        })
-      },
-      fail: () => {
-        wx.hideLoading()
-        wx.showToast({
-          title: '定位失败，请重试',
-          icon: 'none'
-        })
-      }
+    // 暂时注释：等待微信公众平台权限申请通过后恢复
+    // wx.showLoading({ title: '定位中...' })
+    // wx.getLocation({
+    //   type: 'gcj02',
+    //   success: res => {
+    //     wx.hideLoading()
+    //     const myLocation = {
+    //       latitude: res.latitude,
+    //       longitude: res.longitude,
+    //     }
+    //     this.setData({
+    //       mapCenter: myLocation,
+    //       myLocation: myLocation,
+    //     })
+    //     this.updateMapMarkers()
+    //     wx.showToast({
+    //       title: '定位成功',
+    //       icon: 'success',
+    //     })
+    //   },
+    //   fail: () => {
+    //     wx.hideLoading()
+    //     wx.showToast({
+    //       title: '定位失败，请重试',
+    //       icon: 'none',
+    //     })
+    //   },
+    // })
+    console.log('[Discover] wx.getLocation 已暂时禁用')
+    wx.showToast({
+      title: '定位功能暂时不可用',
+      icon: 'none',
     })
   },
 
@@ -746,18 +782,17 @@ Page({
     this.setData({
       mapCenter: {
         latitude: this.data.myLocation.latitude,
-        longitude: this.data.myLocation.longitude
+        longitude: this.data.myLocation.longitude,
       },
-      mapScale: 15 // 重置缩放级别
+      mapScale: 15, // 重置缩放级别
     })
 
     wx.showToast({
       title: '已定位到当前位置',
       icon: 'success',
-      duration: 1500
+      duration: 1500,
     })
   },
-
 
   // 关注/取消关注校友
   async handleFollow(e) {
@@ -770,7 +805,7 @@ Page({
     // TODO: 实现报名功能
     wx.showToast({
       title: '报名成功',
-      icon: 'success'
+      icon: 'success',
     })
   },
 
@@ -788,7 +823,7 @@ Page({
   switchViewMode(e) {
     const { mode } = e.currentTarget.dataset
     this.setData({
-      viewMode: mode
+      viewMode: mode,
     })
 
     if (mode === 'map') {
@@ -798,7 +833,6 @@ Page({
       this.updateMapMarkers()
     }
   },
-
 
   // 头像缓存对象，避免重复创建
   avatarCache: {},
@@ -824,7 +858,7 @@ Page({
       ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
       ctx.setFillStyle('#ffffff')
       ctx.fill()
-      
+
       // 绘制边框
       ctx.beginPath()
       ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
@@ -841,7 +875,7 @@ Page({
       // 加载并绘制图片
       wx.getImageInfo({
         src: imageUrl,
-        success: (res) => {
+        success: res => {
           // 调整图片绘制区域，考虑边框宽度
           const imageSize = size - 2 * borderWidth
           ctx.drawImage(res.path, borderWidth, borderWidth, imageSize, imageSize)
@@ -849,28 +883,31 @@ Page({
 
           ctx.draw(false, () => {
             // 导出为临时文件
-            wx.canvasToTempFilePath({
-              canvasId: canvasId,
-              width: size,
-              height: size,
-              destWidth: size,
-              destHeight: size,
-              success: (result) => {
-                // 缓存结果
-                this.avatarCache[cacheKey] = result.tempFilePath
-                resolve(result.tempFilePath)
+            wx.canvasToTempFilePath(
+              {
+                canvasId: canvasId,
+                width: size,
+                height: size,
+                destWidth: size,
+                destHeight: size,
+                success: result => {
+                  // 缓存结果
+                  this.avatarCache[cacheKey] = result.tempFilePath
+                  resolve(result.tempFilePath)
+                },
+                fail: err => {
+                  console.warn('[Discover] 创建圆形头像失败，使用原图:', err)
+                  resolve(imageUrl) // 失败时返回原图
+                },
               },
-              fail: (err) => {
-                console.warn('[Discover] 创建圆形头像失败，使用原图:', err)
-                resolve(imageUrl) // 失败时返回原图
-              }
-            }, this)
+              this
+            )
           })
         },
-        fail: (err) => {
+        fail: err => {
           console.warn('[Discover] 加载图片失败，使用原图:', err)
           resolve(imageUrl) // 失败时返回原图
-        }
+        },
       })
     })
   },
@@ -907,8 +944,8 @@ Page({
             display: 'ALWAYS', // 始终显示，更加醒目
             textAlign: 'center',
             borderWidth: 2,
-            borderColor: '#fff'
-          }
+            borderColor: '#fff',
+          },
         })
         console.log('[Discover] 添加自己的位置标记:', myLat, myLng)
       }
@@ -916,7 +953,7 @@ Page({
 
     // 通用的标记创建函数
     const createMarker = async (item, listType) => {
-      const originalIconPath = (item.image || item.avatar) || config.defaultAvatar
+      const originalIconPath = item.image || item.avatar || config.defaultAvatar
       const latitude = Number(item.latitude)
       const longitude = Number(item.longitude)
 
@@ -959,8 +996,8 @@ Page({
           borderRadius: 8,
           bgColor: '#fff',
           padding: 8,
-          display: 'BYCLICK'
-        }
+          display: 'BYCLICK',
+        },
       }
     }
 
@@ -969,31 +1006,31 @@ Page({
 
     // 附近优惠标记（只标记带有优惠券的店铺）
     if (this.data.selectedTab === 'coupon' && this.data.couponList.length > 0) {
-      const validShops = this.data.couponList.filter(item => 
-        item.latitude && item.longitude && 
-        item.coupons && Array.isArray(item.coupons) && item.coupons.length > 0
+      const validShops = this.data.couponList.filter(
+        item =>
+          item.latitude &&
+          item.longitude &&
+          item.coupons &&
+          Array.isArray(item.coupons) &&
+          item.coupons.length > 0
       )
-      
+
       // 并行创建标记
       markerPromises = validShops.map(item => createMarker(item, 'coupon'))
     }
 
     // 附近场所标记
     if (this.data.selectedTab === 'venue' && this.data.venueList.length > 0) {
-      const validVenues = this.data.venueList.filter(item => 
-        item.latitude && item.longitude
-      )
-      
+      const validVenues = this.data.venueList.filter(item => item.latitude && item.longitude)
+
       // 并行创建标记
       markerPromises = validVenues.map(item => createMarker(item, 'venue'))
     }
 
     // 附近校友标记
     if (this.data.selectedTab === 'alumni' && this.data.alumniList.length > 0) {
-      const validAlumni = this.data.alumniList.filter(item => 
-        item.latitude && item.longitude
-      )
-      
+      const validAlumni = this.data.alumniList.filter(item => item.latitude && item.longitude)
+
       // 并行创建标记
       markerPromises = validAlumni.map(item => createMarker(item, 'alumni'))
     }
@@ -1015,8 +1052,8 @@ Page({
               borderRadius: 8,
               bgColor: '#fff',
               padding: 8,
-              display: 'BYCLICK'
-            }
+              display: 'BYCLICK',
+            },
           })
         }
       })
@@ -1032,11 +1069,14 @@ Page({
     console.log('[Discover] 最终标记数量:', markers.length)
     console.log('[Discover] 标记数据:', markers)
 
-    this.setData({
-      mapMarkers: markers
-    }, () => {
-      console.log('[Discover] 地图标记更新完成，当前mapMarkers:', this.data.mapMarkers)
-    })
+    this.setData(
+      {
+        mapMarkers: markers,
+      },
+      () => {
+        console.log('[Discover] 地图标记更新完成，当前mapMarkers:', this.data.mapMarkers)
+      }
+    )
   },
 
   // 地图标记点击
@@ -1059,37 +1099,37 @@ Page({
       return
     }
     wx.navigateTo({
-      url: `/pages/shop/shop-detail/shop-detail?id=${id}`
+      url: `/pages/shop/shop-detail/shop-detail?id=${id}`,
     })
   },
 
   // 领取优惠券
   async handleClaimCoupon(e) {
     const { couponId, shopId } = e.currentTarget.dataset
-    
+
     if (!couponId || !shopId) {
       console.error('[Discover] 优惠券ID或商铺ID不存在')
       return
     }
-    
+
     wx.showLoading({ title: '领取中...' })
-    
+
     try {
       // 调用领取优惠券接口
       const res = await couponApi.claimCoupon({
         couponId: parseInt(couponId),
         receiveChannel: 'discover_page',
-        receiveSource: 'shop_id_' + shopId
+        receiveSource: 'shop_id_' + shopId,
       })
-      
+
       wx.hideLoading()
-      
+
       if (res.data && res.data.code === 200 && res.data.data) {
         wx.showToast({
           title: '领取成功',
-          icon: 'success'
+          icon: 'success',
         })
-        
+
         // 更新优惠券剩余数量
         const updatedCouponList = [...this.data.couponList]
         for (let i = 0; i < updatedCouponList.length; i++) {
@@ -1103,12 +1143,12 @@ Page({
             break
           }
         }
-        
+
         this.setData({ couponList: updatedCouponList })
       } else {
         wx.showToast({
           title: res.data?.msg || '领取失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -1116,7 +1156,7 @@ Page({
       console.error('[Discover] 领取优惠券失败:', error)
       wx.showToast({
         title: '领取失败，请稍后重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -1126,8 +1166,7 @@ Page({
     // TODO: 处理展开更多事件
     wx.showToast({
       title: '展开更多',
-      icon: 'none'
+      icon: 'none',
     })
-  }
-
+  },
 })

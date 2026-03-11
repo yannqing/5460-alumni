@@ -53,6 +53,13 @@ Page({
     editingMember: {},
     roleList: [],
     defaultUserAvatarUrl: config.defaultAvatar,
+    // 添加未注册成员表单
+    unregisteredForm: {
+      username: '',
+      roleName: '',
+      userPhone: '',
+      userAffiliation: '',
+    },
   },
 
   onLoad(options) {
@@ -311,6 +318,13 @@ Page({
       inviteQrcodeUrl: '',
       alumniSearchResults: [],
       showAlumniSearchResults: false,
+      // 清空未注册成员表单
+      unregisteredForm: {
+        username: '',
+        roleName: '',
+        userPhone: '',
+        userAffiliation: '',
+      },
     })
   },
 
@@ -641,6 +655,114 @@ Page({
     }
   },
 
+  // 未注册成员表单输入处理
+  onUnregisteredUsernameInput(e) {
+    this.setData({
+      'unregisteredForm.username': e.detail.value,
+    })
+  },
+
+  onUnregisteredRoleNameInput(e) {
+    this.setData({
+      'unregisteredForm.roleName': e.detail.value,
+    })
+  },
+
+  onUnregisteredUserPhoneInput(e) {
+    this.setData({
+      'unregisteredForm.userPhone': e.detail.value,
+    })
+  },
+
+  onUnregisteredUserAffiliationInput(e) {
+    this.setData({
+      'unregisteredForm.userAffiliation': e.detail.value,
+    })
+  },
+
+  // 提交添加未注册成员
+  async submitAddUnregistered() {
+    try {
+      const { username, roleName, userPhone, userAffiliation } = this.data.unregisteredForm
+      const alumniAssociationId = this.data.selectedAlumniAssociationId
+
+      // 验证必填字段
+      if (!username || !username.trim()) {
+        wx.showToast({
+          title: '请输入姓名',
+          icon: 'none',
+        })
+        return
+      }
+
+      if (!roleName || !roleName.trim()) {
+        wx.showToast({
+          title: '请输入角色名称',
+          icon: 'none',
+        })
+        return
+      }
+
+      if (!userPhone || !userPhone.trim()) {
+        wx.showToast({
+          title: '请输入手机号',
+          icon: 'none',
+        })
+        return
+      }
+
+      // 验证手机号格式
+      const phoneRegex = /^1[3-9]\d{9}$/
+      if (!phoneRegex.test(userPhone.trim())) {
+        wx.showToast({
+          title: '请输入正确的手机号',
+          icon: 'none',
+        })
+        return
+      }
+
+      if (!alumniAssociationId) {
+        wx.showToast({
+          title: '请先选择校友会',
+          icon: 'none',
+        })
+        return
+      }
+
+      // 调用添加未注册成员接口
+      const res = await alumniAssociationManagementApi.addUnregisteredMember({
+        alumniAssociationId,
+        username: username.trim(),
+        roleName: roleName.trim(),
+        userPhone: userPhone.trim(),
+        userAffiliation: userAffiliation ? userAffiliation.trim() : '',
+      })
+
+      if (res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '添加成功',
+          icon: 'success',
+          duration: 2000,
+        })
+        // 关闭弹窗
+        this.hideInviteModal()
+        // 刷新成员列表
+        await this.loadMemberList(alumniAssociationId)
+      } else {
+        wx.showToast({
+          title: (res.data && res.data.message) || '添加失败',
+          icon: 'none',
+        })
+      }
+    } catch (error) {
+      console.error('[Debug] 添加未注册成员失败:', error)
+      wx.showToast({
+        title: '添加失败',
+        icon: 'none',
+      })
+    }
+  },
+
   // 加载角色列表
   async loadRoleList() {
     try {
@@ -861,7 +983,7 @@ Page({
   // 删除成员
   async deleteMember(e) {
     const member = e.currentTarget.dataset.member
-    const { wxId } = member
+    const { id, wxId } = member
     const alumniAssociationId = this.data.selectedAlumniAssociationId
 
     // 确认删除
@@ -871,8 +993,8 @@ Page({
       success: async res => {
         if (res.confirm) {
           try {
-            // 调用删除成员接口
-            const result = await this.deleteMemberAPI(alumniAssociationId, wxId)
+            // 调用删除成员接口，传递 id 和 wxId
+            const result = await this.deleteMemberAPI(alumniAssociationId, id, wxId)
 
             if (result.data && result.data.code === 200) {
               wx.showToast({
@@ -883,7 +1005,7 @@ Page({
               await this.loadMemberList(alumniAssociationId)
             } else {
               wx.showToast({
-                title: (result.data && result.data.msg) || '删除失败',
+                title: (result.data && result.data.message) || '删除失败',
                 icon: 'none',
               })
             }
@@ -905,8 +1027,8 @@ Page({
   },
 
   // 调用删除成员接口
-  deleteMemberAPI(alumniAssociationId, wxId) {
-    return alumniAssociationManagementApi.deleteMember(alumniAssociationId, wxId)
+  deleteMemberAPI(alumniAssociationId, id, wxId) {
+    return alumniAssociationManagementApi.deleteMember(alumniAssociationId, id, wxId)
   },
 
   // 点击成员跳转到用户详情页

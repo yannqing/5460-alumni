@@ -729,8 +729,8 @@ const alumniAssociationManagementApi = {
     return post('/alumniAssociationManagement/inviteMember', data)
   },
   // 删除校友会成员
-  deleteMember: (alumniAssociationId, wxId) =>
-    del('/alumniAssociationManagement/deleteMember', { alumniAssociationId, wxId }),
+  deleteMember: (alumniAssociationId, id, wxId) =>
+    del('/alumniAssociationManagement/deleteMember', { alumniAssociationId, id, wxId }),
   // 更新校友会成员角色
   updateMemberRole: (alumniAssociationId, wxId, roleOrId) =>
     put('/alumniAssociationManagement/updateMemberRole', { alumniAssociationId, wxId, roleOrId }),
@@ -743,6 +743,9 @@ const alumniAssociationManagementApi = {
   // 更新校友会成员信息（所有字段除id外都是可选的）
   // data: { id, username?, roleName?, userPhone?, userAffiliation?, isShowOnHome? }
   updateMemberInfo: data => put('/alumniAssociationManagement/updateMemberInfo', data),
+  // 添加未注册成员到校友会
+  // data: { alumniAssociationId, username, roleName, userPhone, userAffiliation }
+  addUnregisteredMember: data => post('/alumniAssociationManagement/addUnregisteredMember', data),
   // 发布活动
   publishActivity: data => post('/alumniAssociationManagement/activity/publish', data),
   // 获取活动详情

@@ -273,7 +273,7 @@
       <textarea class="textarea" placeholder="选填" value="{{formData.applicationReason}}" data-field="applicationReason" bindinput="handleInput" />
     </view>
 
-    <view class="form-item">
+    <view class="form-item required">
       <text class="label">校友会简介</text>
       <textarea class="textarea" placeholder="请输入校友会简介" value="{{formData.associationProfile}}" data-field="associationProfile" bindinput="handleInput" />
     </view>

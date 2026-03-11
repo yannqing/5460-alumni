@@ -2,7 +2,6 @@
 const { placeApi } = require('../../../api/api.js')
 
 Page({
-
   /**
    * 页面的初始数据
    */
@@ -28,15 +27,15 @@ Page({
       description: '',
       establishedTime: '',
       status: 1,
-      isRecommended: 0
+      isRecommended: 0,
     },
     // picker 选项数组
     pickerOptions: {
       status: [
-        {"id":0,"name":"停业"},
-        {"id":1,"name":"正常运营"},
-        {"id":2,"name":"装修中"}
-      ]
+        { id: 0, name: '停业' },
+        { id: 1, name: '正常运营' },
+        { id: 2, name: '装修中' },
+      ],
     },
     // 校友会相关
     associations: [], // 校友会列表
@@ -47,7 +46,7 @@ Page({
     enterpriseImageList: [], // 企业图片列表
     uploading: false, // 上传状态
     loading: true,
-    error: ''
+    error: '',
   },
 
   /**
@@ -66,30 +65,22 @@ Page({
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady() {
-
-  },
+  onReady() {},
 
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow() {
-
-  },
+  onShow() {},
 
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide() {
-
-  },
+  onHide() {},
 
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload() {
-
-  },
+  onUnload() {},
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
@@ -102,16 +93,12 @@ Page({
   /**
    * 页面上拉触底事件的处理函数
    */
-  onReachBottom() {
-
-  },
+  onReachBottom() {},
 
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage() {
-
-  },
+  onShareAppMessage() {},
 
   /**
    * 加载企业详情
@@ -127,16 +114,16 @@ Page({
     try {
       const res = await placeApi.getPlaceDetail(placeId)
       console.log('获取企业详情结果:', res)
-      
-      if (res && (res.data && res.data.code === 200 || res.code === 200)) {
+
+      if (res && ((res.data && res.data.code === 200) || res.code === 200)) {
         const placeData = res.data && res.data.data ? res.data.data : res.data
-        
+
         // 清理 logo 数据
         let cleanedLogo = placeData.logo || ''
         if (cleanedLogo) {
           cleanedLogo = cleanedLogo.trim().replace(/^["'`]+|["'`]+$/g, '')
         }
-        
+
         // 清理 images 数据
         let cleanedImages = ''
         if (placeData.images) {
@@ -153,7 +140,7 @@ Page({
               trimmedImages = trimmedImages.replace(/[`]+/g, '')
               // 移除所有的转义字符
               trimmedImages = trimmedImages.replace(/\\/g, '')
-              
+
               try {
                 const parsedImages = JSON.parse(trimmedImages)
                 if (Array.isArray(parsedImages)) {
@@ -165,7 +152,10 @@ Page({
               } catch (parseError) {
                 // 解析失败，尝试更简单的处理方式
                 // 直接按逗号分割字符串，处理多个 URL 的情况
-                const imageUrls = trimmedImages.split(',').map(url => url.trim()).filter(url => url)
+                const imageUrls = trimmedImages
+                  .split(',')
+                  .map(url => url.trim())
+                  .filter(url => url)
                 cleanedImages = JSON.stringify(imageUrls)
               }
             }
@@ -175,7 +165,7 @@ Page({
             cleanedImages = '[]'
           }
         }
-        
+
         // 构建表单数据
         const formData = {
           placeId: placeData.placeId,
@@ -197,9 +187,9 @@ Page({
           description: placeData.description || '',
           establishedTime: placeData.establishedTime || '',
           status: placeData.status || 1,
-          isRecommended: placeData.isRecommended || 0
+          isRecommended: placeData.isRecommended || 0,
         }
-        
+
         // 初始化图片列表
         // 清理 logo 数据，移除多余的引号和反引号
         let displayLogo = formData.logo
@@ -207,7 +197,7 @@ Page({
           displayLogo = displayLogo.trim().replace(/^["'`]+|["'`]+$/g, '')
         }
         const logoImageList = displayLogo ? [{ url: displayLogo }] : []
-        
+
         // 清理和解析 images 数据
         let enterpriseImageList = []
         if (formData.images) {
@@ -237,31 +227,40 @@ Page({
             }
           }
         }
-        
+
         // 获取校友会对象
         let selectedAssociation = null
         const selectedAssociationIndex = 0
-        
-        
+
         // 如果本地列表中没有找到，尝试通过ID获取校友会详情
         if (!selectedAssociation && formData.alumniAssociationId) {
           try {
             const { associationApi } = require('../../../api/api.js')
-            const associationRes = await associationApi.getAssociationDetail(formData.alumniAssociationId)
-            
-            if (associationRes && (associationRes.data && associationRes.data.code === 200 || associationRes.code === 200)) {
-              const associationData = associationRes.data && associationRes.data.data ? associationRes.data.data : associationRes.data
+            const associationRes = await associationApi.getAssociationDetail(
+              formData.alumniAssociationId
+            )
+
+            if (
+              associationRes &&
+              ((associationRes.data && associationRes.data.code === 200) ||
+                associationRes.code === 200)
+            ) {
+              const associationData =
+                associationRes.data && associationRes.data.data
+                  ? associationRes.data.data
+                  : associationRes.data
               // 确保返回的数据结构与本地列表一致
               if (associationData) {
                 selectedAssociation = {
                   alumniAssociationId: associationData.alumniAssociationId || associationData.id,
-                  associationName: associationData.associationName || associationData.alumniAssociationName,
+                  associationName:
+                    associationData.associationName || associationData.alumniAssociationName,
                   schoolId: associationData.schoolId,
                   platformId: associationData.platformId,
                   contactInfo: associationData.contactInfo,
                   location: associationData.location,
                   memberCount: associationData.memberCount,
-                  logo: associationData.logo
+                  logo: associationData.logo,
                 }
               }
             }
@@ -269,19 +268,19 @@ Page({
             console.error('获取校友会详情失败:', error)
           }
         }
-        
-        this.setData({ 
-          formData: formData, 
+
+        this.setData({
+          formData: formData,
           logoImageList: logoImageList,
           enterpriseImageList: enterpriseImageList,
           selectedAssociation: selectedAssociation,
           selectedAssociationIndex: selectedAssociationIndex,
-          loading: false 
+          loading: false,
         })
-        
+
         // 设置导航栏标题
         wx.setNavigationBarTitle({
-          title: '编辑企业信息'
+          title: '编辑企业信息',
         })
       } else {
         this.setData({ error: '获取企业详情失败', loading: false })
@@ -298,9 +297,9 @@ Page({
   onInput(e) {
     const { field } = e.currentTarget.dataset
     const { value } = e.detail
-    
+
     this.setData({
-      [`formData.${field}`]: value
+      [`formData.${field}`]: value,
     })
   },
 
@@ -310,17 +309,17 @@ Page({
   onPickerChange(e) {
     const { field } = e.currentTarget.dataset
     const { value } = e.detail
-    
+
     let selectedValue = value
-    
+
     // 根据不同字段处理选择值
     if (field === 'status') {
       // 状态选择器：直接使用索引值
       selectedValue = value
     }
-    
+
     this.setData({
-      [`formData.${field}`]: selectedValue
+      [`formData.${field}`]: selectedValue,
     })
   },
 
@@ -343,7 +342,7 @@ Page({
    */
   uploadImage(type) {
     const that = this
-    
+
     wx.chooseImage({
       count: type === 'logo' ? 1 : 9, // Logo只能上传1张，企业图片最多9张
       sizeType: ['compressed'],
@@ -351,21 +350,24 @@ Page({
       success(res) {
         const tempFilePaths = res.tempFilePaths
         that.setData({ uploading: true })
-        
+
         // 模拟上传成功
         setTimeout(() => {
           if (type === 'logo') {
             that.setData({
               logoImageList: tempFilePaths.map(path => ({ url: path })),
               [`formData.logo`]: tempFilePaths[0],
-              uploading: false
+              uploading: false,
             })
           } else {
-            const enterpriseImageList = [...that.data.enterpriseImageList, ...tempFilePaths.map(path => ({ url: path }))]
+            const enterpriseImageList = [
+              ...that.data.enterpriseImageList,
+              ...tempFilePaths.map(path => ({ url: path })),
+            ]
             that.setData({
               enterpriseImageList: enterpriseImageList,
               [`formData.images`]: JSON.stringify(enterpriseImageList.map(item => item.url)),
-              uploading: false
+              uploading: false,
             })
           }
         }, 1000)
@@ -373,7 +375,7 @@ Page({
       fail(err) {
         console.error('选择图片失败:', err)
         that.setData({ uploading: false })
-      }
+      },
     })
   },
 
@@ -382,18 +384,18 @@ Page({
    */
   onDeleteImage(e) {
     const { type, index } = e.currentTarget.dataset
-    
+
     if (type === 'logo') {
       this.setData({
         logoImageList: [],
-        [`formData.logo`]: ''
+        [`formData.logo`]: '',
       })
     } else {
       const enterpriseImageList = [...this.data.enterpriseImageList]
       enterpriseImageList.splice(index, 1)
       this.setData({
         enterpriseImageList: enterpriseImageList,
-        [`formData.images`]: JSON.stringify(enterpriseImageList.map(item => item.url))
+        [`formData.images`]: JSON.stringify(enterpriseImageList.map(item => item.url)),
       })
     }
   },
@@ -402,30 +404,34 @@ Page({
    * 选择位置
    */
   selectLocation() {
-    // 使用微信地图选择API获取位置信息
-    wx.chooseLocation({
-      success: (res) => {
-        this.setData({
-          [`formData.locationName`]: res.name,
-          [`formData.latitude`]: res.latitude.toString(),
-          [`formData.longitude`]: res.longitude.toString()
-        })
-        
-        wx.showToast({
-          title: '位置选择成功',
-          icon: 'success'
-        })
-      },
-      fail: (err) => {
-        console.error('位置选择失败:', err)
-        // 如果用户取消选择，不显示错误提示
-        if (err.errMsg !== 'chooseLocation:fail cancel') {
-          wx.showToast({
-            title: '位置选择失败，请重试',
-            icon: 'none'
-          })
-        }
-      }
+    // 暂时注释：等待微信公众平台权限申请通过后恢复
+    // wx.chooseLocation({
+    //   success: (res) => {
+    //     this.setData({
+    //       [`formData.locationName`]: res.name,
+    //       [`formData.latitude`]: res.latitude.toString(),
+    //       [`formData.longitude`]: res.longitude.toString()
+    //     })
+    //
+    //     wx.showToast({
+    //       title: '位置选择成功',
+    //       icon: 'success'
+    //     })
+    //   },
+    //   fail: (err) => {
+    //     console.error('位置选择失败:', err)
+    //     // 如果用户取消选择，不显示错误提示
+    //     if (err.errMsg !== 'chooseLocation:fail cancel') {
+    //       wx.showToast({
+    //         title: '位置选择失败，请重试',
+    //         icon: 'none'
+    //       })
+    //     }
+    //   }
+    // })
+    wx.showToast({
+      title: '位置选择功能暂时不可用',
+      icon: 'none',
     })
   },
 
@@ -438,17 +444,17 @@ Page({
       const { associationApi } = require('../../../api/api.js')
       const res = await associationApi.getMyAssociations()
       console.log('获取校友会列表结果:', res)
-      
-      if (res && (res.data && res.data.code === 200 || res.code === 200)) {
+
+      if (res && ((res.data && res.data.code === 200) || res.code === 200)) {
         const data = res.data && res.data.data ? res.data.data : res.data
         console.log('校友会数据:', data)
-        
+
         this.setData({
           associations: data || [],
           selectedAssociation: data && data.length > 0 ? data[0] : null,
-          selectedAssociationIndex: 0
+          selectedAssociationIndex: 0,
         })
-        
+
         console.log('设置后的 associations:', this.data.associations)
       } else {
         wx.showToast({ title: '获取校友会列表失败', icon: 'none' })
@@ -473,24 +479,24 @@ Page({
       this.setData({
         selectedAssociationIndex: index,
         selectedAssociation: selectedAssociation,
-        [`formData.alumniAssociationId`]: selectedAssociation.alumniAssociationId || selectedAssociation.id
+        [`formData.alumniAssociationId`]:
+          selectedAssociation.alumniAssociationId || selectedAssociation.id,
       })
       console.log('选择的校友会:', selectedAssociation)
     }
   },
-
 
   /**
    * 提交表单
    */
   async submitForm() {
     const { formData } = this.data
-    
+
     // 验证必填字段
     if (!formData.placeId) {
       wx.showToast({
         title: '缺少企业ID参数',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -499,17 +505,17 @@ Page({
     try {
       // 准备提交数据
       const submitData = { ...formData }
-      
+
       // 调用更新接口
       const res = await placeApi.updatePlace(submitData)
       console.log('更新企业信息结果:', res)
-      
-      if (res && (res.data && res.data.code === 200 || res.code === 200)) {
+
+      if (res && ((res.data && res.data.code === 200) || res.code === 200)) {
         wx.showToast({
           title: '更新成功',
-          icon: 'success'
+          icon: 'success',
         })
-        
+
         // 返回上一页
         setTimeout(() => {
           wx.navigateBack()
@@ -517,17 +523,17 @@ Page({
       } else {
         wx.showToast({
           title: '更新失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('更新企业信息失败:', error)
       wx.showToast({
         title: '更新失败',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       wx.hideLoading()
     }
-  }
+  },
 })

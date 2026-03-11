@@ -56,15 +56,15 @@
             <view class="text-bold mb-20">基本信息</view>
             <view class="basic-info-item">成员数量：{{associationInfo.memberCount || 0}}人</view>
             <view wx:if="{{associationInfo.description}}" class="basic-info-item">简介：{{associationInfo.description}}</view>
-            <view wx:if="{{associationInfo.contactInfo}}" class="basic-info-item">联系方式：{{associationInfo.contactInfo}}</view>
-
-
 
             <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
               <view class="show-members-title">主要负责人</view>
               <view class="show-members-list">
                 <view class="show-member-item" bindtap="viewCoreMemberDetail">
-                  <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
+                  <view class="show-member-left">
+                    <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
+                    <text wx:if="{{associationInfo.contactInfo}}" class="show-member-contact">{{associationInfo.contactInfo}}</text>
+                  </view>
                   <text class="show-member-role">{{associationInfo.chargeRole || '-'}}</text>
                 </view>
               </view>
@@ -105,7 +105,7 @@
                 <view class="section-subtitle">组织架构展示</view>
               </view>
             </view>
-            
+
             <view class="role-list-section">
               <!-- 骨架屏 -->
               <view wx:if="{{organizationLoading}}" class="skeleton-role-list">

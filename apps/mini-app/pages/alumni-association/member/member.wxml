@@ -105,6 +105,9 @@
           <view class="invite-method-tab {{inviteMethod === 'qrcode' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="qrcode">
             <text>二维码邀请</text>
           </view>
+          <view class="invite-method-tab {{inviteMethod === 'unregistered' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="unregistered">
+            <text>添加未注册</text>
+          </view>
         </view>
 
         <!-- 搜索邀请内容 -->
@@ -175,12 +178,61 @@
             </view>
           </view>
         </view>
+
+        <!-- 添加未注册成员内容 -->
+        <view class="invite-method-content" wx:if="{{inviteMethod === 'unregistered'}}">
+          <view class="unregistered-form-section">
+            <view class="form-item">
+              <text class="form-label">姓名 <text class="required">*</text></text>
+              <input
+                class="form-input"
+                placeholder="请输入姓名"
+                value="{{unregisteredForm.username}}"
+                bindinput="onUnregisteredUsernameInput"
+              />
+            </view>
+            <view class="form-item">
+              <text class="form-label">角色名称 <text class="required">*</text></text>
+              <input
+                class="form-input"
+                placeholder="如：副会长、理事等"
+                value="{{unregisteredForm.roleName}}"
+                bindinput="onUnregisteredRoleNameInput"
+              />
+            </view>
+            <view class="form-item">
+              <text class="form-label">手机号 <text class="required">*</text></text>
+              <input
+                class="form-input"
+                type="number"
+                maxlength="11"
+                placeholder="请输入手机号"
+                value="{{unregisteredForm.userPhone}}"
+                bindinput="onUnregisteredUserPhoneInput"
+              />
+            </view>
+            <view class="form-item">
+              <text class="form-label">所属单位/职位</text>
+              <input
+                class="form-input"
+                placeholder="请输入所属单位或职位"
+                value="{{unregisteredForm.userAffiliation}}"
+                bindinput="onUnregisteredUserAffiliationInput"
+              />
+            </view>
+            <view class="invite-tip">
+              <text class="invite-tip-icon">i</text>
+              <text class="invite-tip-text">添加未注册成员后，该成员将直接加入校友会，无需审核</text>
+            </view>
+          </view>
+        </view>
       </view>
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideInviteModal">取消</button>
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'search'}}" bindtap="submitInvite">确定邀请</button>
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'link'}}" open-type="share">分享给好友</button>
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'qrcode'}}" bindtap="saveQrcode">保存二维码</button>
+        <button class="btn btn-confirm" wx:if="{{inviteMethod === 'unregistered'}}" bindtap="submitAddUnregistered">确定添加</button>
       </view>
     </view>
   </view>

@@ -239,10 +239,22 @@ page {
   opacity: 0.8;
 }
 
+.show-member-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20rpx;
+}
+
 .show-member-name {
   font-size: 28rpx;
   color: #333;
   font-weight: 600;
+}
+
+.show-member-contact {
+  font-size: 24rpx;
+  color: #666;
 }
 
 .show-member-role {
@@ -251,6 +263,7 @@ page {
   padding: 6rpx 16rpx;
   background-color: rgba(64, 178, 230, 0.1);
   border-radius: 8rpx;
+  flex-shrink: 0;
 }
 
 /* 可点击的用户信息 */

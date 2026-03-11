@@ -1,7 +1,9 @@
 <custom-nav-bar useAuditStyle="{{true}}" auditTitle="获取创建码" showBack="{{true}}">
   <view class="white-background-content">
     <view class="container">
-      <view class="info-text">创建校友总会目前是邀请制，如无邀请码请与我们联系:13812001889</view>
+      <view class="info-text">
+        <text>创建校友总会目前是邀请制，如无邀请码\n请与我们联系:13812001889</text>
+      </view>
     </view>
   </view>
 </custom-nav-bar>

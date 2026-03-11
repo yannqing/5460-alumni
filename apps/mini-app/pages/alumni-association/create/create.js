@@ -887,6 +887,10 @@ Page({
       wx.showToast({ title: '请选择常驻地点', icon: 'none' })
       return
     }
+    if (!formData.associationProfile) {
+      wx.showToast({ title: '请输入校友会简介', icon: 'none' })
+      return
+    }
     // platformId is optional per API specs
     // 主要负责人信息现在从 members[0] 获取，在下面的成员验证中统一校验
     if (!formData.zhName) {

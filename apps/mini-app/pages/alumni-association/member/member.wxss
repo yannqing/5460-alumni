@@ -1132,3 +1132,46 @@
 .invite-qrcode-section .invite-tip {
   width: 100%;
 }
+
+/* 添加未注册成员表单样式 */
+.unregistered-form-section {
+  padding: 0;
+}
+
+.unregistered-form-section .form-item {
+  margin-bottom: 30rpx;
+}
+
+.unregistered-form-section .form-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+  display: block;
+  font-weight: 500;
+}
+
+.unregistered-form-section .required {
+  color: #ff4d4f;
+  margin-left: 4rpx;
+}
+
+.unregistered-form-section .form-input {
+  border: 1rpx solid #e0e0e0;
+  padding: 0 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+  height: 80rpx;
+  background-color: #fafafa;
+  line-height: 80rpx;
+}
+
+.unregistered-form-section .form-input:focus {
+  border-color: #1890ff;
+  background-color: #fff;
+}
+
+.unregistered-form-section .invite-tip {
+  margin-top: 20rpx;
+}

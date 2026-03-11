@@ -14,7 +14,7 @@ const MOCK_BENEFITS = [
     favorite: true,
     expireDate: '2025-12-31',
     cover: 'https://cdn.example.com/benefits/starbucks.png',
-    description: '凭校友身份可享全菜单 8 折，支持微信/小程序核销。'
+    description: '凭校友身份可享全菜单 8 折，支持微信/小程序核销。',
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ const MOCK_BENEFITS = [
     favorite: false,
     expireDate: '2025-12-15',
     cover: 'https://cdn.example.com/benefits/haidilao.png',
-    description: '校友凭证享锅底 9 折，预约即送小吃大礼包。'
+    description: '校友凭证享锅底 9 折，预约即送小吃大礼包。',
   },
   {
     id: 3,
@@ -46,7 +46,7 @@ const MOCK_BENEFITS = [
     favorite: false,
     expireDate: '2025-11-01',
     cover: 'https://cdn.example.com/benefits/cinema.png',
-    description: '凭校友卡全场 7 折，含 3D 眼镜租赁。'
+    description: '凭校友卡全场 7 折，含 3D 眼镜租赁。',
   },
   {
     id: 4,
@@ -62,8 +62,8 @@ const MOCK_BENEFITS = [
     favorite: true,
     expireDate: '2026-01-31',
     cover: 'https://cdn.example.com/benefits/gym.png',
-    description: '双人办理立减 800 元，赠 2 次私教课。'
-  }
+    description: '双人办理立减 800 元，赠 2 次私教课。',
+  },
 ]
 
 Page({
@@ -79,22 +79,22 @@ Page({
       { id: 'all', label: '全部权益' },
       { id: 'dining', label: '餐饮美食' },
       { id: 'entertainment', label: '娱乐休闲' },
-      { id: 'lifestyle', label: '生活服务' }
+      { id: 'lifestyle', label: '生活服务' },
     ],
     sortOptions: [
       { id: 'distance', label: '距离优先' },
       { id: 'popularity', label: '热度优先' },
-      { id: 'new', label: '最新上架' }
+      { id: 'new', label: '最新上架' },
     ],
     location: {
       name: '定位中',
-      distance: '--'
+      distance: '--',
     },
     stats: {
       total: 0,
       newArrivals: 0,
-      remindCount: 0
-    }
+      remindCount: 0,
+    },
   },
 
   onLoad(options) {
@@ -109,24 +109,32 @@ Page({
   },
 
   getLocation() {
-    wx.getLocation({
-      type: 'gcj02',
-      success: () => {
-        this.setData({
-          location: {
-            name: '深圳 · 后海',
-            distance: '1.2km'
-          }
-        })
+    // 暂时注释：等待微信公众平台权限申请通过后恢复
+    // wx.getLocation({
+    //   type: 'gcj02',
+    //   success: () => {
+    //     this.setData({
+    //       location: {
+    //         name: '深圳 · 后海',
+    //         distance: '1.2km'
+    //       }
+    //     })
+    //   },
+    //   fail: () => {
+    //     this.setData({
+    //       location: {
+    //         name: '定位失败，点击重试',
+    //         distance: '--'
+    //       }
+    //     })
+    //   }
+    // })
+    console.log('[Benefit] wx.getLocation 已暂时禁用')
+    this.setData({
+      location: {
+        name: '定位功能暂时不可用',
+        distance: '--',
       },
-      fail: () => {
-        this.setData({
-          location: {
-            name: '定位失败，点击重试',
-            distance: '--'
-          }
-        })
-      }
     })
   },
 
@@ -140,9 +148,9 @@ Page({
           stats: {
             total: benefitList.length,
             newArrivals: benefitList.filter(item => item.isNew).length,
-            remindCount: benefitList.filter(item => item.remindSet).length
+            remindCount: benefitList.filter(item => item.remindSet).length,
           },
-          loading: false
+          loading: false,
         },
         () => {
           this.applyFilterAndSort()
@@ -198,7 +206,9 @@ Page({
 
   handleCategoryChange(e) {
     const { id } = e.currentTarget.dataset
-    if (id === this.data.selectedCategory) {return}
+    if (id === this.data.selectedCategory) {
+      return
+    }
     this.setData({ selectedCategory: id }, () => {
       this.applyFilterAndSort()
     })
@@ -206,7 +216,9 @@ Page({
 
   handleSortChange(e) {
     const { id } = e.currentTarget.dataset
-    if (id === this.data.sortType) {return}
+    if (id === this.data.sortType) {
+      return
+    }
     this.setData({ sortType: id }, () => {
       this.applyFilterAndSort()
     })
@@ -241,19 +253,18 @@ Page({
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
     wx.navigateTo({
-      url: `/pages/benefit/detail/detail?id=${id}`
+      url: `/pages/benefit/detail/detail?id=${id}`,
     })
   },
 
   goToMerchant(e) {
     const { merchant } = e.currentTarget.dataset
     wx.navigateTo({
-      url: `/pages/shop/detail/detail?name=${encodeURIComponent(merchant)}`
+      url: `/pages/shop/detail/detail?name=${encodeURIComponent(merchant)}`,
     })
   },
 
   refreshPage() {
     this.loadBenefitList()
-  }
+  },
 })
-

@@ -19,7 +19,7 @@ App({
     if (config.IS_CLOUD_HOST) {
       wx.cloud.init({
         env: config.cloud.env,
-        traceUser: true  // 是否在将用户访问记录到用户管理中
+        traceUser: true, // 是否在将用户访问记录到用户管理中
       })
       console.log('=== 云托管模式 ===')
       console.log('云环境 ID:', config.cloud.env)
@@ -38,10 +38,10 @@ App({
     this.globalData.baseUrl = autoBaseUrl
 
     // 获取系统信息
-    this.getSystemInfo();
+    this.getSystemInfo()
 
     // 获取用户位置信息
-    this.getUserLocation();
+    this.getUserLocation()
 
     // 自动初始化登录
     try {
@@ -72,7 +72,7 @@ App({
     if (options.query && options.query.scene) {
       const inviterWxUuid = decodeURIComponent(options.query.scene)
       console.log('[App] 从 onShow 启动参数中获取到邀请人 ID:', inviterWxUuid)
-      
+
       // 检查当前是否已登录。如果未登录或正在登录中，login 函数会自动处理锁竞争
       // 这里的目的是确保通过 scene 进入的用户都能正确触发邀请绑定逻辑
       const isLogin = this.checkHasLogined()
@@ -87,56 +87,59 @@ App({
   },
 
   userInfo: {
-    token: ''
+    token: '',
   },
 
   globalData: {
     baseUrl: '',
     apploaded: false,
-    userData: {},      // 存储用户数据
+    userData: {}, // 存储用户数据
     userConfig: {
       roles: {},
-      is_apply_acard: 0
+      is_apply_acard: 0,
     },
     userInfo: null,
     token: '',
     systemInfo: null,
     statusBarHeight: 0,
     urlOpt: null,
-    socketManager: socketManager,  // WebSocket 管理器实例
-    location: null,  // 存储用户位置信息
-    isShowingMessageNotification: false  // 标记是否正在显示消息提示
+    socketManager: socketManager, // WebSocket 管理器实例
+    location: null, // 存储用户位置信息
+    isShowingMessageNotification: false, // 标记是否正在显示消息提示
   },
 
   getSystemInfo() {
     wx.getSystemInfo({
-      success: (res) => {
-        this.globalData.systemInfo = res;
-        this.globalData.statusBarHeight = res.statusBarHeight;
-      }
-    });
+      success: res => {
+        this.globalData.systemInfo = res
+        this.globalData.statusBarHeight = res.statusBarHeight
+      },
+    })
   },
 
   /**
    * 获取用户位置信息（小程序启动时调用）
    */
   getUserLocation() {
-    wx.getLocation({
-      type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
-      altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
-      success: (res) => {
-        console.log('[App] 获取到用户位置:', res.latitude, res.longitude)
-        this.globalData.location = {
-          latitude: res.latitude,
-          longitude: res.longitude
-        }
-      },
-      fail: (err) => {
-        console.error('[App] 获取位置失败:', err)
-        // 获取位置失败，不设置默认值
-        this.globalData.location = null
-      }
-    })
+    // 暂时注释：等待微信公众平台权限申请通过后恢复
+    // wx.getLocation({
+    //   type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
+    //   altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
+    //   success: (res) => {
+    //     console.log('[App] 获取到用户位置:', res.latitude, res.longitude)
+    //     this.globalData.location = {
+    //       latitude: res.latitude,
+    //       longitude: res.longitude
+    //     }
+    //   },
+    //   fail: (err) => {
+    //     console.error('[App] 获取位置失败:', err)
+    //     // 获取位置失败，不设置默认值
+    //     this.globalData.location = null
+    //   }
+    // })
+    console.log('[App] wx.getLocation 已暂时禁用')
+    this.globalData.location = null
   },
 
   /**
@@ -146,18 +149,15 @@ App({
     // 优先使用内存中的 token / userId；其次使用本地缓存
     const token = this.globalData.token || wx.getStorageSync('token')
     const userData = this.globalData.userData || {}
-    const userId =
-      userData.wxId ||
-      userData.userId ||
-      wx.getStorageSync('userId')
-    
+    const userId = userData.wxId || userData.userId || wx.getStorageSync('userId')
+
     if (!token || !userId) {
       console.log('[App] WebSocket 初始化失败：缺少 token 或 userId')
       console.log('[App] 调试信息:', {
         hasGlobalToken: !!this.globalData.token,
         hasStorageToken: !!wx.getStorageSync('token'),
         hasGlobalUserId: !!(this.globalData.userData && this.globalData.userData.wxId),
-        hasStorageUserId: !!wx.getStorageSync('userId')
+        hasStorageUserId: !!wx.getStorageSync('userId'),
       })
       return
     }
@@ -167,25 +167,25 @@ App({
     const envConfig = config.getEnvConfig()
     const wsUrl = envConfig.wsUrl
 
-    console.log('[App] 初始化 WebSocket:', { 
-      wsUrl, 
+    console.log('[App] 初始化 WebSocket:', {
+      wsUrl,
       userId,
       hasToken: !!token,
-      tokenLength: token ? token.length : 0
+      tokenLength: token ? token.length : 0,
     })
 
     // 初始化 WebSocket 管理器
     socketManager.init(wsUrl, userId, token, {
-      heartbeatInterval: 30000,   // 30秒心跳
-      reconnectInterval: 3000,    // 3秒重连间隔
-      reconnectMaxTimes: 5        // 最多重连5次
+      heartbeatInterval: 30000, // 30秒心跳
+      reconnectInterval: 3000, // 3秒重连间隔
+      reconnectMaxTimes: 5, // 最多重连5次
     })
 
     // 连接 WebSocket
     socketManager.connect()
 
     // 监听连接成功事件
-    socketManager.on('onConnect', (data) => {
+    socketManager.on('onConnect', data => {
       console.log('[App] WebSocket 连接成功:', data)
       // 连接成功时不显示提示（已注释）
       // wx.showToast({
@@ -196,29 +196,29 @@ App({
     })
 
     // 监听连接断开事件
-    socketManager.on('onDisconnect', (data) => {
+    socketManager.on('onDisconnect', data => {
       console.log('[App] WebSocket 连接断开:', data)
     })
 
     // 监听连接错误事件
-    socketManager.on('onError', (error) => {
+    socketManager.on('onError', error => {
       console.error('[App] WebSocket 错误:', error)
       // 网络错误提示已在 socketManager 中显示，这里不需要重复显示
     })
 
     // 监听重连事件
-    socketManager.on('onReconnect', (data) => {
+    socketManager.on('onReconnect', data => {
       console.log('[App] WebSocket 重连中...', data)
     })
 
     // 监听在线状态变化
-    socketManager.on('onOnlineStatus', (data) => {
+    socketManager.on('onOnlineStatus', data => {
       console.log('[App] 在线状态变化:', data)
       // 可以在这里更新全局在线用户列表
     })
 
     // 监听全局消息（用于显示消息提示弹窗）
-    socketManager.on('onMessage', (data) => {
+    socketManager.on('onMessage', data => {
       if (data.type === 'msg') {
         console.log('[App] 收到消息，准备处理通知')
         this.handleGlobalMessage(data)
@@ -234,7 +234,7 @@ App({
   async handleGlobalMessage(data) {
     try {
       console.log('[App] 收到全局消息:', data)
-      
+
       // 如果正在显示消息提示，则忽略新消息（避免重复弹窗）
       if (this.globalData.isShowingMessageNotification) {
         console.log('[App] 正在显示消息提示，忽略新消息')
@@ -249,49 +249,51 @@ App({
       let senderName = '未知用户'
       let senderAvatar = ''
       const config = require('./utils/config.js')
-      
+
       // 消息在 content 字段中（UnifiedMessage 结构）
       if (data.content) {
         console.log('[App] 处理 msg 类型消息，content:', data.content)
         messageData = data.content || {}
         // 从 UnifiedMessage 结构中提取信息
         // fromId 是 Long 类型，需要转换为字符串
-        fromUserId = messageData.fromId ? String(messageData.fromId) : (messageData.fromUserId || messageData.formUserId)
+        fromUserId = messageData.fromId
+          ? String(messageData.fromId)
+          : messageData.fromUserId || messageData.formUserId
         content = messageData.content || ''
         // contentType 可能是 "TEXT", "IMAGE" 等，需要转换为小写
         messageType = (messageData.contentType || messageData.type || 'text').toLowerCase()
-        
+
         // 方案1：直接从WebSocket消息中提取头像和昵称（实时性最高）
         senderName = messageData.fromName || '未知用户'
         senderAvatar = messageData.fromAvatar ? config.getImageUrl(messageData.fromAvatar) : ''
-        
-        console.log('[App] 从 content 中提取的字段:', { 
-          fromUserId, 
-          content, 
-          messageType, 
+
+        console.log('[App] 从 content 中提取的字段:', {
+          fromUserId,
+          content,
+          messageType,
           category: messageData.category,
           fromName: messageData.fromName,
           fromAvatar: messageData.fromAvatar,
           senderName,
-          senderAvatar
+          senderAvatar,
         })
       } else if (data.data) {
         // 兼容旧格式：{type: "msg", data: {...}}
         messageData = data.data || {}
         console.log('[App] 处理 data 格式消息，data:', messageData)
-        
+
         // 检查消息数据结构，可能在不同的字段中
         fromUserId = messageData.fromUserId || messageData.fromId || messageData.formUserId
         content = messageData.content || ''
         messageType = messageData.messageType || messageData.type || 'text'
-        
+
         // 尝试从旧格式中提取发送者信息
         senderName = messageData.fromName || messageData.formUserName || '未知用户'
         senderAvatar = messageData.fromAvatar || messageData.formUserPortrait || ''
         if (senderAvatar) {
           senderAvatar = config.getImageUrl(senderAvatar)
         }
-        
+
         // 如果消息内容在 ChatMessageContent 中
         if (messageData.ChatMessageContent) {
           const msgContent = messageData.ChatMessageContent
@@ -303,12 +305,20 @@ App({
             senderName = msgContent.formUserName || '未知用户'
           }
           if (!senderAvatar) {
-            senderAvatar = msgContent.formUserPortrait ? config.getImageUrl(msgContent.formUserPortrait) : ''
+            senderAvatar = msgContent.formUserPortrait
+              ? config.getImageUrl(msgContent.formUserPortrait)
+              : ''
           }
         }
       }
 
-      console.log('[App] 解析后的消息字段:', { fromUserId, content, messageType, senderName, senderAvatar })
+      console.log('[App] 解析后的消息字段:', {
+        fromUserId,
+        content,
+        messageType,
+        senderName,
+        senderAvatar,
+      })
 
       if (!fromUserId) {
         console.warn('[App] 消息中缺少发送者ID，无法显示通知')
@@ -319,7 +329,7 @@ App({
       const myUserData = this.globalData.userData || {}
       const myUserId = myUserData.wxId || myUserData.userId || wx.getStorageSync('userId')
       console.log('[App] 当前用户ID:', myUserId, '发送者ID:', fromUserId)
-      
+
       if (String(fromUserId) === String(myUserId)) {
         console.log('[App] 是自己发送的消息，不显示提示')
         return
@@ -362,20 +372,19 @@ App({
         senderId: fromUserId,
         senderName: senderName,
         senderAvatar: senderAvatar,
-        messageContent: messageContent
+        messageContent: messageContent,
       })
     } catch (error) {
       console.error('[App] 处理全局消息失败:', error)
     }
   },
 
-
   /**
    * 显示消息通知弹窗
    */
   showMessageNotification({ senderId, senderName, senderAvatar, messageContent }) {
     console.log('[App] 显示消息通知:', { senderId, senderName, senderAvatar, messageContent })
-    
+
     // 标记正在显示消息提示
     this.globalData.isShowingMessageNotification = true
 
@@ -385,7 +394,7 @@ App({
       senderName: senderName,
       senderAvatar: senderAvatar,
       messageContent: messageContent,
-      duration: 3000
+      duration: 3000,
     })
 
     // 2秒后重置标记
@@ -438,5 +447,5 @@ App({
 
   // 将 auth 模块的方法混入 App 实例
   ...auth,
-  ...lib
+  ...lib,
 })
