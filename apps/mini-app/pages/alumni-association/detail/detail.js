@@ -359,9 +359,9 @@ Page({
             avatarUrl = config.defaultAvatar
           }
 
-          // 获取组织架构角色信息
+          // 获取组织架构角色信息：优先用架构角色，其次用成员表的 roleName（负责人/驻会代表等无架构角色时）
           const organizeArchiRole = item.organizeArchiRole || {}
-          const roleOrName = organizeArchiRole.roleOrName || '成员'
+          const roleOrName = organizeArchiRole.roleOrName || item.roleName || '成员'
           // 获取signature字段（与avatarUrl同级）
           const signature = item.signature || '暂无个性签名'
 

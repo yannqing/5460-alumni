@@ -497,11 +497,14 @@ public class AlumniAssociationApplicationServiceImpl
             }
             log.info("为驻会代表（联系人）分配组织管理员角色 - 用户ID: {}, 角色ID: {}", application.getZhWxId(), organizeAdminRole.getRoleId());
 
-            // 5.4 插入负责人到校友会成员表（若wxid有效，不创建架构角色，role_or_id 为空）；默认在主页展示
+            // 5.4 插入负责人到校友会成员表（支持预设：无 wxId 时也作为预设成员插入，与 initialMembers 中的其他负责人一致）
             int totalMemberCount = 0;
-            if (application.getChargeWxId() != null && application.getChargeWxId() > 0) {
+            boolean hasChargeInfo = (application.getChargeWxId() != null && application.getChargeWxId() > 0)
+                    || StringUtils.isNotBlank(application.getChargeName())
+                    || StringUtils.isNotBlank(application.getChargeRole());
+            if (hasChargeInfo) {
                 AlumniAssociationMember chargeMember = new AlumniAssociationMember();
-                chargeMember.setWxId(application.getChargeWxId());
+                chargeMember.setWxId(application.getChargeWxId() != null && application.getChargeWxId() > 0 ? application.getChargeWxId() : null);
                 chargeMember.setAlumniAssociationId(alumniAssociationId);
                 chargeMember.setUsername(application.getChargeName());
                 chargeMember.setRoleName(application.getChargeRole());
@@ -515,9 +518,9 @@ public class AlumniAssociationApplicationServiceImpl
                     throw new BusinessException(ErrorType.SYSTEM_ERROR, "添加负责人到成员表失败");
                 }
                 totalMemberCount++;
-                log.info("添加负责人到成员表成功 - 用户ID: {}", application.getChargeWxId());
+                log.info("添加负责人到成员表成功 - 姓名: {}, wxId: {}", application.getChargeName(), application.getChargeWxId());
             } else {
-                log.info("负责人未绑定微信，跳过添加成员记录 - 姓名: {}", application.getChargeName());
+                log.info("负责人信息为空，跳过添加成员记录");
             }
 
             // 5.5 添加驻会代表到校友会成员表（若zh_wx_id有效且与负责人不同人）
