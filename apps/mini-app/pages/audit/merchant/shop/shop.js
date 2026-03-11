@@ -36,9 +36,9 @@ Page({
       businessHours: '',
       shopImages: '',
       description: '',
-      status: 1
+      status: 1,
     },
-    scrollListHeight: 400
+    scrollListHeight: 400,
   },
 
   onLoad(options) {
@@ -72,15 +72,15 @@ Page({
       const { get } = require('../../../../utils/request.js')
       const res = await get('/merchant-management/my-merchants', {
         current: 1,
-        size: 100 // 加载足够多的商户数据
+        size: 100, // 加载足够多的商户数据
       })
-      
+
       if (res.data && res.data.code === 200) {
         const merchantList = res.data.data.records || []
         this.setData({
-          merchantList: merchantList
+          merchantList: merchantList,
         })
-        
+
         // 如果没有选中的商户且列表不为空，自动选择第一个商户
         const { selectedMerchantId } = this.data
         if (!selectedMerchantId && merchantList.length > 0) {
@@ -90,7 +90,7 @@ Page({
           this.setData({
             selectedMerchantId: merchantIdStr,
             selectedMerchantName: firstMerchant.merchantName,
-            [`formData.merchantId`]: merchantIdStr
+            [`formData.merchantId`]: merchantIdStr,
           })
           // 加载第一个商户的店铺列表
           this.loadShopList(merchantIdStr)
@@ -100,7 +100,7 @@ Page({
       console.error('加载商户列表失败:', error)
       wx.showToast({
         title: '加载商户列表失败',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       this.setData({ loading: false })
@@ -112,7 +112,7 @@ Page({
     try {
       this.setData({ shopLoading: true })
       const { get, post } = require('../../../../utils/request.js')
-      
+
       let res
       if (merchantId) {
         // 根据商户ID获取店铺列表
@@ -121,10 +121,10 @@ Page({
         // 获取所有店铺列表
         res = await post('/shop/page', {
           current: 1,
-          pageSize: 10
+          pageSize: 10,
         })
       }
-      
+
       if (res.data && res.data.code === 200) {
         // 处理返回数据，确保records字段存在
         const records = res.data.data?.records || res.data.data || []
@@ -133,7 +133,7 @@ Page({
           console.log('店铺数据调试:', records[0])
         }
         this.setData({
-          shopList: records
+          shopList: records,
         })
       }
     } catch (error) {
@@ -157,14 +157,14 @@ Page({
   selectMerchant(e) {
     const merchantId = e.currentTarget.dataset.merchantId
     const merchantName = e.currentTarget.dataset.merchantName
-    
+
     this.setData({
       selectedMerchantId: merchantId,
       selectedMerchantName: merchantName,
       showMerchantPicker: false,
-      [`formData.merchantId`]: merchantId
+      [`formData.merchantId`]: merchantId,
     })
-    
+
     // 根据选中的商户ID加载对应的店铺列表
     this.loadShopList(merchantId)
   },
@@ -191,9 +191,9 @@ Page({
         businessHours: '',
         shopImages: '',
         description: '',
-        status: 1
+        status: 1,
       },
-      showModal: true
+      showModal: true,
     })
   },
 
@@ -202,15 +202,15 @@ Page({
     const shopId = e.currentTarget.dataset.shopId
     // 从店铺列表中查找对应的店铺对象
     const shop = this.data.shopList.find(item => item.shopId === shopId)
-    
+
     if (!shop) {
       wx.showToast({
         title: '未找到店铺数据',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
-    
+
     // 调用店铺详情接口获取包含description的完整数据
     const { get } = require('../../../../utils/request.js')
     const res = await get(`/merchant/shop/${shopId}`)
@@ -218,7 +218,7 @@ Page({
       // 合并详情数据到店铺对象
       Object.assign(shop, res.data.data)
     }
-    
+
     // 处理店铺图片，转换为数组格式
     let uploadedImages = []
     if (shop.shopImages) {
@@ -229,7 +229,7 @@ Page({
         uploadedImages = []
       }
     }
-    
+
     // 设置表单数据
     this.setData({
       operationType: 'edit',
@@ -250,19 +250,21 @@ Page({
         businessHours: shop.businessHours || '',
         shopImages: shop.shopImages || '',
         description: shop.description || '',
-        status: shop.status || 1
+        status: shop.status || 1,
       },
       // 保持商户选择与当前店铺一致
       selectedMerchantId: shop.merchantId + '',
-      selectedMerchantName: this.data.merchantList.find(m => m.merchantId + '' === shop.merchantId + '')?.merchantName || '',
-      showModal: true
+      selectedMerchantName:
+        this.data.merchantList.find(m => m.merchantId + '' === shop.merchantId + '')
+          ?.merchantName || '',
+      showModal: true,
     })
   },
 
   // 隐藏创建店铺弹窗
   hideCreateShopModal() {
     this.setData({
-      showModal: false
+      showModal: false,
     })
   },
 
@@ -272,12 +274,12 @@ Page({
     wx.showModal({
       title: '删除确认',
       content: '确定要删除该店铺吗？删除后不可恢复',
-      success: (res) => {
+      success: res => {
         if (res.confirm) {
           // 用户确认删除，执行删除操作
           this.deleteShop(shopId)
         }
-      }
+      },
     })
   },
 
@@ -286,33 +288,33 @@ Page({
     try {
       wx.showLoading({
         title: '删除中...',
-        mask: true
+        mask: true,
       })
-      
+
       const { del } = require('../../../../utils/request.js')
       const res = await del(`/shop/delete/${shopId}`)
-      
+
       if (res.data && res.data.code === 200) {
         // 删除成功
         wx.showToast({
           title: '删除成功',
-          icon: 'success'
+          icon: 'success',
         })
-        
+
         // 重新加载店铺列表
         this.loadShopList(this.data.selectedMerchantId)
       } else {
         // 删除失败
         wx.showToast({
           title: res.data.msg || '删除失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('删除店铺失败:', error)
       wx.showToast({
         title: '删除失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       wx.hideLoading()
@@ -324,7 +326,7 @@ Page({
     const { field } = e.currentTarget.dataset
     const { value } = e.detail
     this.setData({
-      [`formData.${field}`]: value
+      [`formData.${field}`]: value,
     })
   },
 
@@ -332,37 +334,41 @@ Page({
   onRadioChange(e) {
     const { field, value } = e.currentTarget.dataset
     this.setData({
-      [`formData.${field}`]: parseInt(value)
+      [`formData.${field}`]: parseInt(value),
     })
   },
 
   // 选择位置
+  // 暂时注释：等待微信公众平台权限申请通过后恢复
   selectLocation() {
-    // 使用微信地图选择API获取位置信息
-    wx.chooseLocation({
-      success: (res) => {
-        this.setData({
-          [`formData.locationName`]: res.name,
-          [`formData.latitude`]: res.latitude.toString(),
-          [`formData.longitude`]: res.longitude.toString()
-          // 仅获取经纬度，不自动填充地址信息，保持原有地址填写功能
-        })
-        
-        wx.showToast({
-          title: '位置选择成功',
-          icon: 'success'
-        })
-      },
-      fail: (err) => {
-        console.error('位置选择失败:', err)
-        // 如果用户取消选择，不显示错误提示
-        if (err.errMsg !== 'chooseLocation:fail cancel') {
-          wx.showToast({
-            title: '位置选择失败，请重试',
-            icon: 'none'
-          })
-        }
-      }
+    // wx.chooseLocation({
+    //   success: (res) => {
+    //     this.setData({
+    //       [`formData.locationName`]: res.name,
+    //       [`formData.latitude`]: res.latitude.toString(),
+    //       [`formData.longitude`]: res.longitude.toString()
+    //       // 仅获取经纬度，不自动填充地址信息，保持原有地址填写功能
+    //     })
+    //
+    //     wx.showToast({
+    //       title: '位置选择成功',
+    //       icon: 'success'
+    //     })
+    //   },
+    //   fail: (err) => {
+    //     console.error('位置选择失败:', err)
+    //     // 如果用户取消选择，不显示错误提示
+    //     if (err.errMsg !== 'chooseLocation:fail cancel') {
+    //       wx.showToast({
+    //         title: '位置选择失败，请重试',
+    //         icon: 'none'
+    //       })
+    //     }
+    //   }
+    // })
+    wx.showToast({
+      title: '位置选择功能暂时不可用',
+      icon: 'none',
     })
   },
 
@@ -372,20 +378,20 @@ Page({
       count: 9, // 最多可以选择9张图片
       sizeType: ['compressed'], // 压缩图
       sourceType: ['album', 'camera'], // 可以从相册或相机选择
-      success: (res) => {
+      success: res => {
         const tempFilePaths = res.tempFilePaths
         // 上传选择的图片
         this.uploadSelectedImages(tempFilePaths)
       },
-      fail: (err) => {
+      fail: err => {
         console.error('选择图片失败:', err)
         if (err.errMsg !== 'chooseImage:fail cancel') {
           wx.showToast({
             title: '选择图片失败',
-            icon: 'none'
+            icon: 'none',
           })
         }
-      }
+      },
     })
   },
 
@@ -394,7 +400,7 @@ Page({
     try {
       wx.showLoading({
         title: '上传中...',
-        mask: true
+        mask: true,
       })
 
       const uploadedImages = this.data.uploadedImages
@@ -411,18 +417,18 @@ Page({
 
       // 更新已上传图片列表
       this.setData({
-        uploadedImages: uploadedImages
+        uploadedImages: uploadedImages,
       })
 
       wx.showToast({
         title: '上传成功',
-        icon: 'success'
+        icon: 'success',
       })
     } catch (error) {
       console.error('上传图片失败:', error)
       wx.showToast({
         title: error.msg || '上传失败',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       wx.hideLoading()
@@ -435,7 +441,7 @@ Page({
     const uploadedImages = this.data.uploadedImages
     uploadedImages.splice(index, 1)
     this.setData({
-      uploadedImages: uploadedImages
+      uploadedImages: uploadedImages,
     })
   },
 
@@ -443,78 +449,78 @@ Page({
   async submitShopForm() {
     try {
       const { formData, uploadedImages, operationType, currentShopId } = this.data
-      
+
       // 表单验证
       if (!formData.merchantId) {
         wx.showToast({
           title: '请选择所属商户',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
-      
+
       if (!formData.shopName) {
         wx.showToast({
           title: '请输入店铺名称',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
-      
+
       if (!formData.province) {
         wx.showToast({
           title: '请输入省份',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
-      
+
       if (!formData.city) {
         wx.showToast({
           title: '请输入城市',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
-      
+
       if (!formData.district) {
         wx.showToast({
           title: '请输入区县',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
-      
+
       if (!formData.address) {
         wx.showToast({
           title: '请输入详细地址',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
-      
+
       if (!formData.latitude || !formData.longitude) {
         wx.showToast({
           title: '请选择店铺位置',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
-      
+
       // 处理店铺图片，将上传的图片数组转换为JSON格式字符串
       const shopImages = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : undefined
-      
+
       // 开始提交
       this.setData({
-        submitting: true
+        submitting: true,
       })
-      
+
       // 调用API
       const { post } = require('../../../../utils/request.js')
       let res
       let apiUrl
       let apiData
-      
+
       if (operationType === 'create') {
         // 创建店铺
         apiUrl = '/shop/create'
@@ -531,7 +537,7 @@ Page({
           phone: formData.phone || undefined,
           businessHours: formData.businessHours || undefined,
           shopImages: shopImages,
-          description: formData.description || undefined
+          description: formData.description || undefined,
         }
       } else {
         // 更新店铺
@@ -550,24 +556,24 @@ Page({
           businessHours: formData.businessHours || undefined,
           shopImages: shopImages,
           description: formData.description || undefined,
-          status: formData.status
+          status: formData.status,
         }
       }
-      
+
       res = await post(apiUrl, apiData)
-      
+
       // 提交成功
       wx.showToast({
         title: operationType === 'create' ? '创建成功' : '更新成功',
-        icon: 'success'
+        icon: 'success',
       })
-      
+
       // 关闭弹窗
       this.hideCreateShopModal()
-      
+
       // 重新加载店铺列表
       this.loadShopList(this.data.selectedMerchantId)
-      
+
       // 如果是创建操作，重置表单
       if (operationType === 'create') {
         this.setData({
@@ -586,24 +592,23 @@ Page({
             businessHours: '',
             shopImages: '',
             description: '',
-            status: 1
+            status: 1,
           },
           selectedMerchantId: '',
           selectedMerchantName: '',
-          uploadedImages: []
+          uploadedImages: [],
         })
       }
-      
     } catch (error) {
       console.error(operationType === 'create' ? '创建店铺失败:' : '更新店铺失败:', error)
       wx.showToast({
         title: operationType === 'create' ? '创建失败，请重试' : '更新失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       this.setData({
-        submitting: false
+        submitting: false,
       })
     }
-  }
+  },
 })

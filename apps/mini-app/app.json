@@ -56,7 +56,8 @@
     "pages/info-maintenance/index/index",
     "pages/info-maintenance/edit/edit",
     "pages/register/register",
-    "pages/feedback/feedback"
+    "pages/feedback/feedback",
+    "pages/certification-info/certification-info"
   ],
   "subpackages": [
     {
@@ -183,15 +184,6 @@
   "networkTimeout": {
     "request": 10000,
     "downloadFile": 10000
-  },
-  "requiredPrivateInfos": [
-    "chooseLocation",
-    "getLocation"
-  ],
-  "permission": {
-    "scope.userLocation": {
-      "desc": "你的位置信息将用于查找附近的商铺、校友和活动"
-    }
   },
   "qqmapKey": "JKGBZ-RNQCZ-4JDXO-ZWSSP-QKTCH-LKBR4",
   "debug": true,

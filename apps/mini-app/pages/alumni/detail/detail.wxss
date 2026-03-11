@@ -1,4 +1,12 @@
 /* pages/alumni/detail/detail.wxss */
+
+/* 校友认证等级图片 */
+.alumni-cert-badge-img {
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
 .alumni-detail-page {
   min-height: 100vh;
   background-color: #f8f9fb;

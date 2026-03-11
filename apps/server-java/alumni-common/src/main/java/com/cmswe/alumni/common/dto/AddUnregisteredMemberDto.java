@@ -10,12 +10,12 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 更新校友会成员角色请求 DTO
+ * 添加未注册成员到校友会请求 DTO
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateMemberRoleDto implements Serializable {
+public class AddUnregisteredMemberDto implements Serializable {
 
     /**
      * 校友会 ID
@@ -25,24 +25,29 @@ public class UpdateMemberRoleDto implements Serializable {
     private Long alumniAssociationId;
 
     /**
-     * 成员用户 ID
+     * 用户名字
      */
-    @Schema(description = "成员用户 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "成员用户 ID不能为空")
-    private Long wxId;
-
-    /**
-     * 新的组织架构角色 ID
-     */
-    @Schema(description = "新的组织架构角色 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "组织架构角色 ID不能为空")
-    private Long roleOrId;
+    @Schema(description = "用户名字", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "用户名字不能为空")
+    private String username;
 
     /**
      * 角色名称
      */
     @Schema(description = "角色名称")
     private String roleName;
+
+    /**
+     * 用户的联系电话
+     */
+    @Schema(description = "用户的联系电话")
+    private String userPhone;
+
+    /**
+     * 用户的社会职务
+     */
+    @Schema(description = "用户的社会职务")
+    private String userAffiliation;
 
     @Serial
     private static final long serialVersionUID = 1L;

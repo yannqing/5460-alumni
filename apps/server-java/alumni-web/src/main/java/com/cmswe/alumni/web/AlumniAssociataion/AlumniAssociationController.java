@@ -2,6 +2,7 @@ package com.cmswe.alumni.web.AlumniAssociataion;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cmswe.alumni.api.user.WechatApiService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationMemberListRequest;
@@ -63,6 +64,9 @@ public class AlumniAssociationController {
 
     @Resource
     private com.cmswe.alumni.api.association.AlumniAssociationJoinApplyService alumniAssociationJoinApplyService;
+
+    @Resource
+    private WechatApiService wechatApiService;
 
     /**
      * 校友会申请加入校促会
@@ -422,7 +426,7 @@ public class AlumniAssociationController {
 
     /**
      * 分页查询校友会的文章列表
-     * 
+     *
      * @param queryDto 查询参数
      * @return 文章列表
      */
@@ -435,5 +439,34 @@ public class AlumniAssociationController {
         queryDto.setOrganizationId(id);
         PageVo<HomePageArticleVo> articlePage = homePageArticleService.getAssociationArticlePage(queryDto);
         return ResultUtils.success(Code.SUCCESS, articlePage, "查询成功");
+    }
+
+    /**
+     * 生成小程序码
+     *
+     * @param requestBody 包含page和scene参数的请求体
+     * @return 小程序码图片URL（Base64格式）
+     */
+    @PostMapping("/qrcode/generate")
+    @Operation(summary = "生成小程序码")
+    public BaseResponse<java.util.Map<String, Object>> generateMiniProgramQrcode(
+            @RequestBody java.util.Map<String, String> requestBody) {
+        String page = requestBody.get("page");
+        String scene = requestBody.get("scene");
+
+        log.info("生成小程序码请求，page: {}, scene: {}", page, scene);
+
+        if (scene == null || scene.isEmpty()) {
+            return ResultUtils.failure(Code.FAILURE, null, "scene参数不能为空");
+        }
+
+        java.util.Map<String, Object> result = wechatApiService.generateMiniProgramQrcode(page, scene);
+
+        if (result != null && Boolean.TRUE.equals(result.get("success"))) {
+            return ResultUtils.success(Code.SUCCESS, result, "生成成功");
+        } else {
+            String error = result != null ? (String) result.get("error") : "生成失败";
+            return ResultUtils.failure(Code.FAILURE, result, error);
+        }
     }
 }

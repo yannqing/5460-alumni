@@ -11,10 +11,17 @@ Page({
     // 图标路径
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
+    // 校友会认证等级图片
+    certFirstImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/association_first_certification.png',
+    certSecondImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/association_second_certification.png',
+    certThirdImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/association_third_certification.png',
     associationId: '',
     associationInfo: null,
     activeTab: 0,
-    tabs: ['基本信息', '组织架构', '最新动态', '成员列表'],
+    tabs: ['单位概况', '组织架构', '最新动态', '成员列表'],
     members: [],
     // 图谱数据（预留后端接口）
     graphData: null,
@@ -36,7 +43,7 @@ Page({
       realName: '',
       graduationYear: '',
       major: '',
-      remark: ''
+      remark: '',
     },
     joinSubmitting: false,
 
@@ -53,7 +60,7 @@ Page({
     showAction: false,
     articleList: [],
     // 核心成员列表
-    coreMemberList: []
+    coreMemberList: [],
   },
 
   async onLoad(options) {
@@ -87,7 +94,7 @@ Page({
       } catch (error) {
         wx.showToast({
           title: '登录失败，请重试',
-          icon: 'none'
+          icon: 'none',
         })
         throw error
       }
@@ -96,9 +103,13 @@ Page({
 
   // 格式化时间为 月-日 时:分
   formatTime(dateString) {
-    if (!dateString) { return '' }
+    if (!dateString) {
+      return ''
+    }
     const date = new Date(dateString)
-    if (isNaN(date.getTime())) { return '' }
+    if (isNaN(date.getTime())) {
+      return ''
+    }
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
     const hours = String(date.getHours()).padStart(2, '0')
@@ -108,29 +119,29 @@ Page({
 
   // 加载校友会详情
   async loadAssociationDetail() {
-    if (this.data.loading) return;
+    if (this.data.loading) return
 
-    this.setData({ loading: true });
+    this.setData({ loading: true })
 
     try {
-      const res = await associationApi.getAssociationDetail(this.data.associationId);
+      const res = await associationApi.getAssociationDetail(this.data.associationId)
 
       if (res.data && res.data.code === 200) {
-        const item = res.data.data || {};
+        const item = res.data.data || {}
 
-        const schoolInfo = item.schoolInfo || {};
-        const platformInfo = item.platform || {};
+        const schoolInfo = item.schoolInfo || {}
+        const platformInfo = item.platform || {}
 
-        let coverList = [];
+        let coverList = []
         try {
           if (item.bgImg) {
-            const parsed = JSON.parse(item.bgImg);
+            const parsed = JSON.parse(item.bgImg)
             if (Array.isArray(parsed) && parsed.length > 0) {
-              coverList = parsed.map(img => config.getImageUrl(img));
+              coverList = parsed.map(img => config.getImageUrl(img))
             }
           }
         } catch (e) {
-          console.error('Parse bgImg error:', e);
+          console.error('Parse bgImg error:', e)
         }
 
         const mappedInfo = {
@@ -167,48 +178,55 @@ Page({
           zhWxId: item.zhWxId || '',
           zhName: item.zhName || '',
           zhPhone: item.zhPhone || '',
-          zhSocialAffiliation: item.zhSocialAffiliation || ''
-        };
+          zhSocialAffiliation: item.zhSocialAffiliation || '',
+        }
 
         const formattedActivityList = (item.activityList || []).map(activity => ({
           ...activity,
-          startTime: this.formatTime(activity.startTime)
-        }));
+          startTime: this.formatTime(activity.startTime),
+        }))
 
         // 处理并格式化文章列表 (资讯部分)
         const formattedArticleList = (item.articleList || []).map(article => {
           // 处理封面图：极其稳健逻辑，兼容对象、URL字符串、路径及 ID
-          let cover = '';
-          const rawCover = article.coverImg || article.cover_img;
+          let cover = ''
+          const rawCover = article.coverImg || article.cover_img
 
           if (rawCover) {
             if (typeof rawCover === 'object') {
-              cover = rawCover.fileUrl || rawCover.filePath || rawCover.thumbnailUrl || '';
+              cover = rawCover.fileUrl || rawCover.filePath || rawCover.thumbnailUrl || ''
             } else if (typeof rawCover === 'string') {
               // 包含斜杠或以http开头则视为路径/URL，否则视为 ID
               if (rawCover.startsWith('http') || rawCover.indexOf('/') !== -1) {
-                cover = rawCover;
+                cover = rawCover
               } else {
-                cover = `/file/download/${rawCover}`;
+                cover = `/file/download/${rawCover}`
               }
             } else {
-              cover = `/file/download/${rawCover}`;
+              cover = `/file/download/${rawCover}`
             }
           }
 
           // 顶级字段兜底
           if (!cover) {
-            cover = article.fileUrl || article.thumbnailUrl || article.coverImage || article.cover_image || '';
+            cover =
+              article.fileUrl ||
+              article.thumbnailUrl ||
+              article.coverImage ||
+              article.cover_image ||
+              ''
           }
 
-          const finalCover = cover ? config.getImageUrl(cover) : config.getImageUrl(config.defaultCover);
+          const finalCover = cover
+            ? config.getImageUrl(cover)
+            : config.getImageUrl(config.defaultCover)
 
           return {
             ...article,
             id: article.homeArticleId || article.id,
             title: article.articleTitle || '无标题',
             cover: finalCover,
-            time: this.formatTime(article.createTime)
+            time: this.formatTime(article.createTime),
           }
         })
 
@@ -218,7 +236,7 @@ Page({
           roleName: member.roleName || '',
           username: member.username || '未知',
           userPhone: member.userPhone || '',
-          userAffiliation: member.userAffiliation || ''
+          userAffiliation: member.userAffiliation || '',
         }))
 
         this.setData({
@@ -227,21 +245,21 @@ Page({
           articleList: formattedArticleList,
           enterpriseList: item.enterpriseList || [],
           coreMemberList: coreMemberList,
-          loading: false
-        });
+          loading: false,
+        })
       } else {
-        this.setData({ loading: false });
+        this.setData({ loading: false })
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       }
     } catch (error) {
-      this.setData({ loading: false });
+      this.setData({ loading: false })
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
-      });
+        icon: 'none',
+      })
     }
   },
 
@@ -260,9 +278,11 @@ Page({
     }
 
     const currentAssociationId = String(this.data.associationId)
-    const isAssociationAdmin = roles.some(role =>
-      role.roleCode === 'ORGANIZE_ALUMNI_ADMIN' &&
-      (String(role.organizeId) === currentAssociationId || (role.organization && String(role.organization.organizeId) === currentAssociationId))
+    const isAssociationAdmin = roles.some(
+      role =>
+        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN' &&
+        (String(role.organizeId) === currentAssociationId ||
+          (role.organization && String(role.organization.organizeId) === currentAssociationId))
     )
 
     this.setData({ showFab: isAssociationAdmin })
@@ -282,7 +302,7 @@ Page({
   navToAddActivity() {
     this.hideActionSheet()
     wx.navigateTo({
-      url: `/pages/activity/publish/publish?associationId=${this.data.associationId}`
+      url: `/pages/activity/publish/publish?associationId=${this.data.associationId}`,
     })
   },
 
@@ -290,13 +310,15 @@ Page({
   navToAddNews() {
     this.hideActionSheet()
     wx.navigateTo({
-      url: '/pages/article-publish/index/index'
+      url: '/pages/article-publish/index/index',
     })
   },
 
   // 加载成员列表
   async loadMembers() {
-    if (this.data.loading) { return }
+    if (this.data.loading) {
+      return
+    }
 
     this.setData({ loading: true })
 
@@ -304,7 +326,7 @@ Page({
       const res = await associationApi.getMemberPage({
         alumniAssociationId: this.data.associationId,
         page: 1,
-        size: 20
+        size: 20,
       })
 
       if (res.data && res.data.code === 200) {
@@ -316,8 +338,12 @@ Page({
           const aPid = a.organizeArchiRole ? a.organizeArchiRole.pid : undefined
           const bPid = b.organizeArchiRole ? b.organizeArchiRole.pid : undefined
 
-          if (aPid === null && bPid !== null) { return -1 }
-          if (aPid !== null && bPid === null) { return 1 }
+          if (aPid === null && bPid !== null) {
+            return -1
+          }
+          if (aPid !== null && bPid === null) {
+            return 1
+          }
           return 0
         })
 
@@ -344,19 +370,19 @@ Page({
             nickname: item.nickname || '',
             name: item.name || item.realName || '未知用户',
             role: roleOrName,
-            company: signature
+            company: signature,
           }
         })
 
         this.setData({
           members: mappedMembers,
-          loading: false
+          loading: false,
         })
       } else {
         this.setData({ loading: false })
         wx.showToast({
           title: res.data?.msg || '加载成员列表失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -364,37 +390,37 @@ Page({
       this.setData({ loading: false })
       wx.showToast({
         title: '加载成员列表失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
 
   // tab-bar 组件事件处理
   onTabChange(e) {
-    const index = e.detail.index;
-    this.handleTabSwitch(index);
+    const index = e.detail.index
+    this.handleTabSwitch(index)
   },
 
   switchTab(e) {
-    const index = e.currentTarget.dataset.index;
-    this.handleTabSwitch(index);
+    const index = e.currentTarget.dataset.index
+    this.handleTabSwitch(index)
   },
 
   handleTabSwitch(index) {
-    this.setData({ activeTab: index });
+    this.setData({ activeTab: index })
 
     // 切换到组织结构标签时，加载组织结构数据
     if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
       if (this.data.roleList.length === 0) {
-        this.loadOrganizationTree();
+        this.loadOrganizationTree()
       }
     }
     // 切换到成员列表标签时 (index 3)
     else if (index === 3) {
       // 如果还没加载过成员数据，则加载
       if (this.data.members.length === 0) {
-        this.loadMembers();
+        this.loadMembers()
       }
     }
     /* // 切换到图谱标签时
@@ -424,7 +450,7 @@ Page({
     const id = e.currentTarget.dataset.id
     if (id) {
       wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${id}`
+        url: `/pages/alumni/detail/detail?id=${id}`,
       })
     }
   },
@@ -438,64 +464,64 @@ Page({
     const mockGraphData = {
       nodes: [
         // 核心节点
-        { id: "00后", group: 1, val: 50 },
-        { id: "广东", group: 1, val: 40 },
-        { id: "程序员", group: 1, val: 45 },
+        { id: '00后', group: 1, val: 50 },
+        { id: '广东', group: 1, val: 40 },
+        { id: '程序员', group: 1, val: 45 },
         // 兴趣节点
-        { id: "游戏", group: 2, val: 30 },
-        { id: "搞钱", group: 2, val: 35 },
-        { id: "撸猫", group: 2, val: 25 },
-        { id: "夜宵", group: 2, val: 20 },
-        { id: "数码", group: 2, val: 28 },
-        { id: "二次元", group: 2, val: 32 },
+        { id: '游戏', group: 2, val: 30 },
+        { id: '搞钱', group: 2, val: 35 },
+        { id: '撸猫', group: 2, val: 25 },
+        { id: '夜宵', group: 2, val: 20 },
+        { id: '数码', group: 2, val: 28 },
+        { id: '二次元', group: 2, val: 32 },
         // 长尾节点
-        { id: "原神", group: 3, val: 15 },
-        { id: "王者", group: 3, val: 15 },
-        { id: "基金", group: 3, val: 18 },
-        { id: "副业", group: 3, val: 20 },
-        { id: "脱发", group: 3, val: 10 },
-        { id: "咖啡", group: 3, val: 12 },
-        { id: "键盘", group: 3, val: 14 },
-        { id: "显卡", group: 3, val: 16 },
-        { id: "早茶", group: 3, val: 15 },
-        { id: "加班", group: 3, val: 12 },
-        { id: "番剧", group: 3, val: 18 },
-        { id: "Coser", group: 3, val: 10 },
-        { id: "Switch", group: 3, val: 15 }
+        { id: '原神', group: 3, val: 15 },
+        { id: '王者', group: 3, val: 15 },
+        { id: '基金', group: 3, val: 18 },
+        { id: '副业', group: 3, val: 20 },
+        { id: '脱发', group: 3, val: 10 },
+        { id: '咖啡', group: 3, val: 12 },
+        { id: '键盘', group: 3, val: 14 },
+        { id: '显卡', group: 3, val: 16 },
+        { id: '早茶', group: 3, val: 15 },
+        { id: '加班', group: 3, val: 12 },
+        { id: '番剧', group: 3, val: 18 },
+        { id: 'Coser', group: 3, val: 10 },
+        { id: 'Switch', group: 3, val: 15 },
       ],
       links: [
-        { source: "00后", target: "二次元" },
-        { source: "00后", target: "游戏" },
-        { source: "00后", target: "搞钱" },
-        { source: "00后", target: "数码" },
-        { source: "广东", target: "早茶" },
-        { source: "广东", target: "夜宵" },
-        { source: "广东", target: "搞钱" },
-        { source: "程序员", target: "数码" },
-        { source: "程序员", target: "脱发" },
-        { source: "程序员", target: "加班" },
-        { source: "程序员", target: "键盘" },
-        { source: "程序员", target: "搞钱" },
-        { source: "游戏", target: "原神" },
-        { source: "游戏", target: "王者" },
-        { source: "游戏", target: "Switch" },
-        { source: "游戏", target: "显卡" },
-        { source: "搞钱", target: "基金" },
-        { source: "搞钱", target: "副业" },
-        { source: "数码", target: "显卡" },
-        { source: "数码", target: "键盘" },
-        { source: "数码", target: "Switch" },
-        { source: "二次元", target: "番剧" },
-        { source: "二次元", target: "Coser" },
-        { source: "二次元", target: "原神" },
-        { source: "加班", target: "咖啡" },
-        { source: "撸猫", target: "咖啡" }
-      ]
+        { source: '00后', target: '二次元' },
+        { source: '00后', target: '游戏' },
+        { source: '00后', target: '搞钱' },
+        { source: '00后', target: '数码' },
+        { source: '广东', target: '早茶' },
+        { source: '广东', target: '夜宵' },
+        { source: '广东', target: '搞钱' },
+        { source: '程序员', target: '数码' },
+        { source: '程序员', target: '脱发' },
+        { source: '程序员', target: '加班' },
+        { source: '程序员', target: '键盘' },
+        { source: '程序员', target: '搞钱' },
+        { source: '游戏', target: '原神' },
+        { source: '游戏', target: '王者' },
+        { source: '游戏', target: 'Switch' },
+        { source: '游戏', target: '显卡' },
+        { source: '搞钱', target: '基金' },
+        { source: '搞钱', target: '副业' },
+        { source: '数码', target: '显卡' },
+        { source: '数码', target: '键盘' },
+        { source: '数码', target: 'Switch' },
+        { source: '二次元', target: '番剧' },
+        { source: '二次元', target: 'Coser' },
+        { source: '二次元', target: '原神' },
+        { source: '加班', target: '咖啡' },
+        { source: '撸猫', target: '咖啡' },
+      ],
     }
 
     this.setData({
       graphData: mockGraphData,
-      canvasReady: true
+      canvasReady: true,
     })
   },
 
@@ -504,9 +530,10 @@ Page({
     const that = this
     const query = wx.createSelectorQuery().in(this)
 
-    query.select('#graph-canvas')
+    query
+      .select('#graph-canvas')
       .fields({ node: true, size: true })
-      .exec((res) => {
+      .exec(res => {
         if (res[0]) {
           const canvas = res[0].node
           const ctx = canvas.getContext('2d')
@@ -522,7 +549,7 @@ Page({
             ctx: ctx,
             width: res[0].width,
             height: res[0].height,
-            dpr: dpr
+            dpr: dpr,
           }
 
           // 启动图谱渲染（传入 canvas 实例用于 requestAnimationFrame）
@@ -534,7 +561,9 @@ Page({
   // 渲染图谱
   renderGraph(canvas, ctx, width, height) {
     const { graphData } = this.data
-    if (!graphData) { return }
+    if (!graphData) {
+      return
+    }
 
     const that = this
 
@@ -561,7 +590,7 @@ Page({
       vy: 0,
       radius: Math.sqrt(node.val) * 2,
       baseRadius: Math.sqrt(node.val) * 2, // 保存基础半径
-      scale: 1 // 缩放比例
+      scale: 1, // 缩放比例
     }))
 
     // 保存节点数据供触摸事件使用
@@ -584,9 +613,9 @@ Page({
 
     // 颜色映射
     const colors = {
-      1: '#22d3ee',  // 青色
-      2: '#a78bfa',  // 紫色
-      3: '#64748b'   // 灰色
+      1: '#22d3ee', // 青色
+      2: '#a78bfa', // 紫色
+      3: '#64748b', // 灰色
     }
 
     // 力导向计算
@@ -594,7 +623,9 @@ Page({
       // 斥力
       for (let i = 0; i < nodes.length; i++) {
         // 如果节点被固定（拖动中），跳过
-        if (nodes[i].fx !== null && nodes[i].fx !== undefined) { continue }
+        if (nodes[i].fx !== null && nodes[i].fx !== undefined) {
+          continue
+        }
 
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[j].x - nodes[i].x
@@ -722,7 +753,14 @@ Page({
             ctx.globalAlpha = 1
 
             // 外圈光晕（粉色）
-            const glowGradient = ctx.createRadialGradient(currentX, currentY, 0, currentX, currentY, 8)
+            const glowGradient = ctx.createRadialGradient(
+              currentX,
+              currentY,
+              0,
+              currentX,
+              currentY,
+              8
+            )
             glowGradient.addColorStop(0, 'rgba(236, 72, 153, 0.8)')
             glowGradient.addColorStop(1, 'rgba(236, 72, 153, 0)')
             ctx.fillStyle = glowGradient
@@ -764,7 +802,14 @@ Page({
         const currentY = particle.startY + (particle.endY - particle.startY) * particle.progress
 
         // 绘制粒子发光效果（外圈光晕）
-        const gradient = ctx.createRadialGradient(currentX, currentY, 0, currentX, currentY, particle.size * 3)
+        const gradient = ctx.createRadialGradient(
+          currentX,
+          currentY,
+          0,
+          currentX,
+          currentY,
+          particle.size * 3
+        )
         gradient.addColorStop(0, 'rgba(34, 211, 238, 0.8)')
         gradient.addColorStop(0.5, 'rgba(34, 211, 238, 0.3)')
         gradient.addColorStop(1, 'rgba(34, 211, 238, 0)')
@@ -788,13 +833,13 @@ Page({
         const isDimmed = highlightedNodes.size > 0 && !isHighlighted
 
         // 更新节点缩放动画
-        const targetScale = isHighlighted ? 1.3 : (isDimmed ? 0.9 : 1)
+        const targetScale = isHighlighted ? 1.3 : isDimmed ? 0.9 : 1
         node.scale += (targetScale - node.scale) * 0.15 // 平滑过渡
         node.radius = node.baseRadius * node.scale
 
         // 光晕（带缩放）
         ctx.fillStyle = color
-        ctx.globalAlpha = isDimmed ? 0.03 : (isHighlighted ? 0.4 : 0.15)
+        ctx.globalAlpha = isDimmed ? 0.03 : isHighlighted ? 0.4 : 0.15
         ctx.beginPath()
         ctx.arc(node.x, node.y, node.radius * 1.5, 0, Math.PI * 2)
         ctx.fill()
@@ -802,7 +847,14 @@ Page({
         // 核心圆
         ctx.globalAlpha = isDimmed ? 0.2 : 1
         // 渐变背景色（适应新背景）
-        const nodeGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.radius)
+        const nodeGradient = ctx.createRadialGradient(
+          node.x,
+          node.y,
+          0,
+          node.x,
+          node.y,
+          node.radius
+        )
         nodeGradient.addColorStop(0, '#1a1b3a')
         nodeGradient.addColorStop(1, '#0f1419')
         ctx.fillStyle = nodeGradient
@@ -832,7 +884,7 @@ Page({
 
         // 文字（带缩放）
         ctx.globalAlpha = isDimmed ? 0.3 : 1
-        ctx.fillStyle = node.group === 1 ? '#ffffff' : (isHighlighted ? '#22d3ee' : '#cbd5e1')
+        ctx.fillStyle = node.group === 1 ? '#ffffff' : isHighlighted ? '#22d3ee' : '#cbd5e1'
         ctx.font = `${Math.max(10, node.radius / 1.5)}px sans-serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'top'
@@ -864,7 +916,9 @@ Page({
 
       // 随机选择一条连线
       const linkKeys = Object.keys(linksMap)
-      if (linkKeys.length === 0) { return }
+      if (linkKeys.length === 0) {
+        return
+      }
 
       const randomLinkKey = linkKeys[Math.floor(Math.random() * linkKeys.length)]
       const link = linksMap[randomLinkKey]
@@ -883,7 +937,7 @@ Page({
         endY: endNode.y,
         progress: 0,
         speed: 0.008 + Math.random() * 0.006, // 速度：0.008-0.014 (相当于 1000-1400ms)
-        size: 1.5 + Math.random() * 2 // 大小：1.5-3.5px
+        size: 1.5 + Math.random() * 2, // 大小：1.5-3.5px
       })
     }, 150)
 
@@ -893,9 +947,13 @@ Page({
       nodes,
       linksMap,
       isDragging: () => isDragging,
-      setDragging: (val) => { isDragging = val },
+      setDragging: val => {
+        isDragging = val
+      },
       dragNode: () => dragNode,
-      setDragNode: (node) => { dragNode = node },
+      setDragNode: node => {
+        dragNode = node
+      },
       highlightedNodes,
       highlightedLinks,
       stopAnimation: () => {
@@ -903,13 +961,15 @@ Page({
         clearInterval(particleInterval)
       },
       colors,
-      particleInterval
+      particleInterval,
     }
   },
 
   // Canvas 触摸开始
   onGraphTouchStart(e) {
-    if (!this.canvasInfo || !this.graphContext) { return }
+    if (!this.canvasInfo || !this.graphContext) {
+      return
+    }
 
     const touch = e.touches[0]
     const { x, y } = this.getTouchPosition(touch)
@@ -946,10 +1006,14 @@ Page({
 
   // Canvas 触摸移动
   onGraphTouchMove(e) {
-    if (!this.canvasInfo || !this.graphContext) { return }
+    if (!this.canvasInfo || !this.graphContext) {
+      return
+    }
 
     const { isDragging, dragNode } = this.graphContext
-    if (!isDragging() || !dragNode()) { return }
+    if (!isDragging() || !dragNode()) {
+      return
+    }
 
     const touch = e.touches[0]
     const { x, y } = this.getTouchPosition(touch)
@@ -966,9 +1030,20 @@ Page({
 
   // Canvas 触摸结束
   onGraphTouchEnd(e) {
-    if (!this.canvasInfo || !this.graphContext) { return }
+    if (!this.canvasInfo || !this.graphContext) {
+      return
+    }
 
-    const { isDragging, dragNode, setDragging, setDragNode, nodes, linksMap, highlightedNodes, highlightedLinks } = this.graphContext
+    const {
+      isDragging,
+      dragNode,
+      setDragging,
+      setDragNode,
+      nodes,
+      linksMap,
+      highlightedNodes,
+      highlightedLinks,
+    } = this.graphContext
 
     if (isDragging()) {
       const node = dragNode()
@@ -982,11 +1057,9 @@ Page({
         const { x, y } = this.getTouchPosition(touch)
 
         // 计算触摸起点和终点的距离
-        const moveDistance = this.touchStartPos ?
-          Math.sqrt(
-            Math.pow(x - this.touchStartPos.x, 2) +
-            Math.pow(y - this.touchStartPos.y, 2)
-          ) : 0
+        const moveDistance = this.touchStartPos
+          ? Math.sqrt(Math.pow(x - this.touchStartPos.x, 2) + Math.pow(y - this.touchStartPos.y, 2))
+          : 0
 
         // 计算触摸时长
         const touchDuration = Date.now() - (this.touchStartTime || 0)
@@ -1014,7 +1087,9 @@ Page({
 
   // 高亮关联网络
   highlightNetwork(node) {
-    if (!this.graphContext) { return }
+    if (!this.graphContext) {
+      return
+    }
 
     const { nodes, linksMap, highlightedNodes, highlightedLinks } = this.graphContext
 
@@ -1048,8 +1123,8 @@ Page({
         group: node.group,
         value: node.val,
         connections: connections,
-        relatedNodes: Array.from(highlightedNodes).filter(id => id !== node.id)
-      }
+        relatedNodes: Array.from(highlightedNodes).filter(id => id !== node.id),
+      },
     })
   },
 
@@ -1058,13 +1133,15 @@ Page({
     const { width, height, dpr } = this.canvasInfo
     return {
       x: touch.x,
-      y: touch.y
+      y: touch.y,
     }
   },
 
   // 关闭节点卡片
   closeNodeCard() {
-    if (!this.graphContext) { return }
+    if (!this.graphContext) {
+      return
+    }
 
     const { highlightedNodes, highlightedLinks } = this.graphContext
     highlightedNodes.clear()
@@ -1079,7 +1156,7 @@ Page({
 
     this.setData({
       showNodeCard: false,
-      selectedNode: null
+      selectedNode: null,
     })
   },
 
@@ -1114,11 +1191,11 @@ Page({
           content: '确定要退出该校友会吗？',
           confirmText: '确定退出',
           confirmColor: '#40B2E6',
-          success: (res) => {
+          success: res => {
             if (res.confirm) {
               this.handleQuitAssociation()
             }
-          }
+          },
         })
         break
 
@@ -1128,15 +1205,13 @@ Page({
           content: '您的申请已被拒绝，是否重新申请？',
           confirmText: '重新申请',
           confirmColor: '#40B2E6',
-          success: (res) => {
+          success: res => {
             if (res.confirm) {
               this.goToApplyPage()
             }
-          }
+          },
         })
         break
-
-
 
       case null: // 未申请
       default:
@@ -1151,7 +1226,7 @@ Page({
     const schoolId = associationInfo.schoolId || ''
     const schoolName = associationInfo.schoolName || ''
     wx.navigateTo({
-      url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&schoolId=${schoolId}&schoolName=${encodeURIComponent(schoolName)}`
+      url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&schoolId=${schoolId}&schoolName=${encodeURIComponent(schoolName)}`,
     })
   },
 
@@ -1160,7 +1235,7 @@ Page({
     wx.showLoading({ title: '处理中...' })
     try {
       const res = await associationApi.quitAssociation({
-        alumniAssociationId: this.data.associationId
+        alumniAssociationId: this.data.associationId,
       })
 
       wx.hideLoading()
@@ -1168,18 +1243,21 @@ Page({
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: '已成功退出',
-          icon: 'success'
+          icon: 'success',
         })
 
         // 更新本地状态，改变按钮显示
         this.setData({
           'associationInfo.applicationStatus': null,
-          'associationInfo.memberCount': Math.max(0, (this.data.associationInfo.memberCount || 1) - 1)
+          'associationInfo.memberCount': Math.max(
+            0,
+            (this.data.associationInfo.memberCount || 1) - 1
+          ),
         })
       } else {
         wx.showToast({
           title: res.data?.msg || '退出失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -1187,7 +1265,7 @@ Page({
       console.error('退出校友会失败:', error)
       wx.showToast({
         title: '请求失败，请稍后重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -1195,13 +1273,15 @@ Page({
   // 跳转到申请详情页面（查看模式）
   goToApplicationDetailPage() {
     wx.navigateTo({
-      url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&mode=view`
+      url: `/pages/alumni-association/apply/apply?id=${this.data.associationId}&mode=view`,
     })
   },
 
   // 关闭申请弹窗
   closeJoinModal() {
-    if (this.data.joinSubmitting) { return }
+    if (this.data.joinSubmitting) {
+      return
+    }
     this.setData({ showJoinModal: false })
   },
 
@@ -1212,15 +1292,17 @@ Page({
     this.setData({
       joinForm: {
         ...this.data.joinForm,
-        [field]: value
-      }
+        [field]: value,
+      },
     })
   },
 
   // 提交加入申请
   async submitJoinApplication() {
     const { associationId, joinForm, joinSubmitting, associationInfo } = this.data
-    if (joinSubmitting) { return }
+    if (joinSubmitting) {
+      return
+    }
 
     if (!joinForm.realName) {
       wx.showToast({ title: '请输入真实姓名', icon: 'none' })
@@ -1234,25 +1316,25 @@ Page({
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: '申请已提交，待审核',
-          icon: 'success'
+          icon: 'success',
         })
         this.setData({
           showJoinModal: false,
           associationInfo: {
             ...associationInfo,
-            isJoined: true
-          }
+            isJoined: true,
+          },
         })
       } else {
         wx.showToast({
           title: res.data?.msg || '提交失败，请重试',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       wx.showToast({
         title: '提交失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       this.setData({ joinSubmitting: false })
@@ -1264,11 +1346,11 @@ Page({
     const { id } = e.currentTarget.dataset
     if (id === 'all') {
       wx.navigateTo({
-        url: `/pages/notification/list/list?associationId=${this.data.associationId}`
+        url: `/pages/notification/list/list?associationId=${this.data.associationId}`,
       })
     } else {
       wx.navigateTo({
-        url: `/pages/notification/detail/detail?id=${id}`
+        url: `/pages/notification/detail/detail?id=${id}`,
       })
     }
   },
@@ -1277,7 +1359,7 @@ Page({
   viewActivityDetail(e) {
     const { id } = e.currentTarget.dataset
     wx.navigateTo({
-      url: `/pages/activity/detail-new/detail-new?id=${id}`
+      url: `/pages/activity/detail-new/detail-new?id=${id}`,
     })
   },
 
@@ -1286,11 +1368,11 @@ Page({
     const { id } = e.currentTarget.dataset
     if (id === 'all') {
       wx.navigateTo({
-        url: `/pages/benefit/list/list?associationId=${this.data.associationId}`
+        url: `/pages/benefit/list/list?associationId=${this.data.associationId}`,
       })
     } else {
       wx.navigateTo({
-        url: `/pages/benefit/detail/detail?id=${id}`
+        url: `/pages/benefit/detail/detail?id=${id}`,
       })
     }
   },
@@ -1298,39 +1380,41 @@ Page({
   // 认证标签点击
   handleCertificationTap(e) {
     const { type, id } = e.currentTarget.dataset
-    if (!type || !id) { return }
+    if (!type || !id) {
+      return
+    }
 
     if (type === 'union') {
       wx.navigateTo({
-        url: `/pages/alumni-union/detail/detail?id=${id}`
+        url: `/pages/alumni-union/detail/detail?id=${id}`,
       })
     } else if (type === 'platform') {
       wx.navigateTo({
-        url: `/pages/local-platform/detail/detail?id=${id}`
+        url: `/pages/local-platform/detail/detail?id=${id}`,
       })
     } else if (type === 'promotion') {
       wx.navigateTo({
-        url: `/pages/promotion/detail/detail?id=${id}`
+        url: `/pages/promotion/detail/detail?id=${id}`,
       })
     }
   },
 
   // 跳转到文章详情
   goToArticleDetail(e) {
-    const id = e.currentTarget.dataset.id;
-    const article = this.data.articleList.find(a => a.id === id);
+    const id = e.currentTarget.dataset.id
+    const article = this.data.articleList.find(a => a.id === id)
 
     if (!article) {
       wx.showToast({
         title: '文章数据不存在',
-        icon: 'none'
-      });
-      return;
+        icon: 'none',
+      })
+      return
     }
 
-    const articleType = article.articleType || 1;
-    const articleLink = article.articleLink || '';
-    const articleTitle = article.title || '资讯详情';
+    const articleType = article.articleType || 1
+    const articleLink = article.articleLink || ''
+    const articleTitle = article.title || '资讯详情'
 
     // 1: 公众号文章
     if (articleType === 1) {
@@ -1340,15 +1424,15 @@ Page({
           fail() {
             wx.showToast({
               title: '无法打开文章',
-              icon: 'none'
-            });
-          }
-        });
+              icon: 'none',
+            })
+          },
+        })
       } else {
         wx.showToast({
           title: '文章链接为空',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       }
     }
     // 2: 内部路径
@@ -1358,23 +1442,23 @@ Page({
           url: articleLink,
           fail() {
             wx.navigateTo({
-              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
-            });
-          }
-        });
+              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
+            })
+          },
+        })
       }
     }
     // 3: 第三方链接
     else if (articleType === 3) {
       wx.navigateTo({
-        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
-      });
+        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
+      })
     }
     // 默认跳转到普通详情页
     else {
       wx.navigateTo({
-        url: `/pages/article/detail/detail?id=${id}`
-      });
+        url: `/pages/article/detail/detail?id=${id}`,
+      })
     }
   },
 
@@ -1382,7 +1466,7 @@ Page({
   viewSchoolDetail() {
     if (this.data.associationInfo.schoolId) {
       wx.navigateTo({
-        url: `/pages/school/detail/detail?id=${this.data.associationInfo.schoolId}`
+        url: `/pages/school/detail/detail?id=${this.data.associationInfo.schoolId}`,
       })
     }
   },
@@ -1392,11 +1476,11 @@ Page({
     const { id } = e.currentTarget.dataset
     if (id === 'all') {
       wx.navigateTo({
-        url: `/pages/enterprise/list/list?associationId=${this.data.associationId}`
+        url: `/pages/enterprise/list/list?associationId=${this.data.associationId}`,
       })
     } else {
       wx.navigateTo({
-        url: `/pages/enterprise/detail/detail?id=${id}`
+        url: `/pages/enterprise/detail/detail?id=${id}`,
       })
     }
   },
@@ -1406,11 +1490,11 @@ Page({
     const { id } = e.currentTarget.dataset
     if (id === 'all') {
       wx.navigateTo({
-        url: `/pages/shop/list/list?associationId=${this.data.associationId}`
+        url: `/pages/shop/list/list?associationId=${this.data.associationId}`,
       })
     } else {
       wx.navigateTo({
-        url: `/pages/shop/detail/detail?id=${id}`
+        url: `/pages/shop/detail/detail?id=${id}`,
       })
     }
   },
@@ -1424,42 +1508,45 @@ Page({
   // 加载组织架构树
   loadOrganizationTree() {
     this.setData({
-      organizationLoading: true
+      organizationLoading: true,
     })
 
     // 调用API获取组织架构树
     const { post } = require('../../../utils/request.js')
     post('/AlumniAssociation/organizationTree/v2', {
-      alumniAssociationId: this.data.associationId
-    }).then(res => {
-      if (res.data && res.data.code === 200) {
-        this.setData({
-          roleList: res.data.data || []
-        })
-      } else {
-        wx.showToast({
-          title: res.data.msg || '加载失败',
-          icon: 'none'
-        })
-      }
-    }).catch(err => {
-      wx.showToast({
-        title: '网络错误',
-        icon: 'none'
-      })
-      console.error('加载组织架构树失败:', err)
-    }).finally(() => {
-      this.setData({
-        organizationLoading: false
-      })
+      alumniAssociationId: this.data.associationId,
     })
+      .then(res => {
+        if (res.data && res.data.code === 200) {
+          this.setData({
+            roleList: res.data.data || [],
+          })
+        } else {
+          wx.showToast({
+            title: res.data.msg || '加载失败',
+            icon: 'none',
+          })
+        }
+      })
+      .catch(err => {
+        wx.showToast({
+          title: '网络错误',
+          icon: 'none',
+        })
+        console.error('加载组织架构树失败:', err)
+      })
+      .finally(() => {
+        this.setData({
+          organizationLoading: false,
+        })
+      })
   },
 
   // 显示"开发中"提示
   handleDeveloping() {
     wx.showToast({
       title: '开发中，敬请期待',
-      icon: 'none'
+      icon: 'none',
     })
   },
 
@@ -1472,7 +1559,7 @@ Page({
     const username = associationInfo.chargeName || '匿名用户'
 
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`
+      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`,
     })
   },
 
@@ -1485,7 +1572,7 @@ Page({
     const username = associationInfo.zhName || '匿名用户'
 
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`
+      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`,
     })
   },
 
@@ -1498,7 +1585,14 @@ Page({
     const username = member.username || '匿名用户'
 
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`
+      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`,
     })
-  }
+  },
+
+  // 跳转到认证说明页面
+  goToCertificationInfo() {
+    wx.navigateTo({
+      url: '/pages/certification-info/certification-info',
+    })
+  },
 })

@@ -1,5 +1,12 @@
 /* pages/alumni/list/list.wxss */
 
+/* 校友认证等级图片 */
+.alumni-cert-badge-img {
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
 /* 页面容器 */
 page {
   background: #F5F5F5;

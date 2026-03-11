@@ -297,7 +297,6 @@ Page({
     const updateData = {
       'formData.schoolId': school.schoolId,
       'formData.schoolName': school.schoolName,
-      'formData.associationName': school.schoolName, // 自动填充校友会名称为学校名称
       schoolLogoUrl: schoolLogo,
       showSchoolResults: false,
     }
@@ -886,6 +885,10 @@ Page({
     }
     if (!formData.location) {
       wx.showToast({ title: '请选择常驻地点', icon: 'none' })
+      return
+    }
+    if (!formData.associationProfile) {
+      wx.showToast({ title: '请输入校友会简介', icon: 'none' })
       return
     }
     // platformId is optional per API specs

@@ -10,7 +10,7 @@ Page({
     chatInfo: {
       name: '',
       avatar: '',
-      isOnline: false
+      isOnline: false,
     },
     myAvatar: '',
     myUserId: null,
@@ -21,7 +21,110 @@ Page({
     showEmoji: false,
     showMoreMenu: false,
     socketConnected: false,
-    emojiList: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃']
+    emojiList: [
+      '😀',
+      '😃',
+      '😄',
+      '😁',
+      '😆',
+      '😅',
+      '😂',
+      '🤣',
+      '😊',
+      '😇',
+      '🙂',
+      '🙃',
+      '😉',
+      '😌',
+      '😍',
+      '🥰',
+      '😘',
+      '😗',
+      '😙',
+      '😚',
+      '😋',
+      '😛',
+      '😝',
+      '😜',
+      '🤪',
+      '🤨',
+      '🧐',
+      '🤓',
+      '😎',
+      '🤩',
+      '🥳',
+      '😏',
+      '😒',
+      '😞',
+      '😔',
+      '😟',
+      '😕',
+      '🙁',
+      '☹️',
+      '😣',
+      '😖',
+      '😫',
+      '😩',
+      '🥺',
+      '😢',
+      '😭',
+      '😤',
+      '😠',
+      '😡',
+      '🤬',
+      '🤯',
+      '😳',
+      '🥵',
+      '🥶',
+      '😱',
+      '😨',
+      '😰',
+      '😥',
+      '😓',
+      '🤗',
+      '🤔',
+      '🤭',
+      '🤫',
+      '🤥',
+      '😶',
+      '😐',
+      '😑',
+      '😬',
+      '🙄',
+      '😯',
+      '😦',
+      '😧',
+      '😮',
+      '😲',
+      '🥱',
+      '😴',
+      '🤤',
+      '😪',
+      '😵',
+      '🤐',
+      '🥴',
+      '🤢',
+      '🤮',
+      '🤧',
+      '😷',
+      '🤒',
+      '🤕',
+      '🤑',
+      '🤠',
+      '😈',
+      '👿',
+      '👹',
+      '👺',
+      '🤡',
+      '💩',
+      '👻',
+      '💀',
+      '☠️',
+      '👽',
+      '👾',
+      '🤖',
+      '🎃',
+    ],
   },
 
   // WebSocket 事件监听器引用
@@ -41,7 +144,7 @@ Page({
       if (decodedDraft) {
         this.setData({
           inputValue: decodedDraft,
-          hasInput: true
+          hasInput: true,
         })
       }
     }
@@ -59,7 +162,8 @@ Page({
     // 如果还是没有，尝试从 app.globalData.userInfo 获取（有些小程序存储在这里）
     if (!myAvatar && app.globalData.userInfo) {
       const gUserInfo = app.globalData.userInfo
-      myAvatar = gUserInfo.avatar || gUserInfo.avatarUrl || gUserInfo.portrait || gUserInfo.headImgUrl
+      myAvatar =
+        gUserInfo.avatar || gUserInfo.avatarUrl || gUserInfo.portrait || gUserInfo.headImgUrl
     }
 
     // 如果所有缓存都失效，尝试从接口获取最新用户信息
@@ -72,7 +176,7 @@ Page({
           // 更新全局数据
           app.globalData.userData = {
             ...(app.globalData.userData || {}),
-            ...info
+            ...info,
           }
           // 再次尝试获取头像
           myAvatar = info.avatar || info.avatarUrl || info.portrait || info.headImgUrl
@@ -88,7 +192,7 @@ Page({
         conversationId: conversationId || null,
         chatType: type || 'chat',
         myUserId: myUserId,
-        myAvatar: config.getImageUrl(myAvatar || config.defaultAvatar)
+        myAvatar: config.getImageUrl(myAvatar || config.defaultAvatar),
       })
 
       // 进入聊天详情页时，自动标记该会话为已读
@@ -101,7 +205,7 @@ Page({
       console.error('[ChatDetail] 无效的聊天ID:', id)
       wx.showToast({
         title: '参数错误',
-        icon: 'none'
+        icon: 'none',
       })
       setTimeout(() => {
         wx.navigateBack()
@@ -136,13 +240,13 @@ Page({
       console.error('[ChatDetail] WebSocket 管理器未初始化')
       wx.showToast({
         title: '消息服务未连接',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
 
     // 监听新消息
-    this.messageListener = (data) => {
+    this.messageListener = data => {
       if (data.type === 'msg') {
         this.handleNewMessage(data)
       }
@@ -150,7 +254,7 @@ Page({
     socketManager.on('onMessage', this.messageListener)
 
     // 监听在线状态变化
-    this.onlineStatusListener = (data) => {
+    this.onlineStatusListener = data => {
       this.handleOnlineStatusChange(data)
     }
     socketManager.on('onOnlineStatus', this.onlineStatusListener)
@@ -166,7 +270,7 @@ Page({
       this.setData({ socketConnected: false })
       wx.showToast({
         title: '消息服务已断开',
-        icon: 'none'
+        icon: 'none',
       })
     }
     socketManager.on('onDisconnect', this.disconnectListener)
@@ -232,10 +336,12 @@ Page({
       // 如果是我发送的消息，通过内容和时间戳匹配（允许一定的时间误差）
       if (isMe && msg.isMe && msg.content === content) {
         // 如果消息的 timestamp 与接收到的 timestamp 匹配，或者时间差在10秒内
-        const msgTime = msg.timestamp || (typeof msg.id === 'number' && msg.id > 1577836800000 ? msg.id : null)
+        const msgTime =
+          msg.timestamp || (typeof msg.id === 'number' && msg.id > 1577836800000 ? msg.id : null)
         if (msgTime) {
           const timeDiff = Math.abs(msgTime - msgTimestamp)
-          if (timeDiff < 10000) {  // 10秒内的消息认为是同一条
+          if (timeDiff < 10000) {
+            // 10秒内的消息认为是同一条
             return true
           }
         }
@@ -247,21 +353,25 @@ Page({
       // 消息已存在，更新它而不是添加新消息
       const updatedList = this.data.messageList.map(msg => {
         // 匹配临时消息：通过ID或内容和时间匹配
-        if (msg.id === existingMessage.id ||
-          (isMe && msg.isMe && msg.content === content &&
+        if (
+          msg.id === existingMessage.id ||
+          (isMe &&
+            msg.isMe &&
+            msg.content === content &&
             (msg.id === existingMessage.id ||
-              (msg.timestamp && Math.abs(msg.timestamp - msgTimestamp) < 10000)))) {
+              (msg.timestamp && Math.abs(msg.timestamp - msgTimestamp) < 10000)))
+        ) {
           return {
             ...msg,
-            id: msgId,  // 使用后端返回的真实ID
-            timestamp: msgTimestamp,  // 确保 timestamp 字段存在
+            id: msgId, // 使用后端返回的真实ID
+            timestamp: msgTimestamp, // 确保 timestamp 字段存在
             status: 'success',
             // 确保所有字段都正确
             isMe: isMe,
             content: content,
             type: messageType || 'text',
             time: this.formatTime(msgTimestamp),
-            avatar: isMe ? this.data.myAvatar : this.data.chatInfo.avatar
+            avatar: isMe ? this.data.myAvatar : this.data.chatInfo.avatar,
           }
         }
         return msg
@@ -278,9 +388,9 @@ Page({
       content: content,
       type: messageType || 'text',
       time: this.formatTime(msgTimestamp),
-      timestamp: msgTimestamp,  // 确保 timestamp 字段存在，用于撤回判断
+      timestamp: msgTimestamp, // 确保 timestamp 字段存在，用于撤回判断
       avatar: isMe ? this.data.myAvatar : this.data.chatInfo.avatar,
-      status: 'success'
+      status: 'success',
     }
 
     // 如果是图片消息
@@ -291,7 +401,7 @@ Page({
     const messageList = [...this.data.messageList, newMessage]
     this.setData({
       messageList: messageList,
-      scrollIntoView: `msg-${newMessage.id}`
+      scrollIntoView: `msg-${newMessage.id}`,
     })
   },
 
@@ -305,9 +415,10 @@ Page({
 
     // 检查对方是否在线
     if (userId === this.data.chatId || (onlineUsers && onlineUsers.includes(this.data.chatId))) {
-      const isOnline = status === 'online' || (onlineUsers && onlineUsers.includes(String(this.data.chatId)))
+      const isOnline =
+        status === 'online' || (onlineUsers && onlineUsers.includes(String(this.data.chatId)))
       this.setData({
-        'chatInfo.isOnline': isOnline
+        'chatInfo.isOnline': isOnline,
       })
     }
   },
@@ -322,7 +433,7 @@ Page({
     if (socketManager && socketManager.isConnected) {
       const isOnline = socketManager.isUserOnline(this.data.chatId)
       this.setData({
-        'chatInfo.isOnline': isOnline
+        'chatInfo.isOnline': isOnline,
       })
     }
   },
@@ -371,12 +482,18 @@ Page({
           const prevPage = pages[pages.length - 2]
           if (prevPage && prevPage.data.chatList) {
             // 使用 id (可能是 userId, peerId, targetId 等) 进行模糊匹配
-            const currentChat = prevPage.data.chatList.find(c =>
-              c.peerId == id || c.userId == id || c.id == id
+            const currentChat = prevPage.data.chatList.find(
+              c => c.peerId == id || c.userId == id || c.id == id
             )
             if (currentChat) {
-              if (name === '未知用户') { name = currentChat.name || currentChat.peerNickname || '未知校友' }
-              if (!avatar) { avatar = currentChat.avatar || (currentChat.peerAvatar ? config.getImageUrl(currentChat.peerAvatar) : '') }
+              if (name === '未知用户') {
+                name = currentChat.name || currentChat.peerNickname || '未知校友'
+              }
+              if (!avatar) {
+                avatar =
+                  currentChat.avatar ||
+                  (currentChat.peerAvatar ? config.getImageUrl(currentChat.peerAvatar) : '')
+              }
             }
           }
         }
@@ -387,13 +504,13 @@ Page({
           name,
           avatar,
           userId: id,
-          isOnline: this.data.chatInfo.isOnline // 保持在线状态不变
-        }
+          isOnline: this.data.chatInfo.isOnline, // 保持在线状态不变
+        },
       })
 
       // 设置导航栏标题
       wx.setNavigationBarTitle({
-        title: name
+        title: name,
       })
     } catch (error) {
       console.error('[ChatDetail] 加载聊天对象信息失败:', error)
@@ -439,7 +556,8 @@ Page({
           }
 
           // 检查是否为撤回消息：status === 4 表示已撤回，或者内容包含"撤回"
-          const isRecalled = msg.status === 4 ||
+          const isRecalled =
+            msg.status === 4 ||
             (content && (content.includes('撤回了一条消息') || content.includes('撤回')))
 
           // 如果是撤回消息，统一显示为"你撤回了一条消息"或"对方撤回了一条消息"
@@ -457,14 +575,18 @@ Page({
             id: msg.messageId,
             isMe: msg.isMine,
             content: content,
-            type: isRecalled ? 'system' : (msgType === 'image' ? 'image' : 'text'), // 撤回消息设置为 system 类型
+            type: isRecalled ? 'system' : msgType === 'image' ? 'image' : 'text', // 撤回消息设置为 system 类型
             time: this.formatTime(msg.createTime),
             timestamp: msg.createTime, // 保存原始时间戳用于撤回判断
             // 如果是对方的消息，尝试从 msgContent 中获取头像，否则使用默认头像
-            avatar: msg.isMine ? this.data.myAvatar : (formUserPortrait ? config.getImageUrl(formUserPortrait) : this.data.chatInfo.avatar),
+            avatar: msg.isMine
+              ? this.data.myAvatar
+              : formUserPortrait
+                ? config.getImageUrl(formUserPortrait)
+                : this.data.chatInfo.avatar,
             image: msgType === 'image' ? config.getImageUrl(content) : '',
             status: 'success',
-            isRecall: isRecalled // 标记为撤回消息
+            isRecall: isRecalled, // 标记为撤回消息
           }
         })
 
@@ -472,7 +594,7 @@ Page({
         mappedMessages.reverse()
 
         this.setData({
-          messageList: mappedMessages
+          messageList: mappedMessages,
         })
 
         // 滚动到底部
@@ -497,7 +619,7 @@ Page({
       // 只加载最后几条消息
       const params = {
         current: 1,
-        size: 5,  // 只加载最后5条，减少请求量
+        size: 5, // 只加载最后5条，减少请求量
         otherUserId: chatId,
       }
       const res = await chatApi.getChatHistory(params)
@@ -527,7 +649,8 @@ Page({
             }
 
             // 检查是否为撤回消息：status === 4 表示已撤回，或者内容包含"撤回"
-            const isRecalled = msg.status === 4 ||
+            const isRecalled =
+              msg.status === 4 ||
               (content && (content.includes('撤回了一条消息') || content.includes('撤回')))
 
             // 如果是撤回消息，统一显示为"你撤回了一条消息"或"对方撤回了一条消息"
@@ -545,13 +668,17 @@ Page({
               id: msg.messageId,
               isMe: msg.isMine,
               content: content,
-              type: isRecalled ? 'system' : (msgType === 'image' ? 'image' : 'text'), // 撤回消息设置为 system 类型
+              type: isRecalled ? 'system' : msgType === 'image' ? 'image' : 'text', // 撤回消息设置为 system 类型
               time: this.formatTime(msg.createTime),
               timestamp: msg.createTime,
-              avatar: msg.isMine ? this.data.myAvatar : (formUserPortrait ? config.getImageUrl(formUserPortrait) : this.data.chatInfo.avatar),
+              avatar: msg.isMine
+                ? this.data.myAvatar
+                : formUserPortrait
+                  ? config.getImageUrl(formUserPortrait)
+                  : this.data.chatInfo.avatar,
               image: msgType === 'image' ? config.getImageUrl(content) : '',
               status: 'success',
-              isRecall: isRecalled // 标记为撤回消息
+              isRecall: isRecalled, // 标记为撤回消息
             }
           })
 
@@ -566,10 +693,11 @@ Page({
             // 如果是临时消息（使用timestamp作为ID），且内容和时间匹配
             if (msg.id === sentTimestamp && msg.content === sentContent && msg.isMe) {
               // 优先使用最新消息中匹配的消息
-              const matchedMsg = mappedMessages.find(m =>
-                m.isMe &&
-                m.content === sentContent &&
-                Math.abs(m.timestamp - sentTimestamp) < 10000  // 10秒内的消息认为是同一条
+              const matchedMsg = mappedMessages.find(
+                m =>
+                  m.isMe &&
+                  m.content === sentContent &&
+                  Math.abs(m.timestamp - sentTimestamp) < 10000 // 10秒内的消息认为是同一条
               )
 
               // 如果找到了精确匹配的消息
@@ -580,7 +708,7 @@ Page({
                   id: matchedMsg.id,
                   timestamp: matchedMsg.timestamp,
                   status: 'success',
-                  time: matchedMsg.time
+                  time: matchedMsg.time,
                 }
               }
 
@@ -592,7 +720,7 @@ Page({
                   id: myLatestMessage.id,
                   timestamp: myLatestMessage.timestamp,
                   status: 'success',
-                  time: myLatestMessage.time
+                  time: myLatestMessage.time,
                 }
               }
             }
@@ -626,7 +754,7 @@ Page({
     const value = e.detail.value
     this.setData({
       inputValue: value,
-      hasInput: value.trim().length > 0
+      hasInput: value.trim().length > 0,
     })
   },
 
@@ -648,29 +776,30 @@ Page({
       time: this.formatTime(timestamp),
       timestamp: timestamp,
       avatar: this.data.myAvatar,
-      status: 'sending'
+      status: 'sending',
     }
 
     this.setData({
       messageList: [...messageList, newMessage],
       inputValue: '',
       hasInput: false,
-      scrollIntoView: `msg-${newMessage.id}`
+      scrollIntoView: `msg-${newMessage.id}`,
     })
 
     try {
       // 构造发送参数
       const payload = {
-        toUserId: chatId, // 使用 toUserId 
-        toId: chatId,     // 保留 toId 以兼容
+        toUserId: chatId, // 使用 toUserId
+        toId: chatId, // 保留 toId 以兼容
         otherUserId: chatId, // 保留 otherUserId 以兼容
-        content: content,    // 直接在顶层添加 content 字段
+        content: content, // 直接在顶层添加 content 字段
         messageFormat: 'TEXT',
         messageType: 'MESSAGE',
-        msgContent: JSON.stringify({ // 将 msgContent 转为字符串，以防后端需要
+        msgContent: JSON.stringify({
+          // 将 msgContent 转为字符串，以防后端需要
           content: content,
-          type: 'text'
-        })
+          type: 'text',
+        }),
       }
 
       const res = await chatApi.sendMessage(payload)
@@ -699,20 +828,14 @@ Page({
 
       wx.showToast({
         title: '发送失败',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
 
   receiveMessage() {
     const { messageList } = this.data
-    const replies = [
-      '好的，我知道了',
-      '谢谢你的回复',
-      '没问题',
-      '收到',
-      '好的，到时候见'
-    ]
+    const replies = ['好的，我知道了', '谢谢你的回复', '没问题', '收到', '好的，到时候见']
 
     const now = new Date()
     const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
@@ -721,12 +844,12 @@ Page({
       id: messageList.length + 1,
       isMe: false,
       content: replies[Math.floor(Math.random() * replies.length)],
-      time: timeStr
+      time: timeStr,
     }
 
     this.setData({
       messageList: [...messageList, replyMessage],
-      scrollIntoView: `msg-${replyMessage.id}`
+      scrollIntoView: `msg-${replyMessage.id}`,
     })
   },
 
@@ -735,7 +858,7 @@ Page({
     if (messageList.length > 0) {
       const lastId = messageList[messageList.length - 1].id
       this.setData({
-        scrollIntoView: `msg-${lastId}`
+        scrollIntoView: `msg-${lastId}`,
       })
     }
   },
@@ -743,13 +866,13 @@ Page({
   showMoreActions() {
     this.setData({
       showMoreMenu: true,
-      showEmoji: false
+      showEmoji: false,
     })
   },
 
   hideMoreMenu() {
     this.setData({
-      showMoreMenu: false
+      showMoreMenu: false,
     })
   },
 
@@ -759,18 +882,18 @@ Page({
       count: 9,
       sizeType: ['original', 'compressed'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
+      success: res => {
         const tempFilePaths = res.tempFilePaths
         // 发送图片消息
         this.sendImageMessage(tempFilePaths)
       },
-      fail: (err) => {
+      fail: err => {
         console.error('选择图片失败:', err)
         wx.showToast({
           title: '选择图片失败',
-          icon: 'none'
+          icon: 'none',
         })
-      }
+      },
     })
   },
 
@@ -780,7 +903,7 @@ Page({
     if (!socketConnected) {
       wx.showToast({
         title: '消息服务未连接',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -802,13 +925,13 @@ Page({
           type: 'image',
           time: this.formatTime(timestamp),
           avatar: this.data.myAvatar,
-          status: 'sending'
+          status: 'sending',
         }
 
         messageList.push(newMessage)
         this.setData({
           messageList: messageList,
-          scrollIntoView: `msg-${newMessage.id}`
+          scrollIntoView: `msg-${newMessage.id}`,
         })
 
         // 上传图片
@@ -832,7 +955,7 @@ Page({
 
           if (socketManager) {
             socketManager.sendChatMessage(chatId, imageUrl, 'image', {
-              imageUrl: imageUrl
+              imageUrl: imageUrl,
             })
           }
         } else {
@@ -848,33 +971,37 @@ Page({
       }
 
       wx.hideLoading()
-
     } catch (error) {
       console.error('[ChatDetail] 发送图片失败:', error)
       wx.hideLoading()
       wx.showToast({
         title: '发送失败',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
 
   selectLocation() {
     this.hideMoreMenu()
-    wx.chooseLocation({
-      success: (res) => {
-        // 发送位置消息
-        this.sendLocationMessage(res)
-      },
-      fail: (err) => {
-        if (err.errMsg !== 'chooseLocation:fail cancel') {
-          console.error('选择位置失败:', err)
-          wx.showToast({
-            title: '选择位置失败',
-            icon: 'none'
-          })
-        }
-      }
+    // 暂时注释：等待微信公众平台权限申请通过后恢复
+    // wx.chooseLocation({
+    //   success: (res) => {
+    //     // 发送位置消息
+    //     this.sendLocationMessage(res)
+    //   },
+    //   fail: (err) => {
+    //     if (err.errMsg !== 'chooseLocation:fail cancel') {
+    //       console.error('选择位置失败:', err)
+    //       wx.showToast({
+    //         title: '选择位置失败',
+    //         icon: 'none'
+    //       })
+    //     }
+    //   }
+    // })
+    wx.showToast({
+      title: '位置选择功能暂时不可用',
+      icon: 'none',
     })
   },
 
@@ -891,15 +1018,15 @@ Page({
         name: location.name,
         address: location.address,
         latitude: location.latitude,
-        longitude: location.longitude
+        longitude: location.longitude,
       },
       type: 'location',
-      time: timeStr
+      time: timeStr,
     }
 
     this.setData({
       messageList: [...messageList, newMessage],
-      scrollIntoView: `msg-${newMessage.id}`
+      scrollIntoView: `msg-${newMessage.id}`,
     })
 
     // 模拟对方回复
@@ -913,7 +1040,7 @@ Page({
     // 这里可以跳转到联系人选择页面，或者使用微信的通讯录选择
     wx.showActionSheet({
       itemList: ['从通讯录选择', '从校友列表选择'],
-      success: (res) => {
+      success: res => {
         if (res.tapIndex === 0) {
           // 从通讯录选择（需要用户授权）
           this.selectFromContacts()
@@ -921,7 +1048,7 @@ Page({
           // 从校友列表选择
           this.selectFromAlumni()
         }
-      }
+      },
     })
   },
 
@@ -930,7 +1057,7 @@ Page({
     // 或者跳转到自定义的联系人选择页面
     wx.showToast({
       title: '功能开发中',
-      icon: 'none'
+      icon: 'none',
     })
   },
 
@@ -939,10 +1066,10 @@ Page({
     wx.navigateTo({
       url: '/pages/alumni/list/list?mode=select',
       events: {
-        selectAlumni: (alumni) => {
+        selectAlumni: alumni => {
           this.sendContactMessage(alumni)
-        }
-      }
+        },
+      },
     })
   },
 
@@ -959,15 +1086,15 @@ Page({
         id: contact.id,
         name: contact.name,
         avatar: contact.avatar,
-        school: contact.school
+        school: contact.school,
       },
       type: 'contact',
-      time: timeStr
+      time: timeStr,
     }
 
     this.setData({
       messageList: [...messageList, newMessage],
-      scrollIntoView: `msg-${newMessage.id}`
+      scrollIntoView: `msg-${newMessage.id}`,
     })
 
     // 模拟对方回复
@@ -983,19 +1110,19 @@ Page({
     if (type === 'official' || chatInfo.associationId) {
       // 跳转到校友会主页
       wx.navigateTo({
-        url: `/pages/alumni-association/detail/detail?id=${chatInfo.associationId || 1}`
+        url: `/pages/alumni-association/detail/detail?id=${chatInfo.associationId || 1}`,
       })
     } else {
       // 跳转到个人主页
       wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${chatInfo.userId || this.data.chatId}`
+        url: `/pages/alumni/detail/detail?id=${chatInfo.userId || this.data.chatId}`,
       })
     }
   },
 
   toggleEmoji() {
     this.setData({
-      showEmoji: !this.data.showEmoji
+      showEmoji: !this.data.showEmoji,
     })
   },
 
@@ -1006,7 +1133,7 @@ Page({
     this.setData({
       inputValue: newValue,
       hasInput: newValue.trim().length > 0,
-      showEmoji: false
+      showEmoji: false,
     })
   },
 
@@ -1019,14 +1146,16 @@ Page({
 
     wx.previewImage({
       current: url,
-      urls: imageUrls
+      urls: imageUrls,
     })
   },
 
   onLongPressMessage(e) {
     const { msg } = e.currentTarget.dataset
     // 只能撤回自己的消息
-    if (!msg.isMe) { return }
+    if (!msg.isMe) {
+      return
+    }
 
     // 检查时间限制（2分钟内可撤回）
     const now = Date.now()
@@ -1048,11 +1177,11 @@ Page({
       // 没有时间戳，仍然显示撤回选项，让后端判断是否可以撤回
       wx.showActionSheet({
         itemList: ['撤回'],
-        success: (res) => {
+        success: res => {
           if (res.tapIndex === 0) {
             this.recallMessage(msg)
           }
-        }
+        },
       })
       return
     }
@@ -1064,11 +1193,11 @@ Page({
 
     wx.showActionSheet({
       itemList: ['撤回'],
-      success: (res) => {
+      success: res => {
         if (res.tapIndex === 0) {
           this.recallMessage(msg)
         }
-      }
+      },
     })
   },
 
@@ -1078,8 +1207,10 @@ Page({
 
       // 检查消息ID是否是临时的（看起来像时间戳）
       let messageId = msg.id
-      const isTemporaryId = typeof messageId === 'number' && messageId > 1577836800000 &&
-        Math.abs(Date.now() - messageId) < 60000  // 1分钟内的消息ID可能是临时的
+      const isTemporaryId =
+        typeof messageId === 'number' &&
+        messageId > 1577836800000 &&
+        Math.abs(Date.now() - messageId) < 60000 // 1分钟内的消息ID可能是临时的
 
       // 如果是临时ID，尝试重新加载消息来获取真实ID
       if (isTemporaryId && msg.content) {
@@ -1087,11 +1218,12 @@ Page({
         try {
           await this.reloadLatestMessages(msg.content, messageId)
           // 重新获取消息列表，查找更新后的消息
-          const updatedMsg = this.data.messageList.find(m =>
-            m.content === msg.content &&
-            m.isMe &&
-            m.id !== messageId &&
-            Math.abs((m.timestamp || m.id) - messageId) < 10000
+          const updatedMsg = this.data.messageList.find(
+            m =>
+              m.content === msg.content &&
+              m.isMe &&
+              m.id !== messageId &&
+              Math.abs((m.timestamp || m.id) - messageId) < 10000
           )
           if (updatedMsg && updatedMsg.id !== messageId) {
             messageId = updatedMsg.id
@@ -1111,15 +1243,19 @@ Page({
         // 更新本地消息列表（通过原始消息ID或内容匹配）
         const updatedList = this.data.messageList.map(item => {
           // 匹配消息：通过ID或内容和时间戳匹配
-          if (item.id === msg.id || item.id === messageId ||
-            (item.content === msg.content && item.isMe &&
-              Math.abs((item.timestamp || item.id) - (msg.timestamp || msg.id)) < 10000)) {
+          if (
+            item.id === msg.id ||
+            item.id === messageId ||
+            (item.content === msg.content &&
+              item.isMe &&
+              Math.abs((item.timestamp || item.id) - (msg.timestamp || msg.id)) < 10000)
+          ) {
             // 替换为系统消息提示
             return {
               ...item,
               type: 'system',
               content: '你撤回了一条消息',
-              isRecall: true
+              isRecall: true,
             }
           }
           return item
@@ -1168,6 +1304,5 @@ Page({
       console.error('[ChatDetail] 标记已读异常:', error)
       // 静默失败，不影响页面正常使用
     }
-  }
+  },
 })
-

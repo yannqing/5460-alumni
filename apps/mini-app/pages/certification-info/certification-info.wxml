@@ -1,0 +1,36 @@
+<!-- 认证等级说明页面 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="认证说明">
+  <view class="certification-info-page">
+    <view class="info-card">
+      <view class="info-header">
+        <text class="info-title">认证等级说明</text>
+      </view>
+
+      <view class="info-content">
+        <view class="cert-item">
+          <view class="cert-level-row">
+            <image class="cert-level-img" src="{{certFirstImg}}" mode="heightFix" />
+            <text class="cert-level-title">一级认证</text>
+          </view>
+          <text class="cert-description">校友会加入校友总会，即取得一级认证；\n该校友会的校友同步享有一级认证。</text>
+        </view>
+
+        <view class="cert-item">
+          <view class="cert-level-row">
+            <image class="cert-level-img" src="{{certSecondImg}}" mode="heightFix" />
+            <text class="cert-level-title">二级认证</text>
+          </view>
+          <text class="cert-description">校友会已在民政部门登记注册，或加入所在城市校友联盟，即取得二级认证；\n该校友会的校友同步享有二级认证。</text>
+        </view>
+
+        <view class="cert-item">
+          <view class="cert-level-row">
+            <image class="cert-level-img" src="{{certThirdImg}}" mode="heightFix" />
+            <text class="cert-level-title">三级认证</text>
+          </view>
+          <text class="cert-description">校友个人加入所属校友会，即取得三级认证。</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>

@@ -227,7 +227,14 @@
   flex-shrink: 0;
 }
 
-/* 校友认证等级标签 */
+/* 校友认证等级图片样式 */
+.alumni-cert-badge-img {
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+/* 校友认证等级标签（已废弃，改用图片） */
 .alumni-cert-badge {
   margin-left: 20rpx;
   padding: 4rpx 16rpx;

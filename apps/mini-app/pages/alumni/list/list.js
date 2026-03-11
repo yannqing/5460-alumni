@@ -1,7 +1,11 @@
 // pages/alumni/list/list.js
 const { alumniApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
-const { FollowTargetType, loadAndUpdateFollowStatus, handleListItemFollow } = require('../../../utils/followHelper.js')
+const {
+  FollowTargetType,
+  loadAndUpdateFollowStatus,
+  handleListItemFollow,
+} = require('../../../utils/followHelper.js')
 
 Page({
   data: {
@@ -9,11 +13,18 @@ Page({
     iconSearch: '../../../assets/icons/magnifying glass.png',
     iconSchool: config.getIconUrl('xx.png'),
     iconLocation: config.getIconUrl('position.png'),
+    // 校友认证等级图片
+    alumniCertFirstImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_first_certification.png',
+    alumniCertSecondImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_second_certification.png',
+    alumniCertThirdImg:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_third_certification.png',
     keyword: '',
     filters: [
       { label: '注册时间', options: ['升序', '降序'], selected: 0 },
       { label: '性别', options: ['全部', '男', '女'], selected: 0 },
-      { label: '关注', options: ['我的关注'], selected: 0 }
+      { label: '关注', options: ['我的关注'], selected: 0 },
     ],
     // 关注筛选下拉选择器
     followFilterOptions: ['全部', '我的关注'],
@@ -28,8 +39,7 @@ Page({
     refreshing: false,
     scrollTop: 0,
     refresherHeight: 0,
-    scrollThreshold: 100
-
+    scrollThreshold: 100,
   },
 
   onLoad() {
@@ -44,16 +54,15 @@ Page({
     setTimeout(() => {
       const query = wx.createSelectorQuery()
       query.select('.banner-area').boundingClientRect()
-      query.exec((res) => {
+      query.exec(res => {
         if (res && res[0]) {
           this.setData({
-            scrollThreshold: res[0].height
+            scrollThreshold: res[0].height,
           })
         }
       })
     }, 300)
   },
-
 
   onPullDownRefresh() {
     // 页面级下拉刷新已禁用，直接停止
@@ -64,7 +73,7 @@ Page({
    * 滚动事件
    */
   onScroll: function (e) {
-    this.setData({ scrollTop: e.detail.scrollTop });
+    this.setData({ scrollTop: e.detail.scrollTop })
   },
 
   /**
@@ -72,10 +81,10 @@ Page({
    */
   onTouchStart: function (e) {
     if (this.data.scrollTop <= 5) {
-      this.startY = e.touches[0].pageY;
-      this.canPull = true;
+      this.startY = e.touches[0].pageY
+      this.canPull = true
     } else {
-      this.canPull = false;
+      this.canPull = false
     }
   },
 
@@ -83,15 +92,15 @@ Page({
    * 触摸移动事件
    */
   onTouchMove: function (e) {
-    if (!this.canPull || this.data.refreshing) return;
+    if (!this.canPull || this.data.refreshing) return
 
-    const moveY = e.touches[0].pageY;
-    const diff = (moveY - this.startY) * 0.5; // 阻尼效果
+    const moveY = e.touches[0].pageY
+    const diff = (moveY - this.startY) * 0.5 // 阻尼效果
 
     if (diff > 0) {
       this.setData({
-        refresherHeight: Math.min(diff, 80)
-      });
+        refresherHeight: Math.min(diff, 80),
+      })
     }
   },
 
@@ -99,18 +108,18 @@ Page({
    * 触摸结束事件
    */
   onTouchEnd: function () {
-    if (!this.canPull || this.data.refreshing) return;
+    if (!this.canPull || this.data.refreshing) return
 
     if (this.data.refresherHeight >= 40) {
       this.setData({
         refreshing: true,
-        refresherHeight: 60
-      });
-      this.loadAlumniList(true);
+        refresherHeight: 60,
+      })
+      this.loadAlumniList(true)
     } else {
       this.setData({
-        refresherHeight: 0
-      });
+        refresherHeight: 0,
+      })
     }
   },
 
@@ -120,7 +129,6 @@ Page({
     this.loadAlumniList(true)
   },
 
-
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
       this.loadAlumniList(false)
@@ -128,8 +136,12 @@ Page({
   },
 
   async loadAlumniList(reset = false) {
-    if (this.data.loading) { return }
-    if (!reset && !this.data.hasMore) { return }
+    if (this.data.loading) {
+      return
+    }
+    if (!reset && !this.data.hasMore) {
+      return
+    }
 
     this.setData({ loading: true })
 
@@ -141,7 +153,7 @@ Page({
       current: reset ? 1 : current,
       size: pageSize,
       // 关注筛选：0-全部，1-仅我关注的
-      myFollow: myFollow
+      myFollow: myFollow,
     }
 
     // 注册时间排序
@@ -174,7 +186,7 @@ Page({
 
         requestPromise = Promise.all([
           alumniApi.queryAlumniList(params1),
-          alumniApi.queryAlumniList(params2)
+          alumniApi.queryAlumniList(params2),
         ]).then(([res1, res2]) => {
           // 构造合并后的结果
           const records1 = (res1.data && res1.data.data && res1.data.data.records) || []
@@ -198,10 +210,10 @@ Page({
                 records: uniqueRecords,
                 total: uniqueRecords.length,
                 current: params.current,
-                size: pageSize
+                size: pageSize,
               },
-              msg: 'success'
-            }
+              msg: 'success',
+            },
           }
         })
       }
@@ -230,7 +242,7 @@ Page({
           hasMore: records.length >= pageSize,
           loading: false,
           refreshing: false,
-          refresherHeight: 0
+          refresherHeight: 0,
         })
 
         wx.stopPullDownRefresh()
@@ -241,7 +253,7 @@ Page({
         this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
         wx.stopPullDownRefresh()
       }
@@ -250,7 +262,7 @@ Page({
       this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
       wx.stopPullDownRefresh()
     }
@@ -301,7 +313,7 @@ Page({
     const schoolName = item.primaryEducation?.schoolInfo?.schoolName || '暂无学校信息'
 
     return {
-      id: item.wxId,  // 使用后端返回的 wxId 字段作为用户ID
+      id: item.wxId, // 使用后端返回的 wxId 字段作为用户ID
       name: displayName,
       avatarUrl: avatarUrl,
       isDefaultAvatar: isDefaultAvatar,
@@ -329,7 +341,7 @@ Page({
       signature: item.signature || '',
       constellation: item.constellation || 0,
       identifyCode: item.identifyCode || '',
-      birthDate: item.birthDate || ''
+      birthDate: item.birthDate || '',
     }
   },
 
@@ -365,7 +377,7 @@ Page({
     this.setData({
       followFilterIndex: index,
       myFollow: index, // 0-全部，1-仅我关注的
-      current: 1
+      current: 1,
     })
     this.loadAlumniList(true)
   },
@@ -376,7 +388,7 @@ Page({
       url: `/pages/alumni/detail/detail?id=${id}`,
       events: {
         // 监听来自详情页的状态更新
-        updateFollowStatus: (data) => {
+        updateFollowStatus: data => {
           console.log('接收到详情页关注状态同步请求:', data)
           const { id, isFollowed, followStatus, isFriend } = data
 
@@ -388,11 +400,18 @@ Page({
             this.setData({
               [`${key}.isFollowed`]: isFollowed,
               [`${key}.followStatus`]: followStatus,
-              [`${key}.isFriend`]: isFriend
+              [`${key}.isFriend`]: isFriend,
             })
           }
-        }
-      }
+        },
+      },
+    })
+  },
+
+  // 跳转到认证说明页面
+  goToCertificationInfo() {
+    wx.navigateTo({
+      url: '/pages/certification-info/certification-info',
     })
   },
 
@@ -400,5 +419,5 @@ Page({
   async toggleFollow(e) {
     const { id, followed } = e.currentTarget.dataset
     await handleListItemFollow(this, 'alumniList', id, followed, FollowTargetType.USER)
-  }
+  },
 })

@@ -88,45 +88,151 @@
   <!-- 邀请成员弹窗 -->
   <view class="invite-modal" wx:if="{{showInviteModal}}">
     <view class="modal-overlay" bindtap="hideInviteModal"></view>
-    <view class="modal-content">
+    <view class="modal-content invite-modal-content">
       <view class="modal-header">
         <text class="modal-title">邀请成员加入</text>
         <text class="modal-close" bindtap="hideInviteModal">×</text>
       </view>
       <view class="modal-body">
-        <view class="alumni-name-field" catchtap="preventBubble">
-          <view class="field-label">校友姓名</view>
-          <view class="field-input-wrapper">
-            <input
-              class="field-input"
-              placeholder="请输入校友姓名进行搜索"
-              placeholder-class="field-placeholder"
-              adjust-position="{{false}}"
-              bindinput="onMemberNameInput"
-              bindfocus="onMemberNameFocus"
-              value="{{inviteForm.name}}"
-            />
+        <!-- 邀请方式选择 -->
+        <view class="invite-method-tabs">
+          <view class="invite-method-tab {{inviteMethod === 'search' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="search">
+            <text>搜索邀请</text>
           </view>
-          <scroll-view scroll-y class="alumni-search-dropdown" show-scrollbar="{{false}}" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
-            <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="alumni-search-item" bindtap="selectAlumni" data-index="{{index}}">
-              <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="alumni-avatar" mode="aspectFill" />
-              <image wx:else src="{{defaultUserAvatarUrl}}" class="alumni-avatar" mode="aspectFill" />
-              <view class="alumni-item-info">
-                <text class="alumni-item-name">{{item.name || item.nickname || item.realName}}</text>
-                <text class="alumni-item-school">{{item.school || '暂无学校信息'}}</text>
+          <view class="invite-method-tab {{inviteMethod === 'link' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="link">
+            <text>链接邀请</text>
+          </view>
+          <view class="invite-method-tab {{inviteMethod === 'qrcode' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="qrcode">
+            <text>二维码邀请</text>
+          </view>
+          <view class="invite-method-tab {{inviteMethod === 'unregistered' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="unregistered">
+            <text>添加未注册</text>
+          </view>
+        </view>
+
+        <!-- 搜索邀请内容 -->
+        <view class="invite-method-content" wx:if="{{inviteMethod === 'search'}}">
+          <view class="alumni-name-field" catchtap="preventBubble">
+            <view class="field-label">校友姓名</view>
+            <view class="field-input-wrapper">
+              <input
+                class="field-input"
+                placeholder="请输入校友姓名进行搜索"
+                placeholder-class="field-placeholder"
+                adjust-position="{{false}}"
+                bindinput="onMemberNameInput"
+                bindfocus="onMemberNameFocus"
+                value="{{inviteForm.name}}"
+              />
+            </view>
+            <scroll-view scroll-y class="alumni-search-dropdown" show-scrollbar="{{false}}" wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}">
+              <view wx:for="{{alumniSearchResults}}" wx:key="userId" class="alumni-search-item" bindtap="selectAlumni" data-index="{{index}}">
+                <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="alumni-avatar" mode="aspectFill" />
+                <image wx:else src="{{defaultUserAvatarUrl}}" class="alumni-avatar" mode="aspectFill" />
+                <view class="alumni-item-info">
+                  <text class="alumni-item-name">{{item.name || item.nickname || item.realName}}</text>
+                  <text class="alumni-item-school">{{item.school || '暂无学校信息'}}</text>
+                </view>
+              </view>
+            </scroll-view>
+          </view>
+          <view class="invite-tip">
+            <text class="invite-tip-icon">i</text>
+            <text class="invite-tip-text">邀请后，用户需在通知中确认才能加入</text>
+          </view>
+        </view>
+
+        <!-- 链接邀请内容 -->
+        <view class="invite-method-content" wx:if="{{inviteMethod === 'link'}}">
+          <view class="invite-link-section">
+            <view class="invite-link-title">分享邀请</view>
+            <view class="invite-link-desc">点击下方按钮，将邀请卡片分享给微信好友，好友点击即可申请加入校友会</view>
+            <view class="invite-share-info">
+              <text class="invite-share-name">{{selectedAlumniAssociationName || '校友会'}}</text>
+              <text class="invite-share-hint">邀请您加入</text>
+            </view>
+            <view class="invite-tip">
+              <text class="invite-tip-icon">i</text>
+              <text class="invite-tip-text">好友通过分享卡片申请后，需等待管理员审核</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 二维码邀请内容 -->
+        <view class="invite-method-content" wx:if="{{inviteMethod === 'qrcode'}}">
+          <view class="invite-qrcode-section">
+            <view class="invite-qrcode-title">邀请二维码</view>
+            <view class="invite-qrcode-desc">好友扫描二维码即可申请加入校友会</view>
+            <view class="invite-qrcode-box">
+              <image class="invite-qrcode-img" src="{{inviteQrcodeUrl}}" mode="aspectFit" wx:if="{{inviteQrcodeUrl}}"></image>
+              <view class="invite-qrcode-loading" wx:elif="{{qrcodeLoading}}">
+                <text>生成中...</text>
+              </view>
+              <view class="invite-qrcode-placeholder" wx:else>
+                <text>请先选择校友会</text>
               </view>
             </view>
-          </scroll-view>
+            <view class="invite-tip">
+              <text class="invite-tip-icon">i</text>
+              <text class="invite-tip-text">好友扫码申请后，需等待管理员审核</text>
+            </view>
+          </view>
         </view>
-        <!-- 邀请流程说明 -->
-        <view class="invite-tip">
-          <text class="invite-tip-icon">i</text>
-          <text class="invite-tip-text">邀请后，用户需在通知中确认才能加入</text>
+
+        <!-- 添加未注册成员内容 -->
+        <view class="invite-method-content" wx:if="{{inviteMethod === 'unregistered'}}">
+          <view class="unregistered-form-section">
+            <view class="form-item">
+              <text class="form-label">姓名 <text class="required">*</text></text>
+              <input
+                class="form-input"
+                placeholder="请输入姓名"
+                value="{{unregisteredForm.username}}"
+                bindinput="onUnregisteredUsernameInput"
+              />
+            </view>
+            <view class="form-item">
+              <text class="form-label">角色名称 <text class="required">*</text></text>
+              <input
+                class="form-input"
+                placeholder="如：副会长、理事等"
+                value="{{unregisteredForm.roleName}}"
+                bindinput="onUnregisteredRoleNameInput"
+              />
+            </view>
+            <view class="form-item">
+              <text class="form-label">手机号 <text class="required">*</text></text>
+              <input
+                class="form-input"
+                type="number"
+                maxlength="11"
+                placeholder="请输入手机号"
+                value="{{unregisteredForm.userPhone}}"
+                bindinput="onUnregisteredUserPhoneInput"
+              />
+            </view>
+            <view class="form-item">
+              <text class="form-label">所属单位/职位</text>
+              <input
+                class="form-input"
+                placeholder="请输入所属单位或职位"
+                value="{{unregisteredForm.userAffiliation}}"
+                bindinput="onUnregisteredUserAffiliationInput"
+              />
+            </view>
+            <view class="invite-tip">
+              <text class="invite-tip-icon">i</text>
+              <text class="invite-tip-text">添加未注册成员后，该成员将直接加入校友会，无需审核</text>
+            </view>
+          </view>
         </view>
       </view>
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideInviteModal">取消</button>
-        <button class="btn btn-confirm" bindtap="submitInvite">确定邀请</button>
+        <button class="btn btn-confirm" wx:if="{{inviteMethod === 'search'}}" bindtap="submitInvite">确定邀请</button>
+        <button class="btn btn-confirm" wx:if="{{inviteMethod === 'link'}}" open-type="share">分享给好友</button>
+        <button class="btn btn-confirm" wx:if="{{inviteMethod === 'qrcode'}}" bindtap="saveQrcode">保存二维码</button>
+        <button class="btn btn-confirm" wx:if="{{inviteMethod === 'unregistered'}}" bindtap="submitAddUnregistered">确定添加</button>
       </view>
     </view>
   </view>

@@ -391,6 +391,13 @@ view, text, picker, input, button, image, navigator {
   background: linear-gradient(135deg, #ffd700 0%, #e6b800 100%);
 }
 
+/* 认证等级图片 */
+.cert-badge-img {
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
 /* 未认证标签 */
 .uncertified-tag {
   padding: 4rpx 12rpx;

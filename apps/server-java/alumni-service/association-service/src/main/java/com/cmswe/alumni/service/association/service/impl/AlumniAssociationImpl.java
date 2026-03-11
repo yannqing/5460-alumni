@@ -882,16 +882,16 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean deleteMember(Long alumniAssociationId, Long wxId) {
+    public boolean deleteMember(Long alumniAssociationId, Long id, Long wxId) {
         // 1. 参数校验
         if (alumniAssociationId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校友会ID不能为空");
         }
-        if (wxId == null) {
-            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员用户ID不能为空");
+        if (id == null && wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "成员记录ID和成员用户ID不能同时为空");
         }
 
-        log.info("开始删除校友会成员 - 校友会ID: {}, 成员用户ID: {}", alumniAssociationId, wxId);
+        log.info("开始删除校友会成员 - 校友会ID: {}, 成员记录ID: {}, 成员用户ID: {}", alumniAssociationId, id, wxId);
 
         // 2. 查询校友会是否存在
         AlumniAssociation alumniAssociation = this.getById(alumniAssociationId);
@@ -900,15 +900,28 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         }
 
         // 3. 查询成员记录是否存在
-        AlumniAssociationMember member = alumniAssociationMemberService.getOne(
-                new LambdaQueryWrapper<AlumniAssociationMember>()
-                        .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId)
-                        .eq(AlumniAssociationMember::getWxId, wxId)
-                        .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
-        );
+        AlumniAssociationMember member = null;
+
+        if (id != null) {
+            // 通过成员记录ID查询（用于删除未注册成员）
+            member = alumniAssociationMemberService.getOne(
+                    new LambdaQueryWrapper<AlumniAssociationMember>()
+                            .eq(AlumniAssociationMember::getId, id)
+                            .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId)
+                            .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
+            );
+        } else {
+            // 通过用户ID查询（用于删除已注册成员）
+            member = alumniAssociationMemberService.getOne(
+                    new LambdaQueryWrapper<AlumniAssociationMember>()
+                            .eq(AlumniAssociationMember::getWxId, wxId)
+                            .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId)
+                            .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
+            );
+        }
 
         if (member == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该用户不是该校友会的成员");
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该成员不存在或已被删除");
         }
 
         // 4. 删除成员记录（逻辑删除）
@@ -1318,7 +1331,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId) {
+    public boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId, String roleName) {
         // 1. 参数校验
         if (operatorWxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "操作人用户ID不能为空");
@@ -1333,8 +1346,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "组织架构角色ID不能为空");
         }
 
-        log.info("开始更新校友会成员角色 - 操作人ID: {}, 校友会ID: {}, 成员用户ID: {}, 新角色ID: {}",
-                operatorWxId, alumniAssociationId, wxId, roleOrId);
+        log.info("开始更新校友会成员角色 - 操作人ID: {}, 校友会ID: {}, 成员用户ID: {}, 新角色ID: {}, 角色名称: {}",
+                operatorWxId, alumniAssociationId, wxId, roleOrId, roleName);
 
         // 2. 查询校友会是否存在
         AlumniAssociation alumniAssociation = this.getById(alumniAssociationId);
@@ -1367,17 +1380,20 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该组织架构角色不存在或未启用");
         }
 
-        // 5. 更新成员角色
+        // 5. 更新成员角色和角色名称
         Long oldRoleOrId = member.getRoleOrId();
         member.setRoleOrId(roleOrId);
+        if (roleName != null && !roleName.trim().isEmpty()) {
+            member.setRoleName(roleName);
+        }
         boolean updateResult = alumniAssociationMemberService.updateById(member);
 
         if (!updateResult) {
             throw new BusinessException(ErrorType.OPERATION_ERROR, "更新成员角色失败");
         }
 
-        log.info("更新校友会成员角色成功 - 校友会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}",
-                alumniAssociationId, wxId, oldRoleOrId, roleOrId);
+        log.info("更新校友会成员角色成功 - 校友会ID: {}, 成员用户ID: {}, 原角色ID: {}, 新角色ID: {}, 角色名称: {}",
+                alumniAssociationId, wxId, oldRoleOrId, roleOrId, roleName);
 
         // 6. 发送角色更新通知
         sendRoleUpdateNotification(operatorWxId, wxId, alumniAssociationId,
@@ -2288,6 +2304,52 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         log.info("从分支移除成员成功 - 校友会ID: {}, 成员用户ID: {}, 原分支ID: {}",
                 alumniAssociationId, wxId, oldRoleOrId);
+
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean addUnregisteredMember(Long alumniAssociationId, String username, String roleName, String userPhone, String userAffiliation) {
+        // 1. 参数校验
+        if (alumniAssociationId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校友会ID不能为空");
+        }
+        if (username == null || username.trim().isEmpty()) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户名字不能为空");
+        }
+
+        log.info("开始添加未注册成员 - 校友会ID: {}, 用户名: {}, 角色名称: {}, 联系电话: {}, 社会职务: {}",
+                alumniAssociationId, username, roleName, userPhone, userAffiliation);
+
+        // 2. 查询校友会是否存在
+        AlumniAssociation alumniAssociation = this.getById(alumniAssociationId);
+        if (alumniAssociation == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校友会不存在");
+        }
+
+        // 3. 创建新的成员记录
+        AlumniAssociationMember member = new AlumniAssociationMember();
+        member.setAlumniAssociationId(alumniAssociationId);
+        member.setUsername(username);
+        member.setRoleName(roleName);
+        member.setUserPhone(userPhone);
+        member.setUserAffiliation(userAffiliation);
+        member.setWxId(null); // 未注册用户，wxId 为空
+        member.setStatus(1); // 状态：1-正常
+        member.setIsNu(0); // 是否是架构成员：0-否
+        member.setIsShowOnHome(0); // 默认不展示在主页
+        member.setJoinTime(LocalDateTime.now());
+
+        // 4. 保存成员记录
+        boolean saveResult = alumniAssociationMemberService.save(member);
+
+        if (!saveResult) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "添加未注册成员失败");
+        }
+
+        log.info("添加未注册成员成功 - 校友会ID: {}, 成员ID: {}, 用户名: {}",
+                alumniAssociationId, member.getId(), username);
 
         return true;
     }

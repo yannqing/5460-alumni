@@ -1,6 +1,7 @@
 // pages/alumni-association/apply/apply.js
 const { associationApi, fileApi, userApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
+const auth = require('../../../utils/auth.js')
 
 Page({
   data: {
@@ -20,7 +21,7 @@ Page({
       department: '',
       major: '',
       className: '',
-      educationLevel: ''
+      educationLevel: '',
     },
     attachments: [], // 附件列表 {url: '', fileId: ''}
     educationLevels: ['专科', '本科', '硕士', '博士'],
@@ -32,17 +33,40 @@ Page({
     loadingUserInfo: false,
     applicationDetail: null, // 申请详情
     loadingDetail: false,
-    headerImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png`
+    headerImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png`,
   },
 
   async onLoad(options) {
+    // 保存页面参数，用于注册后返回
+    this.pageOptions = options
+
+    // 检查用户是否已完成注册，未注册则跳转到注册页
+    const isProfileComplete = auth.checkProfileComplete()
+    if (!isProfileComplete) {
+      console.log('[Apply] 用户未完成注册，跳转到注册页')
+      // 保存当前页面路径和参数到缓存，注册完成后可以跳转回来
+      const currentPath = '/pages/alumni-association/apply/apply'
+      const queryString = Object.keys(options)
+        .map(key => `${key}=${encodeURIComponent(options[key])}`)
+        .join('&')
+      wx.setStorageSync('redirectAfterRegister', `${currentPath}?${queryString}`)
+
+      wx.redirectTo({
+        url: '/pages/register/register',
+        fail: () => {
+          console.log('[Apply] 跳转注册页失败')
+        },
+      })
+      return
+    }
+
     // 初始化年份选择器
     this.initYearRanges()
 
     // 获取校友会ID和学校信息
     if (options.id) {
       this.setData({
-        alumniAssociationId: options.id
+        alumniAssociationId: options.id,
       })
     }
 
@@ -57,12 +81,12 @@ Page({
       // 编辑模式：加载学校信息和用户信息
       if (options.schoolId) {
         this.setData({
-          schoolId: options.schoolId
+          schoolId: options.schoolId,
         })
       }
       if (options.schoolName) {
         this.setData({
-          schoolName: decodeURIComponent(options.schoolName)
+          schoolName: decodeURIComponent(options.schoolName),
         })
       }
       // 加载用户信息并填充表单
@@ -72,7 +96,9 @@ Page({
 
   // 加载用户信息
   async loadUserInfo() {
-    if (this.data.loadingUserInfo) { return }
+    if (this.data.loadingUserInfo) {
+      return
+    }
 
     this.setData({ loadingUserInfo: true })
 
@@ -93,7 +119,7 @@ Page({
           department: '',
           major: '',
           className: '',
-          educationLevel: ''
+          educationLevel: '',
         }
 
         // 只有当详情页传入的 schoolId 与用户教育经历中的 schoolId 匹配时，才填充教育经历信息
@@ -116,7 +142,9 @@ Page({
 
             // 设置学历层次的选择器索引
             if (matchedEducation.educationLevel) {
-              const educationLevelIndex = this.data.educationLevels.indexOf(matchedEducation.educationLevel)
+              const educationLevelIndex = this.data.educationLevels.indexOf(
+                matchedEducation.educationLevel
+              )
               if (educationLevelIndex !== -1) {
                 this.setData({ educationLevelIndex })
               }
@@ -126,7 +154,7 @@ Page({
 
         this.setData({
           formData,
-          loadingUserInfo: false
+          loadingUserInfo: false,
         })
 
         // 更新年份选择器索引
@@ -146,7 +174,7 @@ Page({
     const { field } = e.currentTarget.dataset
     const { value } = e.detail
     this.setData({
-      [`formData.${field}`]: value
+      [`formData.${field}`]: value,
     })
   },
 
@@ -168,7 +196,7 @@ Page({
 
     this.setData({
       yearRanges: [years, years],
-      yearPickerIndex: [defaultEnrollmentIndex, defaultGraduationIndex]
+      yearPickerIndex: [defaultEnrollmentIndex, defaultGraduationIndex],
     })
   },
 
@@ -196,7 +224,7 @@ Page({
     }
 
     this.setData({
-      yearPickerIndex: [enrollmentIndex, graduationIndex]
+      yearPickerIndex: [enrollmentIndex, graduationIndex],
     })
   },
 
@@ -213,7 +241,7 @@ Page({
     this.setData({
       'formData.enrollmentYear': enrollmentYear,
       'formData.graduationYear': graduationYear,
-      yearPickerIndex: indexArr
+      yearPickerIndex: indexArr,
     })
   },
 
@@ -227,7 +255,7 @@ Page({
     const index = e.detail.value
     this.setData({
       educationLevelIndex: index,
-      'formData.educationLevel': this.data.educationLevels[index]
+      'formData.educationLevel': this.data.educationLevels[index],
     })
   },
 
@@ -241,7 +269,7 @@ Page({
           mediaType: ['image'],
           sourceType: ['album', 'camera'],
           success: resolve,
-          fail: reject
+          fail: reject,
         })
       })
 
@@ -253,7 +281,7 @@ Page({
       // 显示上传中提示
       wx.showLoading({
         title: '上传中...',
-        mask: true
+        mask: true,
       })
 
       const attachments = [...this.data.attachments]
@@ -269,7 +297,7 @@ Page({
         if (fileSize > maxSize) {
           wx.showToast({
             title: `${originalName} 大小不能超过10MB`,
-            icon: 'none'
+            icon: 'none',
           })
           continue
         }
@@ -281,7 +309,12 @@ Page({
 
         if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
           // 获取返回的文件信息，确保获取到fileId
-          const fileId = uploadRes.data.fileId || uploadRes.data.id || uploadRes.data.file_id || uploadRes.data.id || ''
+          const fileId =
+            uploadRes.data.fileId ||
+            uploadRes.data.id ||
+            uploadRes.data.file_id ||
+            uploadRes.data.id ||
+            ''
           const fileUrl = uploadRes.data.fileUrl || ''
           console.log('获取到的fileId:', fileId)
           console.log('获取到的fileUrl:', fileUrl)
@@ -289,18 +322,18 @@ Page({
           if (fileId && fileUrl) {
             attachments.push({
               url: fileUrl,
-              fileId: fileId
+              fileId: fileId,
             })
           } else {
             wx.showToast({
               title: `${originalName} 上传成功但未获取到文件信息`,
-              icon: 'none'
+              icon: 'none',
             })
           }
         } else {
           wx.showToast({
             title: `${originalName} 上传失败: ${uploadRes?.msg || '未知错误'}`,
-            icon: 'none'
+            icon: 'none',
           })
         }
       }
@@ -309,12 +342,12 @@ Page({
         this.setData({ attachments })
         wx.showToast({
           title: '上传成功',
-          icon: 'success'
+          icon: 'success',
         })
       } else {
         wx.showToast({
           title: '上传失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -323,7 +356,7 @@ Page({
       wx.showToast({
         title: errorMsg,
         icon: 'none',
-        duration: 2000
+        duration: 2000,
       })
     } finally {
       wx.hideLoading()
@@ -345,7 +378,7 @@ Page({
     if (!formData.name || !formData.name.trim()) {
       wx.showToast({
         title: '请输入真实姓名',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -353,7 +386,7 @@ Page({
     if (!formData.identifyCode || !formData.identifyCode.trim()) {
       wx.showToast({
         title: '请输入身份证号',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -363,7 +396,7 @@ Page({
     if (!idCardReg.test(formData.identifyCode)) {
       wx.showToast({
         title: '身份证号格式不正确',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -372,7 +405,7 @@ Page({
     if (!formData.phone || !formData.phone.trim()) {
       wx.showToast({
         title: '未获取到手机号',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -381,7 +414,7 @@ Page({
     if (!phoneReg.test(formData.phone)) {
       wx.showToast({
         title: '手机号格式不正确',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -390,7 +423,7 @@ Page({
     if (!formData.enrollmentYear) {
       wx.showToast({
         title: '请选择入学年份',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -398,7 +431,7 @@ Page({
     if (!formData.graduationYear) {
       wx.showToast({
         title: '请选择毕业年份',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -406,7 +439,7 @@ Page({
     if (!formData.department || !formData.department.trim()) {
       wx.showToast({
         title: '请输入院系',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -414,7 +447,7 @@ Page({
     if (!formData.educationLevel) {
       wx.showToast({
         title: '请选择学历层次',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -423,7 +456,7 @@ Page({
     if (formData.enrollmentYear >= formData.graduationYear) {
       wx.showToast({
         title: '毕业年份应晚于入学年份',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -433,14 +466,23 @@ Page({
 
   // 提交申请
   async submitApplication() {
-    if (this.data.submitting) { return }
+    if (this.data.submitting) {
+      return
+    }
 
     // 验证表单
     if (!this.validateForm()) {
       return
     }
 
-    const { formData, attachments, alumniAssociationId, schoolId, isEditingApplication, applicationId } = this.data
+    const {
+      formData,
+      attachments,
+      alumniAssociationId,
+      schoolId,
+      isEditingApplication,
+      applicationId,
+    } = this.data
 
     // 构建请求数据
     const requestData = {
@@ -453,7 +495,7 @@ Page({
       enrollmentYear: formData.enrollmentYear || undefined,
       graduationYear: formData.graduationYear || undefined,
       department: formData.department ? formData.department.trim() : undefined,
-      educationLevel: formData.educationLevel || undefined
+      educationLevel: formData.educationLevel || undefined,
     }
 
     // 如果是编辑模式，添加 applicationId
@@ -475,15 +517,16 @@ Page({
 
     try {
       // 根据是否为编辑模式调用不同的接口
-      const res = isEditingApplication && applicationId
-        ? await associationApi.updateApplication(requestData)
-        : await associationApi.applyToJoinAssociation(requestData)
+      const res =
+        isEditingApplication && applicationId
+          ? await associationApi.updateApplication(requestData)
+          : await associationApi.applyToJoinAssociation(requestData)
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: isEditingApplication ? '修改提交成功' : '申请提交成功',
           icon: 'success',
-          duration: 2000
+          duration: 2000,
         })
 
         // 延迟返回上一页
@@ -495,7 +538,7 @@ Page({
         const errorMsg = res.data?.msg || res.data?.message || '提交失败'
         wx.showToast({
           title: errorMsg,
-          icon: 'none'
+          icon: 'none',
         })
         this.setData({ submitting: false })
       }
@@ -503,7 +546,7 @@ Page({
       console.error('提交申请失败:', error)
       wx.showToast({
         title: '提交失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
       this.setData({ submitting: false })
     }
@@ -511,7 +554,9 @@ Page({
 
   // 加载申请详情（查看模式或编辑已有申请）
   async loadApplicationDetail() {
-    if (this.data.loadingDetail) { return }
+    if (this.data.loadingDetail) {
+      return
+    }
 
     this.setData({ loadingDetail: true })
 
@@ -532,7 +577,7 @@ Page({
           department: detail.department || '',
           major: detail.major || '',
           className: detail.className || '',
-          educationLevel: detail.educationLevel || ''
+          educationLevel: detail.educationLevel || '',
         }
 
         // 设置学历层次索引
@@ -544,7 +589,7 @@ Page({
         // 处理附件
         const attachments = (detail.attachmentFiles || []).map(file => ({
           url: file.url || '',
-          fileId: file.id || ''
+          fileId: file.id || '',
         }))
 
         this.setData({
@@ -555,7 +600,7 @@ Page({
           attachments,
           schoolId: detail.schoolId || '',
           schoolName: detail.schoolName || '',
-          loadingDetail: false
+          loadingDetail: false,
         })
 
         // 更新年份选择器索引
@@ -564,7 +609,7 @@ Page({
         this.setData({ loadingDetail: false })
         wx.showToast({
           title: res.data?.message || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -572,7 +617,7 @@ Page({
       this.setData({ loadingDetail: false })
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -584,7 +629,7 @@ Page({
     if (!applicationId) {
       wx.showToast({
         title: '申请ID不存在',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -594,7 +639,7 @@ Page({
       content: '确定要撤销申请吗？',
       confirmText: '确定撤销',
       confirmColor: '#40B2E6',
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           try {
             const result = await associationApi.cancelApplication(applicationId)
@@ -603,7 +648,7 @@ Page({
               wx.showToast({
                 title: '已撤销申请',
                 icon: 'success',
-                duration: 2000
+                duration: 2000,
               })
 
               // 延迟返回上一页
@@ -613,18 +658,18 @@ Page({
             } else {
               wx.showToast({
                 title: result.data?.message || '撤销失败',
-                icon: 'none'
+                icon: 'none',
               })
             }
           } catch (error) {
             console.error('撤销申请失败:', error)
             wx.showToast({
               title: '撤销失败，请重试',
-              icon: 'none'
+              icon: 'none',
             })
           }
         }
-      }
+      },
     })
   },
 
@@ -632,7 +677,7 @@ Page({
   enterEditMode() {
     this.setData({
       mode: 'edit',
-      isEditingApplication: true // 标记为编辑已有申请
+      isEditingApplication: true, // 标记为编辑已有申请
     })
-  }
+  },
 })

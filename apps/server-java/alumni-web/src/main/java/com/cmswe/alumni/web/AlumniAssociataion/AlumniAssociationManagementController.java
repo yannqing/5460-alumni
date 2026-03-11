@@ -8,6 +8,7 @@ import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.dto.AddAlumniAssociationAdminDto;
 import com.cmswe.alumni.common.dto.AddMemberToBranchDto;
+import com.cmswe.alumni.common.dto.AddUnregisteredMemberDto;
 import com.cmswe.alumni.common.dto.BindMemberToUserDto;
 import com.cmswe.alumni.common.dto.RemoveAlumniAssociationAdminDto;
 import com.cmswe.alumni.common.dto.RemoveMemberFromBranchDto;
@@ -242,20 +243,21 @@ public class AlumniAssociationManagementController {
         @DeleteMapping("/deleteMember")
         @Operation(summary = "删除校友会成员")
         public BaseResponse<Boolean> deleteMember(@Valid @RequestBody DeleteAlumniAssociationMemberDto deleteDto) {
-                log.info("删除校友会成员，校友会 ID: {}, 成员用户 ID: {}",
-                                deleteDto.getAlumniAssociationId(), deleteDto.getWxId());
+                log.info("删除校友会成员，校友会 ID: {}, 成员记录 ID: {}, 成员用户 ID: {}",
+                                deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
 
                 boolean result = alumniAssociationService.deleteMember(
                                 deleteDto.getAlumniAssociationId(),
+                                deleteDto.getId(),
                                 deleteDto.getWxId());
 
                 if (result) {
-                        log.info("删除校友会成员成功，校友会 ID: {}, 成员用户 ID: {}",
-                                        deleteDto.getAlumniAssociationId(), deleteDto.getWxId());
+                        log.info("删除校友会成员成功，校友会 ID: {}, 成员记录 ID: {}, 成员用户 ID: {}",
+                                        deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
                         return ResultUtils.success(Code.SUCCESS, true, "删除成功");
                 } else {
-                        log.error("删除校友会成员失败，校友会 ID: {}, 成员用户 ID: {}",
-                                        deleteDto.getAlumniAssociationId(), deleteDto.getWxId());
+                        log.error("删除校友会成员失败，校友会 ID: {}, 成员记录 ID: {}, 成员用户 ID: {}",
+                                        deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "删除失败");
                 }
         }
@@ -386,15 +388,16 @@ public class AlumniAssociationManagementController {
 
                 Long operatorWxId = securityUser.getWxUser().getWxId();
 
-                log.info("更新校友会成员角色，操作人 ID: {}, 校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",
+                log.info("更新校友会成员角色，操作人 ID: {}, 校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}, 角色名称: {}",
                                 operatorWxId, updateDto.getAlumniAssociationId(), updateDto.getWxId(),
-                                updateDto.getRoleOrId());
+                                updateDto.getRoleOrId(), updateDto.getRoleName());
 
                 boolean result = alumniAssociationService.updateMemberRole(
                                 operatorWxId,
                                 updateDto.getAlumniAssociationId(),
                                 updateDto.getWxId(),
-                                updateDto.getRoleOrId());
+                                updateDto.getRoleOrId(),
+                                updateDto.getRoleName());
 
                 if (result) {
                         log.info("更新校友会成员角色成功，校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",
@@ -630,6 +633,37 @@ public class AlumniAssociationManagementController {
                         log.error("从分支移除成员失败，校友会 ID: {}, 成员用户 ID: {}",
                                 removeDto.getAlumniAssociationId(), removeDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "移除失败");
+                }
+        }
+
+        /**
+         * 添加未注册成员到校友会
+         *
+         * @param addDto 添加请求参数
+         * @return 返回添加结果
+         */
+        @PostMapping("/addUnregisteredMember")
+        @Operation(summary = "添加未注册成员到校友会")
+        public BaseResponse<Boolean> addUnregisteredMember(@Valid @RequestBody AddUnregisteredMemberDto addDto) {
+                log.info("添加未注册成员到校友会，校友会 ID: {}, 用户名: {}, 角色名称: {}, 联系电话: {}, 社会职务: {}",
+                        addDto.getAlumniAssociationId(), addDto.getUsername(), addDto.getRoleName(),
+                        addDto.getUserPhone(), addDto.getUserAffiliation());
+
+                boolean result = alumniAssociationService.addUnregisteredMember(
+                        addDto.getAlumniAssociationId(),
+                        addDto.getUsername(),
+                        addDto.getRoleName(),
+                        addDto.getUserPhone(),
+                        addDto.getUserAffiliation());
+
+                if (result) {
+                        log.info("添加未注册成员到校友会成功，校友会 ID: {}, 用户名: {}",
+                                addDto.getAlumniAssociationId(), addDto.getUsername());
+                        return ResultUtils.success(Code.SUCCESS, true, "添加成功");
+                } else {
+                        log.error("添加未注册成员到校友会失败，校友会 ID: {}, 用户名: {}",
+                                addDto.getAlumniAssociationId(), addDto.getUsername());
+                        return ResultUtils.failure(Code.FAILURE, false, "添加失败");
                 }
         }
 }

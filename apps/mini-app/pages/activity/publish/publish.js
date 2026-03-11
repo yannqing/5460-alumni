@@ -32,17 +32,17 @@ Page({
       contactEmail: '',
       isPublic: 1,
       tagsId: '',
-      remark: ''
+      remark: '',
     },
     activityImagesList: [],
     uploadingImages: false,
     isNeedReviewOptions: [
       { id: 0, name: '无需审核' },
-      { id: 1, name: '需要审核' }
+      { id: 1, name: '需要审核' },
     ],
     isPublicOptions: [
       { id: 0, name: '不公开' },
-      { id: 1, name: '公开' }
+      { id: 1, name: '公开' },
     ],
     submitting: false,
     // 时间显示相关
@@ -59,14 +59,14 @@ Page({
     monthList: [], // 月列表
     dayList: [], // 日列表
     hourList: [], // 时列表
-    minuteList: [] // 分列表
+    minuteList: [], // 分列表
   },
 
   onLoad(options) {
     // 优先从路由参数获取 associationId
     if (options.associationId) {
       this.setData({
-        alumniAssociationId: options.associationId
+        alumniAssociationId: options.associationId,
       })
     }
 
@@ -74,20 +74,25 @@ Page({
     const prevPage = pages[pages.length - 2]
     if (prevPage) {
       this.setData({
-        alumniAssociationId: this.data.alumniAssociationId || prevPage.data.selectedAlumniAssociationId || prevPage.data.associationId,
-        alumniAssociationName: prevPage.data.selectedAlumniAssociationName || (prevPage.data.associationInfo ? prevPage.data.associationInfo.name : '')
+        alumniAssociationId:
+          this.data.alumniAssociationId ||
+          prevPage.data.selectedAlumniAssociationId ||
+          prevPage.data.associationId,
+        alumniAssociationName:
+          prevPage.data.selectedAlumniAssociationName ||
+          (prevPage.data.associationInfo ? prevPage.data.associationInfo.name : ''),
       })
     }
 
     // 初始化时间选择器的列数据
-    this.initTimePickerData();
+    this.initTimePickerData()
     // 初始化默认时间
-    const now = new Date();
-    const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const now = new Date()
+    const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
     // 格式化时间（用于前端展示）
-    const nowDisplay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const endDisplay = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')} ${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
+    const nowDisplay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    const endDisplay = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')} ${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`
 
     // 设置默认时间
     this.setData({
@@ -103,14 +108,14 @@ Page({
       startTimePickerValue: this.getPickerValueFromDate(now),
       endTimePickerValue: this.getPickerValueFromDate(endDate),
       registrationStartTimePickerValue: this.getPickerValueFromDate(now),
-      registrationEndTimePickerValue: this.getPickerValueFromDate(endDate)
-    });
+      registrationEndTimePickerValue: this.getPickerValueFromDate(endDate),
+    })
   },
 
   onInput(e) {
     const { field } = e.currentTarget.dataset
     this.setData({
-      [`formData.${field}`]: e.detail.value
+      [`formData.${field}`]: e.detail.value,
     })
   },
 
@@ -130,49 +135,47 @@ Page({
     }
 
     this.setData({
-      [`formData.${field}`]: selectedValue
+      [`formData.${field}`]: selectedValue,
     })
   },
-
-
 
   onNumberChange(e) {
     const { field } = e.currentTarget.dataset
     this.setData({
-      [`formData.${field}`]: e.detail.value ? parseInt(e.detail.value) : null
+      [`formData.${field}`]: e.detail.value ? parseInt(e.detail.value) : null,
     })
   },
 
   // 初始化时间选择器的列数据
   initTimePickerData() {
     // 生成年列表（2020-2030）
-    const yearList = [];
+    const yearList = []
     for (let i = 2020; i <= 2030; i++) {
-      yearList.push(i + '年');
+      yearList.push(i + '年')
     }
 
     // 生成月列表（1-12）
-    const monthList = [];
+    const monthList = []
     for (let i = 1; i <= 12; i++) {
-      monthList.push(i + '月');
+      monthList.push(i + '月')
     }
 
     // 生成日列表（1-31）
-    const dayList = [];
+    const dayList = []
     for (let i = 1; i <= 31; i++) {
-      dayList.push(i + '日');
+      dayList.push(i + '日')
     }
 
     // 生成时列表（0-23）
-    const hourList = [];
+    const hourList = []
     for (let i = 0; i <= 23; i++) {
-      hourList.push(i.toString().padStart(2, '0') + '时');
+      hourList.push(i.toString().padStart(2, '0') + '时')
     }
 
     // 生成分列表（0-59）
-    const minuteList = [];
+    const minuteList = []
     for (let i = 0; i <= 59; i++) {
-      minuteList.push(i.toString().padStart(2, '0') + '分');
+      minuteList.push(i.toString().padStart(2, '0') + '分')
     }
 
     this.setData({
@@ -180,26 +183,26 @@ Page({
       monthList,
       dayList,
       hourList,
-      minuteList
-    });
+      minuteList,
+    })
   },
 
   // 将日期转换为picker-view的滚动值
   getPickerValueFromDate(date) {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hour = date.getHours();
-    const minute = date.getMinutes();
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const hour = date.getHours()
+    const minute = date.getMinutes()
 
     // 计算各列的索引
-    const yearIndex = year - 2020;
-    const monthIndex = month - 1;
-    const dayIndex = day - 1;
-    const hourIndex = hour;
-    const minuteIndex = minute;
+    const yearIndex = year - 2020
+    const monthIndex = month - 1
+    const dayIndex = day - 1
+    const hourIndex = hour
+    const minuteIndex = minute
 
-    return [yearIndex, monthIndex, dayIndex, hourIndex, minuteIndex];
+    return [yearIndex, monthIndex, dayIndex, hourIndex, minuteIndex]
   },
 
   // 格式化日期为picker支持的格式（ISO格式，用于后端提交）
@@ -214,78 +217,84 @@ Page({
 
   // 开始时间滑动选择事件
   onStartTimePickerChange(e) {
-    const val = e.detail.value;
-    this.setData({ startTimePickerValue: val });
+    const val = e.detail.value
+    this.setData({ startTimePickerValue: val })
 
     // 解析选择的时间
-    const year = 2020 + val[0];
-    const month = val[1] + 1;
-    const day = val[2] + 1;
-    const hour = val[3];
-    const minute = val[4];
+    const year = 2020 + val[0]
+    const month = val[1] + 1
+    const day = val[2] + 1
+    const hour = val[3]
+    const minute = val[4]
 
     // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
     // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
-    this.setData({ 'formData.startTime': isoTimeStr, startTimeDisplay: displayTimeStr });
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
+    this.setData({ 'formData.startTime': isoTimeStr, startTimeDisplay: displayTimeStr })
   },
 
   // 结束时间滑动选择事件
   onEndTimePickerChange(e) {
-    const val = e.detail.value;
-    this.setData({ endTimePickerValue: val });
+    const val = e.detail.value
+    this.setData({ endTimePickerValue: val })
 
     // 解析选择的时间
-    const year = 2020 + val[0];
-    const month = val[1] + 1;
-    const day = val[2] + 1;
-    const hour = val[3];
-    const minute = val[4];
+    const year = 2020 + val[0]
+    const month = val[1] + 1
+    const day = val[2] + 1
+    const hour = val[3]
+    const minute = val[4]
 
     // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
     // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
-    this.setData({ 'formData.endTime': isoTimeStr, endTimeDisplay: displayTimeStr });
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
+    this.setData({ 'formData.endTime': isoTimeStr, endTimeDisplay: displayTimeStr })
   },
 
   // 报名开始时间滑动选择事件
   onRegistrationStartTimePickerChange(e) {
-    const val = e.detail.value;
-    this.setData({ registrationStartTimePickerValue: val });
+    const val = e.detail.value
+    this.setData({ registrationStartTimePickerValue: val })
 
     // 解析选择的时间
-    const year = 2020 + val[0];
-    const month = val[1] + 1;
-    const day = val[2] + 1;
-    const hour = val[3];
-    const minute = val[4];
+    const year = 2020 + val[0]
+    const month = val[1] + 1
+    const day = val[2] + 1
+    const hour = val[3]
+    const minute = val[4]
 
     // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
     // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
-    this.setData({ 'formData.registrationStartTime': isoTimeStr, registrationStartTimeDisplay: displayTimeStr });
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
+    this.setData({
+      'formData.registrationStartTime': isoTimeStr,
+      registrationStartTimeDisplay: displayTimeStr,
+    })
   },
 
   // 报名截止时间滑动选择事件
   onRegistrationEndTimePickerChange(e) {
-    const val = e.detail.value;
-    this.setData({ registrationEndTimePickerValue: val });
+    const val = e.detail.value
+    this.setData({ registrationEndTimePickerValue: val })
 
     // 解析选择的时间
-    const year = 2020 + val[0];
-    const month = val[1] + 1;
-    const day = val[2] + 1;
-    const hour = val[3];
-    const minute = val[4];
+    const year = 2020 + val[0]
+    const month = val[1] + 1
+    const day = val[2] + 1
+    const hour = val[3]
+    const minute = val[4]
 
     // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
     // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
-    this.setData({ 'formData.registrationEndTime': isoTimeStr, registrationEndTimeDisplay: displayTimeStr });
+    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
+    this.setData({
+      'formData.registrationEndTime': isoTimeStr,
+      registrationEndTimeDisplay: displayTimeStr,
+    })
   },
 
   async submitForm() {
@@ -325,7 +334,7 @@ Page({
       const submitData = {
         ...formData,
         activityImages,
-        alumniAssociationId
+        alumniAssociationId,
       }
 
       // 如果不需要报名，删除报名时间相关字段
@@ -344,7 +353,7 @@ Page({
       } else {
         wx.showToast({
           title: res.data && res.data.msg ? res.data.msg : '发布失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -366,39 +375,40 @@ Page({
       count: 1, // 只允许选择1张图片作为封面
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
+      success: res => {
         const tempFilePath = res.tempFilePaths[0]
 
         // 显示加载状态
         wx.showLoading({
           title: '上传中...',
-          mask: true
+          mask: true,
         })
 
         // 上传图片
-        fileUploadUtil.uploadImage(tempFilePath, '/file/upload/images')
+        fileUploadUtil
+          .uploadImage(tempFilePath, '/file/upload/images')
           .then(res => {
             if (res.code === 200 && res.data && res.data.fileUrl) {
               // 更新封面图
               this.setData({
-                [`formData.coverImage`]: res.data.fileUrl
+                [`formData.coverImage`]: res.data.fileUrl,
               })
 
               wx.showToast({
                 title: '封面图上传成功',
-                icon: 'success'
+                icon: 'success',
               })
             } else {
               wx.showToast({
                 title: res.msg || '上传失败',
-                icon: 'none'
+                icon: 'none',
               })
             }
           })
           .catch(err => {
             wx.showToast({
               title: err.msg || '上传失败',
-              icon: 'none'
+              icon: 'none',
             })
             console.error('上传封面图失败:', err)
           })
@@ -406,9 +416,9 @@ Page({
             wx.hideLoading()
           })
       },
-      fail: (err) => {
+      fail: err => {
         console.error('选择图片失败:', err)
-      }
+      },
     })
   },
 
@@ -424,13 +434,13 @@ Page({
       count: 9 - this.data.activityImagesList.length, // 最多可选择的图片数量，不超过9张
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
+      success: res => {
         const tempFilePaths = res.tempFilePaths
 
         // 显示加载状态
         wx.showLoading({
           title: '上传中...',
-          mask: true
+          mask: true,
         })
 
         // 上传多张图片
@@ -449,24 +459,27 @@ Page({
               // 更新图片URL数组
               this.setData({
                 activityImagesList: [...this.data.activityImagesList, ...uploadedUrls],
-                'formData.activityImages': JSON.stringify([...this.data.activityImagesList, ...uploadedUrls])
+                'formData.activityImages': JSON.stringify([
+                  ...this.data.activityImagesList,
+                  ...uploadedUrls,
+                ]),
               })
 
               wx.showToast({
                 title: `上传成功 ${uploadedUrls.length} 张`,
-                icon: 'success'
+                icon: 'success',
               })
             } else {
               wx.showToast({
                 title: '上传失败',
-                icon: 'none'
+                icon: 'none',
               })
             }
           })
           .catch(err => {
             wx.showToast({
               title: err.msg || '上传失败',
-              icon: 'none'
+              icon: 'none',
             })
             console.error('上传活动图片失败:', err)
           })
@@ -474,9 +487,9 @@ Page({
             wx.hideLoading()
           })
       },
-      fail: (err) => {
+      fail: err => {
         console.error('选择图片失败:', err)
-      }
+      },
     })
   },
 
@@ -484,13 +497,12 @@ Page({
     this.onUploadActivityImage()
   },
 
-
   deleteImage(e) {
     const { index } = e.currentTarget.dataset
     const updatedList = this.data.activityImagesList.filter((_, i) => i !== index)
     this.setData({
       activityImagesList: updatedList,
-      'formData.activityImages': JSON.stringify(updatedList)
+      'formData.activityImages': JSON.stringify(updatedList),
     })
   },
 
@@ -499,46 +511,50 @@ Page({
     wx.showModal({
       title: '确认删除',
       content: '确定要删除活动封面图吗？',
-      success: (res) => {
+      success: res => {
         if (res.confirm) {
           this.setData({
-            'formData.coverImage': ''
+            'formData.coverImage': '',
           })
           wx.showToast({
             title: '封面图已删除',
-            icon: 'success'
+            icon: 'success',
           })
         }
-      }
+      },
     })
   },
 
   // 选择位置
+  // 暂时注释：等待微信公众平台权限申请通过后恢复
   onChooseLocation() {
-    // 使用微信地图选择API获取位置信息
-    wx.chooseLocation({
-      success: (res) => {
-        this.setData({
-          [`formData.locationName`]: res.name,
-          [`formData.latitude`]: res.latitude,
-          [`formData.longitude`]: res.longitude
-        })
-
-        wx.showToast({
-          title: '位置选择成功',
-          icon: 'success'
-        })
-      },
-      fail: (err) => {
-        console.error('位置选择失败:', err)
-        // 如果用户取消选择，不显示错误提示
-        if (err.errMsg !== 'chooseLocation:fail cancel') {
-          wx.showToast({
-            title: '位置选择失败，请重试',
-            icon: 'none'
-          })
-        }
-      }
+    // wx.chooseLocation({
+    //   success: (res) => {
+    //     this.setData({
+    //       [`formData.locationName`]: res.name,
+    //       [`formData.latitude`]: res.latitude,
+    //       [`formData.longitude`]: res.longitude
+    //     })
+    //
+    //     wx.showToast({
+    //       title: '位置选择成功',
+    //       icon: 'success'
+    //     })
+    //   },
+    //   fail: (err) => {
+    //     console.error('位置选择失败:', err)
+    //     // 如果用户取消选择，不显示错误提示
+    //     if (err.errMsg !== 'chooseLocation:fail cancel') {
+    //       wx.showToast({
+    //         title: '位置选择失败，请重试',
+    //         icon: 'none'
+    //       })
+    //     }
+    //   }
+    // })
+    wx.showToast({
+      title: '位置选择功能暂时不可用',
+      icon: 'none',
     })
-  }
+  },
 })

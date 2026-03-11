@@ -1,5 +1,12 @@
 /* pages/alumni-association/detail/detail.wxss */
 
+/* 认证等级图片 */
+.cert-badge-img {
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
 /* 页面容器 */
 .container {
   min-height: 100vh;
@@ -196,6 +203,67 @@ page {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 主要负责人/核心成员样式（与 local-platform 一致） */
+.show-members-section {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.show-members-title {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.show-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.show-member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.show-member-item:active {
+  background-color: #f0f2f5;
+  opacity: 0.8;
+}
+
+.show-member-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.show-member-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 600;
+}
+
+.show-member-contact {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.show-member-role {
+  font-size: 24rpx;
+  color: #40B2E6;
+  padding: 6rpx 16rpx;
+  background-color: rgba(64, 178, 230, 0.1);
+  border-radius: 8rpx;
+  flex-shrink: 0;
 }
 
 /* 可点击的用户信息 */

@@ -83,10 +83,11 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * 删除校友会成员
      *
      * @param alumniAssociationId 校友会ID
-     * @param wxId                成员用户ID
+     * @param id                  成员记录ID（可选，用于删除未注册成员）
+     * @param wxId                成员用户ID（可选，用于删除已注册成员）
      * @return 删除是否成功
      */
-    boolean deleteMember(Long alumniAssociationId, Long wxId);
+    boolean deleteMember(Long alumniAssociationId, Long id, Long wxId);
 
     /**
      * 邀请校友加入校友会
@@ -121,9 +122,10 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @param alumniAssociationId 校友会ID
      * @param wxId                成员用户ID
      * @param roleOrId            新的组织架构角色ID
+     * @param roleName            角色名称
      * @return 更新是否成功
      */
-    boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId);
+    boolean updateMemberRole(Long operatorWxId, Long alumniAssociationId, Long wxId, Long roleOrId, String roleName);
 
     /**
      * 更新校友会成员的组织架构角色 V2版本（基于username）
@@ -253,4 +255,16 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @return 移除是否成功
      */
     boolean removeMemberFromBranch(Long alumniAssociationId, Long wxId);
+
+    /**
+     * 添加未注册成员到校友会
+     *
+     * @param alumniAssociationId 校友会ID
+     * @param username 用户名字
+     * @param roleName 角色名称
+     * @param userPhone 用户的联系电话
+     * @param userAffiliation 用户的社会职务
+     * @return 添加是否成功
+     */
+    boolean addUnregisteredMember(Long alumniAssociationId, String username, String roleName, String userPhone, String userAffiliation);
 }
