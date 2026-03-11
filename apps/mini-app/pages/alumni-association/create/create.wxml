@@ -35,7 +35,7 @@
     </view>
 
     <view class="form-item required">
-      <text class="label">办公地点</text>
+      <text class="label">校友会办公地点</text>
       <picker
         mode="region"
         value="{{regionValue}}"
