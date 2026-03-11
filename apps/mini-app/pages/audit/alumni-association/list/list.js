@@ -101,7 +101,12 @@ Page({
         const totalNum = parseInt(total)
         const newHasMore = currentCount < totalNum
 
-        const finalList = isLoadMore ? [...this.data.applicationList, ...records] : records
+        // 映射列表，无 logo 时使用默认头像（与 pages/alumni-association/list 保持一致：config.defaultAvatar）
+        const mappedList = records.map(item => ({
+          ...item,
+          displayLogo: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar
+        }))
+        const finalList = isLoadMore ? [...this.data.applicationList, ...mappedList] : mappedList
 
         this.setData({
           applicationList: finalList,

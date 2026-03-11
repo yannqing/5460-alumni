@@ -10,7 +10,7 @@ Page({
     statusClass: '',
     applicationStatusText: '',
     initialMembersList: [], // 解析后的初始成员列表
-    defaultAlumniAvatar: config.defaultAlumniAvatar || config.defaultAvatar,
+    defaultAlumniAvatar: config.defaultAvatar,
     defaultBackground: '/assets/icons/background.png'
   },
 
