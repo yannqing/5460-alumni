@@ -105,6 +105,12 @@ public class AlumniAssociationApplication implements Serializable {
     private String zhSocialAffiliation;
 
     /**
+     * 驻会代表微信用户ID
+     */
+    @TableField(value = "zh_wx_id")
+    private Long zhWxId;
+
+    /**
      * 常驻地点
      */
     @TableField(value = "location")

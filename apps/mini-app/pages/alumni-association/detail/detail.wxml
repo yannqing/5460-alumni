@@ -57,7 +57,8 @@
             <view class="basic-info-item">成员数量：{{associationInfo.memberCount || 0}}人</view>
             <view wx:if="{{associationInfo.description}}" class="basic-info-item">简介：{{associationInfo.description}}</view>
 
-            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
+            <!-- 主要负责人：有 charge 信息时展示，不依赖 coreMemberList -->
+            <view wx:if="{{associationInfo.chargeName || associationInfo.chargeWxId}}" class="show-members-section">
               <view class="show-members-title">主要负责人</view>
               <view class="show-members-list">
                 <view class="show-member-item" bindtap="viewCoreMemberDetail">
@@ -70,8 +71,7 @@
               </view>
             </view>
 
-
-            <!-- 核心成员展示 -->
+            <!-- 其他负责人：仅展示 coreMemberList（已排除负责人/联系人，避免重复） -->
             <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
               <view class="show-members-title">其他负责人</view>
               <view class="show-members-list">
@@ -82,9 +82,8 @@
               </view>
             </view>
 
-
-
-            <view wx:if="{{coreMemberList && coreMemberList.length > 0}}" class="show-members-section">
+            <!-- 主要联系人（驻会代表）：有 zh 信息时展示，不依赖 coreMemberList -->
+            <view wx:if="{{associationInfo.zhName || associationInfo.zhWxId}}" class="show-members-section">
               <view class="show-members-title">主要联系人</view>
               <view class="show-members-list">
                 <view class="show-member-item" bindtap="viewCoreMemberDetail">

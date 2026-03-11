@@ -414,9 +414,18 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                     .collect(Collectors.toMap(WxUserInfo::getWxId, Function.identity(), (v1, v2) -> v1));
         }
 
-        // 构建核心成员VO列表
+        // 构建核心成员VO列表（排除已在「主要负责人」「主要联系人」中展示的成员，避免重复展示）
+        Long chargeWxId = alumniAssociation.getChargeWxId();
+        Long zhWxId = alumniAssociation.getZhWxId();
         Map<Long, WxUserInfo> finalUserInfoMap = userInfoMap;
         List<CoreMemberVo> coreMemberVoList = coreMemberList.stream()
+                .filter(member -> {
+                    Long memberWxId = member.getWxId();
+                    if (memberWxId == null) {
+                        return true; // 未注册成员无法按 wxId 去重，保留
+                    }
+                    return !memberWxId.equals(chargeWxId) && !memberWxId.equals(zhWxId);
+                })
                 .map(member -> {
                     String username = member.getUsername();
                     String userPhone = member.getUserPhone();

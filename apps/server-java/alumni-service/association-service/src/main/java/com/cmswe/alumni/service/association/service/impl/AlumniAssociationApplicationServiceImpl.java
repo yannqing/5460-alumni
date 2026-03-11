@@ -146,6 +146,7 @@ public class AlumniAssociationApplicationServiceImpl
         application.setZhRole(applyDto.getZhRole());
         application.setZhPhone(applyDto.getZhPhone());
         application.setZhSocialAffiliation(applyDto.getZhSocialAffiliation());
+        application.setZhWxId(applyDto.getZhWxId());
 
         // 将背景图列表转换为 JSON 字符串
         if (applyDto.getBgImg() != null && !applyDto.getBgImg().isEmpty()) {
@@ -449,8 +450,10 @@ public class AlumniAssociationApplicationServiceImpl
             alumniAssociation.setChargeSocialAffiliation(application.getMsocialAffiliation());
 
             // 同步驻会代表信息
+            alumniAssociation.setZhWxId(application.getZhWxId());
             alumniAssociation.setZhName(application.getZhName());
             alumniAssociation.setZhPhone(application.getZhPhone());
+            alumniAssociation.setZhRole(application.getZhRole());
             alumniAssociation.setZhSocialAffiliation(application.getZhSocialAffiliation());
 
             alumniAssociation.setStatus(1); // 启用
@@ -482,13 +485,15 @@ public class AlumniAssociationApplicationServiceImpl
             }
             log.info("为负责人分配组织管理员角色 - 用户ID: {}, 角色ID: {}", application.getChargeWxId(), organizeAdminRole.getRoleId());
 
-            // 5.4 插入负责人到校友会成员表（不创建架构角色，role_or_id 为空）
+            // 5.4 插入负责人到校友会成员表（不创建架构角色，role_or_id 为空）；默认在主页展示
             AlumniAssociationMember chargeMember = new AlumniAssociationMember();
             chargeMember.setWxId(application.getChargeWxId());
             chargeMember.setAlumniAssociationId(alumniAssociationId);
-            // chargeMember.setRoleOrId(null); // 不再关联架构角色，保持为空
+            chargeMember.setUsername(application.getChargeName());
+            chargeMember.setRoleName(application.getChargeRole());
             chargeMember.setUserPhone(application.getContactInfo()); // 负责人联系方式
             chargeMember.setUserAffiliation(application.getMsocialAffiliation()); // 负责人社会职务
+            chargeMember.setIsShowOnHome(1); // 主要负责人默认在主页展示
             chargeMember.setJoinTime(LocalDateTime.now());
             chargeMember.setStatus(1);
             boolean addChargeMemberResult = alumniAssociationMemberService.save(chargeMember);
@@ -498,6 +503,45 @@ public class AlumniAssociationApplicationServiceImpl
             log.info("添加负责人到成员表成功 - 用户ID: {}", application.getChargeWxId());
 
             int totalMemberCount = 1; // 负责人算一个成员
+
+            // 5.5 添加驻会代表到校友会成员表（若zh_wx_id有效且与负责人不同人）
+            if (application.getZhWxId() != null && application.getZhWxId() > 0
+                    && !application.getZhWxId().equals(application.getChargeWxId())) {
+                // 检查是否已存在（负责人已添加）
+                LambdaQueryWrapper<AlumniAssociationMember> zhMemberCheck = new LambdaQueryWrapper<>();
+                zhMemberCheck.eq(AlumniAssociationMember::getWxId, application.getZhWxId())
+                        .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId);
+                long zhExists = alumniAssociationMemberService.count(zhMemberCheck);
+                if (zhExists == 0) {
+                    // 验证驻会代表用户是否存在
+                    LambdaQueryWrapper<WxUserInfo> zhUserCheck = new LambdaQueryWrapper<>();
+                    zhUserCheck.eq(WxUserInfo::getWxId, application.getZhWxId());
+                    WxUserInfo zhUser = wxUserInfoService.getOne(zhUserCheck);
+                    if (zhUser != null) {
+                        AlumniAssociationMember zhMember = new AlumniAssociationMember();
+                        zhMember.setWxId(application.getZhWxId());
+                        zhMember.setAlumniAssociationId(alumniAssociationId);
+                        zhMember.setUsername(application.getZhName());
+                        zhMember.setRoleName(application.getZhRole());
+                        zhMember.setUserPhone(application.getZhPhone());
+                        zhMember.setUserAffiliation(application.getZhSocialAffiliation());
+                        zhMember.setIsShowOnHome(1); // 驻会代表（主要联系人）默认在主页展示
+                        zhMember.setJoinTime(LocalDateTime.now());
+                        zhMember.setStatus(1);
+                        boolean addZhMemberResult = alumniAssociationMemberService.save(zhMember);
+                        if (addZhMemberResult) {
+                            totalMemberCount++;
+                            log.info("添加驻会代表到成员表成功 - 用户ID: {}", application.getZhWxId());
+                        }
+                    } else {
+                        log.warn("驻会代表用户不存在，跳过添加成员 - wxId: {}", application.getZhWxId());
+                    }
+                }
+            } else if (application.getZhWxId() != null && application.getZhWxId() > 0
+                    && application.getZhWxId().equals(application.getChargeWxId())) {
+                // 驻会代表与负责人同一人，负责人已在成员表中，无需重复添加
+                log.info("驻会代表与负责人同一人，已包含在成员表中 - 用户ID: {}", application.getZhWxId());
+            }
 
             // 5.6 处理初始成员列表
             if (StringUtils.isNotBlank(application.getInitialMembers())) {

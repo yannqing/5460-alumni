@@ -179,6 +179,7 @@ Page({
           zhWxId: item.zhWxId || '',
           zhName: item.zhName || '',
           zhPhone: item.zhPhone || '',
+          zhRole: item.zhRole || '',
           zhSocialAffiliation: item.zhSocialAffiliation || '',
         }
 
