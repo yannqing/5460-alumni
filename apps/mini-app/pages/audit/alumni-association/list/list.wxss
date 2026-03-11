@@ -260,15 +260,11 @@
 .image_7 {
   width: 145rpx;
   height: 145rpx;
-  border-radius: 8rpx;
+  border-radius: 50%;
   margin-left: 20rpx;
   flex-shrink: 0;
   display: block;
   object-fit: cover;
-}
-
-.image_7.placeholder {
-  background-color: #F0F0F0;
 }
 
 /* 空状态样式 */

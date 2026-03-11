@@ -29,6 +29,7 @@ Page({
       zhRole: '',
       zhPhone: '',
       zhSocialAffiliation: '',
+      zhWxId: '',
       logo: '',
 
       applicationReason: '',
@@ -60,6 +61,9 @@ Page({
     // 成员搜索结果
     memberSearchResults: [],
 
+    // 驻会代表搜索结果
+    zhMemberSearchResults: [],
+
     // 申请材料
     attachments: [],
 
@@ -76,6 +80,7 @@ Page({
     // 创建搜索防抖函数
     this.searchSchoolDebounced = debounce(this.searchSchool, 500)
     this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
+    this.searchZhMemberDebounced = debounce(this.searchAlumniForZh, 500)
 
     this.loadInitialData()
     this.loadTemplateList()
@@ -186,6 +191,7 @@ Page({
           'formData.zhPhone': userInfo.phone || userInfo.mobile || '',
           'formData.zhSocialAffiliation':
             userInfo.socialAffiliation || userInfo.social_affiliation || '',
+          'formData.zhWxId': userId || '',
           'formData.presidentWxId': userId,
         })
       }
@@ -407,6 +413,68 @@ Page({
       }
     } catch (e) {
       console.error('搜索校友失败', e)
+    }
+  },
+
+  handleZhNameInput(e) {
+    const value = e.detail.value
+    this.setData({
+      'formData.zhName': value,
+      'formData.zhWxId': value ? this.data.formData.zhWxId : '',
+    })
+    if (value.trim()) {
+      this.searchZhMemberDebounced(value.trim())
+    } else {
+      this.setData({ zhMemberSearchResults: [] })
+    }
+  },
+
+  handleZhNameFocus(e) {
+    const zhName = this.data.formData.zhName
+    if (zhName && this.data.zhMemberSearchResults.length === 0) {
+      this.searchAlumniForZh(zhName)
+    }
+  },
+
+  handleZhNameBlur() {
+    setTimeout(() => {
+      this.setData({ zhMemberSearchResults: [] })
+    }, 300)
+  },
+
+  async searchAlumniForZh(keyword) {
+    if (!keyword) return
+    try {
+      const res = await alumniApi.queryAlumniList({
+        current: 1,
+        pageSize: 10,
+        name: keyword.trim(),
+      })
+      if (res.data && res.data.code === 200) {
+        this.setData({
+          zhMemberSearchResults: res.data.data.records || [],
+        })
+      }
+    } catch (e) {
+      console.error('搜索驻会代表失败', e)
+    }
+  },
+
+  selectZhMember(e) {
+    const { userIndex } = e.currentTarget.dataset
+    const zhMemberSearchResults = this.data.zhMemberSearchResults
+    const selected = zhMemberSearchResults[userIndex]
+    if (selected) {
+      const zhWxId =
+        selected.wxId || selected.id || selected.userId || selected.user_id || selected.wx_id || ''
+      this.setData({
+        'formData.zhWxId': zhWxId,
+        'formData.zhName': selected.name || selected.realName || selected.nickname || '',
+        'formData.zhPhone': selected.phone || selected.mobile || this.data.formData.zhPhone,
+        'formData.zhSocialAffiliation':
+          selected.socialAffiliation || selected.social_affiliation || this.data.formData.zhSocialAffiliation,
+        zhMemberSearchResults: [],
+      })
     }
   },
 
@@ -975,6 +1043,7 @@ Page({
       zhRole: formData.zhRole || undefined,
       zhPhone: formData.zhPhone || undefined,
       zhSocialAffiliation: formData.zhSocialAffiliation || undefined,
+      zhWxId: formData.zhWxId || undefined,
       logo: formData.logoType === 'default' ? undefined : formData.logo || undefined,
       applicationReason: formData.applicationReason,
       associationProfile: formData.associationProfile || undefined,

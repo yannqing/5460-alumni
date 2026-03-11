@@ -46,13 +46,19 @@
   width: 100%;
   border: 1rpx solid #ddd;
   border-radius: 8rpx;
-  padding: 16rpx;
+  padding: 20rpx;
   font-size: 28rpx;
   color: #333;
   background-color: #f9f9f9;
-  min-height: 120rpx;
-  line-height: 1.5;
+  min-height: 160rpx;
+  line-height: 1.6;
   box-sizing: border-box;
+}
+
+/* 业务简介 textarea 专用样式 - 自适应高度 */
+.form-textarea.description-textarea {
+  min-height: 240rpx;
+  word-break: break-all;
 }
 
 .status-selector {

@@ -35,7 +35,7 @@
     </view>
 
     <view class="form-item required">
-      <text class="label">办公地点</text>
+      <text class="label">校友会办公地点</text>
       <picker
         mode="region"
         value="{{regionValue}}"
@@ -167,7 +167,19 @@
     <view class="form-title">校友会信息</view>
     <view class="form-item required">
       <text class="label">联系人姓名</text>
-      <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
+      <view class="search-group zh-name-search" style="z-index: 6;" catchtap="preventBubble">
+        <input class="input" placeholder="请输入姓名搜索或手动输入" value="{{formData.zhName}}" bindinput="handleZhNameInput" bindfocus="handleZhNameFocus" bindblur="handleZhNameBlur" />
+        <scroll-view scroll-y class="search-results" wx:if="{{zhMemberSearchResults.length > 0}}">
+          <view wx:for="{{zhMemberSearchResults}}" wx:key="userId" wx:for-item="zhItem" class="search-item member-search-item" bindtap="selectZhMember" data-user-index="{{index}}">
+            <image wx:if="{{zhItem.avatarUrl}}" src="{{zhItem.avatarUrl}}" class="member-avatar" />
+            <image wx:else src="/images/default-avatar.png" class="member-avatar" />
+            <view class="member-info">
+              <text class="member-name">{{zhItem.name || zhItem.nickname || zhItem.realName}}</text>
+              <text class="member-school">{{zhItem.school || '暂无学校信息'}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
     </view>
     <view class="form-item required">
       <text class="label">联系电话</text>

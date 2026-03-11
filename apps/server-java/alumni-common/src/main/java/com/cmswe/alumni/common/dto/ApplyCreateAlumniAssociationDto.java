@@ -82,6 +82,12 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
     private String msocialAffiliation;
 
     /**
+     * 驻会代表微信用户ID（选填，平台用户可搜索选择）
+     */
+    @Schema(description = "驻会代表微信用户ID（选填）")
+    private Long zhWxId;
+
+    /**
      * 驻会代表姓名
      */
     @Schema(description = "驻会代表姓名")

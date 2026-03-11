@@ -220,10 +220,12 @@ Page({
     })
   },
 
-  // 上传图片（调用 fileApi 上传到服务器，避免 tmp 临时路径）
+  // 上传图片（选图 -> 检测大小 -> 必要时压缩 -> 上传服务器）
+  // 云托管网关对请求体有大小限制，大图需先压缩
   uploadImage(e) {
     const { field } = e.currentTarget.dataset
     const that = this
+    const COMPRESS_THRESHOLD = 1024 * 1024 // 超过 1MB 触发压缩
 
     wx.chooseImage({
       count: 1,
@@ -233,30 +235,63 @@ Page({
         const tempFilePath = res.tempFilePaths[0]
         const uploadKey = field === 'avatar' ? 'uploadingAvatar' : 'uploadingBgImage'
         that.setData({ [uploadKey]: true })
-        wx.showLoading({ title: '上传中...', mask: true })
+        wx.showLoading({ title: '处理中...', mask: true })
 
-        fileApi
-          .uploadImage(tempFilePath)
-          .then(res => {
-            if (res.code === 200 && res.data && res.data.fileUrl) {
-              that.setData({
-                [`formData.${field}`]: res.data.fileUrl,
-                [uploadKey]: false
+        wx.getFileInfo({
+          filePath: tempFilePath,
+          success: (fileInfo) => {
+            console.log(`[Upload] 原始文件大小: ${(fileInfo.size / 1024).toFixed(1)}KB`)
+            if (fileInfo.size > COMPRESS_THRESHOLD) {
+              const quality = Math.max(20, Math.floor(COMPRESS_THRESHOLD / fileInfo.size * 80))
+              console.log(`[Upload] 文件超过阈值，压缩 quality=${quality}`)
+              wx.compressImage({
+                src: tempFilePath,
+                quality,
+                success: (compressRes) => {
+                  console.log('[Upload] 压缩完成，使用压缩图上传')
+                  that._doUploadImage(compressRes.tempFilePath, field, uploadKey)
+                },
+                fail: () => {
+                  console.warn('[Upload] 压缩失败，尝试上传原图')
+                  that._doUploadImage(tempFilePath, field, uploadKey)
+                }
               })
-              wx.showToast({ title: '上传成功', icon: 'success' })
             } else {
-              wx.showToast({ title: res.msg || '上传失败', icon: 'none' })
-              that.setData({ [uploadKey]: false })
+              that._doUploadImage(tempFilePath, field, uploadKey)
             }
-          })
-          .catch(err => {
-            wx.showToast({ title: err.msg || '上传失败', icon: 'none' })
-            console.error('上传图片失败:', err)
-            that.setData({ [uploadKey]: false })
-          })
-          .finally(() => wx.hideLoading())
+          },
+          fail: () => {
+            that._doUploadImage(tempFilePath, field, uploadKey)
+          }
+        })
       }
     })
+  },
+
+  _doUploadImage(filePath, field, uploadKey) {
+    const that = this
+    wx.showLoading({ title: '上传中...', mask: true })
+
+    fileApi
+      .uploadImage(filePath)
+      .then(res => {
+        if (res.code === 200 && res.data && res.data.fileUrl) {
+          that.setData({
+            [`formData.${field}`]: res.data.fileUrl,
+            [uploadKey]: false
+          })
+          wx.showToast({ title: '上传成功', icon: 'success' })
+        } else {
+          wx.showToast({ title: res.msg || '上传失败', icon: 'none' })
+          that.setData({ [uploadKey]: false })
+        }
+      })
+      .catch(err => {
+        wx.showToast({ title: err.msg || '上传失败', icon: 'none' })
+        console.error('[Upload] 上传图片失败:', err)
+        that.setData({ [uploadKey]: false })
+      })
+      .finally(() => wx.hideLoading())
   },
 
   // 删除图片
