@@ -156,13 +156,14 @@
     <view class="form-section">
       <view class="section-title">业务简介</view>
       
-      <view class="form-item">
-        <textarea 
-          class="form-textarea" 
-          value="{{formData.description}}" 
-          placeholder="请输入业务简介" 
-          bindinput="handleInput" 
+      <view class="form-item textarea-item">
+        <textarea
+          class="form-textarea description-textarea"
+          value="{{formData.description}}"
+          placeholder="请输入业务简介"
+          bindinput="handleInput"
           data-field="description"
+          maxlength="2000"
           auto-height
         />
       </view>
