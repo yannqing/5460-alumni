@@ -90,30 +90,39 @@ public class AlumniAssociationApplicationServiceImpl
             throw new BusinessException(ErrorType.ARGS_ERROR, "申请人不存在");
         }
 
-        // 2. 验证负责人是否存在
-        LambdaQueryWrapper<WxUserInfo> chargeQuery = new LambdaQueryWrapper<>();
-        chargeQuery.eq(WxUserInfo::getWxId, applyDto.getChargeWxId());
-        WxUserInfo charge = wxUserInfoService.getOne(chargeQuery);
-        if (charge == null) {
-            throw new BusinessException(ErrorType.ARGS_ERROR, "指定的负责人用户不存在");
+        // 2. 验证负责人是否存在（如果提供了负责人ID）
+        if (applyDto.getChargeWxId() != null && applyDto.getChargeWxId() > 0) {
+            LambdaQueryWrapper<WxUserInfo> chargeQuery = new LambdaQueryWrapper<>();
+            chargeQuery.eq(WxUserInfo::getWxId, applyDto.getChargeWxId());
+            WxUserInfo charge = wxUserInfoService.getOne(chargeQuery);
+            if (charge == null) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "指定的负责人用户不存在");
+            }
         }
 
-        // 3. 验证初始成员列表中的用户是否存在
+        // 2.1 验证驻会代表（联系人）是否存在
+        if (applyDto.getZhWxId() == null || applyDto.getZhWxId() <= 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "驻会代表（联系人）用户ID不能为空");
+        }
+        LambdaQueryWrapper<WxUserInfo> zhQuery = new LambdaQueryWrapper<>();
+        zhQuery.eq(WxUserInfo::getWxId, applyDto.getZhWxId());
+        WxUserInfo zhUser = wxUserInfoService.getOne(zhQuery);
+        if (zhUser == null) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "指定的驻会代表（联系人）用户不存在");
+        }
+
+        // 3. 验证初始成员列表（如果提供了微信ID，则验证用户是否存在）
         if (applyDto.getInitialMembers() != null && !applyDto.getInitialMembers().isEmpty()) {
             for (InitialMemberDto memberDto : applyDto.getInitialMembers()) {
-                // 检查 wxId 是否有效
-                if (memberDto.getWxId() == null || memberDto.getWxId() <= 0) {
-                    throw new BusinessException(ErrorType.ARGS_ERROR,
-                            "初始成员【" + memberDto.getName() + "】的用户ID无效");
-                }
-
-                // 检查用户是否在系统中存在
-                LambdaQueryWrapper<WxUserInfo> memberQuery = new LambdaQueryWrapper<>();
-                memberQuery.eq(WxUserInfo::getWxId, memberDto.getWxId());
-                WxUserInfo member = wxUserInfoService.getOne(memberQuery);
-                if (member == null) {
-                    throw new BusinessException(ErrorType.ARGS_ERROR,
-                            "初始成员【" + memberDto.getName() + "】(ID: " + memberDto.getWxId() + ")不存在系统中");
+                // 如果提供了微信ID，则进行系统校验
+                if (memberDto.getWxId() != null && memberDto.getWxId() > 0) {
+                    LambdaQueryWrapper<WxUserInfo> memberQuery = new LambdaQueryWrapper<>();
+                    memberQuery.eq(WxUserInfo::getWxId, memberDto.getWxId());
+                    WxUserInfo member = wxUserInfoService.getOne(memberQuery);
+                    if (member == null) {
+                        throw new BusinessException(ErrorType.ARGS_ERROR,
+                                "初始成员【" + memberDto.getName() + "】(ID: " + memberDto.getWxId() + ")在系统中不存在");
+                    }
                 }
             }
             log.info("初始成员列表验证通过 - 成员数: {}", applyDto.getInitialMembers().size());
@@ -473,9 +482,12 @@ public class AlumniAssociationApplicationServiceImpl
                 throw new BusinessException(ErrorType.SYSTEM_ERROR, "未找到组织管理员角色");
             }
 
-            // 5.3 插入负责人到 role_user 表
+            // 5.3 插入驻会代表（联系人）到 role_user 表作为管理员
+            if (application.getZhWxId() == null || application.getZhWxId() <= 0) {
+                throw new BusinessException(ErrorType.SYSTEM_ERROR, "驻会代表（联系人）用户ID无效，无法分配管理员角色");
+            }
             RoleUser roleUser = new RoleUser();
-            roleUser.setWxId(application.getChargeWxId());
+            roleUser.setWxId(application.getZhWxId());
             roleUser.setRoleId(organizeAdminRole.getRoleId());
             roleUser.setType(2);
             roleUser.setOrganizeId(alumniAssociationId);
@@ -483,26 +495,30 @@ public class AlumniAssociationApplicationServiceImpl
             if (!assignRoleResult) {
                 throw new BusinessException(ErrorType.SYSTEM_ERROR, "分配组织管理员角色失败");
             }
-            log.info("为负责人分配组织管理员角色 - 用户ID: {}, 角色ID: {}", application.getChargeWxId(), organizeAdminRole.getRoleId());
+            log.info("为驻会代表（联系人）分配组织管理员角色 - 用户ID: {}, 角色ID: {}", application.getZhWxId(), organizeAdminRole.getRoleId());
 
-            // 5.4 插入负责人到校友会成员表（不创建架构角色，role_or_id 为空）；默认在主页展示
-            AlumniAssociationMember chargeMember = new AlumniAssociationMember();
-            chargeMember.setWxId(application.getChargeWxId());
-            chargeMember.setAlumniAssociationId(alumniAssociationId);
-            chargeMember.setUsername(application.getChargeName());
-            chargeMember.setRoleName(application.getChargeRole());
-            chargeMember.setUserPhone(application.getContactInfo()); // 负责人联系方式
-            chargeMember.setUserAffiliation(application.getMsocialAffiliation()); // 负责人社会职务
-            chargeMember.setIsShowOnHome(1); // 主要负责人默认在主页展示
-            chargeMember.setJoinTime(LocalDateTime.now());
-            chargeMember.setStatus(1);
-            boolean addChargeMemberResult = alumniAssociationMemberService.save(chargeMember);
-            if (!addChargeMemberResult) {
-                throw new BusinessException(ErrorType.SYSTEM_ERROR, "添加负责人到成员表失败");
+            // 5.4 插入负责人到校友会成员表（若wxid有效，不创建架构角色，role_or_id 为空）；默认在主页展示
+            int totalMemberCount = 0;
+            if (application.getChargeWxId() != null && application.getChargeWxId() > 0) {
+                AlumniAssociationMember chargeMember = new AlumniAssociationMember();
+                chargeMember.setWxId(application.getChargeWxId());
+                chargeMember.setAlumniAssociationId(alumniAssociationId);
+                chargeMember.setUsername(application.getChargeName());
+                chargeMember.setRoleName(application.getChargeRole());
+                chargeMember.setUserPhone(application.getContactInfo()); // 负责人联系方式
+                chargeMember.setUserAffiliation(application.getMsocialAffiliation()); // 负责人社会职务
+                chargeMember.setIsShowOnHome(1); // 主要负责人默认在主页展示
+                chargeMember.setJoinTime(LocalDateTime.now());
+                chargeMember.setStatus(1);
+                boolean addChargeMemberResult = alumniAssociationMemberService.save(chargeMember);
+                if (!addChargeMemberResult) {
+                    throw new BusinessException(ErrorType.SYSTEM_ERROR, "添加负责人到成员表失败");
+                }
+                totalMemberCount++;
+                log.info("添加负责人到成员表成功 - 用户ID: {}", application.getChargeWxId());
+            } else {
+                log.info("负责人未绑定微信，跳过添加成员记录 - 姓名: {}", application.getChargeName());
             }
-            log.info("添加负责人到成员表成功 - 用户ID: {}", application.getChargeWxId());
-
-            int totalMemberCount = 1; // 负责人算一个成员
 
             // 5.5 添加驻会代表到校友会成员表（若zh_wx_id有效且与负责人不同人）
             if (application.getZhWxId() != null && application.getZhWxId() > 0
@@ -552,26 +568,23 @@ public class AlumniAssociationApplicationServiceImpl
                     );
 
                     for (InitialMemberDto memberDto : initialMembers) {
-                        // 跳过无效的 wxId（0 或负数）
-                        if (memberDto.getWxId() == null || memberDto.getWxId() <= 0) {
-                            log.warn("跳过无效的初始成员 - wxId: {}, name: {}", memberDto.getWxId(), memberDto.getName());
-                            continue;
+                        // 如果提供了微信ID，验证用户是否存在
+                        if (memberDto.getWxId() != null && memberDto.getWxId() > 0) {
+                            LambdaQueryWrapper<WxUserInfo> memberCheckQuery = new LambdaQueryWrapper<>();
+                            memberCheckQuery.eq(WxUserInfo::getWxId, memberDto.getWxId());
+                            WxUserInfo existingMember = wxUserInfoService.getOne(memberCheckQuery);
+                            if (existingMember == null) {
+                                log.warn("跳过不存在的初始成员 - wxId: {}, name: {}", memberDto.getWxId(), memberDto.getName());
+                                continue;
+                            }
                         }
 
-                        // 验证用户是否存在（防止旧数据中存在无效用户）
-                        LambdaQueryWrapper<WxUserInfo> memberCheckQuery = new LambdaQueryWrapper<>();
-                        memberCheckQuery.eq(WxUserInfo::getWxId, memberDto.getWxId());
-                        WxUserInfo existingMember = wxUserInfoService.getOne(memberCheckQuery);
-                        if (existingMember == null) {
-                            log.warn("跳过不存在的初始成员 - wxId: {}, name: {}", memberDto.getWxId(), memberDto.getName());
-                            continue;
-                        }
-
-                        // 插入成员到校友会成员表（不创建架构角色，role_or_id 为空）
+                        // 插入成员到校友会成员表（即使没有微信ID，也作为预设成员插入）
                         AlumniAssociationMember member = new AlumniAssociationMember();
                         member.setWxId(memberDto.getWxId());
                         member.setAlumniAssociationId(alumniAssociationId);
-                        // member.setRoleOrId(null); // 不再关联架构角色，保持为空
+                        member.setUsername(memberDto.getName()); // 设置成员姓名
+                        member.setRoleName(memberDto.getRole()); // 设置成员角色
                         member.setUserPhone(memberDto.getPhone()); // 成员联系电话
                         member.setUserAffiliation(memberDto.getAffiliation()); // 成员社会职务
                         member.setJoinTime(LocalDateTime.now());
@@ -619,8 +632,13 @@ public class AlumniAssociationApplicationServiceImpl
             log.info("校友会创建申请审核通过 - 申请ID: {}, 审核人: {}, 创建的校友会ID: {}",
                     application.getApplicationId(), reviewerId, alumniAssociationId);
 
-            // 5.9 发送审核通过通知
-            sendReviewApprovedNotification(application.getChargeWxId(), application.getAssociationName());
+            // 5.9 发送审核通过通知（发送给新管理员：驻会代表）
+            sendReviewApprovedNotification(application.getZhWxId(), application.getAssociationName());
+            
+            // 如果负责人也绑定了微信，也给他发一份
+            if (application.getChargeWxId() != null && application.getChargeWxId() > 0) {
+                sendReviewApprovedNotification(application.getChargeWxId(), application.getAssociationName());
+            }
 
             return true;
 

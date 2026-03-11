@@ -61,7 +61,7 @@
             <view wx:if="{{associationInfo.chargeName || associationInfo.chargeWxId}}" class="show-members-section">
               <view class="show-members-title">主要负责人</view>
               <view class="show-members-list">
-                <view class="show-member-item" bindtap="viewCoreMemberDetail">
+                <view class="show-member-item" bindtap="viewChargeDetail">
                   <view class="show-member-left">
                     <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
                     <text wx:if="{{associationInfo.contactInfo}}" class="show-member-contact">{{associationInfo.contactInfo}}</text>
@@ -86,7 +86,7 @@
             <view wx:if="{{associationInfo.zhName || associationInfo.zhWxId}}" class="show-members-section">
               <view class="show-members-title">主要联系人</view>
               <view class="show-members-list">
-                <view class="show-member-item" bindtap="viewCoreMemberDetail">
+                <view class="show-member-item" bindtap="viewZhDetail">
                   <text class="show-member-name">{{associationInfo.zhName || '-'}}</text>
                   <text class="show-member-role">{{associationInfo.zhRole || '-'}}</text>
                 </view>
@@ -217,7 +217,7 @@
             
             <!-- 成员列表 -->
             <view wx:elif="{{members.length > 0}}">
-              <view class="member-item" wx:for="{{members}}" wx:key="id" bindtap="viewMemberDetail" data-id="{{item.id}}">
+              <view class="member-item" wx:for="{{members}}" wx:key="id" bindtap="viewMemberDetail" data-id="{{item.id}}" data-name="{{item.name}}">
                 <image class="member-avatar" src="{{item.avatar}}" mode="aspectFill" />
                 <view class="member-info">
                   <view class="member-name-row">

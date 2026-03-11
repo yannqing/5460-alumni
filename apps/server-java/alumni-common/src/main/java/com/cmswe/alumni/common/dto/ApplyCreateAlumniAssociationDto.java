@@ -51,7 +51,6 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
      * 负责人微信用户 ID
      */
     @Schema(description = "负责人微信用户 ID")
-    @NotNull(message = "负责人微信用户 ID不能为空")
     private Long chargeWxId;
 
     /**

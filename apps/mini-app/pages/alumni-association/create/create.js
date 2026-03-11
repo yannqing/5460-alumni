@@ -61,9 +61,6 @@ Page({
     // 成员搜索结果
     memberSearchResults: [],
 
-    // 驻会代表搜索结果
-    zhMemberSearchResults: [],
-
     // 申请材料
     attachments: [],
 
@@ -80,7 +77,6 @@ Page({
     // 创建搜索防抖函数
     this.searchSchoolDebounced = debounce(this.searchSchool, 500)
     this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
-    this.searchZhMemberDebounced = debounce(this.searchAlumniForZh, 500)
 
     this.loadInitialData()
     this.loadTemplateList()
@@ -92,7 +88,7 @@ Page({
       defaultAlumniLogo: defaultLogoUrl,
       'formData.logo': defaultLogoUrl,
       // 初始化第一个成员为"主要负责人"，不能删除
-      members: [{ name: '', role: '会长', affiliation: '', phone: '' }],
+      members: [{ name: '', role: '会长', affiliation: '', phone: '', isJoined: true }],
     })
   },
 
@@ -319,7 +315,7 @@ Page({
 
   addMember() {
     const members = this.data.members
-    members.push({ name: '', role: '', affiliation: '', phone: '' })
+    members.push({ name: '', role: '', affiliation: '', phone: '', isJoined: true })
     this.setData({ members })
   },
 
@@ -340,6 +336,18 @@ Page({
     const value = e.detail.value
     const members = this.data.members
     members[index][field] = value
+    this.setData({ members })
+  },
+
+  handleMemberSwitchChange(e) {
+    const { index } = e.currentTarget.dataset
+    const value = e.detail.value
+    const members = this.data.members
+    members[index].isJoined = value
+    // 如果切换为未入驻，清空 wxId
+    if (!value) {
+      members[index].wxId = undefined
+    }
     this.setData({ members })
   },
 
@@ -416,67 +424,6 @@ Page({
     }
   },
 
-  handleZhNameInput(e) {
-    const value = e.detail.value
-    this.setData({
-      'formData.zhName': value,
-      'formData.zhWxId': value ? this.data.formData.zhWxId : '',
-    })
-    if (value.trim()) {
-      this.searchZhMemberDebounced(value.trim())
-    } else {
-      this.setData({ zhMemberSearchResults: [] })
-    }
-  },
-
-  handleZhNameFocus(e) {
-    const zhName = this.data.formData.zhName
-    if (zhName && this.data.zhMemberSearchResults.length === 0) {
-      this.searchAlumniForZh(zhName)
-    }
-  },
-
-  handleZhNameBlur() {
-    setTimeout(() => {
-      this.setData({ zhMemberSearchResults: [] })
-    }, 300)
-  },
-
-  async searchAlumniForZh(keyword) {
-    if (!keyword) return
-    try {
-      const res = await alumniApi.queryAlumniList({
-        current: 1,
-        pageSize: 10,
-        name: keyword.trim(),
-      })
-      if (res.data && res.data.code === 200) {
-        this.setData({
-          zhMemberSearchResults: res.data.data.records || [],
-        })
-      }
-    } catch (e) {
-      console.error('搜索驻会代表失败', e)
-    }
-  },
-
-  selectZhMember(e) {
-    const { userIndex } = e.currentTarget.dataset
-    const zhMemberSearchResults = this.data.zhMemberSearchResults
-    const selected = zhMemberSearchResults[userIndex]
-    if (selected) {
-      const zhWxId =
-        selected.wxId || selected.id || selected.userId || selected.user_id || selected.wx_id || ''
-      this.setData({
-        'formData.zhWxId': zhWxId,
-        'formData.zhName': selected.name || selected.realName || selected.nickname || '',
-        'formData.zhPhone': selected.phone || selected.mobile || this.data.formData.zhPhone,
-        'formData.zhSocialAffiliation':
-          selected.socialAffiliation || selected.social_affiliation || this.data.formData.zhSocialAffiliation,
-        zhMemberSearchResults: [],
-      })
-    }
-  },
 
   selectMember(e) {
     const { index, userIndex } = e.currentTarget.dataset
@@ -1034,7 +981,7 @@ Page({
     const submitData = {
       associationName: formData.associationName,
       schoolId: formData.schoolId,
-      chargeWxId: chargeLeader.wxId || formData.presidentWxId,
+      chargeWxId: chargeLeader.isJoined ? (chargeLeader.wxId || formData.presidentWxId) : undefined,
       chargeName: chargeLeader.name,
       chargeRole: chargeLeader.role,
       contactInfo: chargeLeader.phone || undefined,
@@ -1057,8 +1004,8 @@ Page({
                 phone: m.phone || undefined,
                 affiliation: m.affiliation || undefined,
               }
-              // 只有平台用户才传递 wxId
-              if (m.wxId && m.wxId !== 0 && m.wxId !== '0') {
+              // 只有勾选了“已入驻”且有有效 wxId 时才传递 wxId
+              if (m.isJoined && m.wxId && m.wxId !== 0 && m.wxId !== '0') {
                 memberData.wxId = m.wxId
               }
               return memberData
