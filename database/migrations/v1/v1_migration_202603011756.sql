@@ -5,3 +5,5 @@ alter table user_privacy_setting
 
 alter table user_privacy_setting
     alter column searchable set default 0;
+
+
