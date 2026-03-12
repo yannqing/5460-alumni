@@ -1,5 +1,6 @@
 // pages/local-platform/list/list.js
-const { localPlatformApi } = require('../../../api/api.js')
+const { localPlatformApi, userApi } = require('../../../api/api.js')
+const { refreshUserRoles } = require('../../../utils/auth.js')
 const config = require('../../../utils/config.js')
 
 Page({
@@ -58,11 +59,23 @@ Page({
         this.loadPlatformList(true)
     },
 
+    onShow() {
+        // 每次显示时重新检查权限，兼容校友会审核通过后 roles 缓存未更新的情况
+        this.checkAlumniAdminPermission()
+    },
+
     // 检查用户是否拥有校友会管理员权限
-    checkAlumniAdminPermission() {
+    // 当 roles 缓存无权限时，调用 getManagedOrganizations 接口兜底
+    async checkAlumniAdminPermission() {
         try {
             const roles = wx.getStorageSync('roles') || []
-            const isAlumniAdmin = roles.some(role => role.roleCode === 'ORGANIZE_ALUMNI_ADMIN')
+            let isAlumniAdmin = roles.some(role => role.roleCode === 'ORGANIZE_ALUMNI_ADMIN')
+            if (!isAlumniAdmin) {
+                const res = await userApi.getManagedOrganizations({ type: 0 })
+                const list = (res?.data?.data ?? res?.data ?? []) || []
+                isAlumniAdmin = Array.isArray(list) && list.length > 0
+                if (isAlumniAdmin) refreshUserRoles() // 静默刷新 roles，使申请页等后续页面展示与重新登录一致
+            }
             this.setData({ isAlumniAdmin })
         } catch (error) {
             console.error('获取权限信息失败:', error)

@@ -759,6 +759,32 @@
   margin-left: 7rpx;
 }
 
+.icon-wrapper {
+  position: relative;
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 7rpx;
+}
+
+.badge {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  background-color: #ff4d4f;
+  color: white;
+  font-size: 20rpx;
+  padding: 0 8rpx;
+  border-radius: 15rpx;
+  min-width: 30rpx;
+  height: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #fff;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
 .text-group_3-0 {
   width: 87rpx;
   height: 31rpx;

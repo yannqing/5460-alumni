@@ -1,0 +1,4 @@
+INSERT INTO cni_alumni.permission (per_id, per_uuid, pid, name, code, type, create_time, update_time, is_delete, status, sort_order) VALUES (1995342452768153632, null, 1995342452768153607, '校友会认证', 'SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT)
+INSERT INTO cni_alumni.permission (per_id, per_uuid, pid, name, code, type, create_time, update_time, is_delete, status, sort_order) VALUES (1995342452768153633, null, 1995342452768153607, '信息维护', 'SYSTEM_ALUMNI_ASSOCIATION_MAINTENANCE', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT)
+INSERT INTO cni_alumni.role_permissions (role_id, per_id, create_time, update_time, is_delete) VALUES (2002944992284253113, 1995342452768153632, DEFAULT, DEFAULT, DEFAULT)
+INSERT INTO cni_alumni.role_permissions (role_id, per_id, create_time, update_time, is_delete) VALUES (2002944992284253113, 1995342452768153633, DEFAULT, DEFAULT, DEFAULT)

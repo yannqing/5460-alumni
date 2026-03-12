@@ -301,6 +301,23 @@ async function getUserInfo() {
 }
 
 /**
+ * 静默刷新用户角色（重新登录以获取最新 roles）
+ * 当检测到用户已有管理权限但 roles 缓存未更新时调用，使后续页面展示与重新登录一致
+ * @returns {Promise<object|null>} 登录成功返回用户数据，失败返回 null
+ */
+async function refreshUserRoles() {
+  if (!checkHasLogined()) return null
+  try {
+    const data = await login()
+    console.log('[Auth] 静默刷新角色成功')
+    return data
+  } catch (e) {
+    console.warn('[Auth] 静默刷新角色失败:', e)
+    return null
+  }
+}
+
+/**
  * 初始化小程序 - 页面调用入口
  * 检查是否已登录，未登录则自动登录
  * @param {string} inviter_wx_uuid - 可选，邀请人的 UUID
@@ -513,6 +530,7 @@ function updateProfileComplete(isComplete) {
 module.exports = {
   login,
   initApp,
+  refreshUserRoles,
   getUserInfo,
   checkHasLogined,
   checkHasRoles,
