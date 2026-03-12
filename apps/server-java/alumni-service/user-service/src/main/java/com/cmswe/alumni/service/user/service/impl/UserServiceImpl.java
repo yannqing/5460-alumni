@@ -926,6 +926,14 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         return result;
     }
 
+    @Override
+    public Set<Long> getManagedAlumniAssociationIdsByRole(Long wxId) {
+        List<ManagedOrganizationListVo> orgs = getManagedOrganizationsByRole(wxId, 0);
+        return orgs.stream()
+                .map(ManagedOrganizationListVo::getId)
+                .collect(Collectors.toSet());
+    }
+
     /**
      * 获取所有组织（系统管理员）
      *

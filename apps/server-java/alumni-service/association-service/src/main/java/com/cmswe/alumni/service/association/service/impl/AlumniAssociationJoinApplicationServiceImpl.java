@@ -427,7 +427,10 @@ public class AlumniAssociationJoinApplicationServiceImpl
             queryWrapper.eq(AlumniAssociationJoinApplication::getApplicationStatus, queryDto.getApplicationStatus());
         }
 
-        // 2.3 按申请时间倒序排列
+        // 2.3 申请人类型筛选：只查询普通用户（type=1），对应“加入审核”功能
+        queryWrapper.eq(AlumniAssociationJoinApplication::getApplicantType, 1);
+
+        // 2.4 按申请时间倒序排列
         queryWrapper.orderByDesc(AlumniAssociationJoinApplication::getApplyTime);
 
         // 3. 执行分页查询

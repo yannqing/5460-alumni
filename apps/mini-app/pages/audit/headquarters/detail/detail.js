@@ -9,8 +9,15 @@ Page({
     loading: true,
     statusClass: '',
     approvalStatusText: '',
-    defaultAlumniAvatar: config.defaultAlumniAvatar || config.defaultAvatar,
+    defaultAlumniAvatar: config.defaultAvatar,
     defaultBackground: config.defaultCover
+  },
+
+  // 处理Logo加载失败
+  onLogoError() {
+    this.setData({
+      'headquarters.logo': this.data.defaultAlumniAvatar
+    })
   },
 
   onLoad(options) {
@@ -62,6 +69,8 @@ Page({
         // 处理 Logo
         if (headquarters.logo && headquarters.logo.trim()) {
           headquarters.logo = config.getImageUrl(headquarters.logo)
+        } else {
+          headquarters.logo = config.defaultAvatar
         }
 
         // 处理社会团体法人登记证书图片
