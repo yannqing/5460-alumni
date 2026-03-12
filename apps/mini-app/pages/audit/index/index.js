@@ -458,7 +458,8 @@ Page({
           if (item.name === '成员管理') return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
           if (item.name === '架构管理') return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
           if (item.name === '资讯管理') return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
-          if (item.name === '信息维护' || item.name === '校友会认证') return true
+          if (item.name === '校友会认证') return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION')
+          if (item.name === '信息维护') return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_MAINTENANCE')
           return false
         })
 
