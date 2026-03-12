@@ -359,9 +359,9 @@ Page({
             avatarUrl = config.defaultAvatar
           }
 
-          // 获取组织架构角色信息
+          // 获取组织架构角色信息：优先用架构角色，其次用成员表的 roleName（负责人/驻会代表等无架构角色时）
           const organizeArchiRole = item.organizeArchiRole || {}
-          const roleOrName = organizeArchiRole.roleOrName || '成员'
+          const roleOrName = organizeArchiRole.roleOrName || item.roleName || '成员'
           // 获取signature字段（与avatarUrl同级）
           const signature = item.signature || '暂无个性签名'
 
@@ -449,10 +449,14 @@ Page({
   },
 
   viewMemberDetail(e) {
-    const id = e.currentTarget.dataset.id
+    const { id, name } = e.currentTarget.dataset
     if (id) {
       wx.navigateTo({
         url: `/pages/alumni/detail/detail?id=${id}`,
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(name || '匿名用户')}`,
       })
     }
   },
@@ -1560,9 +1564,15 @@ Page({
     const wxId = associationInfo.chargeWxId
     const username = associationInfo.chargeName || '匿名用户'
 
-    wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`,
-    })
+    if (wxId) {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${wxId}`,
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(username)}`,
+      })
+    }
   },
 
   // 点击驻会代表跳转到用户详情
@@ -1573,9 +1583,15 @@ Page({
     const wxId = associationInfo.zhWxId
     const username = associationInfo.zhName || '匿名用户'
 
-    wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`,
-    })
+    if (wxId) {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${wxId}`,
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(username)}`,
+      })
+    }
   },
 
   // 点击核心成员跳转到用户详情
@@ -1586,9 +1602,15 @@ Page({
     const wxId = member.wxId
     const username = member.username || '匿名用户'
 
-    wx.navigateTo({
-      url: `/pages/alumni/detail/detail?wxid=${wxId ? '' + wxId : ''}&username=${encodeURIComponent(username)}`,
-    })
+    if (wxId) {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?id=${wxId}`,
+      })
+    } else {
+      wx.navigateTo({
+        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(username)}`,
+      })
+    }
   },
 
   // 跳转到认证说明页面

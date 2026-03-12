@@ -167,19 +167,7 @@
     <view class="form-title">校友会信息</view>
     <view class="form-item required">
       <text class="label">联系人姓名</text>
-      <view class="search-group zh-name-search" style="z-index: 6;" catchtap="preventBubble">
-        <input class="input" placeholder="请输入姓名搜索或手动输入" value="{{formData.zhName}}" bindinput="handleZhNameInput" bindfocus="handleZhNameFocus" bindblur="handleZhNameBlur" />
-        <scroll-view scroll-y class="search-results" wx:if="{{zhMemberSearchResults.length > 0}}">
-          <view wx:for="{{zhMemberSearchResults}}" wx:key="userId" wx:for-item="zhItem" class="search-item member-search-item" bindtap="selectZhMember" data-user-index="{{index}}">
-            <image wx:if="{{zhItem.avatarUrl}}" src="{{zhItem.avatarUrl}}" class="member-avatar" />
-            <image wx:else src="/images/default-avatar.png" class="member-avatar" />
-            <view class="member-info">
-              <text class="member-name">{{zhItem.name || zhItem.nickname || zhItem.realName}}</text>
-              <text class="member-school">{{zhItem.school || '暂无学校信息'}}</text>
-            </view>
-          </view>
-        </scroll-view>
-      </view>
+      <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
     </view>
     <view class="form-item required">
       <text class="label">联系电话</text>
@@ -207,8 +195,12 @@
         </view>
         <view class="member-form-group">
           <view class="member-form-row">
+            <text class="member-label">已入驻平台</text>
+            <switch checked="{{item.isJoined}}" data-index="{{index}}" bindchange="handleMemberSwitchChange" color="#3F61CA" />
+          </view>
+          <view class="member-form-row">
             <text class="member-label required">姓名</text>
-            <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble">
+            <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble" wx:if="{{item.isJoined}}">
               <input class="input member-full-input" placeholder="请输入姓名搜索" value="{{item.name}}" data-index="{{index}}" bindinput="handleMemberNameInput" bindfocus="handleMemberNameFocus" />
               <scroll-view scroll-y class="search-results" wx:if="{{memberSearchResults[index] && memberSearchResults[index].length > 0}}">
                 <view wx:if="{{memberSearchResults[index].length === 0}}" class="search-placeholder">未找到相关人员</view>
@@ -222,6 +214,7 @@
                 </view>
               </scroll-view>
             </view>
+            <input wx:else class="input member-full-input" placeholder="请直接输入姓名" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="handleMemberInput" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">联系电话</text>

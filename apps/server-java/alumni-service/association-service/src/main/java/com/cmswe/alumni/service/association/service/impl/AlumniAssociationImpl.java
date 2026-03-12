@@ -421,10 +421,21 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         List<CoreMemberVo> coreMemberVoList = coreMemberList.stream()
                 .filter(member -> {
                     Long memberWxId = member.getWxId();
-                    if (memberWxId == null) {
-                        return true; // 未注册成员无法按 wxId 去重，保留
+                    if (memberWxId != null) {
+                        // 已注册成员：按 wxId 排除负责人和驻会代表
+                        return !memberWxId.equals(chargeWxId) && !memberWxId.equals(zhWxId);
                     }
-                    return !memberWxId.equals(chargeWxId) && !memberWxId.equals(zhWxId);
+                    // 预设成员（wxId 为 null）：按姓名排除与负责人、驻会代表相同的，避免重复展示
+                    String memberName = member.getUsername();
+                    if (chargeWxId == null && StringUtils.isNotBlank(alumniAssociation.getChargeName())
+                            && Objects.equals(memberName, alumniAssociation.getChargeName())) {
+                        return false; // 是预设的负责人，已在「主要负责人」展示，排除
+                    }
+                    if (zhWxId == null && StringUtils.isNotBlank(alumniAssociation.getZhName())
+                            && Objects.equals(memberName, alumniAssociation.getZhName())) {
+                        return false; // 是预设的驻会代表，已在「主要联系人」展示，排除
+                    }
+                    return true;
                 })
                 .map(member -> {
                     String username = member.getUsername();
@@ -757,8 +768,24 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                             // 设置是否展示在主页
                             response.setIsShowOnHome(member.getIsShowOnHome());
                         } else {
-                            // 有 wxId 但没有用户信息（异常情况），跳过
-                            return null;
+                            // 有 wxId 但在 wx_user_info 中无记录（如负责人未注册/未完善信息），使用成员表数据展示，避免在成员列表中丢失
+                            if (StringUtils.isNotBlank(finalKeyword)) {
+                                String username = member.getUsername();
+                                if (username == null || !username.contains(finalKeyword)) {
+                                    return null;
+                                }
+                            }
+                            response.setId(member.getId());
+                            response.setWxId(String.valueOf(member.getWxId()));
+                            response.setUsername(member.getUsername());
+                            response.setName(member.getUsername() != null ? member.getUsername() : "未知用户");
+                            response.setNickname(member.getUsername());
+                            response.setRoleName(member.getRoleName());
+                            response.setContactInformation(member.getUserPhone());
+                            response.setSocialDuties(member.getUserAffiliation());
+                            response.setIsShowOnHome(member.getIsShowOnHome());
+                            response.setJoined(true);
+                            response.setIsFollowed(currentUserId != null ? finalFollowStatusMap.getOrDefault(member.getWxId(), false) : null);
                         }
                     } else {
                         // 未加入平台的预设成员：从成员表获取基本信息
