@@ -2390,4 +2390,6 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         return true;
     }
 
+
+
 }
