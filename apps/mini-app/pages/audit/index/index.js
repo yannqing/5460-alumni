@@ -2,6 +2,7 @@
 const app = getApp()
 const config = require('../../../utils/config.js')
 const { userApi } = require('../../../api/api.js')
+const { refreshUserRoles } = require('../../../utils/auth.js')
 
 Page({
   data: {
@@ -422,6 +423,9 @@ Page({
               merchantFromApi = true
             }
           }
+        }
+        if (alumniFromApi || localFromApi || merchantFromApi) {
+          refreshUserRoles() // 静默刷新 roles，使后续页面展示与重新登录一致
         }
       } catch (err) {
         console.warn('[AuditIndex] 管理权限接口兜底检查失败:', err)

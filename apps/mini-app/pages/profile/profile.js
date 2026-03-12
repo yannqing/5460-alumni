@@ -2,7 +2,7 @@
 const app = getApp()
 const { userApi, followApi } = require('../../api/api.js')
 const config = require('../../utils/config.js')
-const { hasManagementPermission } = require('../../utils/auth.js')
+const { hasManagementPermission, refreshUserRoles } = require('../../utils/auth.js')
 
 Page({
   data: {
@@ -403,6 +403,8 @@ Page({
       const hasPermissionFromApi = Array.isArray(list) && list.length > 0
       this.setData({ hasManagementPermission: hasPermissionFromApi })
       console.log('[Profile] 管理权限检查结果:', hasPermissionFromApi, '(来自接口兜底)')
+      // 静默刷新 roles，使管理入口等后续页面展示与重新登录一致
+      if (hasPermissionFromApi) refreshUserRoles()
     } catch (err) {
       console.warn('[Profile] 管理权限接口兜底检查失败:', err)
       this.setData({ hasManagementPermission: false })
