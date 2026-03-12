@@ -5,7 +5,7 @@ const auth = require('../../../utils/auth.js')
 
 const DEFAULT_ALUMNI_AVATAR = config.defaultAlumniAvatar
 // 默认背景图：与审核页 pages/audit/alumni-association/detail 保持一致
-const DEFAULT_COVER = '/assets/icons/background.png'
+const DEFAULT_COVER = config.defaultCover
 
 Page({
   data: {

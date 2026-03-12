@@ -8,8 +8,7 @@
       <!-- 背景和头像区域（参考校友详情页样式） -->
       <view class="profile-header">
         <view class="background-area" bindtap="chooseBackground">
-          <image wx:if="{{form.bgImg}}" class="background-image" src="{{form.bgImg}}" mode="aspectFill"></image>
-          <view wx:else class="default-bg-gradient"></view>
+          <image class="background-image" src="{{form.bgImg}}" mode="aspectFill"></image>
           <view class="header-overlay"></view>
           <view class="background-edit-hint">
             <text class="edit-icon">📷</text>

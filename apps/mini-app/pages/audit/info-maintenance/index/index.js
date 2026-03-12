@@ -12,7 +12,7 @@ Page({
     platformDetail: null, // 校促会详细信息
     loading: false, // 加载状态
     defaultAlumniAvatar: config.defaultAlumniAvatar || config.defaultAvatar,
-    defaultBackground: '/assets/icons/background.png',
+    defaultBackground: config.defaultCover,
     // 隐私设置相关
     showPrivacyModal: false,
     privacyLoading: false,

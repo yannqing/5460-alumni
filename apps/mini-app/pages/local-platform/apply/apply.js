@@ -19,7 +19,7 @@ Page({
         alumniAssociationDetail: null, // 校友会详情
         loading: false, // 加载状态
         defaultAlumniAvatar: config.defaultAvatar,
-        defaultBackground: '/assets/icons/background.png',
+        defaultBackground: config.defaultCover,
         platformList: [],
         platformIndex: -1
     },

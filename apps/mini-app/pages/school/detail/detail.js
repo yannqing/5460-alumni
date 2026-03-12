@@ -87,7 +87,7 @@ Page({
           id: data.headquartersId || this.data.headquartersId,
           name: data.headquartersName || '',
           icon: data.logo || data.schoolInfo?.logo || DEFAULT_AVATAR,
-          cover: data.bgImg || '/assets/icons/background.png'
+          cover: data.bgImg || DEFAULT_COVER
         }
 
         this.setData({
