@@ -10,7 +10,7 @@ Page({
     statusClass: '',
     approvalStatusText: '',
     defaultAlumniAvatar: config.defaultAlumniAvatar || config.defaultAvatar,
-    defaultBackground: '/assets/icons/background.png'
+    defaultBackground: config.defaultCover
   },
 
   onLoad(options) {

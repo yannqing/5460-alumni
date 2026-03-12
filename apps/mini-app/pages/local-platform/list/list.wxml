@@ -77,8 +77,8 @@
 
       <view class="platform-list" id="school-list-start">
         <view class="platform-card" wx:for="{{platformList}}" wx:key="platformId" bindtap="viewDetail" data-id="{{item.platformId}}">
-          <!-- 背景图片 -->
-          <view wx:if="{{item.bgImg}}" class="platform-bgImg-container">
+          <!-- 头部内容（始终带背景图） -->
+          <view class="platform-bgImg-container">
             <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
             <!-- 右上角图标 -->
             <image wx:if="{{isAlumniAdmin}}" class="platform-crate-icon" src="https://cni-alumni.yannqing.com/upload/images/2026/03/05/9b2b5c0b-9777-4883-aa23-244dafed73a2.png" catchtap="goToCreate" data-platform-name="{{item.platformName}}" />
@@ -91,20 +91,6 @@
               </view>
               <view class="card-subtitle-on-bg">
                 <image class="subtitle-icon-on-bg" src="{{iconLocation}}" mode="aspectFit" />
-                <text>{{item.city}}</text>
-              </view>
-            </view>
-          </view>
-
-          <!-- 无背景图片时的布局 -->
-          <view wx:else class="no-bg-header">
-            <image class="platform-avatar" src="{{item.avatar}}" mode="aspectFill" />
-            <view class="card-info">
-              <view class="card-title-row">
-                <text class="card-title">{{item.platformName}}</text>
-              </view>
-              <view class="card-subtitle">
-                <image class="subtitle-icon" src="{{iconLocation}}" mode="aspectFit" />
                 <text>{{item.city}}</text>
               </view>
             </view>

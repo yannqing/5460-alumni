@@ -42,7 +42,7 @@ Page({
     iconWdsc: config.getIconUrl('wdsc@3x.png'),
     iconGrys: config.getIconUrl('grys@3x.png'),
     // 页面装饰图片（使用远程服务器上的图片）
-    imageTopBg: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grdbt@2x.png', // 顶部背景图
+    imageTopBg: 'https://cni-alumni.yannqing.com/upload/images/2026/03/12/1e677a02-7433-4e95-b97a-a2b526b47a47.png', // 顶部背景图
     imageBanner: 'https://cni-alumni.yannqing.com/upload/images/assets/images/grjrt@2x.png', // 中间 Banner 图
     // 默认头像
     defaultAvatar: config.defaultAvatar,

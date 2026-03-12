@@ -3,6 +3,8 @@ const app = getApp()
 const { userApi, fileApi, schoolApi } = require('../../../api/api.js')
 
 // ==================== 配置区域 ====================
+const DEFAULT_BG_IMG = 'https://cni-alumni.yannqing.com/upload/images/2026/03/12/4cf2b23b-6a96-4d70-a000-53537171c772.png'
+
 // 联调时：将 USE_MOCK_DATA 改为 false，删除下面的假数据，补充缺失字段
 const USE_MOCK_DATA = false // true: 使用假数据, false: 使用真实接口
 
@@ -116,7 +118,7 @@ function mapUserInfoToForm(userInfo) {
     nickname: userInfo.nickname || '',
     name: userInfo.name || '',
     avatarUrl: avatarUrl,
-    bgImg: userInfo.bgImg ? config.getImageUrl(userInfo.bgImg) : '',
+    bgImg: (userInfo.bgImg && userInfo.bgImg !== '/assets/icons/background.png' && !userInfo.bgImg.endsWith('/background.png')) ? config.getImageUrl(userInfo.bgImg) : DEFAULT_BG_IMG,
     phone: userInfo.phone || '',
     wxNum: userInfo.wxNum || '',
     qqNum: userInfo.qqNum || '',
@@ -293,7 +295,7 @@ Page({
       nickname: '',
       name: '',
       avatarUrl: '',
-      bgImg: '',
+      bgImg: DEFAULT_BG_IMG,
       phone: '',
       wxNum: '',
       qqNum: '',

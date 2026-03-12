@@ -7,8 +7,7 @@
     <view wx:if="{{alumniInfo}}">
       <!-- 背景和头像区域 -->
       <view class="profile-header">
-        <image wx:if="{{alumniInfo.bgImg}}" class="background-image" src="{{alumniInfo.bgImg}}" mode="aspectFill"></image>
-        <view wx:else class="default-bg-gradient"></view>
+        <image class="background-image" src="{{alumniInfo.bgImg}}" mode="aspectFill"></image>
         <view class="header-overlay"></view>
         
         <view class="profile-main-content">

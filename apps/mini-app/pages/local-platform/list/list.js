@@ -398,6 +398,9 @@ Page({
             } else {
                 bgImg = config.getImageUrl(bgImg)
             }
+        } else {
+            // 使用默认背景图
+            bgImg = config.defaultCover
         }
 
         return {

@@ -11,7 +11,7 @@ Page({
     applicationStatusText: '',
     initialMembersList: [], // 解析后的初始成员列表
     defaultAlumniAvatar: config.defaultAvatar,
-    defaultBackground: '/assets/icons/background.png'
+    defaultBackground: config.defaultCover
   },
 
   onLoad(options) {
