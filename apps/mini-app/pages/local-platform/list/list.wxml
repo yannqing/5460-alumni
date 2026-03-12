@@ -79,7 +79,7 @@
         <view class="platform-card" wx:for="{{platformList}}" wx:key="platformId" bindtap="viewDetail" data-id="{{item.platformId}}">
           <!-- 头部内容（始终带背景图） -->
           <view class="platform-bgImg-container">
-            <image class="platform-bgImg" src="{{item.bgImg}}" mode="aspectFill" />
+            <image class="platform-bgImg" src="{{item.bgImg}}" mode="widthFix" />
             <!-- 右上角图标 -->
             <image wx:if="{{isAlumniAdmin}}" class="platform-crate-icon" src="https://cni-alumni.yannqing.com/upload/images/2026/03/05/9b2b5c0b-9777-4883-aa23-244dafed73a2.png" catchtap="goToCreate" data-platform-name="{{item.platformName}}" />
             <!-- 头像 -->
@@ -96,17 +96,11 @@
             </view>
           </view>
 
-          <!-- 头部：范围和联系方式 -->
-          <view class="card-header">
+          <!-- 底部：联系方式 -->
+          <view class="card-header" wx:if="{{item.contactInfo}}">
             <view class="card-info">
-              <!-- 范围信息 -->
-              <view class="card-scope" wx:if="{{item.scope}}">
-                <image class="scope-icon" src="{{iconScope}}" mode="aspectFit" />
-                <text>{{item.scope}}</text>
-              </view>
-
               <!-- 联系方式 -->
-              <view class="card-contact" wx:if="{{item.contactInfo}}">
+              <view class="card-contact">
                 <image class="contact-icon" src="{{iconContact}}" mode="aspectFit" />
                 <text>{{item.contactInfo}}</text>
               </view>

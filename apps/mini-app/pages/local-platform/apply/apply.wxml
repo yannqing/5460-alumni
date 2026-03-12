@@ -22,7 +22,7 @@
       <view wx:if="{{alumniAssociationDetail}}" class="alumni-association-info">
         <!-- 背景横幅 -->
         <view class="detail-header">
-          <image class="header-bg" src="{{alumniAssociationDetail.bgImg || defaultBackground}}" mode="aspectFill" />
+          <image class="header-bg" src="{{alumniAssociationDetail.bgImg || defaultBackground}}" mode="widthFix" />
           <image class="platform-avatar-on-bg" src="{{alumniAssociationDetail.logo || defaultAlumniAvatar}}" mode="aspectFill" />
           <view class="info-on-bg">
             <view class="title-row">

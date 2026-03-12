@@ -251,7 +251,8 @@ page {
 .detail-header {
   position: relative;
   width: 100%;
-  height: 320rpx;
+  height: auto;
+  min-height: 240rpx;
   margin-bottom: 30rpx;
   border-radius: 20rpx;
   overflow: hidden;
@@ -271,9 +272,8 @@ page {
 
 .header-bg {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  height: auto;
+  display: block;
   border-radius: 28.99rpx;
 }
 
