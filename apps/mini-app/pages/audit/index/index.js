@@ -1,6 +1,7 @@
 // pages/audit/index/index.js
 const app = getApp()
 const config = require('../../../utils/config.js')
+const { userApi } = require('../../../api/api.js')
 
 Page({
   data: {
@@ -323,6 +324,11 @@ Page({
     this.checkPermissions()
   },
 
+  onShow() {
+    // 每次显示时重新检查权限，兼容审核通过后 roles 缓存未更新的情况
+    this.checkPermissions()
+  },
+
   // 检查用户是否有特定权限
   hasPermission(permissionCode) {
     // 获取用户的原始角色列表（从缓存中读取）
@@ -353,7 +359,8 @@ Page({
   },
 
   // 检查用户权限并控制功能模块显示
-  checkPermissions() {
+  // 当 roles 缓存未更新（如校友会审核通过后刚成为管理员），调用 getManagedOrganizations 接口兜底
+  async checkPermissions() {
     const app = getApp()
     const userConfig = app.globalData.userConfig || {}
     const roles = userConfig.roles || {}
@@ -391,6 +398,36 @@ Page({
       hasShopAdmin = originalRoles.some(role => role.roleCode === 'ORGANIZE_SHOP_ADMIN')
     }
 
+    // 方法3：roles 缓存无对应管理权限时，调用接口兜底（审核通过后刚成为管理员，缓存未更新）
+    let alumniFromApi = false
+    let localFromApi = false
+    let merchantFromApi = false
+    const needApiFallback = !hasAlumniAdmin || !hasLocalAdmin || (!hasMerchantAdmin && !hasShopAdmin)
+    if (needApiFallback) {
+      try {
+        const res = await userApi.getManagedOrganizations({}) // 不传 type 返回所有类型
+        const list = (res?.data?.data ?? res?.data ?? []) || []
+        if (Array.isArray(list) && list.length > 0) {
+          for (const item of list) {
+            const t = item.type
+            if (t === 0 && !hasAlumniAdmin) {
+              hasAlumniAdmin = true
+              alumniFromApi = true
+            } else if (t === 1 && !hasLocalAdmin) {
+              hasLocalAdmin = true
+              localFromApi = true
+            } else if (t === 2 && !hasMerchantAdmin) {
+              hasMerchantAdmin = true
+              hasShopAdmin = true
+              merchantFromApi = true
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[AuditIndex] 管理权限接口兜底检查失败:', err)
+      }
+    }
+
     // 过滤系统管理功能（auditFunctions）
     const filteredAuditFunctions = this.data.auditFunctions.filter(item => {
       // 根据功能名称检查对应权限
@@ -401,7 +438,7 @@ Page({
       } else if (item.name === '轮播图管理') {
         return this.hasPermission('HOME_PAGE_BANNER_MANAGEMENT')
       } else if (item.name === '审核校友总会') {
-        return true // 取消权限限制，所有人都可以查看
+        return this.hasPermission('SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT')
       } else if (item.name === '校友会审核') {
         return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_APPLICATION')
       }
@@ -409,67 +446,48 @@ Page({
     })
 
     // 过滤校促会管理功能（schoolOfficeFunctions）
-    const filteredSchoolOfficeFunctions = this.data.schoolOfficeFunctions.filter(item => {
-      // 根据功能名称检查对应权限
-      if (item.name === '校友会审核') {
-        return this.hasPermission('LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION')
-      } else if (item.name === '成员管理') {
-        return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
-      } else if (item.name === '架构管理') {
-        return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
-      } else if (item.name === '资讯管理') {
-        return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
-      } else if (item.name === '信息维护') {
-        return true // 取消权限限制，所有人都可以查看
-      } else if (item.name === '校友会认证') {
-        return true // 取消权限限制，所有人都可以查看
-      }
-      return false
-    })
+    // localFromApi 时权限来自接口兜底，直接显示全部（子页面会用 getManagedOrganizations 校验）
+    const filteredSchoolOfficeFunctions = localFromApi
+      ? this.data.schoolOfficeFunctions
+      : this.data.schoolOfficeFunctions.filter(item => {
+          if (item.name === '校友会审核') return this.hasPermission('LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION')
+          if (item.name === '成员管理') return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
+          if (item.name === '架构管理') return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
+          if (item.name === '资讯管理') return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
+          if (item.name === '信息维护' || item.name === '校友会认证') return true
+          return false
+        })
 
     // 过滤校友会管理功能（alumniFunctions）
-    const filteredAlumniFunctions = this.data.alumniFunctions.filter(item => {
-      // 根据功能名称检查对应权限
-      if (item.name === '架构管理') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
-      } else if (item.name === '成员管理') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT')
-      } else if (item.name === '商户审核') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT')
-      } else if (item.name === '店铺审核') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_SHOP_REVIEW')
-      } else if (item.name === '加入审核') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_JOIN_REVIEW')
-      } else if (item.name === '活动管理') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT')
-      } else if (item.name === '企业管理') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT')
-      } else if (item.name === '信息维护') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION')
-      } else if (item.name === '资讯管理') {
-        return this.hasPermission('ALUMNI_ASSOCIATION_ARTICLE_MANAGEMENT')
-      }
-      return false
-    })
+    // alumniFromApi 时权限来自接口兜底，直接显示全部（子页面会用 getManagedOrganizations 校验）
+    const filteredAlumniFunctions = alumniFromApi
+      ? this.data.alumniFunctions
+      : this.data.alumniFunctions.filter(item => {
+          if (item.name === '架构管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
+          if (item.name === '成员管理') return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT')
+          if (item.name === '商户审核') return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT')
+          if (item.name === '店铺审核') return this.hasPermission('ALUMNI_ASSOCIATION_SHOP_REVIEW')
+          if (item.name === '加入审核') return this.hasPermission('ALUMNI_ASSOCIATION_JOIN_REVIEW')
+          if (item.name === '活动管理') return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT')
+          if (item.name === '企业管理') return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT')
+          if (item.name === '信息维护') return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION')
+          if (item.name === '资讯管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARTICLE_MANAGEMENT')
+          return false
+        })
 
     // 过滤商家管理功能（merchantFunctions）
-    const filteredMerchantFunctions = this.data.merchantFunctions.filter(item => {
-      // 根据功能名称检查对应权限
-      if (item.name === '店铺管理') {
-        return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
-      } else if (item.name === '成员管理') {
-        return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
-      } else if (item.name === '架构管理') {
-        return this.hasPermission('MERCHANT_ARCHIVE_MANAGEMENT')
-      } else if (item.name === '优惠券管理') {
-        return this.hasPermission('MERCHANT_COUPON_MANAGEMENT')
-      } else if (item.name === '核销优惠券') {
-        return this.hasPermission('MERCHANT_DEAL_COUPON')
-      } else if (item.name === '话题管理') {
-        return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT')
-      }
-      return false
-    })
+    // merchantFromApi 时权限来自接口兜底，直接显示全部
+    const filteredMerchantFunctions = merchantFromApi
+      ? this.data.merchantFunctions
+      : this.data.merchantFunctions.filter(item => {
+          if (item.name === '店铺管理') return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
+          if (item.name === '成员管理') return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
+          if (item.name === '架构管理') return this.hasPermission('MERCHANT_ARCHIVE_MANAGEMENT')
+          if (item.name === '优惠券管理') return this.hasPermission('MERCHANT_COUPON_MANAGEMENT')
+          if (item.name === '核销优惠券') return this.hasPermission('MERCHANT_DEAL_COUPON')
+          if (item.name === '话题管理') return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT')
+          return false
+        })
 
     // 根据角色设置其他功能模块显示权限
     if (hasLocalAdmin || this.hasPermission('LOCAL_PLATFORM_CONFIG')) {

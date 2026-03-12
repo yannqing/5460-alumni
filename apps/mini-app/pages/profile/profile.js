@@ -384,14 +384,29 @@ Page({
 
   /**
    * 检查用户是否有管理权限
-   * 使用公共方法检查，避免在每个按钮处重复写控制逻辑
+   * 优先使用本地 roles 缓存；若缓存显示无权限，则调用 getManagedOrganizations 接口兜底，
+   * 避免校友会审核通过后用户成为管理员但需重新登录才能看到管理入口的问题。
    */
-  checkManagementPermission() {
-    const hasPermission = hasManagementPermission()
-    this.setData({
-      hasManagementPermission: hasPermission,
-    })
-    console.log('[Profile] 管理权限检查结果:', hasPermission)
+  async checkManagementPermission() {
+    const hasPermissionFromCache = hasManagementPermission()
+    if (hasPermissionFromCache) {
+      this.setData({ hasManagementPermission: true })
+      console.log('[Profile] 管理权限检查结果: true (来自缓存)')
+      return
+    }
+
+    // 本地 roles 无管理权限时，调用接口实时判断（如刚成为校友会管理员，缓存未更新）
+    try {
+      const { userApi } = require('../../api/api.js')
+      const res = await userApi.getManagedOrganizations({}) // 不传 type，查询所有类型
+      const list = (res?.data?.data ?? res?.data ?? []) || []
+      const hasPermissionFromApi = Array.isArray(list) && list.length > 0
+      this.setData({ hasManagementPermission: hasPermissionFromApi })
+      console.log('[Profile] 管理权限检查结果:', hasPermissionFromApi, '(来自接口兜底)')
+    } catch (err) {
+      console.warn('[Profile] 管理权限接口兜底检查失败:', err)
+      this.setData({ hasManagementPermission: false })
+    }
   },
 
   // 跳转到认证说明页面
