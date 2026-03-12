@@ -61,6 +61,8 @@ App({
         this.initWebSocket()
         // 初始化加载未读消息数
         this.updateUnreadCount()
+        // 初始化加载审核待办数
+        this.updateAuditTodoCount()
       }, 1000)
     } catch (error) {
       console.error('登录初始化失败:', error)
@@ -424,7 +426,6 @@ App({
         console.log('[App] 未读消息总数:', total)
 
         // 更新自定义 TabBar 未读角标
-        // 获取当前页面栈，找到当前页面的自定义 tabBar 实例
         const pages = getCurrentPages()
         if (pages.length > 0) {
           const currentPage = pages[pages.length - 1]
@@ -440,6 +441,47 @@ App({
       }
     } catch (error) {
       console.error('[App] 更新未读消息数失败:', error)
+    }
+
+    return 0
+  },
+
+  /**
+   * 更新全局审核待办数（TabBar 角标）
+   */
+  async updateAuditTodoCount() {
+    try {
+      // 检查是否有管理权限，没权限不需要请求
+      const { hasManagementPermission } = require('./utils/auth.js')
+      if (!hasManagementPermission()) return 0
+
+      const { auditApi } = require('./api/api.js')
+      const res = await auditApi.getTodoCount()
+
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const counts = res.data.data.todoCounts || {}
+        let total = 0
+        for (const key in counts) {
+          total += counts[key]
+        }
+        console.log('[App] 审核待办总数:', total)
+
+        // 更新自定义 TabBar 角标
+        const pages = getCurrentPages()
+        if (pages.length > 0) {
+          const currentPage = pages[pages.length - 1]
+          if (typeof currentPage.getTabBar === 'function') {
+            const tabBar = currentPage.getTabBar()
+            if (tabBar && typeof tabBar.setAuditTodoCount === 'function') {
+              tabBar.setAuditTodoCount(total)
+            }
+          }
+        }
+
+        return total
+      }
+    } catch (error) {
+      console.error('[App] 更新审核待办数失败:', error)
     }
 
     return 0

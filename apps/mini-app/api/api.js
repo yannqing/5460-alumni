@@ -774,6 +774,12 @@ const feedbackApi = {
   submit: data => post('/feedback/submit', data),
 }
 
+// ==================== 审核统计相关接口 ====================
+const auditApi = {
+  // 获取审核待办数量统计
+  getTodoCount: () => get('/audit/statistics/todoCount'),
+}
+
 module.exports = {
   schoolApi,
   associationApi,
@@ -800,4 +806,5 @@ module.exports = {
   bannerApi,
   placeApi,
   feedbackApi,
+  auditApi,
 }

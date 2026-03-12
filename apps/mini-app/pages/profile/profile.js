@@ -1,6 +1,6 @@
 // pages/profile/profile.js
 const app = getApp()
-const { userApi, followApi } = require('../../api/api.js')
+const { userApi, followApi, auditApi } = require('../../api/api.js')
 const config = require('../../utils/config.js')
 const { hasManagementPermission, refreshUserRoles } = require('../../utils/auth.js')
 
@@ -53,6 +53,7 @@ Page({
       'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_second_certification.png',
     alumniCertThirdImg:
       'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_third_certification.png',
+    totalTodoCount: 0,
   },
 
   onLoad() {
@@ -75,6 +76,20 @@ Page({
     this.loadUserInfo()
     this.loadUserData()
     this.checkManagementPermission()
+  },
+
+  // 获取审核待办数量总和
+  async getTodoCounts() {
+    if (!this.data.hasManagementPermission) return
+    try {
+      const total = await app.updateAuditTodoCount()
+      this.setData({
+        totalTodoCount: total || 0
+      })
+      console.log('[Profile] 设置 totalTodoCount:', total)
+    } catch (err) {
+      console.warn('[Profile] 获取待办统计失败:', err)
+    }
   },
 
   // 更新当前时间显示
@@ -225,7 +240,6 @@ Page({
       ''
 
     // 使用 config.getImageUrl 处理图片URL，确保使用正确的 baseUrl
-    const config = require('../../utils/config.js')
     // 注意：默认头像是本地路径，不需要经过 getImageUrl 处理
     const avatarUrl = rawAvatarUrl ? config.getImageUrl(rawAvatarUrl) : config.defaultAvatar
 
@@ -392,19 +406,22 @@ Page({
     if (hasPermissionFromCache) {
       this.setData({ hasManagementPermission: true })
       console.log('[Profile] 管理权限检查结果: true (来自缓存)')
+      this.getTodoCounts()
       return
     }
 
     // 本地 roles 无管理权限时，调用接口实时判断（如刚成为校友会管理员，缓存未更新）
     try {
-      const { userApi } = require('../../api/api.js')
       const res = await userApi.getManagedOrganizations({}) // 不传 type，查询所有类型
       const list = (res?.data?.data ?? res?.data ?? []) || []
       const hasPermissionFromApi = Array.isArray(list) && list.length > 0
       this.setData({ hasManagementPermission: hasPermissionFromApi })
       console.log('[Profile] 管理权限检查结果:', hasPermissionFromApi, '(来自接口兜底)')
       // 静默刷新 roles，使管理入口等后续页面展示与重新登录一致
-      if (hasPermissionFromApi) refreshUserRoles()
+      if (hasPermissionFromApi) {
+        this.getTodoCounts()
+        refreshUserRoles()
+      }
     } catch (err) {
       console.warn('[Profile] 管理权限接口兜底检查失败:', err)
       this.setData({ hasManagementPermission: false })

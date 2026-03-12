@@ -10,8 +10,14 @@
           </view>
           <view class="group_items_common">
             <view class="image-text_item_common {{item.id === 5 ? 'special-item' : ''}}" wx:for="{{auditFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
-              <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
-              <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+              <view class="icon-wrapper">
+                <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
+                <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+                <!-- 待处理角标 -->
+                <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
+                  {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+                </view>
+              </view>
               <text lines="1" class="text-group_name_common">{{item.name}}</text>
             </view>
           </view>
@@ -24,8 +30,14 @@
           </view>
           <view class="group_items_common">
             <view class="image-text_item_common" wx:for="{{schoolOfficeFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
-              <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
-              <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+              <view class="icon-wrapper">
+                <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
+                <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+                <!-- 待处理角标 -->
+                <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
+                  {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+                </view>
+              </view>
               <text lines="1" class="text-group_name_common">{{item.name}}</text>
             </view>
           </view>
@@ -38,8 +50,14 @@
           </view>
           <view class="group_items_common">
             <view class="image-text_item_common" wx:for="{{alumniFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
-              <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
-              <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+              <view class="icon-wrapper">
+                <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
+                <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+                <!-- 待处理角标 -->
+                <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
+                  {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+                </view>
+              </view>
               <text lines="1" class="text-group_name_common">{{item.name}}</text>
             </view>
           </view>
@@ -52,8 +70,14 @@
       <text lines="1" class="text_18">商家</text>
       <view class="grid_1">
         <view class="image-text_3-0" wx:for="{{merchantFunctions}}" wx:key="id" data-url="{{item.url}}" bindtap="onFunctionTap">
-          <image src="{{item.icon}}" class="label_3-0" wx:if="{{item.iconType === 'image'}}"></image>
-          <view class="label_3-0" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+          <view class="icon-wrapper">
+            <image src="{{item.icon}}" class="label_3-0" wx:if="{{item.iconType === 'image'}}"></image>
+            <view class="label_3-0" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
+            <!-- 待处理角标 -->
+            <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
+              {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+            </view>
+          </view>
           <text lines="1" class="text-group_3-0">{{item.name}}</text>
         </view>
       </view>

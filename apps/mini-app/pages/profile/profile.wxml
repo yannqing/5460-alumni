@@ -84,7 +84,13 @@
       <text lines="1" class="text_10">常用功能</text>
       <view class="list_5">
         <view class="image-text_9-0" wx:if="{{hasManagementPermission}}" bindtap="navigateTo" data-url="/pages/audit/index/index">
-          <image src="{{iconGlrk}}" class="label_10-0"></image>
+          <view class="icon-wrapper">
+            <image src="{{iconGlrk}}" class="label_10-0"></image>
+            <!-- 待处理总数角标 -->
+            <view wx:if="{{totalTodoCount > 0}}" class="badge">
+              {{totalTodoCount > 99 ? '99+' : totalTodoCount}}
+            </view>
+          </view>
           <text lines="1" class="text-group_3-0">管理入口</text>
         </view>
         <view class="image-text_8-3" bindtap="navigateTo" data-url="/pages/profile/my-card/my-card">

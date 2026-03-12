@@ -1,19 +1,13 @@
 // pages/audit/index/index.js
 const app = getApp()
 const config = require('../../../utils/config.js')
-const { userApi } = require('../../../api/api.js')
+const { userApi, auditApi } = require('../../../api/api.js')
 const { refreshUserRoles } = require('../../../utils/auth.js')
 
 Page({
   data: {
-    // 管理功能列表
-    auditFunctions: [
-      // {
-      //   id: 1,
-      //   name: '文章发布',
-      //   icon: '🔍',
-      //   url: '/pages/article-publish/index/index'
-      // },
+    // 管理功能列表 (源数据，不直接用于渲染)
+    _allAuditFunctions: [
       {
         id: 3,
         name: '资讯管理',
@@ -38,6 +32,7 @@ Page({
       {
         id: 5,
         name: '审核校友总会',
+        code: 'SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/headquarters/list/list'
@@ -45,31 +40,14 @@ Page({
       {
         id: 6,
         name: '校友会审核',
+        code: 'SYSTEM_ALUMNI_ASSOCIATION_APPLICATION',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/alumni-association/list/list'
       }
-      // {
-      //   id: 3,
-      //   name: '内容审核',
-      //   icon: '📝',
-      //   url: '/pages/audit/content/list/list'
-      // },
-      // {
-      //   id: 4,
-      //   name: '商家审核',
-      //   icon: '🏪',
-      //   url: '/pages/audit/merchant/list/list'
-      // },
-      // {
-      //   id: 5,
-      //   name: '文章审核',
-      //   icon: '📄',
-      //   url: '/pages/article/audit-list/audit-list'
-      // }
     ],
-    // 校促会功能列表
-    schoolOfficeFunctions: [
+    // 校促会功能列表 (源数据)
+    _allSchoolOfficeFunctions: [
       {
         id: 1,
         name: '校友会审核',
@@ -108,46 +86,18 @@ Page({
       {
         id: 6,
         name: '校友会认证',
+        code: 'SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/alumni-association-certification/list/list'
-      },
-      // {
-      //   id: 4,
-      //   name: '资料库',
-      //   icon: '📚',
-      //   url: ''
-      // },
-      // {
-      //   id: 5,
-      //   name: '校处风采',
-      //   icon: '🌟',
-      //   url: ''
-      // },
-      // {
-      //   id: 6,
-      //   name: '捐赠记录',
-      //   icon: '💝',
-      //   url: ''
-      // },
-      // {
-      //   id: 7,
-      //   name: '联系我们',
-      //   icon: '📞',
-      //   url: ''
-      // },
-      // {
-      //   id: 8,
-      //   name: '数据统计',
-      //   icon: '📊',
-      //   url: ''
-      // }
+      }
     ],
-    // 校友会功能列表
-    alumniFunctions: [
+    // 校友会功能列表 (源数据)
+    _allAlumniFunctions: [
       {
         id: 5,
         name: '加入审核',
+        code: 'ALUMNI_ASSOCIATION_JOIN_REVIEW',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/join-audit/index'
@@ -207,40 +157,10 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/article/manage/manage'
-      },
-      // {
-      //   id: 4,
-      //   name: '资料库',
-      //   icon: '📚',
-      //   url: ''
-      // },
-      // {
-      //   id: 5,
-      //   name: '校友风采',
-      //   icon: '🌟',
-      //   url: ''
-      // },
-      // {
-      //   id: 6,
-      //   name: '捐赠记录',
-      //   icon: '💝',
-      //   url: ''
-      // },
-      // {
-      //   id: 7,
-      //   name: '联系我们',
-      //   icon: '📞',
-      //   url: ''
-      // },
-      // {
-      //   id: 8,
-      //   name: '数据统计',
-      //   icon: '📊',
-      //   url: ''
-      // }
+      }
     ],
-    // 商户功能列表
-    merchantFunctions: [
+    // 商户功能列表 (源数据)
+    _allMerchantFunctions: [
       {
         id: 1,
         name: '店铺管理',
@@ -283,35 +203,16 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/topic/topic'
       }
-      // 以下功能暂时注释
-      // {
-      //   id: 5,
-      //   name: '营销推广',
-      //   icon: '📱',
-      //   url: ''
-      // },
-      // {
-      //   id: 6,
-      //   name: '财务管理',
-      //   icon: '💰',
-      //   url: ''
-      // },
-      // {
-      //   id: 7,
-      //   name: '客服中心',
-      //   icon: '💬',
-      //   url: ''
-      // },
-      // {
-      //   id: 8,
-      //   name: '数据分析',
-      //   icon: '📈',
-      //   url: ''
-      // }
     ],
+    // 实际渲染用的数据
+    auditFunctions: [],
+    schoolOfficeFunctions: [],
+    alumniFunctions: [],
+    merchantFunctions: [],
     // 中间 Logo 图片（images 文件夹下）
     imageCenterLogo: config.getAssetImageUrl('dbdhl@2x.png'),
-    statusBarHeight: 20
+    statusBarHeight: 20,
+    todoCounts: {}
   },
 
   onLoad(options) {
@@ -328,6 +229,34 @@ Page({
   onShow() {
     // 每次显示时重新检查权限，兼容审核通过后 roles 缓存未更新的情况
     this.checkPermissions()
+    // 获取待办数量统计
+    this.getTodoCounts()
+  },
+
+  // 获取待办数量统计
+  async getTodoCounts() {
+    try {
+      const res = await auditApi.getTodoCount()
+      console.log('[AuditIndex] 待办统计返回:', res)
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const counts = res.data.data.todoCounts || {}
+        this.setData({
+          todoCounts: counts
+        })
+        console.log('[AuditIndex] 设置 todoCounts:', this.data.todoCounts)
+
+        // 同时更新全局和 TabBar 计数
+        let total = 0
+        for (const key in counts) {
+          total += counts[key]
+        }
+        if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+          this.getTabBar().setAuditTodoCount(total)
+        }
+      }
+    } catch (err) {
+      console.warn('[AuditIndex] 获取待办统计失败:', err)
+    }
   },
 
   // 检查用户是否有特定权限
@@ -433,7 +362,7 @@ Page({
     }
 
     // 过滤系统管理功能（auditFunctions）
-    const filteredAuditFunctions = this.data.auditFunctions.filter(item => {
+    const filteredAuditFunctions = this.data._allAuditFunctions.filter(item => {
       // 根据功能名称检查对应权限
       if (item.name === '文章审核') {
         return this.hasPermission('HOME_PAGE_ARTICLE_REVIEW')
@@ -452,8 +381,8 @@ Page({
     // 过滤校促会管理功能（schoolOfficeFunctions）
     // localFromApi 时权限来自接口兜底，直接显示全部（子页面会用 getManagedOrganizations 校验）
     const filteredSchoolOfficeFunctions = localFromApi
-      ? this.data.schoolOfficeFunctions
-      : this.data.schoolOfficeFunctions.filter(item => {
+      ? this.data._allSchoolOfficeFunctions
+      : this.data._allSchoolOfficeFunctions.filter(item => {
           if (item.name === '校友会审核') return this.hasPermission('LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION')
           if (item.name === '成员管理') return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
           if (item.name === '架构管理') return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
@@ -466,8 +395,8 @@ Page({
     // 过滤校友会管理功能（alumniFunctions）
     // alumniFromApi 时权限来自接口兜底，直接显示全部（子页面会用 getManagedOrganizations 校验）
     const filteredAlumniFunctions = alumniFromApi
-      ? this.data.alumniFunctions
-      : this.data.alumniFunctions.filter(item => {
+      ? this.data._allAlumniFunctions
+      : this.data._allAlumniFunctions.filter(item => {
           if (item.name === '架构管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
           if (item.name === '成员管理') return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT')
           if (item.name === '商户审核') return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT')
@@ -483,8 +412,8 @@ Page({
     // 过滤商家管理功能（merchantFunctions）
     // merchantFromApi 时权限来自接口兜底，直接显示全部
     const filteredMerchantFunctions = merchantFromApi
-      ? this.data.merchantFunctions
-      : this.data.merchantFunctions.filter(item => {
+      ? this.data._allMerchantFunctions
+      : this.data._allMerchantFunctions.filter(item => {
           if (item.name === '店铺管理') return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
           if (item.name === '成员管理') return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
           if (item.name === '架构管理') return this.hasPermission('MERCHANT_ARCHIVE_MANAGEMENT')

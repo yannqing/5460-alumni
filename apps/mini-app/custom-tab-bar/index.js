@@ -7,6 +7,7 @@ Component({
     color: "#999999",
     selectedColor: "#40B2E6",
     unreadCount: 0,
+    auditTodoCount: 0,
     list: [
       {
         pagePath: "/pages/index/index",
@@ -44,6 +45,8 @@ Component({
   attached() {
     // 初始化时获取未读消息数
     this.updateUnreadCount();
+    // 初始化时获取审核待办数
+    this.updateAuditTodoCount();
   },
 
   methods: {
@@ -71,6 +74,8 @@ Component({
         success: () => {
           // 切换页面后更新未读消息数
           this.updateUnreadCount();
+          // 切换页面后更新审核待办数
+          this.updateAuditTodoCount();
         }
       });
     },
@@ -87,10 +92,29 @@ Component({
       }
     },
 
+    // 更新审核待办数
+    updateAuditTodoCount() {
+      const app = getApp();
+      if (app && app.updateAuditTodoCount) {
+        app.updateAuditTodoCount().then(count => {
+          this.setData({
+            auditTodoCount: count || 0
+          });
+        });
+      }
+    },
+
     // 设置未读消息数（供外部调用）
     setUnreadCount(count) {
       this.setData({
         unreadCount: count || 0
+      });
+    },
+
+    // 设置审核待办数（供外部调用）
+    setAuditTodoCount(count) {
+      this.setData({
+        auditTodoCount: count || 0
       });
     }
   }
