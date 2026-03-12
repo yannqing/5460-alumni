@@ -1,5 +1,6 @@
 // pages/audit/join-audit/index.js
-const { joinApplicationApi, associationApi } = require('../../../api/api.js')
+const { joinApplicationApi, associationApi, userApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 const app = getApp()
 
 Page({
@@ -75,6 +76,9 @@ Page({
           if (item.applyTime) {
             item.applyTime = item.applyTime.replace('T', ' ')
           }
+          if (item.applicantInfo && item.applicantInfo.avatarUrl) {
+            item.applicantInfo.avatarUrl = config.getImageUrl(item.applicantInfo.avatarUrl)
+          }
           return item
         })
         
@@ -123,11 +127,11 @@ Page({
         hasAlumniAdminPermission: alumniAdminRoles.length > 0
       })
 
+      // 存储所有校友会数据
+      const alumniAssociationList = []
+
       if (alumniAdminRoles.length > 0) {
         console.log('[Debug] 存在校友会管理员角色，开始处理每个角色')
-        
-        // 存储所有校友会数据
-        const alumniAssociationList = []
         
         // 遍历所有校友会管理员角色，创建校友会数据
         for (const alumniAdminRole of alumniAdminRoles) {
@@ -185,20 +189,45 @@ Page({
             }
           }
         }
-        
-        // 设置校友会列表
+      }
+
+      // 如果通过 roles 没找到，尝试通过 getManagedOrganizations 接口获取（审核通过后缓存未更新）
+      if (alumniAssociationList.length === 0) {
+        console.log('[Debug] roles 缓存未找到管理权，尝试接口兜底获取...')
+        try {
+          const res = await userApi.getManagedOrganizations({ type: 0 }) // type: 0-校友会
+          const list = (res?.data?.data ?? res?.data ?? []) || []
+          if (Array.isArray(list) && list.length > 0) {
+            list.forEach(item => {
+              alumniAssociationList.push({
+                id: item.id,
+                alumniAssociationId: item.id,
+                alumniAssociationName: item.name,
+                organizeId: item.id
+              })
+            })
+            // 接口有返回，说明用户确实有管理员权限
+            this.setData({
+              hasAlumniAdminPermission: true
+            })
+            console.log('[Debug] 接口兜底获取到校友会列表:', alumniAssociationList)
+          }
+        } catch (err) {
+          console.warn('[Debug] 接口兜底获取校友会列表失败:', err)
+        }
+      }
+
+      if (alumniAssociationList.length > 0) {
+        // 设置基本列表
         this.setData({
           alumniAssociationList: alumniAssociationList
         })
-        console.log('[Debug] 最终校友会列表:', alumniAssociationList)
+        console.log('[Debug] 初始校友会列表:', alumniAssociationList)
         
         // 尝试为所有校友会调用接口获取更详细的信息
         try {
-          // 创建一个新的列表来存储更新后的校友会数据
-          const updatedList = [...alumniAssociationList]
-          
           // 使用Promise.all并行获取所有校友会的详细信息
-          const detailPromises = updatedList.map(async (alumni, index) => {
+          const detailPromises = alumniAssociationList.map(async (alumni, index) => {
             try {
               const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
               if (res.data && res.data.code === 200 && res.data.data) {
@@ -237,8 +266,8 @@ Page({
           this.handleAlumniAssociationSelection(alumniAssociationList)
         }
       } else {
-        // 没有找到校友会管理员角色，设置为空数组
-        console.warn('[Debug] 没有找到校友会管理员角色')
+        // 没有找到校友会管理员权限
+        console.warn('[Debug] 没有找到校友会管理员权限')
         this.setData({
           alumniAssociationList: []
         })

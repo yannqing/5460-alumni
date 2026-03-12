@@ -52,6 +52,15 @@ Page({
     }
   },
 
+  // 处理图片加载失败
+  onImageError(e) {
+    const { index } = e.currentTarget.dataset
+    const field = `headquartersList[${index}].logo`
+    this.setData({
+      [field]: config.defaultAvatar
+    })
+  },
+
   async loadHeadquartersList(isLoadMore = false) {
     const { loading, loadingMore, hasMore, currentPage, pageSize } = this.data
 
@@ -91,7 +100,7 @@ Page({
         const newList = records.map(item => ({
           id: item.headquartersId,
           name: item.headquartersName,
-          logo: item.logo,
+          logo: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar,
           description: item.description,
           contactInfo: item.contactInfo,
           address: item.address,

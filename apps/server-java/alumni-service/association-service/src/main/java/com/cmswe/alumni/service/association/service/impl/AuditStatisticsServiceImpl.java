@@ -92,11 +92,13 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
         }
 
         // 2.5 加入审核 (ALUMNI_ASSOCIATION_JOIN_REVIEW) - 用户申请加入校友会
-        if (!managedAlumniIds.isEmpty()) {
+        // 仅统计通过 RoleUser 分配管理的校友会的申请，不统计系统管理员的「全部组织」
+        Set<Long> alumniIdsByRole = userService.getManagedAlumniAssociationIdsByRole(wxId);
+        if (!alumniIdsByRole.isEmpty()) {
             LambdaQueryWrapper<AlumniAssociationJoinApplication> joinWrapper = new LambdaQueryWrapper<>();
             joinWrapper.eq(AlumniAssociationJoinApplication::getApplicationStatus, 0)
                     .eq(AlumniAssociationJoinApplication::getApplicantType, 1) // 1-用户
-                    .in(AlumniAssociationJoinApplication::getAlumniAssociationId, managedAlumniIds);
+                    .in(AlumniAssociationJoinApplication::getAlumniAssociationId, alumniIdsByRole);
             counts.put("ALUMNI_ASSOCIATION_JOIN_REVIEW", Math.toIntExact(alumniAssociationJoinApplicationMapper.selectCount(joinWrapper)));
         } else {
             counts.put("ALUMNI_ASSOCIATION_JOIN_REVIEW", 0);

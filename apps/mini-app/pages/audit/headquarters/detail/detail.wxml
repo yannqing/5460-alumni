@@ -30,7 +30,7 @@
       <view class="header-content">
         <view class="header-left">
           <view class="logo-container">
-            <image class="headquarters-logo" src="{{headquarters.logo || defaultAlumniAvatar}}" mode="aspectFill" />
+            <image class="headquarters-logo" src="{{headquarters.logo || defaultAlumniAvatar}}" mode="aspectFill" binderror="onLogoError" />
           </view>
         </view>
         <view class="headquarters-basic">

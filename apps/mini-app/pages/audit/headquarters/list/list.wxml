@@ -72,8 +72,7 @@
             </view>
           </view>
         </view>
-        <image class="image_7" src="{{item.logo}}" mode="aspectFill" wx:if="{{item.logo}}"></image>
-        <view class="image_7 placeholder" wx:else></view>
+        <image class="image_7" src="{{item.logo}}" mode="aspectFill" binderror="onImageError" data-index="{{index}}"></image>
       </view>
     </block>
 
