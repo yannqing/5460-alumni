@@ -38,7 +38,7 @@
               <text class="unregistered-tag" wx:if="{{!item.wxId}}">未注册</text>
               <text class="show-on-home-tag" wx:if="{{item.isShowOnHome === 1}}">主页展示</text>
             </view>
-            <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : '普通成员'}}</view>
+            <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : (item.roleName || '普通成员')}}</view>
           </view>
           <view class="member-actions">
             <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
@@ -274,6 +274,15 @@
             value="{{editingMember.editUserPhone}}"
             bindinput="onEditUserPhoneInput"
           />
+        </view>
+        <view class="form-item">
+          <text class="label">职务</text>
+          <picker bindchange="onEditRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{editingMember.editRoleIndex}}">
+            <view class="role-selector">
+              <text class="selector-text">{{editingMember.editRoleName || (editingMember.organizeArchiRole && editingMember.organizeArchiRole.roleOrName) || editingMember.roleName || '请选择职务'}}</text>
+              <text class="selector-arrow">▼</text>
+            </view>
+          </picker>
         </view>
         <view class="form-item">
           <text class="label">所属单位/职位</text>

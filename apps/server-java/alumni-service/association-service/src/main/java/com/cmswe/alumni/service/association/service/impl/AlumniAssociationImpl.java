@@ -758,6 +758,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                             // 设置成员表的 ID（用于更新成员信息）
                             response.setId(member.getId());
 
+                            // 角色名称来自 alumni_association_member 表的 role_name
+                            response.setRoleName(member.getRoleName());
+
                             // 联系方式展示 alumni_association_member 表的 user_phone
                             response.setContactInformation(member.getUserPhone());
 

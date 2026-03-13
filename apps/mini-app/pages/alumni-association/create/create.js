@@ -931,6 +931,20 @@ Page({
       return
     }
 
+    // 校验主要负责人（members[0]）与“是否已在平台入驻”的一致性
+    const chargeLeader = members[0]
+    if (!chargeLeader) {
+      wx.showToast({ title: '请完善主要负责人信息', icon: 'none' })
+      return
+    }
+    if (chargeLeader.isJoined) {
+      // 选择“已在平台入驻”时，必须通过搜索选择平台已入驻用户，从而带出有效 wxId
+      if (!chargeLeader.wxId || chargeLeader.wxId === 0 || chargeLeader.wxId === '0') {
+        wx.showToast({ title: '请选择已入驻的主要负责人', icon: 'none' })
+        return
+      }
+    }
+
     // 确保所有成员都填写了完整的四项信息
     for (let i = 0; i < members.length; i++) {
       const member = members[i]
@@ -974,14 +988,14 @@ Page({
     console.log('最终bgImg:', bgImg)
 
     // 第一个成员是主要负责人
-    const chargeLeader = members[0]
     // 其余成员作为 initialMembers
     const otherMembers = members.slice(1)
 
     const submitData = {
       associationName: formData.associationName,
       schoolId: formData.schoolId,
-      chargeWxId: chargeLeader.isJoined ? (chargeLeader.wxId || formData.presidentWxId) : undefined,
+      // 主要负责人选择“已在平台入驻”时，使用其 wxId；未入驻则不传 wxId
+      chargeWxId: chargeLeader.isJoined ? chargeLeader.wxId : undefined,
       chargeName: chargeLeader.name,
       chargeRole: chargeLeader.role,
       contactInfo: chargeLeader.phone || undefined,
