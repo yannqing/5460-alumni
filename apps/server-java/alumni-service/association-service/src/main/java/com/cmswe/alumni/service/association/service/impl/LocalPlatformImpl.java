@@ -1725,17 +1725,20 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
-    public int bindPresetMembersByPhone(String phone, Long wxId) {
+    public int bindPresetMembersByPhone(String phone, String name, Long wxId) {
         if (phone == null || phone.trim().isEmpty() || wxId == null) {
             return 0;
         }
         String normalizedPhone = phone.trim();
-        List<LocalPlatformMember> presetMembers = localPlatformMemberService.list(
-                new LambdaQueryWrapper<LocalPlatformMember>()
-                        .isNull(LocalPlatformMember::getWxId)
-                        .eq(LocalPlatformMember::getStatus, 1)
-                        .eq(LocalPlatformMember::getContactInformation, normalizedPhone)
-        );
+        String normalizedName = (name != null && !name.trim().isEmpty()) ? name.trim() : null;
+        LambdaQueryWrapper<LocalPlatformMember> queryWrapper = new LambdaQueryWrapper<LocalPlatformMember>()
+                .isNull(LocalPlatformMember::getWxId)
+                .eq(LocalPlatformMember::getStatus, 1)
+                .eq(LocalPlatformMember::getContactInformation, normalizedPhone);
+        if (normalizedName != null) {
+            queryWrapper.eq(LocalPlatformMember::getUsername, normalizedName);
+        }
+        List<LocalPlatformMember> presetMembers = localPlatformMemberService.list(queryWrapper);
         int boundCount = 0;
         for (LocalPlatformMember member : presetMembers) {
             try {
@@ -1746,7 +1749,8 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
             }
         }
         if (boundCount > 0) {
-            log.info("根据手机号绑定校促会预设成员完成 - phone: {}, wxId: {}, boundCount: {}", maskPhone(normalizedPhone), wxId, boundCount);
+            log.info("根据手机号(和姓名)绑定校促会预设成员完成 - phone: {}, name: {}, wxId: {}, boundCount: {}",
+                    maskPhone(normalizedPhone), normalizedName, wxId, boundCount);
         }
         return boundCount;
     }

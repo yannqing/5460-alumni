@@ -2394,17 +2394,20 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     }
 
     @Override
-    public int bindPresetMembersByPhone(String phone, Long wxId) {
+    public int bindPresetMembersByPhone(String phone, String name, Long wxId) {
         if (phone == null || phone.trim().isEmpty() || wxId == null) {
             return 0;
         }
         String normalizedPhone = phone.trim();
-        List<AlumniAssociationMember> presetMembers = alumniAssociationMemberService.list(
-                new LambdaQueryWrapper<AlumniAssociationMember>()
-                        .isNull(AlumniAssociationMember::getWxId)
-                        .eq(AlumniAssociationMember::getStatus, 1)
-                        .eq(AlumniAssociationMember::getUserPhone, normalizedPhone)
-        );
+        String normalizedName = (name != null && !name.trim().isEmpty()) ? name.trim() : null;
+        LambdaQueryWrapper<AlumniAssociationMember> queryWrapper = new LambdaQueryWrapper<AlumniAssociationMember>()
+                .isNull(AlumniAssociationMember::getWxId)
+                .eq(AlumniAssociationMember::getStatus, 1)
+                .eq(AlumniAssociationMember::getUserPhone, normalizedPhone);
+        if (normalizedName != null) {
+            queryWrapper.eq(AlumniAssociationMember::getUsername, normalizedName);
+        }
+        List<AlumniAssociationMember> presetMembers = alumniAssociationMemberService.list(queryWrapper);
         int boundCount = 0;
         for (AlumniAssociationMember member : presetMembers) {
             // 检查该用户是否已经是该校友会的成员
@@ -2426,10 +2429,10 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             }
         }
         if (boundCount > 0) {
-            log.info("根据手机号绑定校友会预设成员完成 - phone: {}****{}, wxId: {}, boundCount: {}",
+            log.info("根据手机号(和姓名)绑定校友会预设成员完成 - phone: {}****{}, name: {}, wxId: {}, boundCount: {}",
                     normalizedPhone.length() >= 3 ? normalizedPhone.substring(0, 3) : "***",
                     normalizedPhone.length() >= 4 ? normalizedPhone.substring(normalizedPhone.length() - 4) : "****",
-                    wxId, boundCount);
+                    normalizedName, wxId, boundCount);
         }
         return boundCount;
     }

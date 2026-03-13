@@ -570,11 +570,11 @@ public class AuthServiceImpl implements AuthService {
             }
             // ====== 邀请功能相关逻辑 END ======
 
-            // ====== 预设成员（假人）手机号匹配绑定 START ======
-            // 用户注册填写的手机号，匹配校友会、校促会中 wx_id 为空的预设成员，自动绑定
+            // ====== 预设成员（假人）手机号和姓名匹配绑定 START ======
+            // 用户注册填写的手机号和姓名，匹配校友会、校促会中 wx_id 为空的预设成员，自动绑定
             try {
-                int localPlatformBound = localPlatformService.bindPresetMembersByPhone(phone, wxId);
-                int alumniAssociationBound = alumniAssociationService.bindPresetMembersByPhone(phone, wxId);
+                int localPlatformBound = localPlatformService.bindPresetMembersByPhone(phone, name, wxId);
+                int alumniAssociationBound = alumniAssociationService.bindPresetMembersByPhone(phone, name, wxId);
                 if (localPlatformBound > 0 || alumniAssociationBound > 0) {
                     log.info("用户注册后预设成员绑定完成 - wxId: {}, 校促会: {}, 校友会: {}",
                             wxId, localPlatformBound, alumniAssociationBound);
