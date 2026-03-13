@@ -232,6 +232,16 @@ public interface LocalPlatformService extends IService<LocalPlatform> {
         boolean updatePresetMember(Long memberId, Long wxId);
 
         /**
+         * 根据手机号绑定校促会预设成员（假人转真人）
+         * 查找 wx_id 为空且 contact_information 与手机号匹配的预设成员，为其绑定 wxId
+         *
+         * @param phone 用户手机号
+         * @param wxId  用户ID
+         * @return 成功绑定的成员数量
+         */
+        int bindPresetMembersByPhone(String phone, Long wxId);
+
+        /**
          * 更新校促会预设成员信息
          *
          * @param memberId           成员ID

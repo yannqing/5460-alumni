@@ -3,6 +3,8 @@ package com.cmswe.alumni.service.user.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.cmswe.alumni.api.association.AlumniAssociationService;
+import com.cmswe.alumni.api.association.LocalPlatformService;
 import com.cmswe.alumni.api.user.AuthService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.WechatApiService;
@@ -72,6 +74,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private InvitationService invitationService;
+
+    @Resource
+    private LocalPlatformService localPlatformService;
+
+    @Resource
+    private AlumniAssociationService alumniAssociationService;
 
     /**
      * 微信小程序静默登录
@@ -561,6 +569,21 @@ public class AuthServiceImpl implements AuthService {
                 log.info("用户不是被邀请人或邀请记录已处理 - wxId: {}", wxId);
             }
             // ====== 邀请功能相关逻辑 END ======
+
+            // ====== 预设成员（假人）手机号匹配绑定 START ======
+            // 用户注册填写的手机号，匹配校友会、校促会中 wx_id 为空的预设成员，自动绑定
+            try {
+                int localPlatformBound = localPlatformService.bindPresetMembersByPhone(phone, wxId);
+                int alumniAssociationBound = alumniAssociationService.bindPresetMembersByPhone(phone, wxId);
+                if (localPlatformBound > 0 || alumniAssociationBound > 0) {
+                    log.info("用户注册后预设成员绑定完成 - wxId: {}, 校促会: {}, 校友会: {}",
+                            wxId, localPlatformBound, alumniAssociationBound);
+                }
+            } catch (Exception e) {
+                log.warn("预设成员绑定异常（不影响注册） - wxId: {}, error: {}",
+                        wxId, e.getMessage());
+            }
+            // ====== 预设成员（假人）手机号匹配绑定 END ======
             return true;
 
         } catch (BusinessException e) {

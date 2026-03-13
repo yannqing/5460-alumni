@@ -1725,6 +1725,38 @@ public class LocalPlatformImpl extends ServiceImpl<LocalPlatformMapper, LocalPla
     }
 
     @Override
+    public int bindPresetMembersByPhone(String phone, Long wxId) {
+        if (phone == null || phone.trim().isEmpty() || wxId == null) {
+            return 0;
+        }
+        String normalizedPhone = phone.trim();
+        List<LocalPlatformMember> presetMembers = localPlatformMemberService.list(
+                new LambdaQueryWrapper<LocalPlatformMember>()
+                        .isNull(LocalPlatformMember::getWxId)
+                        .eq(LocalPlatformMember::getStatus, 1)
+                        .eq(LocalPlatformMember::getContactInformation, normalizedPhone)
+        );
+        int boundCount = 0;
+        for (LocalPlatformMember member : presetMembers) {
+            try {
+                updatePresetMember(member.getId(), wxId);
+                boundCount++;
+            } catch (BusinessException e) {
+                log.warn("绑定校促会预设成员失败 - memberId: {}, wxId: {}, reason: {}", member.getId(), wxId, e.getMessage());
+            }
+        }
+        if (boundCount > 0) {
+            log.info("根据手机号绑定校促会预设成员完成 - phone: {}, wxId: {}, boundCount: {}", maskPhone(normalizedPhone), wxId, boundCount);
+        }
+        return boundCount;
+    }
+
+    private String maskPhone(String phone) {
+        if (phone == null || phone.length() < 7) return "***";
+        return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 4);
+    }
+
+    @Override
     public boolean updatePresetMemberInfo(Long memberId, String username, String roleName, String contactInformation, String socialDuties, Integer isShow, Integer sort) {
         // 1. 参数校验
         if (memberId == null) {
