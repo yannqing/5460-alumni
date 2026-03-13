@@ -758,6 +758,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                             // 设置成员表的 ID（用于更新成员信息）
                             response.setId(member.getId());
 
+                            // 联系方式展示 alumni_association_member 表的 user_phone
+                            response.setContactInformation(member.getUserPhone());
+
                             // 设置关注状态
                             if (currentUserId != null) {
                                 response.setIsFollowed(finalFollowStatusMap.getOrDefault(member.getWxId(), false));
@@ -2388,6 +2391,47 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                 alumniAssociationId, member.getId(), username);
 
         return true;
+    }
+
+    @Override
+    public int bindPresetMembersByPhone(String phone, Long wxId) {
+        if (phone == null || phone.trim().isEmpty() || wxId == null) {
+            return 0;
+        }
+        String normalizedPhone = phone.trim();
+        List<AlumniAssociationMember> presetMembers = alumniAssociationMemberService.list(
+                new LambdaQueryWrapper<AlumniAssociationMember>()
+                        .isNull(AlumniAssociationMember::getWxId)
+                        .eq(AlumniAssociationMember::getStatus, 1)
+                        .eq(AlumniAssociationMember::getUserPhone, normalizedPhone)
+        );
+        int boundCount = 0;
+        for (AlumniAssociationMember member : presetMembers) {
+            // 检查该用户是否已经是该校友会的成员
+            AlumniAssociationMember existingMember = alumniAssociationMemberService.getOne(
+                    new LambdaQueryWrapper<AlumniAssociationMember>()
+                            .eq(AlumniAssociationMember::getAlumniAssociationId, member.getAlumniAssociationId())
+                            .eq(AlumniAssociationMember::getWxId, wxId)
+                            .eq(AlumniAssociationMember::getStatus, 1)
+            );
+            if (existingMember != null) {
+                log.debug("用户已是该校友会成员，跳过绑定 - alumniAssociationId: {}, wxId: {}", member.getAlumniAssociationId(), wxId);
+                continue;
+            }
+            member.setWxId(wxId);
+            if (alumniAssociationMemberService.updateById(member)) {
+                boundCount++;
+                log.info("绑定校友会预设成员成功 - memberId: {}, alumniAssociationId: {}, wxId: {}",
+                        member.getId(), member.getAlumniAssociationId(), wxId);
+            }
+        }
+        if (boundCount > 0) {
+            log.info("根据手机号绑定校友会预设成员完成 - phone: {}****{}, wxId: {}, boundCount: {}",
+                    normalizedPhone.length() >= 3 ? normalizedPhone.substring(0, 3) : "***",
+                    normalizedPhone.length() >= 4 ? normalizedPhone.substring(normalizedPhone.length() - 4) : "****",
+                    wxId, boundCount);
+        }
+        return boundCount;
     }
 
 }

@@ -826,7 +826,7 @@ Page({
         ...member,
         // 编辑表单字段（用户名和手机号仅未注册用户可编辑）
         editUsername: member.name || member.nickname || '',
-        editUserPhone: member.userPhone || member.phone || '',
+        editUserPhone: member.userPhone || member.phone || member.contactInformation || '',
         editUserAffiliation: member.userAffiliation || '',
         editIsShowOnHome: member.isShowOnHome || 0,
         // 角色相关
