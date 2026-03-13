@@ -410,11 +410,18 @@ Page({
         name: keyword.trim(),
       })
       if (res.data && res.data.code === 200) {
+        const records = res.data.data.records || []
+        // 映射学校信息：接口返回 primaryEducation.schoolInfo.schoolName，展示需要 school 字段
+        const mappedRecords = records.map((item) => {
+          const school =
+            item.primaryEducation?.schoolInfo?.schoolName || item.primaryEducation?.schoolInfo?.school_name || ''
+          return { ...item, school }
+        })
         const memberSearchResults = [...this.data.memberSearchResults]
         while (memberSearchResults.length <= index) {
           memberSearchResults.push([])
         }
-        memberSearchResults[index] = res.data.data.records || []
+        memberSearchResults[index] = mappedRecords
         this.setData({
           memberSearchResults,
         })
