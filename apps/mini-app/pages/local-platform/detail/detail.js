@@ -513,39 +513,39 @@ Page({
     }
   },
 
-  // 查看人员详情
+  // 查看人员详情：有 wxId 跳转详情，无 wxId 弹窗提示
   viewMemberDetail(e) {
     const { member } = e.currentTarget.dataset
     if (!member) return
 
     const wxId = member.wxId
-    const username = member.username || '匿名用户'
 
     if (wxId) {
-      // 有 wxId，跳转到正式个人详情页
       wx.navigateTo({
         url: `/pages/alumni/detail/detail?id=${wxId}`
       })
     } else {
-      // 无 wxId，跳转到模拟个人详情页（显示假数据）
-      wx.navigateTo({
-        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(username)}`
+      wx.showToast({
+        title: '管理员未设置关联系统内校友用户',
+        icon: 'none',
+        duration: 2500
       })
     }
   },
 
-  // 查看主要联系人详情（同 viewMemberDetail 逻辑）
+  // 查看主要联系人详情：有 wxId 跳转详情，无 wxId 弹窗提示
   viewContactDetail(e) {
-    const { wxId, username } = e.currentTarget.dataset
-    const name = username || '匿名用户'
+    const { wxId } = e.currentTarget.dataset
 
     if (wxId) {
       wx.navigateTo({
         url: `/pages/alumni/detail/detail?id=${wxId}`
       })
     } else {
-      wx.navigateTo({
-        url: `/pages/alumni/detail/detail?wxid=&username=${encodeURIComponent(name)}`
+      wx.showToast({
+        title: '管理员未设置关联系统内校友用户',
+        icon: 'none',
+        duration: 2500
       })
     }
   }

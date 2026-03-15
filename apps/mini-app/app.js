@@ -70,6 +70,16 @@ App({
   },
 
   onShow(options) {
+    // 小程序从后台进入前台时，通知已注册的页面刷新（如权限检查，兼容校友会审核通过后无需退出即可看到申请加入按钮）
+    const callbacks = this.globalData.onAppShowCallbacks || []
+    callbacks.forEach(fn => {
+      try {
+        if (typeof fn === 'function') fn()
+      } catch (e) {
+        console.warn('[App] onAppShow callback error:', e)
+      }
+    })
+
     // 处理从外部（扫码/分享）进入时的邀请场景
     if (options.query && options.query.scene) {
       const inviterWxUuid = decodeURIComponent(options.query.scene)
@@ -95,6 +105,7 @@ App({
   globalData: {
     baseUrl: '',
     apploaded: false,
+    onAppShowCallbacks: [], // 小程序从后台进入前台时的回调（用于刷新权限等）
     userData: {}, // 存储用户数据
     userConfig: {
       roles: {},

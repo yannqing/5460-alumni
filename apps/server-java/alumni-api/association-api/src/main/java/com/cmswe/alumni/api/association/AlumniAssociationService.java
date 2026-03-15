@@ -269,12 +269,13 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
     boolean addUnregisteredMember(Long alumniAssociationId, String username, String roleName, String userPhone, String userAffiliation);
 
     /**
-     * 根据手机号绑定校友会预设成员（假人转真人）
-     * 查找 wx_id 为空且 user_phone 与手机号匹配的预设成员，为其绑定 wxId
+     * 根据手机号和姓名绑定校友会预设成员（假人转真人）
+     * 查找 wx_id 为空且 user_phone、username 分别与手机号、姓名匹配的预设成员，为其绑定 wxId
      *
      * @param phone 用户手机号
+     * @param name  用户姓名（可为空，为空时仅按手机号匹配）
      * @param wxId  用户ID
      * @return 成功绑定的成员数量
      */
-    int bindPresetMembersByPhone(String phone, Long wxId);
+    int bindPresetMembersByPhone(String phone, String name, Long wxId);
 }

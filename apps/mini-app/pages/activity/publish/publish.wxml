@@ -87,6 +87,7 @@
                   data-field="description"
                   bindinput="onInput"
                   value="{{formData.description}}"
+                  maxlength="-1"
                 />
               </view>
             </view>

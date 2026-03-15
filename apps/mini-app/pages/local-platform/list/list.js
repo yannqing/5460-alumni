@@ -57,6 +57,22 @@ Page({
         // 初始化省市级数据
         this.initRegionData()
         this.loadPlatformList(true)
+
+        // 注册 App.onShow 回调：小程序从后台进入前台时重新检查权限，使用户不退出即可看到申请加入按钮
+        this._onAppShow = () => this.checkAlumniAdminPermission()
+        const app = getApp()
+        const callbacks = app.globalData.onAppShowCallbacks || (app.globalData.onAppShowCallbacks = [])
+        callbacks.push(this._onAppShow)
+    },
+
+    onUnload() {
+        // 卸载时移除 App.onShow 回调
+        if (this._onAppShow) {
+            const app = getApp()
+            const callbacks = app.globalData.onAppShowCallbacks || []
+            const idx = callbacks.indexOf(this._onAppShow)
+            if (idx >= 0) callbacks.splice(idx, 1)
+        }
     },
 
     onShow() {

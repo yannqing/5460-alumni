@@ -831,13 +831,29 @@ Page({
         editIsShowOnHome: member.isShowOnHome || 0,
         // 角色相关
         editRoleOrId: currentRoleId,
-        editRoleName: member.organizeArchiRole ? member.organizeArchiRole.roleOrName : '普通成员',
+        editRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || member.roleName || '普通成员',
       },
       showEditModal: true,
     })
 
     // 加载角色列表
     await this.loadRoleList()
+
+    // 设置职务选择器当前选中索引
+    const roleId =
+      (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || ''
+    const roleIndex = this.data.roleList.findIndex(
+      role => String(role.roleOrId) === String(roleId)
+    )
+    if (roleIndex !== -1) {
+      this.setData({
+        'editingMember.editRoleIndex': roleIndex,
+      })
+    } else {
+      this.setData({
+        'editingMember.editRoleIndex': 0,
+      })
+    }
   },
 
   // 编辑表单输入处理 - 用户名
@@ -868,14 +884,15 @@ Page({
     })
   },
 
-  // 编辑表单 - 角色选择
+  // 编辑表单 - 职务选择
   onEditRoleChange(e) {
-    const index = e.detail.value
+    const index = parseInt(e.detail.value, 10)
     const selectedRole = this.data.roleList[index]
     if (selectedRole) {
       this.setData({
         'editingMember.editRoleOrId': selectedRole.roleOrId,
         'editingMember.editRoleName': selectedRole.roleOrName,
+        'editingMember.editRoleIndex': index,
       })
     }
   },

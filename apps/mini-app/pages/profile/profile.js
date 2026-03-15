@@ -60,6 +60,19 @@ Page({
     this.updateCurrentTime()
     this.loadUserInfo()
     this.checkManagementPermission()
+
+    // 注册 App.onShow 回调：小程序从后台进入前台时重新检查权限
+    this._onAppShow = () => this.checkManagementPermission()
+    const callbacks = app.globalData.onAppShowCallbacks || (app.globalData.onAppShowCallbacks = [])
+    callbacks.push(this._onAppShow)
+  },
+
+  onUnload() {
+    if (this._onAppShow) {
+      const callbacks = app.globalData.onAppShowCallbacks || []
+      const idx = callbacks.indexOf(this._onAppShow)
+      if (idx >= 0) callbacks.splice(idx, 1)
+    }
   },
 
   onShow() {
