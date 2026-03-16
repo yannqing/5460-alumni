@@ -15,6 +15,7 @@
         <result property="chargeRoleId" column="charge_role_id" jdbcType="VARCHAR"/>
         <result property="contactInfo" column="contact_info" jdbcType="VARCHAR"/>
         <result property="location" column="location" jdbcType="VARCHAR"/>
+        <result property="coverageArea" column="coverage_area" jdbcType="VARCHAR"/>
         <result property="logo" column="logo" jdbcType="VARCHAR"/>
         <result property="applicationReason" column="application_reason" jdbcType="VARCHAR"/>
         <result property="initialMembers" column="initial_members" jdbcType="VARCHAR"/>
@@ -32,7 +33,7 @@
 
     <sql id="Base_Column_List">
         application_id, association_name, school_id, former_school_name, platform_id, charge_wx_id, charge_name, charge_role_id,
-        contact_info, location, logo, application_reason, initial_members, application_status,
+        contact_info, location, coverage_area, logo, application_reason, initial_members, application_status,
         reviewer_id, review_time, review_comment, apply_time, attachment_ids, created_association_id,
         create_time, update_time, is_delete
     </sql>

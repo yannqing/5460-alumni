@@ -57,6 +57,10 @@
           <text class="info-label">常驻地点</text>
           <text class="info-value">{{application.location}}</text>
         </view>
+        <view class="info-item" wx:if="{{application.coverageArea}}">
+          <text class="info-label">覆盖区域</text>
+          <text class="info-value">{{application.coverageArea}}</text>
+        </view>
       </view>
 
       <!-- 分割线 -->

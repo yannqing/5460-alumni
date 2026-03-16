@@ -77,6 +77,12 @@ public class AlumniAssociationApplicationListVo implements Serializable {
     private String location;
 
     /**
+     * 覆盖区域
+     */
+    @Schema(description = "覆盖区域")
+    private String coverageArea;
+
+    /**
      * 校友会logo
      */
     @Schema(description = "校友会logo")

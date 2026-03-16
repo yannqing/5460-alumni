@@ -34,6 +34,11 @@
       <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
     </view>
 
+    <view class="form-item">
+      <text class="label">覆盖区域</text>
+      <input class="input" placeholder="请输入管理覆盖区域" value="{{formData.coverageArea}}" data-field="coverageArea" bindinput="handleInput" />
+    </view>
+
     <view class="form-item required">
       <text class="label">校友会办公地点</text>
       <picker
@@ -195,26 +200,8 @@
         </view>
         <view class="member-form-group">
           <view class="member-form-row">
-            <text class="member-label">已入驻平台</text>
-            <switch checked="{{item.isJoined}}" data-index="{{index}}" bindchange="handleMemberSwitchChange" color="#3F61CA" />
-          </view>
-          <view class="member-form-row">
             <text class="member-label required">姓名</text>
-            <view class="member-name-search search-group" style="z-index: 5;" catchtap="preventBubble" wx:if="{{item.isJoined}}">
-              <input class="input member-full-input" placeholder="请输入姓名搜索" value="{{item.name}}" data-index="{{index}}" bindinput="handleMemberNameInput" bindfocus="handleMemberNameFocus" />
-              <scroll-view scroll-y class="search-results" wx:if="{{memberSearchResults[index] && memberSearchResults[index].length > 0}}">
-                <view wx:if="{{memberSearchResults[index].length === 0}}" class="search-placeholder">未找到相关人员</view>
-                <view wx:for="{{memberSearchResults[index]}}" wx:key="userId" wx:for-index="userIndex" class="search-item member-search-item" bindtap="selectMember" data-index="{{index}}" data-user-index="{{userIndex}}">
-                  <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar" />
-                  <image wx:else src="/images/default-avatar.png" class="member-avatar" />
-                  <view class="member-info">
-                    <text class="member-name">{{item.name || item.nickname || item.realName}}</text>
-                    <text class="member-school">{{item.school || '暂无学校信息'}}</text>
-                  </view>
-                </view>
-              </scroll-view>
-            </view>
-            <input wx:else class="input member-full-input" placeholder="请直接输入姓名" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="handleMemberInput" />
+            <input class="input member-full-input" placeholder="请直接输入姓名" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="handleMemberInput" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">联系电话</text>

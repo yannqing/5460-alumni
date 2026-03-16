@@ -172,6 +172,7 @@ public class AlumniAssociationApplicationServiceImpl
         }
 
         application.setLocation(applyDto.getLocation());
+        application.setCoverageArea(applyDto.getCoverageArea());
         application.setLogo(applyDto.getLogo());
         application.setApplicationReason(applyDto.getApplicationReason());
         application.setAssociationProfile(applyDto.getAssociationProfile());
