@@ -117,6 +117,12 @@ public class AlumniAssociationApplication implements Serializable {
     private String location;
 
     /**
+     * 覆盖区域
+     */
+    @TableField(value = "coverage_area")
+    private String coverageArea;
+
+    /**
      * 校友会logo
      */
     @TableField(value = "logo")

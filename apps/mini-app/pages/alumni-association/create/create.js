@@ -1,6 +1,32 @@
-const { schoolApi, userApi, associationApi, alumniApi, fileApi } = require('../../../api/api.js')
+const { schoolApi, userApi, associationApi, fileApi } = require('../../../api/api.js')
 const app = getApp()
 const config = require('../../../utils/config.js')
+
+// 云托管环境下请求体大小限制较严，超过此阈值先压缩再上传（单位：字节）
+const UPLOAD_IMAGE_COMPRESS_THRESHOLD = config.IS_CLOUD_HOST
+  ? 512 * 1024
+  : 1024 * 1024 // 云托管 512KB，非云托管 1MB
+
+/**
+ * 若图片超过阈值则压缩后返回路径，否则返回原路径（适配云托管）
+ * @param {string} tempFilePath 本地临时路径
+ * @param {number} fileSize 文件大小（字节）
+ * @returns {Promise<string>} 用于上传的本地路径
+ */
+function getImagePathForUpload(tempFilePath, fileSize) {
+  if (fileSize <= UPLOAD_IMAGE_COMPRESS_THRESHOLD) {
+    return Promise.resolve(tempFilePath)
+  }
+  return new Promise((resolve) => {
+    const quality = Math.max(20, Math.min(80, Math.floor((UPLOAD_IMAGE_COMPRESS_THRESHOLD / fileSize) * 80)))
+    wx.compressImage({
+      src: tempFilePath,
+      quality,
+      success: (res) => resolve(res.tempFilePath),
+      fail: () => resolve(tempFilePath) // 压缩失败则用原图
+    })
+  })
+}
 
 // 防抖函数
 function debounce(fn, delay) {
@@ -36,6 +62,7 @@ Page({
       associationProfile: '',
       presidentWxId: '',
       location: '',
+      coverageArea: '', // 覆盖区域（选填）
       logoType: 'default', // logo来源类型: default, school, upload
     },
     schoolLogoUrl: '',
@@ -58,9 +85,6 @@ Page({
     // 其他成员列表
     members: [],
 
-    // 成员搜索结果
-    memberSearchResults: [],
-
     // 申请材料
     attachments: [],
 
@@ -74,9 +98,8 @@ Page({
   },
 
   onLoad() {
-    // 创建搜索防抖函数
+    // 创建学校搜索防抖函数（负责人姓名等由用户直接填写，不使用校友列表选择）
     this.searchSchoolDebounced = debounce(this.searchSchool, 500)
-    this.searchAlumniDebounced = debounce(this.searchAlumni, 500)
 
     this.loadInitialData()
     this.loadTemplateList()
@@ -87,8 +110,8 @@ Page({
     this.setData({
       defaultAlumniLogo: defaultLogoUrl,
       'formData.logo': defaultLogoUrl,
-      // 初始化第一个成员为"主要负责人"，不能删除
-      members: [{ name: '', role: '会长', affiliation: '', phone: '', isJoined: true }],
+      // 初始化第一个成员为"主要负责人"，不能删除（负责人不传 wxid，姓名等由用户直接填写）
+      members: [{ name: '', role: '会长', affiliation: '', phone: '' }],
     })
   },
 
@@ -315,7 +338,7 @@ Page({
 
   addMember() {
     const members = this.data.members
-    members.push({ name: '', role: '', affiliation: '', phone: '', isJoined: true })
+    members.push({ name: '', role: '', affiliation: '', phone: '' })
     this.setData({ members })
   },
 
@@ -339,125 +362,6 @@ Page({
     this.setData({ members })
   },
 
-  handleMemberSwitchChange(e) {
-    const { index } = e.currentTarget.dataset
-    const value = e.detail.value
-    const members = this.data.members
-    members[index].isJoined = value
-    // 如果切换为未入驻，清空 wxId
-    if (!value) {
-      members[index].wxId = undefined
-    }
-    this.setData({ members })
-  },
-
-  // --- 成员姓名搜索处理 ---
-
-  handleMemberNameInput(e) {
-    const { index } = e.currentTarget.dataset
-    const value = e.detail.value
-    const members = this.data.members
-    members[index].name = value
-
-    // 确保memberSearchResults数组长度足够
-    const memberSearchResults = [...this.data.memberSearchResults]
-    while (memberSearchResults.length <= index) {
-      memberSearchResults.push([])
-    }
-
-    this.setData({
-      members,
-      memberSearchResults,
-    })
-
-    if (value.trim()) {
-      this.searchAlumniDebounced(value, index)
-    } else {
-      memberSearchResults[index] = []
-      this.setData({ memberSearchResults })
-    }
-  },
-
-  handleMemberNameFocus(e) {
-    const { index } = e.currentTarget.dataset
-    const members = this.data.members
-    const memberName = members[index].name
-
-    // 确保memberSearchResults数组长度足够
-    const memberSearchResults = [...this.data.memberSearchResults]
-    while (memberSearchResults.length <= index) {
-      memberSearchResults.push([])
-    }
-
-    this.setData({ memberSearchResults })
-
-    if (memberName) {
-      this.setData({ memberSearchResults })
-      if (memberSearchResults[index].length === 0) {
-        this.searchAlumni(memberName, index)
-      }
-    }
-  },
-
-  async searchAlumni(keyword, index) {
-    if (!keyword) {
-      return
-    }
-    try {
-      const res = await alumniApi.queryAlumniList({
-        current: 1,
-        pageSize: 10,
-        name: keyword.trim(),
-      })
-      if (res.data && res.data.code === 200) {
-        const records = res.data.data.records || []
-        // 映射学校信息：接口返回 primaryEducation.schoolInfo.schoolName，展示需要 school 字段
-        const mappedRecords = records.map((item) => {
-          const school =
-            item.primaryEducation?.schoolInfo?.schoolName || item.primaryEducation?.schoolInfo?.school_name || ''
-          return { ...item, school }
-        })
-        const memberSearchResults = [...this.data.memberSearchResults]
-        while (memberSearchResults.length <= index) {
-          memberSearchResults.push([])
-        }
-        memberSearchResults[index] = mappedRecords
-        this.setData({
-          memberSearchResults,
-        })
-      }
-    } catch (e) {
-      console.error('搜索校友失败', e)
-    }
-  },
-
-
-  selectMember(e) {
-    const { index, userIndex } = e.currentTarget.dataset
-    const memberSearchResults = this.data.memberSearchResults
-    const selectedAlumni = memberSearchResults[index][userIndex]
-
-    if (selectedAlumni) {
-      const members = this.data.members
-      members[index].name = selectedAlumni.name
-      members[index].wxId =
-        selectedAlumni.wxId ||
-        selectedAlumni.id ||
-        selectedAlumni.userId ||
-        selectedAlumni.user_id ||
-        selectedAlumni.wx_id ||
-        0
-
-      // 清空搜索结果，关闭下拉框
-      memberSearchResults[index] = []
-
-      this.setData({
-        members,
-        memberSearchResults,
-      })
-    }
-  },
-
   // --- 校友会logo上传处理 ---
 
   async chooseLogo() {
@@ -473,6 +377,7 @@ Page({
         wx.chooseMedia({
           count: 1,
           mediaType: ['image'],
+          sizeType: ['compressed'], // 优先选压缩图，便于云托管上传
           success: resolve,
           fail: reject,
         })
@@ -494,17 +399,14 @@ Page({
         return
       }
 
-      // 显示上传中提示
-      wx.showLoading({
-        title: '上传中...',
-        mask: true,
-      })
+      wx.showLoading({ title: '处理中...', mask: true })
 
-      // 获取原始文件名（如果有）
+      // 云托管等环境对请求体大小限制严，超过阈值先压缩再上传
+      const pathToUpload = await getImagePathForUpload(tempFilePath, fileSize)
+      wx.showLoading({ title: '上传中...', mask: true })
+
       const originalName = chooseRes.tempFiles?.[0]?.name || 'logo.jpg'
-
-      // 直接调用公共的文件上传方法
-      const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+      const uploadRes = await fileApi.uploadImage(pathToUpload, originalName)
 
       if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
         // 获取返回的图片URL
@@ -790,11 +692,11 @@ Page({
 
   async chooseBgImage() {
     try {
-      // 选择图片
       const chooseRes = await new Promise((resolve, reject) => {
         wx.chooseMedia({
           count: 5,
           mediaType: ['image'],
+          sizeType: ['compressed'], // 优先选压缩图，便于云托管上传
           success: resolve,
           fail: reject,
         })
@@ -805,20 +707,13 @@ Page({
         return
       }
 
-      // 显示上传中提示
-      wx.showLoading({
-        title: '上传中...',
-        mask: true,
-      })
+      wx.showLoading({ title: '处理中...', mask: true })
 
       const bgImages = [...this.data.bgImages]
 
-      // 逐个上传文件
       for (const file of tempFiles) {
         const tempFilePath = file.tempFilePath
         const originalName = file.name || 'bg-image'
-
-        // 检查文件大小（10MB = 10 * 1024 * 1024 字节）
         const fileSize = file.size || 0
         const maxSize = 10 * 1024 * 1024 // 10MB
         if (fileSize > maxSize) {
@@ -829,8 +724,11 @@ Page({
           continue
         }
 
-        // 上传文件（与校友会logo上传使用相同的方法）
-        const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+        // 云托管等环境对请求体大小限制严，超过阈值先压缩再上传
+        const pathToUpload = await getImagePathForUpload(tempFilePath, fileSize)
+        wx.showLoading({ title: '上传中...', mask: true })
+
+        const uploadRes = await fileApi.uploadImage(pathToUpload, originalName)
 
         console.log('上传背景图结果:', uploadRes)
 
@@ -927,6 +825,10 @@ Page({
       wx.showToast({ title: '请输入联系人联系电话', icon: 'none' })
       return
     }
+    if (!/^\d{11}$/.test(String(formData.zhPhone).trim())) {
+      wx.showToast({ title: '联系人联系电话须为11位数字', icon: 'none' })
+      return
+    }
     if (!formData.zhSocialAffiliation) {
       wx.showToast({ title: '请输入联系人社会职务', icon: 'none' })
       return
@@ -938,18 +840,10 @@ Page({
       return
     }
 
-    // 校验主要负责人（members[0]）与“是否已在平台入驻”的一致性
     const chargeLeader = members[0]
     if (!chargeLeader) {
       wx.showToast({ title: '请完善主要负责人信息', icon: 'none' })
       return
-    }
-    if (chargeLeader.isJoined) {
-      // 选择“已在平台入驻”时，必须通过搜索选择平台已入驻用户，从而带出有效 wxId
-      if (!chargeLeader.wxId || chargeLeader.wxId === 0 || chargeLeader.wxId === '0') {
-        wx.showToast({ title: '请选择已入驻的主要负责人', icon: 'none' })
-        return
-      }
     }
 
     // 确保所有成员都填写了完整的四项信息
@@ -970,6 +864,11 @@ Page({
       }
       if (!member.phone) {
         wx.showToast({ title: `请输入${memberLabel}的联系方式`, icon: 'none' })
+        return
+      }
+      if (!/^\d{11}$/.test(String(member.phone).trim())) {
+        const phoneLabel = i === 0 ? '主要负责人联系电话' : `第 ${i} 位负责人联系电话`
+        wx.showToast({ title: `${phoneLabel}须为11位数字`, icon: 'none' })
         return
       }
     }
@@ -1001,8 +900,7 @@ Page({
     const submitData = {
       associationName: formData.associationName,
       schoolId: formData.schoolId,
-      // 主要负责人选择“已在平台入驻”时，使用其 wxId；未入驻则不传 wxId
-      chargeWxId: chargeLeader.isJoined ? chargeLeader.wxId : undefined,
+      // 主要负责人和其他负责人均不传 wxid，由用户直接填写姓名等信息
       chargeName: chargeLeader.name,
       chargeRole: chargeLeader.role,
       contactInfo: chargeLeader.phone || undefined,
@@ -1018,25 +916,24 @@ Page({
       attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
       initialMembers:
         otherMembers.length > 0
-          ? otherMembers.map(m => {
-              const memberData = {
-                name: m.name || undefined,
-                role: m.role || undefined,
-                phone: m.phone || undefined,
-                affiliation: m.affiliation || undefined,
-              }
-              // 只有勾选了“已入驻”且有有效 wxId 时才传递 wxId
-              if (m.isJoined && m.wxId && m.wxId !== 0 && m.wxId !== '0') {
-                memberData.wxId = m.wxId
-              }
-              return memberData
-            })
+          ? otherMembers.map(m => ({
+              name: m.name || undefined,
+              role: m.role || undefined,
+              phone: m.phone || undefined,
+              affiliation: m.affiliation || undefined,
+              wxId: null, // 负责人不从校友列表选择，传空（与之前格式一致）
+            }))
           : undefined,
     }
 
     // 添加常驻地点（来自地区选择器）
     if (formData.location) {
       submitData.location = formData.location
+    }
+
+    // 覆盖区域（选填）
+    if (formData.coverageArea) {
+      submitData.coverageArea = formData.coverageArea
     }
 
     // 只有当bgImg存在时才添加到提交数据中

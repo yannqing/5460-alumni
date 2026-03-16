@@ -1,6 +1,6 @@
 package com.cmswe.alumni.common.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -125,6 +125,13 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
      */
     @Schema(description = "常驻地点")
     private String location;
+
+    /**
+     * 覆盖区域
+     */
+    @Schema(description = "覆盖区域")
+    @JsonAlias("coverage_area")
+    private String coverageArea;
 
     /**
      * 校友会 logo
