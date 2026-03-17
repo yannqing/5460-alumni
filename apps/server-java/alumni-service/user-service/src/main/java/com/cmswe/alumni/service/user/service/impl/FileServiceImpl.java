@@ -2,16 +2,20 @@ package com.cmswe.alumni.service.user.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.user.FileService;
+import com.cmswe.alumni.common.config.CloudBaseProperties;
+import com.cmswe.alumni.common.dto.SaveFileRecordDto;
 import com.cmswe.alumni.common.entity.Files;
 import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.utils.CloudBaseAuthUtils;
 import com.cmswe.alumni.common.utils.CosUtils;
 import com.cmswe.alumni.common.utils.FileUtils;
 import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.common.vo.FilesVo;
 import com.cmswe.alumni.service.user.mapper.FilesMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -66,8 +72,65 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
     @Autowired(required = false)
     private CosUtils cosUtils;
 
+    @Autowired(required = false)
+    private CloudBaseAuthUtils cloudBaseAuthUtils;
+
+    @Autowired(required = false)
+    private CloudBaseProperties cloudBaseProperties;
+
     @Resource
     private WxUserMapper wxUserMapper;
+
+    @Override
+    public Map<String, Object> getCosCredential() {
+        if (!"cos".equalsIgnoreCase(storageType)) {
+            throw new BusinessException("当前未启用COS存储，无法获取临时凭证");
+        }
+
+        CloudBaseAuthUtils.TempCredential credential = cloudBaseAuthUtils.getTempCredential();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("tmpSecretId", credential.getTmpSecretId());
+        result.put("tmpSecretKey", credential.getTmpSecretKey());
+        result.put("token", credential.getToken());
+        result.put("expiredTime", credential.getExpiredTime());
+        result.put("bucket", cloudBaseProperties.getBucketName());
+        result.put("region", cloudBaseProperties.getRegion());
+        result.put("uploadPath", cloudBaseProperties.getUploadPath());
+        result.put("baseUrl", cloudBaseProperties.getBaseUrl());
+
+        log.info("获取COS临时凭证成功，过期时间: {}", credential.getExpiredTime());
+        return result;
+    }
+
+    @Override
+    public FilesVo saveFileRecord(SaveFileRecordDto dto, HttpServletRequest request) throws JsonProcessingException {
+        Long wxId = jwtUtils.getUserIdFromToken(request.getHeader("token"));
+
+        Files file = new Files();
+        file.setWxId(wxId);
+        file.setFileType(dto.getFileType());
+        file.setFileName(dto.getFileName());
+        file.setOriginalName(dto.getOriginalName());
+        file.setDisplayName(dto.getOriginalName());
+        file.setFileExtension(dto.getFileExtension());
+        file.setStorageType("COS");
+        file.setFileUrl(dto.getFileUrl());
+        file.setFilePath(dto.getFilePath());
+        file.setFileSize(dto.getFileSize());
+        file.setMimeType(dto.getMimeType());
+        file.setDownloadCount(0);
+        file.setPreviewCount(0);
+        file.setAccessCount(0);
+        file.setShareCount(0);
+        file.setStatus(1);
+        file.setUploadIp(getRealClientIp(request));
+
+        this.save(file);
+
+        log.info("前端直传COS文件记录保存成功: wxId={}, fileName={}, fileUrl={}", wxId, dto.getFileName(), dto.getFileUrl());
+        return FilesVo.objToVo(file);
+    }
 
     @Override
     public FilesVo uploadImageAndReturnVo(MultipartFile image, HttpServletRequest request) throws IOException {
@@ -159,7 +222,7 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
         }
 
         // 保存文件信息到数据库并返回FilesVo
-        FilesVo filesVo = saveFileRecord(
+        FilesVo filesVo = saveFileRecordInternal(
             wxId,
             newFilename,
             fileName,
@@ -217,7 +280,7 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
      * @param request
      * @return
      */
-    private FilesVo saveFileRecord(Long wxId, String fileName, String OriginalName, String fileExtension, String filePath, String fileUrl, String fileMd5, String fileHash, Long fileSize, String mimeType, String fileType, HttpServletRequest request) {
+    private FilesVo saveFileRecordInternal(Long wxId, String fileName, String OriginalName, String fileExtension, String filePath, String fileUrl, String fileMd5, String fileHash, Long fileSize, String mimeType, String fileType, HttpServletRequest request) {
         Files file = new Files();
         file.setWxId(wxId);
         file.setFileType(fileType);

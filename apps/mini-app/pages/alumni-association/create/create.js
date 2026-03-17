@@ -3,9 +3,7 @@ const app = getApp()
 const config = require('../../../utils/config.js')
 
 // 云托管环境下请求体大小限制较严，超过此阈值先压缩再上传（单位：字节）
-const UPLOAD_IMAGE_COMPRESS_THRESHOLD = config.IS_CLOUD_HOST
-  ? 512 * 1024
-  : 1024 * 1024 // 云托管 512KB，非云托管 1MB
+const UPLOAD_IMAGE_COMPRESS_THRESHOLD = config.IS_CLOUD_HOST ? 512 * 1024 : 1024 * 1024 // 云托管 512KB，非云托管 1MB
 
 /**
  * 若图片超过阈值则压缩后返回路径，否则返回原路径（适配云托管）
@@ -17,13 +15,16 @@ function getImagePathForUpload(tempFilePath, fileSize) {
   if (fileSize <= UPLOAD_IMAGE_COMPRESS_THRESHOLD) {
     return Promise.resolve(tempFilePath)
   }
-  return new Promise((resolve) => {
-    const quality = Math.max(20, Math.min(80, Math.floor((UPLOAD_IMAGE_COMPRESS_THRESHOLD / fileSize) * 80)))
+  return new Promise(resolve => {
+    const quality = Math.max(
+      20,
+      Math.min(80, Math.floor((UPLOAD_IMAGE_COMPRESS_THRESHOLD / fileSize) * 80))
+    )
     wx.compressImage({
       src: tempFilePath,
       quality,
-      success: (res) => resolve(res.tempFilePath),
-      fail: () => resolve(tempFilePath) // 压缩失败则用原图
+      success: res => resolve(res.tempFilePath),
+      fail: () => resolve(tempFilePath), // 压缩失败则用原图
     })
   })
 }
@@ -399,14 +400,10 @@ Page({
         return
       }
 
-      wx.showLoading({ title: '处理中...', mask: true })
-
-      // 云托管等环境对请求体大小限制严，超过阈值先压缩再上传
-      const pathToUpload = await getImagePathForUpload(tempFilePath, fileSize)
       wx.showLoading({ title: '上传中...', mask: true })
 
       const originalName = chooseRes.tempFiles?.[0]?.name || 'logo.jpg'
-      const uploadRes = await fileApi.uploadImage(pathToUpload, originalName)
+      const uploadRes = await fileApi.uploadImage(tempFilePath, originalName, fileSize)
 
       if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
         // 获取返回的图片URL
@@ -724,11 +721,9 @@ Page({
           continue
         }
 
-        // 云托管等环境对请求体大小限制严，超过阈值先压缩再上传
-        const pathToUpload = await getImagePathForUpload(tempFilePath, fileSize)
         wx.showLoading({ title: '上传中...', mask: true })
 
-        const uploadRes = await fileApi.uploadImage(pathToUpload, originalName)
+        const uploadRes = await fileApi.uploadImage(tempFilePath, originalName, fileSize)
 
         console.log('上传背景图结果:', uploadRes)
 

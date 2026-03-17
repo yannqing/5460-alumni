@@ -481,9 +481,9 @@ Page({
           mask: true,
         })
 
-        // 上传图片
-        fileUploadUtil
-          .uploadImage(tempFilePath, '/file/upload/images')
+        // 上传图片（COS 直传）
+        fileApi
+          .uploadImage(tempFilePath)
           .then(res => {
             if (res.code === 200 && res.data && res.data.fileUrl) {
               // 更新封面图
@@ -504,7 +504,7 @@ Page({
           })
           .catch(err => {
             wx.showToast({
-              title: err.msg || '上传失败',
+              title: err.msg || err.message || '上传失败',
               icon: 'none',
             })
             console.error('上传封面图失败:', err)

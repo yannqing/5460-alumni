@@ -2,13 +2,16 @@ package com.cmswe.alumni.web.system;
 
 import com.cmswe.alumni.api.user.FileService;
 import com.cmswe.alumni.common.constant.Code;
+import com.cmswe.alumni.common.dto.SaveFileRecordDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.FilesVo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @Tag(name = "文件管理")
@@ -77,6 +81,27 @@ public class FileController {
         FilesVo filesVo = fileService.uploadDocumentAndReturnVo(document, request);
 
         return ResultUtils.success(Code.SUCCESS, filesVo, "上传成功！");
+    }
+
+    /**
+     * 获取COS临时凭证（供前端直传COS使用）
+     */
+    @Operation(summary = "获取COS临时凭证", description = "前端直传对象存储时，先调用此接口获取临时凭证")
+    @GetMapping("/cos/credential")
+    public BaseResponse<Map<String, Object>> getCosCredential() {
+        Map<String, Object> credential = fileService.getCosCredential();
+        return ResultUtils.success(Code.SUCCESS, credential, "获取成功");
+    }
+
+    /**
+     * 前端直传COS后，保存文件记录到数据库
+     */
+    @Operation(summary = "保存文件记录", description = "前端直传COS成功后，调用此接口将文件信息保存到数据库")
+    @PostMapping("/cos/saveRecord")
+    public BaseResponse<FilesVo> saveFileRecord(@Valid @RequestBody SaveFileRecordDto dto,
+                                                 HttpServletRequest request) throws JsonProcessingException {
+        FilesVo filesVo = fileService.saveFileRecord(dto, request);
+        return ResultUtils.success(Code.SUCCESS, filesVo, "文件记录保存成功");
     }
 
     /**
