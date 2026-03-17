@@ -15,6 +15,7 @@ import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.common.vo.FilesVo;
 import com.cmswe.alumni.service.user.mapper.FilesMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -103,7 +104,7 @@ public class FileServiceImpl extends ServiceImpl<FilesMapper, Files> implements 
     }
 
     @Override
-    public FilesVo saveFileRecord(SaveFileRecordDto dto, HttpServletRequest request) {
+    public FilesVo saveFileRecord(SaveFileRecordDto dto, HttpServletRequest request) throws JsonProcessingException {
         Long wxId = jwtUtils.getUserIdFromToken(request.getHeader("token"));
 
         Files file = new Files();

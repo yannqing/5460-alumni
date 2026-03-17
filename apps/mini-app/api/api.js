@@ -306,14 +306,23 @@ const FILE_API_PATHS = {
 }
 
 const fileApi = {
-  // 上传图片
-  uploadImage: (filePath, originalName) => {
-    return fileUploadUtil.uploadImage(filePath, FILE_API_PATHS.UPLOAD_IMAGE, originalName)
+  // 上传图片（通过 COS 前端直传，绕过云托管网关大小限制）
+  // 返回格式与旧接口保持一致：{ code: 200, data: FilesVo }
+  uploadImage: async (filePath, originalName, fileSize) => {
+    const filesVo = await cosUploadUtil.uploadImageToCos(filePath, originalName, fileSize)
+    return { code: 200, data: filesVo }
   },
 
-  // 上传音频
-  uploadAudio: (filePath, originalName) => {
-    return fileUploadUtil.uploadAudio(filePath, FILE_API_PATHS.UPLOAD_AUDIO, originalName)
+  // 上传音频（通过 COS 前端直传）
+  uploadAudio: async (filePath, originalName, fileSize) => {
+    const filesVo = await cosUploadUtil.uploadAudioToCos(filePath, originalName, fileSize)
+    return { code: 200, data: filesVo }
+  },
+
+  // 上传文档文件（通过 COS 前端直传）
+  uploadDocument: async (filePath, originalName, fileSize) => {
+    const filesVo = await cosUploadUtil.uploadDocumentToCos(filePath, originalName, fileSize)
+    return { code: 200, data: filesVo }
   },
 
   // 上传视频（接口路径在 FILE_API_PATHS.UPLOAD_VIDEO 中配置）
@@ -326,12 +335,6 @@ const fileApi = {
     return fileUploadUtil.uploadOtherFile(filePath, FILE_API_PATHS.UPLOAD_OTHER, originalName)
   },
 
-  // 上传文档文件（支持 pdf, doc, docx, xls, xlsx, ppt, pptx, txt, md, csv, rtf, odt, ods, odp）
-  // 文件大小限制：5MB
-  uploadDocument: (filePath, originalName) => {
-    return fileUploadUtil.uploadDocument(filePath, FILE_API_PATHS.UPLOAD_DOCUMENT, originalName)
-  },
-
   // 下载文件
   downloadFile: (fileId, savePath) => {
     return fileUploadUtil.downloadFile(fileId, FILE_API_PATHS.DOWNLOAD_FILE, savePath)
@@ -342,18 +345,15 @@ const fileApi = {
     return fileUploadUtil.saveFileToLocal(tempFilePath)
   },
 
-  // ===== COS 前端直传方法（绕过云托管网关大小限制）=====
-  // 直传图片到 COS（返回 FilesVo，含 fileId、fileUrl 等）
+  // ===== COS 前端直传方法（返回 FilesVo，不包装）=====
   cosUploadImage: (tempFilePath, originalName, fileSize) => {
     return cosUploadUtil.uploadImageToCos(tempFilePath, originalName, fileSize)
   },
 
-  // 直传音频到 COS
   cosUploadAudio: (tempFilePath, originalName, fileSize) => {
     return cosUploadUtil.uploadAudioToCos(tempFilePath, originalName, fileSize)
   },
 
-  // 直传文档到 COS
   cosUploadDocument: (tempFilePath, originalName, fileSize) => {
     return cosUploadUtil.uploadDocumentToCos(tempFilePath, originalName, fileSize)
   },

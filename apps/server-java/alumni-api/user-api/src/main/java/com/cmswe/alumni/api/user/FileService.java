@@ -5,6 +5,7 @@ import com.cmswe.alumni.common.dto.SaveFileRecordDto;
 import com.cmswe.alumni.common.dto.UploadFileDto;
 import com.cmswe.alumni.common.entity.Files;
 import com.cmswe.alumni.common.vo.FilesVo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public interface FileService extends IService<Files> {
      * @param request HTTP请求
      * @return FilesVo
      */
-    FilesVo saveFileRecord(SaveFileRecordDto dto, HttpServletRequest request);
+    FilesVo saveFileRecord(SaveFileRecordDto dto, HttpServletRequest request) throws JsonProcessingException;
 
     /**
      * 下载文件

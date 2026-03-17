@@ -1022,21 +1022,13 @@ Page({
         return
       }
 
-      // 检查文件大小
+      // 检查文件大小（COS 直传，限制 10MB）
       const fileSize = chooseRes.tempFiles?.[0]?.size || 0
-      const config = require('../../../utils/config.js')
-
-      // 云托管模式下，限制为 100KB；非云托管模式下，限制为 10MB
-      const maxSize = config.IS_CLOUD_HOST ? 100 * 1024 : 10 * 1024 * 1024
-      const maxSizeText = config.IS_CLOUD_HOST ? '100KB' : '10MB'
-
-      console.log('[Avatar Upload] 文件大小:', (fileSize / 1024).toFixed(2), 'KB')
-      console.log('[Avatar Upload] 云托管模式:', config.IS_CLOUD_HOST)
-      console.log('[Avatar Upload] 大小限制:', maxSizeText)
+      const maxSize = 10 * 1024 * 1024 // 10MB
 
       if (fileSize > maxSize) {
         wx.showToast({
-          title: '文件过大，请压缩后上传',
+          title: '图片大小不能超过10MB',
           icon: 'none',
           duration: 2000,
         })

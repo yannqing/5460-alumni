@@ -6,6 +6,7 @@ import com.cmswe.alumni.common.dto.SaveFileRecordDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.FilesVo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -98,7 +99,7 @@ public class FileController {
     @Operation(summary = "保存文件记录", description = "前端直传COS成功后，调用此接口将文件信息保存到数据库")
     @PostMapping("/cos/saveRecord")
     public BaseResponse<FilesVo> saveFileRecord(@Valid @RequestBody SaveFileRecordDto dto,
-                                                 HttpServletRequest request) {
+                                                 HttpServletRequest request) throws JsonProcessingException {
         FilesVo filesVo = fileService.saveFileRecord(dto, request);
         return ResultUtils.success(Code.SUCCESS, filesVo, "文件记录保存成功");
     }

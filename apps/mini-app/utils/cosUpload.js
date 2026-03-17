@@ -24,7 +24,8 @@ async function fetchCosCredential() {
   }
 
   console.log('[CosUpload] 从后端获取 COS 临时凭证')
-  const res = await get('/file/cos/credential')
+  const response = await get('/file/cos/credential')
+  const res = response.data || response
 
   if (res.code !== 200 || !res.data) {
     throw new Error(res.msg || '获取 COS 临时凭证失败')
@@ -204,7 +205,7 @@ async function uploadToCos(tempFilePath, originalName, fileType, subPath, fileSi
   console.log('[CosUpload] 文件 URL:', fileUrl)
 
   // 5. 调用后端接口保存文件记录到 Files 表
-  const saveRes = await post('/file/cos/saveRecord', {
+  const saveResponse = await post('/file/cos/saveRecord', {
     fileName: uuidFileName,
     originalName: originalName,
     fileExtension: fileExtension,
@@ -214,6 +215,7 @@ async function uploadToCos(tempFilePath, originalName, fileType, subPath, fileSi
     fileSize: fileSize || 0,
     mimeType: mimeType,
   })
+  const saveRes = saveResponse.data || saveResponse
 
   if (saveRes.code !== 200 || !saveRes.data) {
     console.error('[CosUpload] 保存文件记录失败:', saveRes)
