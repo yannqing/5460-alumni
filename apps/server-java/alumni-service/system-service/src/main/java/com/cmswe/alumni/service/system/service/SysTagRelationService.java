@@ -81,4 +81,14 @@ public interface SysTagRelationService extends IService<SysTagRelation> {
      * @return 是否清空成功
      */
     boolean clearTargetTags(Long targetId, Integer targetType);
+
+    /**
+     * 批量获取多个目标对象的标签
+     * <p>性能优化方法，避免 N+1 查询问题
+     *
+     * @param targetIds 目标对象ID列表
+     * @param targetType 目标类型: 1-校友(User), 2-商户(Shop), 3-活动(Event)
+     * @return Map<targetId, List<SysTag>> 每个目标对象对应的标签列表
+     */
+    java.util.Map<Long, List<SysTag>> batchGetTagsByTargets(List<Long> targetIds, Integer targetType);
 }

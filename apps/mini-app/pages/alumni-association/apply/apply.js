@@ -89,8 +89,35 @@ Page({
           schoolName: decodeURIComponent(options.schoolName),
         })
       }
+
+      // 如果 schoolId 缺失，从校友会详情接口获取
+      if (!this.data.schoolId && this.data.alumniAssociationId) {
+        await this.fetchSchoolIdFromAssociation()
+      }
+
       // 加载用户信息并填充表单
       await this.loadUserInfo()
+    }
+  },
+
+  // 从校友会详情接口获取 schoolId（当页面参数中未传入时调用）
+  async fetchSchoolIdFromAssociation() {
+    try {
+      const res = await associationApi.getAssociationDetail(this.data.alumniAssociationId)
+      if (res.data && res.data.code === 200 && res.data.data) {
+        const detail = res.data.data
+        const schoolInfo = detail.schoolInfo || {}
+        const schoolId = schoolInfo.schoolId || ''
+        const schoolName = schoolInfo.schoolName || ''
+        if (schoolId) {
+          this.setData({ schoolId: String(schoolId), schoolName })
+          console.log('[Apply] 从校友会详情获取到 schoolId:', schoolId)
+        } else {
+          console.warn('[Apply] 校友会未关联学校，schoolId 为空')
+        }
+      }
+    } catch (err) {
+      console.error('[Apply] 获取校友会详情失败:', err)
     }
   },
 
@@ -483,6 +510,16 @@ Page({
       isEditingApplication,
       applicationId,
     } = this.data
+
+    // 校验 schoolId 是否存在
+    if (!schoolId) {
+      wx.showToast({
+        title: '您申请的校友会存在异常，无法成功申请',
+        icon: 'none',
+        duration: 2500,
+      })
+      return
+    }
 
     // 构建请求数据
     const requestData = {

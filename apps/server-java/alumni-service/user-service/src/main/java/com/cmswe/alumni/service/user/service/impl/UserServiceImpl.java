@@ -262,47 +262,21 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
     @Override
     public List<UserPrivacySettingListVo> getUserPrivacy(Long wxId) {
-        //1. 获取用户信息
+        //1. 参数校验
         if (wxId == null) {
             throw new BusinessException(ErrorType.SYSTEM_ERROR);
         }
 
-        //2. 查询配置开放的字段（用户隐私设置）TODO 这里配置的 key 不能写死，要写在枚举类或常量中
-        Long sysUserPrivacySettingsConfigId = sysConfigMapper.selectOne(
-                new LambdaQueryWrapper<SysConfig>()
-                        .eq(SysConfig::getConfigKey, "user_privacy_setting")
-        ).getConfigId();
-        List<SysConfig> sysUserPrivacySettingsConfigs = sysConfigMapper.selectList(
-                new LambdaQueryWrapper<SysConfig>()
-                        .eq(SysConfig::getParentId, sysUserPrivacySettingsConfigId)
-                        .eq(SysConfig::getStatus, 1)
-        );
+        //2. 直接查询用户的隐私设置（注册时已通过 Kafka 异步初始化）
+        List<UserPrivacySetting> userPrivacySettings = userPrivacySettingService.getByUserId(wxId);
 
-        //3. 查询个人设置中的字段，如果没有则直接从配置中取默认返回用户；然后封装为 List<Obj> 集合
-        // TODO 这里的查询有一个逻辑需要优化：如果配置中和用户设置都存在一个字段，但是配置中设置了隐藏，那么用户是无法查询出来这个设置
-        List<UserPrivacySetting> userPrivacySettings = sysUserPrivacySettingsConfigs.stream().map(sysConfig -> {
-            UserPrivacySetting userPrivacySettingServiceOne = userPrivacySettingService.getOne(
-                    new LambdaQueryWrapper<UserPrivacySetting>()
-                            .eq(UserPrivacySetting::getWxId, wxId)
-                            .eq(UserPrivacySetting::getFieldCode, sysConfig.getConfigKey())
-            );
-            if (userPrivacySettingServiceOne == null) {
-                userPrivacySettingServiceOne = new UserPrivacySetting();
-                userPrivacySettingServiceOne.setWxId(wxId);
-                userPrivacySettingServiceOne.setFieldName(sysConfig.getConfigName());
-                userPrivacySettingServiceOne.setFieldCode(sysConfig.getConfigKey());
-                userPrivacySettingServiceOne.setType(1);            // 用户配置
-                userPrivacySettingServiceOne.setVisibility(0);      // 默认可见
-                userPrivacySettingServiceOne.setSearchable(0);      // 默认可见
+        //3. 如果用户隐私设置为空（可能是老用户或初始化失败），进行兜底初始化
+        if (userPrivacySettings == null || userPrivacySettings.isEmpty()) {
+            log.warn("用户隐私设置为空，执行兜底初始化 - wxId: {}", wxId);
+            userPrivacySettings = initUserPrivacySettingsSync(wxId);
+        }
 
-                userPrivacySettingService.save(userPrivacySettingServiceOne);
-            }
-            return userPrivacySettingServiceOne;
-        }).toList();
-
-//        List<UserPrivacySetting> userPrivacySettings = userPrivacySettingService.getByUserId(loginUserId);
-
-        //3. 封装 vo 返回
+        //4. 封装 vo 返回
         List<UserPrivacySettingListVo> userPrivacySettingListVos = userPrivacySettings.stream().map(userPrivacySetting -> {
             UserPrivacySettingListVo userPrivacySettingListVo = UserPrivacySettingListVo.objToVo(userPrivacySetting);
             userPrivacySettingListVo.setWxId(String.valueOf(userPrivacySetting.getWxId()));
@@ -310,8 +284,61 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             return userPrivacySettingListVo;
         }).toList();
 
-        log.info("查询用户的隐私设置，用户id：{} ", wxId);
+        log.info("查询用户的隐私设置，用户id：{}，设置项数：{}", wxId, userPrivacySettingListVos.size());
         return userPrivacySettingListVos;
+    }
+
+    /**
+     * 同步初始化用户隐私设置（兜底方法）
+     * <p>用于老用户或 Kafka 初始化失败的场景
+     *
+     * @param wxId 用户ID
+     * @return 初始化后的隐私设置列表
+     */
+    private List<UserPrivacySetting> initUserPrivacySettingsSync(Long wxId) {
+        try {
+            // 查询系统配置的隐私字段
+            SysConfig parentConfig = sysConfigMapper.selectOne(
+                    new LambdaQueryWrapper<SysConfig>()
+                            .eq(SysConfig::getConfigKey, "user_privacy_setting")
+            );
+
+            if (parentConfig == null) {
+                log.error("未找到系统隐私配置 - configKey: user_privacy_setting");
+                return List.of();
+            }
+
+            List<SysConfig> privacyConfigs = sysConfigMapper.selectList(
+                    new LambdaQueryWrapper<SysConfig>()
+                            .eq(SysConfig::getParentId, parentConfig.getConfigId())
+                            .eq(SysConfig::getStatus, 1)
+            );
+
+            if (privacyConfigs == null || privacyConfigs.isEmpty()) {
+                log.warn("未找到可用的隐私配置项 - wxId: {}", wxId);
+                return List.of();
+            }
+
+            // 为用户初始化隐私设置
+            List<UserPrivacySetting> settings = privacyConfigs.stream().map(config -> {
+                UserPrivacySetting setting = new UserPrivacySetting();
+                setting.setWxId(wxId);
+                setting.setFieldName(config.getConfigName());
+                setting.setFieldCode(config.getConfigKey());
+                setting.setType(1); // 用户配置
+                setting.setVisibility(0); // 默认可见
+                setting.setSearchable(0); // 默认可搜索
+                userPrivacySettingService.save(setting);
+                return setting;
+            }).toList();
+
+            log.info("用户隐私设置兜底初始化完成 - wxId: {}, 初始化项数: {}", wxId, settings.size());
+            return settings;
+
+        } catch (Exception e) {
+            log.error("用户隐私设置兜底初始化失败 - wxId: {}, error: {}", wxId, e.getMessage(), e);
+            return List.of();
+        }
     }
 
     @Override
@@ -623,15 +650,31 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                             (v1, v2) -> v1)); // 如果有多个主要经历，保留第一个
         }
 
+        // 批量查询所有用户的标签（性能优化：避免 N+1 查询）
+        Map<Long, List<SysTag>> userTagsMap = new HashMap<>();
+        if (!wxUserInfoPage.getRecords().isEmpty()) {
+            List<Long> wxIds = wxUserInfoPage.getRecords().stream()
+                    .map(WxUserInfo::getWxId)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            userTagsMap = sysTagRelationService.batchGetTagsByTargets(wxIds, 1); // targetType=1 表示校友(User)
+            log.debug("批量查询用户标签完成 - 用户数: {}, 有标签的用户数: {}", wxIds.size(), userTagsMap.size());
+
+            // 批量预热隐私设置缓存（性能优化：避免 AOP 处理时的 N+1 查询）
+            userPrivacySettingService.batchWarmupCache(wxIds);
+        }
+
         Map<Long, AlumniEducationListVo> finalPrimaryEducationMap = primaryEducationMap;
         Map<Long, Integer> finalCertificationFlagMap = certificationFlagMap;
+        Map<Long, List<SysTag>> finalUserTagsMap = userTagsMap;
 
         List<UserListResponse> userListResponses = wxUserInfoPage.getRecords().stream().map(wxUserInfo -> {
             UserListResponse userListResponse = UserListResponse.ObjToVo(wxUserInfo);
             userListResponse.setWxId(String.valueOf(wxUserInfo.getWxId()));
 
-            // 获取用户标签列表
-            List<SysTag> userTags = sysTagRelationService.getTagsByTarget(wxUserInfo.getWxId(), 1); // targetType=1 表示校友(User)
+            // 从批量查询结果中获取用户标签列表
+            List<SysTag> userTags = finalUserTagsMap.getOrDefault(wxUserInfo.getWxId(), new ArrayList<>());
             List<TagVo> tagVoList = userTags.stream()
                     .map(TagVo::objToVo)
                     .toList();

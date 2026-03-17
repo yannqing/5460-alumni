@@ -5,20 +5,40 @@ const { userApi } = require('../../../api/api.js')
 const FIELD_GROUPS = {
   basicInfo: {
     title: '基本信息',
-    fields: ['avatar', 'nickname', 'username', 'gender', 'birthDate', 'phone', 'constellation', 'signature', 'wxNum', 'qqNum', 'email']
+    fields: [
+      'avatar',
+      'nickname',
+      'username',
+      'gender',
+      'birthDate',
+      'phone',
+      'constellation',
+      'signature',
+      'wxNum',
+      'qqNum',
+      'email',
+    ],
   },
   location: {
     title: '位置信息',
-    fields: ['originProvince', 'curContinent', 'curCountry', 'curProvince', 'curCity', 'curCounty', 'address']
+    fields: [
+      'originProvince',
+      'curContinent',
+      'curCountry',
+      'curProvince',
+      'curCity',
+      'curCounty',
+      'address',
+    ],
   },
   identity: {
     title: '证件信息',
-    fields: ['identifyType', 'identifyCode']
+    fields: ['identifyType', 'identifyCode'],
   },
   description: {
     title: '个人简介',
-    fields: ['description']
-  }
+    fields: ['description'],
+  },
 }
 
 Page({
@@ -26,7 +46,7 @@ Page({
     // 分组后的隐私设置列表（用于渲染）
     groupedPrivacyList: [],
     // 存储后端返回的原始数据（用于更新时回传）
-    privacyList: []
+    privacyList: [],
   },
 
   onLoad() {
@@ -46,10 +66,10 @@ Page({
         this.setData({ privacyList: dataList })
 
         // 为每个字段添加开关状态
-        // visibility: 1表示可见（开关关闭=false），0表示不可见（开关打开=true）
+        // visibility: 1表示可见（开关打开=true），0表示不可见（开关关闭=false）
         const processedList = dataList.map(item => ({
           ...item,
-          checked: item.visibility === 0  // true=隐藏，false=显示
+          checked: item.visibility === 1, // true=显示，false=隐藏
         }))
 
         // 按分组整理数据
@@ -61,14 +81,14 @@ Page({
         console.warn('获取隐私设置失败')
         wx.showToast({
           title: '加载失败，请重试',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('加载隐私设置失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -96,7 +116,7 @@ Page({
       if (groupItems.length > 0) {
         groups.push({
           title: groupConfig.title,
-          items: groupItems
+          items: groupItems,
         })
       }
     })
@@ -106,7 +126,7 @@ Page({
     if (otherItems.length > 0) {
       groups.push({
         title: '其他',
-        items: otherItems
+        items: otherItems,
       })
     }
 
@@ -120,7 +140,7 @@ Page({
 
     // 先更新UI
     this.setData({
-      [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: value
+      [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: value,
     })
 
     try {
@@ -128,12 +148,12 @@ Page({
       const currentItem = this.data.privacyList.find(item => item.fieldCode === fieldCode)
 
       // 构造请求数据
-      // 注意：value=true表示开关打开（隐藏信息，visibility=0）
-      //       value=false表示开关关闭（显示信息，visibility=1）
+      // 注意：value=true表示开关打开（显示信息，visibility=1）
+      //       value=false表示开关关闭（隐藏信息，visibility=0）
       const requestData = {
         fieldCode: fieldCode,
-        visibility: value ? 0 : 1,  // 反转逻辑：true=0（隐藏），false=1（显示）
-        searchable: 1  // 固定为1，表示可被搜索
+        visibility: value ? 1 : 0, // true=1（显示），false=0（隐藏）
+        searchable: 1, // 固定为1，表示可被搜索
       }
 
       // 如果找到了已有的记录，添加 userPrivacySettingId
@@ -150,7 +170,7 @@ Page({
             return {
               ...item,
               visibility: requestData.visibility,
-              searchable: requestData.searchable
+              searchable: requestData.searchable,
             }
           }
           return item
@@ -159,30 +179,30 @@ Page({
         this.setData({ privacyList: updatedPrivacyList })
 
         wx.showToast({
-          title: value ? '已隐藏' : '已显示',
+          title: value ? '已显示' : '已隐藏',
           icon: 'success',
-          duration: 1500
+          duration: 1500,
         })
       } else {
         // 保存失败，恢复原值
         this.setData({
-          [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: !value
+          [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: !value,
         })
         wx.showToast({
           title: res.data?.msg || '保存失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('保存隐私设置失败:', error)
       // 保存失败，恢复原值
       this.setData({
-        [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: !value
+        [`groupedPrivacyList[${groupIndex}].items[${itemIndex}].checked`]: !value,
       })
       wx.showToast({
         title: '保存失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
-  }
+  },
 })

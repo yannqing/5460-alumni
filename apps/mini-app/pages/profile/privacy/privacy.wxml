@@ -18,7 +18,7 @@
                 <view class="menu-left">
                     <view class="menu-content">
                         <text class="menu-name">{{privacyItem.fieldName}}</text>
-                        <text class="menu-desc">开启后隐藏该信息</text>
+                        <text class="menu-desc">关闭后隐藏该信息</text>
                     </view>
                 </view>
                 <switch

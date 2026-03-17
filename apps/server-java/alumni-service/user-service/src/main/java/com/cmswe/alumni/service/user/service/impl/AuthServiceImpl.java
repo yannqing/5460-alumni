@@ -30,6 +30,7 @@ import com.cmswe.alumni.service.user.mapper.WxUserInfoMapper;
 import com.cmswe.alumni.service.user.mapper.InvitationRecordMapper;
 import com.cmswe.alumni.service.user.mapper.PointsChangeMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
+import com.cmswe.alumni.service.user.service.kafka.producer.UserPrivacyInitProducer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,6 +81,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private AlumniAssociationService alumniAssociationService;
+
+    @Resource
+    private UserPrivacyInitProducer userPrivacyInitProducer;
 
     /**
      * 微信小程序静默登录
@@ -584,6 +588,21 @@ public class AuthServiceImpl implements AuthService {
                         wxId, e.getMessage());
             }
             // ====== 预设成员（假人）手机号匹配绑定 END ======
+
+            // ====== 发送用户隐私初始化事件到 Kafka START ======
+            try {
+                boolean kafkaSent = userPrivacyInitProducer.sendPrivacyInitEvent(wxId);
+                if (kafkaSent) {
+                    log.info("用户隐私初始化事件发送成功 - wxId: {}", wxId);
+                } else {
+                    log.warn("用户隐私初始化事件发送失败（不影响注册） - wxId: {}", wxId);
+                }
+            } catch (Exception e) {
+                log.error("发送用户隐私初始化事件异常（不影响注册） - wxId: {}, error: {}",
+                        wxId, e.getMessage(), e);
+            }
+            // ====== 发送用户隐私初始化事件到 Kafka END ======
+
             return true;
 
         } catch (BusinessException e) {

@@ -95,10 +95,10 @@
               <view class="info-label">微信号</view>
               <view class="info-value {{alumniInfo.wxNum.isNull ? 'text-null' : ''}}">{{alumniInfo.wxNum.value}}</view>
             </view>
-            <view class="info-item">
+            <!-- <view class="info-item">
               <view class="info-label">QQ号</view>
               <view class="info-value {{alumniInfo.qqNum.isNull ? 'text-null' : ''}}">{{alumniInfo.qqNum.value}}</view>
-            </view>
+            </view> -->
             <view class="info-item">
               <view class="info-label">电子邮箱</view>
               <view class="info-value {{alumniInfo.email.isNull ? 'text-null' : ''}}">{{alumniInfo.email.value}}</view>

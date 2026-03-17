@@ -191,4 +191,51 @@ public class SysTagRelationServiceImpl extends ServiceImpl<SysTagRelationMapper,
 
         return this.remove(queryWrapper);
     }
+
+    @Override
+    public Map<Long, List<SysTag>> batchGetTagsByTargets(List<Long> targetIds, Integer targetType) {
+        if (targetIds == null || targetIds.isEmpty() || targetType == null) {
+            log.warn("批量查询标签参数为空");
+            return new java.util.HashMap<>();
+        }
+
+        // 1. 批量查询所有目标对象的标签关联关系
+        LambdaQueryWrapper<SysTagRelation> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SysTagRelation::getTargetId, targetIds)
+                .eq(SysTagRelation::getTargetType, targetType);
+
+        List<SysTagRelation> relations = this.list(queryWrapper);
+        if (relations.isEmpty()) {
+            log.debug("批量查询标签：未找到任何关联关系，targetType={}", targetType);
+            return new java.util.HashMap<>();
+        }
+
+        // 2. 提取所有标签ID并批量查询标签详情
+        List<Long> tagIds = relations.stream()
+                .map(SysTagRelation::getTagId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<SysTag> allTags = sysTagService.listByIds(tagIds);
+
+        // 3. 构建标签ID到标签对象的映射
+        Map<Long, SysTag> tagMap = allTags.stream()
+                .collect(Collectors.toMap(SysTag::getTagId, tag -> tag, (v1, v2) -> v1));
+
+        // 4. 按目标ID分组，组装结果
+        Map<Long, List<SysTag>> resultMap = relations.stream()
+                .filter(relation -> tagMap.containsKey(relation.getTagId()))
+                .collect(Collectors.groupingBy(
+                        SysTagRelation::getTargetId,
+                        Collectors.mapping(
+                                relation -> tagMap.get(relation.getTagId()),
+                                Collectors.toList()
+                        )
+                ));
+
+        log.debug("批量查询标签完成：查询了{}个目标对象，找到{}个有标签的对象",
+                targetIds.size(), resultMap.size());
+
+        return resultMap;
+    }
 }
