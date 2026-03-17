@@ -944,14 +944,7 @@ public class AlumniAssociationJoinApplicationServiceImpl
         }
 
         // 6. 更新校友会成员数量（-1）
-        Integer currentMemberCount = association.getMemberCount();
-        if (currentMemberCount != null && currentMemberCount > 0) {
-            association.setMemberCount(currentMemberCount - 1);
-            boolean updateResult = alumniAssociationMapper.updateById(association) > 0;
-            if (!updateResult) {
-                throw new BusinessException(ErrorType.OPERATION_ERROR, "更新校友会成员数量失败");
-            }
-        }
+        alumniAssociationService.updateMemberCount(alumniAssociationId, -1);
 
         // 7. 删除该用户在该校友会的所有申请记录（逻辑删除）
         LambdaQueryWrapper<AlumniAssociationJoinApplication> applicationQuery = new LambdaQueryWrapper<>();

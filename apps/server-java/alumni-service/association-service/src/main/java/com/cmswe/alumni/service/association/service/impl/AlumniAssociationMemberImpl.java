@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.association.AlumniAssociationMemberService;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.user.UserService;
+import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationMember;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
@@ -51,6 +52,12 @@ public class AlumniAssociationMemberImpl extends ServiceImpl<AlumniAssociationMe
         alumniAssociationMember.setJoinTime(LocalDateTime.now());
 
         boolean saveResult = this.save(alumniAssociationMember);
+
+        if (saveResult) {
+            // 更新校友会成员数量（+1）
+            alumniAssociationMapper.updateMemberCount(alumniAssociationId, 1);
+            log.info("更新校友会成员数量 - 校友会ID: {}", alumniAssociationId);
+        }
 
         log.info("给校友会 id={} 新增一个会长 id={} ", wxId, alumniAssociationId);
 

@@ -14,6 +14,15 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AlumniAssociationMapper extends BaseMapper<AlumniAssociation> {
 
+    /**
+     * 更新校友会成员数量
+     *
+     * @param alumniAssociationId 校友会ID
+     * @param delta              变化值（+1 或 -1）
+     * @return 更新行数
+     */
+    int updateMemberCount(@org.apache.ibatis.annotations.Param("alumniAssociationId") Long alumniAssociationId, 
+                         @org.apache.ibatis.annotations.Param("delta") Integer delta);
 }
 
 

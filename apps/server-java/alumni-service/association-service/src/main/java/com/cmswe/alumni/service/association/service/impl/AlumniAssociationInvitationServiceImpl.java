@@ -115,12 +115,7 @@ public class AlumniAssociationInvitationServiceImpl
             log.info("用户同意邀请，已加入校友会 - 用户ID: {}, 校友会ID: {}", userId, invitation.getAlumniAssociationId());
 
             // 更新校友会成员数量（+1）
-            Integer currentMemberCount = association.getMemberCount();
-            if (currentMemberCount == null) {
-                currentMemberCount = 0;
-            }
-            association.setMemberCount(currentMemberCount + 1);
-            alumniAssociationMapper.updateById(association);
+            alumniAssociationMapper.updateMemberCount(invitation.getAlumniAssociationId(), 1);
 
             // 更新用户的 certificationFlag 字段为 3（校友会认证）
             com.cmswe.alumni.common.entity.WxUser wxUser = userService.getById(userId);
