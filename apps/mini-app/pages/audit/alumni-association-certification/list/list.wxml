@@ -87,7 +87,7 @@
             </view>
           </view>
           <view class="audit-card-meta-wrap">
-            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta" wx:if="{{item.displayApplicant}}">申请人: {{item.displayApplicant}}</text>
             <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
           </view>
         </view>
@@ -106,7 +106,7 @@
             </view>
           </view>
           <view class="audit-card-meta-wrap">
-            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta" wx:if="{{item.displayApplicant}}">申请人: {{item.displayApplicant}}</text>
             <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
           </view>
           <view class="audit-card-actions">
@@ -133,7 +133,7 @@
             </view>
           </view>
           <view class="audit-card-meta-wrap">
-            <text class="audit-card-meta">申请人: {{item.displayApplicant}}</text>
+            <text class="audit-card-meta" wx:if="{{item.displayApplicant}}">申请人: {{item.displayApplicant}}</text>
             <text class="audit-card-meta">提交时间: {{item.displaySubmitTime}}</text>
           </view>
         </view>

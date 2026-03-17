@@ -33,6 +33,12 @@ public class AlumniAssociationJoinApply implements Serializable {
     private Long platformId;
 
     /**
+     * 申请人wx_id
+     */
+    @TableField(value = "applicant_wx_id")
+    private Long applicantWxId;
+
+    /**
      * 审核状态(0待审核,1已通过,2已拒绝)
      */
     @TableField(value = "status")

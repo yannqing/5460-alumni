@@ -82,6 +82,12 @@ public class AlumniAssociation implements Serializable {
     private String associationProfile;
 
     /**
+     * 覆盖区域
+     */
+    @TableField(value = "coverage_area")
+    private String coverageArea;
+
+    /**
      * 主要负责人微信用户ID
      */
     @TableField(value = "charge_wx_id", updateStrategy = FieldStrategy.ALWAYS)

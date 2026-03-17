@@ -376,6 +376,14 @@ Page({
       return
     }
 
+    // 验证联系电话（如已填写须为11位数字）
+    if (formData.contactPhone && String(formData.contactPhone).trim()) {
+      if (!/^\d{11}$/.test(String(formData.contactPhone).trim())) {
+        wx.showToast({ title: '联系电话须为11位数字', icon: 'none' })
+        return
+      }
+    }
+
     // 构建请求参数
     const params = {
       placeName: formData.placeName,

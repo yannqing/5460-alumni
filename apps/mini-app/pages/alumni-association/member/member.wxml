@@ -212,10 +212,10 @@
               />
             </view>
             <view class="form-item">
-              <text class="form-label">所属单位/职位</text>
+              <text class="form-label">所属单位及职位</text>
               <input
                 class="form-input"
-                placeholder="请输入所属单位或职位"
+                placeholder="请输入所属单位及职位"
                 value="{{unregisteredForm.userAffiliation}}"
                 bindinput="onUnregisteredUserAffiliationInput"
               />

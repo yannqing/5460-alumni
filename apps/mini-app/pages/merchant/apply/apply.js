@@ -395,8 +395,8 @@ Page({
       return false
     }
     
-    if (contactPhone.length > 20) {
-      wx.showToast({ title: '联系电话不能超过20个字符', icon: 'none' })
+    if (!/^\d{11}$/.test(String(contactPhone).trim())) {
+      wx.showToast({ title: '联系电话须为11位数字', icon: 'none' })
       return false
     }
     

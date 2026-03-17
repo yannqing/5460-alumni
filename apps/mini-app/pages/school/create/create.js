@@ -574,6 +574,14 @@ Page({
             }
         }
 
+        // 验证联系电话（如已填写须为11位数字）
+        if (formData.phone && String(formData.phone).trim()) {
+            if (!/^\d{11}$/.test(String(formData.phone).trim())) {
+                wx.showToast({ title: '联系电话须为11位数字', icon: 'none' })
+                return
+            }
+        }
+
         const submitData = {
             headquartersId: formData.headquartersId,
             createCode: formData.createCode,

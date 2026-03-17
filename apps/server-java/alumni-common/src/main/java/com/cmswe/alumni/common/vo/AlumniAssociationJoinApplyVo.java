@@ -59,6 +59,37 @@ public class AlumniAssociationJoinApplyVo implements Serializable {
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
+    /**
+     * 申请人wx_id
+     */
+    @Schema(description = "申请人wx_id")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long applicantWxId;
+
+    /**
+     * 申请人姓名
+     */
+    @Schema(description = "申请人姓名")
+    private String applicantName;
+
+    /**
+     * 申请人昵称
+     */
+    @Schema(description = "申请人昵称")
+    private String applicantNickname;
+
+    /**
+     * 申请人头像 URL
+     */
+    @Schema(description = "申请人头像 URL")
+    private String applicantAvatarUrl;
+
+    /**
+     * 申请人手机号
+     */
+    @Schema(description = "申请人手机号")
+    private String applicantPhone;
+
     // 校友会信息
     /**
      * 校友会名称
@@ -187,7 +218,7 @@ public class AlumniAssociationJoinApplyVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static AlumniAssociationJoinApplyVo objToVo(AlumniAssociationJoinApply apply,
-            AlumniAssociation association) {
+            AlumniAssociation association, com.cmswe.alumni.common.entity.WxUserInfo applicant) {
         if (apply == null) {
             return null;
         }
@@ -197,8 +228,18 @@ public class AlumniAssociationJoinApplyVo implements Serializable {
         vo.setAlumniAssociationId(apply.getAlumniAssociationId());
         vo.setPlatformId(apply.getPlatformId());
         vo.setApplyStatus(apply.getStatus());
+        vo.setApplicantWxId(apply.getApplicantWxId());
         vo.setCreateTime(apply.getCreateTime());
         vo.setUpdateTime(apply.getUpdateTime());
+
+        // Copy applicant info
+        if (applicant != null) {
+            vo.setApplicantName(applicant.getName());
+            vo.setApplicantNickname(applicant.getNickname());
+            vo.setApplicantAvatarUrl(applicant.getAvatarUrl());
+            vo.setApplicantPhone(applicant.getPhone());
+        }
+
         // Copy association fields
         if (association != null) {
             BeanUtils.copyProperties(association, vo);
