@@ -36,6 +36,27 @@ public class AlumniAssociationJoinApplyServiceImpl
 
     @Override
     public boolean applyJoinPlatform(ApplyAssociationJoinPlatformDto applyDto) {
+        // 1. 校验校友会是否存在
+        AlumniAssociation association = alumniAssociationService.getById(applyDto.getAlumniAssociationId());
+        if (association == null) {
+            throw new com.cmswe.alumni.common.exception.BusinessException("该校友会不存在");
+        }
+
+        // 2. 校验是否已加入校促会（一个校友会目前只允许加入一个校促会）
+        if (association.getPlatformId() != null && association.getPlatformId() > 0) {
+            throw new com.cmswe.alumni.common.exception.BusinessException("该校友会已加入校促会");
+        }
+
+        // 3. 校验是否有正在审核中的申请
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AlumniAssociationJoinApply> wrapper = new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        wrapper.eq(AlumniAssociationJoinApply::getAlumniAssociationId, applyDto.getAlumniAssociationId());
+        wrapper.eq(AlumniAssociationJoinApply::getStatus, 0); // 0-待审核
+        long count = this.count(wrapper);
+        if (count > 0) {
+            throw new com.cmswe.alumni.common.exception.BusinessException("您已有待审核的加入申请，请勿重复申请");
+        }
+
+        // 4. 执行保存申请记录
         AlumniAssociationJoinApply apply = new AlumniAssociationJoinApply();
         apply.setAlumniAssociationId(applyDto.getAlumniAssociationId());
         apply.setPlatformId(applyDto.getPlatformId());
