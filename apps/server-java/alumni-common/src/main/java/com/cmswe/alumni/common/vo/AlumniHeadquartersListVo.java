@@ -84,6 +84,12 @@ public class AlumniHeadquartersListVo implements Serializable {
     private LocalDate establishedDate;
 
     /**
+     * 校庆日
+     */
+    @Schema(description = "校庆日")
+    private LocalDate schoolAnniversary;
+
+    /**
      * 下属校友会总数
      */
     @Schema(description = "下属校友会总数")

@@ -29,8 +29,21 @@
         <!-- 验证通过后才展示以下内容 -->
         <block wx:if="{{isVerified}}">
           <view class="form-item">
+            <text class="label">校庆日</text>
+            <picker mode="date" bindchange="handleInput" data-field="schoolAnniversary">
+              <view class="input {{!formData.schoolAnniversary ? 'placeholder' : ''}}" style="display: flex; align-items: center; color: {{formData.schoolAnniversary ? '#333' : '#999'}};">
+                {{formData.schoolAnniversary || '请选择校庆日'}}
+              </view>
+            </picker>
+          </view>
+
+          <view class="form-item">
             <text class="label">成立日期</text>
-            <input class="input" placeholder="请输入成立日期 (YYYY-MM-DD)" value="{{formData.establishedDate}}" data-field="establishedDate" bindinput="handleInput" />
+            <picker mode="date" bindchange="handleInput" data-field="establishedDate">
+              <view class="input {{!formData.establishedDate ? 'placeholder' : ''}}" style="display: flex; align-items: center; color: {{formData.establishedDate ? '#333' : '#999'}};">
+                {{formData.establishedDate || '请选择成立日期'}}
+              </view>
+            </picker>
           </view>
 
           <view class="form-item">

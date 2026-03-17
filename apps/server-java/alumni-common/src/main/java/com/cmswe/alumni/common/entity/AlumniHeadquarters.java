@@ -91,6 +91,12 @@ public class AlumniHeadquarters implements Serializable {
     private String contactPerson;
 
     /**
+     * 校庆日
+     */
+    @TableField(value = "school_anniversary")
+    private LocalDate schoolAnniversary;
+
+    /**
      * 成立日期
      */
     @TableField(value = "established_date")

@@ -71,6 +71,8 @@ Page({
           wechatPublicAccount: data.wechatPublicAccount || '',
           email: data.email || '',
           phone: data.phone || '',
+          contactPerson: data.contactPerson || '',
+          schoolAnniversary: data.schoolAnniversary || '',
           establishedDate: data.establishedDate || '',
           memberCount: data.memberCount || 0,
           activeStatus: data.activeStatus,

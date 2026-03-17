@@ -31,6 +31,7 @@ Page({
             wechatPublicAccount: '',
             email: '',
             phone: '',
+            schoolAnniversary: '',
             establishedDate: '',
             registrationCertificate: '',
             createdUserId: 0,
@@ -560,16 +561,18 @@ Page({
 
         // 验证日期格式
         if (formData.establishedDate) {
-            const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-            if (!dateRegex.test(formData.establishedDate)) {
-                wx.showToast({ title: '请输入正确的日期格式 (YYYY-MM-DD)', icon: 'none' })
-                return
-            }
-
-            // 验证日期是否有效
             const date = new Date(formData.establishedDate)
             if (isNaN(date.getTime())) {
-                wx.showToast({ title: '请输入有效的日期', icon: 'none' })
+                wx.showToast({ title: '请输入有效的成立日期', icon: 'none' })
+                return
+            }
+        }
+
+        // 验证校庆日格式
+        if (formData.schoolAnniversary) {
+            const date = new Date(formData.schoolAnniversary)
+            if (isNaN(date.getTime())) {
+                wx.showToast({ title: '请输入有效的校庆日', icon: 'none' })
                 return
             }
         }
@@ -593,6 +596,7 @@ Page({
             wechatPublicAccount: formData.wechatPublicAccount || undefined,
             email: formData.email || undefined,
             phone: formData.phone || undefined,
+            schoolAnniversary: formData.schoolAnniversary || undefined,
             establishedDate: formData.establishedDate || undefined,
             createdUserId: formData.createdUserId || undefined,
             updatedUserId: formData.updatedUserId || undefined
