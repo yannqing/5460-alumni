@@ -36,12 +36,12 @@
         <text class="empty-text">{{selectedAlumniAssociationId ? '暂无审核数据' : '请先选择校友会'}}</text>
       </view>
       <view wx:else class="application-list">
-        <view wx:for="{{applicationList}}" wx:key="applicationId" class="application-item">
+        <view wx:for="{{applicationList}}" wx:key="applicationId" class="application-item" data-application-id="{{item.applicationId}}" bindtap="goToDetail">
           <view class="application-header">
             <view class="applicant-info">
               <image wx:if="{{item.applicantInfo && item.applicantInfo.avatarUrl}}" src="{{item.applicantInfo.avatarUrl}}" class="avatar"></image>
               <view class="info-text">
-                <text class="nickname">{{(item.applicantInfo && item.applicantInfo.nickname) || '未知用户'}}</text>
+                <text class="nickname">{{(item.applicantInfo && (item.applicantInfo.name || item.applicantInfo.nickname)) || '未知用户'}}</text>
                 <text class="apply-time">申请时间：{{item.applyTime}}</text>
               </view>
             </view>

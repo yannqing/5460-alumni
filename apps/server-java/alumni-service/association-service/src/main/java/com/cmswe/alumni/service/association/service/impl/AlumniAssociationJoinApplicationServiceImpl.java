@@ -582,9 +582,33 @@ public class AlumniAssociationJoinApplicationServiceImpl
             throw new BusinessException(ErrorType.ARGS_ERROR, "未找到申请记录");
         }
 
+        return buildApplicationDetailVo(application);
+    }
+
+    @Override
+    public AlumniAssociationJoinApplicationDetailVo getApplicationDetailById(Long applicationId) {
+        // 1. 查询申请记录
+        AlumniAssociationJoinApplication application = this.getById(applicationId);
+        if (application == null) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "未找到申请记录");
+        }
+
+        return buildApplicationDetailVo(application);
+    }
+
+    /**
+     * 构建申请详情VO
+     *
+     * @param application 申请记录
+     * @return 详情VO
+     */
+    private AlumniAssociationJoinApplicationDetailVo buildApplicationDetailVo(AlumniAssociationJoinApplication application) {
+        Long alumniAssociationId = application.getAlumniAssociationId();
+        Long targetId = application.getTargetId();
+
         // 2. 查询用户信息
         LambdaQueryWrapper<WxUserInfo> userQuery = new LambdaQueryWrapper<>();
-        userQuery.eq(WxUserInfo::getWxId, wxId);
+        userQuery.eq(WxUserInfo::getWxId, targetId);
         WxUserInfo userInfo = wxUserInfoService.getOne(userQuery);
 
         // 3. 查询校友会信息
@@ -596,6 +620,7 @@ public class AlumniAssociationJoinApplicationServiceImpl
         // 基本申请信息
         vo.setApplicationId(String.valueOf(application.getApplicationId()));
         vo.setAlumniAssociationId(String.valueOf(application.getAlumniAssociationId()));
+        vo.setApplicantId(String.valueOf(application.getTargetId()));
         vo.setApplicationReason(application.getApplicationReason());
         vo.setApplicationStatus(application.getApplicationStatus());
         vo.setApplicationStatusText(AlumniAssociationJoinApplicationDetailVo.getApplicationStatusText(application.getApplicationStatus()));

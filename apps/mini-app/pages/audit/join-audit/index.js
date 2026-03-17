@@ -417,5 +417,13 @@ Page({
   // 调用校友会详情接口
   getAlumniAssociationDetail(alumniAssociationId) {
     return associationApi.getAssociationDetail(alumniAssociationId)
+  },
+
+  // 跳转到申请详情页
+  goToDetail(e) {
+    const applicationId = e.currentTarget.dataset.applicationId
+    wx.navigateTo({
+      url: `/pages/audit/join-audit/detail?applicationId=${applicationId}`
+    })
   }
 })

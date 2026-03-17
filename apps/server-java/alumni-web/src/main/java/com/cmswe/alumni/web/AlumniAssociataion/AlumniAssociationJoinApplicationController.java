@@ -122,6 +122,23 @@ public class AlumniAssociationJoinApplicationController {
     }
 
     /**
+     * 根据申请ID查看申请详情
+     *
+     * @param applicationId 申请ID
+     * @return 申请详情
+     */
+    @GetMapping("/detailById/{applicationId}")
+    @Operation(summary = "根据申请ID查看申请详情")
+    public BaseResponse<AlumniAssociationJoinApplicationDetailVo> getApplicationDetailById(
+            @PathVariable Long applicationId) {
+
+        AlumniAssociationJoinApplicationDetailVo detailVo =
+                alumniAssociationJoinApplicationService.getApplicationDetailById(applicationId);
+
+        return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
+    }
+
+    /**
      * 编辑并重新提交待审核的校友会加入申请（普通用户）
      *
      * @param securityUser 当前登录用户
