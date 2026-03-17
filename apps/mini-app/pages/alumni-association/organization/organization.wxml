@@ -22,74 +22,74 @@
       </view>
       <!-- 树形展示（从上到下布局） -->
       <view wx:elif="{{roleList.length > 0}}" class="template-tree-preview">
-        <scroll-view scroll-y scroll-x class="tree-scroll-container">
           <view class="tree-container">
             <!-- 递归渲染树节点（最多支持5层，从上到下） -->
             <block wx:for="{{roleList}}" wx:key="roleOrId" wx:for-item="n1">
-              <!-- 一级节点行 -->
-              <view class="tree-node-row">
-                <view class="tree-node level-1 {{n1.children && n1.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n1}}">
-                  <view class="node-content">
-                    <text class="node-name">{{n1.roleOrName}}</text>
-                    <text class="node-member-count" wx:if="{{n1.members && n1.members.length > 0}}">({{n1.members.length}}人)</text>
+              <view class="tree-root-branch">
+                <!-- 一级节点行 -->
+                <view class="tree-node-row">
+                  <view class="tree-node level-1 {{n1.children && n1.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n1}}">
+                    <view class="node-content">
+                      <text class="node-name">{{n1.roleOrName}}</text>
+                      <text class="node-member-count" wx:if="{{n1.members && n1.members.length > 0}}">({{n1.members.length}}人)</text>
+                    </view>
                   </view>
                 </view>
-              </view>
-              <!-- 二级节点行 -->
-              <view wx:if="{{n1.children && n1.children.length > 0}}" class="tree-children-row">
-                <block wx:for="{{n1.children}}" wx:key="roleOrId" wx:for-item="n2">
-                  <view class="tree-branch">
-                    <view class="tree-node level-2 {{n2.children && n2.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n2}}">
-                      <view class="node-content">
-                        <text class="node-name">{{n2.roleOrName}}</text>
-                        <text class="node-member-count" wx:if="{{n2.members && n2.members.length > 0}}">({{n2.members.length}}人)</text>
+                <!-- 二级节点行 -->
+                <view wx:if="{{n1.children && n1.children.length > 0}}" class="tree-children-row">
+                  <block wx:for="{{n1.children}}" wx:key="roleOrId" wx:for-item="n2">
+                    <view class="tree-branch">
+                      <view class="tree-node level-2 {{n2.children && n2.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n2}}">
+                        <view class="node-content">
+                          <text class="node-name">{{n2.roleOrName}}</text>
+                          <text class="node-member-count" wx:if="{{n2.members && n2.members.length > 0}}">({{n2.members.length}}人)</text>
+                        </view>
                       </view>
-                    </view>
-                    <!-- 三级节点行 -->
-                    <view wx:if="{{n2.children && n2.children.length > 0}}" class="tree-sub-children">
-                      <block wx:for="{{n2.children}}" wx:key="roleOrId" wx:for-item="n3">
-                        <view class="tree-branch">
-                          <view class="tree-node level-3 {{n3.children && n3.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n3}}">
-                            <view class="node-content">
-                              <text class="node-name">{{n3.roleOrName}}</text>
-                              <text class="node-member-count" wx:if="{{n3.members && n3.members.length > 0}}">({{n3.members.length}}人)</text>
+                      <!-- 三级节点行 -->
+                      <view wx:if="{{n2.children && n2.children.length > 0}}" class="tree-sub-children">
+                        <block wx:for="{{n2.children}}" wx:key="roleOrId" wx:for-item="n3">
+                          <view class="tree-branch">
+                            <view class="tree-node level-3 {{n3.children && n3.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n3}}">
+                              <view class="node-content">
+                                <text class="node-name">{{n3.roleOrName}}</text>
+                                <text class="node-member-count" wx:if="{{n3.members && n3.members.length > 0}}">({{n3.members.length}}人)</text>
+                              </view>
                             </view>
-                          </view>
-                          <!-- 四级节点行 -->
-                          <view wx:if="{{n3.children && n3.children.length > 0}}" class="tree-sub-children">
-                            <block wx:for="{{n3.children}}" wx:key="roleOrId" wx:for-item="n4">
-                              <view class="tree-branch">
-                                <view class="tree-node level-4 {{n4.children && n4.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n4}}">
-                                  <view class="node-content">
-                                    <text class="node-name">{{n4.roleOrName}}</text>
-                                    <text class="node-member-count" wx:if="{{n4.members && n4.members.length > 0}}">({{n4.members.length}}人)</text>
+                            <!-- 四级节点行 -->
+                            <view wx:if="{{n3.children && n3.children.length > 0}}" class="tree-sub-children">
+                              <block wx:for="{{n3.children}}" wx:key="roleOrId" wx:for-item="n4">
+                                <view class="tree-branch">
+                                  <view class="tree-node level-4 {{n4.children && n4.children.length > 0 ? 'has-children' : ''}}" bindtap="openNodeDetailModal" data-role="{{n4}}">
+                                    <view class="node-content">
+                                      <text class="node-name">{{n4.roleOrName}}</text>
+                                      <text class="node-member-count" wx:if="{{n4.members && n4.members.length > 0}}">({{n4.members.length}}人)</text>
+                                    </view>
                                   </view>
-                                </view>
-                                <!-- 五级节点行 -->
-                                <view wx:if="{{n4.children && n4.children.length > 0}}" class="tree-sub-children">
-                                  <block wx:for="{{n4.children}}" wx:key="roleOrId" wx:for-item="n5">
-                                    <view class="tree-branch">
-                                      <view class="tree-node level-5" bindtap="openNodeDetailModal" data-role="{{n5}}">
-                                        <view class="node-content">
-                                          <text class="node-name">{{n5.roleOrName}}</text>
-                                          <text class="node-member-count" wx:if="{{n5.members && n5.members.length > 0}}">({{n5.members.length}}人)</text>
+                                  <!-- 五级节点行 -->
+                                  <view wx:if="{{n4.children && n4.children.length > 0}}" class="tree-sub-children">
+                                    <block wx:for="{{n4.children}}" wx:key="roleOrId" wx:for-item="n5">
+                                      <view class="tree-branch">
+                                        <view class="tree-node level-5" bindtap="openNodeDetailModal" data-role="{{n5}}">
+                                          <view class="node-content">
+                                            <text class="node-name">{{n5.roleOrName}}</text>
+                                            <text class="node-member-count" wx:if="{{n5.members && n5.members.length > 0}}">({{n5.members.length}}人)</text>
+                                          </view>
                                         </view>
                                       </view>
-                                    </view>
-                                  </block>
+                                    </block>
+                                  </view>
                                 </view>
-                              </view>
-                            </block>
+                              </block>
+                            </view>
                           </view>
-                        </view>
-                      </block>
+                        </block>
+                      </view>
                     </view>
-                  </view>
-                </block>
+                  </block>
+                </view>
               </view>
             </block>
           </view>
-        </scroll-view>
       </view>
 
       <!-- 空状态 -->
