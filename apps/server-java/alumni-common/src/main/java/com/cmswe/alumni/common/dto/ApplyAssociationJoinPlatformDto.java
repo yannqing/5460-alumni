@@ -18,5 +18,9 @@ public class ApplyAssociationJoinPlatformDto implements Serializable {
     @NotNull(message = "校促会ID不能为空")
     private Long platformId;
 
+    @Schema(description = "申请人wx_id")
+    @NotNull(message = "申请人ID不能为空")
+    private Long applicantWxId;
+
     private static final long serialVersionUID = 1L;
 }

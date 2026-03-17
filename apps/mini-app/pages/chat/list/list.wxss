@@ -38,8 +38,7 @@ page::-webkit-scrollbar {
 .header-section {
   width: 750rpx;
   height: 328rpx; /* 与 profile 页保持一致 */
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  background-color: #f8f8f8;
   display: flex;
   flex-direction: column;
   position: relative;

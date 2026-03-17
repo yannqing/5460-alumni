@@ -233,16 +233,11 @@ Page({
     try {
       console.log('[Debug] 开始加载校促会审核列表，参数:', this.data.pageParams)
 
-      // 构建API请求参数
+      // 构建API请求参数（platformId 用字符串传递，避免 JS 大数精度丢失）
       const apiParams = {
         current: this.data.pageParams.current,
         size: this.data.pageParams.pageSize,
-        id: this.data.pageParams.platformId
-      }
-
-      // 确保id是有效的数字类型
-      if (apiParams.id && typeof apiParams.id === 'string') {
-        apiParams.id = parseInt(apiParams.id, 10)
+        platformId: this.data.pageParams.platformId != null ? String(this.data.pageParams.platformId) : undefined
       }
       console.log('[Debug] 处理后的API请求参数:', apiParams)
 
@@ -269,8 +264,8 @@ Page({
           // 清理logo URL中的多余空格和反引号
           const cleanedLogo = rawLogo.replace(/[`\s]/g, '')
           const displayLogo = cleanedLogo ? config.getImageUrl(cleanedLogo) : config.defaultAvatar
-          // 申请人：优先 chargeName
-          const displayApplicant = record.chargeName || '未知'
+          // 申请人：使用 applicantName
+          const displayApplicant = record.applicantName || ''
           // 提交时间：使用 createTime
           let displaySubmitTime = record.createTime || ''
           if (displaySubmitTime && typeof displaySubmitTime === 'string') {
@@ -412,11 +407,11 @@ Page({
               title: '处理中...'
             })
 
-            // 准备审核参数
+            // 准备审核参数（reviewComment 会随系统消息一并发送给申请人）
             const reviewData = {
               id: id, // 直接使用字符串类型，避免数字精度丢失
-              status: 2 // 2-拒绝
-              // 注意：根据API文档，此接口可能不支持reason参数
+              status: 2, // 2-拒绝
+              reviewComment: reviewComment // 审核意见，会显示在拒绝通知中
             }
 
             console.log('[Debug] 拒绝审核参数:', reviewData)

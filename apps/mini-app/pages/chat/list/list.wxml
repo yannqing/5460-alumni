@@ -4,7 +4,7 @@
 
 <view class="page">
   <!-- 顶部自定义导航栏区域 (Fixed) -->
-  <view class="header-section" style="background-image: url({{imageTopBg}}); padding-top: {{statusBarHeight}}px;">
+  <view class="header-section" style="padding-top: {{statusBarHeight}}px;">
     <!-- 标题栏 -->
     <view class="page-title">
       <text class="title-text">5460</text>

@@ -304,11 +304,20 @@ Page({
             return
         }
 
+        const app = getApp()
+        const userData = app.globalData?.userData || {}
+        const applicantWxId = userData.wxId || userData.wx_id || userData.userId || wx.getStorageSync('userId')
+        if (!applicantWxId) {
+            wx.showToast({ title: '请先登录', icon: 'none' })
+            return
+        }
+
         try {
             // 调用申请加入校促会接口
             const res = await associationApi.applyJoinPlatform({
                 alumniAssociationId: selectedAlumniAssociationId,
-                platformId: formData.platformId
+                platformId: formData.platformId,
+                applicantWxId: applicantWxId
             })
 
             if (res.data && res.data.code === 200) {

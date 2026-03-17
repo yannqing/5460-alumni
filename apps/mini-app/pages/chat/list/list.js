@@ -25,7 +25,6 @@ Page({
       messageContent: ''
     },
     statusBarHeight: 0,
-    imageTopBg: '/assets/home/banner.png',
     imageBanner: '/assets/home/banner2.png', // 使用本地 banner 图片
     iconAlumni: config.getIconUrl('chatwdxyh@2x.png'), // Using existing icons as placeholders if specific ones aren't known
     iconFav: config.getIconUrl('chatwdsc@2x.png'),

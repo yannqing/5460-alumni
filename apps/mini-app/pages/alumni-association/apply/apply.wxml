@@ -59,7 +59,7 @@
       </view>
 
       <view class="form-item required">
-        <view class="form-label">入学/毕业年份</view>
+        <view class="form-label">入学-毕业年份</view>
         <picker
           mode="multiSelector"
           range="{{yearRanges}}"
@@ -69,7 +69,7 @@
           disabled="{{mode === 'view'}}"
         >
           <view class="form-picker {{mode === 'view' ? 'disabled' : ''}}">
-            {{formData.enrollmentYear && formData.graduationYear ? formData.enrollmentYear + ' 至 ' + formData.graduationYear : '请选择入学/毕业年份'}}
+            {{formData.enrollmentYear && formData.graduationYear ? formData.enrollmentYear + ' 至 ' + formData.graduationYear : '请选择入学-毕业年份'}}
           </view>
         </picker>
       </view>
