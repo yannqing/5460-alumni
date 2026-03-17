@@ -289,6 +289,8 @@ const searchApi = {
 // ==================== 文件上传相关接口 ====================
 // 使用独立的文件上传工具
 const fileUploadUtil = require('../utils/fileUpload.js')
+// COS 前端直传工具（绕过云托管网关大小限制）
+const cosUploadUtil = require('../utils/cosUpload.js')
 
 // 文件上传/下载接口路径配置
 const FILE_API_PATHS = {
@@ -338,6 +340,22 @@ const fileApi = {
   // 保存文件到本地
   saveFileToLocal: tempFilePath => {
     return fileUploadUtil.saveFileToLocal(tempFilePath)
+  },
+
+  // ===== COS 前端直传方法（绕过云托管网关大小限制）=====
+  // 直传图片到 COS（返回 FilesVo，含 fileId、fileUrl 等）
+  cosUploadImage: (tempFilePath, originalName, fileSize) => {
+    return cosUploadUtil.uploadImageToCos(tempFilePath, originalName, fileSize)
+  },
+
+  // 直传音频到 COS
+  cosUploadAudio: (tempFilePath, originalName, fileSize) => {
+    return cosUploadUtil.uploadAudioToCos(tempFilePath, originalName, fileSize)
+  },
+
+  // 直传文档到 COS
+  cosUploadDocument: (tempFilePath, originalName, fileSize) => {
+    return cosUploadUtil.uploadDocumentToCos(tempFilePath, originalName, fileSize)
   },
 }
 

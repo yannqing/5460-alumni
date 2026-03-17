@@ -3,7 +3,8 @@ const app = getApp()
 const { userApi, fileApi, schoolApi } = require('../../../api/api.js')
 
 // ==================== 配置区域 ====================
-const DEFAULT_BG_IMG = 'https://cni-alumni.yannqing.com/upload/images/2026/03/12/4cf2b23b-6a96-4d70-a000-53537171c772.png'
+const DEFAULT_BG_IMG =
+  'https://cni-alumni.yannqing.com/upload/images/2026/03/12/4cf2b23b-6a96-4d70-a000-53537171c772.png'
 
 // 联调时：将 USE_MOCK_DATA 改为 false，删除下面的假数据，补充缺失字段
 const USE_MOCK_DATA = false // true: 使用假数据, false: 使用真实接口
@@ -16,28 +17,40 @@ const USE_MOCK_DATA = false // true: 使用假数据, false: 使用真实接口
 function mapUserInfoToForm(userInfo) {
   // 性别映射：0-未知，1-男，2-女 -> 前端索引
   const genderMap = { 0: 0, 1: 1, 2: 2 }
-  const genderIndex = userInfo.gender !== null && userInfo.gender !== undefined
-    ? (genderMap[userInfo.gender] !== undefined ? genderMap[userInfo.gender] : 0)
-    : 0
+  const genderIndex =
+    userInfo.gender !== null && userInfo.gender !== undefined
+      ? genderMap[userInfo.gender] !== undefined
+        ? genderMap[userInfo.gender]
+        : 0
+      : 0
 
   // 证件类型映射：0-身份证，1-护照 -> 前端索引
   const identifyTypeMap = { 0: 0, 1: 1 }
-  const identifyTypeIndex = userInfo.identifyType !== null && userInfo.identifyType !== undefined
-    ? (identifyTypeMap[userInfo.identifyType] !== undefined ? identifyTypeMap[userInfo.identifyType] : 0)
-    : 0
+  const identifyTypeIndex =
+    userInfo.identifyType !== null && userInfo.identifyType !== undefined
+      ? identifyTypeMap[userInfo.identifyType] !== undefined
+        ? identifyTypeMap[userInfo.identifyType]
+        : 0
+      : 0
 
   // 婚姻状态映射：0-未知，1-未婚，2-已婚，3-离异，4-丧偶 -> 前端索引
   const maritalStatusMap = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 4 }
-  const maritalStatusIndex = userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined
-    ? (maritalStatusMap[userInfo.maritalStatus] !== undefined ? maritalStatusMap[userInfo.maritalStatus] : 0)
-    : 0
+  const maritalStatusIndex =
+    userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined
+      ? maritalStatusMap[userInfo.maritalStatus] !== undefined
+        ? maritalStatusMap[userInfo.maritalStatus]
+        : 0
+      : 0
 
   // 星座映射：后端值1-12 -> 前端索引0-11
   // 后端定义：1-摩羯座 2-水瓶座 3-双鱼座 4-白羊座 5-金牛座 6-双子座 7-巨蟹座 8-狮子座 9-处女座 10-天秤座 11-天蝎座 12-射手座
   // 前端数组索引对应：0-摩羯座 1-水瓶座 2-双鱼座 3-白羊座 4-金牛座 5-双子座 6-巨蟹座 7-狮子座 8-处女座 9-天秤座 10-天蝎座 11-射手座
-  const constellationIndex = userInfo.constellation !== null && userInfo.constellation !== undefined
-    ? (userInfo.constellation >= 1 && userInfo.constellation <= 12 ? userInfo.constellation - 1 : 0)
-    : 0
+  const constellationIndex =
+    userInfo.constellation !== null && userInfo.constellation !== undefined
+      ? userInfo.constellation >= 1 && userInfo.constellation <= 12
+        ? userInfo.constellation - 1
+        : 0
+      : 0
 
   // 出生日期格式化：LocalDate -> YYYY-MM-DD
   let birthDateStr = ''
@@ -69,8 +82,11 @@ function mapUserInfoToForm(userInfo) {
       major: edu.major || '',
       className: edu.className || '',
       educationLevel: edu.educationLevel || '',
-      certificationStatus: edu.certificationStatus !== null && edu.certificationStatus !== undefined ? edu.certificationStatus : null,
-      type: edu.type !== null && edu.type !== undefined ? edu.type : 1
+      certificationStatus:
+        edu.certificationStatus !== null && edu.certificationStatus !== undefined
+          ? edu.certificationStatus
+          : null,
+      type: edu.type !== null && edu.type !== undefined ? edu.type : 1,
     }
   })
 
@@ -89,7 +105,7 @@ function mapUserInfoToForm(userInfo) {
       startDate: work.startDate || '',
       endDate: work.endDate || '',
       isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
-      workDescription: work.workDescription || ''
+      workDescription: work.workDescription || '',
     }
   })
 
@@ -118,7 +134,12 @@ function mapUserInfoToForm(userInfo) {
     nickname: userInfo.nickname || '',
     name: userInfo.name || '',
     avatarUrl: avatarUrl,
-    bgImg: (userInfo.bgImg && userInfo.bgImg !== '/assets/icons/background.png' && !userInfo.bgImg.endsWith('/background.png')) ? config.getImageUrl(userInfo.bgImg) : DEFAULT_BG_IMG,
+    bgImg:
+      userInfo.bgImg &&
+      userInfo.bgImg !== '/assets/icons/background.png' &&
+      !userInfo.bgImg.endsWith('/background.png')
+        ? config.getImageUrl(userInfo.bgImg)
+        : DEFAULT_BG_IMG,
     phone: userInfo.phone || '',
     wxNum: userInfo.wxNum || '',
     qqNum: userInfo.qqNum || '',
@@ -137,23 +158,32 @@ function mapUserInfoToForm(userInfo) {
     latitude: userInfo.latitude ? String(userInfo.latitude) : '',
     longitude: userInfo.longitude ? String(userInfo.longitude) : '',
     // 其他信息
-    constellation: userInfo.constellation !== null && userInfo.constellation !== undefined ? userInfo.constellation : null,
+    constellation:
+      userInfo.constellation !== null && userInfo.constellation !== undefined
+        ? userInfo.constellation
+        : null,
     constellationIndex: constellationIndex,
     signature: userInfo.signature || '',
     description: userInfo.description || '',
     // 证件信息
-    identifyType: userInfo.identifyType !== null && userInfo.identifyType !== undefined ? userInfo.identifyType : 0,
+    identifyType:
+      userInfo.identifyType !== null && userInfo.identifyType !== undefined
+        ? userInfo.identifyType
+        : 0,
     identifyTypeIndex: identifyTypeIndex,
     identifyCode: userInfo.identifyCode || '',
     birthDate: birthDateStr,
     // 婚姻状态和个人特长
-    maritalStatus: userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined ? userInfo.maritalStatus : null,
+    maritalStatus:
+      userInfo.maritalStatus !== null && userInfo.maritalStatus !== undefined
+        ? userInfo.maritalStatus
+        : null,
     maritalStatusIndex: maritalStatusIndex,
     personalSpecialty: userInfo.personalSpecialty || '',
     // 教育经历
     educationList: educationList,
     // 工作经历
-    workExperienceList: workExperienceList
+    workExperienceList: workExperienceList,
   }
 }
 
@@ -164,7 +194,34 @@ function mapUserInfoToForm(userInfo) {
  */
 function mapFormToUpdateData(form) {
   // 如果 form 已经是部分字段的更新数据（直接包含后端字段名），直接返回
-  if (form && typeof form === 'object' && !form.nickname && !form.name && !form.avatarUrl && !form.phone && !form.wxNum && !form.qqNum && !form.email && !form.gender && !form.originProvince && !form.curContinent && !form.curCountry && !form.curProvince && !form.curCity && !form.curCounty && !form.address && !form.constellation && !form.signature && !form.description && !form.identifyType && !form.identifyCode && !form.birthDate && !form.educationList && !form.alumniEducationList && !form.workExperienceList) {
+  if (
+    form &&
+    typeof form === 'object' &&
+    !form.nickname &&
+    !form.name &&
+    !form.avatarUrl &&
+    !form.phone &&
+    !form.wxNum &&
+    !form.qqNum &&
+    !form.email &&
+    !form.gender &&
+    !form.originProvince &&
+    !form.curContinent &&
+    !form.curCountry &&
+    !form.curProvince &&
+    !form.curCity &&
+    !form.curCounty &&
+    !form.address &&
+    !form.constellation &&
+    !form.signature &&
+    !form.description &&
+    !form.identifyType &&
+    !form.identifyCode &&
+    !form.birthDate &&
+    !form.educationList &&
+    !form.alumniEducationList &&
+    !form.workExperienceList
+  ) {
     // 看起来已经是后端格式的数据，直接返回
     return form
   }
@@ -189,18 +246,31 @@ function mapFormToUpdateData(form) {
     curCity: form.curCity || null,
     curCounty: form.curCounty || null,
     address: form.address || null,
-    latitude: form.latitude && form.latitude.trim() ? (isNaN(parseFloat(form.latitude)) ? null : parseFloat(form.latitude)) : null,
-    longitude: form.longitude && form.longitude.trim() ? (isNaN(parseFloat(form.longitude)) ? null : parseFloat(form.longitude)) : null,
+    latitude:
+      form.latitude && form.latitude.trim()
+        ? isNaN(parseFloat(form.latitude))
+          ? null
+          : parseFloat(form.latitude)
+        : null,
+    longitude:
+      form.longitude && form.longitude.trim()
+        ? isNaN(parseFloat(form.longitude))
+          ? null
+          : parseFloat(form.longitude)
+        : null,
     // 其他信息
-    constellation: form.constellation !== null && form.constellation !== undefined ? form.constellation : null,
+    constellation:
+      form.constellation !== null && form.constellation !== undefined ? form.constellation : null,
     signature: form.signature || null,
     description: form.description || null,
     // 证件信息
-    identifyType: form.identifyType !== null && form.identifyType !== undefined ? form.identifyType : null,
+    identifyType:
+      form.identifyType !== null && form.identifyType !== undefined ? form.identifyType : null,
     identifyCode: form.identifyCode || null,
     birthDate: form.birthDate || null,
     // 婚姻状态和个人特长
-    maritalStatus: form.maritalStatus !== null && form.maritalStatus !== undefined ? form.maritalStatus : null,
+    maritalStatus:
+      form.maritalStatus !== null && form.maritalStatus !== undefined ? form.maritalStatus : null,
     personalSpecialty: form.personalSpecialty || null,
     // 教育经历
     // 过滤掉没有有效 schoolId 的教育经历（后端要求 schoolId 不能为 null）
@@ -221,23 +291,25 @@ function mapFormToUpdateData(form) {
           major: edu.major || null,
           className: edu.className || null,
           educationLevel: edu.educationLevel || null,
-          certificationStatus: edu.certificationStatus !== null && edu.certificationStatus !== undefined ? edu.certificationStatus : null,
-          type: edu.type !== null && edu.type !== undefined ? edu.type : 1
+          certificationStatus:
+            edu.certificationStatus !== null && edu.certificationStatus !== undefined
+              ? edu.certificationStatus
+              : null,
+          type: edu.type !== null && edu.type !== undefined ? edu.type : 1,
         }
       }),
     // 工作经历
-    workExperienceList: (form.workExperienceList || [])
-      .map(work => ({
-        userWorkId: work.userWorkId ? String(work.userWorkId) : null,
-        companyName: work.companyName || null,
-        position: work.position || null,
-        industry: work.industry || null,
-        workAddress: work.workAddress || null,
-        startDate: work.startDate || null,
-        endDate: work.endDate || null,
-        isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
-        workDescription: work.workDescription || null
-      }))
+    workExperienceList: (form.workExperienceList || []).map(work => ({
+      userWorkId: work.userWorkId ? String(work.userWorkId) : null,
+      companyName: work.companyName || null,
+      position: work.position || null,
+      industry: work.industry || null,
+      workAddress: work.workAddress || null,
+      startDate: work.startDate || null,
+      endDate: work.endDate || null,
+      isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
+      workDescription: work.workDescription || null,
+    })),
   }
 
   // 移除空字符串和 null 值，但保留 avatarUrl（即使为空字符串，也允许更新为空）
@@ -330,11 +402,21 @@ Page({
       // 教育经历列表
       educationList: [],
       // 工作经历列表
-      workExperienceList: []
+      workExperienceList: [],
     },
     saving: false,
     // 学历层次选项
-    educationLevelOptions: ['小学', '初中', '高中', '中专', '大专', '本科', '硕士', '博士', '博士后'],
+    educationLevelOptions: [
+      '小学',
+      '初中',
+      '高中',
+      '中专',
+      '大专',
+      '本科',
+      '硕士',
+      '博士',
+      '博士后',
+    ],
     // 学校搜索相关
     schoolSearchResults: {}, // { index: [schoolList] } 每个教育经历索引对应的搜索结果
     showSchoolDropdown: {}, // { index: true/false } 控制每个教育经历的下拉列表显示
@@ -345,10 +427,23 @@ Page({
     identifyTypeOptions: ['身份证', '护照'],
     maritalStatusOptions: ['未知', '未婚', '已婚', '离异', '丧偶'],
     // 星座选项：与后端数据库定义一致（1-摩羯座 2-水瓶座 3-双鱼座 4-白羊座 5-金牛座 6-双子座 7-巨蟹座 8-狮子座 9-处女座 10-天秤座 11-天蝎座 12-射手座）
-    constellationOptions: ['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座'],
+    constellationOptions: [
+      '摩羯座',
+      '水瓶座',
+      '双鱼座',
+      '白羊座',
+      '金牛座',
+      '双子座',
+      '巨蟹座',
+      '狮子座',
+      '处女座',
+      '天秤座',
+      '天蝎座',
+      '射手座',
+    ],
     // 籍贯所在地（省、市）
     hometownRegion: [],
-    hometownDisplayText: ''
+    hometownDisplayText: '',
   },
 
   async onLoad() {
@@ -371,7 +466,7 @@ Page({
         console.error('登录失败:', error)
         wx.showToast({
           title: '登录失败，请重试',
-          icon: 'none'
+          icon: 'none',
         })
         throw error
       }
@@ -383,7 +478,6 @@ Page({
       }
     }
   },
-
 
   // ==================== 数据加载逻辑 ====================
 
@@ -428,7 +522,7 @@ Page({
         this.setData({
           form: formData,
           hometownDisplayText: hometownDisplayText,
-          hometownRegion: hometownRegion
+          hometownRegion: hometownRegion,
         })
         // 计算默认展示的教育经历索引
         this.updateDefaultEducationIndex()
@@ -439,7 +533,7 @@ Page({
       console.error('加载用户资料失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -455,7 +549,7 @@ Page({
     // 合并用户数据
     return {
       ...userData,
-      ...globalInfo
+      ...globalInfo,
     }
   },
 
@@ -473,11 +567,11 @@ Page({
       if (userInfo) {
         app.globalData.userData = {
           ...(app.globalData.userData || {}),
-          ...userInfo
+          ...userInfo,
         }
         app.globalData.userInfo = {
           ...(app.globalData.userInfo || {}),
-          ...userInfo
+          ...userInfo,
         }
       }
 
@@ -485,14 +579,14 @@ Page({
     } else {
       wx.showToast({
         title: res.data?.msg || '加载失败',
-        icon: 'none'
+        icon: 'none',
       })
       return null
     }
   },
 
   /**
-   * 选择并上传背景图
+   * 选择并上传背景图（COS 前端直传，绕过云托管网关大小限制）
    */
   async chooseBackground() {
     try {
@@ -502,7 +596,7 @@ Page({
           count: 1,
           mediaType: ['image'],
           success: resolve,
-          fail: reject
+          fail: reject,
         })
       })
 
@@ -511,23 +605,16 @@ Page({
         return
       }
 
-      // 检查文件大小
       const fileSize = chooseRes.tempFiles?.[0]?.size || 0
-      const config = require('../../../utils/config.js')
-
-      // 云托管模式下，限制为 100KB；非云托管模式下，限制为 10MB
-      const maxSize = config.IS_CLOUD_HOST ? 100 * 1024 : 10 * 1024 * 1024
-      const maxSizeText = config.IS_CLOUD_HOST ? '100KB' : '10MB'
-
       console.log('[Background Upload] 文件大小:', (fileSize / 1024).toFixed(2), 'KB')
-      console.log('[Background Upload] 云托管模式:', config.IS_CLOUD_HOST)
-      console.log('[Background Upload] 大小限制:', maxSizeText)
 
+      // 统一限制 10MB（COS 直传不受云托管网关限制）
+      const maxSize = 10 * 1024 * 1024
       if (fileSize > maxSize) {
         wx.showToast({
-          title: '文件过大，请压缩后上传',
+          title: '文件过大，请选择10MB以内的图片',
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
         return
       }
@@ -535,48 +622,39 @@ Page({
       // 显示上传中提示
       wx.showLoading({
         title: '上传中...',
-        mask: true
+        mask: true,
       })
 
       // 获取原始文件名
       const originalName = chooseRes.tempFiles?.[0]?.name || 'background.jpg'
 
-      // 调用公共的文件上传方法
-      const uploadRes = await fileApi.uploadImage(tempFilePath, originalName)
+      // 使用 COS 前端直传（返回 FilesVo，含 fileId、fileUrl 等）
+      const filesVo = await fileApi.cosUploadImage(tempFilePath, originalName, fileSize)
 
-      if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
-        const rawImageUrl = uploadRes.data.fileUrl || ''
-        if (rawImageUrl) {
-          const config = require('../../../utils/config.js')
-          const imageUrl = config.getImageUrl(rawImageUrl)
+      if (filesVo && filesVo.fileUrl) {
+        const config = require('../../../utils/config.js')
+        const imageUrl = config.getImageUrl(filesVo.fileUrl)
 
-          // 更新表单中的背景图URL（用于显示）
-          this.setData({ 'form.bgImg': imageUrl })
+        // 更新表单中的背景图URL（用于显示）
+        this.setData({ 'form.bgImg': imageUrl })
 
-          // 上传成功后自动保存（保存原始URL到后端）
-          const updateData = { bgImg: rawImageUrl }
-          await this.saveSingleField(updateData, true)
-        } else {
-          wx.showToast({
-            title: '上传失败，未获取到图片地址',
-            icon: 'none'
-          })
-        }
+        // 上传成功后自动保存（保存原始URL到后端，更新用户信息）
+        const updateData = { bgImg: filesVo.fileUrl }
+        await this.saveSingleField(updateData, true)
       } else {
         wx.showToast({
-          title: uploadRes?.msg || '上传失败',
-          icon: 'none'
+          title: '上传失败，未获取到图片地址',
+          icon: 'none',
         })
       }
     } catch (error) {
       if (error.errMsg !== 'chooseMedia:fail cancel') {
         console.error('选择背景图失败:', error)
-        // 显示具体的错误信息
         const errorMsg = error?.msg || error?.message || '上传失败，请重试'
         wx.showToast({
           title: errorMsg,
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
       }
     } finally {
@@ -587,7 +665,7 @@ Page({
   handleInput(e) {
     const { field } = e.currentTarget.dataset
     this.setData({
-      [`form.${field}`]: e.detail.value
+      [`form.${field}`]: e.detail.value,
     })
 
     // 输入过程中，确保保存按钮保持显示
@@ -597,7 +675,7 @@ Page({
       // 如果因为某些原因 editingField 被清空了，重新设置
       if (!this.data.editingField) {
         this.setData({
-          editingField: field
+          editingField: field,
         })
       }
     }
@@ -616,7 +694,7 @@ Page({
       // 清除保存标志，设置当前编辑字段
       this.setData({
         editingField: field,
-        isSaving: false
+        isSaving: false,
       })
     }
   },
@@ -649,14 +727,14 @@ Page({
         if (this.data.editingField === field) {
           this.setData({
             editingField: null,
-            blurTimer: null
+            blurTimer: null,
           })
         }
       }, 500) // 增加到 500ms，确保点击保存按钮时有足够时间
 
       // 保存定时器引用，以便在重新获得焦点时清除
       this.setData({
-        blurTimer: timer
+        blurTimer: timer,
       })
     }
   },
@@ -668,7 +746,7 @@ Page({
 
     // 更新表单数据
     this.setData({
-      [`form.${field}`]: value
+      [`form.${field}`]: value,
     })
 
     // 构建更新数据（直接使用后端字段名）
@@ -682,7 +760,9 @@ Page({
   // 点击勾选按钮保存字段
   async handleSaveField(e) {
     const { field } = e.currentTarget.dataset
-    if (!field) { return }
+    if (!field) {
+      return
+    }
 
     // 阻止事件冒泡和默认行为
     if (e.stopPropagation) {
@@ -700,7 +780,7 @@ Page({
 
     // 设置保存标志，防止 blur 事件干扰
     this.setData({
-      isSaving: true
+      isSaving: true,
     })
 
     // 获取当前表单中该字段的值
@@ -717,14 +797,14 @@ Page({
     this.setData({
       editingField: null,
       isSaving: false,
-      blurTimer: null
+      blurTimer: null,
     })
   },
 
   handleTextarea(e) {
     const { field } = e.currentTarget.dataset
     this.setData({
-      [`form.${field}`]: e.detail.value
+      [`form.${field}`]: e.detail.value,
     })
 
     // 输入过程中，确保确定按钮保持显示
@@ -732,7 +812,7 @@ Page({
       // 如果因为某些原因 editingDescription 被清空了，重新设置
       if (!this.data.editingDescription) {
         this.setData({
-          editingDescription: true
+          editingDescription: true,
         })
       }
     }
@@ -748,7 +828,7 @@ Page({
 
     // 设置编辑状态
     this.setData({
-      editingDescription: true
+      editingDescription: true,
     })
   },
 
@@ -775,14 +855,14 @@ Page({
       if (this.data.editingDescription) {
         this.setData({
           editingDescription: false,
-          descriptionBlurTimer: null
+          descriptionBlurTimer: null,
         })
       }
     }, 500)
 
     // 保存定时器引用
     this.setData({
-      descriptionBlurTimer: timer
+      descriptionBlurTimer: timer,
     })
   },
 
@@ -804,7 +884,7 @@ Page({
 
     // 设置保存标志
     this.setData({
-      isSaving: true
+      isSaving: true,
     })
 
     // 获取当前个人简介的值
@@ -820,7 +900,7 @@ Page({
     this.setData({
       editingDescription: false,
       isSaving: false,
-      descriptionBlurTimer: null
+      descriptionBlurTimer: null,
     })
   },
 
@@ -828,7 +908,7 @@ Page({
     const index = Number(e.detail.value)
     this.setData({
       'form.genderIndex': index,
-      'form.gender': index // 0-未知，1-男，2-女
+      'form.gender': index, // 0-未知，1-男，2-女
     })
 
     // 选择后自动保存
@@ -840,7 +920,7 @@ Page({
     const index = Number(e.detail.value)
     this.setData({
       'form.identifyTypeIndex': index,
-      'form.identifyType': index // 0-身份证，1-护照
+      'form.identifyType': index, // 0-身份证，1-护照
     })
 
     // 选择后自动保存
@@ -853,7 +933,7 @@ Page({
     // 前端索引0-11 -> 后端值1-12（与后端数据库定义一致）
     this.setData({
       'form.constellationIndex': index,
-      'form.constellation': index + 1
+      'form.constellation': index + 1,
     })
 
     // 选择后自动保存
@@ -863,7 +943,7 @@ Page({
 
   async handleBirthDateChange(e) {
     this.setData({
-      'form.birthDate': e.detail.value
+      'form.birthDate': e.detail.value,
     })
 
     // 选择后自动保存
@@ -875,7 +955,7 @@ Page({
     const index = Number(e.detail.value)
     this.setData({
       'form.maritalStatusIndex': index,
-      'form.maritalStatus': index // 0-未知，1-未婚，2-已婚，3-离异，4-丧偶
+      'form.maritalStatus': index, // 0-未知，1-未婚，2-已婚，3-离异，4-丧偶
     })
 
     // 选择后自动保存
@@ -908,7 +988,7 @@ Page({
       'form.originProvince': province !== '暂不选择' ? province : '',
       'form.curProvince': province !== '暂不选择' ? province : '',
       'form.curCity': city !== '暂不选择' ? city : '',
-      'form.curCounty': county !== '暂不选择' ? county : ''
+      'form.curCounty': county !== '暂不选择' ? county : '',
     })
 
     // 选择后自动保存
@@ -916,7 +996,7 @@ Page({
       originProvince: province !== '暂不选择' ? province : null,
       curProvince: province !== '暂不选择' ? province : null,
       curCity: city !== '暂不选择' ? city : null,
-      curCounty: county !== '暂不选择' ? county : null
+      curCounty: county !== '暂不选择' ? county : null,
     }
     await this.saveSingleField(updateData, true)
   },
@@ -933,7 +1013,7 @@ Page({
           count: 1,
           mediaType: ['image'],
           success: resolve,
-          fail: reject
+          fail: reject,
         })
       })
 
@@ -958,7 +1038,7 @@ Page({
         wx.showToast({
           title: '文件过大，请压缩后上传',
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
         return
       }
@@ -966,7 +1046,7 @@ Page({
       // 显示上传中提示
       wx.showLoading({
         title: '上传中...',
-        mask: true
+        mask: true,
       })
 
       // 获取原始文件名（如果有）
@@ -991,13 +1071,13 @@ Page({
         } else {
           wx.showToast({
             title: '上传失败，未获取到图片地址',
-            icon: 'none'
+            icon: 'none',
           })
         }
       } else {
         wx.showToast({
           title: uploadRes?.msg || '上传失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -1006,7 +1086,7 @@ Page({
       wx.showToast({
         title: errorMsg,
         icon: 'none',
-        duration: 2000
+        duration: 2000,
       })
     } finally {
       wx.hideLoading()
@@ -1033,7 +1113,11 @@ Page({
       const { identifyType } = this.data.form
       if (identifyType === 0) {
         // 身份证验证
-        if (!/^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/.test(identifyCode)) {
+        if (
+          !/^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/.test(
+            identifyCode
+          )
+        ) {
           wx.showToast({ title: '身份证号格式不正确', icon: 'none' })
           return false
         }
@@ -1054,11 +1138,14 @@ Page({
         const schoolId = edu.schoolInfo?.schoolId || edu.schoolId
 
         // 如果填写了学校名称，必须有有效的 schoolId（说明是从数据库中选择的）
-        if (schoolName && (!schoolId || schoolId === '' || schoolId === null || schoolId === undefined)) {
+        if (
+          schoolName &&
+          (!schoolId || schoolId === '' || schoolId === null || schoolId === undefined)
+        ) {
           wx.showToast({
             title: '没有该学校，请从下拉列表中选择',
             icon: 'none',
-            duration: 3000
+            duration: 3000,
           })
           return false
         }
@@ -1077,7 +1164,7 @@ Page({
           wx.showToast({
             title: `工作经历 ${i + 1}：公司名称不能为空`,
             icon: 'none',
-            duration: 3000
+            duration: 3000,
           })
           return false
         }
@@ -1086,7 +1173,7 @@ Page({
           wx.showToast({
             title: `工作经历 ${i + 1}：职位不能为空`,
             icon: 'none',
-            duration: 3000
+            duration: 3000,
           })
           return false
         }
@@ -1095,7 +1182,7 @@ Page({
           wx.showToast({
             title: `工作经历 ${i + 1}：入职日期不能为空`,
             icon: 'none',
-            duration: 3000
+            duration: 3000,
           })
           return false
         }
@@ -1144,7 +1231,7 @@ Page({
       this.setData({ saving: false })
       wx.showToast({
         title: '保存失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -1155,7 +1242,9 @@ Page({
    * 联调时：只需要修改 saveToApi 函数中的接口调用
    */
   async saveProfile() {
-    if (!this.validateForm()) { return }
+    if (!this.validateForm()) {
+      return
+    }
 
     this.setData({ saving: true })
 
@@ -1185,7 +1274,7 @@ Page({
       this.setData({ saving: false })
       wx.showToast({
         title: '保存失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -1197,7 +1286,7 @@ Page({
     const dataToSave = updateData || this.data.form
     app.globalData.userInfo = {
       ...(app.globalData.userInfo || {}),
-      ...dataToSave
+      ...dataToSave,
     }
     return true
   },
@@ -1218,7 +1307,8 @@ Page({
       // 因为后端更新接口返回的 data 是 null，所以需要重新加载
       // 注意：单字段保存时，只更新对应字段，不重新加载全部数据（避免覆盖用户正在编辑的其他字段）
       const fullFormData = mapFormToUpdateData(this.data.form)
-      const isFullSave = !updateData || Object.keys(updateData).length >= Object.keys(fullFormData).length * 0.8 // 如果更新字段超过80%，认为是完整保存
+      const isFullSave =
+        !updateData || Object.keys(updateData).length >= Object.keys(fullFormData).length * 0.8 // 如果更新字段超过80%，认为是完整保存
 
       if (isFullSave) {
         // 完整保存时才重新加载全部数据
@@ -1228,50 +1318,50 @@ Page({
             // 使用最新数据更新全局数据
             app.globalData.userData = {
               ...(app.globalData.userData || {}),
-              ...latestUserInfo
+              ...latestUserInfo,
             }
             app.globalData.userInfo = {
               ...(app.globalData.userInfo || {}),
-              ...latestUserInfo
+              ...latestUserInfo,
             }
 
             // 同时更新当前页面的表单数据，确保头像等字段显示正确
             const formData = mapUserInfoToForm(latestUserInfo)
             // genderIndex 已经在 mapUserInfoToForm 中计算好了
             this.setData({
-              form: formData
+              form: formData,
             })
           } else {
             // 如果重新加载失败，至少使用当前表单数据更新全局数据
             app.globalData.userData = {
               ...(app.globalData.userData || {}),
-              ...this.data.form
+              ...this.data.form,
             }
             app.globalData.userInfo = {
               ...(app.globalData.userInfo || {}),
-              ...this.data.form
+              ...this.data.form,
             }
           }
         } catch (error) {
           // 重新加载失败时，使用当前表单数据更新全局数据
           app.globalData.userData = {
             ...(app.globalData.userData || {}),
-            ...this.data.form
+            ...this.data.form,
           }
           app.globalData.userInfo = {
             ...(app.globalData.userInfo || {}),
-            ...this.data.form
+            ...this.data.form,
           }
         }
       } else {
         // 单字段保存时，只更新全局数据中的对应字段
         app.globalData.userData = {
           ...(app.globalData.userData || {}),
-          ...updateData
+          ...updateData,
         }
         app.globalData.userInfo = {
           ...(app.globalData.userInfo || {}),
-          ...updateData
+          ...updateData,
         }
       }
 
@@ -1279,7 +1369,7 @@ Page({
     } else {
       wx.showToast({
         title: res.data?.msg || '保存失败',
-        icon: 'none'
+        icon: 'none',
       })
       return false
     }
@@ -1290,18 +1380,22 @@ Page({
   // 切换教育经历展开/折叠状态
   toggleEducationExpand() {
     this.setData({
-      showAllEducation: !this.data.showAllEducation
+      showAllEducation: !this.data.showAllEducation,
     })
   },
 
   // 获取默认展示的教育经历索引（主要经历优先，否则随机次要经历）
   getDefaultEducationIndex() {
     const educationList = this.data.form.educationList || []
-    if (educationList.length === 0) { return -1 }
+    if (educationList.length === 0) {
+      return -1
+    }
 
     // 先找主要经历（type === 1）
     const primaryIndex = educationList.findIndex(edu => edu.type === 1)
-    if (primaryIndex !== -1) { return primaryIndex }
+    if (primaryIndex !== -1) {
+      return primaryIndex
+    }
 
     // 没有主要经历，返回第一个次要经历
     return 0
@@ -1311,7 +1405,7 @@ Page({
   updateDefaultEducationIndex() {
     const defaultIndex = this.getDefaultEducationIndex()
     this.setData({
-      defaultEducationIndex: defaultIndex
+      defaultEducationIndex: defaultIndex,
     })
   },
 
@@ -1328,13 +1422,13 @@ Page({
       major: '',
       className: '',
       educationLevel: '',
-      certificationStatus: null
+      certificationStatus: null,
     }
     educationList.push(newItem)
     this.setData({
       'form.educationList': educationList,
       // 添加教育经历时自动展开所有教育经历
-      showAllEducation: true
+      showAllEducation: true,
     })
     this.updateDefaultEducationIndex()
   },
@@ -1393,7 +1487,7 @@ Page({
         showSchoolDropdown: newShowSchoolDropdown,
         schoolSearchResults: newSchoolSearchResults,
         schoolSearchLoading: newSchoolSearchLoading,
-        hasSchoolDropdownVisible: hasVisible
+        hasSchoolDropdownVisible: hasVisible,
       })
       this.updateDefaultEducationIndex()
     }
@@ -1429,7 +1523,7 @@ Page({
         major: '',
         className: '',
         educationLevel: '',
-        certificationStatus: null
+        certificationStatus: null,
       }
     }
 
@@ -1446,15 +1540,17 @@ Page({
       ...educationList[indexNum],
       schoolName: safeInputValue,
       // 如果学校名称被修改，清除关联的学校信息
-      ...(isSchoolNameChanged ? {
-        schoolInfo: null,
-        schoolId: ''
-      } : {})
+      ...(isSchoolNameChanged
+        ? {
+            schoolInfo: null,
+            schoolId: '',
+          }
+        : {}),
     }
 
     // 整体更新数组，确保数据正确响应
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
 
     // 处理搜索逻辑（使用防抖优化）
@@ -1473,7 +1569,7 @@ Page({
       this.setData({
         [`showSchoolDropdown.${indexNum}`]: false,
         [`schoolSearchResults.${indexNum}`]: [],
-        hasSchoolDropdownVisible: hasVisible
+        hasSchoolDropdownVisible: hasVisible,
       })
       return
     }
@@ -1482,7 +1578,7 @@ Page({
     this.setData({
       [`schoolSearchLoading.${indexNum}`]: true,
       [`showSchoolDropdown.${indexNum}`]: true,
-      hasSchoolDropdownVisible: true
+      hasSchoolDropdownVisible: true,
     })
 
     // 防抖搜索：300ms 后执行搜索
@@ -1499,7 +1595,7 @@ Page({
     if (!keyword || keyword.trim() === '') {
       this.setData({
         [`schoolSearchResults.${indexNum}`]: [],
-        [`schoolSearchLoading.${indexNum}`]: false
+        [`schoolSearchLoading.${indexNum}`]: false,
       })
       return
     }
@@ -1509,7 +1605,7 @@ Page({
       const params = {
         current: 1,
         pageSize: 10,
-        schoolName: keyword.trim()
+        schoolName: keyword.trim(),
       }
       const res = await schoolApi.getSchoolPage(params)
 
@@ -1526,24 +1622,27 @@ Page({
           city: item.city || null,
           level: item.level || null,
           foundingDate: item.foundingDate || null,
-          officialCertification: item.officialCertification !== null && item.officialCertification !== undefined ? item.officialCertification : null
+          officialCertification:
+            item.officialCertification !== null && item.officialCertification !== undefined
+              ? item.officialCertification
+              : null,
         }))
 
         this.setData({
           [`schoolSearchResults.${indexNum}`]: schoolList,
-          [`schoolSearchLoading.${indexNum}`]: false
+          [`schoolSearchLoading.${indexNum}`]: false,
         })
       } else {
         this.setData({
           [`schoolSearchResults.${indexNum}`]: [],
-          [`schoolSearchLoading.${indexNum}`]: false
+          [`schoolSearchLoading.${indexNum}`]: false,
         })
       }
     } catch (error) {
       console.error('搜索学校失败:', error)
       this.setData({
         [`schoolSearchResults.${indexNum}`]: [],
-        [`schoolSearchLoading.${indexNum}`]: false
+        [`schoolSearchLoading.${indexNum}`]: false,
       })
     }
   },
@@ -1573,7 +1672,7 @@ Page({
 
     // 设置保存标志
     this.setData({
-      isSaving: true
+      isSaving: true,
     })
 
     // 获取当前教育经历列表
@@ -1581,7 +1680,7 @@ Page({
     if (!educationList[indexNum]) {
       this.setData({
         isSaving: false,
-        editingEducationIndex: null
+        editingEducationIndex: null,
       })
       return
     }
@@ -1596,7 +1695,7 @@ Page({
     this.setData({
       editingEducationIndex: null,
       isSaving: false,
-      educationBlurTimer: null
+      educationBlurTimer: null,
     })
   },
 
@@ -1636,7 +1735,7 @@ Page({
         major: '',
         className: '',
         educationLevel: '',
-        certificationStatus: null
+        certificationStatus: null,
       }
     }
 
@@ -1650,10 +1749,13 @@ Page({
         city: school.city || null,
         level: school.level || null,
         foundingDate: school.foundingDate || null,
-        officialCertification: school.officialCertification !== null && school.officialCertification !== undefined ? school.officialCertification : null
+        officialCertification:
+          school.officialCertification !== null && school.officialCertification !== undefined
+            ? school.officialCertification
+            : null,
       },
       schoolId: school.schoolId || '',
-      schoolName: schoolName
+      schoolName: schoolName,
     }
 
     // 更新数据并隐藏下拉列表
@@ -1665,12 +1767,12 @@ Page({
       'form.educationList': educationList,
       [`showSchoolDropdown.${indexNum}`]: false,
       [`schoolSearchResults.${indexNum}`]: [],
-      hasSchoolDropdownVisible: hasVisible
+      hasSchoolDropdownVisible: hasVisible,
     })
 
     // 选择学校后，设置当前编辑的教育经历索引，显示确定按钮
     this.setData({
-      editingEducationIndex: indexNum
+      editingEducationIndex: indexNum,
     })
   },
 
@@ -1691,7 +1793,7 @@ Page({
 
     // 设置当前编辑的教育经历索引
     this.setData({
-      editingEducationIndex: indexNum
+      editingEducationIndex: indexNum,
     })
 
     // 获取当前输入的值
@@ -1710,7 +1812,7 @@ Page({
       this.setData({
         [`schoolSearchLoading.${indexNum}`]: true,
         [`showSchoolDropdown.${indexNum}`]: true,
-        hasSchoolDropdownVisible: true
+        hasSchoolDropdownVisible: true,
       })
 
       // 执行搜索
@@ -1727,7 +1829,7 @@ Page({
     })
     this.setData({
       showSchoolDropdown: newShowSchoolDropdown,
-      hasSchoolDropdownVisible: false
+      hasSchoolDropdownVisible: false,
     })
   },
 
@@ -1744,7 +1846,7 @@ Page({
 
       // 设置当前编辑的教育经历索引
       this.setData({
-        editingEducationIndex: indexNum
+        editingEducationIndex: indexNum,
       })
     }
   },
@@ -1777,14 +1879,14 @@ Page({
         if (this.data.editingEducationIndex === indexNum) {
           this.setData({
             editingEducationIndex: null,
-            educationBlurTimer: null
+            educationBlurTimer: null,
           })
         }
       }, 500)
 
       // 保存定时器引用
       this.setData({
-        educationBlurTimer: timer
+        educationBlurTimer: timer,
       })
     }
   },
@@ -1796,10 +1898,10 @@ Page({
     const educationList = this.data.form.educationList || []
     educationList[index] = {
       ...educationList[index],
-      [field]: value
+      [field]: value,
     }
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
 
     // 输入过程中，确保确定按钮保持显示
@@ -1808,7 +1910,7 @@ Page({
       // 如果因为某些原因 editingEducationIndex 被清空了，重新设置
       if (this.data.editingEducationIndex !== indexNum) {
         this.setData({
-          editingEducationIndex: indexNum
+          editingEducationIndex: indexNum,
         })
       }
     }
@@ -1821,10 +1923,10 @@ Page({
     const educationList = this.data.form.educationList || []
     educationList[index] = {
       ...educationList[index],
-      [field]: value
+      [field]: value,
     }
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
 
     // 保存该教育经历
@@ -1840,15 +1942,15 @@ Page({
     const educationList = this.data.form.educationList || []
     educationList[indexNum] = {
       ...educationList[indexNum],
-      type: type
+      type: type,
     }
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
 
     // 设置当前编辑的教育经历索引，显示确定按钮
     this.setData({
-      editingEducationIndex: indexNum
+      editingEducationIndex: indexNum,
     })
 
     // 更新默认展示的教育经历索引
@@ -1862,10 +1964,10 @@ Page({
     const educationList = this.data.form.educationList || []
     educationList[index] = {
       ...educationList[index],
-      [field]: value
+      [field]: value,
     }
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
 
     // 输入过程中，确保确定按钮保持显示
@@ -1874,7 +1976,7 @@ Page({
       // 如果因为某些原因 editingEducationIndex 被清空了，重新设置
       if (this.data.editingEducationIndex !== indexNum) {
         this.setData({
-          editingEducationIndex: indexNum
+          editingEducationIndex: indexNum,
         })
       }
     }
@@ -1887,10 +1989,10 @@ Page({
     const educationList = this.data.form.educationList || []
     educationList[index] = {
       ...educationList[index],
-      [field]: value
+      [field]: value,
     }
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
 
     // 保存该教育经历
@@ -1905,10 +2007,10 @@ Page({
     const educationList = this.data.form.educationList || []
     educationList[index] = {
       ...educationList[index],
-      educationLevel: this.data.educationLevelOptions[levelIndex] || ''
+      educationLevel: this.data.educationLevelOptions[levelIndex] || '',
     }
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
 
     // 选择后自动保存该教育经历
@@ -1923,10 +2025,10 @@ Page({
     const educationList = this.data.form.educationList || []
     educationList[index] = {
       ...educationList[index],
-      certificationStatus: statusIndex === 1 ? 1 : 0
+      certificationStatus: statusIndex === 1 ? 1 : 0,
     }
     this.setData({
-      'form.educationList': educationList
+      'form.educationList': educationList,
     })
   },
 
@@ -1935,18 +2037,22 @@ Page({
   // 切换工作经历展开/折叠状态
   toggleWorkExpand() {
     this.setData({
-      showAllWork: !this.data.showAllWork
+      showAllWork: !this.data.showAllWork,
     })
   },
 
   // 获取默认展示的工作经历索引（当前在职优先，否则第一个）
   getDefaultWorkIndex() {
     const workExperienceList = this.data.form.workExperienceList || []
-    if (workExperienceList.length === 0) { return -1 }
+    if (workExperienceList.length === 0) {
+      return -1
+    }
 
     // 先找当前在职的（isCurrent === 1）
     const currentIndex = workExperienceList.findIndex(work => work.isCurrent === 1)
-    if (currentIndex !== -1) { return currentIndex }
+    if (currentIndex !== -1) {
+      return currentIndex
+    }
 
     // 没有当前在职的，返回第一个
     return 0
@@ -1956,7 +2062,7 @@ Page({
   updateDefaultWorkIndex() {
     const defaultIndex = this.getDefaultWorkIndex()
     this.setData({
-      defaultWorkIndex: defaultIndex
+      defaultWorkIndex: defaultIndex,
     })
   },
 
@@ -1973,13 +2079,13 @@ Page({
       startDate: '',
       endDate: '',
       isCurrent: 0,
-      workDescription: ''
+      workDescription: '',
     }
     workExperienceList.push(newItem)
     this.setData({
       'form.workExperienceList': workExperienceList,
       // 添加工作经历时自动展开所有工作经历
-      showAllWork: true
+      showAllWork: true,
     })
     this.updateDefaultWorkIndex()
   },
@@ -1996,7 +2102,7 @@ Page({
     if (indexNum >= 0 && indexNum < workExperienceList.length) {
       workExperienceList.splice(indexNum, 1)
       this.setData({
-        'form.workExperienceList': workExperienceList
+        'form.workExperienceList': workExperienceList,
       })
       this.updateDefaultWorkIndex()
     }
@@ -2009,10 +2115,10 @@ Page({
     const workExperienceList = this.data.form.workExperienceList || []
     workExperienceList[index] = {
       ...workExperienceList[index],
-      [field]: value
+      [field]: value,
     }
     this.setData({
-      'form.workExperienceList': workExperienceList
+      'form.workExperienceList': workExperienceList,
     })
 
     // 输入过程中，确保确定按钮保持显示
@@ -2021,7 +2127,7 @@ Page({
       // 确保 editingWorkIndex 被设置为当前编辑的索引
       if (this.data.editingWorkIndex !== indexNum) {
         this.setData({
-          editingWorkIndex: indexNum
+          editingWorkIndex: indexNum,
         })
       }
     }
@@ -2040,7 +2146,7 @@ Page({
 
       // 设置当前编辑的工作经历索引
       this.setData({
-        editingWorkIndex: indexNum
+        editingWorkIndex: indexNum,
       })
     }
   },
@@ -2073,14 +2179,14 @@ Page({
         if (this.data.editingWorkIndex === indexNum) {
           this.setData({
             editingWorkIndex: null,
-            workBlurTimer: null
+            workBlurTimer: null,
           })
         }
       }, 500)
 
       // 保存定时器引用
       this.setData({
-        workBlurTimer: timer
+        workBlurTimer: timer,
       })
     }
   },
@@ -2092,17 +2198,17 @@ Page({
     const workExperienceList = this.data.form.workExperienceList || []
     workExperienceList[index] = {
       ...workExperienceList[index],
-      [field]: value
+      [field]: value,
     }
     this.setData({
-      'form.workExperienceList': workExperienceList
+      'form.workExperienceList': workExperienceList,
     })
 
     // 选择后，确保确定按钮保持显示
     const indexNum = parseInt(index)
     if (!isNaN(indexNum)) {
       this.setData({
-        editingWorkIndex: indexNum
+        editingWorkIndex: indexNum,
       })
     }
   },
@@ -2116,17 +2222,17 @@ Page({
       ...workExperienceList[index],
       isCurrent: value,
       // 如果选择当前在职，清空离职日期
-      endDate: value === 1 ? '' : workExperienceList[index].endDate
+      endDate: value === 1 ? '' : workExperienceList[index].endDate,
     }
     this.setData({
-      'form.workExperienceList': workExperienceList
+      'form.workExperienceList': workExperienceList,
     })
 
     // 选择后，确保确定按钮保持显示
     const indexNum = parseInt(index)
     if (!isNaN(indexNum)) {
       this.setData({
-        editingWorkIndex: indexNum
+        editingWorkIndex: indexNum,
       })
     }
 
@@ -2164,16 +2270,16 @@ Page({
     workExperienceList[indexNum] = {
       ...workExperienceList[indexNum],
       workAddress: displayText,
-      workAddressRegion: value
+      workAddressRegion: value,
     }
 
     this.setData({
-      'form.workExperienceList': workExperienceList
+      'form.workExperienceList': workExperienceList,
     })
 
     // 选择后，确保确定按钮保持显示
     this.setData({
-      editingWorkIndex: indexNum
+      editingWorkIndex: indexNum,
     })
   },
 
@@ -2205,7 +2311,7 @@ Page({
     if (!workExperienceList[indexNum]) {
       this.setData({
         isSaving: false,
-        editingWorkIndex: null
+        editingWorkIndex: null,
       })
       return
     }
@@ -2220,7 +2326,7 @@ Page({
       wx.showToast({
         title: `工作经历 ${indexNum + 1}：公司名称不能为空`,
         icon: 'none',
-        duration: 3000
+        duration: 3000,
       })
       return
     }
@@ -2229,7 +2335,7 @@ Page({
       wx.showToast({
         title: `工作经历 ${indexNum + 1}：职位不能为空`,
         icon: 'none',
-        duration: 3000
+        duration: 3000,
       })
       return
     }
@@ -2238,14 +2344,14 @@ Page({
       wx.showToast({
         title: `工作经历 ${indexNum + 1}：入职日期不能为空`,
         icon: 'none',
-        duration: 3000
+        duration: 3000,
       })
       return
     }
 
     // 设置保存标志
     this.setData({
-      isSaving: true
+      isSaving: true,
     })
 
     // 构建更新数据
@@ -2258,18 +2364,14 @@ Page({
     this.setData({
       editingWorkIndex: null,
       isSaving: false,
-      workBlurTimer: null
+      workBlurTimer: null,
     })
   },
 
   // 跳转到反馈页面
   goToFeedback() {
     wx.navigateTo({
-      url: '/pages/feedback/feedback?type=4&title=' + encodeURIComponent('编辑资料遇到问题')
+      url: '/pages/feedback/feedback?type=4&title=' + encodeURIComponent('编辑资料遇到问题'),
     })
-  }
-
+  },
 })
-
-
-

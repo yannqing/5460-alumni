@@ -8,6 +8,7 @@
     "format": "prettier --write \"**/*.{js,json,wxss,wxml}\""
   },
   "dependencies": {
+    "cos-wx-sdk-v5": "^1.8.0",
     "crypto-js": "^4.2.0",
     "uuid": "^13.0.0"
   },

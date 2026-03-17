@@ -1,6 +1,7 @@
 package com.cmswe.alumni.api.user;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cmswe.alumni.common.dto.SaveFileRecordDto;
 import com.cmswe.alumni.common.dto.UploadFileDto;
 import com.cmswe.alumni.common.entity.Files;
 import com.cmswe.alumni.common.vo.FilesVo;
@@ -10,8 +11,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface FileService extends IService<Files> {
+
+    /**
+     * 获取COS临时凭证（供前端直传使用）
+     * @return 临时凭证信息
+     */
+    Map<String, Object> getCosCredential();
+
+    /**
+     * 前端直传COS后，保存文件记录到数据库
+     * @param dto 文件记录信息
+     * @param request HTTP请求
+     * @return FilesVo
+     */
+    FilesVo saveFileRecord(SaveFileRecordDto dto, HttpServletRequest request);
 
     /**
      * 下载文件
