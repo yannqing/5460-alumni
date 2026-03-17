@@ -94,9 +94,14 @@
   margin-bottom: 12rpx;
 }
 
-.type {
-  font-size: 24rpx;
-  color: #8c8c8c;
+.item-title {
+  flex: 1;
+  font-size: 28rpx;
+  color: #262626;
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .time {
