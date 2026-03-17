@@ -119,7 +119,7 @@
           </view>
         </view>
         <view class="form-card">
-          <view class="form-label">职务</view>
+          <view class="form-label">会内职务</view>
           <input
             class="form-input"
             placeholder="请输入负责人职务"
