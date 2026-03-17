@@ -450,6 +450,7 @@ public class AlumniAssociationApplicationServiceImpl
             alumniAssociation.setContactInfo(application.getContactInfo());
             alumniAssociation.setBgImg(application.getBgImg()); // 同步背景图
             alumniAssociation.setLocation(application.getLocation());
+            alumniAssociation.setCoverageArea(application.getCoverageArea());
             alumniAssociation.setLogo(application.getLogo());
             alumniAssociation.setAssociationProfile(application.getAssociationProfile()); // 同步校友会简介
 
