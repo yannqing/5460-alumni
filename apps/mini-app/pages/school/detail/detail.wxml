@@ -31,7 +31,13 @@
           <view class="text-bold mb-20">基本信息</view>
           
           <view wx:if="{{headquartersInfo.description}}" class="text-secondary">{{headquartersInfo.description}}</view>
-          <view wx:if="{{headquartersInfo.schoolInfo && headquartersInfo.schoolInfo.schoolName}}" class="divider"></view>
+          
+          <view wx:if="{{headquartersInfo.contactPerson}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.contactPerson}}" class="basic-info-item">联系人：{{headquartersInfo.contactPerson}}</view>
+
+          <view wx:if="{{headquartersInfo.schoolAnniversary}}" class="divider"></view>
+          <view wx:if="{{headquartersInfo.schoolAnniversary}}" class="basic-info-item">校庆日：{{headquartersInfo.schoolAnniversary}}</view>
+
           <view wx:if="{{headquartersInfo.establishedDate}}" class="divider"></view>
           <view wx:if="{{headquartersInfo.establishedDate}}" class="basic-info-item">成立日期：{{headquartersInfo.establishedDate}}</view>
           <view wx:if="{{headquartersInfo.address}}" class="divider"></view>

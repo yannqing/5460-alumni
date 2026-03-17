@@ -83,6 +83,12 @@ public class AuditHeadquartersRequest implements Serializable {
     private LocalDate establishedDate;
 
     /**
+     * 校庆日
+     */
+    @Schema(description = "校庆日")
+    private LocalDate schoolAnniversary;
+
+    /**
      * 级别：1-校级 2-省级 3-国家级 4-国际级
      */
     @Schema(description = "级别：1-校级 2-省级 3-国家级 4-国际级")

@@ -89,6 +89,12 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     private String contactPerson;
 
     /**
+     * 校庆日
+     */
+    @Schema(description = "校庆日")
+    private java.time.LocalDate schoolAnniversary;
+
+    /**
      * 成立日期
      */
     @Schema(description = "成立日期")
