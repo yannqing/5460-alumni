@@ -799,7 +799,7 @@ Page({
       return
     }
     if (!formData.location) {
-      wx.showToast({ title: '请选择常驻地点', icon: 'none' })
+      wx.showToast({ title: '请输入校友会办公地点', icon: 'none' })
       return
     }
     if (!formData.associationProfile) {
