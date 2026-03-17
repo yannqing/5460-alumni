@@ -1,17 +1,16 @@
 // pages/index/index.js
-const { homeArticleApi, associationApi, bannerApi, activityApi } = require('../../api/api');
-const config = require('../../utils/config.js');
-const auth = require('../../utils/auth.js');
-const app = getApp();
+const { homeArticleApi, associationApi, bannerApi, activityApi } = require('../../api/api')
+const config = require('../../utils/config.js')
+const auth = require('../../utils/auth.js')
+const app = getApp()
 
 Page({
-
   /**
    * 页面的初始数据
    */
   data: {
     // 顶部 5460 标志图
-    icon5460: config.getIconUrl('5460@3x.png'),
+    icon5460: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/home/5460-logo.png',
     // 导航图标（使用 config.getIconUrl 拼接服务器图标路径）
     iconSchool: config.getIconUrl('school@3x.png'),
     iconAssociation: config.getIconUrl('alumni_association@3x.png'),
@@ -36,7 +35,7 @@ Page({
       3: { name: '进行中', theme: 'ing' },
       4: { name: '已结束', theme: 'end' },
       5: { name: '已取消', theme: 'cancelled' },
-      'default': { name: '未知', theme: '' }
+      default: { name: '未知', theme: '' },
     },
 
     // 热门商铺相关
@@ -51,7 +50,7 @@ Page({
     messageNotificationData: {
       senderName: '',
       senderAvatar: '',
-      messageContent: ''
+      messageContent: '',
     },
     // 轮播图列表
     bannerList: [],
@@ -66,35 +65,34 @@ Page({
     // 手动刷新高度
     refresherHeight: 0,
     // 当前滚动位置
-    scrollTop: 0
+    scrollTop: 0,
   },
-
-
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    const systemInfo = wx.getSystemInfoSync();
-    const rpxRatio = systemInfo.windowWidth / 750;
+    const systemInfo = wx.getSystemInfoSync()
+    const rpxRatio = systemInfo.windowWidth / 750
 
     // 获取胶囊按钮位置，用于精准对齐
-    const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-    const navBarHeight = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height;
+    const menuButtonInfo = wx.getMenuButtonBoundingClientRect()
+    const navBarHeight =
+      (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height
 
-    const statusBarHeight = systemInfo.statusBarHeight || 20;
-    const navStickyTop = statusBarHeight + (navBarHeight || 44);
+    const statusBarHeight = systemInfo.statusBarHeight || 20
+    const navStickyTop = statusBarHeight + (navBarHeight || 44)
 
     // 关键计算：
     // 轮播图高度 450rpx，导航栏向上偏移 120rpx
     // 导航栏在 Header 组合内的相对起始位置 = 450rpx - 120rpx = 330rpx
-    const bannerHeightPx = 450 * rpxRatio;
-    const navOverlapPx = 120 * rpxRatio;
-    const navTopInGroupPx = bannerHeightPx - navOverlapPx;
+    const bannerHeightPx = 450 * rpxRatio
+    const navOverlapPx = 120 * rpxRatio
+    const navTopInGroupPx = bannerHeightPx - navOverlapPx
 
     // 当导航栏到达 navStickyTop 时，Header 组合的 top 值应该是：
     // stickyGroupTop = navStickyTop - navTopInGroupPx
-    const stickyGroupTop = navStickyTop - navTopInGroupPx;
+    const stickyGroupTop = navStickyTop - navTopInGroupPx
 
     this.setData({
       statusBarHeight: statusBarHeight,
@@ -106,13 +104,13 @@ Page({
       // 因为 sticky 是相对于视口的，当容器 top < stickyGroupTop 时，它会停在 stickyGroupTop。
       // 所以滚动距离阈值 = -stickyGroupTop
       scrollThreshold: -stickyGroupTop,
-      rpxRatio: rpxRatio
-    });
+      rpxRatio: rpxRatio,
+    })
 
-    this.getBannerList();
-    this.getActivityList();
-    this.getShopList();
-    this.getArticleList(true);
+    this.getBannerList()
+    this.getActivityList()
+    this.getShopList()
+    this.getArticleList(true)
   },
 
   /**
@@ -120,7 +118,7 @@ Page({
    */
   onUnload: function () {
     if (this._observer) {
-      this._observer.disconnect();
+      this._observer.disconnect()
     }
   },
 
@@ -128,22 +126,22 @@ Page({
    * 滚动事件处理函数 (由 scroll-view 触发)
    */
   onScroll: function (e) {
-    const scrollTop = e.detail.scrollTop;
-    this.setData({ scrollTop: scrollTop }); // 关键：更新当前滚动高度
-    const threshold = this.data.scrollThreshold || 77;
+    const scrollTop = e.detail.scrollTop
+    this.setData({ scrollTop: scrollTop }) // 关键：更新当前滚动高度
+    const threshold = this.data.scrollThreshold || 77
 
     // 增加逻辑判断
     if (this.data.navFixed) {
       if (scrollTop < threshold) {
         this.setData({
-          navFixed: false
-        });
+          navFixed: false,
+        })
       }
     } else {
       if (scrollTop >= threshold) {
         this.setData({
-          navFixed: true
-        });
+          navFixed: true,
+        })
       }
     }
   },
@@ -152,39 +150,51 @@ Page({
    * 触摸开始事件
    */
   onTouchStart: function (e) {
-    this.touchStartX = e.touches[0].clientX;
-    this.touchStartY = e.touches[0].clientY;
-    this.isPullDown = false;
-    this.canPullDown = false; // 重置标记
+    this.touchStartX = e.touches[0].clientX
+    this.touchStartY = e.touches[0].clientY
+    this.isPullDown = false
+    this.canPullDown = false // 重置标记
 
     // 获取文章列表的起始位置，判断触摸起点是否在文章列表区域
-    const query = wx.createSelectorQuery();
-    query.select('#article-list-start').boundingClientRect((rect) => {
-      if (rect) {
-        // 只有触摸点在列表开始位置下方，且页面处于顶部（scrollTop很小）时，才允许下拉
-        // 这里用 10 作为容错
-        this.canPullDown = this.touchStartY > rect.top && this.data.scrollTop <= 10;
-        console.log('[Index] TouchStart rect.top:', rect.top, 'touchStartY:', this.touchStartY, 'scrollTop:', this.data.scrollTop, 'canPullDown:', this.canPullDown);
-      }
-    }).exec();
+    const query = wx.createSelectorQuery()
+    query
+      .select('#article-list-start')
+      .boundingClientRect(rect => {
+        if (rect) {
+          // 只有触摸点在列表开始位置下方，且页面处于顶部（scrollTop很小）时，才允许下拉
+          // 这里用 10 作为容错
+          this.canPullDown = this.touchStartY > rect.top && this.data.scrollTop <= 10
+          console.log(
+            '[Index] TouchStart rect.top:',
+            rect.top,
+            'touchStartY:',
+            this.touchStartY,
+            'scrollTop:',
+            this.data.scrollTop,
+            'canPullDown:',
+            this.canPullDown
+          )
+        }
+      })
+      .exec()
   },
 
   /**
    * 触摸移动事件
    */
   onTouchMove: function (e) {
-    if (!this.canPullDown || this.data.refreshing) return;
+    if (!this.canPullDown || this.data.refreshing) return
 
-    const touchY = e.touches[0].clientY;
-    const moveY = touchY - this.touchStartY;
+    const touchY = e.touches[0].clientY
+    const moveY = touchY - this.touchStartY
 
     if (moveY > 0) {
       // 下拉阻尼感
-      const height = Math.min(80, moveY * 0.4);
+      const height = Math.min(80, moveY * 0.4)
       this.setData({
-        refresherHeight: height
-      });
-      this.isPullDown = true;
+        refresherHeight: height,
+      })
+      this.isPullDown = true
     }
   },
 
@@ -193,49 +203,49 @@ Page({
    */
   onTouchEnd: function (e) {
     if (!this.isPullDown) {
-      this.canPullDown = false;
-      return;
+      this.canPullDown = false
+      return
     }
 
     if (this.data.refresherHeight >= 45) {
       // 达到触发阈值，执行刷新
       this.setData({
         refresherHeight: 50,
-        refreshing: true
-      });
-      this.onPullDownRefreshInternal();
+        refreshing: true,
+      })
+      this.onPullDownRefreshInternal()
     } else {
       // 未达到阈值，回弹
       this.setData({
-        refresherHeight: 0
-      });
+        refresherHeight: 0,
+      })
     }
-    this.isPullDown = false;
-    this.canPullDown = false;
+    this.isPullDown = false
+    this.canPullDown = false
   },
 
   /**
    * 内部触发下拉刷新
    */
   async onPullDownRefreshInternal() {
-    console.log('[Index] 手动下拉刷新开始');
+    console.log('[Index] 手动下拉刷新开始')
     try {
       await Promise.all([
         this.getBannerList(),
         this.getActivityList(),
         this.getShopList(),
-        this.getArticleList(true)
-      ]);
+        this.getArticleList(true),
+      ])
     } catch (err) {
-      console.error('[Index] 刷新异常:', err);
+      console.error('[Index] 刷新异常:', err)
     } finally {
       // 延迟关闭，让动画显示完整
       setTimeout(() => {
         this.setData({
           refreshing: false,
-          refresherHeight: 0
-        });
-      }, 500);
+          refresherHeight: 0,
+        })
+      }, 500)
     }
   },
 
@@ -243,9 +253,8 @@ Page({
    * 页面下拉刷新重定向
    */
   onPullDownRefresh: function () {
-    this.onPullDownRefreshInternal();
+    this.onPullDownRefreshInternal()
   },
-
 
   /**
    * 生命周期函数--监听页面显示
@@ -253,10 +262,10 @@ Page({
   onShow: function () {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 0
-      });
+        selected: 0,
+      })
       // 更新未读消息数
-      this.getTabBar().updateUnreadCount();
+      this.getTabBar().updateUnreadCount()
     }
   },
 
@@ -265,7 +274,7 @@ Page({
    */
   onReachBottom: function () {
     if (this.data.hasMore && !this.data.loading) {
-      this.getArticleList(false);
+      this.getArticleList(false)
     }
   },
 
@@ -273,133 +282,135 @@ Page({
    * 获取首页文章列表
    */
   async getArticleList(reset = false) {
-    if (this.data.loading && !reset) { return; }
+    if (this.data.loading && !reset) {
+      return
+    }
 
-    this.setData({ loading: true });
+    this.setData({ loading: true })
 
     if (reset) {
-      this.setData({ page: 1, hasMore: true });
+      this.setData({ page: 1, hasMore: true })
     }
 
     try {
-      const { page, size } = this.data;
+      const { page, size } = this.data
       // 调用 API - 使用 current 作为分页参数（与后端保持一致）
-      const currentPage = reset ? 1 : page;
+      const currentPage = reset ? 1 : page
       const res = await homeArticleApi.getPage({
         current: currentPage,
-        size: size
-      });
+        size: size,
+      })
 
       // 根据实际接口返回结构处理
       // 假设 res.data 是后端返回的 Result 对象
-      const result = res.data || res;
+      const result = res.data || res
 
       if (result.code === 200) {
         // 假设分页数据在 result.data.records 或 result.data.list 中
         // 根据后端习惯调整
-        const data = result.data || {};
-        const records = data.records || data.list || [];
-        const total = data.total || 0;
+        const data = result.data || {}
+        const records = data.records || data.list || []
+        const total = data.total || 0
 
         // 处理数据，映射字段名
         const newList = records.map(item => {
           // 处理标题：优先使用 articleTitle，否则使用 title
-          const title = item.articleTitle || item.title || '无标题';
+          const title = item.articleTitle || item.title || '无标题'
 
           // 处理描述/内容：优先使用 description，否则使用 content
-          const description = item.description || item.content || '';
+          const description = item.description || item.content || ''
 
           // 处理作者名：使用 publishUsername 字段
-          const username = item.publishUsername || '官方发布';
+          const username = item.publishUsername || '官方发布'
 
-          let avatar = '';
+          let avatar = ''
           if (item.publisherAvatar) {
             // 直接使用 publisherAvatar 字段
-            avatar = item.publisherAvatar;
+            avatar = item.publisherAvatar
             // 处理头像 URL
             if (avatar) {
               // 清理字符串中的额外空格和反引号
               if (typeof avatar === 'string') {
-                avatar = avatar.trim().replace(/`/g, '');
+                avatar = avatar.trim().replace(/`/g, '')
               }
-              avatar = config.getImageUrl(avatar);
+              avatar = config.getImageUrl(avatar)
             }
           } else {
             // 如果头像为空，使用默认头像（与校友会列表保持一致）
-            avatar = config.getImageUrl(config.defaultAvatar);
+            avatar = config.getImageUrl(config.defaultAvatar)
           }
 
           // 处理发布类型
-          const publishType = item.publishType || item.publish_type || null;
+          const publishType = item.publishType || item.publish_type || null
 
           // 处理封面图：使用 coverImg 字段
-          let cover = '';
+          let cover = ''
           if (item.coverImg) {
             if (typeof item.coverImg === 'object') {
               // 优先使用 fileUrl 作为图片路径直接访问
               if (item.coverImg.fileUrl) {
-                cover = item.coverImg.fileUrl;
+                cover = item.coverImg.fileUrl
               }
               // 如果 fileUrl 不存在，使用 filePath
               else if (item.coverImg.filePath) {
-                cover = item.coverImg.filePath;
+                cover = item.coverImg.filePath
               }
               // 兼容其他情况
               else {
-                cover = item.coverImg.thumbnailUrl || '';
+                cover = item.coverImg.thumbnailUrl || ''
               }
               if (cover) {
-                cover = config.getImageUrl(cover);
+                cover = config.getImageUrl(cover)
               }
             } else {
               // 如果是ID（数字或字符串），构造下载URL
-              cover = config.getImageUrl(`/file/download/${item.coverImg}`);
+              cover = config.getImageUrl(`/file/download/${item.coverImg}`)
             }
           }
 
           // 处理时间：格式化时间为 MM-DD HH:MM
-          let time = '';
+          let time = ''
           if (item.createTime) {
-            time = item.createTime.replace('T', ' ').substring(5, 16);
+            time = item.createTime.replace('T', ' ').substring(5, 16)
           } else if (item.publishTime) {
-            time = item.publishTime.replace('T', ' ').substring(5, 16);
+            time = item.publishTime.replace('T', ' ').substring(5, 16)
           }
 
           // 处理ID：确保ID存在且有效
-          const id = item.id || item.homeArticleId || item.homeArticleId || '';
+          const id = item.id || item.homeArticleId || item.homeArticleId || ''
 
           // 如果ID为空，记录警告但继续处理（可能后端数据有问题）
           if (!id) {
-            console.warn('[Index] 文章ID为空，数据:', item);
+            console.warn('[Index] 文章ID为空，数据:', item)
           }
 
           // 处理子文章
-          let children = [];
-          let hasChildren = false;
+          let children = []
+          let hasChildren = false
           if (item.children && Array.isArray(item.children) && item.children.length > 0) {
-            hasChildren = true;
+            hasChildren = true
             children = item.children.map(child => {
               // 处理子文章的封面图
-              let childCover = '';
+              let childCover = ''
               if (child.coverImg) {
                 if (typeof child.coverImg === 'object') {
                   // 优先使用 fileUrl 作为图片路径直接访问
                   if (child.coverImg.fileUrl) {
-                    childCover = child.coverImg.fileUrl;
+                    childCover = child.coverImg.fileUrl
                   }
                   // 如果 fileUrl 不存在，使用 filePath
                   else if (child.coverImg.filePath) {
-                    childCover = child.coverImg.filePath;
+                    childCover = child.coverImg.filePath
                   }
                   // 兼容其他情况
                   else {
-                    childCover = child.coverImg.thumbnailUrl || '';
+                    childCover = child.coverImg.thumbnailUrl || ''
                   }
                   if (childCover) {
-                    childCover = config.getImageUrl(childCover);
+                    childCover = config.getImageUrl(childCover)
                   }
                 } else {
-                  childCover = config.getImageUrl(`/file/download/${child.coverImg}`);
+                  childCover = config.getImageUrl(`/file/download/${child.coverImg}`)
                 }
               }
 
@@ -408,9 +419,9 @@ Page({
                 title: child.articleTitle || child.title || '无标题',
                 cover: childCover,
                 articleType: child.articleType || child.article_type || 1,
-                articleLink: child.articleLink || child.article_link || ''
-              };
-            });
+                articleLink: child.articleLink || child.article_link || '',
+              }
+            })
           }
 
           return {
@@ -426,52 +437,57 @@ Page({
             publishWxId: item.publishWxId || item.publish_wx_id || null, // 优先使用后端返回的组织 ID
             articleType: item.articleType || item.article_type || 1, // 保存文章类型：1-公众号，2-内部路径，3-第三方链接
             articleLink: item.articleLink || item.article_link || '', // 保存文章链接
-            needFetchAvatar: !avatar && (publishType === 'association' || publishType === 'ASSOCIATION' || publishType === 1) && (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
+            needFetchAvatar:
+              !avatar &&
+              (publishType === 'association' ||
+                publishType === 'ASSOCIATION' ||
+                publishType === 1) &&
+              (item.publishWxId || item.publish_wx_id), // 标记需要获取头像
             hasChildren: hasChildren, // 是否有子文章
-            children: children // 子文章列表
-          };
-        });
+            children: children, // 子文章列表
+          }
+        })
 
         // 更新分页状态
-        const nextPage = currentPage + 1;
-        const currentTotal = reset ? newList.length : this.data.articleList.length + newList.length;
+        const nextPage = currentPage + 1
+        const currentTotal = reset ? newList.length : this.data.articleList.length + newList.length
 
         this.setData({
           articleList: reset ? newList : this.data.articleList.concat(newList),
           page: nextPage,
           hasMore: newList.length >= size, // 只要返回的数据达到一页数量，就认为可能有下一页
           loading: false,
-          refreshing: false
-        });
+          refreshing: false,
+        })
 
         // 如果不是重置加载，且返回结果少于一页大小，说明已经到末尾了
         if (!reset && newList.length < size) {
           wx.showToast({
             title: '没有数据啦～',
-            icon: 'none'
-          });
+            icon: 'none',
+          })
         }
 
         // 异步获取缺失的头像（校友会类型）
-        this.fetchMissingAvatars(newList);
+        this.fetchMissingAvatars(newList)
 
         console.log('[Index] 加载文章列表成功:', {
           currentPage,
           total,
           loaded: currentTotal,
-          hasMore: currentTotal < total && newList.length > 0
-        });
+          hasMore: currentTotal < total && newList.length > 0,
+        })
       } else {
-        console.warn('获取文章列表非200:', result);
-        this.setData({ loading: false, refreshing: false });
+        console.warn('获取文章列表非200:', result)
+        this.setData({ loading: false, refreshing: false })
       }
     } catch (error) {
-      console.error('获取首页文章失败', error);
-      this.setData({ loading: false, refreshing: false });
+      console.error('获取首页文章失败', error)
+      this.setData({ loading: false, refreshing: false })
       wx.showToast({
         title: '加载失败',
-        icon: 'none'
-      });
+        icon: 'none',
+      })
     }
   },
 
@@ -479,21 +495,21 @@ Page({
    * 页面导航
    */
   navTo(e) {
-    const disabled = e.currentTarget.dataset.disabled;
+    const disabled = e.currentTarget.dataset.disabled
     if (disabled) {
-      return;
+      return
     }
-    const url = e.currentTarget.dataset.url;
+    const url = e.currentTarget.dataset.url
 
     // 如果目标是注册页，直接跳转不拦截
     if (url && url.includes('/pages/register/register')) {
-      wx.navigateTo({ url: url });
-      return;
+      wx.navigateTo({ url: url })
+      return
     }
 
     // 检查用户基本信息是否完善，未完善则跳转注册页
     if (!auth.checkProfileAndRedirect(url)) {
-      return;
+      return
     }
 
     if (url) {
@@ -506,12 +522,12 @@ Page({
             fail: () => {
               wx.showToast({
                 title: '功能开发中',
-                icon: 'none'
-              });
-            }
-          });
-        }
-      });
+                icon: 'none',
+              })
+            },
+          })
+        },
+      })
     }
   },
 
@@ -519,32 +535,32 @@ Page({
    * 点击发布者（校友会/校促会）跳转详情
    */
   onPublisherTap(e) {
-    const { index } = e.currentTarget.dataset;
-    const item = this.data.articleList[index];
+    const { index } = e.currentTarget.dataset
+    const item = this.data.articleList[index]
 
     if (!item || !item.publishWxId) {
-      console.warn('[Index] 发布者 ID 为空，无法跳转', { item });
-      return;
+      console.warn('[Index] 发布者 ID 为空，无法跳转', { item })
+      return
     }
 
-    const { publishType, publishWxId } = item;
-    let url = '';
+    const { publishType, publishWxId } = item
+    let url = ''
 
     // publishType 处理逻辑（支持大写、小写及数字）
-    const typeStr = String(publishType || '').toUpperCase();
+    const typeStr = String(publishType || '').toUpperCase()
 
     if (typeStr === 'ASSOCIATION' || publishType === 1) {
-      url = `/pages/alumni-association/detail/detail?id=${publishWxId}`;
+      url = `/pages/alumni-association/detail/detail?id=${publishWxId}`
     } else if (typeStr === 'LOCAL_PLATFORM' || publishType === 2) {
-      url = `/pages/local-platform/detail/detail?id=${publishWxId}`;
+      url = `/pages/local-platform/detail/detail?id=${publishWxId}`
     } else if (typeStr === 'ALUMNI' || typeStr === 'USER') {
-      url = `/pages/alumni/detail/detail?id=${publishWxId}`;
+      url = `/pages/alumni/detail/detail?id=${publishWxId}`
     }
 
     if (url) {
-      wx.navigateTo({ url });
+      wx.navigateTo({ url })
     } else {
-      console.log('[Index] 未知的发布者类型或 ID 为空:', { publishType, publishWxId });
+      console.log('[Index] 未知的发布者类型或 ID 为空:', { publishType, publishWxId })
     }
   },
 
@@ -552,49 +568,56 @@ Page({
    * 异步获取缺失的头像（校友会类型）
    */
   async fetchMissingAvatars(records) {
-    if (!records || records.length === 0) { return; }
+    if (!records || records.length === 0) {
+      return
+    }
 
     // 找出需要获取头像的记录
-    const needFetchList = records.filter(item =>
-      item.needFetchAvatar &&
-      item.publishWxId &&
-      (item.publishType === 'association' || item.publishType === 'ASSOCIATION' || item.publishType === 1)
-    );
+    const needFetchList = records.filter(
+      item =>
+        item.needFetchAvatar &&
+        item.publishWxId &&
+        (item.publishType === 'association' ||
+          item.publishType === 'ASSOCIATION' ||
+          item.publishType === 1)
+    )
 
-    if (needFetchList.length === 0) { return; }
+    if (needFetchList.length === 0) {
+      return
+    }
 
     // 批量获取校友会信息
-    const fetchPromises = needFetchList.map(async (item) => {
+    const fetchPromises = needFetchList.map(async item => {
       try {
-        const res = await associationApi.getAssociationDetail(item.publishWxId);
+        const res = await associationApi.getAssociationDetail(item.publishWxId)
         if (res.data && res.data.code === 200) {
-          const association = res.data.data || {};
-          let logoUrl = association.logo || association.icon || association.avatar || '';
+          const association = res.data.data || {}
+          let logoUrl = association.logo || association.icon || association.avatar || ''
           if (logoUrl) {
-            logoUrl = config.getImageUrl(logoUrl);
+            logoUrl = config.getImageUrl(logoUrl)
             // 更新对应文章的头像
             const articleList = this.data.articleList.map(article => {
               if (article.id === item.id && article.publishWxId === item.publishWxId) {
                 return {
                   ...article,
                   avatar: logoUrl,
-                  needFetchAvatar: false
-                };
+                  needFetchAvatar: false,
+                }
               }
-              return article;
-            });
-            this.setData({ articleList });
+              return article
+            })
+            this.setData({ articleList })
           }
         }
       } catch (err) {
         // 获取失败，静默处理
       }
-    });
+    })
 
     // 并行获取，不等待所有完成
     Promise.all(fetchPromises).catch(() => {
       // 静默处理错误
-    });
+    })
   },
 
   /**
@@ -602,21 +625,21 @@ Page({
    * 按照方案A：使用web-view作为中间页（推荐方案）
    */
   goToDetail(e) {
-    const id = e.currentTarget.dataset.id;
-    const index = e.currentTarget.dataset.index;
-    const item = index !== undefined ? this.data.articleList[index] : null;
+    const id = e.currentTarget.dataset.id
+    const index = e.currentTarget.dataset.index
+    const item = index !== undefined ? this.data.articleList[index] : null
 
     if (!item) {
       wx.showToast({
         title: '文章数据错误',
-        icon: 'none'
-      });
-      return;
+        icon: 'none',
+      })
+      return
     }
 
-    const articleType = item.articleType || item.article_type || 1;
-    const articleLink = item.articleLink || item.article_link || '';
-    const articleTitle = item.title || item.articleTitle || '文章详情';
+    const articleType = item.articleType || item.article_type || 1
+    const articleLink = item.articleLink || item.article_link || ''
+    const articleTitle = item.title || item.articleTitle || '文章详情'
 
     // 根据文章类型跳转
     if (articleType === 1) {
@@ -625,26 +648,26 @@ Page({
         wx.openOfficialAccountArticle({
           url: articleLink,
           success(res) {
-            console.log('[Index] 打开公众号文章成功');
+            console.log('[Index] 打开公众号文章成功')
           },
-          fail: (err) => {
-            console.error('[Index] 打开公众号文章失败:', err);
+          fail: err => {
+            console.error('[Index] 打开公众号文章失败:', err)
             wx.showToast({
               title: '打开文章失败',
-              icon: 'none'
-            });
-          }
-        });
+              icon: 'none',
+            })
+          },
+        })
       } else {
         wx.showToast({
           title: '链接不存在',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       }
     } else if (articleType === 2) {
       // 内部路径：跳转到小程序内部页面
       if (articleLink) {
-        const path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`;
+        const path = articleLink.startsWith('/') ? articleLink : `/${articleLink}`
         wx.navigateTo({
           url: path,
           fail: () => {
@@ -653,17 +676,17 @@ Page({
               fail: () => {
                 wx.showToast({
                   title: '页面不存在',
-                  icon: 'none'
-                });
-              }
-            });
-          }
-        });
+                  icon: 'none',
+                })
+              },
+            })
+          },
+        })
       } else {
         wx.showToast({
           title: '路径不存在',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       }
     } else if (articleType === 3) {
       // 第三方链接：使用 web-view 打开
@@ -671,40 +694,40 @@ Page({
         if (articleLink.startsWith('http://') || articleLink.startsWith('https://')) {
           wx.navigateTo({
             url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
-            fail: (err) => {
-              console.error('[Index] 跳转web-view失败:', err);
+            fail: err => {
+              console.error('[Index] 跳转web-view失败:', err)
               wx.showToast({
                 title: '跳转失败，请稍后重试',
-                icon: 'none'
-              });
-            }
-          });
+                icon: 'none',
+              })
+            },
+          })
         } else {
           // 链接格式错误，不提示，直接无反应
         }
       } else {
         wx.showToast({
           title: '链接不存在',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       }
     } else {
       // 未知类型，默认跳转到详情页
       if (id && id !== 'undefined' && id !== 'null' && id !== '') {
         wx.navigateTo({
           url: `/pages/article/detail/detail?id=${id}`,
-          fail: (err) => {
+          fail: err => {
             wx.showToast({
               title: '跳转失败',
-              icon: 'none'
-            });
-          }
-        });
+              icon: 'none',
+            })
+          },
+        })
       } else {
         wx.showToast({
           title: '文章ID错误',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       }
     }
   },
@@ -718,7 +741,7 @@ Page({
     if (!item) {
       wx.showToast({
         title: '文章数据错误',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -736,18 +759,18 @@ Page({
           success(res) {
             console.log('[Index] 打开公众号文章成功')
           },
-          fail: (err) => {
+          fail: err => {
             console.error('[Index] 打开公众号文章失败:', err)
             wx.showToast({
               title: '打开文章失败',
-              icon: 'none'
+              icon: 'none',
             })
-          }
+          },
         })
       } else {
         wx.showToast({
           title: '链接不存在',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } else if (articleType === 2) {
@@ -762,16 +785,16 @@ Page({
               fail: () => {
                 wx.showToast({
                   title: '页面不存在',
-                  icon: 'none'
+                  icon: 'none',
                 })
-              }
+              },
             })
-          }
+          },
         })
       } else {
         wx.showToast({
           title: '路径不存在',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } else if (articleType === 3) {
@@ -780,13 +803,13 @@ Page({
         if (articleLink.startsWith('http://') || articleLink.startsWith('https://')) {
           wx.navigateTo({
             url: `/pages/article/web-view/web-view?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
-            fail: (err) => {
+            fail: err => {
               console.error('[Index] 跳转web-view失败:', err)
               wx.showToast({
                 title: '跳转失败，请稍后重试',
-                icon: 'none'
+                icon: 'none',
               })
-            }
+            },
           })
         } else {
           // 链接格式错误，不提示，直接无反应
@@ -794,7 +817,7 @@ Page({
       } else {
         wx.showToast({
           title: '链接不存在',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } else {
@@ -803,17 +826,17 @@ Page({
       if (id && id !== 'undefined' && id !== 'null' && id !== '') {
         wx.navigateTo({
           url: `/pages/article/detail/detail?id=${id}`,
-          fail: (err) => {
+          fail: err => {
             wx.showToast({
               title: '跳转失败',
-              icon: 'none'
+              icon: 'none',
             })
-          }
+          },
         })
       } else {
         wx.showToast({
           title: '文章ID错误',
-          icon: 'none'
+          icon: 'none',
         })
       }
     }
@@ -824,69 +847,72 @@ Page({
    */
   async getBannerList() {
     try {
-      const res = await bannerApi.getBannerList();
+      const res = await bannerApi.getBannerList()
 
-      const result = res.data || res;
+      const result = res.data || res
 
       if (result.code === 200) {
         // 新接口可能直接返回数组，或者包装在 data 中
-        const records = Array.isArray(result.data) ? result.data : (result.data?.records || result.data?.list || []);
+        const records = Array.isArray(result.data)
+          ? result.data
+          : result.data?.records || result.data?.list || []
 
         // 处理轮播图数据，获取图片URL
         const bannerList = records.map(item => {
-          let imageUrl = '';
+          let imageUrl = ''
 
           // 优先处理 bannerImage 字段（后端返回的字段名）
           if (item.bannerImage) {
             if (typeof item.bannerImage === 'object') {
               // 优先使用 fileUrl 作为图片路径直接访问
               if (item.bannerImage.fileUrl) {
-                imageUrl = config.getImageUrl(item.bannerImage.fileUrl);
+                imageUrl = config.getImageUrl(item.bannerImage.fileUrl)
               }
               // 如果 fileUrl 不存在，使用 baseUrl + filePath
               else if (item.bannerImage.filePath) {
-                imageUrl = config.getImageUrl(item.bannerImage.filePath);
+                imageUrl = config.getImageUrl(item.bannerImage.filePath)
               }
               // 兼容其他情况
               else if (item.bannerImage.fileId) {
-                imageUrl = config.getImageUrl(`/file/download/${item.bannerImage.fileId}`);
+                imageUrl = config.getImageUrl(`/file/download/${item.bannerImage.fileId}`)
               } else {
-                imageUrl = item.bannerImage.thumbnailUrl || item.bannerImage.url || '';
+                imageUrl = item.bannerImage.thumbnailUrl || item.bannerImage.url || ''
                 if (imageUrl) {
-                  imageUrl = config.getImageUrl(imageUrl);
+                  imageUrl = config.getImageUrl(imageUrl)
                 }
               }
             } else {
               // 如果是字符串或数字，当作 fileId 处理
-              imageUrl = config.getImageUrl(`/file/download/${item.bannerImage}`);
+              imageUrl = config.getImageUrl(`/file/download/${item.bannerImage}`)
             }
           } else if (item.imageUrl) {
             // 兼容 imageUrl 字段
             if (typeof item.imageUrl === 'object') {
-              imageUrl = item.imageUrl.fileUrl || item.imageUrl.thumbnailUrl || item.imageUrl.url || '';
+              imageUrl =
+                item.imageUrl.fileUrl || item.imageUrl.thumbnailUrl || item.imageUrl.url || ''
             } else {
-              imageUrl = item.imageUrl;
+              imageUrl = item.imageUrl
             }
             if (imageUrl) {
-              imageUrl = config.getImageUrl(imageUrl);
+              imageUrl = config.getImageUrl(imageUrl)
             }
           } else if (item.imageId) {
             // 兼容 imageId 字段
-            imageUrl = config.getImageUrl(`/file/download/${item.imageId}`);
+            imageUrl = config.getImageUrl(`/file/download/${item.imageId}`)
           }
 
           return {
             ...item,
-            imageUrl: imageUrl
-          };
-        });
+            imageUrl: imageUrl,
+          }
+        })
 
         this.setData({
-          bannerList: bannerList
-        });
+          bannerList: bannerList,
+        })
       }
     } catch (error) {
-      console.error('获取轮播图列表失败', error);
+      console.error('获取轮播图列表失败', error)
     }
   },
 
@@ -895,58 +921,58 @@ Page({
    */
   onBannerChange(e) {
     this.setData({
-      currentBannerIndex: e.detail.current
-    });
+      currentBannerIndex: e.detail.current,
+    })
   },
 
   /**
    * 获取热门活动列表
    */
   async getActivityList() {
-    this.setData({ activityLoading: true });
+    this.setData({ activityLoading: true })
 
     try {
       const res = await activityApi.getPublicActivityList({
         current: 1,
-        pageSize: 2
-      });
+        pageSize: 2,
+      })
 
-      const result = res.data || res;
+      const result = res.data || res
 
       if (result.code === 200) {
-        const records = result.data?.records || result.data?.list || [];
+        const records = result.data?.records || result.data?.list || []
 
         // 映射接口数据到组件使用的格式
         const activityList = records.map(item => {
           // 处理封面图
-          let posterUrl = '';
+          let posterUrl = ''
           if (item.coverImage) {
             if (typeof item.coverImage === 'object') {
-              posterUrl = item.coverImage.fileUrl || item.coverImage.filePath || '';
+              posterUrl = item.coverImage.fileUrl || item.coverImage.filePath || ''
             } else {
-              posterUrl = item.coverImage;
+              posterUrl = item.coverImage
             }
             if (posterUrl) {
-              posterUrl = config.getImageUrl(posterUrl);
+              posterUrl = config.getImageUrl(posterUrl)
             }
           }
 
           // 处理活动时间格式
-          let startTime = item.startTime || '';
+          let startTime = item.startTime || ''
           if (startTime && startTime.includes('T')) {
-            startTime = startTime.replace('T', ' ').substring(0, 16);
+            startTime = startTime.replace('T', ' ').substring(0, 16)
           }
 
           // 处理主办方头像
-          let organizerAvatar = '';
+          let organizerAvatar = ''
           if (item.organizerAvatar) {
             if (typeof item.organizerAvatar === 'object') {
-              organizerAvatar = item.organizerAvatar.fileUrl || item.organizerAvatar.filePath || '';
+              organizerAvatar = item.organizerAvatar.fileUrl || item.organizerAvatar.filePath || ''
             } else {
-              organizerAvatar = item.organizerAvatar;
+              organizerAvatar = item.organizerAvatar
             }
             if (organizerAvatar) {
-              organizerAvatar = config.getImageUrl(organizerAvatar);
+              organizerAvatar = config.getImageUrl(organizerAvatar)
             }
           }
 
@@ -954,14 +980,14 @@ Page({
             activity_uuid: item.activityId || item.id || '',
             activity_theme: item.activityTitle || item.title || '',
             activity_poster: {
-              preview_url: posterUrl
+              preview_url: posterUrl,
             },
             activity_status: item.status || 1,
             activity_starttime: startTime,
             activity_address: item.address || item.activityAddress || '',
             activity_fees: item.fees || item.activityFees || '0.00',
             type: {
-              activity_type_name: item.activityCategory || item.categoryName || ''
+              activity_type_name: item.activityCategory || item.categoryName || '',
             },
             // 主办方信息
             organizerType: item.organizerType,
@@ -974,29 +1000,29 @@ Page({
             province: item.province || '',
             city: item.city || '',
             district: item.district || '',
-            address: item.address || ''
-          };
-        });
+            address: item.address || '',
+          }
+        })
 
         this.setData({
           activityList: activityList,
-          activityLoading: false
-        });
+          activityLoading: false,
+        })
 
-        console.log('[Index] 获取活动列表成功:', activityList.length);
+        console.log('[Index] 获取活动列表成功:', activityList.length)
       } else {
-        console.warn('[Index] 获取活动列表非200:', result);
+        console.warn('[Index] 获取活动列表非200:', result)
         this.setData({
           activityList: [],
-          activityLoading: false
-        });
+          activityLoading: false,
+        })
       }
     } catch (err) {
-      console.error('[Index] 获取活动列表失败:', err);
+      console.error('[Index] 获取活动列表失败:', err)
       this.setData({
         activityList: [],
-        activityLoading: false
-      });
+        activityLoading: false,
+      })
     }
   },
 
@@ -1005,21 +1031,21 @@ Page({
    */
   gotoActivityList() {
     wx.navigateTo({
-      url: '/pages/alumni-activity/list/list'
-    });
+      url: '/pages/alumni-activity/list/list',
+    })
   },
 
   /**
    * 跳转到活动详情页
    */
   gotoActivityDetail(e) {
-    const { item } = e.currentTarget.dataset;
+    const { item } = e.currentTarget.dataset
     if (!item || !item.activity_uuid) {
       wx.showToast({
         title: '活动信息错误',
-        icon: 'none'
-      });
-      return;
+        icon: 'none',
+      })
+      return
     }
 
     wx.navigateTo({
@@ -1027,10 +1053,10 @@ Page({
       fail: () => {
         wx.showToast({
           title: '功能开发中',
-          icon: 'none'
-        });
-      }
-    });
+          icon: 'none',
+        })
+      },
+    })
   },
 
   /**
@@ -1038,7 +1064,7 @@ Page({
    * TODO: 接口暂时置空，后续接入真实接口
    */
   async getShopList() {
-    this.setData({ shopLoading: true });
+    this.setData({ shopLoading: true })
 
     try {
       // TODO: 替换为真实接口
@@ -1054,15 +1080,15 @@ Page({
       setTimeout(() => {
         this.setData({
           shopList: [],
-          shopLoading: false
-        });
-      }, 1000);
+          shopLoading: false,
+        })
+      }, 1000)
     } catch (err) {
-      console.error('[Index] 获取商铺列表失败:', err);
+      console.error('[Index] 获取商铺列表失败:', err)
       this.setData({
         shopList: [],
-        shopLoading: false
-      });
+        shopLoading: false,
+      })
     }
   },
 
@@ -1075,10 +1101,10 @@ Page({
       fail: () => {
         wx.showToast({
           title: '功能开发中',
-          icon: 'none'
-        });
-      }
-    });
+          icon: 'none',
+        })
+      },
+    })
   },
 
   /**
@@ -1087,21 +1113,21 @@ Page({
   showShopBuilding() {
     wx.showToast({
       title: '建设中，请稍后',
-      icon: 'none'
-    });
+      icon: 'none',
+    })
   },
 
   /**
    * 跳转到商铺详情页
    */
   gotoShopDetail(e) {
-    const { item } = e.currentTarget.dataset;
+    const { item } = e.currentTarget.dataset
     if (!item || !item.shop_id) {
       wx.showToast({
         title: '商铺信息错误',
-        icon: 'none'
-      });
-      return;
+        icon: 'none',
+      })
+      return
     }
 
     wx.navigateTo({
@@ -1109,9 +1135,9 @@ Page({
       fail: () => {
         wx.showToast({
           title: '功能开发中',
-          icon: 'none'
-        });
-      }
-    });
-  }
-});
+          icon: 'none',
+        })
+      },
+    })
+  },
+})

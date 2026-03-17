@@ -58,9 +58,10 @@ public class ApplyAlumniAssociationDto implements Serializable {
     private List<Long> attachmentIds;
 
     /**
-     * 学校ID（可选，如果填写则会保存教育经历信息）
+     * 学校ID（必填，用于保存教育经历信息）
      */
-    @Schema(description = "学校ID（可选）")
+    @Schema(description = "学校ID")
+    @NotNull(message = "学校ID不能为空")
     private Long schoolId;
 
     /**

@@ -36,6 +36,11 @@ public final class KafkaTopicConstants {
      */
     public static final String USER_PROFILE_UPDATE_TOPIC = "user.profile.update";
 
+    /**
+     * 用户隐私设置初始化 Topic
+     */
+    public static final String USER_PRIVACY_INIT_TOPIC = "user.privacy.init";
+
     // ==================== 消息域 Topics（新增企业级标准）====================
 
     /**
@@ -228,6 +233,13 @@ public final class KafkaTopicConstants {
          * <p>职责：数据变更通知推送（未来扩展）
          */
         public static final String NOTIFICATION_SYNC = "notification-sync-group";
+
+        /**
+         * 用户隐私设置初始化消费者组
+         * <p>订阅：user.privacy.init
+         * <p>职责：处理用户注册后的隐私设置初始化
+         */
+        public static final String USER_PRIVACY_INIT = "user-privacy-init-group";
 
         private ConsumerGroup() {
             throw new IllegalStateException("ConsumerGroup class");
