@@ -278,4 +278,13 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @return 成功绑定的成员数量
      */
     int bindPresetMembersByPhone(String phone, String name, Long wxId);
+
+    /**
+     * 更新校友会成员数量
+     *
+     * @param alumniAssociationId 校友会ID
+     * @param delta              变化值（+1 或 -1）
+     * @return 是否成功
+     */
+    boolean updateMemberCount(Long alumniAssociationId, Integer delta);
 }

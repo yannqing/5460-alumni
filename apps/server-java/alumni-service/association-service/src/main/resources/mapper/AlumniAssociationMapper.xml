@@ -26,4 +26,11 @@
         contact_info, location, member_count, logo, bg_img, status, role, create_time, update_time, is_delete
     </sql>
 
+    <update id="updateMemberCount">
+        UPDATE alumni_association
+        SET member_count = member_count + #{delta}
+        WHERE alumni_association_id = #{alumniAssociationId}
+          AND is_delete = 0
+    </update>
+
 </mapper>

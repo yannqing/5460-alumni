@@ -42,7 +42,7 @@
       >
         <view class="item-main">
           <view class="item-top">
-            <text class="type">{{item.messageTypeText}}</text>
+            <text class="item-title">{{item.title}}</text>
             <text class="time">{{item.createdTime}}</text>
           </view>
           <text class="content">{{item.content}}</text>

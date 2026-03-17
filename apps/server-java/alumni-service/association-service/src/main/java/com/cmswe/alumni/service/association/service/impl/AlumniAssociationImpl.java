@@ -973,14 +973,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         }
 
         // 5. 更新校友会成员数量（-1）
-        Integer currentMemberCount = alumniAssociation.getMemberCount();
-        if (currentMemberCount != null && currentMemberCount > 0) {
-            alumniAssociation.setMemberCount(currentMemberCount - 1);
-            boolean updateResult = this.updateById(alumniAssociation);
-            if (!updateResult) {
-                throw new BusinessException(ErrorType.OPERATION_ERROR, "更新校友会成员数量失败");
-            }
-        }
+        this.updateMemberCount(alumniAssociationId, -1);
 
         // 6. 检查用户是否还加入了其他校友会，如果没有则更新 isAlumni 为 0
         updateUserAlumniStatus(wxId);
@@ -2390,6 +2383,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException(ErrorType.OPERATION_ERROR, "添加未注册成员失败");
         }
 
+        // 5. 更新校友会成员数量（+1）
+        this.updateMemberCount(alumniAssociationId, 1);
+
         log.info("添加未注册成员成功 - 校友会ID: {}, 成员ID: {}, 用户名: {}",
                 alumniAssociationId, member.getId(), username);
 
@@ -2438,6 +2434,16 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                     normalizedName, wxId, boundCount);
         }
         return boundCount;
+    }
+
+    @Override
+    public boolean updateMemberCount(Long alumniAssociationId, Integer delta) {
+        if (alumniAssociationId == null || delta == null || delta == 0) {
+            return false;
+        }
+        log.info("更新校友会成员数量 - 校友会ID: {}, 变化值: {}", alumniAssociationId, delta);
+        int result = this.baseMapper.updateMemberCount(alumniAssociationId, delta);
+        return result > 0;
     }
 
 }

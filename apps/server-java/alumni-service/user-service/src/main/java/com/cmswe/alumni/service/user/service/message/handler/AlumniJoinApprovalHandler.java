@@ -3,6 +3,7 @@ package com.cmswe.alumni.service.user.service.message.handler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cmswe.alumni.api.association.AlumniAssociationJoinApplicationService;
 import com.cmswe.alumni.api.association.AlumniAssociationMemberService;
+import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.user.AlumniEducationService;
 import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.api.user.RoleService;
@@ -49,6 +50,7 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
     private final WxUserInfoService wxUserInfoService;
     private final AlumniEducationService alumniEducationService;
     private final AlumniAssociationJoinApplicationService alumniAssociationJoinApplicationService;
+    private final AlumniAssociationService alumniAssociationService;
 
     public AlumniJoinApprovalHandler(
             RoleService roleService,
@@ -58,7 +60,8 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
             UserService userService,
             WxUserInfoService wxUserInfoService,
             AlumniEducationService alumniEducationService,
-            AlumniAssociationJoinApplicationService alumniAssociationJoinApplicationService) {
+            AlumniAssociationJoinApplicationService alumniAssociationJoinApplicationService,
+            AlumniAssociationService alumniAssociationService) {
         this.roleService = roleService;
         this.roleUserService = roleUserService;
         this.organizeArchiRoleService = organizeArchiRoleService;
@@ -67,6 +70,7 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
         this.wxUserInfoService = wxUserInfoService;
         this.alumniEducationService = alumniEducationService;
         this.alumniAssociationJoinApplicationService = alumniAssociationJoinApplicationService;
+        this.alumniAssociationService = alumniAssociationService;
     }
 
     @Override
@@ -171,6 +175,9 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
                 log.warn("[AlumniJoinApprovalHandler] 更新用户校友状态失败 - 用户ID: {}", wxId);
                 // 不返回 false，因为这不是关键操作
             }
+
+            // 12. 更新校友会成员数量（+1）
+            alumniAssociationService.updateMemberCount(alumniAssociationId, 1);
 
             log.info("[AlumniJoinApprovalHandler] 校友会加入申请审核通过处理完成 - 用户ID: {}, 校友会ID: {}",
                     wxId, alumniAssociationId);
