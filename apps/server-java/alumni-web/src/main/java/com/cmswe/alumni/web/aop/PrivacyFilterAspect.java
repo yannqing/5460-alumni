@@ -262,14 +262,13 @@ public class PrivacyFilterAspect {
                 }
 
                 // 3. 将结果缓存到 Redis（即使是空集合也缓存，避免缓存穿透）
-                redisCache.setCacheSet(cacheKey, hiddenFieldCodes);
-                redisCache.expire(cacheKey, CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+                // 使用优化版本的 setCacheSet，一次操作完成写入和设置过期时间
+                redisCache.setCacheSet(cacheKey, hiddenFieldCodes, CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
 
                 log.info("从数据库加载用户 {} 的隐私设置并缓存到 Redis，隐藏字段: {}", userId, hiddenFieldCodes);
             } else {
                 // 4. 用户没有隐私设置，缓存空集合（防止缓存穿透）
-                redisCache.setCacheSet(cacheKey, hiddenFieldCodes);
-                redisCache.expire(cacheKey, CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+                redisCache.setCacheSet(cacheKey, hiddenFieldCodes, CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
                 log.debug("用户 {} 没有隐私设置，已缓存空集合", userId);
             }
 

@@ -156,6 +156,17 @@ function getMimeType(ext) {
  * @returns {Promise<Object>} 后端返回的 FilesVo（含 fileId、fileUrl 等）
  */
 async function uploadToCos(tempFilePath, originalName, fileType, subPath, fileSize) {
+  // 如果没有传 originalName，从 tempFilePath 中提取文件名
+  if (!originalName) {
+    const pathParts = tempFilePath.replace(/\\/g, '/').split('/')
+    originalName = pathParts[pathParts.length - 1] || 'unknown.jpg'
+    // 如果提取的文件名没有扩展名，根据 fileType 补充默认扩展名
+    if (!originalName.includes('.')) {
+      const defaultExtMap = { image: '.jpg', audio: '.mp3', document: '.pdf' }
+      originalName = originalName + (defaultExtMap[fileType] || '.jpg')
+    }
+  }
+
   // 1. 先获取凭证（确保 cachedCredential 中有 bucket、region 等信息）
   const credential = await fetchCosCredential()
 
