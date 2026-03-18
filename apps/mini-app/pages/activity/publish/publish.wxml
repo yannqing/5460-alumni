@@ -152,12 +152,6 @@
               </picker-view>
               <text class="form-hint">{{endTimeDisplay || '请选择结束时间'}}</text>
             </view>
-            
-            <view class="form-item">
-              <text class="label">是否需要报名 <text class="required">*</text></text>
-              <view class="static-value">否</view>
-            </view>
-            
 
           </view>
 

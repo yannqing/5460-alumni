@@ -30,11 +30,6 @@
               mode="aspectFill"
               lazy-load
             ></image>
-            <!-- 状态标签 -->
-            <view class="activity-status {{activityThemes[item.activity_status].theme}}">
-              <view class="status-dot"></view>
-              <text class="status-text">{{activityThemes[item.activity_status].name}}</text>
-            </view>
             <!-- 活动类型标签 -->
             <view class="activity-type-tag" wx:if="{{item.type.activity_type_name}}">
               <text class="type-text">{{item.type.activity_type_name}}</text>
