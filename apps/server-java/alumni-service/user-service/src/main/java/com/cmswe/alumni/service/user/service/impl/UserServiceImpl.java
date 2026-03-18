@@ -977,6 +977,14 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public Set<Long> getManagedPlatformIdsByRole(Long wxId) {
+        List<ManagedOrganizationListVo> orgs = getManagedOrganizationsByRole(wxId, 1);
+        return orgs.stream()
+                .map(ManagedOrganizationListVo::getId)
+                .collect(Collectors.toSet());
+    }
+
     /**
      * 获取所有组织（系统管理员）
      *

@@ -127,4 +127,14 @@ public interface UserService extends IService<WxUser> {
      * @return 管理的校友会ID集合（仅 role 分配，不含系统管理员的全量）
      */
     Set<Long> getManagedAlumniAssociationIdsByRole(Long wxId);
+
+    /**
+     * 获取用户通过校促会管理员角色实际管理的校促会ID集合
+     * 仅从 RoleUser 表获取，不包含系统管理员的「全部组织」逻辑。
+     * 用于「校友会认证」待办统计，确保只统计用户真正管理的校促会下的认证申请。
+     *
+     * @param wxId 用户ID
+     * @return 管理的校促会ID集合（仅 role 分配，不含系统管理员的全量）
+     */
+    Set<Long> getManagedPlatformIdsByRole(Long wxId);
 }
