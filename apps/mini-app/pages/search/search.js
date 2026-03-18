@@ -9,7 +9,7 @@ Page({
     iconSearch: config.getIconUrl('sslss.png'),
     keyword: '',
     activeTab: 0,
-    tabs: ['全部', '母校', '校友会', '校友', '商铺'],
+    tabs: ['全部', '校友会', '校友'],
     hotSearchList: ['南京大学', '上海校友会', '计算机', '优惠券'],
     searchHistory: [],
     searchHistory: [],
@@ -24,27 +24,27 @@ Page({
       { rank: 7, keyword: '周杰伦', hot: false },
       { rank: 8, keyword: '人工智能', hot: false },
       { rank: 9, keyword: '区块链', hot: false },
-      { rank: 10, keyword: '元宇宙', hot: false }
+      { rank: 10, keyword: '元宇宙', hot: false },
     ],
     searchResult: {
       schools: [],
       associations: [],
       alumni: [],
-      merchants: []
+      merchants: [],
     },
     showResult: false,
     // 分页相关
     pageNum: 1,
     pageSize: 20,
     hasMore: true,
-    loading: false
+    loading: false,
   },
 
   onLoad() {
     const history = wx.getStorageSync('searchHistory') || []
     this.setData({ searchHistory: history })
   },
-  
+
   onReady() {
     // 在页面渲染完成后，重写 custom-nav-bar 的返回方法
     const navBar = this.selectComponent('#custom-nav-bar')
@@ -55,7 +55,7 @@ Page({
       }
     }
   },
-  
+
   // 处理导航栏返回
   handleNavBarBack() {
     const pages = getCurrentPages()
@@ -71,12 +71,12 @@ Page({
               schools: [],
               associations: [],
               alumni: [],
-              merchants: []
+              merchants: [],
             },
             pageNum: 1,
-            hasMore: true
+            hasMore: true,
           })
-        }
+        },
       })
     } else {
       // 如果没有上一页（从 tabBar 进入），则清空搜索结果
@@ -87,10 +87,10 @@ Page({
           schools: [],
           associations: [],
           alumni: [],
-          merchants: []
+          merchants: [],
         },
         pageNum: 1,
-        hasMore: true
+        hasMore: true,
       })
     }
   },
@@ -98,10 +98,10 @@ Page({
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 3
-      });
+        selected: 3,
+      })
       // 更新未读消息数
-      this.getTabBar().updateUnreadCount();
+      this.getTabBar().updateUnreadCount()
     }
   },
 
@@ -144,7 +144,7 @@ Page({
         this.setData({
           pageNum: 1,
           hasMore: true,
-          loading: false
+          loading: false,
         })
       } else {
         if (this.data.loading || !this.data.hasMore) {
@@ -162,17 +162,11 @@ Page({
         // 全部：包含所有类型
         types = ['ALL']
       } else if (activeTab === 1) {
-        // 母校
-        types = ['SCHOOL']
-      } else if (activeTab === 2) {
         // 校友会
         types = ['ASSOCIATION']
-      } else if (activeTab === 3) {
+      } else if (activeTab === 2) {
         // 校友
         types = ['ALUMNI']
-      } else if (activeTab === 4) {
-        // 商铺
-        types = ['MERCHANT']
       }
 
       // 如果没有可搜索的类型，显示空结果
@@ -187,10 +181,10 @@ Page({
             schools: [],
             associations: [],
             alumni: [],
-            merchants: []
+            merchants: [],
           },
           showResult: true,
-          hasMore: false
+          hasMore: false,
         })
         return
       }
@@ -201,7 +195,7 @@ Page({
         types: types,
         pageNum: isLoadMore ? pageNum + 1 : 1,
         pageSize: pageSize,
-        highlight: true
+        highlight: true,
       }
 
       // 调用统一搜索接口
@@ -222,7 +216,7 @@ Page({
         const alumni = isLoadMore ? [...this.data.searchResult.alumni] : []
         const merchants = isLoadMore ? [...this.data.searchResult.merchants] : []
 
-        items.forEach((item) => {
+        items.forEach(item => {
           // 处理type字段：可能是字符串、枚举对象或枚举code
           let type = item.type
           if (typeof type === 'object' && type !== null) {
@@ -234,10 +228,10 @@ Page({
 
           if (type === 'ALUMNI') {
             // 处理位置信息：只使用 curProvince 和 curCity，合成省和市
-            let location = '';
+            let location = ''
             if (extra.curProvince || extra.curCity) {
-              const parts = [extra.curProvince, extra.curCity].filter(Boolean);
-              location = parts.join('');
+              const parts = [extra.curProvince, extra.curCity].filter(Boolean)
+              location = parts.join('')
             }
 
             alumni.push({
@@ -247,40 +241,28 @@ Page({
               school: extra.schoolName || item.subtitle || '',
               company: extra.company || '',
               location: location || '',
-              signature: extra.signature || ''
+              signature: extra.signature || '',
             })
           } else if (type === 'ASSOCIATION') {
             associations.push({
               id: item.id,
               name: item.title || '',
               location: extra.location || extra.city || extra.province || item.subtitle || '',
-              memberCount: extra.memberCount || extra.memberNum || 0
+              memberCount: extra.memberCount || extra.memberNum || 0,
             })
           } else if (type === 'MERCHANT') {
-            merchants.push({
-              id: item.id,
-              name: item.title || '',
-              avatar: item.avatar ? config.getImageUrl(item.avatar) : config.defaultAvatar,
-              location: extra.location || extra.address || item.subtitle || '',
-              rating: extra.rating || 0
-            })
+            // 隐藏商铺搜索结果，不展示
           } else if (type === 'SCHOOL') {
-            schools.push({
-              id: item.id,
-              name: item.title || '',
-              icon: item.avatar ? config.getImageUrl(item.avatar) : (item.icon ? config.getImageUrl(item.icon) : config.defaultAvatar),
-              location: extra.location || extra.city || extra.province || item.subtitle || '',
-              alumniCount: extra.alumniCount || extra.alumniNum || 0
-            })
+            // 隐藏母校搜索结果，不展示
           } else if (type === 'ALL') {
             // ALL类型需要根据extra中的实际类型来判断
             const actualType = extra.type || extra.searchType
             if (actualType === 'ALUMNI' || actualType === '校友') {
               // 处理位置信息：只使用 curProvince 和 curCity，合成省和市
-              let location = '';
+              let location = ''
               if (extra.curProvince || extra.curCity) {
-                const parts = [extra.curProvince, extra.curCity].filter(Boolean);
-                location = parts.join('');
+                const parts = [extra.curProvince, extra.curCity].filter(Boolean)
+                location = parts.join('')
               }
 
               alumni.push({
@@ -290,31 +272,23 @@ Page({
                 school: extra.schoolName || item.subtitle || '',
                 company: extra.company || '',
                 location: location || '',
-                signature: extra.signature || ''
+                signature: extra.signature || '',
               })
             } else if (actualType === 'ASSOCIATION' || actualType === '校友会') {
               associations.push({
                 id: item.id,
                 name: item.title || '',
                 location: extra.location || extra.city || extra.province || item.subtitle || '',
-                memberCount: extra.memberCount || extra.memberNum || 0
+                memberCount: extra.memberCount || extra.memberNum || 0,
               })
-            } else if (actualType === 'MERCHANT' || actualType === '商户' || actualType === '商铺') {
-              merchants.push({
-                id: item.id,
-                name: item.title || '',
-                avatar: item.avatar ? config.getImageUrl(item.avatar) : config.defaultAvatar,
-                location: extra.location || extra.address || item.subtitle || '',
-                rating: extra.rating || 0
-              })
+            } else if (
+              actualType === 'MERCHANT' ||
+              actualType === '商户' ||
+              actualType === '商铺'
+            ) {
+              // 隐藏商铺搜索结果，不展示
             } else if (actualType === 'SCHOOL' || actualType === '母校' || actualType === '学校') {
-              schools.push({
-                id: item.id,
-                name: item.title || '',
-                icon: item.avatar ? config.getImageUrl(item.avatar) : (item.icon ? config.getImageUrl(item.icon) : config.defaultAvatar),
-                location: extra.location || extra.city || extra.province || item.subtitle || '',
-                alumniCount: extra.alumniCount || extra.alumniNum || 0
-              })
+              // 隐藏母校搜索结果，不展示
             }
           }
         })
@@ -328,18 +302,18 @@ Page({
             schools: schools,
             associations: associations,
             alumni: alumni,
-            merchants: merchants
+            merchants: merchants,
           },
           showResult: true,
           pageNum: isLoadMore ? pageNum + 1 : 1,
           hasMore: hasMore,
-          loading: false
+          loading: false,
         })
       } else {
         if (!isLoadMore) {
           wx.showToast({
             title: res.data?.msg || '搜索失败',
-            icon: 'none'
+            icon: 'none',
           })
         }
         this.setData({
@@ -347,11 +321,11 @@ Page({
             schools: [],
             associations: [],
             alumni: [],
-            merchants: []
+            merchants: [],
           },
           showResult: true,
           hasMore: false,
-          loading: false
+          loading: false,
         })
       }
     } catch (err) {
@@ -362,7 +336,7 @@ Page({
       if (!isLoadMore) {
         wx.showToast({
           title: '搜索失败，请稍后重试',
-          icon: 'none'
+          icon: 'none',
         })
       }
       this.setData({
@@ -370,10 +344,10 @@ Page({
           schools: [],
           associations: [],
           alumni: [],
-          merchants: []
+          merchants: [],
         },
         showResult: true,
-        hasMore: false
+        hasMore: false,
       })
     }
   },
@@ -390,7 +364,12 @@ Page({
 
   // 滚动加载更多
   onReachBottom() {
-    if (this.data.showResult && this.data.keyword.trim() && this.data.hasMore && !this.data.loading) {
+    if (
+      this.data.showResult &&
+      this.data.keyword.trim() &&
+      this.data.hasMore &&
+      !this.data.loading
+    ) {
       this.performSearch(this.data.keyword, true)
     }
   },
@@ -411,42 +390,42 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确定清空搜索历史吗？',
-      success: (res) => {
+      success: res => {
         if (res.confirm) {
           this.setData({ searchHistory: [] })
           wx.removeStorageSync('searchHistory')
         }
-      }
+      },
     })
   },
 
   viewSchoolDetail(e) {
     wx.navigateTo({
-      url: `/pages/school/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/school/detail/detail?id=${e.currentTarget.dataset.id}`,
     })
   },
 
   viewAssociationDetail(e) {
     wx.navigateTo({
-      url: `/pages/alumni-association/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/alumni-association/detail/detail?id=${e.currentTarget.dataset.id}`,
     })
   },
 
   viewAlumniDetail(e) {
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/alumni/detail/detail?id=${e.currentTarget.dataset.id}`,
     })
   },
 
   viewMerchantDetail(e) {
     wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/shop/detail/detail?id=${e.currentTarget.dataset.id}`,
     })
   },
 
   scanCode() {
     wx.scanCode({
-      success: (res) => {
+      success: res => {
         console.log('扫码结果:', res)
         // 处理扫码结果，可能是优惠券、商家等
         const result = res.result
@@ -458,15 +437,15 @@ Page({
               content: `检测到链接：${result}`,
               showCancel: true,
               confirmText: '打开',
-              success: (modalRes) => {
+              success: modalRes => {
                 if (modalRes.confirm) {
                   // 可以在这里处理链接跳转
                   wx.showToast({
                     title: '功能开发中',
-                    icon: 'none'
+                    icon: 'none',
                   })
                 }
-              }
+              },
             })
           } else {
             // 其他类型的扫码结果，可以用于搜索
@@ -475,15 +454,15 @@ Page({
           }
         }
       },
-      fail: (err) => {
+      fail: err => {
         console.error('扫码失败:', err)
         if (err.errMsg !== 'scanCode:fail cancel') {
           wx.showToast({
             title: '扫码失败',
-            icon: 'none'
+            icon: 'none',
           })
         }
-      }
+      },
     })
   },
 
@@ -507,12 +486,12 @@ Page({
               schools: [],
               associations: [],
               alumni: [],
-              merchants: []
+              merchants: [],
             },
             pageNum: 1,
-            hasMore: true
+            hasMore: true,
           })
-        }
+        },
       })
     } else {
       // 如果没有上一页（从 tabBar 进入），则清空搜索结果
@@ -523,11 +502,11 @@ Page({
           schools: [],
           associations: [],
           alumni: [],
-          merchants: []
+          merchants: [],
         },
         pageNum: 1,
-        hasMore: true
+        hasMore: true,
       })
     }
-  }
+  },
 })

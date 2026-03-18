@@ -8,6 +8,7 @@ import com.cmswe.alumni.api.user.UserFollowService;
 import com.cmswe.alumni.common.constant.CommonConstant;
 import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
+import com.cmswe.alumni.common.entity.AlumniHeadquarters;
 import com.cmswe.alumni.common.entity.School;
 import com.cmswe.alumni.common.entity.UserFollow;
 import com.cmswe.alumni.common.entity.UserFriendship;
@@ -18,6 +19,7 @@ import com.cmswe.alumni.common.utils.JwtUtils;
 import com.cmswe.alumni.common.vo.*;
 import com.cmswe.alumni.redis.utils.RedisCache;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationMapper;
+import com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper;
 import com.cmswe.alumni.service.association.mapper.SchoolMapper;
 import com.cmswe.alumni.service.user.mapper.UserFollowMapper;
 import com.cmswe.alumni.service.user.mapper.UserFriendshipMapper;
@@ -59,6 +61,9 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
 
     @Resource
     private AlumniAssociationMapper alumniAssociationMapper;
+
+    @Resource
+    private AlumniHeadquartersMapper alumniHeadquartersMapper;
 
     @Resource
     private RedisCache redisCache;
@@ -275,6 +280,16 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
                 // }
                 log.warn("商户类型的关注暂未实现详细信息查询，targetId={}", follow.getTargetId());
             }
+            case 5 -> {
+                // 校友总会
+                AlumniHeadquarters headquarters = alumniHeadquartersMapper.selectById(follow.getTargetId());
+                if (headquarters != null) {
+                    AlumniHeadquartersListVo headquartersVo = AlumniHeadquartersListVo.objToVo(headquarters);
+                    vo.setTargetInfo(headquartersVo);
+                } else {
+                    log.warn("校友总会信息不存在，targetId={}", follow.getTargetId());
+                }
+            }
             default -> log.warn("未知的关注目标类型：{}", follow.getTargetType());
         }
 
@@ -305,6 +320,9 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
         } else if (targetInfo instanceof SchoolListVo schoolVo) {
             return schoolVo.getSchoolName() != null
                     && schoolVo.getSchoolName().contains(keyword);
+        } else if (targetInfo instanceof AlumniHeadquartersListVo headquartersVo) {
+            return (headquartersVo.getHeadquartersName() != null && headquartersVo.getHeadquartersName().contains(keyword))
+                    || (headquartersVo.getDescription() != null && headquartersVo.getDescription().contains(keyword));
         }
         // TODO: 添加其他类型的关键词匹配（如 MerchantListVo）
 

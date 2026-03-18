@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
  * - 校友会：AlumniAssociationListVo
  * - 母校：SchoolListVo
  * - 商户：MerchantListVo
+ * - 校友总会：AlumniHeadquartersListVo
  *
  * @param <T> 目标详情类型
  * @author CMSWE
@@ -27,7 +28,7 @@ public class FollowingItemVo<T> implements Serializable {
     @Schema(description = "关注ID")
     private Long followId;
 
-    @Schema(description = "目标类型：1-用户，2-校友会，3-母校，4-商户")
+    @Schema(description = "目标类型：1-用户，2-校友会，3-母校，4-商户，5-校友总会")
     private Integer targetType;
 
     @Schema(description = "目标ID")

@@ -4,10 +4,11 @@ const { followApi } = require('../../api/api.js')
 
 // 类型映射
 const TYPE_MAP = {
-  user: 1,        // 用户
+  user: 1, // 用户
   association: 2, // 校友会
-  school: 3,      // 母校
-  merchant: 4     // 商铺
+  school: 3, // 母校
+  merchant: 4, // 商铺
+  headquarters: 5, // 校友总会
 }
 
 Page({
@@ -19,7 +20,7 @@ Page({
     pageSize: 10,
     hasMore: true,
     loading: false,
-    loadingMore: false // 加载更多的防抖标志
+    loadingMore: false, // 加载更多的防抖标志
   },
 
   onLoad(options) {
@@ -46,14 +47,16 @@ Page({
   // 切换Tab（关注/粉丝/好友）
   switchTab(e) {
     const { tab } = e.currentTarget.dataset
-    if (tab === this.data.currentTab) {return}
+    if (tab === this.data.currentTab) {
+      return
+    }
 
     this.setData({
       currentTab: tab,
       activeType: '',
       list: [],
       page: 1,
-      hasMore: true
+      hasMore: true,
     })
 
     this.loadList(true)
@@ -62,13 +65,15 @@ Page({
   // 选择类型筛选
   selectType(e) {
     const { type } = e.currentTarget.dataset
-    if (type === this.data.activeType) {return}
+    if (type === this.data.activeType) {
+      return
+    }
 
     this.setData({
       activeType: type,
       list: [],
       page: 1,
-      hasMore: true
+      hasMore: true,
     })
 
     this.loadList(true)
@@ -76,8 +81,12 @@ Page({
 
   // 加载列表
   async loadList(reset = false) {
-    if (this.data.loading) {return}
-    if (!reset && !this.data.hasMore) {return}
+    if (this.data.loading) {
+      return
+    }
+    if (!reset && !this.data.hasMore) {
+      return
+    }
 
     this.setData({ loading: true })
 
@@ -103,7 +112,7 @@ Page({
 
       const params = {
         current: reset ? 1 : page,
-        pageSize: pageSize
+        pageSize: pageSize,
       }
 
       // 如果有类型筛选，添加targetType参数
@@ -115,7 +124,7 @@ Page({
         reset,
         params,
         currentPage: page,
-        currentListLength: this.data.list.length
+        currentListLength: this.data.list.length,
       })
 
       const res = await api(params)
@@ -123,18 +132,18 @@ Page({
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
         const records = data.records || []
-        const hasNext = data.hasNext !== undefined ? data.hasNext : (records.length >= pageSize) // 优先使用后端返回的hasNext，否则根据返回数据量判断
+        const hasNext = data.hasNext !== undefined ? data.hasNext : records.length >= pageSize // 优先使用后端返回的hasNext，否则根据返回数据量判断
 
         console.log('[MyFollow] loadList 响应数据', {
           recordsLength: records.length,
           hasNext: data.hasNext,
           calculatedHasNext: hasNext,
-          pageSize
+          pageSize,
         })
 
         // 数据映射
         const mappedList = records
-          .filter(item => item.followStatus !== 4)  // 过滤掉状态为4（取消关注）的数据
+          .filter(item => item.followStatus !== 4) // 过滤掉状态为4（取消关注）的数据
           .map(item => this.mapItem(item))
 
         // 去重：根据 id 去重，防止重复数据
@@ -152,20 +161,20 @@ Page({
           finalListLength: finalList.length,
           willAppend: !reset,
           newPage: reset ? 2 : page + 1,
-          newHasMore: hasNext
+          newHasMore: hasNext,
         })
 
         this.setData({
           list: finalList,
           page: reset ? 2 : page + 1,
           hasMore: hasNext, // 使用后端返回的hasNext或根据原始数据量判断
-          loading: false
+          loading: false,
         })
       } else {
         this.setData({ loading: false })
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -173,7 +182,7 @@ Page({
       this.setData({ loading: false })
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -187,14 +196,14 @@ Page({
       // 1. 获取粉丝列表（后端只返回用户类型）
       const fansRes = await followApi.getMyFollowerList({
         current: reset ? 1 : page,
-        pageSize: pageSize * 2 // 获取更多数据，因为需要筛选
+        pageSize: pageSize * 2, // 获取更多数据，因为需要筛选
       })
 
       if (!fansRes.data || fansRes.data.code !== 200) {
         this.setData({ loading: false })
         wx.showToast({
           title: fansRes.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
@@ -209,13 +218,14 @@ Page({
           .map(item => this.mapItem(item))
           .slice(0, pageSize)
 
-        const fansHasNext = fansData.hasNext !== undefined ? fansData.hasNext : (fansRecords.length >= pageSize * 2) // 因为请求了 pageSize * 2 的数据
+        const fansHasNext =
+          fansData.hasNext !== undefined ? fansData.hasNext : fansRecords.length >= pageSize * 2 // 因为请求了 pageSize * 2 的数据
 
         this.setData({
           list: reset ? mappedList : [...this.data.list, ...mappedList],
           page: reset ? 2 : page + 1,
           hasMore: fansHasNext, // 使用后端返回的hasNext或根据原始数据量判断
-          loading: false
+          loading: false,
         })
         return
       }
@@ -225,7 +235,7 @@ Page({
       const followingRes = await followApi.getMyFollowingList({
         current: 1,
         pageSize: 999, // 获取所有关注，用于匹配
-        targetType: targetType
+        targetType: targetType,
       })
 
       const followingData = followingRes.data?.data || {}
@@ -243,7 +253,9 @@ Page({
       const filteredFans = fansRecords
         .filter(item => {
           // 过滤掉取消关注的
-          if (item.followStatus === 4) {return false}
+          if (item.followStatus === 4) {
+            return false
+          }
           // 检查我是否也关注了对方
           const wxId = String(item.wxId || '')
           return followingIdSet.has(wxId)
@@ -252,20 +264,21 @@ Page({
 
       // 5. 数据映射
       const mappedList = filteredFans.map(item => this.mapItem(item))
-      const fansHasNext = fansData.hasNext !== undefined ? fansData.hasNext : (fansRecords.length >= pageSize * 2) // 因为请求了 pageSize * 2 的数据
+      const fansHasNext =
+        fansData.hasNext !== undefined ? fansData.hasNext : fansRecords.length >= pageSize * 2 // 因为请求了 pageSize * 2 的数据
 
       this.setData({
         list: reset ? mappedList : [...this.data.list, ...mappedList],
         page: reset ? 2 : page + 1,
         hasMore: fansHasNext, // 使用后端返回的hasNext或根据原始数据量判断
-        loading: false
+        loading: false,
       })
     } catch (error) {
       console.error('加载粉丝列表失败:', error)
       this.setData({ loading: false })
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -274,36 +287,39 @@ Page({
   async loadFriendListByMutualFollow(reset = false) {
     try {
       const { page, pageSize } = this.data
-      
+
       // 1. 获取"我的关注"列表（只获取用户类型）
       const followingRes = await followApi.getMyFollowingList({
         current: reset ? 1 : page,
         pageSize: pageSize * 2, // 获取更多数据，因为需要筛选
-        targetType: 1 // 只获取用户类型
+        targetType: 1, // 只获取用户类型
       })
 
       if (!followingRes.data || followingRes.data.code !== 200) {
         this.setData({ loading: false })
         wx.showToast({
           title: followingRes.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
         return
       }
 
       const followingData = followingRes.data.data || {}
       const followingRecords = followingData.records || []
-      const followingHasNext = followingData.hasNext !== undefined ? followingData.hasNext : (followingRecords.length >= pageSize * 2) // 因为请求了 pageSize * 2 的数据
+      const followingHasNext =
+        followingData.hasNext !== undefined
+          ? followingData.hasNext
+          : followingRecords.length >= pageSize * 2 // 因为请求了 pageSize * 2 的数据
 
       // 2. 获取"我的粉丝"列表（用于检查互相关注）
       const followerRes = await followApi.getMyFollowerList({
         current: 1,
-        pageSize: 999 // 获取所有粉丝，用于检查互相关注
+        pageSize: 999, // 获取所有粉丝，用于检查互相关注
       })
 
       const followerData = followerRes.data?.data || {}
       const followerRecords = followerData.records || []
-      
+
       // 构建粉丝ID集合，用于快速查找
       const followerWxIdSet = new Set()
       followerRecords.forEach(item => {
@@ -316,9 +332,13 @@ Page({
       const mutualFollowList = followingRecords
         .filter(item => {
           // 只处理用户类型
-          if (item.targetType !== 1) {return false}
+          if (item.targetType !== 1) {
+            return false
+          }
           // 过滤掉取消关注的
-          if (item.followStatus === 4) {return false}
+          if (item.followStatus === 4) {
+            return false
+          }
           // 检查对方是否也关注了我
           const targetId = String(item.targetId || '')
           return followerWxIdSet.has(targetId)
@@ -332,14 +352,14 @@ Page({
         list: reset ? mappedList : [...this.data.list, ...mappedList],
         page: reset ? 2 : page + 1,
         hasMore: followingHasNext, // 使用后端返回的hasNext或根据原始数据量判断
-        loading: false
+        loading: false,
       })
     } catch (error) {
       console.error('加载好友列表失败:', error)
       this.setData({ loading: false })
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
@@ -347,7 +367,7 @@ Page({
   // 数据映射
   mapItem(item) {
     const currentTab = this.data.currentTab
-    
+
     // 我的粉丝列表：数据直接在 item 上，不在 targetInfo 中
     if (currentTab === 'fans') {
       const followId = item.followId
@@ -355,7 +375,7 @@ Page({
       const userName = item.userName || '未知用户'
       const avatar = item.avatar || ''
       const description = item.description || ''
-      
+
       // 处理头像URL
       let avatarUrl = ''
       if (avatar) {
@@ -363,33 +383,33 @@ Page({
       } else {
         avatarUrl = config.defaultAvatar || ''
       }
-      
+
       // 处理关注时间
       const followTime = this.formatTime(item.createdTime)
-      
+
       // 关注状态文本映射
       const followStatusText = {
         1: '已关注',
         2: '特别关注',
         3: '免打扰',
-        4: '取消关注'
+        4: '取消关注',
       }
-      
+
       // 返回统一格式的数据
       return {
         id: followId,
         targetId: wxId, // 粉丝列表使用 wxId 作为 targetId
-        targetType: 1,  // 粉丝列表固定为用户类型
+        targetType: 1, // 粉丝列表固定为用户类型
         targetName: userName,
         targetAvatar: avatarUrl,
         targetDescription: description,
         followStatus: item.followStatus || 1,
         followStatusText: followStatusText[item.followStatus] || '已关注',
         remark: item.remark || '',
-        followTime: followTime
+        followTime: followTime,
       }
     }
-    
+
     // 好友列表：通过关注列表筛选出的互相关注用户，数据结构与关注列表相同
     // 注意：现在好友列表的数据来自"我的关注"列表，所以使用关注列表的映射逻辑
     // 如果以后改为使用 getMyFriendList 接口，则需要使用下面的映射逻辑
@@ -404,7 +424,7 @@ Page({
         const friendName = item.friendName || '未知用户'
         const friendAvatar = item.friendAvatar || ''
         const friendDescription = item.friendDescription || ''
-        
+
         // 处理头像URL
         let avatarUrl = ''
         if (friendAvatar) {
@@ -412,36 +432,36 @@ Page({
         } else {
           avatarUrl = config.defaultAvatar || ''
         }
-        
+
         // 处理添加时间（好友列表使用 addTime，不是 createdTime）
         const followTime = this.formatTime(item.addTime)
-        
+
         // 好友列表的状态文本映射（使用 status 字段）
         const statusTextMap = {
           1: '已关注',
           2: '仅聊天',
           3: '免打扰',
           4: '已隐藏',
-          5: '已拉黑'
+          5: '已拉黑',
         }
-        
+
         // 返回统一格式的数据
         return {
           id: friendshipId,
           targetId: friendWxId, // 好友列表使用 friendWxId 作为 targetId
-          targetType: 1,  // 好友列表固定为用户类型
+          targetType: 1, // 好友列表固定为用户类型
           targetName: friendName,
           targetAvatar: avatarUrl,
           targetDescription: friendDescription,
           followStatus: item.status || 1, // 好友列表使用 status 字段
           followStatusText: statusTextMap[item.status] || '已关注',
           remark: item.myRemark || '', // 好友列表使用 myRemark
-          followTime: followTime
+          followTime: followTime,
         }
       }
       // 否则，继续使用关注列表的映射逻辑（从 targetInfo 中提取）
     }
-    
+
     // 我的关注列表：数据在 targetInfo 中
     const followId = item.followId
     const targetType = item.targetType
@@ -453,30 +473,42 @@ Page({
     let avatarUrl = ''
     let targetDescription = ''
 
-    switch(targetType) {
+    switch (targetType) {
       case 1: // 用户
         targetName = targetInfo.nickname || targetInfo.username || targetInfo.name || '未知用户'
         avatarUrl = targetInfo.avatar || targetInfo.avatarUrl || ''
         targetDescription = targetInfo.signature || targetInfo.description || ''
         break
       case 2: // 校友会
-        targetName = targetInfo.associationName || targetInfo.name || targetInfo.alumniName || '未知校友会'
+        targetName =
+          targetInfo.associationName || targetInfo.name || targetInfo.alumniName || '未知校友会'
         avatarUrl = targetInfo.logo || targetInfo.avatar || ''
         // 优先显示地址，如果没有地址再显示描述
-        targetDescription = targetInfo.location ||
-                           (targetInfo.province && targetInfo.city ? `${targetInfo.province} ${targetInfo.city}` : '') ||
-                           targetInfo.description || targetInfo.intro || ''
+        targetDescription =
+          targetInfo.location ||
+          (targetInfo.province && targetInfo.city
+            ? `${targetInfo.province} ${targetInfo.city}`
+            : '') ||
+          targetInfo.description ||
+          targetInfo.intro ||
+          ''
         break
       case 3: // 母校
         targetName = targetInfo.schoolName || targetInfo.name || '未知母校'
         avatarUrl = targetInfo.logo || ''
-        targetDescription = targetInfo.province && targetInfo.city 
-          ? `${targetInfo.province} ${targetInfo.city}` 
-          : (targetInfo.description || '')
+        targetDescription =
+          targetInfo.province && targetInfo.city
+            ? `${targetInfo.province} ${targetInfo.city}`
+            : targetInfo.description || ''
         break
       case 4: // 商铺
         targetName = targetInfo.shopName || targetInfo.merchantName || targetInfo.name || '未知商铺'
         avatarUrl = targetInfo.logo || targetInfo.avatar || ''
+        targetDescription = targetInfo.address || targetInfo.description || ''
+        break
+      case 5: // 校友总会
+        targetName = targetInfo.headquartersName || targetInfo.name || '未知校友总会'
+        avatarUrl = targetInfo.logo || ''
         targetDescription = targetInfo.address || targetInfo.description || ''
         break
       default:
@@ -501,7 +533,7 @@ Page({
       1: '已关注',
       2: '特别关注',
       3: '免打扰',
-      4: '取消关注'
+      4: '取消关注',
     }
 
     // 返回统一格式的数据
@@ -515,13 +547,15 @@ Page({
       followStatus: item.followStatus || 1,
       followStatusText: followStatusText[item.followStatus] || '已关注',
       remark: item.remark || '',
-      followTime: followTime
+      followTime: followTime,
     }
   },
 
   // 格式化时间
   formatTime(timestamp) {
-    if (!timestamp) {return ''}
+    if (!timestamp) {
+      return ''
+    }
 
     const date = new Date(timestamp)
     const year = date.getFullYear()
@@ -538,14 +572,14 @@ Page({
       loading: this.data.loading,
       loadingMore: this.data.loadingMore,
       currentPage: this.data.page,
-      listLength: this.data.list.length
+      listLength: this.data.list.length,
     })
     // 如果正在加载、没有更多数据、或者正在加载更多，则阻止
     if (this.data.loading || this.data.loadingMore || !this.data.hasMore) {
       console.log('[MyFollow] loadMore 被阻止', {
         hasMore: this.data.hasMore,
         loading: this.data.loading,
-        loadingMore: this.data.loadingMore
+        loadingMore: this.data.loadingMore,
       })
       return
     }
@@ -565,7 +599,7 @@ Page({
     const statusOptions = [
       { value: 1, text: '正常关注' },
       { value: 2, text: '特别关注' },
-      { value: 3, text: '免打扰' }
+      { value: 3, text: '免打扰' },
     ]
 
     // 过滤掉当前状态
@@ -576,8 +610,10 @@ Page({
 
     wx.showActionSheet({
       itemList: allOptions.map(opt => opt.text),
-      success: async (res) => {
-        if (res.cancel) {return}
+      success: async res => {
+        if (res.cancel) {
+          return
+        }
 
         const selectedOption = allOptions[res.tapIndex]
 
@@ -587,7 +623,7 @@ Page({
             const result = await followApi.removeFollow({
               id: id,
               targetType: targetType,
-              targetId: targetId
+              targetId: targetId,
             })
 
             if (result.data && result.data.code === 200) {
@@ -599,12 +635,12 @@ Page({
 
               wx.showToast({
                 title: '已取消关注',
-                icon: 'success'
+                icon: 'success',
               })
             } else {
               wx.showToast({
                 title: result.data?.msg || '取消关注失败',
-                icon: 'none'
+                icon: 'none',
               })
             }
           } else {
@@ -614,19 +650,21 @@ Page({
               id: id,
               targetType: targetType,
               targetId: targetId,
-              followStatus: selectedStatus
+              followStatus: selectedStatus,
             })
 
             if (result.data && result.data.code === 200) {
               // 更新本地列表数据
               const { list } = this.data
-              const index = list.findIndex(i => i.targetId === targetId && i.targetType === targetType)
+              const index = list.findIndex(
+                i => i.targetId === targetId && i.targetType === targetType
+              )
 
               if (index !== -1) {
                 const statusTextMap = {
                   1: '正常关注',
                   2: '特别关注',
-                  3: '免打扰'
+                  3: '免打扰',
                 }
 
                 list[index].followStatus = selectedStatus
@@ -636,13 +674,13 @@ Page({
 
                 wx.showToast({
                   title: '状态更新成功',
-                  icon: 'success'
+                  icon: 'success',
                 })
               }
             } else {
               wx.showToast({
                 title: result.data?.msg || '更新失败',
-                icon: 'none'
+                icon: 'none',
               })
             }
           }
@@ -650,10 +688,10 @@ Page({
           console.error('操作失败:', error)
           wx.showToast({
             title: '操作失败，请重试',
-            icon: 'none'
+            icon: 'none',
           })
         }
-      }
+      },
     })
   },
 
@@ -676,14 +714,17 @@ Page({
       case 4: // 商铺
         url = `/pages/shop/detail/detail?id=${targetId}`
         break
+      case 5: // 校友总会
+        url = `/pages/audit/headquarters/detail/detail?id=${targetId}`
+        break
       default:
         wx.showToast({
           title: '未知类型',
-          icon: 'none'
+          icon: 'none',
         })
         return
     }
 
     wx.navigateTo({ url })
-  }
+  },
 })

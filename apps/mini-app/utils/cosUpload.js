@@ -156,14 +156,17 @@ function getMimeType(ext) {
  * @returns {Promise<Object>} 后端返回的 FilesVo（含 fileId、fileUrl 等）
  */
 async function uploadToCos(tempFilePath, originalName, fileType, subPath, fileSize) {
-  // 如果没有传 originalName，从 tempFilePath 中提取文件名
-  if (!originalName) {
+  // 如果没有传 originalName 或 originalName 没有扩展名，从 tempFilePath 中提取
+  if (!originalName || !originalName.includes('.')) {
     const pathParts = tempFilePath.replace(/\\/g, '/').split('/')
-    originalName = pathParts[pathParts.length - 1] || 'unknown.jpg'
-    // 如果提取的文件名没有扩展名，根据 fileType 补充默认扩展名
-    if (!originalName.includes('.')) {
+    const fileNameFromPath = pathParts[pathParts.length - 1] || ''
+    if (fileNameFromPath.includes('.')) {
+      originalName = fileNameFromPath
+    } else {
+      // 都没有扩展名，根据 fileType 补充默认扩展名
       const defaultExtMap = { image: '.jpg', audio: '.mp3', document: '.pdf' }
-      originalName = originalName + (defaultExtMap[fileType] || '.jpg')
+      const ext = defaultExtMap[fileType] || '.jpg'
+      originalName = (originalName || 'unknown') + ext
     }
   }
 
