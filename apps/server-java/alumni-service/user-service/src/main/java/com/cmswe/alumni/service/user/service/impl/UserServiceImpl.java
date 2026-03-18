@@ -28,6 +28,7 @@ import com.cmswe.alumni.service.user.mapper.WxUserMapper;
 import com.cmswe.alumni.service.user.mapper.WxUserWorkMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.Cacheable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -483,6 +484,9 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     }
 
     @Override
+    @Cacheable(value = "alumniList",
+               key = "#queryAlumniListDto.hashCode() + '_' + #wxId",
+               unless = "#result == null || #result.records.isEmpty()")
     public Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId) {
         if (queryAlumniListDto == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL);

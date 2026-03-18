@@ -95,12 +95,35 @@ public class UserPrivacySettingServiceImpl extends ServiceImpl<UserPrivacySettin
         log.debug("开始批量预热隐私设置缓存 - 用户数: {}", userIds.size());
 
         try {
-            // 1. 批量查询所有用户的隐私设置
-            java.util.Map<Long, List<UserPrivacySetting>> settingsMap = batchGetByUserIds(userIds);
+            // 1. 先检查哪些用户的缓存不存在（性能优化：避免重复预热）
+            java.util.List<Long> uncachedUserIds = new java.util.ArrayList<>();
+            int alreadyCachedCount = 0;
 
-            // 2. 批量写入 Redis 缓存
-            int cachedCount = 0;
             for (Long userId : userIds) {
+                String cacheKey = PRIVACY_CACHE_KEY_PREFIX + userId;
+                // 检查缓存是否存在
+                if (!redisCache.hasKey(cacheKey)) {
+                    uncachedUserIds.add(userId);
+                } else {
+                    alreadyCachedCount++;
+                }
+            }
+
+            log.debug("缓存检查完成 - 总用户数: {}, 已缓存: {}, 需预热: {}",
+                    userIds.size(), alreadyCachedCount, uncachedUserIds.size());
+
+            // 2. 如果所有用户都已缓存，直接返回
+            if (uncachedUserIds.isEmpty()) {
+                log.debug("所有用户的隐私设置已缓存，无需预热");
+                return;
+            }
+
+            // 3. 批量查询缺失的用户的隐私设置
+            java.util.Map<Long, List<UserPrivacySetting>> settingsMap = batchGetByUserIds(uncachedUserIds);
+
+            // 4. 批量写入 Redis 缓存（只写入缺失的）
+            int cachedCount = 0;
+            for (Long userId : uncachedUserIds) {
                 try {
                     String cacheKey = PRIVACY_CACHE_KEY_PREFIX + userId;
                     List<UserPrivacySetting> settings = settingsMap.getOrDefault(userId, new java.util.ArrayList<>());
@@ -114,9 +137,9 @@ public class UserPrivacySettingServiceImpl extends ServiceImpl<UserPrivacySettin
                         }
                     }
 
-                    // 写入缓存（即使是空集合也缓存，避免缓存穿透）
-                    redisCache.setCacheSet(cacheKey, hiddenFieldCodes);
-                    redisCache.expire(cacheKey, 30, java.util.concurrent.TimeUnit.MINUTES);
+                    // 写入缓存并设置过期时间（即使是空集合也缓存，避免缓存穿透）
+                    // 使用优化版本的 setCacheSet，一次操作完成写入和设置过期时间
+                    redisCache.setCacheSet(cacheKey, hiddenFieldCodes, 30, java.util.concurrent.TimeUnit.MINUTES);
                     cachedCount++;
 
                 } catch (Exception e) {
@@ -124,7 +147,8 @@ public class UserPrivacySettingServiceImpl extends ServiceImpl<UserPrivacySettin
                 }
             }
 
-            log.info("批量预热隐私设置缓存完成 - 总用户数: {}, 成功缓存: {}", userIds.size(), cachedCount);
+            log.info("批量预热隐私设置缓存完成 - 总用户数: {}, 已缓存: {}, 新预热: {}",
+                    userIds.size(), alreadyCachedCount, cachedCount);
 
         } catch (Exception e) {
             log.error("批量预热隐私设置缓存失败", e);

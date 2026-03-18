@@ -71,8 +71,8 @@
     </block>
     <view class="complete-profile-banner" wx:else>
       <view class="complete-profile-text-group">
-        <text class="complete-profile-text-regular">完善个人信息，享受</text>
-        <text class="complete-profile-text-bold">更多权益</text>
+        <text class="complete-profile-text-regular">完善个人信息，体验</text>
+        <text class="complete-profile-text-bold">更多功能</text>
       </view>
       <view class="complete-profile-btn" bindtap="editProfile">
         <text class="complete-profile-btn-text">完善个人信息</text>

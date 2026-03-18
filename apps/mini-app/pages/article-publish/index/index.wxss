@@ -29,6 +29,11 @@
   margin-bottom: 20rpx;
 }
 
+.required-star {
+  color: #ff4d4f;
+  margin-right: 4rpx;
+}
+
 .title-input {
   font-size: 32rpx;
   font-weight: 600;

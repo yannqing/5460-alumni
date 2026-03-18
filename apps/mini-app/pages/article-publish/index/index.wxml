@@ -17,7 +17,7 @@
 
   <!-- 封面图选择 -->
   <view class="form-item">
-    <view class="section-title">封面图</view>
+    <view class="section-title"><text class="required-star">*</text>封面图</view>
     <view class="cover-image-container" bindtap="chooseCoverImage">
       <image 
         class="cover-image" 
@@ -45,7 +45,7 @@
 
   <!-- 文章链接输入 -->
   <view class="form-item">
-    <view class="section-title">文章链接</view>
+    <view class="section-title"><text class="required-star">*</text>文章链接</view>
     <input 
       class="link-input" 
       placeholder="请输入文章链接（必填）" 

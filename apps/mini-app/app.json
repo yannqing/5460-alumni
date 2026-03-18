@@ -4,6 +4,7 @@
     "pages/discover/discover",
     "pages/discover/search-list/search-list",
     "pages/chat/list/list",
+    "pages/chat/detail/detail",
     "pages/search/search",
     "pages/profile/profile",
     "pages/profile/edit/edit",
@@ -14,11 +15,6 @@
     "pages/profile/invitation-poster/invitation-poster",
     "pages/profile/invitation-rank/invitation-rank",
     "pages/profile/my-card/my-card",
-    "pages/merchant/apply/apply",
-    "pages/school/list/list",
-    "pages/school/detail/detail",
-    "pages/school/create/create",
-    "pages/school/invite-info/invite-info",
     "pages/alumni/list/list",
     "pages/alumni/detail/detail",
     "pages/coupon/list/list",
@@ -26,12 +22,6 @@
     "pages/coupon/rush/rush",
     "pages/circle/list/list",
     "pages/circle/detail/detail",
-    "pages/merchant/list/list",
-    "pages/merchant/detail/detail",
-    "pages/merchant/my-merchant/my-merchant",
-    "pages/activity/list/list",
-    "pages/activity/detail/detail",
-    "pages/activity/detail-new/detail-new",
     "pages/alumni-activity/list/list",
     "pages/notification/list/list",
     "pages/notification/detail/detail",
@@ -40,19 +30,10 @@
     "pages/benefit/detail/detail",
     "pages/my-follow/my-follow",
     "pages/alumni-union/detail/detail",
-    "pages/local-platform/list/list",
-    "pages/local-platform/detail/detail",
-    "pages/local-platform/apply/apply",
     "pages/promotion/detail/detail",
-    "pages/shop/list/list",
-    "pages/shop/detail/detail",
-    "pages/shop/shop-detail/shop-detail",
-    "pages/chat/detail/detail",
     "pages/my-favorites/my-favorites",
     "pages/article-publish/index/index",
     "pages/article-publish/detail/detail",
-    "pages/activity/publish/publish",
-    "pages/activity/edit/edit",
     "pages/info-maintenance/index/index",
     "pages/info-maintenance/edit/edit",
     "pages/register/register",
@@ -133,6 +114,55 @@
         "form/form",
         "audit-list/audit-list",
         "web-view/web-view"
+      ]
+    },
+    {
+      "root": "pages/activity",
+      "name": "activity",
+      "pages": [
+        "list/list",
+        "detail/detail",
+        "detail-new/detail-new",
+        "publish/publish",
+        "edit/edit"
+      ]
+    },
+    {
+      "root": "pages/school",
+      "name": "school",
+      "pages": [
+        "list/list",
+        "detail/detail",
+        "create/create",
+        "invite-info/invite-info"
+      ]
+    },
+    {
+      "root": "pages/local-platform",
+      "name": "local-platform",
+      "pages": [
+        "list/list",
+        "detail/detail",
+        "apply/apply"
+      ]
+    },
+    {
+      "root": "pages/merchant",
+      "name": "merchant",
+      "pages": [
+        "apply/apply",
+        "list/list",
+        "detail/detail",
+        "my-merchant/my-merchant"
+      ]
+    },
+    {
+      "root": "pages/shop",
+      "name": "shop",
+      "pages": [
+        "list/list",
+        "detail/detail",
+        "shop-detail/shop-detail"
       ]
     }
   ],

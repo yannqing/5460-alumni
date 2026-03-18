@@ -142,6 +142,28 @@ public class RedisCache
     }
 
     /**
+     * 缓存Set并设置过期时间（性能优化版本，一次操作完成）
+     *
+     * @param key 缓存键值
+     * @param dataSet 缓存的数据
+     * @param timeout 过期时间
+     * @param timeUnit 时间单位
+     * @return 缓存数据的对象
+     */
+    public <T> BoundSetOperations<String, T> setCacheSet(final String key, final Set<T> dataSet, final long timeout, final TimeUnit timeUnit)
+    {
+        BoundSetOperations<String, T> setOperation = redisTemplate.boundSetOps(key);
+        Iterator<T> it = dataSet.iterator();
+        while (it.hasNext())
+        {
+            setOperation.add(it.next());
+        }
+        // 设置过期时间
+        setOperation.expire(timeout, timeUnit);
+        return setOperation;
+    }
+
+    /**
      * 获得缓存的set
      *
      * @param key key
