@@ -1,6 +1,7 @@
 // pages/audit/alumni-association-certification/list/list.js
 const app = getApp()
 const config = require('../../../../utils/config.js')
+const { userApi } = require('../../../../api/api.js')
 
 Page({
   data: {
@@ -49,103 +50,40 @@ Page({
     this.loadApplicationList()
   },
 
-  // 加载校促会列表（从缓存中获取校促会管理员的organizeId，然后调用接口）
+  // 加载校促会列表（调用 users/managed-organizations?type=1 接口，type=1 表示校促会）
   async loadPlatformList() {
     try {
       console.log('[Debug] 开始加载校促会列表')
-
-      // 从 storage 中获取角色列表
-      const roles = wx.getStorageSync('roles') || []
-      console.log('[Debug] 从storage获取的角色列表:', roles)
-
-      // 查找所有校促会管理员角色
-      const schoolOfficeAdminRoles = roles.filter(role => role.roleCode === 'ORGANIZE_LOCAL_ADMIN')
-      console.log('[Debug] 找到的校促会管理员角色:', schoolOfficeAdminRoles)
-
-      if (schoolOfficeAdminRoles.length > 0) {
-        // 收集所有有效的organizeId
-        const organizeIds = schoolOfficeAdminRoles
-          .filter(role => role.organization && role.organization.organizeId)
-          .map(role => role.organization.organizeId)
-
-        console.log('[Debug] 获取到的organizeIds:', organizeIds)
-
-        if (organizeIds.length > 0) {
-          // 去重，确保每个organizeId只处理一次
-          const uniqueOrganizeIds = [...new Set(organizeIds)]
-          console.log('[Debug] 去重后的organizeIds:', uniqueOrganizeIds)
-
-          // 先创建基本的校促会列表
-          const basicPlatformList = uniqueOrganizeIds.map(organizeId => ({
-            id: organizeId,
-            platformId: organizeId,
-            platformName: `校促会 (ID: ${organizeId})`
-          }))
-
-          this.setData({
-            platformList: basicPlatformList
-          })
-          console.log('[Debug] 直接使用organizeIds创建校促会列表:', basicPlatformList)
-
-          // 尝试调用接口获取更详细的信息（可选）
-          try {
-            // 并行调用所有校促会的详情接口
-            const detailPromises = uniqueOrganizeIds.map(organizeId =>
-              app.api.localPlatformApi.getLocalPlatformDetail(organizeId)
-                .catch(error => {
-                  console.log(`[Debug] 获取校促会 ${organizeId} 详情失败，使用基本数据:`, error)
-                  return null // 接口失败时返回null，后续过滤
-                })
-            )
-
-            const detailResults = await Promise.all(detailPromises)
-
-            // 处理接口返回结果，更新校促会列表
-            const updatedPlatformList = basicPlatformList.map((platform, index) => {
-              const result = detailResults[index]
-              if (result && result.data && result.data.code === 200 && result.data.data) {
-                const detailData = result.data.data
-                return {
-                  ...detailData,
-                  id: detailData.platformId || detailData.id || platform.platformId,
-                  platformName: detailData.platformName || detailData.name || platform.platformName
-                }
-              }
-              return platform // 接口失败时使用基本数据
-            })
-
-            this.setData({
-              platformList: updatedPlatformList
-            })
-            console.log('[Debug] 已更新校促会列表:', updatedPlatformList)
-
-            // 判断权限数量，处理自动选择逻辑
-            this.handlePlatformSelection(updatedPlatformList)
-          } catch (apiError) {
-            console.log('[Debug] 批量获取校促会详情失败，继续使用基本数据:', apiError)
-            // 继续使用之前创建的基本数据
-            this.handlePlatformSelection(basicPlatformList)
-          }
-        } else {
-          // 没有找到有效的organizeId，设置为空数组
-          console.warn('[Debug] 校促会管理员角色没有有效的organization或organizeId')
-          this.setData({
-            platformList: []
-          })
-        }
-      } else {
-        // 没有找到校促会管理员角色，设置为空数组
-        console.warn('[Debug] 没有找到校促会管理员角色')
-        this.setData({
-          platformList: []
-        })
+      const res = await userApi.getManagedOrganizations({ type: 1 })
+      if (!res.data || res.data.code !== 200) {
+        this.setData({ platformList: [] })
+        return
       }
+      const organizationList = res.data.data || []
+      if (!Array.isArray(organizationList) || organizationList.length === 0) {
+        this.setData({ platformList: [] })
+        return
+      }
+      const platformList = organizationList.map(org => {
+        let logo = org.logo || ''
+        if (logo && !logo.startsWith('http://') && !logo.startsWith('https://')) {
+          logo = config.getImageUrl(logo)
+        }
+        return {
+          id: org.id,
+          platformId: org.id,
+          platformName: org.name || '校促会',
+          logo: logo,
+          location: org.location || '',
+          type: org.type
+        }
+      })
+      this.setData({ platformList })
+      console.log('[Debug] 校促会列表:', platformList)
+      this.handlePlatformSelection(platformList)
     } catch (error) {
       console.error('[Debug] 加载校促会列表失败:', error)
-      // 发生错误时，设置为空数组
-      this.setData({
-        platformList: []
-      })
+      this.setData({ platformList: [] })
     }
   },
 

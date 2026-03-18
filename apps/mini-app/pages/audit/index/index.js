@@ -298,7 +298,7 @@ Page({
     // 获取用户的原始角色列表（从缓存中读取）
     const originalRoles = wx.getStorageSync('roles') || []
 
-    // 默认不显示任何功能模块
+    // 默认不显示任何功能模块（商家模块全局不展示）
     let showSchoolOfficeFunctions = false
     let showAlumniFunctions = false
     let showMerchantFunctions = false
@@ -410,18 +410,8 @@ Page({
         })
 
     // 过滤商家管理功能（merchantFunctions）
-    // merchantFromApi 时权限来自接口兜底，直接显示全部
-    const filteredMerchantFunctions = merchantFromApi
-      ? this.data._allMerchantFunctions
-      : this.data._allMerchantFunctions.filter(item => {
-          if (item.name === '店铺管理') return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
-          if (item.name === '成员管理') return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
-          if (item.name === '架构管理') return this.hasPermission('MERCHANT_ARCHIVE_MANAGEMENT')
-          if (item.name === '优惠券管理') return this.hasPermission('MERCHANT_COUPON_MANAGEMENT')
-          if (item.name === '核销优惠券') return this.hasPermission('MERCHANT_DEAL_COUPON')
-          if (item.name === '话题管理') return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT')
-          return false
-        })
+    // 需求：商家及其下面的功能暂不展示（包括超级管理员）
+    const filteredMerchantFunctions = []
 
     // 根据角色设置其他功能模块显示权限
     if (hasLocalAdmin || this.hasPermission('LOCAL_PLATFORM_CONFIG')) {
@@ -430,9 +420,8 @@ Page({
     if (hasLocalAdmin || hasAlumniAdmin || this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')) {
       showAlumniFunctions = true
     }
-    if (hasLocalAdmin || hasAlumniAdmin || hasMerchantAdmin || hasShopAdmin || this.hasPermission('MERCHANT_CONFIG')) {
-      showMerchantFunctions = true
-    }
+    // 商家模块全局隐藏，不再根据任何角色或权限展示
+    showMerchantFunctions = false
 
     // 更新数据，根据权限过滤功能列表
     this.setData({

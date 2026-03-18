@@ -134,7 +134,7 @@ page {
 .input,
 .textarea {
   border: 1rpx solid #eee;
-  padding: 20rpx;
+  padding: 0 20rpx;
   border-radius: 8rpx;
   font-size: 28rpx;
   box-sizing: border-box;
@@ -142,12 +142,15 @@ page {
 
 .input {
   height: 80rpx;
+  line-height: 80rpx;
 }
 
 .textarea {
   width: 100%;
   min-height: 120rpx;
   resize: none;
+  padding: 16rpx 20rpx;
+  line-height: 1.5;
 }
 
 .input.disabled {
