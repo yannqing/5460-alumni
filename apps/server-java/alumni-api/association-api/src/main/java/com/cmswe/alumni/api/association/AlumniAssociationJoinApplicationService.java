@@ -51,6 +51,14 @@ public interface AlumniAssociationJoinApplicationService extends IService<Alumni
     AlumniAssociationJoinApplicationDetailVo getApplicationDetail(Long wxId, Long alumniAssociationId);
 
     /**
+     * 根据申请ID查询申请详情
+     *
+     * @param applicationId 申请ID
+     * @return 申请详情
+     */
+    AlumniAssociationJoinApplicationDetailVo getApplicationDetailById(Long applicationId);
+
+    /**
      * 编辑并重新提交待审核的校友会加入申请（普通用户）
      *
      * @param wxId      用户ID

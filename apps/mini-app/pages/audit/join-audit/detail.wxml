@@ -1,0 +1,95 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="申请详情">
+  <view class="container">
+    <view class="loading-state" wx:if="{{loading && !detail}}">
+      <text>正在加载详情...</text>
+    </view>
+    <view class="empty-state" wx:elif="{{!loading && !detail}}">
+      <text>暂无详情</text>
+    </view>
+    <view class="detail-container" wx:else>
+      <view class="section section-status">
+        <view class="section-title">审核状态</view>
+        <view class="status-content">
+          <text class="status-tag status-{{detail.applicationStatus}}">{{detail.applicationStatusText}}</text>
+          <view class="review-info" wx:if="{{detail.applicationStatus !== 0}}">
+            <view class="info-row">
+              <text class="label">审核时间：</text>
+              <text class="value">{{detail.reviewTime || '无'}}</text>
+            </view>
+            <view class="info-row" wx:if="{{detail.reviewComment}}">
+              <text class="label">审核意见：</text>
+              <text class="value">{{detail.reviewComment}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title">基本信息</view>
+        <view class="info-group">
+          <view class="info-row">
+            <text class="label">姓名：</text>
+            <text class="value">{{detail.name || '无'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">手机号：</text>
+            <text class="value">{{detail.phone || '无'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title">教育背景</view>
+        <view class="info-group">
+          <view class="info-row">
+            <text class="label">入学/毕业年份：</text>
+            <text class="value">{{detail.enrollmentYear || '无'}} - {{detail.graduationYear || '无'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">院系：</text>
+            <text class="value">{{detail.department || '无'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">学历层次：</text>
+            <text class="value">{{detail.educationLevel || '无'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title">申请内容</view>
+        <view class="info-group">
+          <view class="info-row vertical">
+            <text class="label">申请理由：</text>
+            <text class="value multiline">{{detail.applicationReason || '无'}}</text>
+          </view>
+          <view class="info-row vertical" wx:if="{{detail.attachmentFiles && detail.attachmentFiles.length > 0}}">
+            <text class="label">附件列表：</text>
+            <view class="image-list">
+              <image wx:for="{{detail.attachmentFiles}}" wx:key="fileId" src="{{item.fileUrl}}" mode="aspectFill" class="attachment-image" bindtap="previewImage" data-url="{{item.fileUrl}}"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title">提交信息</view>
+        <view class="info-group">
+          <view class="info-row">
+            <text class="label">申请时间：</text>
+            <text class="value">{{detail.applyTime || '无'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">所属校友会：</text>
+            <text class="value">{{detail.alumniAssociationName || '无'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="action-footer" wx:if="{{detail.applicationStatus === 0}}">
+        <button class="action-btn pass-btn" bindtap="passApplication">通过</button>
+        <button class="action-btn reject-btn" bindtap="rejectApplication">拒绝</button>
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>

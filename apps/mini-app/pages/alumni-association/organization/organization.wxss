@@ -1267,23 +1267,29 @@
   border-radius: 16rpx;
   padding: 24rpx;
   border: 1rpx solid #e6e9f0;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.tree-scroll-container {
-  width: 100%;
-  flex: 1;
+  min-width: 100%;
   min-height: 400rpx;
-  white-space: nowrap;
+  display: inline-block;
+  box-sizing: border-box;
 }
 
 .tree-container {
-  display: inline-block;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 60rpx;
   min-width: 100%;
-  padding: 20rpx 10rpx;
+  padding: 20rpx 40rpx;
+  box-sizing: border-box;
+}
+
+/* 顶级架构分支容器 */
+.tree-root-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* 树节点行（居中显示） */
@@ -1460,7 +1466,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1005;
+  z-index: 1000;
 }
 
 .node-detail-modal-overlay {

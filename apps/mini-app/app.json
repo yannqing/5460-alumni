@@ -101,6 +101,7 @@
         "schooloffice/organization/organization",
         "schooloffice/member/member",
         "join-audit/index",
+        "join-audit/detail",
         "article/manage/manage",
         "enterprise/index",
         "headquarters/list/list",

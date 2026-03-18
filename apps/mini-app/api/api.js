@@ -784,6 +784,8 @@ const joinApplicationApi = {
   getApplicationPage: params => post('/AlumniAssociationJoinApplication/page', params),
   // 审核加入申请
   reviewApplication: params => post('/AlumniAssociationJoinApplication/review', params),
+  // 根据ID获取加入申请详情
+  getApplicationDetail: applicationId => get(`/AlumniAssociationJoinApplication/detailById/${applicationId}`),
 }
 
 // ==================== 用户反馈相关接口 ====================

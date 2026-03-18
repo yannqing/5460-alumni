@@ -1,0 +1,145 @@
+.container {
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+.loading-state, .empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300rpx;
+  color: #999;
+}
+
+.detail-container {
+  padding-bottom: 200rpx;
+}
+
+.section {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  border-left: 8rpx solid #1890ff;
+  padding-left: 20rpx;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+}
+
+.info-row.vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.label {
+  color: #666;
+  width: 240rpx;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.vertical .label {
+  width: 100%;
+  margin-bottom: 10rpx;
+  white-space: normal;
+}
+
+.value {
+  color: #333;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multiline {
+  white-space: normal;
+  word-break: break-all;
+  line-height: 1.6;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 6rpx 20rpx;
+  border-radius: 4rpx;
+  font-size: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.status-0 { background-color: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; } /* 待审核 */
+.status-1 { background-color: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; } /* 已通过 */
+.status-2 { background-color: #fff1f0; color: #f5222d; border: 1px solid #ffccc7; } /* 已拒绝 */
+.status-3 { background-color: #f5f5f5; color: #8c8c8c; border: 1px solid #d9d9d9; } /* 已撤销 */
+
+.review-info {
+  background-color: #fafafa;
+  padding: 20rpx;
+  border-radius: 8rpx;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  margin-top: 10rpx;
+}
+
+.attachment-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 8rpx;
+  background-color: #eee;
+}
+
+.action-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 30rpx 40rpx calc(30rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 -2rpx 20rpx rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.action-btn {
+  width: 45%;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.pass-btn {
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.reject-btn {
+  background-color: #f5222d;
+  color: #fff;
+}

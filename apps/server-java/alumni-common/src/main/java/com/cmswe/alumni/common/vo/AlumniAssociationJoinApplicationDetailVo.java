@@ -37,6 +37,12 @@ public class AlumniAssociationJoinApplicationDetailVo implements Serializable {
     @Schema(description = "校友会名称")
     private String alumniAssociationName;
 
+    /**
+     * 申请人ID（用户ID或商户ID）
+     */
+    @Schema(description = "申请人ID")
+    private String applicantId;
+
     // 校友会详细信息
     /**
      * 所属母校ID

@@ -355,17 +355,42 @@ Page({
   // 通过申请
   async passApplication(e) {
     const applicationId = e.currentTarget.dataset.applicationId
-    await this.submitReview(applicationId, 1)
+    wx.showModal({
+      title: '通过审核',
+      content: '确定要通过该申请吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          await this.submitReview(applicationId, 1)
+        }
+      }
+    })
   },
 
   // 拒绝申请
   async rejectApplication(e) {
     const applicationId = e.currentTarget.dataset.applicationId
-    await this.submitReview(applicationId, 2)
+    wx.showModal({
+      title: '拒绝审核',
+      placeholderText: '请输入拒绝理由',
+      editable: true,
+      success: async (res) => {
+        if (res.confirm) {
+          const reviewComment = res.content.trim()
+          if (!reviewComment) {
+            wx.showToast({
+              title: '拒绝理由不能为空',
+              icon: 'none'
+            })
+            return
+          }
+          await this.submitReview(applicationId, 2, reviewComment)
+        }
+      }
+    })
   },
 
   // 提交审核
-  async submitReview(applicationId, reviewResult) {
+  async submitReview(applicationId, reviewResult, reviewComment = '') {
     if (this.data.reviewing) {return}
     
     try {
@@ -374,7 +399,7 @@ Page({
       const params = {
         applicationId: applicationId,
         reviewResult: reviewResult,
-        reviewComment: ''
+        reviewComment: reviewComment
       }
       
       console.log('[Debug] 提交审核参数:', params)
@@ -417,5 +442,13 @@ Page({
   // 调用校友会详情接口
   getAlumniAssociationDetail(alumniAssociationId) {
     return associationApi.getAssociationDetail(alumniAssociationId)
+  },
+
+  // 跳转到申请详情页
+  goToDetail(e) {
+    const applicationId = e.currentTarget.dataset.applicationId
+    wx.navigateTo({
+      url: `/pages/audit/join-audit/detail?applicationId=${applicationId}`
+    })
   }
 })
