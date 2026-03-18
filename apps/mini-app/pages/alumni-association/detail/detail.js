@@ -1559,66 +1559,6 @@ Page({
     })
   },
 
-  // 点击负责人跳转到用户详情（无 wxId 时弹窗提示，不再跳转假页面）
-  viewChargeDetail() {
-    const { associationInfo } = this.data
-    if (!associationInfo) return
-
-    const wxId = associationInfo.chargeWxId
-
-    if (wxId) {
-      wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${wxId}`,
-      })
-    } else {
-      wx.showToast({
-        title: '管理员未设置关联系统内校友用户',
-        icon: 'none',
-        duration: 2500,
-      })
-    }
-  },
-
-  // 点击驻会代表跳转到用户详情（无 wxId 时弹窗提示，不再跳转假页面）
-  viewZhDetail() {
-    const { associationInfo } = this.data
-    if (!associationInfo) return
-
-    const wxId = associationInfo.zhWxId
-
-    if (wxId) {
-      wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${wxId}`,
-      })
-    } else {
-      wx.showToast({
-        title: '管理员未设置关联系统内校友用户',
-        icon: 'none',
-        duration: 2500,
-      })
-    }
-  },
-
-  // 点击核心成员跳转到用户详情（无 wxId 时弹窗提示，不再跳转假页面）
-  viewCoreMemberDetail(e) {
-    const { member } = e.currentTarget.dataset
-    if (!member) return
-
-    const wxId = member.wxId
-
-    if (wxId) {
-      wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${wxId}`,
-      })
-    } else {
-      wx.showToast({
-        title: '管理员未设置关联系统内校友用户',
-        icon: 'none',
-        duration: 2500,
-      })
-    }
-  },
-
   // 跳转到认证说明页面
   goToCertificationInfo() {
     wx.navigateTo({

@@ -234,11 +234,6 @@ page {
   border-radius: 12rpx;
 }
 
-.show-member-item:active {
-  background-color: #f0f2f5;
-  opacity: 0.8;
-}
-
 .show-member-left {
   display: flex;
   flex-direction: row;
