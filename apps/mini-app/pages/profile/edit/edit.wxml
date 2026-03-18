@@ -145,7 +145,7 @@
           <view class="education-item" wx:for="{{form.educationList}}" wx:key="eduIndex" wx:for-index="eduIndex" wx:if="{{showAllEducation || eduIndex === defaultEducationIndex}}">
             <view class="education-header">
               <text class="education-title">学习经历 {{eduIndex + 1}}{{form.educationList[eduIndex].type === 1 ? '（主要）' : ''}}</text>
-              <text class="delete-btn" bindtap="removeEducation" data-index="{{eduIndex}}">删除</text>
+              <text class="delete-btn" wx:if="{{eduIndex !== 0}}" bindtap="removeEducation" data-index="{{eduIndex}}">删除</text>
             </view>
             
             <!-- 确定按钮（只在编辑该教育经历时显示） -->
@@ -206,7 +206,7 @@
               <input class="input" placeholder="请输入院系" value="{{form.educationList[eduIndex].department || ''}}" data-index="{{eduIndex}}" data-field="department" bindinput="handleEducationInput" bindfocus="handleEducationFocus" bindblur="handleEducationBlur" />
             </view>
 
-            <view class="form-item">
+            <!-- <view class="form-item">
               <view class="label">专业</view>
               <input class="input" placeholder="请输入专业" value="{{form.educationList[eduIndex].major || ''}}" data-index="{{eduIndex}}" data-field="major" bindinput="handleEducationInput" bindfocus="handleEducationFocus" bindblur="handleEducationBlur" />
             </view>
@@ -214,7 +214,7 @@
             <view class="form-item">
               <view class="label">班级</view>
               <input class="input" placeholder="请输入班级" value="{{form.educationList[eduIndex].className || ''}}" data-index="{{eduIndex}}" data-field="className" bindinput="handleEducationInput" bindfocus="handleEducationFocus" bindblur="handleEducationBlur" />
-            </view>
+            </view> -->
 
             <view class="form-item">
               <view class="label">学历层次</view>
@@ -259,12 +259,12 @@
             </view>
             
             <view class="form-item">
-              <view class="label">公司名称</view>
+              <view class="label label-required">公司名称</view>
               <input class="input" placeholder="请输入公司名称" value="{{form.workExperienceList[workIndex].companyName || ''}}" data-index="{{workIndex}}" data-field="companyName" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
             </view>
 
             <view class="form-item">
-              <view class="label">职位/角色</view>
+              <view class="label label-required">职位/角色</view>
               <input class="input" placeholder="请输入职位/角色" value="{{form.workExperienceList[workIndex].position || ''}}" data-index="{{workIndex}}" data-field="position" bindinput="handleWorkInput" bindfocus="handleWorkFocus" bindblur="handleWorkBlur" />
             </view>
 
@@ -281,7 +281,7 @@
             </view>
 
             <view class="form-item">
-              <view class="label">入职日期</view>
+              <view class="label label-required">入职日期</view>
               <picker mode="date" value="{{form.workExperienceList[workIndex].startDate}}" bindchange="handleWorkDateChange" data-index="{{workIndex}}" data-field="startDate">
                 <view class="picker-value">{{form.workExperienceList[workIndex].startDate || '请选择入职日期'}}</view>
               </picker>
