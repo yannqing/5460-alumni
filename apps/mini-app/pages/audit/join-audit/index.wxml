@@ -60,8 +60,8 @@
             </view>
           </view>
           <view class="application-footer" wx:if="{{item.applicationStatus === 0}}">
-            <button class="review-btn pass-btn" data-application-id="{{item.applicationId}}" bindtap="passApplication">通过</button>
-            <button class="review-btn reject-btn" data-application-id="{{item.applicationId}}" bindtap="rejectApplication">拒绝</button>
+            <button class="review-btn pass-btn" data-application-id="{{item.applicationId}}" catchtap="passApplication">通过</button>
+            <button class="review-btn reject-btn" data-application-id="{{item.applicationId}}" catchtap="rejectApplication">拒绝</button>
           </view>
         </view>
       </view>

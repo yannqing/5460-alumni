@@ -84,7 +84,15 @@ Page({
 
   // 通过申请
   async passApplication() {
-    await this.submitReview(1)
+    wx.showModal({
+      title: '通过审核',
+      content: '确定要通过该申请吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          await this.submitReview(1)
+        }
+      }
+    })
   },
 
   // 拒绝申请
@@ -92,11 +100,19 @@ Page({
     // 弹出输入框输入审核意见
     wx.showModal({
       title: '拒绝申请',
-      placeholderText: '请输入审核意见',
+      placeholderText: '请输入拒绝原因',
       editable: true,
       success: async (res) => {
         if (res.confirm) {
-          await this.submitReview(2, res.content)
+          const reviewComment = res.content.trim()
+          if (!reviewComment) {
+            wx.showToast({
+              title: '拒绝原因不能为空',
+              icon: 'none'
+            })
+            return
+          }
+          await this.submitReview(2, reviewComment)
         }
       }
     })
