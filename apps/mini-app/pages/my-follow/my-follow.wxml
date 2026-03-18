@@ -40,7 +40,7 @@
         data-type="association">
         校友会
       </view>
-      <view
+      <!-- <view
         class="type-tab {{activeType === 'school' ? 'active' : ''}}"
         bindtap="selectType"
         data-type="school">
@@ -51,6 +51,12 @@
         bindtap="selectType"
         data-type="merchant">
         商铺
+      </view> -->
+      <view
+        class="type-tab {{activeType === 'headquarters' ? 'active' : ''}}"
+        bindtap="selectType"
+        data-type="headquarters">
+        校友总会
       </view>
       </view>
     </scroll-view>

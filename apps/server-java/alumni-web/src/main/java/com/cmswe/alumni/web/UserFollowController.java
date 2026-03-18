@@ -73,7 +73,7 @@ public class UserFollowController {
     }
 
     @PostMapping("/following/page")
-    @Operation(summary = "分页查询我关注的列表（支持多种目标类型：用户、校友会、母校、商户）")
+    @Operation(summary = "分页查询我关注的列表（支持多种目标类型：用户、校友会、母校、商户、校友总会）")
     public BaseResponse<PageVo<FollowingItemVo<?>>> getFollowingList(@AuthenticationPrincipal SecurityUser securityUser,
                                                                        @RequestBody QueryFollowingListDto queryDto) {
         PageVo<FollowingItemVo<?>> pageVo = userFollowService.getFollowingList(securityUser.getWxUser().getWxId(), queryDto);

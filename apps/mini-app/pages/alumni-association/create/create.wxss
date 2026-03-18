@@ -285,6 +285,42 @@ page {
   position: relative;
 }
 
+.bg-image-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.bg-image-preview-item {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1rpx solid #eee;
+}
+
+.bg-image-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.bg-image-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44rpx;
+  height: 44rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom-left-radius: 12rpx;
+}
+
 .logo-options {
   background-color: #fff;
 }
@@ -386,6 +422,8 @@ page {
 /* 申请材料上传样式 */
 .attachments-list {
   margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .attachment-item {
@@ -396,6 +434,7 @@ page {
   background-color: #f9f9f9;
   border-radius: 8rpx;
   margin-bottom: 10rpx;
+  width: 100%;
 }
 
 .attachment-name {
@@ -411,6 +450,38 @@ page {
   font-size: 24rpx;
   color: #ff4d4f;
   margin-left: 20rpx;
+}
+
+.attachment-image-item {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1rpx solid #eee;
+  display: inline-block;
+  margin-right: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.attachment-image-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.attachment-image-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44rpx;
+  height: 44rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom-left-radius: 12rpx;
 }
 
 /* 成员搜索结果样式 */

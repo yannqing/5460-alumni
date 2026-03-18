@@ -586,6 +586,19 @@ Page({
     this.setData({ attachments })
   },
 
+  previewAttachmentImage(e) {
+    const index = e.currentTarget.dataset.index
+    const imageAttachments = this.data.attachments.filter(a => a.type === 'image')
+    const urls = imageAttachments.map(a => a.url)
+    // 找到当前图片在图片附件列表中的位置
+    const currentAttachment = this.data.attachments[index]
+    const imageIndex = imageAttachments.indexOf(currentAttachment)
+    wx.previewImage({
+      current: urls[imageIndex >= 0 ? imageIndex : 0],
+      urls: urls,
+    })
+  },
+
   // 选择图片作为附件
   async chooseAttachmentImage() {
     try {
@@ -645,6 +658,8 @@ Page({
             attachments.push({
               id: fileId,
               name: fileName,
+              url: uploadRes.data.fileUrl || '',
+              type: 'image',
             })
           } else {
             wx.showToast({
@@ -710,12 +725,11 @@ Page({
 
       for (const file of tempFiles) {
         const tempFilePath = file.tempFilePath
-        const originalName = file.name || 'bg-image'
         const fileSize = file.size || 0
         const maxSize = 10 * 1024 * 1024 // 10MB
         if (fileSize > maxSize) {
           wx.showToast({
-            title: `${originalName} 大小不能超过10MB`,
+            title: '图片大小不能超过10MB',
             icon: 'none',
           })
           continue
@@ -723,7 +737,7 @@ Page({
 
         wx.showLoading({ title: '上传中...', mask: true })
 
-        const uploadRes = await fileApi.uploadImage(tempFilePath, originalName, fileSize)
+        const uploadRes = await fileApi.uploadImage(tempFilePath, null, fileSize)
 
         console.log('上传背景图结果:', uploadRes)
 
@@ -735,17 +749,17 @@ Page({
           if (fileUrl) {
             bgImages.push({
               url: fileUrl,
-              name: originalName,
+              name: uploadRes.data.fileName || 'bg-image.jpg',
             })
           } else {
             wx.showToast({
-              title: `${originalName} 上传成功但未获取到文件URL`,
+              title: '上传成功但未获取到文件URL',
               icon: 'none',
             })
           }
         } else {
           wx.showToast({
-            title: `${originalName} 上传失败: ${uploadRes?.msg || '未知错误'}`,
+            title: `上传失败: ${uploadRes?.msg || '未知错误'}`,
             icon: 'none',
           })
         }
@@ -781,6 +795,15 @@ Page({
     const bgImages = [...this.data.bgImages]
     bgImages.splice(index, 1)
     this.setData({ bgImages })
+  },
+
+  previewBgImage(e) {
+    const index = e.currentTarget.dataset.index
+    const urls = this.data.bgImages.map(item => item.url)
+    wx.previewImage({
+      current: urls[index],
+      urls: urls,
+    })
   },
 
   async submitForm() {

@@ -68,7 +68,7 @@ spring:
   # Kafka 配置
   kafka:
     enabled: true
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       # 生产者配置
       retries: 3
@@ -220,3 +220,15 @@ management:
       enabled: true           # 数据库健康检查
     redis:
       enabled: true           # Redis 健康检查
+
+# ==================== Canal Kafka 配置 ====================
+canal:
+  kafka:
+    enabled: ${CANAL_KAFKA_ENABLED:false}
+    topic: ${CANAL_KAFKA_TOPIC:alumni_binlog}
+    group-id: ${CANAL_KAFKA_GROUP_ID:alumni-search-canal-consumer}
+    auto-offset-reset: ${CANAL_KAFKA_AUTO_OFFSET_RESET:latest}
+    concurrency: ${CANAL_KAFKA_CONCURRENCY:3}
+    max-poll-records: ${CANAL_KAFKA_MAX_POLL_RECORDS:500}
+    session-timeout-ms: ${CANAL_KAFKA_SESSION_TIMEOUT_MS:30000}
+    heartbeat-interval-ms: ${CANAL_KAFKA_HEARTBEAT_INTERVAL_MS:10000}

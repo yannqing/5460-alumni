@@ -251,10 +251,10 @@
       <text class="label">背景图</text>
       <view class="upload-container">
         <button class="upload-btn" bindtap="chooseBgImage">选择图片</button>
-        <view wx:if="{{bgImages.length > 0}}" class="attachments-list">
-          <view wx:for="{{bgImages}}" wx:key="index" class="attachment-item">
-            <text class="attachment-name">{{item.name}}</text>
-            <text class="attachment-delete" bindtap="deleteBgImage" data-index="{{index}}">删除</text>
+        <view wx:if="{{bgImages.length > 0}}" class="bg-image-preview-list">
+          <view wx:for="{{bgImages}}" wx:key="index" class="bg-image-preview-item">
+            <image src="{{item.url}}" class="bg-image-preview" mode="aspectFill" bindtap="previewBgImage" data-index="{{index}}" />
+            <view class="bg-image-delete" bindtap="deleteBgImage" data-index="{{index}}">×</view>
           </view>
         </view>
       </view>
@@ -278,9 +278,15 @@
           <button class="upload-btn" bindtap="chooseAttachmentImage">选择图片</button>
         </view>
         <view wx:if="{{attachments.length > 0}}" class="attachments-list">
-          <view wx:for="{{attachments}}" wx:key="index" class="attachment-item">
-            <text class="attachment-name">{{item.name}}</text>
-            <text class="attachment-delete" bindtap="deleteAttachment" data-index="{{index}}">删除</text>
+          <view wx:for="{{attachments}}" wx:key="index" class="{{item.type === 'image' ? 'attachment-image-item' : 'attachment-item'}}">
+            <block wx:if="{{item.type === 'image'}}">
+              <image src="{{item.url}}" class="attachment-image-preview" mode="aspectFill" bindtap="previewAttachmentImage" data-index="{{index}}" />
+              <view class="attachment-image-delete" bindtap="deleteAttachment" data-index="{{index}}">×</view>
+            </block>
+            <block wx:else>
+              <text class="attachment-name">{{item.name}}</text>
+              <text class="attachment-delete" bindtap="deleteAttachment" data-index="{{index}}">删除</text>
+            </block>
           </view>
         </view>
       </view>

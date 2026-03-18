@@ -97,16 +97,16 @@
       <view class="detail-section" wx:if="{{application.chargeName || application.chargeRole || application.contactInfo}}">
         <view class="section-title">主要负责人信息</view>
         <view class="info-item" wx:if="{{application.chargeName}}">
-          <text class="info-label">负责人姓名</text>
+          <text class="info-label">姓名</text>
           <text class="info-value">{{application.chargeName}}</text>
-        </view>
-        <view class="info-item" wx:if="{{application.chargeRole}}">
-          <text class="info-label">架构角色</text>
-          <text class="info-value">{{application.chargeRole}}</text>
         </view>
         <view class="info-item" wx:if="{{application.contactInfo}}">
           <text class="info-label">联系方式</text>
           <text class="info-value">{{application.contactInfo}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.chargeRole}}">
+          <text class="info-label">校友会职务</text>
+          <text class="info-value">{{application.chargeRole}}</text>
         </view>
         <view class="info-item" wx:if="{{application.msocialAffiliation}}">
           <text class="info-label">社会职务</text>
@@ -119,18 +119,18 @@
 
       <!-- 驻会代表信息 -->
       <view class="detail-section" wx:if="{{application.zhName || application.zhRole || application.zhPhone}}">
-        <view class="section-title">驻会代表信息</view>
+        <view class="section-title">联系人信息</view>
         <view class="info-item" wx:if="{{application.zhName}}">
-          <text class="info-label">代表姓名</text>
+          <text class="info-label">姓名</text>
           <text class="info-value">{{application.zhName}}</text>
-        </view>
-        <view class="info-item" wx:if="{{application.zhRole}}">
-          <text class="info-label">架构角色</text>
-          <text class="info-value">{{application.zhRole}}</text>
         </view>
         <view class="info-item" wx:if="{{application.zhPhone}}">
           <text class="info-label">联系电话</text>
           <text class="info-value">{{application.zhPhone}}</text>
+        </view>
+        <view class="info-item" wx:if="{{application.zhRole}}">
+          <text class="info-label">校友会职务</text>
+          <text class="info-value">{{application.zhRole}}</text>
         </view>
         <view class="info-item" wx:if="{{application.zhSocialAffiliation}}">
           <text class="info-label">社会职务</text>
@@ -180,10 +180,10 @@
           <text class="info-label">审核意见</text>
           <text class="info-value multi-line">{{application.reviewComment}}</text>
         </view>
-        <view class="info-item" wx:if="{{application.createdAssociationId}}">
+        <!-- <view class="info-item" wx:if="{{application.createdAssociationId}}">
           <text class="info-label">创建的校友会</text>
           <text class="info-value link">ID: {{application.createdAssociationId}}</text>
-        </view>
+        </view> -->
       </view>
 
       <!-- 分割线 -->
