@@ -13,15 +13,10 @@
   <view class="main-content" style="padding-top: {{statusBarHeight + 44}}px;" bindtap="closeSchoolResults">
     <!-- 头部欢迎区域 -->
     <view class="header-section">
+      <image wx:if="{{illustration}}" class="header-bg" src="{{illustration}}" mode="aspectFill"></image>
       <view class="welcome-text">
         <view class="welcome-line1">您好，欢迎使用</view>
         <view class="welcome-line2">5460校友服务平台</view>
-      </view>
-      <view class="illustration-wrapper">
-        <image wx:if="{{illustration}}" class="illustration" src="{{illustration}}" mode="aspectFit"></image>
-        <view wx:else class="illustration-placeholder">
-          <text class="placeholder-icon">5460</text>
-        </view>
       </view>
     </view>
 
