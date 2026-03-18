@@ -39,7 +39,7 @@ Page({
     // 是否为开发模式
     isDevelopMode: false,
     // 3D 插图 (暂时使用占位)
-    illustration: '',
+    illustration: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/home/background_11.png',
   },
 
   onLoad(options) {
