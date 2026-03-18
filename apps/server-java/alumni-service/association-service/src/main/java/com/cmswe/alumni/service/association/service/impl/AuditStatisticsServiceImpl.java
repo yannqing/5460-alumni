@@ -3,6 +3,7 @@ package com.cmswe.alumni.service.association.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cmswe.alumni.api.association.AuditStatisticsService;
 import com.cmswe.alumni.api.user.UserService;
+import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
@@ -13,6 +14,7 @@ import com.cmswe.alumni.service.association.mapper.AlumniAssociationApplicationM
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplyMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper;
+import com.cmswe.alumni.common.entity.Role;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,29 +47,51 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private RoleService roleService;
+
     @Override
     public AuditStatisticsVo getAuditTodoStatistics(Long wxId) {
         Map<String, Integer> counts = new HashMap<>();
 
-        // 1. 统计各个模块的待办数量
+        // 1. 查询当前用户角色，判断是否为系统管理员
+        boolean isSystemAdmin = false;
+        if (wxId != null) {
+            List<Role> userRoles = roleService.getRolesByUserId(wxId);
+            isSystemAdmin = userRoles.stream()
+                    .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
+        }
 
-        // 1.1 审核校友总会 (SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT)
-        // 通常只有系统管理员能看到，这里直接查询所有待审核
-        LambdaQueryWrapper<AlumniHeadquarters> headquartersWrapper = new LambdaQueryWrapper<>();
-        headquartersWrapper.eq(AlumniHeadquarters::getApprovalStatus, 0)
-                .ne(AlumniHeadquarters::getActiveStatus, 0);
-        counts.put("SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT", Math.toIntExact(alumniHeadquartersMapper.selectCount(headquartersWrapper)));
+        // 2. 统计各个模块的待办数量
 
-        // 1.2 校友会审核 - 系统级别 (SYSTEM_ALUMNI_ASSOCIATION_APPLICATION)
-        LambdaQueryWrapper<AlumniAssociationApplication> sysAppWrapper = new LambdaQueryWrapper<>();
-        sysAppWrapper.eq(AlumniAssociationApplication::getApplicationStatus, 0);
-        counts.put("SYSTEM_ALUMNI_ASSOCIATION_APPLICATION", Math.toIntExact(alumniAssociationApplicationMapper.selectCount(sysAppWrapper)));
+        // 2.1 审核校友总会 (SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT)
+        // 仅系统管理员统计待办数量，其它用户不显示
+        if (isSystemAdmin) {
+            LambdaQueryWrapper<AlumniHeadquarters> headquartersWrapper = new LambdaQueryWrapper<>();
+            headquartersWrapper.eq(AlumniHeadquarters::getApprovalStatus, 0)
+                    .ne(AlumniHeadquarters::getActiveStatus, 0);
+            counts.put("SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT",
+                    Math.toIntExact(alumniHeadquartersMapper.selectCount(headquartersWrapper)));
+        } else {
+            counts.put("SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT", 0);
+        }
 
-        // 1.3 校友会审核 - 城市/校促会级别 (LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION)
+        // 2.2 校友会审核 - 系统级别 (SYSTEM_ALUMNI_ASSOCIATION_APPLICATION)
+        // 仅系统管理员统计待办数量，其它用户不显示
+        if (isSystemAdmin) {
+            LambdaQueryWrapper<AlumniAssociationApplication> sysAppWrapper = new LambdaQueryWrapper<>();
+            sysAppWrapper.eq(AlumniAssociationApplication::getApplicationStatus, 0);
+            counts.put("SYSTEM_ALUMNI_ASSOCIATION_APPLICATION",
+                    Math.toIntExact(alumniAssociationApplicationMapper.selectCount(sysAppWrapper)));
+        } else {
+            counts.put("SYSTEM_ALUMNI_ASSOCIATION_APPLICATION", 0);
+        }
+
+        // 2.3 校友会审核 - 城市/校促会级别 (LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION)
         // 用户要求城市下面的校友会审核不参与统计
         counts.put("LOCAL_PLATFORM_ALUMNI_ASSOCIATION_APPLICATION", 0);
 
-        // 1.4 校友会认证 (SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION) - 对应校友会申请加入校促会
+        // 2.4 校友会认证 (SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION) - 对应校友会申请加入校促会
         // 仅统计通过 RoleUser 分配管理的校促会下的认证申请，不统计系统管理员的「全部组织」
         Set<Long> platformIdsByRole = userService.getManagedPlatformIdsByRole(wxId);
         if (!platformIdsByRole.isEmpty()) {
@@ -79,7 +103,7 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
             counts.put("SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION", 0);
         }
 
-        // 1.5 加入审核 (ALUMNI_ASSOCIATION_JOIN_REVIEW) - 用户申请加入校友会
+        // 2.5 加入审核 (ALUMNI_ASSOCIATION_JOIN_REVIEW) - 用户申请加入校友会
         // 仅统计通过 RoleUser 分配管理的校友会的申请，不统计系统管理员的「全部组织」
         Set<Long> alumniIdsByRole = userService.getManagedAlumniAssociationIdsByRole(wxId);
         if (!alumniIdsByRole.isEmpty()) {
