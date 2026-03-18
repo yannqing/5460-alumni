@@ -91,53 +91,42 @@ Page({
         }
     },
 
-    // 从 getManagedOrganizations 接口加载校友会列表（服务端为准，不依赖 roles 缓存）
+    // 从 users/managed-organizations?type=0 接口加载校友会列表（与 member 页一致）
     async loadAlumniAssociationListFromApi() {
         try {
             const res = await userApi.getManagedOrganizations({ type: 0 })
-            const list = (res?.data?.data ?? res?.data ?? []) || []
-            if (!Array.isArray(list) || list.length === 0) {
+            if (!res.data || res.data.code !== 200) {
                 this.setData({ alumniAssociationList: [], hasAlumniAdminPermission: false })
                 return
             }
-            const alumniAssociationList = list.map(org => ({
-                id: org.id,
-                alumniAssociationId: org.id,
-                alumniAssociationName: org.name || '校友会',
-                organizeId: org.id
-            }))
+            const organizationList = res.data.data || []
+            if (!Array.isArray(organizationList) || organizationList.length === 0) {
+                this.setData({ alumniAssociationList: [], hasAlumniAdminPermission: false })
+                return
+            }
+            const alumniAssociationList = organizationList.map(org => {
+                let logo = org.logo || ''
+                if (logo && !logo.startsWith('http://') && !logo.startsWith('https://')) {
+                    logo = config.getImageUrl(logo)
+                }
+                return {
+                    id: org.id,
+                    alumniAssociationId: org.id,
+                    alumniAssociationName: org.name || '校友会',
+                    organizeId: org.id,
+                    logo: logo,
+                    location: org.location || '',
+                    type: org.type,
+                }
+            })
             this.setData({
                 alumniAssociationList,
                 hasAlumniAdminPermission: true
             })
             refreshUserRoles() // 静默刷新 roles，使后续访问与重新登录一致
-            try {
-                const detailPromises = alumniAssociationList.map(async alumni => {
-                    try {
-                        const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
-                        if (res?.data?.code === 200 && res?.data?.data) {
-                            const d = res.data.data
-                            return {
-                                ...d,
-                                id: d.alumniAssociationId || d.id || alumni.alumniAssociationId,
-                                alumniAssociationId: d.alumniAssociationId || alumni.alumniAssociationId,
-                                alumniAssociationName: d.associationName || d.name || alumni.alumniAssociationName,
-                                organizeId: d.organizeId || alumni.alumniAssociationId
-                            }
-                        }
-                        return alumni
-                    } catch {
-                        return alumni
-                    }
-                })
-                const detailedList = await Promise.all(detailPromises)
-                this.setData({ alumniAssociationList: detailedList })
-                this.handleAlumniAssociationSelection(detailedList)
-            } catch (e) {
-                this.handleAlumniAssociationSelection(alumniAssociationList)
-            }
+            this.handleAlumniAssociationSelection(alumniAssociationList)
         } catch (err) {
-            console.warn('[Debug] 接口兜底加载校友会列表失败:', err)
+            console.warn('[Debug] 加载校友会列表失败:', err)
             this.setData({ alumniAssociationList: [], hasAlumniAdminPermission: false })
         }
     },
