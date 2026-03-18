@@ -16,8 +16,6 @@ Page({
       startTime: '',
       endTime: '',
       isSignup: 0,
-      registrationStartTime: '',
-      registrationEndTime: '',
       province: '',
       city: '',
       district: '',
@@ -25,7 +23,6 @@ Page({
       locationName: '',
       latitude: 0,
       longitude: 0,
-      maxParticipants: null,
       isNeedReview: 0,
       contactPerson: '',
       contactPhone: '',
@@ -48,13 +45,9 @@ Page({
     // 时间显示相关
     startTimeDisplay: '', // 活动开始时间（用于前端展示）
     endTimeDisplay: '', // 活动结束时间（用于前端展示）
-    registrationStartTimeDisplay: '', // 报名开始时间（用于前端展示）
-    registrationEndTimeDisplay: '', // 报名截止时间（用于前端展示）
     // 时间滑动选择器相关配置
     startTimePickerValue: [], // 开始时间选择器的滚动值
     endTimePickerValue: [], // 结束时间选择器的滚动值
-    registrationStartTimePickerValue: [], // 报名开始时间选择器的滚动值
-    registrationEndTimePickerValue: [], // 报名截止时间选择器的滚动值
     yearList: [], // 年列表
     monthList: [], // 月列表
     dayList: [], // 日列表
@@ -98,17 +91,11 @@ Page({
     this.setData({
       'formData.startTime': this.formatDateToPicker(now),
       'formData.endTime': this.formatDateToPicker(endDate),
-      'formData.registrationStartTime': this.formatDateToPicker(now),
-      'formData.registrationEndTime': this.formatDateToPicker(endDate),
       startTimeDisplay: nowDisplay,
       endTimeDisplay: endDisplay,
-      registrationStartTimeDisplay: nowDisplay,
-      registrationEndTimeDisplay: endDisplay,
       // 初始化滚动值
       startTimePickerValue: this.getPickerValueFromDate(now),
       endTimePickerValue: this.getPickerValueFromDate(endDate),
-      registrationStartTimePickerValue: this.getPickerValueFromDate(now),
-      registrationEndTimePickerValue: this.getPickerValueFromDate(endDate),
     })
   },
 
@@ -253,50 +240,6 @@ Page({
     this.setData({ 'formData.endTime': isoTimeStr, endTimeDisplay: displayTimeStr })
   },
 
-  // 报名开始时间滑动选择事件
-  onRegistrationStartTimePickerChange(e) {
-    const val = e.detail.value
-    this.setData({ registrationStartTimePickerValue: val })
-
-    // 解析选择的时间
-    const year = 2020 + val[0]
-    const month = val[1] + 1
-    const day = val[2] + 1
-    const hour = val[3]
-    const minute = val[4]
-
-    // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-    // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
-    this.setData({
-      'formData.registrationStartTime': isoTimeStr,
-      registrationStartTimeDisplay: displayTimeStr,
-    })
-  },
-
-  // 报名截止时间滑动选择事件
-  onRegistrationEndTimePickerChange(e) {
-    const val = e.detail.value
-    this.setData({ registrationEndTimePickerValue: val })
-
-    // 解析选择的时间
-    const year = 2020 + val[0]
-    const month = val[1] + 1
-    const day = val[2] + 1
-    const hour = val[3]
-    const minute = val[4]
-
-    // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-    // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
-    this.setData({
-      'formData.registrationEndTime': isoTimeStr,
-      registrationEndTimeDisplay: displayTimeStr,
-    })
-  },
-
   async submitForm() {
     const { formData, alumniAssociationId } = this.data
 
@@ -330,17 +273,11 @@ Page({
     try {
       const activityImages = formData.activityImages.trim() || '[]'
 
-      // 构建提交数据，不需要报名时移除报名时间字段
+      // 构建提交数据
       const submitData = {
         ...formData,
         activityImages,
         alumniAssociationId,
-      }
-
-      // 如果不需要报名，删除报名时间相关字段
-      if (submitData.isSignup === 0) {
-        delete submitData.registrationStartTime
-        delete submitData.registrationEndTime
       }
 
       const res = await this.publishActivity(submitData)

@@ -86,6 +86,20 @@ Page({
           }
         }
 
+        // 处理时间显示，移除 'T'
+        if (activityData.startTime) {
+          activityData.startTime = activityData.startTime.replace('T', ' ')
+        }
+        if (activityData.endTime) {
+          activityData.endTime = activityData.endTime.replace('T', ' ')
+        }
+        if (activityData.registrationStartTime) {
+          activityData.registrationStartTime = activityData.registrationStartTime.replace('T', ' ')
+        }
+        if (activityData.registrationEndTime) {
+          activityData.registrationEndTime = activityData.registrationEndTime.replace('T', ' ')
+        }
+
         this.setData({
           activityInfo: activityData,
           activityImages: activityImages,
@@ -108,14 +122,6 @@ Page({
         icon: 'none'
       })
     }
-  },
-
-  joinActivity() {
-    // 这里可以实现报名功能
-    wx.showToast({
-      title: '报名功能开发中',
-      icon: 'none'
-    })
   },
 
   // 一键导航
