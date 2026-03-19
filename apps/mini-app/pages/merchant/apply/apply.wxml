@@ -52,7 +52,7 @@
       
       <view class="form-item">
         <view class="label">统一社会信用代码 <text class="required">*</text></view>
-        <input class="input" placeholder="请输入统一社会信用代码" value="{{form.unifiedSocialCreditCode}}" data-field="unifiedSocialCreditCode" bindinput="handleInput" />
+        <input class="input" maxlength="18" placeholder="请输入统一社会信用代码" value="{{form.unifiedSocialCreditCode}}" data-field="unifiedSocialCreditCode" bindinput="handleInput" />
       </view>
       
       <view class="form-item">
@@ -123,7 +123,7 @@
       
       <view class="form-item">
         <view class="label">法人身份证号 <text class="required">*</text></view>
-        <input class="input" placeholder="请输入法人身份证号" value="{{form.legalPersonId}}" data-field="legalPersonId" bindinput="handleInput" />
+        <input class="input" maxlength="18" placeholder="请输入法人身份证号" value="{{form.legalPersonId}}" data-field="legalPersonId" bindinput="handleInput" />
       </view>
     </view>
 

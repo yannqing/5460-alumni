@@ -365,8 +365,13 @@ Page({
       return false
     }
     
-    if (unifiedSocialCreditCode.length > 18) {
-      wx.showToast({ title: '统一社会信用代码不能超过18个字符', icon: 'none' })
+    const normalizedCreditCode = String(unifiedSocialCreditCode).trim().toUpperCase()
+    if (normalizedCreditCode.length !== 18) {
+      wx.showToast({ title: '统一社会信用代码须为18位', icon: 'none' })
+      return false
+    }
+    if (!/^[0-9A-Z]{18}$/.test(normalizedCreditCode)) {
+      wx.showToast({ title: '统一社会信用代码格式不正确', icon: 'none' })
       return false
     }
     
@@ -385,8 +390,13 @@ Page({
       return false
     }
     
-    if (legalPersonId.length > 18) {
-      wx.showToast({ title: '法人身份证号不能超过18个字符', icon: 'none' })
+    const normalizedLegalPersonId = String(legalPersonId).trim()
+    if (normalizedLegalPersonId.length !== 18) {
+      wx.showToast({ title: '法人身份证号须为18位', icon: 'none' })
+      return false
+    }
+    if (!/^\d{17}[\dXx]$/.test(normalizedLegalPersonId)) {
+      wx.showToast({ title: '法人身份证号格式不正确', icon: 'none' })
       return false
     }
     
@@ -428,14 +438,16 @@ Page({
     
     // 调用后端接口提交商家申请
     const { form } = this.data
+    const normalizedCreditCode = String(form.unifiedSocialCreditCode || '').trim().toUpperCase()
+    const normalizedLegalPersonId = String(form.legalPersonId || '').trim().toUpperCase()
     
     post('/merchant/apply', {
       merchantName: form.merchantName,
       merchantType: form.merchantType,
       businessLicense: form.businessLicense,
-      unifiedSocialCreditCode: form.unifiedSocialCreditCode,
+      unifiedSocialCreditCode: normalizedCreditCode,
       legalPerson: form.legalPerson,
-      legalPersonId: form.legalPersonId,
+      legalPersonId: normalizedLegalPersonId,
       contactPhone: form.contactPhone,
       contactEmail: form.contactEmail,
       businessScope: form.businessScope,
