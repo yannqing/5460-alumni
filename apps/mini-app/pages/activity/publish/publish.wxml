@@ -213,24 +213,6 @@
             <view class="form-title">其他设置</view>
 
             <view class="form-item">
-              <text class="label">是否需要审核</text>
-              <picker mode="selector" data-field="isNeedReview" range="{{isNeedReviewOptions}}" range-key="name" bindchange="onPickerChange">
-                <view class="picker-value">
-                  {{isNeedReviewOptions[formData.isNeedReview] ? isNeedReviewOptions[formData.isNeedReview].name : '请选择'}}
-                </view>
-              </picker>
-            </view>
-
-            <view class="form-item">
-              <text class="label">是否公开</text>
-              <picker mode="selector" data-field="isPublic" range="{{isPublicOptions}}" range-key="name" bindchange="onPickerChange">
-                <view class="picker-value">
-                  {{isPublicOptions[formData.isPublic] ? isPublicOptions[formData.isPublic].name : '请选择'}}
-                </view>
-              </picker>
-            </view>
-
-            <view class="form-item">
               <text class="label">联系人</text>
               <view class="field-input-wrapper">
                 <input
