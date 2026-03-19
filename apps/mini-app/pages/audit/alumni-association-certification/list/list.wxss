@@ -199,6 +199,12 @@
   padding: 24rpx;
   box-sizing: border-box;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.audit-card-hover {
+  background-color: #f9f9f9;
+  transform: scale(0.99);
 }
 
 .audit-card-pending {
@@ -295,6 +301,10 @@
   border-top: 1rpx solid #F0F0F0;
 }
 
+.audit-card-actions-single {
+  justify-content: flex-end;
+}
+
 .audit-btn {
   width: 160rpx;
   height: 64rpx;
@@ -316,6 +326,12 @@
   background-color: #fff;
   border: 1px solid #B0363E;
   color: #B0363E;
+}
+
+.audit-btn-detail {
+  background-color: #fff;
+  border: 1px solid #4364CC;
+  color: #4364CC;
 }
 
 /* 校促会选择器弹窗 */

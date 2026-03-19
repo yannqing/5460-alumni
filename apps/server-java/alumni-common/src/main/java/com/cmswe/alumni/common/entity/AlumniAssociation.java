@@ -178,6 +178,12 @@ public class AlumniAssociation implements Serializable {
     @TableField(value = "is_delete")
     private Integer isDelete;
 
+    /**
+     * 校友会申请ID
+     */
+    @TableField(value = "application_id")
+    private Long applicationId;
+
     @Serial
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

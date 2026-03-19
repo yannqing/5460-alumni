@@ -447,6 +447,7 @@ public class AlumniAssociationApplicationServiceImpl
         try {
             // 5.1 创建校友会
             AlumniAssociation alumniAssociation = new AlumniAssociation();
+            alumniAssociation.setApplicationId(application.getApplicationId()); // 设置申请ID
             alumniAssociation.setAssociationName(application.getAssociationName());
             alumniAssociation.setSchoolId(application.getSchoolId());
             alumniAssociation.setPlatformId(application.getPlatformId());

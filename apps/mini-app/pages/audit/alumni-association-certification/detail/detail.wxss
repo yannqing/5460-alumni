@@ -1,0 +1,432 @@
+/* 容器 */
+.page {
+  min-height: 100vh;
+  background-color: #F7F7FE;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+/* 骨架屏样式 */
+.skeleton-container {
+  padding: 30rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.skeleton-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+  margin-right: 20rpx;
+}
+
+.skeleton-user-info {
+  flex: 1;
+}
+
+.skeleton-name {
+  width: 160rpx;
+  height: 32rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  margin-bottom: 12rpx;
+}
+
+.skeleton-time {
+  width: 240rpx;
+  height: 24rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+}
+
+.skeleton-title {
+  width: 80%;
+  height: 40rpx;
+  background: #f0f0f0;
+  border-radius: 8rpx;
+  margin-bottom: 32rpx;
+}
+
+.skeleton-content {
+  padding-top: 16rpx;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 28rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  margin-bottom: 20rpx;
+}
+
+.skeleton-animate {
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-color: #f0f0f0; }
+  50% { background-color: #e0e0e0; }
+  100% { background-color: #f0f0f0; }
+}
+
+/* 顶部 Header */
+.detail-header {
+  position: relative;
+  width: 100%;
+  height: 380rpx;
+  margin-bottom: 30rpx;
+  overflow: visible;
+}
+
+.detail-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+  border-radius: 40rpx;
+  z-index: 1;
+}
+
+.header-bg {
+  width: 100%;
+  height: 100%;
+  border-radius: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  position: absolute;
+  bottom: -40rpx;
+  left: 40rpx;
+  right: 40rpx;
+  display: flex;
+  align-items: flex-end;
+  z-index: 2;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-container {
+  width: 140rpx;
+  height: 140rpx;
+  background: #FFFFFF;
+  border-radius: 50%;
+  padding: 8rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.association-logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.association-basic {
+  margin-left: 24rpx;
+  padding-bottom: 50rpx;
+  flex: 1;
+}
+
+.association-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+/* 详细信息卡片 */
+.detail-card {
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 40rpx 32rpx;
+  margin: 0 24rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.05);
+}
+
+.info-grid {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.info-grid .info-item {
+  width: 100%;
+  margin-bottom: 20rpx;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+}
+
+.info-label {
+  width: 180rpx;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.55);
+  font-family: PingFangSC-Regular;
+  flex-shrink: 0;
+  padding-top: 4rpx;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.85);
+  font-family: PingFangSC-Regular;
+  word-break: break-all;
+}
+
+.info-value.multi-line {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.info-value.link {
+  color: #4A8BF5;
+}
+
+.preview-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  margin-top: 10rpx;
+  background-color: #f5f5f5;
+}
+
+/* 审核状态标签 */
+.status-tag {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  margin-top: 4rpx;
+  background: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.status-tag.status-pending {
+  background-color: rgba(250, 156, 0, 0.1);
+}
+
+.status-tag.status-approved {
+  background-color: rgba(80, 200, 32, 0.1);
+}
+
+.status-tag.status-rejected {
+  background-color: rgba(255, 77, 79, 0.1);
+}
+
+.status-tag.status-unknown {
+  background-color: rgba(154, 154, 154, 0.1);
+}
+
+.status-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.status-pending .status-text {
+  color: rgba(250, 156, 0, 1);
+}
+
+.status-approved .status-text {
+  color: rgba(80, 200, 32, 1);
+}
+
+.status-rejected .status-text {
+  color: rgba(255, 77, 79, 1);
+}
+
+.status-unknown .status-text {
+  color: rgba(154, 154, 154, 1);
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 28rpx 0;
+}
+
+/* 详细信息 */
+.detail-section {
+  margin-bottom: 20rpx;
+}
+
+/* 区域标题 */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  font-family: PingFangSC-Semibold;
+  margin-bottom: 24rpx;
+  padding-left: 12rpx;
+  border-left: 6rpx solid #4A8BF5;
+}
+
+/* 附件列表 */
+.attachment-container {
+  padding: 10rpx 0;
+}
+
+.attachment-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.attachment-item {
+  position: relative;
+  background: #F7F8FA;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.03);
+}
+
+.attachment-content {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.attachment-content:active {
+  opacity: 0.8;
+}
+
+/* 图片附件样式 - 直接预览 */
+.attachment-item.image-item .attachment-content {
+  height: 360rpx;
+  background: #f0f0f0;
+}
+
+.attachment-item.image-item .preview-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 文件附件样式 - 卡片式预览 */
+.attachment-item.file-item .attachment-content {
+  padding: 24rpx;
+}
+
+.file-preview-box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.file-icon-bg {
+  width: 80rpx;
+  height: 100rpx;
+  background: #E8F0FF;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  box-shadow: 0 2rpx 8rpx rgba(74, 139, 245, 0.1);
+}
+
+/* 模拟文件角折叠效果 */
+.file-icon-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 20rpx 20rpx 0;
+  border-color: transparent #F7F8FA transparent transparent;
+  border-bottom-left-radius: 4rpx;
+}
+
+.file-ext-text {
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #4A8BF5;
+  text-transform: uppercase;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-name {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 500;
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-meta {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* 空状态 */
+.empty-wrap, .loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 28rpx;
+}
+
+.applicant-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+  background: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.applicant-nickname {
+  color: rgba(0,0,0,0.45);
+  font-size: 24rpx;
+  margin-left: 8rpx;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+  height: 80rpx;
+}

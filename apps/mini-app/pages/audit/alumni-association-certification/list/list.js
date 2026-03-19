@@ -270,6 +270,21 @@ Page({
     return ''
   },
 
+  // 查看详情
+  goToDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) {
+      wx.showToast({
+        title: '申请ID不存在',
+        icon: 'none'
+      })
+      return
+    }
+    wx.navigateTo({
+      url: `/pages/audit/alumni-association-certification/detail/detail?id=${id}`
+    })
+  },
+
   // 批准申请
   async approveApplication(e) {
     const { id } = e.currentTarget.dataset
