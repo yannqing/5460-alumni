@@ -160,9 +160,10 @@
             <view class="form-title">地点信息</view>
               <view class="form-item">
                 <text class="label">省份</text>
-                <input 
-                  class="input" 
-                  placeholder="请输入省份" 
+                <input
+                  class="input"
+                  placeholder="请输入省份"
+                  adjust-position="{{false}}"
                   data-field="province"
                   bindinput="onInput"
                   value="{{formData.province}}"
@@ -171,9 +172,10 @@
               
               <view class="form-item">
                 <text class="label">城市</text>
-                <input 
-                  class="input" 
-                  placeholder="请输入城市" 
+                <input
+                  class="input"
+                  placeholder="请输入城市"
+                  adjust-position="{{false}}"
                   data-field="city"
                   bindinput="onInput"
                   value="{{formData.city}}"
@@ -182,9 +184,10 @@
               
               <view class="form-item">
                 <text class="label">区县</text>
-                <input 
-                  class="input" 
-                  placeholder="请输入区县" 
+                <input
+                  class="input"
+                  placeholder="请输入区县"
+                  adjust-position="{{false}}"
                   data-field="district"
                   bindinput="onInput"
                   value="{{formData.district}}"
@@ -193,23 +196,16 @@
               
               <view class="form-item">
                 <text class="label">详细地址</text>
-                <input 
-                  class="input" 
-                  placeholder="请输入详细地址" 
+                <input
+                  class="input"
+                  placeholder="请输入详细地址"
+                  adjust-position="{{false}}"
                   data-field="address"
                   bindinput="onInput"
                   value="{{formData.address}}"
                 />
               </view>
               
-              <view class="form-item">
-                <text class="label">活动地点</text>
-                <view class="location-selector">
-                  <input class="input location-input" placeholder="请选择活动地点" value="{{formData.locationName}}" disabled />
-                  <button class="select-location-btn" bindtap="onChooseLocation">选择位置</button>
-                </view>
-
-                </view>
           </view>
           
           <!-- 其他设置 -->
