@@ -82,10 +82,7 @@
           bindtap="selectAlumniAssociation"
         >
           <view class="picker-item-left">
-            <image class="picker-item-logo" src="{{item.logo}}" mode="aspectFill" wx:if="{{item.logo}}"></image>
-            <view class="picker-item-logo-placeholder" wx:else>
-              <text>{{item.alumniAssociationName[0] || '校'}}</text>
-            </view>
+            <image class="picker-item-logo" src="{{item.logo || defaultUserAvatarUrl}}" mode="aspectFill" />
             <view class="picker-item-info">
               <text class="item-name">{{item.alumniAssociationName}}</text>
               <text class="item-location" wx:if="{{item.location}}">{{item.location}}</text>

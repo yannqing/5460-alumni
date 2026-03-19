@@ -29,6 +29,7 @@ Page({
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限
     hasAlumniAdminPermission: false, // 是否有校友会管理员身份
     scrollListHeight: 400, // 下方卡片内 scroll-view 高度(px)，onLoad 中按屏幕计算
+    defaultUserAvatarUrl: config.defaultAvatar, // 选择校友会时的默认 logo
   },
 
   onLoad() {
