@@ -1410,63 +1410,25 @@ Page({
 
   // 跳转到文章详情
   goToArticleDetail(e) {
-    const id = e.currentTarget.dataset.id
-    const article = this.data.articleList.find(a => a.id === id)
+    const index = e.currentTarget.dataset.index
+    const article = this.data.articleList[index]
 
     if (!article) {
-      wx.showToast({
-        title: '文章数据不存在',
-        icon: 'none',
-      })
+      wx.showToast({ title: '文章数据不存在', icon: 'none' })
       return
     }
 
-    const articleType = article.articleType || 1
+    const articleType = Number(article.articleType) || 1
     const articleLink = article.articleLink || ''
-    const articleTitle = article.title || '资讯详情'
 
-    // 1: 公众号文章
-    if (articleType === 1) {
-      if (articleLink) {
-        wx.openOfficialAccountArticle({
-          url: articleLink,
-          fail() {
-            wx.showToast({
-              title: '无法打开文章',
-              icon: 'none',
-            })
-          },
-        })
-      } else {
-        wx.showToast({
-          title: '文章链接为空',
-          icon: 'none',
-        })
-      }
-    }
-    // 2: 内部路径
-    else if (articleType === 2) {
-      if (articleLink) {
-        wx.navigateTo({
-          url: articleLink,
-          fail() {
-            wx.navigateTo({
-              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
-            })
-          },
-        })
-      }
-    }
-    // 3: 第三方链接
-    else if (articleType === 3) {
-      wx.navigateTo({
-        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
-      })
-    }
-    // 默认跳转到普通详情页
-    else {
-      wx.navigateTo({
-        url: `/pages/article/detail/detail?id=${id}`,
+    // 只有公众号文章（articleType === 1）才能跳转
+    if (articleType === 1 && articleLink) {
+      wx.openOfficialAccountArticle({
+        url: articleLink,
+        fail: err => {
+          console.error('[goToArticleDetail] 打开公众号文章失败:', err)
+          wx.showToast({ title: '打开文章失败', icon: 'none' })
+        },
       })
     }
   },

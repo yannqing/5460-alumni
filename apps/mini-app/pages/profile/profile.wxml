@@ -38,7 +38,7 @@
 
     <!-- 头像 -->
     <view class="image-wrapper_7" bindtap="editProfile">
-      <image src="{{userInfo.avatarUrl || defaultAvatar}}" class="image_12"></image>
+      <image src="{{userInfo.avatarUrl || defaultAvatar}}" class="image_12" mode="aspectFill"></image>
     </view>
 
   </view>

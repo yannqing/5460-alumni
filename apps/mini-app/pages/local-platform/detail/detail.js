@@ -26,7 +26,7 @@ Page({
     // 组织结构编辑相关
     canEditOrg: false, // 是否有编辑权限
     isEditOrgMode: false, // 是否处于编辑模式
-    articleList: [] // 资讯列表
+    articleList: [], // 资讯列表
   },
 
   onLoad(options) {
@@ -34,7 +34,7 @@ Page({
     if (!id) {
       wx.showToast({
         title: '参数错误',
-        icon: 'none'
+        icon: 'none',
       })
       setTimeout(() => {
         wx.navigateBack()
@@ -76,7 +76,7 @@ Page({
   onShareAppMessage() {
     return {
       title: this.data.platformInfo?.platformName || '校促会',
-      path: `/pages/local-platform/detail/detail?id=${this.data.platformId}`
+      path: `/pages/local-platform/detail/detail?id=${this.data.platformId}`,
     }
   },
 
@@ -107,7 +107,7 @@ Page({
 
     try {
       const res = await localPlatformApi.getLocalPlatformDetail(this.data.platformId)
-      console.log("local platform:", res)
+      console.log('local platform:', res)
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
 
@@ -158,55 +158,62 @@ Page({
           miniProgramLinks: data.miniProgramLinks || [],
           // 主页展示成员、校促会重大事记
           showMembers: data.showMembers || [],
-          importantEvents: data.importantEvents || []
+          importantEvents: data.importantEvents || [],
         }
 
         // 处理并格式化文章列表 (资讯部分)
         const formattedArticleList = (data.articleList || []).map(article => {
           // 处理封面图：极其稳健逻辑，兼容对象、URL字符串、路径及 ID
-          let cover = '';
-          const rawCover = article.coverImg || article.cover_img;
+          let cover = ''
+          const rawCover = article.coverImg || article.cover_img
 
           if (rawCover) {
             if (typeof rawCover === 'object') {
-              cover = rawCover.fileUrl || rawCover.filePath || rawCover.thumbnailUrl || '';
+              cover = rawCover.fileUrl || rawCover.filePath || rawCover.thumbnailUrl || ''
             } else if (typeof rawCover === 'string') {
               // 包含斜杠或以http开头则视为路径/URL，否则视为 ID
               if (rawCover.startsWith('http') || rawCover.indexOf('/') !== -1) {
-                cover = rawCover;
+                cover = rawCover
               } else {
-                cover = `/file/download/${rawCover}`;
+                cover = `/file/download/${rawCover}`
               }
             } else {
-              cover = `/file/download/${rawCover}`;
+              cover = `/file/download/${rawCover}`
             }
           }
 
           // 顶级字段兜底
           if (!cover) {
-            cover = article.fileUrl || article.thumbnailUrl || article.coverImage || article.cover_image || '';
+            cover =
+              article.fileUrl ||
+              article.thumbnailUrl ||
+              article.coverImage ||
+              article.cover_image ||
+              ''
           }
 
-          const finalCover = cover ? config.getImageUrl(cover) : config.getImageUrl(config.defaultCover);
+          const finalCover = cover
+            ? config.getImageUrl(cover)
+            : config.getImageUrl(config.defaultCover)
 
           return {
             ...article,
             id: article.homeArticleId || article.id,
             title: article.articleTitle || '无标题',
             cover: finalCover,
-            time: this.formatDate(article.createTime)
+            time: this.formatDate(article.createTime),
           }
         })
 
         this.setData({
           platformInfo,
           articleList: formattedArticleList,
-          loading: false
+          loading: false,
         })
 
         // 设置导航栏标题为校促会的city字段
         wx.setNavigationBarTitle({
-          title: platformInfo.city || '校促会'
+          title: platformInfo.city || '校促会',
         })
 
         // 加载会员单位列表（用于基本信息页的头像预览）
@@ -214,7 +221,7 @@ Page({
       } else {
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
         this.setData({ loading: false })
       }
@@ -222,7 +229,7 @@ Page({
       console.error('加载校促会详情失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
       this.setData({ loading: false })
     }
@@ -230,72 +237,75 @@ Page({
 
   // tab-bar 组件事件处理
   onTabChange(e) {
-    const index = e.detail.index;
-    this.handleTabSwitch(index);
+    const index = e.detail.index
+    this.handleTabSwitch(index)
   },
 
   // 顶部 Tab 切换
   switchTab(e) {
-    const index = e.currentTarget.dataset.index;
-    this.handleTabSwitch(index);
+    const index = e.currentTarget.dataset.index
+    this.handleTabSwitch(index)
   },
 
   handleTabSwitch(index) {
-    this.setData({ activeTab: index });
+    this.setData({ activeTab: index })
 
     // 切换到组织结构标签时，加载组织结构数据
     if (index === 1) {
       // 如果还没加载过组织结构数据，则加载
       if (this.data.roleList.length === 0) {
-        this.loadOrganizationTree();
+        this.loadOrganizationTree()
       }
     }
     // 切换到会员单位时加载数据 (index 3)
     else if (index === 3) {
       // 如果是首次切换到会员单位，重新加载数据
       if (this.data.associations.length === 0) {
-        this.loadAssociations(true);
+        this.loadAssociations(true)
       }
     }
   },
 
   // 跳转到会员单位 Tab
   goToMemberTab() {
-    this.handleTabSwitch(3);
+    this.handleTabSwitch(3)
   },
 
   // 加载组织架构树
   loadOrganizationTree() {
     this.setData({
-      organizationLoading: true
+      organizationLoading: true,
     })
 
     // 调用API获取组织架构树（v2 接口）
     const { post } = require('../../../utils/request.js')
     post('/localPlatform/organizationTree/v2', {
-      localPlatformId: this.data.platformId
-    }).then(res => {
-      if (res.data && res.data.code === 200) {
-        this.setData({
-          roleList: res.data.data || []
-        })
-      } else {
-        wx.showToast({
-          title: res.data.msg || '加载失败',
-          icon: 'none'
-        })
-      }
-    }).catch(err => {
-      wx.showToast({
-        title: '网络错误',
-        icon: 'none'
-      })
-      console.error('加载组织架构树失败:', err)
-    }).finally(() => {
-      this.setData({
-        organizationLoading: false
-      })
+      localPlatformId: this.data.platformId,
     })
+      .then(res => {
+        if (res.data && res.data.code === 200) {
+          this.setData({
+            roleList: res.data.data || [],
+          })
+        } else {
+          wx.showToast({
+            title: res.data.msg || '加载失败',
+            icon: 'none',
+          })
+        }
+      })
+      .catch(err => {
+        wx.showToast({
+          title: '网络错误',
+          icon: 'none',
+        })
+        console.error('加载组织架构树失败:', err)
+      })
+      .finally(() => {
+        this.setData({
+          organizationLoading: false,
+        })
+      })
   },
 
   // 加载校友会列表
@@ -314,7 +324,7 @@ Page({
         size: this.data.pageSize,
         platformId: this.data.platformId, // 直接使用字符串类型，避免数字精度丢失
         sortField: 'memberCount', // 默认按会员数量排序
-        sortOrder: 'descend' // 默认降序
+        sortOrder: 'descend', // 默认降序
       }
 
       // 调用接口
@@ -341,7 +351,7 @@ Page({
 
           return {
             ...item,
-            avatar: avatar
+            avatar: avatar,
           }
         })
 
@@ -349,19 +359,19 @@ Page({
         this.setData({
           associations: associationList,
           // 已经加载所有数据，无需分页
-          hasMore: false
+          hasMore: false,
         })
       } else {
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('加载校友会列表失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     } finally {
       this.setData({ associationLoading: false })
@@ -377,9 +387,9 @@ Page({
         success: () => {
           wx.showToast({
             title: '已复制',
-            icon: 'success'
+            icon: 'success',
           })
-        }
+        },
       })
     }
   },
@@ -388,7 +398,7 @@ Page({
   viewAssociationDetail(e) {
     const associationId = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: `/pages/alumni-association/detail/detail?id=${associationId}`
+      url: `/pages/alumni-association/detail/detail?id=${associationId}`,
     })
   },
 
@@ -401,20 +411,20 @@ Page({
   // 创建校友会
   createAlumniAssociation() {
     wx.navigateTo({
-      url: '/pages/alumni-association/create/create'
+      url: '/pages/alumni-association/create/create',
     })
   },
 
   // 格式化日期 (月-日 时:分)
   formatDate(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString.replace('T', ' '));
-    if (isNaN(date.getTime())) return '';
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${month}-${day} ${hours}:${minutes}`;
+    if (!dateString) return ''
+    const date = new Date(dateString.replace('T', ' '))
+    if (isNaN(date.getTime())) return ''
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${month}-${day} ${hours}:${minutes}`
   },
 
   // 点击小程序链接
@@ -424,7 +434,7 @@ Page({
     if (!url) {
       wx.showToast({
         title: '链接暂未配置',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -444,28 +454,28 @@ Page({
         console.error('打开小程序失败:', err)
         wx.showToast({
           title: '打开失败，请稍后重试',
-          icon: 'none'
+          icon: 'none',
         })
-      }
+      },
     })
   },
 
   // 跳转到文章详情
   goToArticleDetail(e) {
-    const id = e.currentTarget.dataset.id;
-    const article = this.data.articleList.find(a => a.id === id);
+    const id = String(e.currentTarget.dataset.id)
+    const article = this.data.articleList.find(a => String(a.id) === id)
 
     if (!article) {
       wx.showToast({
         title: '文章数据不存在',
-        icon: 'none'
-      });
-      return;
+        icon: 'none',
+      })
+      return
     }
 
-    const articleType = article.articleType || 1;
-    const articleLink = article.articleLink || '';
-    const articleTitle = article.title || '资讯详情';
+    const articleType = article.articleType || 1
+    const articleLink = article.articleLink || ''
+    const articleTitle = article.title || '资讯详情'
 
     // 1: 公众号文章
     if (articleType === 1) {
@@ -475,15 +485,15 @@ Page({
           fail() {
             wx.showToast({
               title: '无法打开文章',
-              icon: 'none'
-            });
-          }
-        });
+              icon: 'none',
+            })
+          },
+        })
       } else {
         wx.showToast({
           title: '文章链接为空',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       }
     }
     // 2: 内部路径
@@ -493,23 +503,23 @@ Page({
           url: articleLink,
           fail() {
             wx.navigateTo({
-              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
-            });
-          }
-        });
+              url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
+            })
+          },
+        })
       }
     }
     // 3: 第三方链接
     else if (articleType === 3) {
       wx.navigateTo({
-        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`
-      });
+        url: `/pages/common/webview/webview?url=${encodeURIComponent(articleLink)}&title=${encodeURIComponent(articleTitle)}`,
+      })
     }
     // 默认跳转到普通详情页
     else {
       wx.navigateTo({
-        url: `/pages/article/detail/detail?id=${id}`
-      });
+        url: `/pages/article/detail/detail?id=${id}`,
+      })
     }
   },
 
@@ -522,13 +532,13 @@ Page({
 
     if (wxId) {
       wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${wxId}`
+        url: `/pages/alumni/detail/detail?id=${wxId}`,
       })
     } else {
       wx.showToast({
         title: '管理员未设置关联系统内校友用户',
         icon: 'none',
-        duration: 2500
+        duration: 2500,
       })
     }
   },
@@ -539,16 +549,14 @@ Page({
 
     if (wxId) {
       wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${wxId}`
+        url: `/pages/alumni/detail/detail?id=${wxId}`,
       })
     } else {
       wx.showToast({
         title: '管理员未设置关联系统内校友用户',
         icon: 'none',
-        duration: 2500
+        duration: 2500,
       })
     }
-  }
+  },
 })
-
-

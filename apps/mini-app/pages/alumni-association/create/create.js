@@ -96,6 +96,7 @@ Page({
     submitting: false,
     defaultAvatar: config.defaultAvatar,
     headerImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png`,
+    keyboardHeight: 0,
   },
 
   onLoad() {
@@ -114,6 +115,27 @@ Page({
       // 初始化第一个成员为"主要负责人"，不能删除（负责人不传 wxid，姓名等由用户直接填写）
       members: [{ name: '', role: '会长', affiliation: '', phone: '' }],
     })
+
+    // 监听键盘高度变化，手动控制滚动（替代 adjust-position）
+    this._keyboardHandler = res => {
+      this.setData({ keyboardHeight: res.height })
+      if (res.height > 0 && this._focusScrollTop !== undefined) {
+        // 键盘弹起后，将页面向上滚动，确保输入框在键盘上方可见
+        setTimeout(() => {
+          wx.pageScrollTo({
+            scrollTop: this._focusScrollTop + res.height * 0.3,
+            duration: 200,
+          })
+        }, 50)
+      }
+    }
+    wx.onKeyboardHeightChange(this._keyboardHandler)
+  },
+
+  onUnload() {
+    if (this._keyboardHandler) {
+      wx.offKeyboardHeightChange(this._keyboardHandler)
+    }
   },
 
   // 加载架构模板列表
@@ -282,7 +304,19 @@ Page({
     }
   },
 
-  handleSchoolFocus() {
+  // 输入框聚焦时记录当前滚动位置，用于键盘弹起后手动滚动
+  onInputFocus() {
+    wx.createSelectorQuery()
+      .selectViewport()
+      .scrollOffset()
+      .exec(res => {
+        this._focusScrollTop = res && res[0] ? res[0].scrollTop : 0
+      })
+  },
+
+  handleSchoolFocus(e) {
+    // 记录滚动位置
+    this.onInputFocus()
     // 聚焦时如果已有内容，也展示结果
     if (this.data.formData.schoolName) {
       this.setData({ showSchoolResults: true })

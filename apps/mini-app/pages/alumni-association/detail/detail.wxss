@@ -98,11 +98,12 @@ page {
   box-shadow: 0 10rpx 20rpx rgba(255, 167, 38, 0.25);
 }
 
-/* 已加入状态 */
+/* 已加入状态 - 退出校友会 */
 .join-button.joined {
-  background: linear-gradient(90deg, #66bb6a 0%, #81c784 100%);
-  color: #ffffff;
-  box-shadow: 0 10rpx 20rpx rgba(102, 187, 106, 0.25);
+  background: #ffffff;
+  color: #999999;
+  border: 2rpx solid #dddddd;
+  box-shadow: none;
 }
 
 /* 被拒绝状态 */
