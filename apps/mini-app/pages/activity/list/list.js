@@ -243,20 +243,26 @@ Page({
       const res = await this.getActivityList(selectedAlumniAssociationId)
       
       if (res.data && res.data.code === 200 && res.data.data) {
-        const activityList = res.data.data.map(item => ({
-          id: item.activityId,
-          title: item.activityTitle,
-          organizer: item.organizerName,
-          cover: item.organizerAvatar,
-          participantCount: item.currentParticipants,
-          location: `${item.province}${item.city}${item.district}${item.address}`,
-          startTime: this.formatDateTime(item.startTime),
-          endTime: this.formatDateTime(item.endTime),
-          status: this.getActivityStatus(item.status),
-          originalStatus: item.status,
-          tags: [item.activityCategory],
-          distance: 0 // 暂时设置为0，后续可以根据实际位置计算
-        }))
+        const activityList = res.data.data.map(item => {
+          const safeProvince = item.province || ''
+          const safeCity = item.city || ''
+          const safeDistrict = item.district || ''
+          const safeAddress = item.address || ''
+          return {
+            id: item.activityId,
+            title: item.activityTitle,
+            organizer: item.organizerName,
+            cover: item.organizerAvatar,
+            participantCount: item.currentParticipants,
+            location: `${safeProvince}${safeCity}${safeDistrict}${safeAddress}`,
+            startTime: this.formatDateTime(item.startTime),
+            endTime: this.formatDateTime(item.endTime),
+            status: this.getActivityStatus(item.status),
+            originalStatus: item.status,
+            tags: [item.activityCategory],
+            distance: 0 // 暂时设置为0，后续可以根据实际位置计算
+          }
+        })
         
         this.setData({
           activityList,

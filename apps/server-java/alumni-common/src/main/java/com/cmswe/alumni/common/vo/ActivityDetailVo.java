@@ -234,6 +234,12 @@ public class ActivityDetailVo implements Serializable {
     private Integer isPublic;
 
     /**
+     * 是否在主页展示：0-否 1-是
+     */
+    @Schema(description = "是否在主页展示：0-否 1-是")
+    private Integer showOnHomepage;
+
+    /**
      * 是否推荐：0-否 1-是
      */
     @Schema(description = "是否推荐：0-否 1-是")

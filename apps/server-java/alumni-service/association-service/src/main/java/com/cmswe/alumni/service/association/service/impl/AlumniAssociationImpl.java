@@ -1749,6 +1749,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         activity.setStatus(1); // 状态：1-报名中
         activity.setReviewStatus(1); // 管理员发布，默认审核通过
         activity.setIsPublic(publishDto.getIsPublic() != null ? publishDto.getIsPublic() : 1);
+        activity.setShowOnHomepage(publishDto.getShowOnHomepage() != null ? publishDto.getShowOnHomepage() : 0);
         activity.setIsRecommended(0); // 默认不推荐
         // 处理 tagsId，如果为空则设置为 null（避免 MySQL JSON 字段报错）
         String tagsId = publishDto.getTagsId();
@@ -1809,6 +1810,10 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         activity.setLongitude(updateDto.getLongitude());
         activity.setMaxParticipants(updateDto.getMaxParticipants());
         activity.setIsNeedReview(updateDto.getIsNeedReview());
+        activity.setShowOnHomepage(
+                updateDto.getShowOnHomepage() != null
+                        ? updateDto.getShowOnHomepage()
+                        : existingActivity.getShowOnHomepage());
         activity.setContactPerson(updateDto.getContactPerson());
         activity.setContactPhone(updateDto.getContactPhone());
         activity.setContactEmail(updateDto.getContactEmail());

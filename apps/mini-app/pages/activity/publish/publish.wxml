@@ -272,6 +272,15 @@
                 />
               </view>
             </view>
+
+            <view class="form-item">
+              <text class="label">在主页展示</text>
+              <switch
+                checked="{{formData.showOnHomepage === 1}}"
+                bindchange="onHomepageSwitchChange"
+                color="#1890ff"
+              />
+            </view>
           </view>
           <view class="submit-placeholder"></view>
         </view>

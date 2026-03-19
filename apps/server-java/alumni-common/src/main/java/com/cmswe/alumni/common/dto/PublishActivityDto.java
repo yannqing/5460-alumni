@@ -169,6 +169,12 @@ public class PublishActivityDto implements Serializable {
     private Integer isPublic;
 
     /**
+     * 是否在主页展示：0-否 1-是
+     */
+    @Schema(description = "是否在主页展示：0-否 1-是")
+    private Integer showOnHomepage;
+
+    /**
      * 活动标签（JSON数组：["标签1","标签2"]）
      */
     @Schema(description = "活动标签（JSON数组）")
