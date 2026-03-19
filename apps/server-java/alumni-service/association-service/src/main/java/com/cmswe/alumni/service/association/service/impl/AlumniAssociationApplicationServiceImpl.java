@@ -79,6 +79,9 @@ public class AlumniAssociationApplicationServiceImpl
     @Resource
     private OrganizeArchiTemplateService organizeArchiTemplateService;
 
+    @Resource
+    private com.cmswe.alumni.api.user.UserService userService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean applyToCreateAssociation(Long wxId, ApplyCreateAlumniAssociationDto applyDto) {
@@ -626,6 +629,12 @@ public class AlumniAssociationApplicationServiceImpl
             alumniAssociationService.updateById(alumniAssociation);
             log.info("更新校友会会员数量 - 校友会ID: {}, 会员数: {}", alumniAssociationId, totalMemberCount);
 
+            // 5.7.1 审核通过后，给相关用户补充个人认证标识（幂等：仅从未认证(0/null)更新为3）
+            // 驻会代表是校友会核心管理员，优先更新
+            updateUserCertificationFlagIfNeeded(application.getZhWxId(), "驻会代表");
+            // 负责人如已绑定微信，也补充认证标识
+            updateUserCertificationFlagIfNeeded(application.getChargeWxId(), "负责人");
+
             // 5.8 更新申请记录
             application.setApplicationStatus(1); // 已通过
             application.setReviewerId(reviewerId);
@@ -707,6 +716,37 @@ public class AlumniAssociationApplicationServiceImpl
         } catch (Exception e) {
             log.error("发送校友会创建申请拒绝通知异常 - 用户: {}, 校友会: {}, Error: {}",
                     chargeWxId, associationName, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 若用户当前未认证（certificationFlag 为空或 0），则更新为 3（校友会认证）。
+     * 已有认证用户不覆盖，避免误降级或误变更其他认证类型。
+     */
+    private void updateUserCertificationFlagIfNeeded(Long wxId, String userRoleDesc) {
+        if (wxId == null || wxId <= 0) {
+            return;
+        }
+        try {
+            WxUser wxUser = userService.getById(wxId);
+            if (wxUser == null) {
+                log.warn("更新个人认证标识时用户不存在 - wxId: {}, 角色: {}", wxId, userRoleDesc);
+                return;
+            }
+            Integer currentFlag = wxUser.getCertificationFlag();
+            if (currentFlag != null && currentFlag > 0) {
+                log.info("用户已有认证，跳过更新 - wxId: {}, 当前标识: {}, 角色: {}", wxId, currentFlag, userRoleDesc);
+                return;
+            }
+            wxUser.setCertificationFlag(3);
+            boolean updated = userService.updateById(wxUser);
+            if (updated) {
+                log.info("用户个人认证标识更新成功 - wxId: {}, 新标识: 3, 角色: {}", wxId, userRoleDesc);
+            } else {
+                log.warn("用户个人认证标识更新失败 - wxId: {}, 角色: {}", wxId, userRoleDesc);
+            }
+        } catch (Exception e) {
+            log.error("更新用户个人认证标识异常 - wxId: {}, 角色: {}, error: {}", wxId, userRoleDesc, e.getMessage(), e);
         }
     }
 
