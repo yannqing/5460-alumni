@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 校友会创建申请详情Vo
@@ -184,6 +185,12 @@ public class AlumniAssociationApplicationDetailVo implements Serializable {
      */
     @Schema(description = "申请材料附件ID数组（JSON格式）")
     private String attachmentIds;
+
+    /**
+     * 申请材料附件详情列表
+     */
+    @Schema(description = "申请材料附件详情列表")
+    private List<FilesVo> attachments;
 
     /**
      * 创建的校友会ID（审核通过后自动创建校友会时填写）

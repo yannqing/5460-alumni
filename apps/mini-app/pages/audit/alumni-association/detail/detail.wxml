@@ -169,6 +169,50 @@
       <!-- 分割线 -->
       <view class="divider" wx:if="{{initialMembersList.length > 0}}"></view>
 
+      <!-- 申请附件 -->
+      <view class="detail-section" wx:if="{{attachments && attachments.length > 0}}">
+        <view class="section-title">申请附件 ({{attachments.length}})</view>
+        <view class="attachment-container">
+          <view class="attachment-grid">
+            <view 
+              class="attachment-item {{item.isImage ? 'image-item' : 'file-item'}}" 
+              wx:for="{{attachments}}" 
+              wx:key="fileId"
+            >
+              <!-- 内容展示区域 -->
+              <view 
+                class="attachment-content" 
+                data-url="{{item.fileUrl}}"
+                data-is-image="{{item.isImage}}"
+                bindtap="handleAttachmentTap"
+              >
+                <!-- 图片预览 -->
+                <image 
+                  wx:if="{{item.isImage}}" 
+                  class="preview-image" 
+                  src="{{item.fileUrl}}" 
+                  mode="aspectFill" 
+                  lazy-load="{{true}}"
+                />
+                <!-- 文件预览 -->
+                <view wx:else class="file-preview-box">
+                  <view class="file-icon-bg">
+                    <text class="file-ext-text">{{item.fileExtension || 'FILE'}}</text>
+                  </view>
+                  <view class="file-info">
+                    <text class="file-name">{{item.displayName}}</text>
+                    <text class="file-meta">{{item.fileSizeText}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider" wx:if="{{attachments && attachments.length > 0}}"></view>
+
       <!-- 审核信息 -->
       <view class="detail-section" wx:if="{{application.applicationStatus !== 0}}">
         <view class="section-title">审核信息</view>

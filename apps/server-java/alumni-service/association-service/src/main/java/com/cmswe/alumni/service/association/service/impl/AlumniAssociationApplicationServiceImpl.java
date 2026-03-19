@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
+import com.cmswe.alumni.api.user.FileService;
 import com.cmswe.alumni.api.user.OrganizeArchiTemplateService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
@@ -18,6 +19,7 @@ import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.entity.OrganizeArchiTemplate;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.*;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -81,6 +83,9 @@ public class AlumniAssociationApplicationServiceImpl
 
     @Resource
     private com.cmswe.alumni.api.user.UserService userService;
+
+    @Resource
+    private FileService fileService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -778,6 +783,25 @@ public class AlumniAssociationApplicationServiceImpl
                 SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
                 schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
                 detailVo.setSchoolInfo(schoolListVo);
+            }
+        }
+
+        // 5. 查询并设置附件信息
+        if (StringUtils.isNotBlank(application.getAttachmentIds())) {
+            try {
+                List<Long> attachmentIds = objectMapper.readValue(
+                        application.getAttachmentIds(),
+                        new TypeReference<List<Long>>() {}
+                );
+                if (attachmentIds != null && !attachmentIds.isEmpty()) {
+                    List<Files> filesList = fileService.listByIds(attachmentIds);
+                    List<FilesVo> attachments = filesList.stream()
+                            .map(FilesVo::objToVo)
+                            .collect(Collectors.toList());
+                    detailVo.setAttachments(attachments);
+                }
+            } catch (JsonProcessingException e) {
+                log.error("解析申请附件ID列表失败 - 申请ID: {}", applicationId, e);
             }
         }
 
