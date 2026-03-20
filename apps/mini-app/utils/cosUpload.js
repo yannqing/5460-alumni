@@ -155,7 +155,19 @@ function getMimeType(ext) {
  * @param {number} fileSize 文件大小（字节）
  * @returns {Promise<Object>} 后端返回的 FilesVo（含 fileId、fileUrl 等）
  */
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024 // 5MB
+
 async function uploadToCos(tempFilePath, originalName, fileType, subPath, fileSize) {
+  // 检查文件大小（5MB 限制）
+  if (fileSize && fileSize > MAX_UPLOAD_SIZE) {
+    wx.showToast({
+      title: '请上传小于5MB的文件',
+      icon: 'none',
+      duration: 2000,
+    })
+    throw new Error('文件大小超过5MB限制')
+  }
+
   // 如果没有传 originalName 或 originalName 没有扩展名，从 tempFilePath 中提取
   if (!originalName || !originalName.includes('.')) {
     const pathParts = tempFilePath.replace(/\\/g, '/').split('/')

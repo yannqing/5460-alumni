@@ -5,6 +5,51 @@ const config = require('../../../utils/config.js')
 // 云托管环境下请求体大小限制较严，超过此阈值先压缩再上传（单位：字节）
 const UPLOAD_IMAGE_COMPRESS_THRESHOLD = config.IS_CLOUD_HOST ? 512 * 1024 : 1024 * 1024 // 云托管 512KB，非云托管 1MB
 
+const ALLOWED_DOCUMENT_EXTENSIONS = [
+  'pdf',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'txt',
+  'md',
+  'csv',
+  'rtf',
+  'odt',
+  'ods',
+  'odp',
+  'zip',
+  'rar',
+  '7z',
+  'tar',
+  'gz',
+  'jpg',
+  'jpeg',
+  'png',
+  'gif',
+  'bmp',
+  'webp',
+  'svg',
+  'mp3',
+  'wav',
+  'flac',
+  'aac',
+  'ogg',
+  'wma',
+  'mp4',
+  'avi',
+  'mov',
+  'wmv',
+  'flv',
+  'mkv',
+  'json',
+  'xml',
+  'html',
+  'htm',
+]
+
 /**
  * 若图片超过阈值则压缩后返回路径，否则返回原路径（适配云托管）
  * @param {string} tempFilePath 本地临时路径
@@ -486,24 +531,6 @@ Page({
 
   // --- 申请材料上传处理 ---
 
-  // 支持的文档格式
-  ALLOWED_DOCUMENT_EXTENSIONS: [
-    'pdf',
-    'doc',
-    'docx',
-    'xls',
-    'xlsx',
-    'ppt',
-    'pptx',
-    'txt',
-    'md',
-    'csv',
-    'rtf',
-    'odt',
-    'ods',
-    'odp',
-  ],
-
   async chooseAttachment() {
     try {
       // 使用 wx.chooseMessageFile 选择文档文件
@@ -531,31 +558,29 @@ Page({
 
       // 逐个上传文件
       for (const file of tempFiles) {
+        console.log(
+          '[上传调试] file:',
+          JSON.stringify({ name: file.name, size: file.size, path: file.path, type: file.type })
+        )
         const tempFilePath = file.path
         const originalName = file.name || 'document'
 
         // 获取文件扩展名
         const ext = originalName.split('.').pop().toLowerCase()
+        console.log('[上传调试] ext:', ext, '是否支持:', ALLOWED_DOCUMENT_EXTENSIONS.includes(ext))
 
         // 检查文件格式是否支持
-        if (!this.ALLOWED_DOCUMENT_EXTENSIONS.includes(ext)) {
-          wx.showToast({
-            title: `不支持的文件格式: ${ext}`,
-            icon: 'none',
-            duration: 2000,
-          })
-          continue
+        if (!ALLOWED_DOCUMENT_EXTENSIONS.includes(ext)) {
+          this._uploadFormatError = true
+          break
         }
 
         // 检查文件大小（5MB = 5 * 1024 * 1024 字节）
         const fileSize = file.size || 0
         const maxSize = 5 * 1024 * 1024 // 5MB
         if (fileSize > maxSize) {
-          wx.showToast({
-            title: `${originalName} 大小不能超过5MB`,
-            icon: 'none',
-          })
-          continue
+          this._uploadSizeError = true
+          break
         }
 
         // 上传文档文件
@@ -588,7 +613,22 @@ Page({
         }
       }
 
-      if (attachments.length > this.data.attachments.length) {
+      wx.hideLoading()
+      if (this._uploadFormatError) {
+        this._uploadFormatError = false
+        wx.showToast({
+          title: '您上传的文件格式不支持',
+          icon: 'none',
+          duration: 2000,
+        })
+      } else if (this._uploadSizeError) {
+        this._uploadSizeError = false
+        wx.showToast({
+          title: '请上传小于5MB的文件',
+          icon: 'none',
+          duration: 2000,
+        })
+      } else if (attachments.length > this.data.attachments.length) {
         this.setData({ attachments })
         wx.showToast({
           title: '上传成功',
@@ -601,15 +641,13 @@ Page({
         })
       }
     } catch (error) {
-      // 显示具体的错误信息
+      wx.hideLoading()
       const errorMsg = error?.msg || error?.message || '上传失败，请重试'
       wx.showToast({
         title: errorMsg,
         icon: 'none',
         duration: 2000,
       })
-    } finally {
-      wx.hideLoading()
     }
   },
 
