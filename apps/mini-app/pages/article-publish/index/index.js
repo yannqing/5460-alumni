@@ -23,7 +23,7 @@ Page({
     articleLink: '', // 文章链接
     coverImage: '',
     coverImgId: '', // 封面图文件ID，用于发布文章时传给后端
-    articleType: 3, // 默认第三方链接类型，固定值：3-第三方链接
+    articleType: 1, // 默认公众号文章类型，固定值：1-公众号
     publishType: 0, // 默认校友会发布类型，可选：0-校友会，1-校促会
     showOnHomepage: 0, // 是否在首页展示：0-不展示，1-展示
     childArticles: [], // 子文章列表
@@ -43,12 +43,12 @@ Page({
     // 发布者选择相关数据
     selectedPublisherId: '',
     selectedPublisherName: '',
+    selectedPublisherAvatar: '', // 发布者头像/logo，用于存入 publisher_avatar
     publisherList: [],
     showPublisherPicker: false,
     publisherSearchKeyword: '',
     showPublisherSearchResults: false,
-    defaultAvatar: config.defaultAvatar,
-    defaultUserAvatarUrl: `https://${config.DOMAIN}/upload/images/assets/images/avatar.png`
+    defaultUserAvatarUrl: config.defaultAvatar
   },
 
   onLoad(options) {
@@ -419,10 +419,11 @@ Page({
 
   // 选择发布者
   selectPublisher(e) {
-    const { publisherId, publisherName } = e.currentTarget.dataset
+    const { publisherId, publisherName, publisherAvatar } = e.currentTarget.dataset
     this.setData({
       selectedPublisherId: publisherId,
       selectedPublisherName: publisherName,
+      selectedPublisherAvatar: publisherAvatar || '',
       showPublisherPicker: false,
       publisherSearchKeyword: '',
       publisherList: []
@@ -431,7 +432,7 @@ Page({
 
   // 发布文章
   publishArticle() {
-    const { title, content, articleLink, coverImgId, articleType, publishType, selectedPublisherId, selectedPublisherName, showOnHomepage, childArticles } = this.data
+    const { title, content, articleLink, coverImgId, articleType, publishType, selectedPublisherId, selectedPublisherName, selectedPublisherAvatar, showOnHomepage, childArticles } = this.data
 
     if (!title.trim()) {
       wx.showToast({
@@ -507,8 +508,8 @@ Page({
       childArticles: childArticles // 子文章列表
     }
 
-    // 固定文章类型为第三方链接
-    requestData.articleType = 3
+    // 固定文章类型为公众号文章
+    requestData.articleType = 1
     // 将 publishType 转换为对应的字符串类型
     requestData.publishType = publishType === 0 ? 'ASSOCIATION' : 'LOCAL_PLATFORM'
 
@@ -533,15 +534,21 @@ Page({
     console.log('最终发布请求数据:', JSON.stringify(requestData))
 
     // 添加发布者信息
+    const defaultPublisherLogo = config.getImageUrl(config.defaultAvatar)
     if (selectedPublisherId) {
       // 使用选择的发布者信息，直接使用字符串类型，避免超大整数精度丢失
       requestData.publishWxId = selectedPublisherId
       requestData.publishUsername = selectedPublisherName
+      // 发布者头像/logo 存入 publisher_avatar，无头像时使用默认 logo
+      requestData.publisherAvatar = selectedPublisherAvatar || defaultPublisherLogo
     } else {
       // 使用当前用户信息作为发布者，直接使用字符串类型，避免超大整数精度丢失
       const userId = userData.wxId || userData.id || userInfo.wxId || userInfo.id || '0'
       requestData.publishWxId = userId
       requestData.publishUsername = selectedPublisherName || userData.nickname || userData.nickName || userInfo.nickname || userInfo.nickName || ''
+      // 当前用户头像存入 publisher_avatar，无头像时使用默认 logo
+      const userAvatar = userData.avatarUrl || userInfo.avatarUrl || ''
+      requestData.publisherAvatar = userAvatar || defaultPublisherLogo
     }
 
     // 调用API发布文章

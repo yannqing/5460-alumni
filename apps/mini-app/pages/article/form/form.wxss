@@ -1,7 +1,14 @@
 .container {
-  padding: 30rpx;
-  background: #fff;
+  padding: 24rpx;
+  background: #F7F7FE;
   min-height: 100vh;
+  box-sizing: border-box;
+}
+.form-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
 }
 .form-group {
   margin-bottom: 40rpx;
@@ -58,6 +65,86 @@
   font-size: 28rpx;
   color: #999;
 }
+
+/* 发布者选择弹窗 */
+.publisher-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+.picker-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.picker-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 75vh;
+}
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 30rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+.picker-cancel {
+  font-size: 28rpx;
+  color: #999;
+}
+.picker-list {
+  max-height: calc(75vh - 100rpx);
+  padding: 0 30rpx 90rpx 30rpx;
+}
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.publisher-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+.picker-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+.item-name {
+  font-size: 28rpx;
+  color: #333;
+}
+.item-check {
+  font-size: 32rpx;
+  color: #52c41a;
+  font-weight: 600;
+}
+.picker-empty {
+  padding: 60rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
 .textarea {
   border: 1rpx solid #eee;
   padding: 20rpx;
@@ -87,8 +174,15 @@
   border-radius: 8rpx;
 }
 .submit-btn {
-  background: #4bcce9;
+  background: linear-gradient(135deg, #4A8BF5 0%, #5C9DFD 100%);
   color: #fff;
-  border-radius: 40rpx;
+  border-radius: 44rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 8rpx 24rpx rgba(74, 139, 245, 0.3);
   margin-top: 60rpx;
 }

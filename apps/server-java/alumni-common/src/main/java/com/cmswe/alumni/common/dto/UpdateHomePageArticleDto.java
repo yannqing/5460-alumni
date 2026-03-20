@@ -56,6 +56,9 @@ public class UpdateHomePageArticleDto implements Serializable {
     @Schema(description = "发布者名称", example = "张三")
     private String publishUsername;
 
+    @Schema(description = "发布者头像", example = "https://example.com/avatar.jpg")
+    private String publisherAvatar;
+
     @Schema(description = "发布者类型枚举（ASSOCIATION-校友会，LOCAL_PLATFORM-校促会）", example = "ASSOCIATION")
     private String publishType;
 
