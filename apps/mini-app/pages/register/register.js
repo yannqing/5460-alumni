@@ -22,6 +22,7 @@ Page({
     statusBarHeight: 20,
     // 表单数据
     formData: {
+      nickname: '',
       realName: '',
       gender: '', // male 或 female
       school: '',
@@ -56,6 +57,53 @@ Page({
       statusBarHeight: systemInfo.statusBarHeight || 20,
       isDevelopMode,
     })
+
+    // 获取用户信息并回填表单
+    this.loadUserInfo()
+  },
+
+  // 获取用户信息回填表单
+  async loadUserInfo() {
+    try {
+      const res = await userApi.getUserInfo()
+      if (res && res.data && res.data.code === 200 && res.data.data) {
+        const user = res.data.data
+        const genderMap = { 1: 'male', 2: 'female' }
+        const updates = {}
+
+        if (user.nickname) {
+          updates['formData.nickname'] = user.nickname
+        }
+        if (user.name) {
+          updates['formData.realName'] = user.name
+        }
+        if (user.gender && genderMap[user.gender]) {
+          updates['formData.gender'] = genderMap[user.gender]
+        }
+        // 学校信息在 alumniEducationList 中
+        const edu = (user.alumniEducationList || [])[0]
+        if (edu) {
+          const schoolId = edu.schoolInfo?.schoolId || edu.schoolId
+          const schoolName = edu.schoolInfo?.schoolName || edu.schoolName
+          if (schoolId) {
+            updates['formData.schoolId'] = schoolId
+          }
+          if (schoolName) {
+            updates['formData.school'] = schoolName
+          }
+        }
+        if (user.phone) {
+          updates['formData.phone'] = user.phone
+        }
+
+        if (Object.keys(updates).length > 0) {
+          this.setData(updates)
+          this.validateForm()
+        }
+      }
+    } catch (e) {
+      console.error('获取用户信息失败:', e)
+    }
   },
 
   // 返回上一页
@@ -67,6 +115,21 @@ Page({
         })
       },
     })
+  },
+
+  // 获取微信昵称
+  onNicknameChange(e) {
+    const nickname = e.detail.value
+    if (nickname) {
+      this.setData({ 'formData.nickname': nickname })
+      this.validateForm()
+    }
+  },
+
+  // 清除昵称
+  clearNickname() {
+    this.setData({ 'formData.nickname': '' })
+    this.validateForm()
   },
 
   // 输入真实姓名
@@ -321,6 +384,7 @@ Page({
   validateForm() {
     const { formData, isAgreed } = this.data
     const isValid =
+      formData.nickname.trim() !== '' &&
       formData.realName.trim() !== '' &&
       formData.gender !== '' &&
       formData.school !== '' &&
@@ -339,6 +403,10 @@ Page({
     if (!this.data.isFormValid) {
       // 显示具体的错误提示
       const { formData, isAgreed } = this.data
+      if (!formData.nickname.trim()) {
+        wx.showToast({ title: '请输入昵称', icon: 'none' })
+        return
+      }
       if (!formData.realName.trim()) {
         wx.showToast({ title: '请输入真实姓名', icon: 'none' })
         return
@@ -379,6 +447,7 @@ Page({
       }
 
       const registerData = {
+        nickname: formData.nickname.trim(),
         name: formData.realName.trim(),
         schoolId: formData.schoolId,
         gender: genderMap[formData.gender] || 0,

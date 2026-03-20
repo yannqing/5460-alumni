@@ -391,7 +391,7 @@ const authApi = {
   auth: data => post('/auth/login', data),
 
   // 用户注册（更新用户信息并添加教育经历）
-  // data: { name, schoolId, gender, phone }
+  // data: { nickname, name, schoolId, gender, phone }
   register: data => post('/auth/register', data),
   // auth: (data) => {
   //   // 将参数拼接到 URL 上（查询参数）
@@ -789,7 +789,8 @@ const joinApplicationApi = {
   // 审核加入申请
   reviewApplication: params => post('/AlumniAssociationJoinApplication/review', params),
   // 根据ID获取加入申请详情
-  getApplicationDetail: applicationId => get(`/AlumniAssociationJoinApplication/detailById/${applicationId}`),
+  getApplicationDetail: applicationId =>
+    get(`/AlumniAssociationJoinApplication/detailById/${applicationId}`),
 }
 
 // ==================== 用户反馈相关接口 ====================

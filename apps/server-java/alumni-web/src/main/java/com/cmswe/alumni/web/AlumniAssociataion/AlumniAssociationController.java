@@ -485,4 +485,50 @@ public class AlumniAssociationController {
             return ResultUtils.failure(Code.FAILURE, result, error);
         }
     }
+
+    /**
+     * 删除校友会及所有相关数据（测试专用接口）
+     * <p>此接口会删除校友会的所有关联数据，包括：
+     * <ul>
+     *   <li>校友会成员</li>
+     *   <li>加入申请记录</li>
+     *   <li>加入校促会申请</li>
+     *   <li>邀请记录</li>
+     *   <li>活动及活动报名</li>
+     *   <li>发布的文章</li>
+     *   <li>角色关联</li>
+     *   <li>组织架构角色</li>
+     *   <li>用户关注记录</li>
+     *   <li>校友会主表数据</li>
+     * </ul>
+     *
+     * @param alumniAssociationId 校友会ID
+     * @return 删除结果
+     */
+    @DeleteMapping("/test/delete/{alumniAssociationId}")
+    @Operation(summary = "删除校友会及所有相关数据（测试专用）")
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse<Boolean> deleteAlumniAssociationCompletely(@PathVariable Long alumniAssociationId) {
+        log.warn("【测试接口】删除校友会及所有相关数据 - 校友会ID: {}", alumniAssociationId);
+
+        if (alumniAssociationId == null) {
+            return ResultUtils.failure(Code.FAILURE, false, "校友会ID不能为空");
+        }
+
+        try {
+            boolean result = alumniAssociationService.deleteAlumniAssociationCompletely(alumniAssociationId);
+
+            if (result) {
+                log.info("【测试接口】删除校友会成功 - 校友会ID: {}", alumniAssociationId);
+                return ResultUtils.success(Code.SUCCESS, true, "删除成功");
+            } else {
+                log.error("【测试接口】删除校友会失败 - 校友会ID: {}", alumniAssociationId);
+                return ResultUtils.failure(Code.FAILURE, false, "删除失败");
+            }
+        } catch (Exception e) {
+            log.error("【测试接口】删除校友会异常 - 校友会ID: {}, Error: {}",
+                    alumniAssociationId, e.getMessage(), e);
+            return ResultUtils.failure(Code.FAILURE, false, "删除失败：" + e.getMessage());
+        }
+    }
 }

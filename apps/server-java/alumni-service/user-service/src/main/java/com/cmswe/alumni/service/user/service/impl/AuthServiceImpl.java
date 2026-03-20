@@ -309,25 +309,31 @@ public class AuthServiceImpl implements AuthService {
                 return false;
             }
 
-            // 2. 检查真实姓名
+            // 2. 检查昵称
+            if (userInfo.getNickname() == null || userInfo.getNickname().trim().isEmpty()) {
+                log.debug("用户昵称未填写，wxId={}", wxId);
+                return false;
+            }
+
+            // 3. 检查真实姓名
             if (userInfo.getName() == null || userInfo.getName().trim().isEmpty()) {
                 log.debug("用户真实姓名未填写，wxId={}", wxId);
                 return false;
             }
 
-            // 3. 检查手机号
+            // 4. 检查手机号
             if (userInfo.getPhone() == null || userInfo.getPhone().trim().isEmpty()) {
                 log.debug("用户手机号未填写，wxId={}", wxId);
                 return false;
             }
 
-            // 4. 检查性别（0-未知，1-男，2-女）
+            // 5. 检查性别（0-未知，1-男，2-女）
             if (userInfo.getGender() == null || userInfo.getGender() == 0) {
                 log.debug("用户性别未填写，wxId={}", wxId);
                 return false;
             }
 
-            // 5. 检查是否至少有一条学习经历
+            // 6. 检查是否至少有一条学习经历
             Long educationCount = alumniEducationMapper.selectCount(
                     new LambdaQueryWrapper<com.cmswe.alumni.common.entity.AlumniEducation>()
                             .eq(com.cmswe.alumni.common.entity.AlumniEducation::getWxId, wxId)
@@ -462,6 +468,7 @@ public class AuthServiceImpl implements AuthService {
      * 用户注册接口（完善用户基本信息和教育经历）
      *
      * @param wxId 微信用户ID（从token解析）
+     * @param nickname 昵称
      * @param name 真实姓名
      * @param schoolId 学校ID
      * @param gender 性别
@@ -470,9 +477,9 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean registerUser(Long wxId, String name, Long schoolId, Integer gender, String phone) {
-        log.info("开始注册用户 - wxId: {}, name: {}, schoolId: {}, gender: {}, phone: {}",
-                wxId, name, schoolId, gender, maskPhone(phone));
+    public boolean registerUser(Long wxId, String nickname, String name, Long schoolId, Integer gender, String phone) {
+        log.info("开始注册用户 - wxId: {}, nickname: {}, name: {}, schoolId: {}, gender: {}, phone: {}",
+                wxId, nickname, name, schoolId, gender, maskPhone(phone));
 
         try {
             // 1. 更新 wx_user_info 表
@@ -487,6 +494,7 @@ public class AuthServiceImpl implements AuthService {
             }
 
             // 更新用户基本信息
+            userInfo.setNickname(nickname);
             userInfo.setName(name);
             userInfo.setGender(gender);
             userInfo.setPhone(phone);

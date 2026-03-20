@@ -287,4 +287,23 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @return 是否成功
      */
     boolean updateMemberCount(Long alumniAssociationId, Integer delta);
+
+    /**
+     * 删除校友会及所有相关数据（测试专用接口）
+     * <p>删除内容包括：
+     * <ul>
+     *   <li>1. 校友会成员表（alumni_association_member）</li>
+     *   <li>2. 校友会加入申请表（alumni_association_join_application）</li>
+     *   <li>3. 校友会加入校促会申请表（alumni_association_join_apply）</li>
+     *   <li>4. 校友会邀请记录表（alumni_association_invitation）</li>
+     *   <li>5. 该校友会的所有活动（activity）及活动报名记录（activity_registration）</li>
+     *   <li>6. 该校友会发布的文章（article，根据publish_type和publish_wx_id关联）</li>
+     *   <li>7. 角色用户关联表（role_user，组织类型为校友会的角色）</li>
+     *   <li>8. 校友会主表（alumni_association）</li>
+     * </ul>
+     *
+     * @param alumniAssociationId 校友会ID
+     * @return 删除是否成功
+     */
+    boolean deleteAlumniAssociationCompletely(Long alumniAssociationId);
 }

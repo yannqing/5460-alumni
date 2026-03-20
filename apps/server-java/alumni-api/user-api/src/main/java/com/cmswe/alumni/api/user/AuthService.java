@@ -32,11 +32,12 @@ public interface AuthService {
      * 用户注册接口（完善用户基本信息和教育经历）
      *
      * @param wxId 微信用户ID（从token解析）
+     * @param nickname 昵称
      * @param name 真实姓名
      * @param schoolId 学校ID
      * @param gender 性别
      * @param phone 手机号
      * @return 是否成功
      */
-    boolean registerUser(Long wxId, String name, Long schoolId, Integer gender, String phone);
+    boolean registerUser(Long wxId, String nickname, String name, Long schoolId, Integer gender, String phone);
 }

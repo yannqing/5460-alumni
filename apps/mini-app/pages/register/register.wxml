@@ -22,6 +22,27 @@
 
     <!-- 表单区域 -->
     <view class="form-section">
+      <!-- 昵称 -->
+      <view class="form-item">
+        <view class="form-label">昵称</view>
+        <view class="phone-input-wrapper">
+          <view class="phone-display" wx:if="{{formData.nickname}}">
+            <text class="phone-value">{{formData.nickname}}</text>
+            <view class="phone-change" bindtap="clearNickname">更换</view>
+          </view>
+          <view wx:else class="form-input-wrapper">
+            <input
+              class="form-input"
+              type="nickname"
+              placeholder="请点击获取微信昵称"
+              placeholder-class="input-placeholder"
+              value="{{formData.nickname}}"
+              bindchange="onNicknameChange"
+            />
+          </view>
+        </view>
+      </view>
+
       <!-- 真实姓名 -->
       <view class="form-item">
         <view class="form-label">真实姓名</view>

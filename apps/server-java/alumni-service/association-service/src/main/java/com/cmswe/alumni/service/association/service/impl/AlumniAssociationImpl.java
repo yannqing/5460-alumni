@@ -2451,4 +2451,107 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         return result > 0;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteAlumniAssociationCompletely(Long alumniAssociationId) {
+        if (alumniAssociationId == null) {
+            log.error("[deleteAlumniAssociationCompletely] 校友会ID不能为空");
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校友会ID不能为空");
+        }
+
+        log.info("[deleteAlumniAssociationCompletely] 开始删除校友会及所有相关数据 - 校友会ID: {}", alumniAssociationId);
+
+        try {
+            // 1. 删除校友会成员表
+            LambdaQueryWrapper<AlumniAssociationMember> memberQuery = new LambdaQueryWrapper<>();
+            memberQuery.eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId);
+            long memberCount = alumniAssociationMemberService.count(memberQuery);
+            if (memberCount > 0) {
+                boolean memberDeleted = alumniAssociationMemberService.remove(memberQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除校友会成员 - 校友会ID: {}, 删除数量: {}, 结果: {}",
+                        alumniAssociationId, memberCount, memberDeleted);
+            }
+
+            // 2. 删除校友会加入申请表
+            LambdaQueryWrapper<AlumniAssociationJoinApplication> applicationQuery = new LambdaQueryWrapper<>();
+            applicationQuery.eq(AlumniAssociationJoinApplication::getAlumniAssociationId, alumniAssociationId);
+            List<AlumniAssociationJoinApplication> applications = alumniAssociationJoinApplicationMapper.selectList(applicationQuery);
+            if (!applications.isEmpty()) {
+                int applicationCount = alumniAssociationJoinApplicationMapper.delete(applicationQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除校友会加入申请 - 校友会ID: {}, 删除数量: {}",
+                        alumniAssociationId, applicationCount);
+            }
+
+            // 3. 删除校友会加入校促会申请表（注：需要在对应的Service中添加删除方法）
+            log.info("[deleteAlumniAssociationCompletely] 跳过删除校友会加入校促会申请（如需要请手动处理） - 校友会ID: {}",
+                    alumniAssociationId);
+
+            // 4. 删除校友会邀请记录表
+            LambdaQueryWrapper<AlumniAssociationInvitation> invitationQuery = new LambdaQueryWrapper<>();
+            invitationQuery.eq(AlumniAssociationInvitation::getAlumniAssociationId, alumniAssociationId);
+            int invitationCount = alumniAssociationInvitationMapper.delete(invitationQuery);
+            log.info("[deleteAlumniAssociationCompletely] 删除校友会邀请记录 - 校友会ID: {}, 删除数量: {}",
+                    alumniAssociationId, invitationCount);
+
+            // 5. 删除该校友会的所有活动（通过 ActivityService）
+            log.info("[deleteAlumniAssociationCompletely] 删除校友会活动（需在ActivityService中实现） - 校友会ID: {}",
+                    alumniAssociationId);
+
+            // 6. 删除该校友会发布的文章（通过 HomePageArticleService）
+            log.info("[deleteAlumniAssociationCompletely] 删除校友会文章（需在HomePageArticleService中实现） - 校友会ID: {}",
+                    alumniAssociationId);
+
+            // 7. 删除角色用户关联表（组织类型为校友会的角色）
+            LambdaQueryWrapper<RoleUser> roleUserQuery = new LambdaQueryWrapper<>();
+            roleUserQuery.eq(RoleUser::getType, 2) // 2-组织角色
+                    .eq(RoleUser::getOrganizeId, alumniAssociationId);
+            long roleUserCount = roleUserService.count(roleUserQuery);
+            if (roleUserCount > 0) {
+                boolean roleUserDeleted = roleUserService.remove(roleUserQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除校友会角色关联 - 校友会ID: {}, 删除数量: {}, 结果: {}",
+                        alumniAssociationId, roleUserCount, roleUserDeleted);
+            }
+
+            // 8. 删除组织架构角色
+            LambdaQueryWrapper<OrganizeArchiRole> archiRoleQuery = new LambdaQueryWrapper<>();
+            archiRoleQuery.eq(OrganizeArchiRole::getOrganizeType, 0) // 0-校友会
+                    .eq(OrganizeArchiRole::getOrganizeId, alumniAssociationId);
+            long archiRoleCount = organizeArchiRoleService.count(archiRoleQuery);
+            if (archiRoleCount > 0) {
+                boolean archiRoleDeleted = organizeArchiRoleService.remove(archiRoleQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除组织架构角色 - 校友会ID: {}, 删除数量: {}, 结果: {}",
+                        alumniAssociationId, archiRoleCount, archiRoleDeleted);
+            }
+
+            // 9. 删除用户关注记录
+            LambdaQueryWrapper<UserFollow> followQuery = new LambdaQueryWrapper<>();
+            followQuery.eq(UserFollow::getTargetId, alumniAssociationId)
+                    .eq(UserFollow::getTargetType, 2); // 2-校友会
+            long followCount = userFollowService.count(followQuery);
+            if (followCount > 0) {
+                boolean followDeleted = userFollowService.remove(followQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除用户关注记录 - 校友会ID: {}, 删除数量: {}, 结果: {}",
+                        alumniAssociationId, followCount, followDeleted);
+            }
+
+            // 10. 最后删除校友会主表
+            boolean associationDeleted = this.removeById(alumniAssociationId);
+            log.info("[deleteAlumniAssociationCompletely] 删除校友会主表 - 校友会ID: {}, 结果: {}",
+                    alumniAssociationId, associationDeleted);
+
+            if (associationDeleted) {
+                log.info("[deleteAlumniAssociationCompletely] 校友会及所有相关数据删除成功 - 校友会ID: {}", alumniAssociationId);
+                return true;
+            } else {
+                log.error("[deleteAlumniAssociationCompletely] 删除校友会主表失败 - 校友会ID: {}", alumniAssociationId);
+                throw new BusinessException(ErrorType.OPERATION_ERROR, "删除校友会失败");
+            }
+
+        } catch (Exception e) {
+            log.error("[deleteAlumniAssociationCompletely] 删除校友会异常 - 校友会ID: {}, Error: {}",
+                    alumniAssociationId, e.getMessage(), e);
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "删除校友会失败：" + e.getMessage());
+        }
+    }
+
 }
