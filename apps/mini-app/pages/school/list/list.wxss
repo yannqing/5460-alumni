@@ -559,21 +559,14 @@ picker::before {
 .add-button {
   position: fixed;
   bottom: 100rpx;
-  right: 40rpx;
-  width: 80rpx;
-  height: 80rpx;
-  background-color: #3F61CA;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  right: 30rpx;
+  z-index: 999;
+  width: 295.87rpx;
+  height: 146.22rpx;
 }
 
-.add-button-text {
-  font-size: 48rpx;
-  color: #FFFFFF;
-  font-weight: 300;
-  line-height: 1;
+.add-button-image {
+  width: 295.87rpx;
+  height: 146.22rpx;
+  display: block;
 }
