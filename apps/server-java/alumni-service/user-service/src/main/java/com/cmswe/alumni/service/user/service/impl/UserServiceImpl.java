@@ -163,9 +163,9 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             updateAlumniEducation(wxId, alumniEducationList);
         }
 
-        //6.5.处理工作经历信息更新
+        //6.5.处理工作经历信息更新（支持空列表，表示清空所有工作经历）
         List<WxUserWorkDto> workExperienceList = updateDto.getWorkExperienceList();
-        if (workExperienceList != null && !workExperienceList.isEmpty()) {
+        if (workExperienceList != null) {
             updateWorkExperience(wxId, workExperienceList);
         }
 
@@ -714,10 +714,13 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     }
 
     /**
-     * 更新用户的工作经历信息
+     * 更新用户的工作经历信息（Diff 增量更新）
+     * 1. 有 userWorkId 的记录：updateById 更新
+     * 2. 无 userWorkId 的记录：insert 新增
+     * 3. 传入列表之外的记录：逻辑删除
      *
      * @param wxId               用户ID
-     * @param workExperienceList 工作经历列表
+     * @param workExperienceList 工作经历列表（可为空，表示清空所有）
      */
     private void updateWorkExperience(Long wxId, List<WxUserWorkDto> workExperienceList) {
         // 校验工作经历数据
@@ -737,11 +740,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             }
         }
 
-        // 删除该用户现有的所有工作经历（逻辑删除）
-        wxUserWorkMapper.delete(new LambdaQueryWrapper<WxUserWork>()
-                .eq(WxUserWork::getWxId, wxId));
-
-        // 插入或更新新的工作经历
+        // 1. 先处理传入列表：更新已有记录，新增无ID记录（此时记录尚未删除，updateById 可成功）
+        Set<Long> incomingIds = new HashSet<>();
         for (WxUserWorkDto workDto : workExperienceList) {
             WxUserWork wxUserWork = new WxUserWork();
             BeanUtils.copyProperties(workDto, wxUserWork);
@@ -753,14 +753,25 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             }
 
             if (workDto.getUserWorkId() != null) {
-                // 如果有ID，则更新
-                wxUserWork.setUserWorkId(workDto.getUserWorkId());
+                Long userWorkId = workDto.getUserWorkId();
+                incomingIds.add(userWorkId);
+                wxUserWork.setUserWorkId(userWorkId);
                 wxUserWorkMapper.updateById(wxUserWork);
-                log.info("更新工作经历成功，用户ID: {}, 工作经历ID: {}", wxId, workDto.getUserWorkId());
+                log.info("更新工作经历成功，用户ID: {}, 工作经历ID: {}", wxId, userWorkId);
             } else {
-                // 如果没有ID，则新增
                 wxUserWorkMapper.insert(wxUserWork);
-                log.info("新增工作经历成功，用户ID: {}", wxId);
+                incomingIds.add(wxUserWork.getUserWorkId());
+                log.info("新增工作经历成功，用户ID: {}, 工作经历ID: {}", wxId, wxUserWork.getUserWorkId());
+            }
+        }
+
+        // 2. 删除传入列表之外的记录（逻辑删除）
+        List<WxUserWork> existingList = wxUserWorkMapper.selectList(
+                new LambdaQueryWrapper<WxUserWork>().eq(WxUserWork::getWxId, wxId));
+        for (WxUserWork existing : existingList) {
+            if (!incomingIds.contains(existing.getUserWorkId())) {
+                wxUserWorkMapper.deleteById(existing.getUserWorkId());
+                log.info("删除工作经历，用户ID: {}, 工作经历ID: {}", wxId, existing.getUserWorkId());
             }
         }
     }
