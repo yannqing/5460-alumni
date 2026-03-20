@@ -264,13 +264,13 @@
             />
           </view>
           
-          <view class="form-item">
+          <!-- <view class="form-item">
             <text class="label">活动地点</text>
             <view class="location-selector">
               <input class="input location-input" placeholder="请选择活动地点" value="{{formData.locationName}}" disabled />
               <button class="select-location-btn" bindtap="onChooseLocation">选择位置</button>
             </view>
-          </view>
+          </view> -->
           
         </view>
         

@@ -37,6 +37,14 @@ Page({
     this.initPage()
   },
 
+  onShow() {
+    // 每次进入页面时，如果有选中的校友会，则刷新活动列表
+    if (this.data.selectedAlumniAssociationId) {
+      console.log('[Debug] onShow: 刷新活动列表')
+      this.loadActivityList()
+    }
+  },
+
   // 计算下方卡片内列表可滚动区域高度（scroll-view 必须明确高度才能滚动）
   setScrollListHeight() {
     try {
