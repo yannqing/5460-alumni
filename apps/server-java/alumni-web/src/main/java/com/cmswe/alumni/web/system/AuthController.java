@@ -85,6 +85,7 @@ public class AuthController {
 
         boolean result = authService.registerUser(
                 wxId,
+                registerDto.getNickname(),
                 registerDto.getName(),
                 registerDto.getSchoolId(),
                 registerDto.getGender(),

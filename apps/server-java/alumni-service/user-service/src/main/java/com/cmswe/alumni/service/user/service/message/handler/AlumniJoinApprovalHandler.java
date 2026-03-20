@@ -5,7 +5,6 @@ import com.cmswe.alumni.api.association.AlumniAssociationJoinApplicationService;
 import com.cmswe.alumni.api.association.AlumniAssociationMemberService;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.user.AlumniEducationService;
-import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.RoleUserService;
 import com.cmswe.alumni.api.user.UserService;
@@ -22,10 +21,12 @@ import org.springframework.stereotype.Component;
  *
  * <p>功能：当校友会加入申请审核通过时，执行以下操作：
  * <ul>
- *   <li>1. 添加用户到 role_user 表（分配校友会成员角色 ORGANIZE_ALUMNI_MEMBER）</li>
- *   <li>2. 创建或获取普通成员的架构角色（在 organize_archi_role 表中）</li>
- *   <li>3. 添加用户到校友会成员表（alumni_association_member），设置架构角色</li>
- *   <li>4. 更新用户的 isAlumni 字段为 1</li>
+ *   <li>1. 同步用户基本信息到 wx_user_info 表</li>
+ *   <li>2. 同步教育经历到 alumni_education 表</li>
+ *   <li>3. 添加用户到 role_user 表（分配校友会成员角色 ORGANIZE_ALUMNI_MEMBER）</li>
+ *   <li>4. 添加用户到校友会成员表（alumni_association_member），不分配架构角色</li>
+ *   <li>5. 更新用户的 certificationFlag 字段为 3（校友会认证）</li>
+ *   <li>6. 更新校友会成员数量 +1</li>
  * </ul>
  *
  * <p>触发条件：
@@ -44,7 +45,6 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
 
     private final RoleService roleService;
     private final RoleUserService roleUserService;
-    private final OrganizeArchiRoleService organizeArchiRoleService;
     private final AlumniAssociationMemberService alumniAssociationMemberService;
     private final UserService userService;
     private final WxUserInfoService wxUserInfoService;
@@ -55,7 +55,6 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
     public AlumniJoinApprovalHandler(
             RoleService roleService,
             RoleUserService roleUserService,
-            OrganizeArchiRoleService organizeArchiRoleService,
             AlumniAssociationMemberService alumniAssociationMemberService,
             UserService userService,
             WxUserInfoService wxUserInfoService,
@@ -64,7 +63,6 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
             AlumniAssociationService alumniAssociationService) {
         this.roleService = roleService;
         this.roleUserService = roleUserService;
-        this.organizeArchiRoleService = organizeArchiRoleService;
         this.alumniAssociationMemberService = alumniAssociationMemberService;
         this.userService = userService;
         this.wxUserInfoService = wxUserInfoService;
@@ -153,30 +151,22 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
                 return false;
             }
 
-            // 9. 创建或获取普通成员的架构角色
-            Long roleOrId = getOrCreateRegularMemberArchiRole(alumniAssociationId);
-            if (roleOrId == null) {
-                log.error("[AlumniJoinApprovalHandler] 创建或获取普通成员架构角色失败 - 校友会ID: {}",
-                        alumniAssociationId);
-                return false;
-            }
-
-            // 10. 添加用户到校友会成员表
-            boolean memberAdded = addToAssociationMemberTable(wxId, alumniAssociationId, roleOrId);
+            // 9. 添加用户到校友会成员表（不分配架构角色）
+            boolean memberAdded = addToAssociationMemberTable(wxId, alumniAssociationId);
             if (!memberAdded) {
                 log.error("[AlumniJoinApprovalHandler] 添加用户到校友会成员表失败 - 用户ID: {}, 校友会ID: {}",
                         wxId, alumniAssociationId);
                 return false;
             }
 
-            // 11. 更新用户的 isAlumni 字段为 1
+            // 10. 更新用户的 isAlumni 字段为 1
             boolean alumniStatusUpdated = updateUserAlumniStatus(wxId);
             if (!alumniStatusUpdated) {
                 log.warn("[AlumniJoinApprovalHandler] 更新用户校友状态失败 - 用户ID: {}", wxId);
                 // 不返回 false，因为这不是关键操作
             }
 
-            // 12. 更新校友会成员数量（+1）
+            // 11. 更新校友会成员数量（+1）
             alumniAssociationService.updateMemberCount(alumniAssociationId, 1);
 
             log.info("[AlumniJoinApprovalHandler] 校友会加入申请审核通过处理完成 - 用户ID: {}, 校友会ID: {}",
@@ -242,69 +232,13 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
     }
 
     /**
-     * 创建或获取普通成员的架构角色
-     *
-     * <p>参考 LocalPlatformManagementController 中的 reviewAssociationApplication 接口
-     * 使用相同的 code 和名称
-     *
-     * @param alumniAssociationId 校友会ID
-     * @return 架构角色ID，失败返回 null
-     */
-    private Long getOrCreateRegularMemberArchiRole(Long alumniAssociationId) {
-        try {
-            final String REGULAR_MEMBER_CODE = "MEMBER";
-            final String REGULAR_MEMBER_NAME = "成员";
-            final String REGULAR_MEMBER_REMARK = "普通成员";
-
-            // 1. 查询是否已存在普通成员的架构角色
-            LambdaQueryWrapper<OrganizeArchiRole> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(OrganizeArchiRole::getOrganizeId, alumniAssociationId)
-                    .eq(OrganizeArchiRole::getOrganizeType, 0) // 0-校友会
-                    .eq(OrganizeArchiRole::getRoleOrCode, REGULAR_MEMBER_CODE)
-                    .eq(OrganizeArchiRole::getStatus, 1); // 1-启用
-
-            OrganizeArchiRole existingRole = organizeArchiRoleService.getOne(queryWrapper);
-            if (existingRole != null) {
-                log.debug("[AlumniJoinApprovalHandler] 普通成员架构角色已存在 - 校友会ID: {}, 角色ID: {}",
-                        alumniAssociationId, existingRole.getRoleOrId());
-                return existingRole.getRoleOrId();
-            }
-
-            // 2. 不存在则创建
-            OrganizeArchiRole newRole = new OrganizeArchiRole();
-            newRole.setOrganizeType(0); // 0-校友会
-            newRole.setOrganizeId(alumniAssociationId);
-            newRole.setRoleOrName(REGULAR_MEMBER_NAME);
-            newRole.setRoleOrCode(REGULAR_MEMBER_CODE);
-            newRole.setRemark(REGULAR_MEMBER_REMARK);
-            newRole.setStatus(1); // 1-启用
-
-            boolean saved = organizeArchiRoleService.save(newRole);
-            if (saved) {
-                log.info("[AlumniJoinApprovalHandler] 创建普通成员架构角色成功 - 校友会ID: {}, 角色ID: {}, 角色名: {}",
-                        alumniAssociationId, newRole.getRoleOrId(), REGULAR_MEMBER_NAME);
-                return newRole.getRoleOrId();
-            } else {
-                log.error("[AlumniJoinApprovalHandler] 创建普通成员架构角色失败 - 校友会ID: {}", alumniAssociationId);
-                return null;
-            }
-
-        } catch (Exception e) {
-            log.error("[AlumniJoinApprovalHandler] 创建或获取普通成员架构角色异常 - 校友会ID: {}, Error: {}",
-                    alumniAssociationId, e.getMessage(), e);
-            return null;
-        }
-    }
-
-    /**
-     * 添加用户到校友会成员表
+     * 添加用户到校友会成员表（不分配架构角色）
      *
      * @param wxId                用户ID
      * @param alumniAssociationId 校友会ID
-     * @param roleOrId            架构角色ID
      * @return 是否成功
      */
-    private boolean addToAssociationMemberTable(Long wxId, Long alumniAssociationId, Long roleOrId) {
+    private boolean addToAssociationMemberTable(Long wxId, Long alumniAssociationId) {
         try {
             // 1. 检查用户是否已经是该校友会成员
             LambdaQueryWrapper<AlumniAssociationMember> queryWrapper = new LambdaQueryWrapper<>();
@@ -319,18 +253,18 @@ public class AlumniJoinApprovalHandler extends AbstractMessageHandler<UnifiedMes
                 return true;
             }
 
-            // 2. 添加成员记录
+            // 2. 添加成员记录（不设置架构角色）
             AlumniAssociationMember member = new AlumniAssociationMember();
             member.setWxId(wxId);
             member.setAlumniAssociationId(alumniAssociationId);
-            member.setRoleOrId(roleOrId);
+            member.setRoleOrId(null); // 不分配架构角色
             member.setJoinTime(java.time.LocalDateTime.now());
             member.setStatus(1); // 1-正常
 
             boolean saved = alumniAssociationMemberService.save(member);
             if (saved) {
-                log.info("[AlumniJoinApprovalHandler] 添加用户到校友会成员表成功 - 用户ID: {}, 校友会ID: {}, 架构角色ID: {}",
-                        wxId, alumniAssociationId, roleOrId);
+                log.info("[AlumniJoinApprovalHandler] 添加用户到校友会成员表成功 - 用户ID: {}, 校友会ID: {}",
+                        wxId, alumniAssociationId);
                 return true;
             } else {
                 log.error("[AlumniJoinApprovalHandler] 添加用户到校友会成员表失败 - 用户ID: {}, 校友会ID: {}",

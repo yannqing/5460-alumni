@@ -3,8 +3,8 @@ const { authApi } = require('../api/api.js')
 
 // ==================== 登录锁机制 ====================
 // 防止多个请求并发触发登录，导致 "code been used" 错误
-let isLoggingIn = false        // 是否正在登录中
-let loginPromise = null        // 当前登录的 Promise（供其他请求等待）
+let isLoggingIn = false // 是否正在登录中
+let loginPromise = null // 当前登录的 Promise（供其他请求等待）
 
 /**
  * 获取登录锁状态
@@ -23,11 +23,11 @@ function waitForLogin() {
 }
 
 // 判断时间是否过期
-const judgeTime = (time) => {
-  const strTime = time.replace("/-/g", "/");
-  const date1 = new Date(strTime);
-  const date2 = new Date();
-  return date1 < date2;
+const judgeTime = time => {
+  const strTime = time.replace('/-/g', '/')
+  const date1 = new Date(strTime)
+  const date2 = new Date()
+  return date1 < date2
 }
 
 // 检测登录状态,返回 true / false
@@ -37,15 +37,15 @@ function checkHasLogined() {
 
   // 判断是否过期
   if (expire_time && judgeTime(expire_time)) {
-    wx.setStorageSync('token', '');
-    wx.setStorageSync('expire_time', '');
-    return false;
+    wx.setStorageSync('token', '')
+    wx.setStorageSync('expire_time', '')
+    return false
   }
 
   if (!token) {
     return false
   } else {
-    return true;
+    return true
   }
 }
 
@@ -59,10 +59,10 @@ async function wxaCode() {
       fail() {
         wx.showToast({
           title: '静默登录失败',
-          icon: 'none'
+          icon: 'none',
         })
         return resolve('登录失败')
-      }
+      },
     })
   })
 }
@@ -76,7 +76,7 @@ async function checkSession() {
       },
       fail() {
         return resolve(false)
-      }
+      },
     })
   })
 }
@@ -129,9 +129,9 @@ async function login(inviter_wx_uuid) {
       console.log('[Auth] 测试登录接口:', config.testLogin.apiPath)
 
       const testParams = {
-        wxId: config.testLogin.wxId
+        wxId: config.testLogin.wxId,
       }
-      
+
       // 测试模式也支持传入邀请人 ID
       inviter_wx_uuid && (testParams.inviterWxUuid = inviter_wx_uuid)
 
@@ -141,7 +141,7 @@ async function login(inviter_wx_uuid) {
     } else {
       // ========== 正式登录模式 ==========
       // 1. 调用 wx.login 获取 code
-      const wxcode = await wxaCode();
+      const wxcode = await wxaCode()
 
       console.log('获取到的微信 code:', wxcode)
       console.log('code 类型:', typeof wxcode)
@@ -154,7 +154,7 @@ async function login(inviter_wx_uuid) {
         wx.showToast({
           title: errorMsg,
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
         throw new Error(errorMsg)
       }
@@ -162,7 +162,7 @@ async function login(inviter_wx_uuid) {
       // 2. 构建请求参数
       // 确保 code 是字符串类型
       const params = {
-        code: String(wxcode).trim()  // 确保是字符串且去除首尾空格
+        code: String(wxcode).trim(), // 确保是字符串且去除首尾空格
       }
 
       // 如果有邀请人，加入参数
@@ -173,112 +173,108 @@ async function login(inviter_wx_uuid) {
       // 3. 调用后端认证登录接口
       response = await authApi.auth(params)
     }
-  console.log('登录接口完整响应:', response)
-  
-  const {
-    data: {
-      data,
-      code,
-      msg
-    } = {}
-  } = response || {}
-  
-  console.log('响应状态码:', code)
-  console.log('响应消息:', msg)
+    console.log('登录接口完整响应:', response)
 
-  // 4. 处理返回结果
-  if (code == 200) {
-    // 存储 token 和过期时间
-    wx.setStorageSync('token', data.token)
-    wx.setStorageSync('expire_time', data.expire_time)
+    const { data: { data, code, msg } = {} } = response || {}
 
-    // 存储角色列表到缓存
-    if (data.roles && Array.isArray(data.roles)) {
-      wx.setStorageSync('roles', data.roles)
-      console.log('[Auth] 已存储角色列表到缓存:', data.roles)
-    } else {
-      // 如果没有角色信息，存储空数组
-      wx.setStorageSync('roles', [])
-      console.warn('[Auth] 登录响应中没有角色信息')
-    }
+    console.log('响应状态码:', code)
+    console.log('响应消息:', msg)
 
-    // 存储用户基本信息完善状态
-    const isProfileComplete = data.isProfileComplete === true
-    wx.setStorageSync('isProfileComplete', isProfileComplete)
-    console.log('[Auth] 用户基本信息完善状态:', isProfileComplete)
+    // 4. 处理返回结果
+    if (code == 200) {
+      // 存储 token 和过期时间
+      wx.setStorageSync('token', data.token)
+      wx.setStorageSync('expire_time', data.expire_time)
 
-    // 取用户唯一ID（优先 wxId，补充常见字段）
-    let userId =
-      data.wxId ||
-      data.wx_id ||
-      data.wx_uuid ||
-      data.wxUid ||
-      data.userId ||
-      data.id ||
-      data.uuid
-
-    // 如果登录响应没有 ID，再调用用户信息接口兜底
-    if (!userId) {
-      console.warn('[Auth] 登录响应缺少用户ID，尝试调用 /users/getInfo 兜底')
-      try {
-        const { userApi } = require('../api/api.js')
-        const infoRes = await userApi.getUserInfo()
-        if (infoRes?.data?.code === 200) {
-          const info = infoRes.data.data || {}
-          userId =
-            info.wxId ||
-            info.wx_id ||
-            info.wx_uuid ||
-            info.wxUid ||
-            info.userId ||
-            info.id ||
-            info.uuid ||
-            info.openId ||
-            info.openid ||
-            info.unionId ||
-            info.unionid
-          // 将获取到的用户信息与原始数据合并
-          Object.assign(data, info)
-        }
-      } catch (e) {
-        console.warn('[Auth] 兜底获取用户信息失败:', e)
+      // 存储角色列表到缓存
+      if (data.roles && Array.isArray(data.roles)) {
+        wx.setStorageSync('roles', data.roles)
+        console.log('[Auth] 已存储角色列表到缓存:', data.roles)
+      } else {
+        // 如果没有角色信息，存储空数组
+        wx.setStorageSync('roles', [])
+        console.warn('[Auth] 登录响应中没有角色信息')
       }
-    }
 
-    if (userId) {
-      wx.setStorageSync('userId', userId)
+      // 存储用户基本信息完善状态
+      const isProfileComplete = data.isProfileComplete === true
+      wx.setStorageSync('isProfileComplete', isProfileComplete)
+      console.log('[Auth] 用户基本信息完善状态:', isProfileComplete)
+
+      // 取用户唯一ID（优先 wxId，补充常见字段）
+      let userId =
+        data.wxId || data.wx_id || data.wx_uuid || data.wxUid || data.userId || data.id || data.uuid
+
+      // 如果登录响应没有 ID，再调用用户信息接口兜底
+      if (!userId) {
+        console.warn('[Auth] 登录响应缺少用户ID，尝试调用 /users/getInfo 兜底')
+        try {
+          const { userApi } = require('../api/api.js')
+          const infoRes = await userApi.getUserInfo()
+          if (infoRes?.data?.code === 200) {
+            const info = infoRes.data.data || {}
+            userId =
+              info.wxId ||
+              info.wx_id ||
+              info.wx_uuid ||
+              info.wxUid ||
+              info.userId ||
+              info.id ||
+              info.uuid ||
+              info.openId ||
+              info.openid ||
+              info.unionId ||
+              info.unionid
+            // 将获取到的用户信息与原始数据合并
+            Object.assign(data, info)
+          }
+        } catch (e) {
+          console.warn('[Auth] 兜底获取用户信息失败:', e)
+        }
+      }
+
+      if (userId) {
+        wx.setStorageSync('userId', userId)
+      } else {
+        console.warn('[Auth] 登录成功但未获取到用户ID字段，返回数据为:', data)
+      }
+
+      // 存储用户数据到全局，并补齐 wxId 字段
+      const app = getApp()
+      app.globalData.userData = {
+        ...data,
+        wxId:
+          data.wxId ||
+          data.wx_id ||
+          data.wx_uuid ||
+          data.wxUid ||
+          data.userId ||
+          data.id ||
+          data.uuid ||
+          '',
+      }
+      app.globalData.token = data.token || ''
+      app.globalData.isProfileComplete = data.isProfileComplete === true
+
+      // 二次加工用户信息（包括角色处理）
+      formatUserInfoData(data)
+
+      // 释放登录锁，通知等待者成功
+      isLoggingIn = false
+      resolveLogin(data)
+      console.log('[Auth] 登录成功，释放登录锁')
+
+      return data
     } else {
-      console.warn('[Auth] 登录成功但未获取到用户ID字段，返回数据为:', data)
+      // 释放登录锁，通知等待者失败
+      isLoggingIn = false
+      rejectLogin(new Error(msg || '登录失败'))
+      console.log('[Auth] 登录失败，释放登录锁')
+
+      wx.showToast({
+        title: '登陆失败',
+      })
     }
-
-    // 存储用户数据到全局，并补齐 wxId 字段
-    const app = getApp()
-    app.globalData.userData = {
-      ...data,
-      wxId: data.wxId || data.wx_id || data.wx_uuid || data.wxUid || data.userId || data.id || data.uuid || ''
-    }
-    app.globalData.token = data.token || ''
-    app.globalData.isProfileComplete = data.isProfileComplete === true
-
-    // 二次加工用户信息（包括角色处理）
-    formatUserInfoData(data)
-
-    // 释放登录锁，通知等待者成功
-    isLoggingIn = false
-    resolveLogin(data)
-    console.log('[Auth] 登录成功，释放登录锁')
-
-    return data
-  } else {
-    // 释放登录锁，通知等待者失败
-    isLoggingIn = false
-    rejectLogin(new Error(msg || '登录失败'))
-    console.log('[Auth] 登录失败，释放登录锁')
-
-    wx.showToast({
-      title: '登陆失败',
-    })
-  }
   } catch (error) {
     // 异常时也要释放登录锁
     isLoggingIn = false
@@ -342,33 +338,33 @@ async function initApp(inviter_wx_uuid) {
 
 // 二次加工用户信息（处理角色等）
 function formatUserInfoData(userData) {
-  const config_roles = {};
+  const config_roles = {}
 
   // 新格式：处理 roles 数组（优先使用）
   if (userData && userData.roles && Array.isArray(userData.roles)) {
     userData.roles.forEach(role => {
       // 使用 roleCode 作为标识（如 SYSTEM_USER, ASSOCIATION_PRESIDENT）
       if (role.roleCode) {
-        config_roles[role.roleCode] = true;
+        config_roles[role.roleCode] = true
       }
       // 同时也存储 roleName 方便查询（如 "普通用户", "校友会会长"）
       if (role.roleName) {
-        config_roles[role.roleName] = true;
+        config_roles[role.roleName] = true
       }
-    });
+    })
     console.log('[Auth] 处理新格式角色数据:', config_roles)
   }
   // 旧格式兼容：处理 wx_roles 数组
   else if (userData && userData.wx_roles && Array.isArray(userData.wx_roles)) {
     userData.wx_roles.forEach(element => {
       const roleName = element.name
-      config_roles[roleName] = true;
-    });
+      config_roles[roleName] = true
+    })
     console.log('[Auth] 处理旧格式角色数据:', config_roles)
   }
 
-  getApp().globalData.userConfig.roles = config_roles;
-  getApp().globalData.userConfig.is_apply_acard = userData.is_apply_acard;
+  getApp().globalData.userConfig.roles = config_roles
+  getApp().globalData.userConfig.is_apply_acard = userData.is_apply_acard
 }
 
 // 检测是否有某些角色
@@ -383,21 +379,21 @@ function checkHasRoles($arr) {
       const role = roles[i]
       // 检查 roleCode 或 roleName 是否在目标数组中
       if ($arr.includes(role.roleCode) || $arr.includes(role.roleName)) {
-        return true;
+        return true
       }
     }
-    return false;
+    return false
   }
 
   // 旧格式兼容：检查 wx_roles 数组
   const user_roles = getApp().globalData.userData.wx_roles || []
   for (let i = 0; i < user_roles.length; i++) {
-    const name = user_roles[i].name;
+    const name = user_roles[i].name
     if ($arr.includes(name)) {
-      return true;
+      return true
     }
   }
-  return false;
+  return false
 }
 
 /**
@@ -454,16 +450,16 @@ function getUserRoleNames() {
 function hasManagementPermission() {
   // 允许的角色代码列表
   const allowedRoleCodes = [
-    'SYSTEM_SUPER_ADMIN',          // 系统管理员
-    'ORGANIZE_LOCAL_ADMIN',        // 校促会管理员
-    'ORGANIZE_ALUMNI_ADMIN',       // 校友会管理员
-    'ORGANIZE_MERCHANT_ADMIN',     // 商户管理员
-    'ORGANIZE_SHOP_ADMIN'          // 门店管理员
+    'SYSTEM_SUPER_ADMIN', // 系统管理员
+    'ORGANIZE_LOCAL_ADMIN', // 校促会管理员
+    'ORGANIZE_ALUMNI_ADMIN', // 校友会管理员
+    'ORGANIZE_MERCHANT_ADMIN', // 商户管理员
+    'ORGANIZE_SHOP_ADMIN', // 门店管理员
   ]
-  
+
   // 优先从缓存读取角色列表
   const roles = wx.getStorageSync('roles') || []
-  
+
   // 检查是否有允许的角色
   if (roles.length > 0) {
     for (let i = 0; i < roles.length; i++) {
@@ -474,7 +470,7 @@ function hasManagementPermission() {
       }
     }
   }
-  
+
   return false
 }
 
@@ -485,10 +481,23 @@ function hasManagementPermission() {
 function checkProfileComplete() {
   // 优先从 globalData 读取，其次从缓存读取
   const app = getApp()
+  let isComplete = false
   if (app && app.globalData && app.globalData.isProfileComplete !== undefined) {
-    return app.globalData.isProfileComplete === true
+    isComplete = app.globalData.isProfileComplete === true
+  } else {
+    isComplete = wx.getStorageSync('isProfileComplete') === true
   }
-  return wx.getStorageSync('isProfileComplete') === true
+
+  // 额外检查：即使后端标记为已完善，如果昵称为空也视为未完善
+  if (isComplete && app && app.globalData && app.globalData.userData) {
+    const nickname = app.globalData.userData.nickname
+    if (!nickname || (typeof nickname === 'string' && !nickname.trim())) {
+      console.log('[Auth] 用户昵称为空，视为基本信息未完善')
+      return false
+    }
+  }
+
+  return isComplete
 }
 
 /**
@@ -506,7 +515,7 @@ function checkProfileAndRedirect(targetUrl = '') {
       fail: () => {
         // 如果跳转失败（可能在注册页），静默处理
         console.log('[Auth] 跳转注册页失败，可能已在注册页')
-      }
+      },
     })
     return false
   }
@@ -546,5 +555,5 @@ module.exports = {
   // 用户信息完善检查
   checkProfileComplete,
   checkProfileAndRedirect,
-  updateProfileComplete
-};
+  updateProfileComplete,
+}

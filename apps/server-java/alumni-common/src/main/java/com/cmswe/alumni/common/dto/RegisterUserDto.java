@@ -20,6 +20,13 @@ import java.io.Serializable;
 public class RegisterUserDto implements Serializable {
 
     /**
+     * 昵称
+     */
+    @Schema(description = "昵称", required = true)
+    @NotBlank(message = "昵称不能为空")
+    private String nickname;
+
+    /**
      * 真实姓名
      */
     @Schema(description = "真实姓名", required = true)
