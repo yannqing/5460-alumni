@@ -15,6 +15,7 @@ Page({
       articleStatus: 1, // 对应 articleStatus (0-禁用, 1-启用)
       isTop: false,
       publishUsername: '', // 发布者名称
+      publishAvatar: '', // 发布者头像/logo，用于存入 publisher_avatar
       publishType: 1, // 发布类型 (1-校友会, 2-商铺, 3-校友)，默认校友会
       publishAssociationId: null, // 选中的发布者ID（校友会或商铺）
       applyStatus: null // 审核状态 (0-待审核, 1-审核通过, 2-审核拒绝)
@@ -23,6 +24,8 @@ Page({
     publishTypes: ['校友会', '校友'], // 发布类型选项（移除母校和商铺）
     publisherList: [], // 发布者列表（校友会列表）
     selectedPublisherIndex: -1, // 选中的发布者索引
+    showPublisherPicker: false, // 是否显示发布者选择弹窗
+    defaultUserAvatarUrl: config.defaultAvatar,
     isEdit: false,
     pageTitle: '新增文章' // 页面标题
   },
@@ -124,7 +127,8 @@ Page({
         // 等待列表加载完成后再设置数据
         const publisherList = this.data.publisherList || [];
         let selectedIndex = -1;
-        
+        let publishAvatar = '';
+
         // 如果发布类型是校友会，尝试匹配选中的项
         if (publishType === 1 && data.publishUsername && publisherList.length > 0) {
           // 尝试通过名称匹配
@@ -144,6 +148,15 @@ Page({
               const targetId = String(data.publishWxId);
               return itemId === targetId;
             });
+          }
+          // 获取发布者头像：匹配成功用列表中的，否则用文章原有的
+          if (selectedIndex >= 0 && publisherList[selectedIndex].avatar) {
+            publishAvatar = publisherList[selectedIndex].avatar;
+          } else if (data.publisherAvatar) {
+            const raw = typeof data.publisherAvatar === 'object'
+              ? (data.publisherAvatar.fileUrl || data.publisherAvatar.thumbnailUrl || data.publisherAvatar.url || '')
+              : data.publisherAvatar;
+            publishAvatar = raw ? config.getImageUrl(raw) : '';
           }
         }
         
@@ -172,6 +185,7 @@ Page({
             articleStatus: data.articleStatus !== undefined ? data.articleStatus : 1,
             isTop: data.isTop === true || data.isTop === 1 || data.top === true,
             publishUsername: data.publishUsername || '',
+            publishAvatar: publishAvatar,
             publishType: publishType, // 确保是数字类型
             publishAssociationId: data.publishAssociationId || data.publishWxId || null,
             applyStatus: applyStatus // 保存审核状态
@@ -196,13 +210,13 @@ Page({
     })
   },
 
-  onTypeChange(e) {
-    const selectedIndex = parseInt(e.detail.value) || 0;
-    const articleType = selectedIndex + 1; // 1-公众号, 2-内部路径, 3-第三方链接
-    this.setData({
-      'formData.articleType': articleType
-    });
-  },
+  // onTypeChange(e) {
+  //   const selectedIndex = parseInt(e.detail.value) || 0;
+  //   const articleType = selectedIndex + 1; // 1-公众号, 2-内部路径, 3-第三方链接
+  //   this.setData({
+  //     'formData.articleType': articleType
+  //   });
+  // },
 
   async onPublishTypeChange(e) {
     // picker 的 value 是索引：0-校友会, 1-校友
@@ -213,6 +227,7 @@ Page({
     this.setData({
       'formData.publishType': publishType,
       'formData.publishUsername': '',
+      'formData.publishAvatar': '',
       'formData.publishAssociationId': null,
       'selectedPublisherIndex': -1,
       'publisherList': []
@@ -311,16 +326,29 @@ Page({
     }
   },
 
-  // 选择发布者
-  onPublisherChange(e) {
-    const index = parseInt(e.detail.value);
-    const publisher = this.data.publisherList[index];
-    
+  // 显示发布者选择弹窗
+  showPublisherSelector() {
+    this.setData({ showPublisherPicker: true });
+  },
+
+  // 取消发布者选择
+  cancelPublisherSelect() {
+    this.setData({
+      showPublisherPicker: false
+    });
+  },
+
+  // 选择发布者（从列表项点击）
+  selectPublisher(e) {
+    const { index } = e.currentTarget.dataset;
+    const publisher = this.data.publisherList[parseInt(index)];
     if (publisher) {
       this.setData({
-        'selectedPublisherIndex': index,
+        selectedPublisherIndex: parseInt(index),
         'formData.publishUsername': publisher.name,
-        'formData.publishAssociationId': publisher.id
+        'formData.publishAssociationId': publisher.id,
+        'formData.publishAvatar': publisher.avatar || '',
+        showPublisherPicker: false
       });
     }
   },
@@ -502,6 +530,8 @@ Page({
       // 使用选中的校友会作为发布者
       payload.publishWxId = formData.publishAssociationId; // 使用校友会ID作为发布者ID
       payload.publishUsername = formData.publishUsername.trim();
+      // 发布者头像/logo 存入 publisher_avatar，无头像时使用默认 logo
+      payload.publisherAvatar = formData.publishAvatar || config.getImageUrl(config.defaultAvatar);
     } else if (formData.publishType === 3) {
       // 校友类型，使用个人账号信息
       payload.publishWxId = userData.wxId || userData.id || userInfo.wxId || userInfo.id || 0;
@@ -509,6 +539,9 @@ Page({
       payload.publishUsername = formData.publishUsername && formData.publishUsername.trim() 
         ? formData.publishUsername.trim() 
         : (userData.nickname || userData.nickName || userInfo.nickname || userInfo.nickName || '');
+      // 当前用户头像存入 publisher_avatar，无头像时使用默认 logo
+      const userAvatar = userData.avatarUrl || userInfo.avatarUrl || '';
+      payload.publisherAvatar = userAvatar || config.getImageUrl(config.defaultAvatar);
     } else {
       // 其他情况使用个人账号信息
       payload.publishWxId = userData.wxId || userData.id || userInfo.wxId || userInfo.id || 0;
@@ -516,6 +549,9 @@ Page({
       payload.publishUsername = formData.publishUsername && formData.publishUsername.trim() 
         ? formData.publishUsername.trim() 
         : (userData.nickname || userData.nickName || userInfo.nickname || userInfo.nickName || '');
+      // 当前用户头像存入 publisher_avatar，无头像时使用默认 logo
+      const userAvatar = userData.avatarUrl || userInfo.avatarUrl || '';
+      payload.publisherAvatar = userAvatar || config.getImageUrl(config.defaultAvatar);
     }
     
     // 添加发布类型：将数字转换为后端期望的字符串格式

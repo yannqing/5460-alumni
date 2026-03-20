@@ -96,9 +96,12 @@
       <view class="modal-body">
         <!-- 邀请方式选择 -->
         <view class="invite-method-tabs">
+          <!-- 搜索邀请（已禁用） -->
+          <!--
           <view class="invite-method-tab {{inviteMethod === 'search' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="search">
             <text>搜索邀请</text>
           </view>
+          -->
           <view class="invite-method-tab {{inviteMethod === 'link' ? 'active' : ''}}" bindtap="switchInviteMethod" data-method="link">
             <text>链接邀请</text>
           </view>
@@ -110,7 +113,8 @@
           </view>
         </view>
 
-        <!-- 搜索邀请内容 -->
+        <!-- 搜索邀请内容（已禁用） -->
+        <!--
         <view class="invite-method-content" wx:if="{{inviteMethod === 'search'}}">
           <view class="alumni-name-field" catchtap="preventBubble">
             <view class="field-label">校友姓名</view>
@@ -141,6 +145,7 @@
             <text class="invite-tip-text">邀请后，用户需在通知中确认才能加入</text>
           </view>
         </view>
+        -->
 
         <!-- 链接邀请内容 -->
         <view class="invite-method-content" wx:if="{{inviteMethod === 'link'}}">
@@ -229,7 +234,10 @@
       </view>
       <view class="modal-footer">
         <button class="btn btn-cancel" bindtap="hideInviteModal">取消</button>
+        <!-- 搜索邀请底部按钮（已禁用） -->
+        <!--
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'search'}}" bindtap="submitInvite">确定邀请</button>
+        -->
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'link'}}" open-type="share">分享给好友</button>
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'qrcode'}}" bindtap="saveQrcode">保存二维码</button>
         <button class="btn btn-confirm" wx:if="{{inviteMethod === 'unregistered'}}" bindtap="submitAddUnregistered">确定添加</button>

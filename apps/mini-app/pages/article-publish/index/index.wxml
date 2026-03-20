@@ -189,19 +189,13 @@
           wx:key="id"
           data-publisher-id="{{item.id}}"
           data-publisher-name="{{item.name}}"
+          data-publisher-avatar="{{item.avatar}}"
           bindtap="selectPublisher"
         >
           <view class="publisher-info">
             <image 
-              wx:if="{{item.avatar}}" 
-              src="{{item.avatar}}" 
               class="publisher-avatar" 
-              mode="aspectFill" 
-            />
-            <image 
-              wx:else 
-              src="{{defaultUserAvatarUrl}}" 
-              class="publisher-avatar" 
+              src="{{item.avatar || defaultUserAvatarUrl}}" 
               mode="aspectFill" 
             />
             <view class="name-with-quota">

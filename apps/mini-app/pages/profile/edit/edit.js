@@ -298,18 +298,25 @@ function mapFormToUpdateData(form) {
           type: edu.type !== null && edu.type !== undefined ? edu.type : 1,
         }
       }),
-    // 工作经历
-    workExperienceList: (form.workExperienceList || []).map(work => ({
-      userWorkId: work.userWorkId ? String(work.userWorkId) : null,
-      companyName: work.companyName || null,
-      position: work.position || null,
-      industry: work.industry || null,
-      workAddress: work.workAddress || null,
-      startDate: work.startDate || null,
-      endDate: work.endDate || null,
-      isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
-      workDescription: work.workDescription || null,
-    })),
+    // 工作经历（过滤掉必填字段不完整的，与后端校验一致）
+    workExperienceList: (form.workExperienceList || [])
+      .filter(work => {
+        const companyName = (work.companyName || '').trim()
+        const position = (work.position || '').trim()
+        const startDate = work.startDate || ''
+        return companyName && position && startDate
+      })
+      .map(work => ({
+        userWorkId: work.userWorkId ? String(work.userWorkId) : null,
+        companyName: work.companyName || null,
+        position: work.position || null,
+        industry: work.industry || null,
+        workAddress: work.workAddress || null,
+        startDate: work.startDate || null,
+        endDate: work.endDate || null,
+        isCurrent: work.isCurrent !== null && work.isCurrent !== undefined ? work.isCurrent : 0,
+        workDescription: work.workDescription || null,
+      })),
   }
 
   // 移除空字符串和 null 值，但保留 avatarUrl（即使为空字符串，也允许更新为空）
@@ -2083,7 +2090,7 @@ Page({
   },
 
   // 删除工作经历
-  removeWorkExperience(e) {
+  async removeWorkExperience(e) {
     const { index } = e.currentTarget.dataset
     const indexNum = parseInt(index)
     if (isNaN(indexNum) || indexNum < 0) {
@@ -2097,6 +2104,10 @@ Page({
         'form.workExperienceList': workExperienceList,
       })
       this.updateDefaultWorkIndex()
+
+      // 持久化到后端
+      const updateData = mapFormToUpdateData({ workExperienceList })
+      await this.saveSingleField(updateData, true)
     }
   },
 

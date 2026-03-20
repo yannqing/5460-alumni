@@ -36,7 +36,7 @@ Page({
     memberLoading: false, // 成员加载状态
     // 邀请成员相关
     showInviteModal: false,
-    inviteMethod: 'search', // 邀请方式：search/link/qrcode
+    inviteMethod: 'link', // 邀请方式：search/link/qrcode
     inviteLink: '', // 邀请链接
     inviteQrcodeUrl: '', // 邀请二维码图片URL
     qrcodeLoading: false, // 二维码生成中
@@ -297,7 +297,7 @@ Page({
 
     this.setData({
       showInviteModal: true,
-      inviteMethod: 'search',
+      inviteMethod: 'link',
       inviteLink: inviteLink,
       inviteQrcodeUrl: '',
       inviteForm: {
@@ -313,7 +313,7 @@ Page({
   hideInviteModal() {
     this.setData({
       showInviteModal: false,
-      inviteMethod: 'search',
+      inviteMethod: 'link',
       inviteLink: '',
       inviteQrcodeUrl: '',
       alumniSearchResults: [],

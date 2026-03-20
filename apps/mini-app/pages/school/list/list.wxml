@@ -119,6 +119,10 @@
 
   <!-- 右下角+号按钮 -->
   <view class="add-button" bindtap="navigateToCreate">
-    <text class="add-button-text">+</text>
+    <image
+      class="add-button-image"
+      src="https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/home/create_alumni_association.png"
+      mode="aspectFit"
+    />
   </view>
 </view>
