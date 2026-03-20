@@ -32,16 +32,19 @@
           <view class="textarea-count">{{formData.associationProfile.length || 0}}/1000</view>
         </view>
 
-        <!-- 常驻地点 -->
+        <!-- 办公地点 -->
         <view class="form-card">
-          <view class="form-label">常驻地点</view>
-          <input 
-            class="form-input" 
-            placeholder="请输入常驻地点" 
-            value="{{formData.location}}" 
-            bindinput="handleInput" 
-            data-field="location"
-          />
+          <view class="form-label">办公地点</view>
+          <picker 
+            mode="region" 
+            value="{{regionValue}}" 
+            bindchange="handleRegionChange" 
+            class="form-input"
+          >
+            <view class="picker-content">
+              {{formData.location || '请选择省/市/区'}}
+            </view>
+          </picker>
         </view>
 
         <!-- 校友会logo -->
