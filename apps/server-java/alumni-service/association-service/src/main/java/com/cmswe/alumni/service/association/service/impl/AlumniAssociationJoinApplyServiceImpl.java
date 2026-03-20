@@ -1,17 +1,30 @@
 package com.cmswe.alumni.service.association.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
 import com.cmswe.alumni.api.association.AlumniAssociationJoinApplyService;
 import com.cmswe.alumni.api.association.LocalPlatformService;
+import com.cmswe.alumni.api.user.FileService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
 import com.cmswe.alumni.common.dto.ApplyAssociationJoinPlatformDto;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
+import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
+import com.cmswe.alumni.common.entity.Files;
 import com.cmswe.alumni.common.enums.NotificationType;
+import com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyDetailVo;
+import com.cmswe.alumni.common.vo.FilesVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplyMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 校友会申请加入校促会服务实现类
@@ -33,6 +46,15 @@ public class AlumniAssociationJoinApplyServiceImpl
 
     @jakarta.annotation.Resource
     private LocalPlatformService localPlatformService;
+
+    @jakarta.annotation.Resource
+    private AlumniAssociationApplicationService alumniAssociationApplicationService;
+
+    @jakarta.annotation.Resource
+    private FileService fileService;
+
+    @jakarta.annotation.Resource
+    private ObjectMapper objectMapper;
 
     @Override
     public boolean applyJoinPlatform(ApplyAssociationJoinPlatformDto applyDto) {
@@ -278,5 +300,144 @@ public class AlumniAssociationJoinApplyServiceImpl
 
         // 5. 转换为VO
         return com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo.objToVo(apply, association, applicant);
+    }
+
+    @Override
+    public AlumniAssociationJoinApplyDetailVo getApplyDetailWithAttachmentById(Long id) {
+        if (id == null) {
+            throw new com.cmswe.alumni.common.exception.BusinessException("参数不能为空，请重试");
+        }
+
+        AlumniAssociationJoinApply apply = this.getById(id);
+        if (apply == null) {
+            throw new com.cmswe.alumni.common.exception.BusinessException("申请记录不存在");
+        }
+
+        AlumniAssociation association = alumniAssociationService.getById(apply.getAlumniAssociationId());
+
+        com.cmswe.alumni.common.entity.WxUserInfo applicant = null;
+        if (apply.getApplicantWxId() != null) {
+            applicant = wxUserInfoService.getOne(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.cmswe.alumni.common.entity.WxUserInfo>()
+                            .eq(com.cmswe.alumni.common.entity.WxUserInfo::getWxId, apply.getApplicantWxId()));
+        }
+
+        AlumniAssociationJoinApplyDetailVo vo = new AlumniAssociationJoinApplyDetailVo();
+        vo.setId(apply.getId());
+        vo.setStatus(apply.getStatus());
+        vo.setCreateTime(apply.getCreateTime());
+        vo.setApplicantWxId(apply.getApplicantWxId());
+
+        if (applicant != null) {
+            vo.setApplicantName(applicant.getName());
+            vo.setApplicantNickname(applicant.getNickname());
+            vo.setApplicantPhone(applicant.getPhone());
+            vo.setApplicantAvatarUrl(applicant.getAvatarUrl());
+        }
+
+        if (association != null) {
+            vo.setAlumniAssociationId(association.getAlumniAssociationId());
+            vo.setAssociationName(association.getAssociationName());
+            vo.setSchoolId(association.getSchoolId());
+            vo.setPlatformId(association.getPlatformId());
+            vo.setLogo(association.getLogo());
+            vo.setBgImg(association.getBgImg());
+            vo.setLocation(association.getLocation());
+            vo.setContactInfo(association.getContactInfo());
+            vo.setAssociationProfile(association.getAssociationProfile());
+        } else {
+            vo.setAlumniAssociationId(apply.getAlumniAssociationId());
+            vo.setPlatformId(apply.getPlatformId());
+        }
+
+        // 读取“创建校友会申请”中的附件信息
+        AlumniAssociationApplication createApplication = null;
+        if (association != null && association.getApplicationId() != null) {
+            createApplication = alumniAssociationApplicationService.getById(association.getApplicationId());
+        }
+
+        // 兜底逻辑：若通过主键未查到（旧数据兼容），按创建后的 association_id 反查
+        if (createApplication == null) {
+            createApplication = alumniAssociationApplicationService.getOne(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AlumniAssociationApplication>()
+                            .eq(AlumniAssociationApplication::getCreatedAssociationId, apply.getAlumniAssociationId())
+                            .orderByDesc(AlumniAssociationApplication::getApplyTime)
+                            .last("LIMIT 1"));
+        }
+
+        if (createApplication != null) {
+            vo.setCreateApplicationId(createApplication.getApplicationId());
+            vo.setAttachmentIds(createApplication.getAttachmentIds());
+            // 以“创建校友会申请”中填写的信息作为历史快照返回
+            vo.setApplyLogo(createApplication.getLogo());
+            vo.setApplyBgImg(createApplication.getBgImg());
+            vo.setApplyChargeWxId(createApplication.getChargeWxId());
+            vo.setApplyChargeName(createApplication.getChargeName());
+            vo.setApplyChargeRole(createApplication.getChargeRole());
+            vo.setApplyContactInfo(createApplication.getContactInfo());
+            vo.setApplyZhWxId(createApplication.getZhWxId());
+            vo.setApplyZhName(createApplication.getZhName());
+            vo.setApplyZhRole(createApplication.getZhRole());
+            vo.setApplyZhPhone(createApplication.getZhPhone());
+
+            // 若当前校友会logo为空，兜底使用申请时logo
+            if (vo.getLogo() == null || vo.getLogo().isBlank()) {
+                vo.setLogo(createApplication.getLogo());
+            }
+
+            if (createApplication.getAttachmentIds() != null && !createApplication.getAttachmentIds().isBlank()) {
+                try {
+                    List<Long> fileIds = objectMapper.readValue(
+                            createApplication.getAttachmentIds(),
+                            new TypeReference<List<Long>>() {});
+                    if (fileIds != null && !fileIds.isEmpty()) {
+                        List<Files> files = fileService.listByIds(fileIds);
+                        // 按原始 ID 顺序排序，并处理文件信息
+                        Map<Long, Files> fileMap = files.stream()
+                                .collect(Collectors.toMap(Files::getFileId, f -> f, (f1, f2) -> f1));
+                        
+                        List<FilesVo> filesVos = fileIds.stream()
+                                .map(fileMap::get)
+                                .filter(java.util.Objects::nonNull)
+                                .map(file -> {
+                                    FilesVo filesVo = FilesVo.objToVo(file);
+                                    // 确保 displayName 不为空
+                                    if (filesVo.getDisplayName() == null || filesVo.getDisplayName().isBlank()) {
+                                        filesVo.setDisplayName(file.getOriginalName() != null ? file.getOriginalName() : "未命名文件");
+                                    }
+                                    // 确保 fileUrl 有值，若为空则用 filePath 兜底
+                                    if (filesVo.getFileUrl() == null || filesVo.getFileUrl().isBlank()) {
+                                        filesVo.setFileUrl(file.getFilePath());
+                                    }
+                                    return filesVo;
+                                })
+                                .collect(Collectors.toList());
+                        vo.setAttachmentFiles(filesVos);
+                    } else {
+                        vo.setAttachmentFiles(new ArrayList<>());
+                    }
+                } catch (Exception e) {
+                    log.error("解析创建申请附件失败，joinApplyId: {}", id, e);
+                    vo.setAttachmentFiles(new ArrayList<>());
+                }
+            } else {
+                vo.setAttachmentFiles(new ArrayList<>());
+            }
+        } else {
+            // 如果没找到创建申请记录，则从校友会当前信息中提取负责人和驻会代表信息作为兜底
+            if (association != null) {
+                vo.setApplyChargeWxId(association.getChargeWxId());
+                vo.setApplyChargeName(association.getChargeName());
+                vo.setApplyChargeRole(association.getChargeRole());
+                vo.setApplyContactInfo(association.getContactInfo());
+                vo.setApplyZhWxId(association.getZhWxId());
+                vo.setApplyZhName(association.getZhName());
+                vo.setApplyZhRole(association.getZhRole());
+                vo.setApplyZhPhone(association.getZhPhone());
+            }
+            vo.setAttachmentFiles(new ArrayList<>());
+        }
+
+        return vo;
     }
 }

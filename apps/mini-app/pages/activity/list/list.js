@@ -29,11 +29,20 @@ Page({
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限
     hasAlumniAdminPermission: false, // 是否有校友会管理员身份
     scrollListHeight: 400, // 下方卡片内 scroll-view 高度(px)，onLoad 中按屏幕计算
+    defaultUserAvatarUrl: config.defaultAvatar, // 选择校友会时的默认 logo
   },
 
   onLoad() {
     this.setScrollListHeight()
     this.initPage()
+  },
+
+  onShow() {
+    // 每次进入页面时，如果有选中的校友会，则刷新活动列表
+    if (this.data.selectedAlumniAssociationId) {
+      console.log('[Debug] onShow: 刷新活动列表')
+      this.loadActivityList()
+    }
   },
 
   // 计算下方卡片内列表可滚动区域高度（scroll-view 必须明确高度才能滚动）
@@ -242,20 +251,26 @@ Page({
       const res = await this.getActivityList(selectedAlumniAssociationId)
       
       if (res.data && res.data.code === 200 && res.data.data) {
-        const activityList = res.data.data.map(item => ({
-          id: item.activityId,
-          title: item.activityTitle,
-          organizer: item.organizerName,
-          cover: item.organizerAvatar,
-          participantCount: item.currentParticipants,
-          location: `${item.province}${item.city}${item.district}${item.address}`,
-          startTime: this.formatDateTime(item.startTime),
-          endTime: this.formatDateTime(item.endTime),
-          status: this.getActivityStatus(item.status),
-          originalStatus: item.status,
-          tags: [item.activityCategory],
-          distance: 0 // 暂时设置为0，后续可以根据实际位置计算
-        }))
+        const activityList = res.data.data.map(item => {
+          const safeProvince = item.province || ''
+          const safeCity = item.city || ''
+          const safeDistrict = item.district || ''
+          const safeAddress = item.address || ''
+          return {
+            id: item.activityId,
+            title: item.activityTitle,
+            organizer: item.organizerName,
+            cover: item.organizerAvatar,
+            participantCount: item.currentParticipants,
+            location: `${safeProvince}${safeCity}${safeDistrict}${safeAddress}`,
+            startTime: this.formatDateTime(item.startTime),
+            endTime: this.formatDateTime(item.endTime),
+            status: this.getActivityStatus(item.status),
+            originalStatus: item.status,
+            tags: [item.activityCategory],
+            distance: 0 // 暂时设置为0，后续可以根据实际位置计算
+          }
+        })
         
         this.setData({
           activityList,

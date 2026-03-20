@@ -29,7 +29,7 @@
         <text class="detail-value detail-value-profile">{{currentAlumniDetail ? (currentAlumniDetail.associationProfile || '无') : '无'}}</text>
       </view>
       <view class="detail-item">
-        <text class="detail-label">常驻地点</text>
+        <text class="detail-label">办公地点</text>
         <text class="detail-value">{{currentAlumniDetail ? (currentAlumniDetail.location || '无') : '无'}}</text>
       </view>
       <view class="detail-item">

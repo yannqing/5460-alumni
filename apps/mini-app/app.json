@@ -91,7 +91,8 @@
         "alumni-association/detail/detail",
         "info-maintenance/index/index",
         "info-maintenance/edit/edit",
-        "alumni-association-certification/list/list"
+        "alumni-association-certification/list/list",
+        "alumni-association-certification/detail/detail"
       ]
     },
     {

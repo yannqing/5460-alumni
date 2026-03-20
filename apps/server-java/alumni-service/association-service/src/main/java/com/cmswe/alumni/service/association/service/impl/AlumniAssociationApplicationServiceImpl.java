@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
+import com.cmswe.alumni.api.user.FileService;
 import com.cmswe.alumni.api.user.OrganizeArchiTemplateService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
@@ -18,6 +19,7 @@ import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.entity.OrganizeArchiTemplate;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.*;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationListVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -78,6 +80,12 @@ public class AlumniAssociationApplicationServiceImpl
 
     @Resource
     private OrganizeArchiTemplateService organizeArchiTemplateService;
+
+    @Resource
+    private com.cmswe.alumni.api.user.UserService userService;
+
+    @Resource
+    private FileService fileService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -444,6 +452,7 @@ public class AlumniAssociationApplicationServiceImpl
         try {
             // 5.1 创建校友会
             AlumniAssociation alumniAssociation = new AlumniAssociation();
+            alumniAssociation.setApplicationId(application.getApplicationId()); // 设置申请ID
             alumniAssociation.setAssociationName(application.getAssociationName());
             alumniAssociation.setSchoolId(application.getSchoolId());
             alumniAssociation.setPlatformId(application.getPlatformId());
@@ -626,6 +635,12 @@ public class AlumniAssociationApplicationServiceImpl
             alumniAssociationService.updateById(alumniAssociation);
             log.info("更新校友会会员数量 - 校友会ID: {}, 会员数: {}", alumniAssociationId, totalMemberCount);
 
+            // 5.7.1 审核通过后，给相关用户补充个人认证标识（幂等：仅从未认证(0/null)更新为3）
+            // 驻会代表是校友会核心管理员，优先更新
+            updateUserCertificationFlagIfNeeded(application.getZhWxId(), "驻会代表");
+            // 负责人如已绑定微信，也补充认证标识
+            updateUserCertificationFlagIfNeeded(application.getChargeWxId(), "负责人");
+
             // 5.8 更新申请记录
             application.setApplicationStatus(1); // 已通过
             application.setReviewerId(reviewerId);
@@ -711,6 +726,37 @@ public class AlumniAssociationApplicationServiceImpl
     }
 
     /**
+     * 若用户当前未认证（certificationFlag 为空或 0），则更新为 3（校友会认证）。
+     * 已有认证用户不覆盖，避免误降级或误变更其他认证类型。
+     */
+    private void updateUserCertificationFlagIfNeeded(Long wxId, String userRoleDesc) {
+        if (wxId == null || wxId <= 0) {
+            return;
+        }
+        try {
+            WxUser wxUser = userService.getById(wxId);
+            if (wxUser == null) {
+                log.warn("更新个人认证标识时用户不存在 - wxId: {}, 角色: {}", wxId, userRoleDesc);
+                return;
+            }
+            Integer currentFlag = wxUser.getCertificationFlag();
+            if (currentFlag != null && currentFlag > 0) {
+                log.info("用户已有认证，跳过更新 - wxId: {}, 当前标识: {}, 角色: {}", wxId, currentFlag, userRoleDesc);
+                return;
+            }
+            wxUser.setCertificationFlag(3);
+            boolean updated = userService.updateById(wxUser);
+            if (updated) {
+                log.info("用户个人认证标识更新成功 - wxId: {}, 新标识: 3, 角色: {}", wxId, userRoleDesc);
+            } else {
+                log.warn("用户个人认证标识更新失败 - wxId: {}, 角色: {}", wxId, userRoleDesc);
+            }
+        } catch (Exception e) {
+            log.error("更新用户个人认证标识异常 - wxId: {}, 角色: {}, error: {}", wxId, userRoleDesc, e.getMessage(), e);
+        }
+    }
+
+    /**
      * 根据申请ID查询申请详情
      *
      * @param applicationId 申请ID
@@ -737,6 +783,25 @@ public class AlumniAssociationApplicationServiceImpl
                 SchoolListVo schoolListVo = SchoolListVo.objToVo(school);
                 schoolListVo.setSchoolId(String.valueOf(school.getSchoolId()));
                 detailVo.setSchoolInfo(schoolListVo);
+            }
+        }
+
+        // 5. 查询并设置附件信息
+        if (StringUtils.isNotBlank(application.getAttachmentIds())) {
+            try {
+                List<Long> attachmentIds = objectMapper.readValue(
+                        application.getAttachmentIds(),
+                        new TypeReference<List<Long>>() {}
+                );
+                if (attachmentIds != null && !attachmentIds.isEmpty()) {
+                    List<Files> filesList = fileService.listByIds(attachmentIds);
+                    List<FilesVo> attachments = filesList.stream()
+                            .map(FilesVo::objToVo)
+                            .collect(Collectors.toList());
+                    detailVo.setAttachments(attachments);
+                }
+            } catch (JsonProcessingException e) {
+                log.error("解析申请附件ID列表失败 - 申请ID: {}", applicationId, e);
             }
         }
 

@@ -74,7 +74,7 @@
     <view class="association-list">
       <block wx:for="{{applicationList}}" wx:key="applicationId">
         <!-- 已通过状态 -->
-        <view class="audit-card audit-card-approved" wx:if="{{item.applicationStatus === 1}}">
+        <view class="audit-card audit-card-approved" hover-class="audit-card-hover" bindtap="goToDetail" data-id="{{item.applicationId}}" wx:if="{{item.applicationStatus === 1}}">
           <view class="audit-card-top">
             <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
             <view class="audit-card-body">
@@ -93,7 +93,7 @@
         </view>
 
         <!-- 待审核状态 -->
-        <view class="audit-card audit-card-pending" wx:if="{{item.applicationStatus === 0}}">
+        <view class="audit-card audit-card-pending" hover-class="audit-card-hover" bindtap="goToDetail" data-id="{{item.applicationId}}" wx:if="{{item.applicationStatus === 0}}">
           <view class="audit-card-top">
             <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
             <view class="audit-card-body">
@@ -120,7 +120,7 @@
         </view>
 
         <!-- 已拒绝状态 -->
-        <view class="audit-card audit-card-rejected" wx:if="{{item.applicationStatus === 2}}">
+        <view class="audit-card audit-card-rejected" hover-class="audit-card-hover" bindtap="goToDetail" data-id="{{item.applicationId}}" wx:if="{{item.applicationStatus === 2}}">
           <view class="audit-card-top">
             <image class="audit-card-avatar" src="{{item.displayLogo}}" mode="aspectFill" />
             <view class="audit-card-body">

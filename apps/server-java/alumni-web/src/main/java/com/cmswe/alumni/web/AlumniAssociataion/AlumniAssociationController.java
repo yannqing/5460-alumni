@@ -139,6 +139,22 @@ public class AlumniAssociationController {
         return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
     }
 
+    /**
+     * 校促会管理员根据ID查看校友会申请加入校促会详情（含创建校友会申请附件）
+     *
+     * @param id 申请ID（雪花ID）
+     * @return 申请详情
+     */
+    @GetMapping("/joinApplyDetailWithAttachment/{id}")
+    @Operation(summary = "校促会管理员根据ID查看校友会申请加入校促会详情（含创建校友会申请附件）")
+    public BaseResponse<com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyDetailVo> getJoinApplyDetailWithAttachment(
+            @PathVariable Long id) {
+        log.info("查看校友会申请加入校促会详情(含附件)，申请 ID: {}", id);
+        com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyDetailVo detailVo = alumniAssociationJoinApplyService
+                .getApplyDetailWithAttachmentById(id);
+        return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
+    }
+
     @PostMapping("/page")
     @Operation(summary = "分页查询校友会列表")
     public BaseResponse<PageVo<AlumniAssociationListVo>> selectPage(

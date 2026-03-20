@@ -10,6 +10,8 @@ Page({
     statusClass: '',
     applicationStatusText: '',
     initialMembersList: [], // 解析后的初始成员列表
+    attachments: [], // 附件详情列表
+    imageUrls: [], // 图片预览列表
     defaultAlumniAvatar: config.defaultAvatar,
     defaultBackground: config.defaultCover
   },
@@ -76,6 +78,42 @@ Page({
           }
         }
 
+        // 处理附件详情列表
+        let attachments = []
+        let imageUrls = []
+        if (application.attachments && Array.isArray(application.attachments)) {
+          attachments = application.attachments.map(file => {
+            const fileType = (file.fileType || '').toLowerCase()
+            const fileExtension = (file.fileExtension || (file.filePath ? file.filePath.split('.').pop() : '') || '').toLowerCase()
+            const rawUrl = file.fileUrl || file.url || file.filePath || ''
+            const fileUrl = this.normalizeUrl(rawUrl)
+            const isImage =
+              fileType.includes('image') ||
+              ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(fileExtension)
+            
+            if (isImage && fileUrl) {
+              imageUrls.push(fileUrl)
+            }
+
+            const fileSize = file.fileSize || 0
+            let fileSizeText = '-'
+            if (fileSize > 0) {
+              if (fileSize < 1024) fileSizeText = fileSize + ' B'
+              else if (fileSize < 1024 * 1024) fileSizeText = (fileSize / 1024).toFixed(1) + ' KB'
+              else fileSizeText = (fileSize / (1024 * 1024)).toFixed(1) + ' MB'
+            }
+
+            return {
+              ...file,
+              fileUrl,
+              rawUrl,
+              displayName: file.displayName || (file.filePath ? file.filePath.split('/').pop() : '未命名文件'),
+              isImage,
+              fileSizeText,
+            }
+          })
+        }
+
         // 格式化时间
         if (application.applyTime) {
           application.applyTimeFormatted = this.formatDateTime(application.applyTime)
@@ -95,6 +133,8 @@ Page({
           statusClass,
           applicationStatusText,
           initialMembersList,
+          attachments,
+          imageUrls,
           loading: false
         })
       } else {
@@ -161,6 +201,64 @@ Page({
       default:
         return '未知'
     }
+  },
+
+  normalizeUrl(url) {
+    if (!url || typeof url !== 'string') return ''
+    if (url.startsWith('http://') || url.startsWith('https://')) return url
+    return config.getImageUrl(url)
+  },
+
+  handleAttachmentTap(e) {
+    const { isImage } = e.currentTarget.dataset
+    if (isImage) {
+      this.previewImage(e)
+    } else {
+      this.openAttachment(e)
+    }
+  },
+
+  previewImage(e) {
+    const { url } = e.currentTarget.dataset
+    if (!url) return
+    wx.previewImage({
+      current: url,
+      urls: this.data.imageUrls.length ? this.data.imageUrls : [url],
+    })
+  },
+
+  openAttachment(e) {
+    const { url } = e.currentTarget.dataset
+    if (!url) {
+      wx.showToast({
+        title: '文件地址无效',
+        icon: 'none',
+      })
+      return
+    }
+    wx.showLoading({ title: '打开中...' })
+    wx.downloadFile({
+      url,
+      success: res => {
+        if (res.statusCode !== 200 || !res.tempFilePath) {
+          wx.showToast({ title: '文件下载失败', icon: 'none' })
+          return
+        }
+        wx.openDocument({
+          filePath: res.tempFilePath,
+          showMenu: true,
+          fail: () => {
+            wx.showToast({ title: '当前文件暂不支持预览', icon: 'none' })
+          },
+        })
+      },
+      fail: () => {
+        wx.showToast({ title: '文件下载失败', icon: 'none' })
+      },
+      complete: () => {
+        wx.hideLoading()
+      },
+    })
   },
 
   // 返回上一页

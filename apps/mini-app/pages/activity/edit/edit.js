@@ -30,6 +30,7 @@ Page({
       contactPhone: '',
       contactEmail: '',
       isPublic: 1,
+      showOnHomepage: 0,
       tagsId: '',
       remark: '',
     },
@@ -161,7 +162,8 @@ Page({
             contactPerson: activityData.contactPerson || '',
             contactPhone: activityData.contactPhone || '',
             contactEmail: activityData.contactEmail || '',
-            isPublic: activityData.isPublic || 1,
+            isPublic: activityData.isPublic ?? 1,
+            showOnHomepage: activityData.showOnHomepage ?? 0,
             tagsId: activityData.tagsId || '',
             remark: activityData.remark || '',
             organizerName: activityData.organizerName || '',
@@ -234,6 +236,12 @@ Page({
     const { field } = e.currentTarget.dataset
     this.setData({
       [`formData.${field}`]: e.detail.value ? parseInt(e.detail.value) : null,
+    })
+  },
+
+  onHomepageSwitchChange(e) {
+    this.setData({
+      'formData.showOnHomepage': e.detail.value ? 1 : 0,
     })
   },
 

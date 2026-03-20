@@ -60,6 +60,9 @@ const associationApi = {
   applyJoinPlatform: data => post('/AlumniAssociation/applyJoinPlatform', data),
   // 查询加入申请列表
   queryJoinApplyPage: params => post('/AlumniAssociation/queryJoinApplyPage', params),
+  // 根据ID查询加入校促会申请详情（含创建校友会申请附件）
+  getJoinApplyDetailWithAttachment: id =>
+    get(`/AlumniAssociation/joinApplyDetailWithAttachment/${id}`),
   // 审核加入校促会申请
   reviewJoinPlatform: data => post('/AlumniAssociation/reviewJoinPlatform', data),
   // 系统管理员分页查询所有校友会创建申请列表
@@ -769,8 +772,9 @@ const alumniAssociationManagementApi = {
   // 获取活动详情
   getActivityDetail: activityId =>
     get(`/alumniAssociationManagement/activity/detail/${activityId}`),
-  // 更新活动
-  updateActivity: data => put('/alumniAssociationManagement/activity/update', data),
+  // 更新活动（保留空字符串字段，支持清空地址等信息）
+  updateActivity: data =>
+    request({ url: '/alumniAssociationManagement/activity/update', method: 'PUT', data }),
   // 删除活动
   deleteActivity: activityId => del(`/alumniAssociationManagement/activity/delete/${activityId}`),
   // 获取校友会活动列表

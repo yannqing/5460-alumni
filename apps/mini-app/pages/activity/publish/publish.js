@@ -28,6 +28,7 @@ Page({
       contactPhone: '',
       contactEmail: '',
       isPublic: 1,
+      showOnHomepage: 0,
       tagsId: '',
       remark: '',
     },
@@ -130,6 +131,12 @@ Page({
     const { field } = e.currentTarget.dataset
     this.setData({
       [`formData.${field}`]: e.detail.value ? parseInt(e.detail.value) : null,
+    })
+  },
+
+  onHomepageSwitchChange(e) {
+    this.setData({
+      'formData.showOnHomepage': e.detail.value ? 1 : 0,
     })
   },
 

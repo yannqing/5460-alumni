@@ -41,4 +41,12 @@ public interface AlumniAssociationJoinApplyService extends IService<AlumniAssoci
      * @return 申请详情
      */
     com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyVo getApplyDetailById(Long id);
+
+    /**
+     * 根据ID获取校友会申请加入校促会详情（含创建校友会申请附件）
+     *
+     * @param id 申请ID
+     * @return 申请详情
+     */
+    com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyDetailVo getApplyDetailWithAttachmentById(Long id);
 }

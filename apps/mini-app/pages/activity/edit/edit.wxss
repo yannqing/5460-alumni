@@ -295,18 +295,24 @@
   left: 0;
   right: 0;
   padding: 20rpx;
-  background: #fff;
+  background-color: #fff;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  z-index: 999;
 }
 
 .submit-btn {
-  background: #ff4d4f;
+  background-color: #ff4d4f;
   color: #fff;
   border: none;
   border-radius: 8rpx;
   height: 88rpx;
   line-height: 88rpx;
   font-size: 32rpx;
+  opacity: 1;
+}
+
+.submit-btn::after {
+  border: none;
 }
 
 .submit-btn[loading] {

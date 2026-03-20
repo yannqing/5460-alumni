@@ -160,15 +160,6 @@
             <text class="form-hint">{{endTimeDisplay || '请选择结束时间'}}</text>
           </view>
           
-          <view class="form-item">
-            <text class="label">是否需要报名 <text class="required">*</text></text>
-            <picker mode="selector" data-field="isSignup" range="{{isSignupOptions}}" range-key="name" bindchange="onPickerChange">
-              <view class="picker-value">
-                {{isSignupOptions[formData.isSignup] ? isSignupOptions[formData.isSignup].name : '请选择'}}
-              </view>
-            </picker>
-          </view>
-          
           <view class="form-item" wx:if="{{formData.isSignup === 1}}">
             <text class="label">报名开始时间</text>
             <picker-view 
@@ -273,47 +264,18 @@
             />
           </view>
           
-          <view class="form-item">
+          <!-- <view class="form-item">
             <text class="label">活动地点</text>
             <view class="location-selector">
               <input class="input location-input" placeholder="请选择活动地点" value="{{formData.locationName}}" disabled />
               <button class="select-location-btn" bindtap="onChooseLocation">选择位置</button>
             </view>
-          </view>
+          </view> -->
           
-          <view class="form-item">
-            <text class="label">最大参与人数</text>
-            <input 
-              class="input" 
-              type="number" 
-              placeholder="请输入最大参与人数（留空表示不限）" 
-              data-field="maxParticipants"
-              bindinput="onNumberChange"
-              value="{{formData.maxParticipants}}"
-            />
-          </view>
         </view>
         
         <view class="form-card">
           <view class="form-title">其他设置</view>
-          
-          <view class="form-item">
-            <text class="label">是否需要审核</text>
-            <picker mode="selector" data-field="isNeedReview" range="{{isNeedReviewOptions}}" range-key="name" bindchange="onPickerChange">
-              <view class="picker-value">
-                {{isNeedReviewOptions[formData.isNeedReview] ? isNeedReviewOptions[formData.isNeedReview].name : '请选择'}}
-              </view>
-            </picker>
-          </view>
-          
-          <view class="form-item">
-            <text class="label">是否公开</text>
-            <picker mode="selector" data-field="isPublic" range="{{isPublicOptions}}" range-key="name" bindchange="onPickerChange">
-              <view class="picker-value">
-                {{isPublicOptions[formData.isPublic] ? isPublicOptions[formData.isPublic].name : '请选择'}}
-              </view>
-            </picker>
-          </view>
           
           <view class="form-item">
             <text class="label">联系人</text>
@@ -357,6 +319,15 @@
               data-field="remark"
               bindinput="onInput"
               value="{{formData.remark}}"
+            />
+          </view>
+
+          <view class="form-item">
+            <text class="label">在主页展示</text>
+            <switch
+              checked="{{formData.showOnHomepage === 1}}"
+              bindchange="onHomepageSwitchChange"
+              color="#1890ff"
             />
           </view>
         </view>

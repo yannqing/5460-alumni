@@ -28,6 +28,8 @@ Page({
     submitting: false,
     uploadingLogo: false,
     uploadingBgImage: false,
+    // 地区选择器
+    regionValue: [],
     // 绑定用户相关
     showBindUserModal: false,
     bindUserType: '', // 'charge' 或 'zh'
@@ -65,7 +67,11 @@ Page({
           }
         }
 
+        const locationStr = data.location || ''
+        const regionValue = locationStr ? locationStr.split(' ') : []
+
         this.setData({
+          regionValue,
           formData: {
             associationName: data.associationName || '',
             associationProfile: data.associationProfile || '',
@@ -105,6 +111,24 @@ Page({
   handleStatusChange(e) {
     this.setData({
       'formData.status': parseInt(e.detail.value),
+    })
+  },
+
+  // 处理常驻地点选择（省/市/区）
+  handleRegionChange(e) {
+    const value = e.detail.value // [省, 市, 区]
+    const province = value[0] || ''
+    const city = value[1] || ''
+    const district = value[2] || ''
+
+    // 拼接为 "省 市 区" 格式
+    let location = province
+    if (city) location += ' ' + city
+    if (district) location += ' ' + district
+
+    this.setData({
+      regionValue: value,
+      'formData.location': location,
     })
   },
 
