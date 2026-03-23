@@ -418,9 +418,9 @@ Page({
       return false
     }
 
-    // 验证身份证号格式
-    const idCardReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
-    if (!idCardReg.test(formData.identifyCode)) {
+    // 验证身份证号格式（与 profile/edit 页面保持一致）
+    const idCardReg = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/
+    if (!idCardReg.test(formData.identifyCode.trim())) {
       wx.showToast({
         title: '身份证号格式不正确',
         icon: 'none',
