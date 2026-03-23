@@ -301,13 +301,32 @@ const get = (url, data = {}) => {
 }
 
 // 参数过滤函数：移除 undefined、null 和空字符串
+// 支持通过 __allowEmptyStringFields 指定要保留空字符串的字段
 const filterParams = (data) => {
+  if (!data || typeof data !== 'object') {
+    return {}
+  }
+
+  const allowEmptyStringFields = Array.isArray(data.__allowEmptyStringFields)
+    ? data.__allowEmptyStringFields
+    : []
+  const allowEmptyStringSet = new Set(allowEmptyStringFields)
+
   const result = {}
   for (const key in data) {
     if (data.hasOwnProperty(key)) {
+      // 内部控制字段不进入请求体
+      if (key === '__allowEmptyStringFields') {
+        continue
+      }
       const value = data[key]
-      // 只保留非 undefined、非 null、非空字符串的值
-      if (value !== undefined && value !== null && value !== '') {
+      // 只保留非 undefined、非 null 的值；空字符串默认移除
+      // 在 allowEmptyStringSet 中声明的字段保留空字符串，表示显式清空
+      if (
+        value !== undefined &&
+        value !== null &&
+        (value !== '' || allowEmptyStringSet.has(key))
+      ) {
         result[key] = value
       }
     }
@@ -320,7 +339,7 @@ const post = (url, data = {}) => {
   return request({
     url,
     method: 'POST',
-    data: filterParams(data)
+    data
   })
 }
 
@@ -329,7 +348,7 @@ const put = (url, data = {}) => {
   return request({
     url,
     method: 'PUT',
-    data: filterParams(data)
+    data
   })
 }
 
@@ -338,7 +357,7 @@ const del = (url, data = {}) => {
   return request({
     url,
     method: 'DELETE',
-    data: filterParams(data)
+    data
   })
 }
 
