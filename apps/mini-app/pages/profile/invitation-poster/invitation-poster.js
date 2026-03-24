@@ -5,7 +5,7 @@ const config = require('../../../utils/config.js')
 Page({
   data: {
     list: [],
-    loading: false
+    loading: true
   },
 
   onLoad() {
