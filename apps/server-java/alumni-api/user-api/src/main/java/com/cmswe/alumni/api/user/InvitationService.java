@@ -58,4 +58,12 @@ public interface InvitationService {
      * @return 模版列表
      */
     List<PosterTemplateItemVo> getInvitationPosterTemplates();
+
+    /**
+     * 展示邀请模版列表（二维码已合成到海报右下角）
+     *
+     * @param inviterWxId 邀请人 wxid
+     * @return 合成后的模版列表
+     */
+    List<PosterTemplateItemVo> getInvitationPosterTemplatesWithQr(Long inviterWxId);
 }

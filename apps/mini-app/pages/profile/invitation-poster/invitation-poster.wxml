@@ -9,9 +9,6 @@
           <view class="poster-item">
             <view class="poster-container">
               <image class="poster-image" src="{{item.imageUrl}}" mode="widthFix" />
-              <view class="qrcode-wrap" wx:if="{{qrCodeSrc}}">
-                <image class="qrcode-image" src="{{qrCodeSrc}}" mode="aspectFit" />
-              </view>
             </view>
           </view>
         </block>
