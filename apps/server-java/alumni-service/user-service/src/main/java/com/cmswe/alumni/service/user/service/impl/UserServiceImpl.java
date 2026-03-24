@@ -955,13 +955,13 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     }
 
     @Override
-    public List<ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type) {
+    public List<ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly) {
         // 1. 参数校验
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
         }
 
-        log.info("查询用户可管理的组织列表 - 用户ID: {}, 类型: {}", wxId, type);
+        log.info("查询用户可管理的组织列表 - 用户ID: {}, 类型: {}, 仅role_user: {}", wxId, type, roleScopedOnly);
 
         List<ManagedOrganizationListVo> result = new ArrayList<>();
 
@@ -972,11 +972,12 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         boolean isSystemAdmin = userRoles.stream()
                 .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
 
-        if (isSystemAdmin) {
-            // 系统管理员：返回所有启用的组织
+        if (roleScopedOnly) {
+            // 仅 role_user 表绑定，与待办统计、加入审核列表范围一致
+            result.addAll(getManagedOrganizationsByRole(wxId, type));
+        } else if (isSystemAdmin) {
             result.addAll(getAllOrganizationsByType(type));
         } else {
-            // 普通用户：根据角色权限查询可管理的组织
             result.addAll(getManagedOrganizationsByRole(wxId, type));
         }
 

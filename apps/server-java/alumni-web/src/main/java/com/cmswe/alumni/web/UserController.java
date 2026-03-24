@@ -139,10 +139,11 @@ public class UserController {
     @Operation(summary = "根据本人角色，获取所有可管理的组织列表")
     public BaseResponse<List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo>> getManagedOrganizations(
             @AuthenticationPrincipal SecurityUser securityUser,
-            @RequestParam(required = false) Integer type) {
+            @RequestParam(required = false) Integer type,
+            @RequestParam(required = false, defaultValue = "false") boolean roleScopedOnly) {
         Long wxId = securityUser.getWxUser().getWxId();
         List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> organizations =
-                userService.getManagedOrganizations(wxId, type);
+                userService.getManagedOrganizations(wxId, type, roleScopedOnly);
         return ResultUtils.success(Code.SUCCESS, organizations, "查询成功");
     }
 }

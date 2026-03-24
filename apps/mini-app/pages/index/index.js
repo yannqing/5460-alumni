@@ -1140,4 +1140,24 @@ Page({
       },
     })
   },
+
+  /**
+   * 用户点击右上角分享给朋友
+   */
+  onShareAppMessage() {
+    return {
+      title: '校友圈',
+      path: '/pages/index/index',
+    }
+  },
+
+  /**
+   * 用户点击分享到朋友圈
+   */
+  onShareTimeline() {
+    return {
+      title: '校友圈',
+      query: '',
+    }
+  },
 })

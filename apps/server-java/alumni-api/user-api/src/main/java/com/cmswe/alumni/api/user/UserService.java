@@ -110,13 +110,21 @@ public interface UserService extends IService<WxUser> {
     void offline(String userId);
 
     /**
-     * 根据用户角色获取所有可管理的组织列表
+     * 根据用户角色获取可管理的组织列表（默认：系统超级管理员会展开为全站启用组织）
+     */
+    default List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type) {
+        return getManagedOrganizations(wxId, type, false);
+    }
+
+    /**
+     * 根据用户角色获取可管理的组织列表
      *
-     * @param wxId 用户ID
-     * @param type 组织类型（0-校友会 1-校促会 2-商户 3-校友总会，null-查询全部）
+     * @param wxId           用户ID
+     * @param type           组织类型（0-校友会 1-校促会 2-商户 3-校友总会，null-查询全部）
+     * @param roleScopedOnly 为 true 时仅依据 role_user 表绑定返回组织，系统超级管理员不再展开全站（与待办统计、加入审核数据范围一致）
      * @return 可管理的组织列表
      */
-    List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type);
+    List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly);
 
     /**
      * 获取用户通过校友会管理员角色实际管理的校友会ID集合

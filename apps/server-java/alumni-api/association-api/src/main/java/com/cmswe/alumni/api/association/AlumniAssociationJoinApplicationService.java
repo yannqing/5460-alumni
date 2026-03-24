@@ -34,12 +34,13 @@ public interface AlumniAssociationJoinApplicationService extends IService<Alumni
     boolean reviewApplication(Long reviewerId, ReviewAlumniAssociationJoinApplicationDto reviewDto);
 
     /**
-     * 分页查询校友会加入申请列表
+     * 分页查询校友会加入申请列表（管理端，仅可查询 role_user 中管理的校友会）
      *
+     * @param wxId     当前用户
      * @param queryDto 查询条件
      * @return 申请列表
      */
-    PageVo<AlumniAssociationJoinApplicationListVo> queryApplicationPage(QueryAlumniAssociationJoinApplicationListDto queryDto);
+    PageVo<AlumniAssociationJoinApplicationListVo> queryApplicationPage(Long wxId, QueryAlumniAssociationJoinApplicationListDto queryDto);
 
     /**
      * 查看用户自己的申请详情
