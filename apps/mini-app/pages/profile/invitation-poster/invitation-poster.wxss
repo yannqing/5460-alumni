@@ -37,6 +37,29 @@
   overflow: hidden;
 }
 
+.poster-copy {
+  position: absolute;
+  left: 72rpx;
+  right: 72rpx;
+  top: 680rpx;
+  z-index: 2;
+  color: #5f6b7a;
+  line-height: 1.6;
+}
+
+.poster-copy-line1 {
+  display: block;
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+.poster-copy-line2 {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  text-indent: 2em;
+}
+
 .poster-item {
   padding-bottom: 32rpx;
 }

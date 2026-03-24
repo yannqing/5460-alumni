@@ -9,6 +9,10 @@
           <view class="poster-item">
             <view class="poster-container">
               <image class="poster-image" src="{{item.imageUrl}}" mode="widthFix" />
+              <view class="poster-copy">
+                <text class="poster-copy-line1">HI 同学：</text>
+                <text class="poster-copy-line2">思念母校，发现校友；搭建校友平台，助力校友经济，邀请您加入中国校友录5460，享5460专属权益。</text>
+              </view>
             </view>
           </view>
         </block>

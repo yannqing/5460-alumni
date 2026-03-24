@@ -356,23 +356,39 @@ public class InvitationServiceImpl implements InvitationService {
                 throw new BusinessException(500, "读取海报模板失败");
             }
 
+            int posterWidth = posterImage.getWidth();
+            int posterHeight = posterImage.getHeight();
+            // 移动端展示：缩放到最大宽度 1080，大幅减少传输体积，避免超时
+            final int MAX_WIDTH = 1080;
+            if (posterWidth > MAX_WIDTH) {
+                double scale = (double) MAX_WIDTH / posterWidth;
+                int newWidth = MAX_WIDTH;
+                int newHeight = (int) Math.round(posterHeight * scale);
+                BufferedImage scaled = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+                Graphics2D gScale = scaled.createGraphics();
+                gScale.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                gScale.drawImage(posterImage, 0, 0, newWidth, newHeight, null);
+                gScale.dispose();
+                posterImage = scaled;
+                posterWidth = newWidth;
+                posterHeight = newHeight;
+            }
+
             String scene = String.valueOf(inviterWxId);
             String page = "pages/index/index";
             int qrWidth = 280;
             String qrBase64 = wechatMiniUtil.createWxaCodeUnlimit(scene, page, qrWidth);
             BufferedImage qrImage = decodeBase64Image(qrBase64);
 
-            int posterWidth = posterImage.getWidth();
-            int posterHeight = posterImage.getHeight();
-            // 将二维码放在海报右下角的白色留白区域：
-            // - 右侧留白按宽度比例
-            // - 底部留白按高度比例（避免压到最下方蓝色区域）
-            int qrSize = Math.max((int) (posterWidth * 0.18), 96);
-            int rightMargin = Math.max((int) (posterWidth * 0.06), 16);
-            int bottomMargin = Math.max((int) (posterHeight * 0.16), 64);
-            qrSize = Math.min(qrSize, Math.max(Math.min(posterWidth, posterHeight) - 32, 48));
-            int qrX = Math.max(posterWidth - qrSize - rightMargin, 0);
-            int qrY = Math.max(posterHeight - qrSize - bottomMargin, 0);
+            // 基于当前邀请海报模板，固定定位到右下角白色留白区域（上移一点、放大一点）
+            int qrX = (int) Math.round(posterWidth * 0.76);
+            int qrY = (int) Math.round(posterHeight * 0.83);
+            int qrSize = (int) Math.round(posterWidth * 0.15);
+
+            // 避免越界导致二维码不可见
+            qrSize = Math.max(Math.min(qrSize, Math.min(posterWidth, posterHeight)), 1);
+            qrX = Math.max(0, Math.min(qrX, posterWidth - qrSize));
+            qrY = Math.max(0, Math.min(qrY, posterHeight - qrSize));
 
             Graphics2D g2d = posterImage.createGraphics();
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -382,9 +398,9 @@ public class InvitationServiceImpl implements InvitationService {
             g2d.dispose();
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ImageIO.write(posterImage, "png", outputStream);
+            ImageIO.write(posterImage, "jpg", outputStream);
             String mergedBase64 = Base64.getEncoder().encodeToString(outputStream.toByteArray());
-            return "data:image/png;base64," + mergedBase64;
+            return "data:image/jpeg;base64," + mergedBase64;
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {

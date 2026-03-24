@@ -266,12 +266,14 @@ const request = (params) => {
         fail: handleFail
       })
     } else {
-      // 使用传统 wx.request
+      // 使用传统 wx.request（海报合成等接口耗时长，支持传入 timeout，默认 30 秒）
+      const timeout = params.timeout != null ? params.timeout : 30000
       wx.request({
         url: fullUrl,
         method: params.method || 'post',
         data: requestData,
         header: finalHeaders,
+        timeout: timeout,
         success: handleSuccess,
         fail: handleFail
       })
