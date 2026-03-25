@@ -213,6 +213,11 @@ public class AlumniAssociationJoinApplicationServiceImpl
             throw new BusinessException(ErrorType.ARGS_ERROR, "申请记录不存在");
         }
 
+        Set<Long> managedAlumniIds = userService.getManagedAlumniAssociationIdsByRole(reviewerId);
+        if (!managedAlumniIds.contains(application.getAlumniAssociationId())) {
+            throw new BusinessException(ErrorType.NO_AUTH_ERROR, "您无权限审核该校友会的加入申请");
+        }
+
         // 2. 检查申请状态
         if (application.getApplicationStatus() != 0) {
             throw new BusinessException(ErrorType.ARGS_ERROR, "该申请已被审核，无法重复审核");
@@ -410,17 +415,24 @@ public class AlumniAssociationJoinApplicationServiceImpl
     }
 
     @Override
-    public PageVo<AlumniAssociationJoinApplicationListVo> queryApplicationPage(QueryAlumniAssociationJoinApplicationListDto queryDto) {
+    public PageVo<AlumniAssociationJoinApplicationListVo> queryApplicationPage(Long wxId, QueryAlumniAssociationJoinApplicationListDto queryDto) {
+        Set<Long> managedAlumniIds = userService.getManagedAlumniAssociationIdsByRole(wxId);
+        Long aid = queryDto.getAlumniAssociationId();
+        if (aid == null || aid <= 0) {
+            return new PageVo<>(new ArrayList<>(), 0L, (long) queryDto.getCurrent(), (long) queryDto.getPageSize());
+        }
+        if (!managedAlumniIds.contains(aid)) {
+            throw new BusinessException(ErrorType.NO_AUTH_ERROR, "您无权限查看该校友会的加入申请");
+        }
+
         // 1. 构建分页对象
         Page<AlumniAssociationJoinApplication> page = new Page<>(queryDto.getCurrent(), queryDto.getPageSize());
 
         // 2. 构建查询条件
         LambdaQueryWrapper<AlumniAssociationJoinApplication> queryWrapper = new LambdaQueryWrapper<>();
 
-        // 2.1 校友会ID筛选
-        if (queryDto.getAlumniAssociationId() != null) {
-            queryWrapper.eq(AlumniAssociationJoinApplication::getAlumniAssociationId, queryDto.getAlumniAssociationId());
-        }
+        // 2.1 校友会ID（已通过 role_user 校验）
+        queryWrapper.eq(AlumniAssociationJoinApplication::getAlumniAssociationId, aid);
 
         // 2.2 申请状态筛选
         if (queryDto.getApplicationStatus() != null) {

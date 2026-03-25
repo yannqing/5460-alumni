@@ -22,6 +22,7 @@ import com.cmswe.alumni.common.entity.PosterTemplate;
 import com.cmswe.alumni.common.entity.PointsChange;
 import com.cmswe.alumni.common.entity.WxUserInfo;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.utils.WechatMiniUtil;
 import com.cmswe.alumni.service.user.mapper.AlumniEducationMapper;
 import com.cmswe.alumni.service.user.mapper.AlumniInfoMapper;
 import com.cmswe.alumni.service.user.mapper.InvitationRecordMapper;
@@ -34,6 +35,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +79,9 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Resource
     private PosterTemplateMapper posterTemplateMapper;
+
+    @Resource
+    private WechatMiniUtil wechatMiniUtil;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -312,5 +324,102 @@ public class InvitationServiceImpl implements InvitationService {
                     .build());
         }
         return result;
+    }
+
+    @Override
+    public List<PosterTemplateItemVo> getInvitationPosterTemplatesWithQr(Long inviterWxId) {
+        if (inviterWxId == null) {
+            throw new BusinessException(401, "请先登录");
+        }
+
+        List<PosterTemplate> list = posterTemplateMapper.selectList(
+                new LambdaQueryWrapper<PosterTemplate>()
+                        .eq(PosterTemplate::getType, POSTER_TYPE_INVITATION)
+                        .orderByAsc(PosterTemplate::getId));
+        List<PosterTemplateItemVo> result = new ArrayList<>(list.size());
+        for (PosterTemplate t : list) {
+            result.add(PosterTemplateItemVo.builder()
+                    .id(t.getId())
+                    .url(renderPosterWithQr(t.getUrl(), inviterWxId))
+                    .build());
+        }
+        return result;
+    }
+
+    private String renderPosterWithQr(String posterUrl, Long inviterWxId) {
+        if (!StringUtils.hasText(posterUrl)) {
+            throw new BusinessException(400, "海报模板地址为空");
+        }
+        try {
+            BufferedImage posterImage = ImageIO.read(new URL(posterUrl));
+            if (posterImage == null) {
+                throw new BusinessException(500, "读取海报模板失败");
+            }
+
+            int posterWidth = posterImage.getWidth();
+            int posterHeight = posterImage.getHeight();
+            // 移动端展示：缩放到最大宽度 1080，大幅减少传输体积，避免超时
+            final int MAX_WIDTH = 1080;
+            if (posterWidth > MAX_WIDTH) {
+                double scale = (double) MAX_WIDTH / posterWidth;
+                int newWidth = MAX_WIDTH;
+                int newHeight = (int) Math.round(posterHeight * scale);
+                BufferedImage scaled = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+                Graphics2D gScale = scaled.createGraphics();
+                gScale.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                gScale.drawImage(posterImage, 0, 0, newWidth, newHeight, null);
+                gScale.dispose();
+                posterImage = scaled;
+                posterWidth = newWidth;
+                posterHeight = newHeight;
+            }
+
+            String scene = String.valueOf(inviterWxId);
+            String page = "pages/index/index";
+            int qrWidth = 280;
+            String qrBase64 = wechatMiniUtil.createWxaCodeUnlimit(scene, page, qrWidth);
+            BufferedImage qrImage = decodeBase64Image(qrBase64);
+
+            // 基于当前邀请海报模板，固定定位到右下角白色留白区域（上移一点、放大一点）
+            int qrX = (int) Math.round(posterWidth * 0.76);
+            int qrY = (int) Math.round(posterHeight * 0.83);
+            int qrSize = (int) Math.round(posterWidth * 0.15);
+
+            // 避免越界导致二维码不可见
+            qrSize = Math.max(Math.min(qrSize, Math.min(posterWidth, posterHeight)), 1);
+            qrX = Math.max(0, Math.min(qrX, posterWidth - qrSize));
+            qrY = Math.max(0, Math.min(qrY, posterHeight - qrSize));
+
+            Graphics2D g2d = posterImage.createGraphics();
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.drawImage(qrImage, qrX, qrY, qrSize, qrSize, null);
+            g2d.dispose();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(posterImage, "jpg", outputStream);
+            String mergedBase64 = Base64.getEncoder().encodeToString(outputStream.toByteArray());
+            return "data:image/jpeg;base64," + mergedBase64;
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("合成邀请海报失败, posterUrl={}, inviterWxId={}", posterUrl, inviterWxId, e);
+            throw new BusinessException(500, "合成邀请海报失败: " + e.getMessage());
+        }
+    }
+
+    private BufferedImage decodeBase64Image(String base64DataUrl) throws Exception {
+        String base64 = base64DataUrl;
+        int commaIndex = base64DataUrl.indexOf(',');
+        if (commaIndex >= 0) {
+            base64 = base64DataUrl.substring(commaIndex + 1);
+        }
+        byte[] bytes = Base64.getDecoder().decode(base64);
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
+        if (image == null) {
+            throw new BusinessException(500, "解析二维码图片失败");
+        }
+        return image;
     }
 }

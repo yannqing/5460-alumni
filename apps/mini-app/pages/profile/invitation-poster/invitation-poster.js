@@ -5,25 +5,26 @@ const config = require('../../../utils/config.js')
 Page({
   data: {
     list: [],
-    loading: false,
-    qrCodeSrc: ''
+    loading: true
   },
 
   onLoad() {
     this.loadPosterTemplates()
-    this.loadQrcode()
   },
 
   loadPosterTemplates() {
     this.setData({ loading: true })
 
-    get('/invitation/poster-templates')
+    get('/invitation/poster-templates/rendered')
       .then((res) => {
         const resData = res && res.data ? res.data : {}
         if (resData.code === 200 && Array.isArray(resData.data)) {
           const formattedList = (resData.data || []).map((item) => {
-            const url = item.url
-              ? (config.getImageUrl ? config.getImageUrl(item.url) : item.url)
+            const rawUrl = item.url || ''
+            const url = rawUrl
+              ? (rawUrl.startsWith('data:')
+                ? rawUrl
+                : (config.getImageUrl ? config.getImageUrl(rawUrl) : rawUrl))
               : ''
             return {
               ...item,
@@ -41,20 +42,5 @@ Page({
       .finally(() => {
         this.setData({ loading: false })
       })
-  },
-
-  loadQrcode() {
-    get('/invitation/qrcode')
-      .then((res) => {
-        const resData = res && res.data ? res.data : {}
-        if (resData.code === 200 && resData.data && resData.data.qrCodeBase64) {
-          const base64 = resData.data.qrCodeBase64
-          const qrCodeSrc = base64.startsWith('data:')
-            ? base64
-            : 'data:image/png;base64,' + base64
-          this.setData({ qrCodeSrc })
-        }
-      })
-      .catch(() => { })
   }
 })

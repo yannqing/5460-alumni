@@ -85,16 +85,22 @@ public class AlumniAssociationJoinApplicationController {
     /**
      * 分页查询校友会加入申请列表
      *
-     * @param queryDto 查询条件
+     * @param securityUser 当前登录用户
+     * @param queryDto     查询条件
      * @return 申请列表
      */
     @PostMapping("/page")
     @Operation(summary = "分页查询校友会加入申请列表")
     public BaseResponse<PageVo<AlumniAssociationJoinApplicationListVo>> queryApplicationPage(
+            @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody QueryAlumniAssociationJoinApplicationListDto queryDto) {
 
+        if (securityUser == null || securityUser.getWxUser() == null) {
+            return ResultUtils.failure(Code.TOKEN_ERROR, null, "用户未登录");
+        }
+        Long wxId = securityUser.getWxUser().getWxId();
         PageVo<AlumniAssociationJoinApplicationListVo> pageVo =
-                alumniAssociationJoinApplicationService.queryApplicationPage(queryDto);
+                alumniAssociationJoinApplicationService.queryApplicationPage(wxId, queryDto);
 
         return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
     }

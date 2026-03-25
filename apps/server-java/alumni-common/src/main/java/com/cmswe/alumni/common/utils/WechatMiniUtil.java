@@ -157,44 +157,42 @@ public class WechatMiniUtil {
      * @return 包含 phoneNumber、purePhoneNumber、countryCode 的 Map
      */
     public Map<String, Object> getUserPhoneNumber(String code) {
-        String accessToken = getAccessToken();
-        if (accessToken == null) {
-            throw new BusinessException(500, "获取微信Access Token失败");
-        }
+        return getUserPhoneNumber(code, false);
+    }
 
+    private Map<String, Object> getUserPhoneNumber(String code, boolean hasRetried) {
+        String accessToken = getAccessToken();
         String url = wechatApiBaseUrl + "/wxa/business/getuserphonenumber?access_token=" + accessToken;
 
         try {
             log.info("调用微信获取手机号接口, code={}", code);
 
-            // 构建请求参数
             Map<String, Object> params = new java.util.HashMap<>();
             params.put("code", code);
 
-            // 发送HTTP POST请求
             String response = httpClientUtil.post(url, params, String.class);
             log.info("微信获取手机号响应: {}", response);
 
-            // 解析响应JSON
             Map<String, Object> result = objectMapper.readValue(response, Map.class);
+            Integer errcode = readErrcode(result.get("errcode"));
+            if (errcode != null && errcode != 0) {
+                String errmsg = (String) result.get("errmsg");
+                log.error("微信获取手机号失败, errcode={}, errmsg={}", errcode, errmsg);
 
-            // 检查是否有错误
-            if (result.containsKey("errcode")) {
-                Integer errcode = (Integer) result.get("errcode");
-                if (errcode != 0) {
-                    String errmsg = (String) result.get("errmsg");
-                    log.error("微信获取手机号失败, errcode={}, errmsg={}", errcode, errmsg);
-                    throw new BusinessException(500, "获取手机号失败: " + errmsg);
+                // 云托管多实例场景下，普通access_token可能被微信判定非最新，重置缓存后重试一次
+                if (!hasRetried && errcode == 40001 && errmsg != null &&
+                        (errmsg.contains("invalid credential") || errmsg.contains("not latest"))) {
+                    clearCachedToken();
+                    log.warn("检测到access_token无效或非最新，已清理缓存并重试一次");
+                    return getUserPhoneNumber(code, true);
                 }
+                throw new BusinessException(500, "获取手机号失败: " + errmsg);
             }
 
-            // 返回 phone_info 对象
             if (result.containsKey("phone_info")) {
                 return (Map<String, Object>) result.get("phone_info");
-            } else {
-                throw new BusinessException(500, "获取手机号失败：响应数据格式错误");
             }
-
+            throw new BusinessException(500, "获取手机号失败：响应数据格式错误");
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
@@ -219,39 +217,95 @@ public class WechatMiniUtil {
             throw new BusinessException(500, "获取微信Access Token失败：未配置 wechat.mini.secret");
         }
 
-        String url = String.format(
-                "%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
-                wechatApiBaseUrl, appId, secret);
-
         try {
-            log.info("获取微信Access Token");
-            String response = httpClientUtil.get(url, String.class);
-            Map<String, Object> result = objectMapper.readValue(response, Map.class);
-
-            // 微信错误响应通常包含 errcode/errmsg
-            if (result.containsKey("errcode")) {
-                Integer errcode = (Integer) result.get("errcode");
-                if (errcode != null && errcode != 0) {
-                    String errmsg = (String) result.get("errmsg");
-                    log.error("获取Access Token失败, appId={}, errcode={}, errmsg={}", appId, errcode, errmsg);
-                    throw new BusinessException(500, "获取微信Access Token失败: " + errmsg + " (errcode=" + errcode + ")");
-                }
+            // 云托管多实例建议优先使用 stable_token，避免 token 轮转导致“not latest”
+            String stableToken = fetchStableAccessToken();
+            if (stableToken != null && !stableToken.trim().isEmpty()) {
+                return stableToken;
             }
-
-            if (result.containsKey("access_token")) {
-                String token = (String) result.get("access_token");
-                Integer expiresIn = (Integer) result.get("expires_in");
-                cachedToken = new AccessToken(token, expiresIn);
-                return token;
-            } else {
-                log.error("获取Access Token失败, appId={}, response={}", appId, response);
-                throw new BusinessException(500, "获取微信Access Token失败");
-            }
+            log.warn("stable_token 获取失败，回退到普通 access_token");
+            return fetchNormalAccessToken();
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
             log.error("获取Access Token异常, appId={}", appId, e);
             throw new BusinessException(500, "获取微信Access Token失败: " + e.getMessage());
         }
+    }
+
+    private String fetchStableAccessToken() throws Exception {
+        String url = wechatApiBaseUrl + "/cgi-bin/stable_token";
+        Map<String, Object> body = new java.util.HashMap<>();
+        body.put("grant_type", "client_credential");
+        body.put("appid", appId);
+        body.put("secret", secret);
+        body.put("force_refresh", false);
+
+        String response = httpClientUtil.post(url, body, String.class);
+        Map<String, Object> result = objectMapper.readValue(response, Map.class);
+        Integer errcode = readErrcode(result.get("errcode"));
+        if (errcode != null && errcode != 0) {
+            String errmsg = (String) result.get("errmsg");
+            log.error("获取stable_token失败, appId={}, errcode={}, errmsg={}", appId, errcode, errmsg);
+            return null;
+        }
+
+        if (result.containsKey("access_token")) {
+            String token = (String) result.get("access_token");
+            Integer expiresIn = readExpiresIn(result.get("expires_in"));
+            cachedToken = new AccessToken(token, expiresIn);
+            return token;
+        }
+        log.error("获取stable_token失败, appId={}, response={}", appId, response);
+        return null;
+    }
+
+    private String fetchNormalAccessToken() throws Exception {
+        String url = String.format(
+                "%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+                wechatApiBaseUrl, appId, secret);
+        String response = httpClientUtil.get(url, String.class);
+        Map<String, Object> result = objectMapper.readValue(response, Map.class);
+        Integer errcode = readErrcode(result.get("errcode"));
+        if (errcode != null && errcode != 0) {
+            String errmsg = (String) result.get("errmsg");
+            log.error("获取access_token失败, appId={}, errcode={}, errmsg={}", appId, errcode, errmsg);
+            throw new BusinessException(500, "获取微信Access Token失败: " + errmsg + " (errcode=" + errcode + ")");
+        }
+        if (result.containsKey("access_token")) {
+            String token = (String) result.get("access_token");
+            Integer expiresIn = readExpiresIn(result.get("expires_in"));
+            cachedToken = new AccessToken(token, expiresIn);
+            return token;
+        }
+        log.error("获取access_token失败, appId={}, response={}", appId, response);
+        throw new BusinessException(500, "获取微信Access Token失败");
+    }
+
+    private void clearCachedToken() {
+        synchronized (this) {
+            cachedToken = null;
+        }
+    }
+
+    private Integer readErrcode(Object errcodeObj) {
+        if (errcodeObj == null) {
+            return null;
+        }
+        if (errcodeObj instanceof Number) {
+            return ((Number) errcodeObj).intValue();
+        }
+        try {
+            return Integer.parseInt(String.valueOf(errcodeObj));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private Integer readExpiresIn(Object expiresInObj) {
+        if (expiresInObj instanceof Number) {
+            return ((Number) expiresInObj).intValue();
+        }
+        return 7200;
     }
 }

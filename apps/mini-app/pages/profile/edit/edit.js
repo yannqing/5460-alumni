@@ -233,18 +233,19 @@ function mapFormToUpdateData(form) {
     avatarUrl: form.avatarUrl || null, // 确保 avatarUrl 被包含，即使可能为空
     phone: form.phone || null,
     bgImg: form.bgImg || null,
-    wxNum: form.wxNum || null,
+    wxNum: form.wxNum !== undefined && form.wxNum !== null ? form.wxNum : null,
     qqNum: form.qqNum || null,
-    email: form.email || null,
+    email: form.email !== undefined && form.email !== null ? form.email : null,
     // 性别：0-未知，1-男，2-女
     gender: form.gender !== null && form.gender !== undefined ? form.gender : null,
     // 位置信息
-    originProvince: form.originProvince || null,
+    originProvince:
+      form.originProvince !== undefined && form.originProvince !== null ? form.originProvince : null,
     curContinent: form.curContinent || null,
     curCountry: form.curCountry || null,
-    curProvince: form.curProvince || null,
-    curCity: form.curCity || null,
-    curCounty: form.curCounty || null,
+    curProvince: form.curProvince !== undefined && form.curProvince !== null ? form.curProvince : null,
+    curCity: form.curCity !== undefined && form.curCity !== null ? form.curCity : null,
+    curCounty: form.curCounty !== undefined && form.curCounty !== null ? form.curCounty : null,
     address: form.address || null,
     latitude:
       form.latitude && form.latitude.trim()
@@ -261,17 +262,20 @@ function mapFormToUpdateData(form) {
     // 其他信息
     constellation:
       form.constellation !== null && form.constellation !== undefined ? form.constellation : null,
-    signature: form.signature || null,
+    signature: form.signature !== undefined && form.signature !== null ? form.signature : null,
     description: form.description || null,
     // 证件信息
     identifyType:
       form.identifyType !== null && form.identifyType !== undefined ? form.identifyType : null,
-    identifyCode: form.identifyCode || null,
+    identifyCode: form.identifyCode !== undefined && form.identifyCode !== null ? form.identifyCode : null,
     birthDate: form.birthDate || null,
     // 婚姻状态和个人特长
     maritalStatus:
       form.maritalStatus !== null && form.maritalStatus !== undefined ? form.maritalStatus : null,
-    personalSpecialty: form.personalSpecialty || null,
+    personalSpecialty:
+      form.personalSpecialty !== undefined && form.personalSpecialty !== null
+        ? form.personalSpecialty
+        : null,
     // 教育经历
     // 过滤掉没有有效 schoolId 的教育经历（后端要求 schoolId 不能为 null）
     alumniEducationList: (form.educationList || [])
@@ -319,20 +323,32 @@ function mapFormToUpdateData(form) {
       })),
   }
 
-  // 移除空字符串和 null 值，但保留 avatarUrl（即使为空字符串，也允许更新为空）
-  // 注意：如果 avatarUrl 是空字符串，表示要清空头像，应该保留
+  // 移除空字符串和 null 值，但保留可显式清空的字段（空字符串需要传给后端）
+  // 注意：这些字段传 '' 代表用户主动清空，不能在此处被删除
+  const allowEmptyStringFields = [
+    'avatarUrl',
+    'signature',
+    'wxNum',
+    'email',
+    'personalSpecialty',
+    'originProvince',
+    'curProvince',
+    'curCity',
+    'curCounty',
+    'identifyCode',
+  ]
   Object.keys(data).forEach(key => {
-    // avatarUrl 特殊处理：空字符串也保留（表示清空头像）
-    if (key === 'avatarUrl') {
-      // avatarUrl 为 null 或 undefined 时才删除，空字符串保留
+    // 允许显式清空的字段：删除 null/undefined，保留 ''
+    if (allowEmptyStringFields.includes(key)) {
       if (data[key] === null || data[key] === undefined) {
         delete data[key]
       }
-    } else {
-      // 其他字段：空字符串和 null 都删除
-      if (data[key] === '' || data[key] === null) {
-        delete data[key]
-      }
+      return
+    }
+
+    // 其他字段：空字符串和 null 都删除
+    if (data[key] === '' || data[key] === null) {
+      delete data[key]
     }
   })
 
@@ -758,7 +774,7 @@ Page({
 
     // 构建更新数据（直接使用后端字段名）
     const updateData = {}
-    updateData[field] = value || null
+    updateData[field] = value !== undefined && value !== null ? value : ''
 
     // 保存单个字段（updateData 已经是后端格式，直接使用）
     await this.saveSingleField(updateData, true)
@@ -791,11 +807,11 @@ Page({
     })
 
     // 获取当前表单中该字段的值
-    const value = this.data.form[field] || ''
+    const value = this.data.form[field]
 
     // 构建更新数据（直接使用后端字段名）
     const updateData = {}
-    updateData[field] = value || null
+    updateData[field] = value !== undefined && value !== null ? value : ''
 
     // 保存单个字段
     await this.saveSingleField(updateData, true)
@@ -895,10 +911,10 @@ Page({
     })
 
     // 获取当前个人简介的值
-    const value = this.data.form.description || ''
+    const value = this.data.form.description
 
     // 构建更新数据
-    const updateData = { description: value || null }
+    const updateData = { description: value !== undefined && value !== null ? value : '' }
 
     // 保存单个字段
     await this.saveSingleField(updateData, true)
@@ -1000,10 +1016,10 @@ Page({
 
     // 选择后自动保存
     const updateData = {
-      originProvince: province !== '暂不选择' ? province : null,
-      curProvince: province !== '暂不选择' ? province : null,
-      curCity: city !== '暂不选择' ? city : null,
-      curCounty: county !== '暂不选择' ? county : null,
+      originProvince: province !== '暂不选择' ? province : '',
+      curProvince: province !== '暂不选择' ? province : '',
+      curCity: city !== '暂不选择' ? city : '',
+      curCounty: county !== '暂不选择' ? county : '',
     }
     await this.saveSingleField(updateData, true)
   },
@@ -1298,8 +1314,24 @@ Page({
   async saveToApi(updateData = null) {
     // 如果传入了 updateData，直接使用；否则使用完整表单数据
     const dataToSave = updateData || mapFormToUpdateData(this.data.form)
+    const allowEmptyStringFields = [
+      'signature',
+      'wxNum',
+      'email',
+      'personalSpecialty',
+      'originProvince',
+      'curProvince',
+      'curCity',
+      'curCounty',
+      'identifyCode',
+      'description',
+    ]
+    const requestPayload = {
+      ...dataToSave,
+      __allowEmptyStringFields: allowEmptyStringFields,
+    }
 
-    const res = await userApi.updateUserInfo(dataToSave)
+    const res = await userApi.updateUserInfo(requestPayload)
 
     if (res.data && res.data.code === 200) {
       // 保存成功后，重新从后端加载最新数据，确保获取到完整的用户信息（包括头像）

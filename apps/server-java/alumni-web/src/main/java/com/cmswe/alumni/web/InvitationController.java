@@ -145,4 +145,19 @@ public class InvitationController {
         List<PosterTemplateItemVo> list = invitationService.getInvitationPosterTemplates();
         return ResultUtils.success(Code.SUCCESS, list, "查询成功");
     }
+
+    /**
+     * 展示邀请模版列表（二维码已合成在海报右下角）
+     */
+    @GetMapping("/poster-templates/rendered")
+    @Operation(summary = "展示已合成二维码的邀请模版列表")
+    public BaseResponse<List<PosterTemplateItemVo>> getRenderedInvitationPosterTemplates(
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        if (securityUser == null || securityUser.getWxUser() == null) {
+            return ResultUtils.failure(Code.FAILURE, null, "请先登录");
+        }
+        Long wxId = securityUser.getWxUser().getWxId();
+        List<PosterTemplateItemVo> list = invitationService.getInvitationPosterTemplatesWithQr(wxId);
+        return ResultUtils.success(Code.SUCCESS, list, "查询成功");
+    }
 }

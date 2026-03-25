@@ -191,11 +191,11 @@ Page({
         }
       }
 
-      // 如果通过 roles 没找到，尝试通过 getManagedOrganizations 接口获取（审核通过后缓存未更新）
+      // 如果通过 roles 没找到，尝试接口兜底（仅 role_user 绑定，系统管理员不展开全站组织）
       if (alumniAssociationList.length === 0) {
         console.log('[Debug] roles 缓存未找到管理权，尝试接口兜底获取...')
         try {
-          const res = await userApi.getManagedOrganizations({ type: 0 }) // type: 0-校友会
+          const res = await userApi.getManagedOrganizations({ type: 0, roleScopedOnly: true })
           const list = (res?.data?.data ?? res?.data ?? []) || []
           if (Array.isArray(list) && list.length > 0) {
             list.forEach(item => {
@@ -206,7 +206,7 @@ Page({
                 organizeId: item.id
               })
             })
-            // 接口有返回，说明用户确实有管理员权限
+            // role_user 中绑定了至少一个可管理的校友会
             this.setData({
               hasAlumniAdminPermission: true
             })
