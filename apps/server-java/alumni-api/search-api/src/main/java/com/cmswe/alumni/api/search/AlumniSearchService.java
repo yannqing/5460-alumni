@@ -1,8 +1,10 @@
 package com.cmswe.alumni.api.search;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cmswe.alumni.common.dto.QueryAlumniListDto;
 import com.cmswe.alumni.common.dto.search.SearchFilter;
+import com.cmswe.alumni.common.vo.UserListResponse;
 import com.cmswe.alumni.common.vo.search.SearchResultItem;
-import org.springframework.data.domain.Page;
 
 /**
  * 校友搜索服务接口
@@ -21,8 +23,18 @@ public interface AlumniSearchService {
      * @param highlight 是否高亮
      * @return 搜索结果
      */
-    Page<SearchResultItem> searchAlumni(String keyword, SearchFilter filter,
+    org.springframework.data.domain.Page<SearchResultItem> searchAlumni(String keyword, SearchFilter filter,
                                         Integer pageNum, Integer pageSize, Boolean highlight);
+
+    /**
+     * 查询校友列表（兼容原 MySQL 查询接口）
+     * 使用 Elasticsearch 查询，与 UserService.queryAlumniList() 保持入参出参一致
+     *
+     * @param queryAlumniListDto 查询条件（与 MySQL 查询保持一致）
+     * @param wxId 当前用户ID（用于"我的关注"筛选，可为null）
+     * @return 用户列表（与 MySQL 返回格式一致，使用 MyBatis-Plus 的 Page）
+     */
+    Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId);
 
     /**
      * 按地理位置搜索附近的校友
@@ -34,7 +46,7 @@ public interface AlumniSearchService {
      * @param pageSize 每页大小
      * @return 搜索结果
      */
-    Page<SearchResultItem> searchNearbyAlumni(Double latitude, Double longitude,
+    org.springframework.data.domain.Page<SearchResultItem> searchNearbyAlumni(Double latitude, Double longitude,
                                               Integer radius, Integer pageNum, Integer pageSize);
 
     /**

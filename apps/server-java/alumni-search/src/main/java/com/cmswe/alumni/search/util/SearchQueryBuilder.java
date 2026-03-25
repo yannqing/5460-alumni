@@ -263,4 +263,158 @@ public class SearchQueryBuilder {
         }
         return sb.toString();
     }
+
+    /**
+     * 构建校友列表查询（兼容 MySQL 的 QueryAlumniListDto）
+     *
+     * @param dto 查询条件
+     * @param followedUserIds "我的关注"筛选的用户ID列表，为null表示不筛选
+     * @return NativeQuery
+     */
+    public static NativeQuery buildAlumniListQuery(
+            com.cmswe.alumni.common.dto.QueryAlumniListDto dto,
+            List<Long> followedUserIds) {
+
+        NativeQueryBuilder queryBuilder = NativeQuery.builder();
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+
+        // 1. 构建 OR 条件：nickname、name、phone（模糊匹配）
+        String nickname = dto.getNickname();
+        String name = dto.getName();
+        String phone = dto.getPhone();
+
+        boolean hasOrCondition = (nickname != null && !nickname.trim().isEmpty())
+                || (name != null && !name.trim().isEmpty())
+                || (phone != null && !phone.trim().isEmpty());
+
+        if (hasOrCondition) {
+            boolQueryBuilder.must(Query.of(q -> q.bool(b -> {
+                if (nickname != null && !nickname.trim().isEmpty()) {
+                    b.should(Query.of(sq -> sq.match(m -> m
+                            .field("nickname")
+                            .query(nickname)
+                            .fuzziness("AUTO"))));
+                }
+                if (name != null && !name.trim().isEmpty()) {
+                    b.should(Query.of(sq -> sq.match(m -> m
+                            .field("realName")
+                            .query(name)
+                            .fuzziness("AUTO"))));
+                }
+                if (phone != null && !phone.trim().isEmpty()) {
+                    b.should(Query.of(sq -> sq.wildcard(w -> w
+                            .field("phone")
+                            .value("*" + phone + "*"))));
+                }
+                b.minimumShouldMatch("1");
+                return b;
+            })));
+        }
+
+        // 2. AND 条件：其他字段精确匹配或模糊匹配
+        if (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) {
+            boolQueryBuilder.filter(f -> f.wildcard(w -> w
+                    .field("email")
+                    .value("*" + dto.getEmail() + "*")));
+        }
+
+        if (dto.getCurContinent() != null && !dto.getCurContinent().trim().isEmpty()) {
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("curContinent")
+                    .value(dto.getCurContinent())));
+        }
+
+        if (dto.getCurCountry() != null && !dto.getCurCountry().trim().isEmpty()) {
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("curCountry")
+                    .value(dto.getCurCountry())));
+        }
+
+        if (dto.getCurProvince() != null && !dto.getCurProvince().trim().isEmpty()) {
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("province")
+                    .value(dto.getCurProvince())));
+        }
+
+        if (dto.getCurCity() != null && !dto.getCurCity().trim().isEmpty()) {
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("city")
+                    .value(dto.getCurCity())));
+        }
+
+        if (dto.getGender() != null) {
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("gender")
+                    .value(dto.getGender())));
+        }
+
+        if (dto.getConstellation() != null) {
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("constellation")
+                    .value(dto.getConstellation())));
+        }
+
+        if (dto.getBirthDate() != null) {
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("birthDate")
+                    .value(dto.getBirthDate().toString())));
+        }
+
+        if (dto.getSignature() != null && !dto.getSignature().trim().isEmpty()) {
+            boolQueryBuilder.filter(f -> f.match(m -> m
+                    .field("signature")
+                    .query(dto.getSignature())));
+        }
+
+        if (dto.getIdentifyCode() != null && !dto.getIdentifyCode().trim().isEmpty()) {
+            boolQueryBuilder.filter(f -> f.wildcard(w -> w
+                    .field("identifyCode")
+                    .value("*" + dto.getIdentifyCode() + "*")));
+        }
+
+        // 3. "我的关注"筛选
+        if (followedUserIds != null && !followedUserIds.isEmpty()) {
+            boolQueryBuilder.filter(f -> f.terms(t -> t
+                    .field("wxId")
+                    .terms(ts -> ts.value(followedUserIds.stream()
+                            .map(id -> FieldValue.of(id.toString()))
+                            .toList()))));
+        }
+
+        // 4. 只搜索可见用户（隐私过滤）
+        boolQueryBuilder.filter(f -> f.term(t -> t.field("searchable").value(true)));
+
+        // 5. 强制筛选：realName 和 nickname 不能同时为空
+        boolQueryBuilder.filter(Query.of(q -> q.bool(b -> b
+                .should(Query.of(sq -> sq.exists(e -> e.field("realName"))))
+                .should(Query.of(sq -> sq.exists(e -> e.field("nickname"))))
+                .minimumShouldMatch("1"))));
+
+        queryBuilder.withQuery(Query.of(q -> q.bool(boolQueryBuilder.build())));
+
+        // 6. 分页
+        int current = dto.getCurrent() > 0 ? dto.getCurrent() : 1;
+        int pageSize = dto.getPageSize() > 0 ? dto.getPageSize() : 10;
+        queryBuilder.withPageable(org.springframework.data.domain.PageRequest.of(
+                current - 1, pageSize));
+
+        // 7. 排序：先按指定字段排序，再按wxId排序（确保排序稳定）
+        String sortField = dto.getSortField() != null ? dto.getSortField() : "createTime";
+        String sortOrder = dto.getSortOrder();
+        boolean isAsc = "ascend".equals(sortOrder);
+
+        if ("createdTime".equals(sortField) || "createTime".equals(sortField)) {
+            queryBuilder.withSort(org.springframework.data.domain.Sort.by(
+                    isAsc ? org.springframework.data.domain.Sort.Direction.ASC
+                          : org.springframework.data.domain.Sort.Direction.DESC,
+                    "createTime"
+            ));
+        }
+
+        // 辅助排序：按 wxId 降序（保证排序稳定性）
+        queryBuilder.withSort(org.springframework.data.domain.Sort.by(
+                org.springframework.data.domain.Sort.Direction.DESC, "wxId"));
+
+        return queryBuilder.build();
+    }
 }

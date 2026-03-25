@@ -150,8 +150,8 @@ Page({
 
     // 构建请求参数
     const params = {
-      current: reset ? 1 : current,
-      size: pageSize,
+      pageNum: reset ? 1 : current,
+      pageSize: pageSize,
       // 关注筛选：0-全部，1-仅我关注的
       myFollow: myFollow,
     }
@@ -209,7 +209,7 @@ Page({
               data: {
                 records: uniqueRecords,
                 total: uniqueRecords.length,
-                current: params.current,
+                current: params.pageNum,
                 size: pageSize,
               },
               msg: 'success',
@@ -233,8 +233,15 @@ Page({
         // 数据映射
         const mappedList = records.map(item => this.mapAlumniItem(item))
 
-        // 更新列表数据
-        const finalList = reset ? mappedList : [...this.data.alumniList, ...mappedList]
+        // 更新列表数据（去重，防止分页重叠导致 wx:key 重复）
+        let finalList
+        if (reset) {
+          finalList = mappedList
+        } else {
+          const existingIds = new Set(this.data.alumniList.map(item => item.id))
+          const newItems = mappedList.filter(item => !existingIds.has(item.id))
+          finalList = [...this.data.alumniList, ...newItems]
+        }
 
         this.setData({
           alumniList: finalList,

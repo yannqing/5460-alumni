@@ -178,6 +178,12 @@ public class AlumniDocument {
     private String certificationStatus;
 
     /**
+     * 认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）
+     */
+    @Field(type = FieldType.Integer)
+    private Integer certificationFlag;
+
+    /**
      * 标签
      */
     @Field(type = FieldType.Keyword)

@@ -43,11 +43,20 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@ConditionalOnProperty(name = "canal.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "canal.kafka.enabled", havingValue = "true")
 public class CacheClearConsumer {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        log.info("========================================");
+        log.info("[CacheClearConsumer] Bean 已创建！");
+        log.info("[CacheClearConsumer] 开始监听 Topic: {}", com.cmswe.alumni.common.constant.KafkaTopicConstants.DATA_SYNC_ALUMNI);
+        log.info("[CacheClearConsumer] 消费者组: {}", com.cmswe.alumni.common.constant.KafkaTopicConstants.ConsumerGroup.CACHE_CLEAR);
+        log.info("========================================");
+    }
 
     @Resource
     private DataMergeService dataMergeService;
@@ -81,7 +90,11 @@ public class CacheClearConsumer {
      * @param offset    消息偏移量
      */
     @KafkaListener(
-            topics = KafkaTopicConstants.DATA_SYNC_ALUMNI,
+            topics = {
+                    KafkaTopicConstants.DATA_SYNC_ALUMNI,
+                    KafkaTopicConstants.DATA_SYNC_ASSOCIATION,
+                    KafkaTopicConstants.DATA_SYNC_MERCHANT
+            },
             groupId = KafkaTopicConstants.ConsumerGroup.CACHE_CLEAR,
             containerFactory = "kafkaListenerContainerFactory"
     )
@@ -100,8 +113,8 @@ public class CacheClearConsumer {
             event = objectMapper.readValue(message, DataChangeEvent.class);
             eventId = event.getEventId();
 
-            // 2. 【幂等性检查】虽然缓存清除本身是幂等的，但避免重复处理以节省资源
-            if (messageIdempotentService.isMessageProcessed(eventId)) {
+            // 2. 【幂等性检查】使用"cache-clear"命名空间独立判断（与ES同步隔离）
+            if (messageIdempotentService.isMessageProcessed(eventId, "cache-clear")) {
                 log.warn("[缓存清除] 检测到重复消息，跳过处理 - EventId: {}", eventId);
                 return;
             }
@@ -122,8 +135,8 @@ public class CacheClearConsumer {
             // 5. 清除 Redis 缓存（L2）
             clearRedisCache();
 
-            // 6. 【标记消息为已处理】保证幂等性
-            messageIdempotentService.markMessageAsProcessed(eventId);
+            // 6. 【标记消息为已处理】使用"cache-clear"命名空间独立记录
+            messageIdempotentService.markMessageAsProcessed(eventId, "cache-clear");
 
             long endTime = System.currentTimeMillis();
             log.info("[缓存清除] 清除成功 - EventId: {}, Time: {}ms",
@@ -172,13 +185,25 @@ public class CacheClearConsumer {
      */
     private void clearRedisCache() {
         try {
-            // 清除搜索结果缓存
-            String searchPattern = "search:alumni:*";
-            long deletedCount = redisCache.keys(searchPattern).stream()
-                    .peek(redisCache::deleteObject)
-                    .count();
+            // 清除所有搜索结果缓存（校友、校友会、商户）
+            String[] searchPatterns = {
+                    "search:alumni:*",      // 校友搜索缓存
+                    "search:association:*", // 校友会搜索缓存
+                    "search:merchant:*"     // 商户搜索缓存
+            };
 
-            log.debug("[缓存清除] Redis缓存已清除 - Pattern: {}, 删除数量: {}", searchPattern, deletedCount);
+            long totalDeleted = 0;
+            for (String pattern : searchPatterns) {
+                long deletedCount = redisCache.keys(pattern).stream()
+                        .peek(redisCache::deleteObject)
+                        .count();
+                totalDeleted += deletedCount;
+                if (deletedCount > 0) {
+                    log.debug("[缓存清除] Redis缓存已清除 - Pattern: {}, 删除数量: {}", pattern, deletedCount);
+                }
+            }
+
+            log.debug("[缓存清除] Redis缓存清除完成 - 总删除数量: {}", totalDeleted);
 
         } catch (Exception e) {
             log.error("[缓存清除] Redis缓存清除失败", e);

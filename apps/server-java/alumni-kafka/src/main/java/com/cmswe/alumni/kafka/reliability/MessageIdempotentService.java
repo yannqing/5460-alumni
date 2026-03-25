@@ -54,11 +54,22 @@ public class MessageIdempotentService {
      * @return true-已处理；false-未处理
      */
     public boolean isMessageProcessed(String messageId) {
-        String key = buildKey(messageId);
+        return isMessageProcessed(messageId, null);
+    }
+
+    /**
+     * 检查消息是否已处理（支持命名空间隔离）
+     *
+     * @param messageId 消息 ID
+     * @param namespace 命名空间（用于区分不同的consumer，如"es-sync"、"cache-clear"）
+     * @return true-已处理；false-未处理
+     */
+    public boolean isMessageProcessed(String messageId, String namespace) {
+        String key = buildKey(messageId, namespace);
         boolean processed = redisCache.hasKey(key);
 
         if (processed) {
-            log.warn("[MessageIdempotent] 检测到重复消息 - MessageId: {}", messageId);
+            log.warn("[MessageIdempotent] 检测到重复消息 - MessageId: {}, Namespace: {}", messageId, namespace);
         }
 
         return processed;
@@ -71,7 +82,18 @@ public class MessageIdempotentService {
      * @return true-标记成功；false-标记失败（可能已存在）
      */
     public boolean markMessageAsProcessed(String messageId) {
-        return markMessageAsProcessed(messageId, DEFAULT_EXPIRE_HOURS, TimeUnit.HOURS);
+        return markMessageAsProcessed(messageId, null, DEFAULT_EXPIRE_HOURS, TimeUnit.HOURS);
+    }
+
+    /**
+     * 标记消息为已处理（支持命名空间隔离）
+     *
+     * @param messageId 消息 ID
+     * @param namespace 命名空间（用于区分不同的consumer）
+     * @return true-标记成功；false-标记失败
+     */
+    public boolean markMessageAsProcessed(String messageId, String namespace) {
+        return markMessageAsProcessed(messageId, namespace, DEFAULT_EXPIRE_HOURS, TimeUnit.HOURS);
     }
 
     /**
@@ -83,26 +105,39 @@ public class MessageIdempotentService {
      * @return true-标记成功；false-标记失败
      */
     public boolean markMessageAsProcessed(String messageId, long expireTime, TimeUnit timeUnit) {
-        String key = buildKey(messageId);
+        return markMessageAsProcessed(messageId, null, expireTime, timeUnit);
+    }
+
+    /**
+     * 标记消息为已处理（支持命名空间隔离 + 自定义过期时间）
+     *
+     * @param messageId  消息 ID
+     * @param namespace  命名空间（用于区分不同的consumer）
+     * @param expireTime 过期时间
+     * @param timeUnit   时间单位
+     * @return true-标记成功；false-标记失败
+     */
+    public boolean markMessageAsProcessed(String messageId, String namespace, long expireTime, TimeUnit timeUnit) {
+        String key = buildKey(messageId, namespace);
 
         try {
             // 检查是否已存在
             if (redisCache.hasKey(key)) {
-                log.warn("[MessageIdempotent] 消息已被标记为已处理 - MessageId: {}", messageId);
+                log.warn("[MessageIdempotent] 消息已被标记为已处理 - MessageId: {}, Namespace: {}", messageId, namespace);
                 return false;
             }
 
             // 标记为已处理（存储处理时间戳）
             redisCache.setCacheObject(key, System.currentTimeMillis(), (int) expireTime, timeUnit);
 
-            log.debug("[MessageIdempotent] 消息标记为已处理 - MessageId: {}, Expire: {} {}",
-                    messageId, expireTime, timeUnit);
+            log.debug("[MessageIdempotent] 消息标记为已处理 - MessageId: {}, Namespace: {}, Expire: {} {}",
+                    messageId, namespace, expireTime, timeUnit);
 
             return true;
 
         } catch (Exception e) {
-            log.error("[MessageIdempotent] 标记消息失败 - MessageId: {}, Error: {}",
-                    messageId, e.getMessage(), e);
+            log.error("[MessageIdempotent] 标记消息失败 - MessageId: {}, Namespace: {}, Error: {}",
+                    messageId, namespace, e.getMessage(), e);
             return false;
         }
     }
@@ -147,6 +182,20 @@ public class MessageIdempotentService {
      * @return Redis Key
      */
     private String buildKey(String messageId) {
+        return buildKey(messageId, null);
+    }
+
+    /**
+     * 构建 Redis Key（支持命名空间）
+     *
+     * @param messageId 消息 ID
+     * @param namespace 命名空间
+     * @return Redis Key
+     */
+    private String buildKey(String messageId, String namespace) {
+        if (namespace != null && !namespace.trim().isEmpty()) {
+            return MESSAGE_PROCESSED_KEY_PREFIX + namespace + ":" + messageId;
+        }
         return MESSAGE_PROCESSED_KEY_PREFIX + messageId;
     }
 }
