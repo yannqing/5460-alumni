@@ -218,7 +218,7 @@ public final class KafkaTopicConstants {
          * <p>订阅：data.sync.alumni, data.sync.association, data.sync.merchant
          * <p>职责：将数据变更同步到 ES 索引
          */
-        public static final String ES_SYNC = "es-sync-group";
+        public static final String ES_SYNC = "es-sync-group-v2";
 
         /**
          * 缓存清除消费者组（发布订阅模式）

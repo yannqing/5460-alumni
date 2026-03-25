@@ -71,6 +71,9 @@ public class AlumniSearchServiceImpl implements AlumniSearchService {
     @Resource
     private com.cmswe.alumni.api.user.UserPrivacySettingService userPrivacySettingService;
 
+    @Resource
+    private com.cmswe.alumni.search.service.enrich.UserDataEnrichService userDataEnrichService;
+
     private static final String CACHE_PREFIX = "search:alumni:";
     private static final String ALUMNI_LIST_CACHE_PREFIX = "search:alumniList:";
     private static final long CACHE_TTL = 5; // 分钟
@@ -425,7 +428,10 @@ public class AlumniSearchServiceImpl implements AlumniSearchService {
 
         List<UserListResponse> responses = AlumniConverter.toUserListResponses(documents);
 
-        // 6. 批量预热隐私设置缓存（性能优化：避免 AOP 处理时的 N+1 查询）
+        // 6. 数据增强：补充学校信息和完整教育经历（从数据库查询）
+        userDataEnrichService.enrichUserListResponses(responses);
+
+        // 7. 批量预热隐私设置缓存（性能优化：避免 AOP 处理时的 N+1 查询）
         if (!responses.isEmpty()) {
             List<Long> wxIds = responses.stream()
                     .map(r -> Long.parseLong(r.getWxId()))
@@ -435,7 +441,7 @@ public class AlumniSearchServiceImpl implements AlumniSearchService {
             log.debug("批量预热隐私缓存完成 - 用户数: {}", wxIds.size());
         }
 
-        // 7. 构建 MyBatis-Plus Page 对象（与 MySQL 查询返回格式一致）
+        // 8. 构建 MyBatis-Plus Page 对象（与 MySQL 查询返回格式一致）
         Page<UserListResponse> resultPage = new Page<>(
                 queryAlumniListDto.getCurrent(),
                 queryAlumniListDto.getPageSize(),

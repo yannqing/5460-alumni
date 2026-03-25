@@ -183,12 +183,14 @@ public class AlumniConverter {
                     .userId(wxUser.getWxId())
                     .lastLoginTime(wxUser.getLastLoginTime())
                     .createTime(wxUser.getCreatedTime())
-                    .updateTime(wxUser.getUpdatedTime());
+                    .updateTime(wxUser.getUpdatedTime())
+                    .certificationFlag(wxUser.getCertificationFlag()); // 认证标识（0-未认证，1-校友总会认证，2-校促会认证，3-校友会认证）
         }
 
         // 从 wxUserInfo 获取详细信息
         if (wxUserInfo != null) {
             builder.nickname(wxUserInfo.getNickname())
+                    .realName(wxUserInfo.getName()) // 真实姓名
                     .avatar(wxUserInfo.getAvatarUrl())
                     .phone(wxUserInfo.getPhone())
                     .email(wxUserInfo.getEmail())
@@ -267,17 +269,8 @@ public class AlumniConverter {
         // 个性签名
         response.setSignature(document.getSignature());
 
-        // 认证标识
-        if (document.getCertified() != null && document.getCertified()) {
-            // 根据 certificationStatus 判断具体类型
-            if ("VERIFIED".equals(document.getCertificationStatus())) {
-                response.setCertificationFlag(1); // 默认设为1，具体类型需要从数据库补充
-            } else {
-                response.setCertificationFlag(0);
-            }
-        } else {
-            response.setCertificationFlag(0);
-        }
+        // 认证标识（直接从 ES 文档中获取，来源于 wx_users.certification_flag）
+        response.setCertificationFlag(document.getCertificationFlag() != null ? document.getCertificationFlag() : 0);
 
         // 主要教育经历（从 ES 文档中获取）
         if (document.getSchoolId() != null || document.getSchoolName() != null) {
