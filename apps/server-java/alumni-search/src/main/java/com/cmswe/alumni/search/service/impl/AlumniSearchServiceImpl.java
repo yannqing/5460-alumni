@@ -1,10 +1,15 @@
 package com.cmswe.alumni.search.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cmswe.alumni.api.search.AlumniSearchService;
+import com.cmswe.alumni.common.dto.QueryAlumniListDto;
 import com.cmswe.alumni.common.dto.search.SearchFilter;
 import com.cmswe.alumni.common.entity.AlumniInfo;
 import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.common.entity.WxUserInfo;
+import com.cmswe.alumni.common.enums.ErrorType;
+import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.UserListResponse;
 import com.cmswe.alumni.common.vo.search.SearchResultItem;
 import com.cmswe.alumni.search.converter.AlumniConverter;
 import com.cmswe.alumni.search.document.AlumniDocument;
@@ -60,7 +65,14 @@ public class AlumniSearchServiceImpl implements AlumniSearchService {
     @Resource
     private com.cmswe.alumni.search.service.sync.DataMergeService dataMergeService;
 
+    @Resource
+    private com.cmswe.alumni.api.user.UserFollowService userFollowService;
+
+    @Resource
+    private com.cmswe.alumni.api.user.UserPrivacySettingService userPrivacySettingService;
+
     private static final String CACHE_PREFIX = "search:alumni:";
+    private static final String ALUMNI_LIST_CACHE_PREFIX = "search:alumniList:";
     private static final long CACHE_TTL = 5; // 分钟
 
     @Override
@@ -353,5 +365,86 @@ public class AlumniSearchServiceImpl implements AlumniSearchService {
             keys.forEach(redisCache::deleteObject);
         }
         localCache.invalidateAll();
+    }
+
+    /**
+     * 查询校友列表（兼容原 MySQL 查询接口）
+     * 使用 Elasticsearch 查询，与 UserService.queryAlumniList() 保持入参出参一致
+     *
+     * @param queryAlumniListDto 查询条件（与 MySQL 查询保持一致）
+     * @param wxId 当前用户ID（用于"我的关注"筛选，可为null）
+     * @return 用户列表（与 MySQL 返回格式一致，使用 MyBatis-Plus 的 Page）
+     */
+    @Override
+    public Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId) {
+        long startTime = System.currentTimeMillis();
+
+        // 1. 参数校验
+        if (queryAlumniListDto == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL);
+        }
+
+        log.info("ES 查询校友列表开始 - 参数: {}, 用户ID: {}", queryAlumniListDto, wxId);
+
+        // 2. 处理"我的关注"筛选：查询用户关注的校友 ID 列表
+        List<Long> followedUserIds = null;
+        Integer myFollow = queryAlumniListDto.getMyFollow();
+        if (myFollow != null && myFollow == 1 && wxId != null) {
+            followedUserIds = userFollowService.getFollowedTargetIds(wxId, 1); // 1-用户
+
+            // 如果用户没有关注任何校友，直接返回空结果
+            if (followedUserIds.isEmpty()) {
+                log.info("用户 {} 未关注任何校友，返回空结果", wxId);
+                Page<UserListResponse> emptyPage = new Page<>(
+                        queryAlumniListDto.getCurrent(),
+                        queryAlumniListDto.getPageSize(),
+                        0);
+                emptyPage.setRecords(new ArrayList<>());
+                return emptyPage;
+            }
+            log.debug("用户 {} 关注了 {} 个校友", wxId, followedUserIds.size());
+        }
+
+        // 3. 构建 ES 查询
+        NativeQuery esQuery = SearchQueryBuilder.buildAlumniListQuery(
+                queryAlumniListDto, followedUserIds);
+
+        // 4. 执行 ES 查询
+        SearchHits<AlumniDocument> searchHits = elasticsearchOperations.search(
+                esQuery,
+                AlumniDocument.class);
+
+        long esQueryTime = System.currentTimeMillis() - startTime;
+        log.info("ES 查询完成 - 总命中数: {}, 耗时: {}ms",
+                searchHits.getTotalHits(), esQueryTime);
+
+        // 5. 转换结果为 UserListResponse 格式
+        List<AlumniDocument> documents = searchHits.getSearchHits().stream()
+                .map(org.springframework.data.elasticsearch.core.SearchHit::getContent)
+                .collect(Collectors.toList());
+
+        List<UserListResponse> responses = AlumniConverter.toUserListResponses(documents);
+
+        // 6. 批量预热隐私设置缓存（性能优化：避免 AOP 处理时的 N+1 查询）
+        if (!responses.isEmpty()) {
+            List<Long> wxIds = responses.stream()
+                    .map(r -> Long.parseLong(r.getWxId()))
+                    .distinct()
+                    .collect(Collectors.toList());
+            userPrivacySettingService.batchWarmupCache(wxIds);
+            log.debug("批量预热隐私缓存完成 - 用户数: {}", wxIds.size());
+        }
+
+        // 7. 构建 MyBatis-Plus Page 对象（与 MySQL 查询返回格式一致）
+        Page<UserListResponse> resultPage = new Page<>(
+                queryAlumniListDto.getCurrent(),
+                queryAlumniListDto.getPageSize(),
+                searchHits.getTotalHits());
+        resultPage.setRecords(responses);
+
+        long totalTime = System.currentTimeMillis() - startTime;
+        log.info("ES 查询校友列表完成 - 返回 {} 条记录，总耗时: {}ms", responses.size(), totalTime);
+
+        return resultPage;
     }
 }

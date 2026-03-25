@@ -239,4 +239,96 @@ public class AlumniConverter {
 
         return builder.build();
     }
+
+    /**
+     * AlumniDocument 转换为 UserListResponse
+     * 用于兼容原 MySQL 查询接口的返回格式
+     *
+     * @param document ES 文档
+     * @return UserListResponse
+     */
+    public static com.cmswe.alumni.common.vo.UserListResponse toUserListResponse(AlumniDocument document) {
+        if (document == null) {
+            return null;
+        }
+
+        com.cmswe.alumni.common.vo.UserListResponse response = new com.cmswe.alumni.common.vo.UserListResponse();
+
+        // 基本信息
+        response.setWxId(document.getWxId());
+        response.setNickname(document.getNickname());
+        response.setName(document.getRealName());
+        response.setAvatarUrl(document.getAvatar());
+
+        // 地域信息
+        response.setCurProvince(document.getProvince());
+        response.setCurCity(document.getCity());
+
+        // 个性签名
+        response.setSignature(document.getSignature());
+
+        // 认证标识
+        if (document.getCertified() != null && document.getCertified()) {
+            // 根据 certificationStatus 判断具体类型
+            if ("VERIFIED".equals(document.getCertificationStatus())) {
+                response.setCertificationFlag(1); // 默认设为1，具体类型需要从数据库补充
+            } else {
+                response.setCertificationFlag(0);
+            }
+        } else {
+            response.setCertificationFlag(0);
+        }
+
+        // 主要教育经历（从 ES 文档中获取）
+        if (document.getSchoolId() != null || document.getSchoolName() != null) {
+            com.cmswe.alumni.common.vo.AlumniEducationListVo education = new com.cmswe.alumni.common.vo.AlumniEducationListVo();
+            education.setGraduationYear(document.getGraduationYear());
+            education.setMajor(document.getMajor());
+
+            // 学校信息
+            if (document.getSchoolName() != null || document.getSchoolId() != null) {
+                com.cmswe.alumni.common.vo.SchoolListVo schoolVo = new com.cmswe.alumni.common.vo.SchoolListVo();
+                schoolVo.setSchoolId(document.getSchoolId() != null ? document.getSchoolId().toString() : null);
+                schoolVo.setSchoolName(document.getSchoolName());
+                education.setSchoolInfo(schoolVo);
+            }
+
+            response.setPrimaryEducation(education);
+        }
+
+        // 标签列表（从 ES 的 tags 字段转换）
+        if (document.getTags() != null && !document.getTags().isEmpty()) {
+            List<com.cmswe.alumni.common.vo.TagVo> tagVoList = document.getTags().stream()
+                    .map(tagName -> {
+                        com.cmswe.alumni.common.vo.TagVo tagVo = new com.cmswe.alumni.common.vo.TagVo();
+                        tagVo.setName(tagName);
+                        return tagVo;
+                    })
+                    .collect(Collectors.toList());
+            response.setTagList(tagVoList);
+        } else {
+            response.setTagList(new java.util.ArrayList<>());
+        }
+
+        // 在线状态（ES 中没有实时在线状态，默认为 false）
+        response.setIsOnline(false);
+
+        return response;
+    }
+
+    /**
+     * 批量转换 AlumniDocument 到 UserListResponse
+     *
+     * @param documents ES 文档列表
+     * @return UserListResponse 列表
+     */
+    public static List<com.cmswe.alumni.common.vo.UserListResponse> toUserListResponses(
+            List<AlumniDocument> documents) {
+        if (documents == null || documents.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return documents.stream()
+                .map(AlumniConverter::toUserListResponse)
+                .collect(Collectors.toList());
+    }
 }

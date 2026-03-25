@@ -153,11 +153,18 @@ public class RedisCache
     public <T> BoundSetOperations<String, T> setCacheSet(final String key, final Set<T> dataSet, final long timeout, final TimeUnit timeUnit)
     {
         BoundSetOperations<String, T> setOperation = redisTemplate.boundSetOps(key);
-        Iterator<T> it = dataSet.iterator();
-        while (it.hasNext())
-        {
-            setOperation.add(it.next());
+
+        if (dataSet.isEmpty()) {
+            // 空集合：添加空字符串占位符（读取时会被过滤掉）
+            setOperation.add((T) "");
+        } else {
+            Iterator<T> it = dataSet.iterator();
+            while (it.hasNext())
+            {
+                setOperation.add(it.next());
+            }
         }
+
         // 设置过期时间
         setOperation.expire(timeout, timeUnit);
         return setOperation;
@@ -172,6 +179,41 @@ public class RedisCache
     public <T> Set<T> getCacheSet(final String key)
     {
         return redisTemplate.opsForSet().members(key);
+    }
+
+    /**
+     * 批量获取缓存的 Set（使用 Pipeline 减少网络往返）
+     *
+     * @param keys Redis 键集合
+     * @return Map<key, Set<T>> 的映射关系
+     */
+    public <T> Map<String, Set<T>> batchGetCacheSet(final Collection<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        // 使用 Pipeline 批量查询
+        List<Object> results = redisTemplate.executePipelined((org.springframework.data.redis.core.RedisCallback<Object>) connection -> {
+            for (String key : keys) {
+                connection.sMembers(key.getBytes());
+            }
+            return null;
+        });
+
+        // 将结果转换为 Map
+        Map<String, Set<T>> resultMap = new HashMap<>();
+        int index = 0;
+        for (String key : keys) {
+            Object result = results.get(index);
+            if (result instanceof Set) {
+                resultMap.put(key, (Set<T>) result);
+            } else {
+                resultMap.put(key, new HashSet<>());
+            }
+            index++;
+        }
+
+        return resultMap;
     }
 
     /**
@@ -465,6 +507,37 @@ public class RedisCache
     public Long getOnlineUserCount() {
         String key = "online:users:set";
         return getSetSize(key);
+    }
+
+    /**
+     * 批量检查 Key 是否存在（使用 Pipeline 批量操作，减少网络往返）
+     *
+     * @param keys Redis 键集合
+     * @return Map<key, 是否存在> 的映射关系
+     */
+    public Map<String, Boolean> batchHasKey(final Collection<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        // 使用 Pipeline 批量检查
+        List<Object> results = redisTemplate.executePipelined((org.springframework.data.redis.core.RedisCallback<Object>) connection -> {
+            for (String key : keys) {
+                connection.exists(key.getBytes());
+            }
+            return null;
+        });
+
+        // 将结果转换为 Map
+        Map<String, Boolean> resultMap = new HashMap<>();
+        int index = 0;
+        for (String key : keys) {
+            Boolean exists = results.get(index) != null && (Boolean) results.get(index);
+            resultMap.put(key, exists);
+            index++;
+        }
+
+        return resultMap;
     }
 
     /**

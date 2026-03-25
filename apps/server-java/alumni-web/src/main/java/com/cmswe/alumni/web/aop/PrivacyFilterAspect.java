@@ -78,7 +78,201 @@ public class PrivacyFilterAspect {
         // 用户隐私设置缓存，避免重复查询数据库
         Map<Long, Set<String>> privacyCache = new HashMap<>();
 
+        // 批量预热：递归查找所有集合，提取所有用户ID，批量加载隐私设置
+        long startTime = System.currentTimeMillis();
+        List<Long> allUserIds = extractAllUserIds(obj, userIdFieldName, new HashSet<>());
+
+        if (!allUserIds.isEmpty()) {
+            log.info("从结果对象中提取到 {} 个用户ID，开始批量加载隐私设置", allUserIds.size());
+            batchLoadPrivacySettings(allUserIds, privacyCache);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("批量加载隐私设置完成 - 用户数: {}, 耗时: {}ms", allUserIds.size(), duration);
+        }
+
         filterPrivacyFieldsRecursive(obj, userIdFieldName, privacyCache, processed);
+    }
+
+    /**
+     * 递归提取对象中的所有用户ID
+     *
+     * @param obj 对象
+     * @param userIdFieldName 用户ID字段名
+     * @param processed 已处理对象集合
+     * @return 用户ID列表
+     */
+    private List<Long> extractAllUserIds(Object obj, String userIdFieldName, Set<Object> processed) {
+        List<Long> userIds = new ArrayList<>();
+
+        if (obj == null || processed.contains(obj)) {
+            return userIds;
+        }
+
+        Class<?> clazz = obj.getClass();
+
+        // 跳过简单类型
+        if (isSimpleType(clazz)) {
+            return userIds;
+        }
+
+        processed.add(obj);
+
+        // 处理集合
+        if (obj instanceof Collection) {
+            Collection<?> collection = (Collection<?>) obj;
+            for (Object item : collection) {
+                Long userId = extractUserIdFromObject(item, userIdFieldName);
+                if (userId != null) {
+                    userIds.add(userId);
+                }
+                // 递归处理嵌套对象
+                userIds.addAll(extractAllUserIds(item, userIdFieldName, processed));
+            }
+            return userIds;
+        }
+
+        // 处理Map
+        if (obj instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) obj;
+            for (Object value : map.values()) {
+                userIds.addAll(extractAllUserIds(value, userIdFieldName, processed));
+            }
+            return userIds;
+        }
+
+        // 处理数组
+        if (clazz.isArray()) {
+            int length = java.lang.reflect.Array.getLength(obj);
+            for (int i = 0; i < length; i++) {
+                Object item = java.lang.reflect.Array.get(obj, i);
+                userIds.addAll(extractAllUserIds(item, userIdFieldName, processed));
+            }
+            return userIds;
+        }
+
+        // 处理普通对象：提取用户ID并递归处理字段
+        Long userId = extractUserIdFromObject(obj, userIdFieldName);
+        if (userId != null) {
+            userIds.add(userId);
+        }
+
+        // 递归处理对象的所有字段
+        List<Field> allFields = getAllFields(clazz);
+        for (Field field : allFields) {
+            try {
+                if (java.lang.reflect.Modifier.isStatic(field.getModifiers()) ||
+                        "serialVersionUID".equals(field.getName())) {
+                    continue;
+                }
+                field.setAccessible(true);
+                Object fieldValue = field.get(obj);
+                if (fieldValue != null) {
+                    userIds.addAll(extractAllUserIds(fieldValue, userIdFieldName, processed));
+                }
+            } catch (Exception e) {
+                // 忽略异常
+            }
+        }
+
+        return userIds;
+    }
+
+    /**
+     * 批量加载隐私设置到内存缓存
+     *
+     * @param userIds 用户ID列表
+     * @param privacyCache 隐私设置缓存
+     */
+    private void batchLoadPrivacySettings(List<Long> userIds, Map<Long, Set<String>> privacyCache) {
+        if (userIds == null || userIds.isEmpty()) {
+            return;
+        }
+
+        try {
+            // 构建所有的 cache key
+            List<String> cacheKeys = new ArrayList<>();
+            Map<String, Long> keyToUserIdMap = new HashMap<>();
+            for (Long userId : userIds) {
+                if (!privacyCache.containsKey(userId)) {
+                    String cacheKey = PRIVACY_CACHE_KEY_PREFIX + userId;
+                    cacheKeys.add(cacheKey);
+                    keyToUserIdMap.put(cacheKey, userId);
+                }
+            }
+
+            if (cacheKeys.isEmpty()) {
+                return;
+            }
+
+            // 批量从 Redis 读取（一次 Pipeline 操作）
+            Map<String, Set<String>> cacheResults = redisCache.batchGetCacheSet(cacheKeys);
+
+            // 加载到内存缓存
+            for (Map.Entry<String, Set<String>> entry : cacheResults.entrySet()) {
+                String cacheKey = entry.getKey();
+                Set<String> cachedSettings = entry.getValue();
+                Long userId = keyToUserIdMap.get(cacheKey);
+
+                if (cachedSettings != null && !cachedSettings.isEmpty()) {
+                    // 过滤掉空字符串占位符
+                    cachedSettings.remove("");
+                    privacyCache.put(userId, cachedSettings);
+                    log.debug("从批量缓存加载用户 {} 的隐私设置: {}", userId, cachedSettings);
+                } else {
+                    // 缓存未命中，设置为空集合
+                    privacyCache.put(userId, new HashSet<>());
+                    log.debug("用户 {} 的隐私设置缓存未命中", userId);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("批量加载隐私设置失败", e);
+        }
+    }
+
+    /**
+     * 批量预热隐私设置缓存
+     * 从集合中提取所有用户ID，批量加载到内存缓存
+     *
+     * @param collection 对象集合
+     * @param userIdFieldName 用户ID字段名
+     * @param privacyCache 隐私设置缓存
+     */
+
+    /**
+     * 从对象中提取用户ID
+     *
+     * @param obj 对象
+     * @param userIdFieldName 用户ID字段名
+     * @return 用户ID，如果未找到则返回null
+     */
+    private Long extractUserIdFromObject(Object obj, String userIdFieldName) {
+        if (obj == null) {
+            return null;
+        }
+
+        try {
+            Class<?> clazz = obj.getClass();
+            List<Field> allFields = getAllFields(clazz);
+
+            for (Field field : allFields) {
+                if (field.getName().equals(userIdFieldName)) {
+                    field.setAccessible(true);
+                    Object value = field.get(obj);
+                    if (value instanceof Long) {
+                        return (Long) value;
+                    } else if (value instanceof Integer) {
+                        return ((Integer) value).longValue();
+                    } else if (value instanceof String) {
+                        return Long.parseLong((String) value);
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            log.debug("从对象 {} 中提取用户ID字段 {} 失败: {}",
+                    obj.getClass().getSimpleName(), userIdFieldName, e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -244,10 +438,16 @@ public class PrivacyFilterAspect {
         try {
             // 1. 先从 Redis 缓存中获取
             Set<String> cachedSettings = redisCache.getCacheSet(cacheKey);
+            log.info("尝试从 Redis 加载用户 {} 的隐私设置 - 缓存结果: {}", userId, cachedSettings);
+
             if (cachedSettings != null && !cachedSettings.isEmpty()) {
-                log.debug("从 Redis 缓存加载用户 {} 的隐私设置: {}", userId, cachedSettings);
+                // 过滤掉空字符串占位符
+                cachedSettings.remove("");
+                log.info("从 Redis 缓存加载用户 {} 的隐私设置: {} (过滤空字符串后)", userId, cachedSettings);
                 return cachedSettings;
             }
+
+            log.info("用户 {} 的隐私设置缓存未命中或为空，从数据库加载", userId);
 
             // 2. 缓存未命中，从数据库查询
             Set<String> hiddenFieldCodes = new HashSet<>();
