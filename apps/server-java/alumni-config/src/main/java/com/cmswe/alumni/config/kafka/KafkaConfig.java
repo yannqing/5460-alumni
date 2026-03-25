@@ -97,7 +97,8 @@ public class KafkaConfig {
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        // 不设置 GROUP_ID，让 @KafkaListener 注解中的 groupId 生效
+        // configProps.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
@@ -127,7 +128,7 @@ public class KafkaConfig {
      * <p>消费者组：es-sync-group, cache-clear-group
      */
     @Bean
-    @ConditionalOnProperty(name = "canal.enabled", havingValue = "true")
+    @ConditionalOnProperty(name = "canal.kafka.enabled", havingValue = "true")
     public NewTopic dataSyncAlumniTopic() {
         return TopicBuilder.name(KafkaTopicConstants.DATA_SYNC_ALUMNI)
                 .partitions(KafkaTopicConstants.Config.DEFAULT_PARTITIONS)  // 3个分区，支持并行消费
@@ -143,7 +144,7 @@ public class KafkaConfig {
      * <p>消费者组：es-sync-group, cache-clear-group
      */
     @Bean
-    @ConditionalOnProperty(name = "canal.enabled", havingValue = "true")
+    @ConditionalOnProperty(name = "canal.kafka.enabled", havingValue = "true")
     public NewTopic dataSyncAssociationTopic() {
         return TopicBuilder.name(KafkaTopicConstants.DATA_SYNC_ASSOCIATION)
                 .partitions(KafkaTopicConstants.Config.DEFAULT_PARTITIONS)
@@ -159,13 +160,29 @@ public class KafkaConfig {
      * <p>消费者组：es-sync-group, cache-clear-group
      */
     @Bean
-    @ConditionalOnProperty(name = "canal.enabled", havingValue = "true")
+    @ConditionalOnProperty(name = "canal.kafka.enabled", havingValue = "true")
     public NewTopic dataSyncMerchantTopic() {
         return TopicBuilder.name(KafkaTopicConstants.DATA_SYNC_MERCHANT)
                 .partitions(KafkaTopicConstants.Config.DEFAULT_PARTITIONS)
                 .replicas(KafkaTopicConstants.Config.DEFAULT_REPLICAS)
                 .config("retention.ms", KafkaTopicConstants.Config.RETENTION_7_DAYS)
                 .config("compression.type", "lz4")
+                .build();
+    }
+
+    /**
+     * Canal Binlog Topic（Canal Server 发送原始 Binlog 数据）
+     * <p>用途：Canal Server 将 MySQL Binlog 变更发送到此 Topic
+     * <p>消费者组：alumni-search-canal-consumer
+     */
+    @Bean
+    @ConditionalOnProperty(name = "canal.kafka.enabled", havingValue = "true")
+    public NewTopic canalBinlogTopic() {
+        return TopicBuilder.name("alumni_binlog")
+                .partitions(3)  // 3个分区
+                .replicas(1)    // 1个副本（生产环境建议≥2）
+                .config("retention.ms", "604800000")  // 保留7天
+                .config("compression.type", "lz4")     // 压缩类型
                 .build();
     }
 }

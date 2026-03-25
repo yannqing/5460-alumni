@@ -56,6 +56,9 @@ public class AssociationSearchServiceImpl implements AssociationSearchService {
     @Resource
     private com.cmswe.alumni.service.association.mapper.AlumniAssociationMapper alumniAssociationMapper;
 
+    @Resource
+    private com.cmswe.alumni.search.converter.AssociationDataConverter associationDataConverter;
+
     private static final String CACHE_PREFIX = "search:association:";
     private static final long CACHE_TTL = 5; // 分钟
 
@@ -83,8 +86,30 @@ public class AssociationSearchServiceImpl implements AssociationSearchService {
         cached = redisCache.getCacheObject(cacheKey);
         if (cached != null) {
             log.debug("命中Redis缓存, key={}, took={}ms", cacheKey, System.currentTimeMillis() - startTime);
-            localCache.put(cacheKey, cached);
-            return (Page<SearchResultItem>) cached;
+
+            // 处理 FastJson 反序列化的不同情况
+            Page<SearchResultItem> page = null;
+
+            if (cached instanceof com.cmswe.alumni.search.dto.CacheablePage) {
+                // 情况1：正确反序列化为 CacheablePage
+                page = ((com.cmswe.alumni.search.dto.CacheablePage<SearchResultItem>) cached).toPage();
+            } else if (cached instanceof com.alibaba.fastjson.JSONObject) {
+                // 情况2：FastJson 反序列化为 JSONObject，需要手动转换
+                com.alibaba.fastjson.JSONObject jsonObject = (com.alibaba.fastjson.JSONObject) cached;
+                com.cmswe.alumni.search.dto.CacheablePage<SearchResultItem> cacheablePage =
+                        jsonObject.toJavaObject(
+                                new com.alibaba.fastjson.TypeReference<com.cmswe.alumni.search.dto.CacheablePage<SearchResultItem>>() {}
+                        );
+                page = cacheablePage.toPage();
+            } else if (cached instanceof Page) {
+                // 情况3：旧的缓存数据（PageImpl）
+                page = (Page<SearchResultItem>) cached;
+            }
+
+            if (page != null) {
+                localCache.put(cacheKey, page);
+                return page;
+            }
         }
 
         // 4. 构建 ES 查询
@@ -134,8 +159,10 @@ public class AssociationSearchServiceImpl implements AssociationSearchService {
                 PageRequest.of(pageNum - 1, pageSize),
                 searchHits.getTotalHits());
 
-        // 8. 存入缓存
-        redisCache.setCacheObject(cacheKey, result, (int) CACHE_TTL, TimeUnit.MINUTES);
+        // 8. 存入缓存（使用 CacheablePage 以支持 FastJson 序列化）
+        com.cmswe.alumni.search.dto.CacheablePage<SearchResultItem> cacheablePage =
+                com.cmswe.alumni.search.dto.CacheablePage.fromPage(result, pageNum);
+        redisCache.setCacheObject(cacheKey, cacheablePage, (int) CACHE_TTL, TimeUnit.MINUTES);
         localCache.put(cacheKey, result);
 
         log.info("搜索完成(校友会), keyword={}, total={}, returned={}, took={}ms",
@@ -297,17 +324,14 @@ public class AssociationSearchServiceImpl implements AssociationSearchService {
 
             for (com.cmswe.alumni.common.entity.AlumniAssociation association : allAssociations) {
                 try {
-                    AssociationDocument document = AssociationDocument.builder()
-                            .associationId(association.getAlumniAssociationId())
-                            .associationName(association.getAssociationName())
-                            .schoolId(association.getSchoolId())
-                            .platformId(association.getPlatformId())
-                            .contactInfo(association.getContactInfo())
-                            .memberCount(association.getMemberCount())
-                            .status(association.getStatus() != null ? association.getStatus().toString() : "1")
-                            .createTime(association.getCreateTime())
-                            .updateTime(association.getUpdateTime())
-                            .build();
+                    // 使用 AssociationDataConverter 转换数据（包含 logo → coverImage 映射）
+                    AssociationDocument document = associationDataConverter.toDocument(association);
+
+                    if (document == null) {
+                        log.warn("转换校友会数据失败: associationId={}", association.getAlumniAssociationId());
+                        failCount++;
+                        continue;
+                    }
 
                     documents.add(document);
                     successCount++;

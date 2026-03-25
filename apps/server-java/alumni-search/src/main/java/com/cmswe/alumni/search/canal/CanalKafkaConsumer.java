@@ -61,6 +61,14 @@ public class CanalKafkaConsumer {
         this.dataProcessor = dataProcessor;
     }
 
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        log.info("========================================");
+        log.info("[CanalKafkaConsumer] Bean 已创建！");
+        log.info("[CanalKafkaConsumer] 开始监听 Canal Kafka Topic");
+        log.info("========================================");
+    }
+
     /**
      * 消费 Canal 发送到 Kafka 的 Binlog 数据
      *

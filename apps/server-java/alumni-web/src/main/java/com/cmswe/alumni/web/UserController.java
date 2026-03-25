@@ -24,11 +24,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @Tag(name = "用户服务")
 @RestController
 @RequestMapping("/users")
@@ -42,6 +44,9 @@ public class UserController {
 
     @Resource
     private AlumniAssociationService alumniAssociationService;
+
+    @Resource
+    private com.cmswe.alumni.api.search.AlumniSearchService alumniSearchService;
 
     @GetMapping("/getInfo")
     @Operation(summary = "获取个人信息")
@@ -88,7 +93,7 @@ public class UserController {
 
     @PrivacyFilter
     @PostMapping("/query/alumni")
-    @Operation(summary = "查询校友列表")
+    @Operation(summary = "查询校友列表（MySQL 版本）")
     public BaseResponse<Page<UserListResponse>> getAlumniList(
             @RequestBody QueryAlumniListDto queryAlumniListDto,
             @AuthenticationPrincipal SecurityUser securityUser) {
@@ -97,6 +102,28 @@ public class UserController {
                 : null;
         Page<UserListResponse> userListResponsePage = userService.queryAlumniList(queryAlumniListDto, wxId);
         return ResultUtils.success(Code.SUCCESS, userListResponsePage);
+    }
+
+    @PrivacyFilter
+    @PostMapping("/query/alumni/es")
+    @Operation(summary = "查询校友列表（Elasticsearch 版本 - 推荐）")
+    public BaseResponse<Page<UserListResponse>> getAlumniListByES(
+            @RequestBody QueryAlumniListDto queryAlumniListDto,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser != null && securityUser.getWxUser() != null
+                ? securityUser.getWxUser().getWxId()
+                : null;
+
+        try {
+            // 使用 ES 查询（性能更优）
+            Page<UserListResponse> userListResponsePage = alumniSearchService.queryAlumniList(queryAlumniListDto, wxId);
+            return ResultUtils.success(Code.SUCCESS, userListResponsePage);
+        } catch (Exception e) {
+            log.error("ES 查询校友列表失败，降级到 MySQL 查询", e);
+            // 降级到 MySQL 查询
+            Page<UserListResponse> userListResponsePage = userService.queryAlumniList(queryAlumniListDto, wxId);
+            return ResultUtils.success(Code.SUCCESS, userListResponsePage);
+        }
     }
 
     @PutMapping("/update/tags")

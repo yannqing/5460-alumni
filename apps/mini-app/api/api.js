@@ -137,8 +137,9 @@ const localPlatformApi = {
 
 // ==================== 校友相关接口 ====================
 const alumniApi = {
-  // 查询校友列表（新接口）
-  queryAlumniList: params => post('/users/query/alumni', params),
+  // 查询校友列表（ES版本，支持降级到MySQL）
+  // params: { nickname, name, phone, gender, myFollow, pageNum, pageSize, ... }
+  queryAlumniList: params => post('/users/query/alumni/es', params),
   // 获取校友信息（根据隐私设置）
   getAlumniInfo: id => get(`/users/getAlumniInfo/${id}`),
   // 关注校友
