@@ -43,11 +43,20 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@ConditionalOnProperty(name = "canal.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "canal.kafka.enabled", havingValue = "true")
 public class CacheClearConsumer {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        log.info("========================================");
+        log.info("[CacheClearConsumer] Bean 已创建！");
+        log.info("[CacheClearConsumer] 开始监听 Topic: {}", com.cmswe.alumni.common.constant.KafkaTopicConstants.DATA_SYNC_ALUMNI);
+        log.info("[CacheClearConsumer] 消费者组: {}", com.cmswe.alumni.common.constant.KafkaTopicConstants.ConsumerGroup.CACHE_CLEAR);
+        log.info("========================================");
+    }
 
     @Resource
     private DataMergeService dataMergeService;

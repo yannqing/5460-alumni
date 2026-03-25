@@ -36,11 +36,20 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@ConditionalOnProperty(name = "canal.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "canal.kafka.enabled", havingValue = "true")
 public class ElasticsearchSyncConsumer {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        log.info("========================================");
+        log.info("[ElasticsearchSyncConsumer] Bean 已创建！");
+        log.info("[ElasticsearchSyncConsumer] 开始监听 Topic: {}", KafkaTopicConstants.DATA_SYNC_ALUMNI);
+        log.info("[ElasticsearchSyncConsumer] 消费者组: {}", KafkaTopicConstants.ConsumerGroup.ES_SYNC);
+        log.info("========================================");
+    }
 
     @Resource
     private DataMergeService dataMergeService;
