@@ -1,0 +1,63 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="申请详情">
+  <message-notification />
+  <view class="page">
+    <view class="card" wx:if="{{loading}}">
+      <text class="loading">加载中...</text>
+    </view>
+
+    <view wx:elif="{{!detailWrapper || !detail}}" class="card">
+      <text class="empty">暂无详情</text>
+    </view>
+
+    <view wx:else class="content">
+      <view class="card">
+        <view class="section-title">申请状态</view>
+        <view class="status-row">
+          <text class="status-pill {{statusClassName}}">{{statusTextValue}}</text>
+        </view>
+      </view>
+
+      <view class="card">
+        <view class="section-title">基础信息</view>
+        <block wx:for="{{basicRows}}" wx:key="label">
+          <view class="row {{item.multiline ? 'vertical' : ''}}">
+            <text class="label">{{item.label}}</text>
+            <text class="value {{item.multiline ? 'multiline' : ''}}">{{item.value}}</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="card" wx:if="{{contentRows.length > 0}}">
+        <view class="section-title">申请内容</view>
+        <block wx:for="{{contentRows}}" wx:key="label">
+          <view class="row {{item.multiline ? 'vertical' : ''}}">
+            <text class="label">{{item.label}}</text>
+            <text class="value {{item.multiline ? 'multiline' : ''}}">{{item.value}}</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="card" wx:if="{{auditRows.length > 0}}">
+        <view class="section-title">审核信息</view>
+        <block wx:for="{{auditRows}}" wx:key="label">
+          <view class="row {{item.multiline ? 'vertical' : ''}}">
+            <text class="label">{{item.label}}</text>
+            <text class="value {{item.multiline ? 'multiline' : ''}}">{{item.value}}</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="card" wx:if="{{attachmentFiles.length > 0}}">
+        <view class="section-title">附件材料</view>
+        <view class="attachments">
+          <block wx:for="{{attachmentFiles}}" wx:key="index">
+            <view class="attachment-item">
+              <image class="attachment-image" src="{{item._url}}" mode="aspectFill" bindtap="previewAttachment" data-url="{{item._url}}" />
+              <text class="attachment-name">{{item._name || '附件'}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>

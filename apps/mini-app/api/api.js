@@ -807,6 +807,11 @@ const auditApi = {
   getTodoCount: () => get('/audit/statistics/todoCount'),
 }
 
+// ==================== 我的申请记录（创建校友会 / 加入校友会 / 加入校促会 聚合） ====================
+const myApplicationRecordApi = {
+  queryPage: params => post('/users/my-application-records/page', params),
+}
+
 module.exports = {
   schoolApi,
   associationApi,
@@ -834,4 +839,5 @@ module.exports = {
   placeApi,
   feedbackApi,
   auditApi,
+  myApplicationRecordApi,
 }

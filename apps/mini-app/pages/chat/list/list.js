@@ -397,6 +397,12 @@ Page({
     })
   },
 
+  navigateToMyApplicationRecords() {
+    wx.navigateTo({
+      url: '/pages/my-application-record/my-application-record'
+    })
+  },
+
   navigateToMyFavorites() {
     this.toggleSidebar()
     wx.navigateTo({
