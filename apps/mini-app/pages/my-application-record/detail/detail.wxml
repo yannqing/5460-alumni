@@ -14,6 +14,7 @@
         <view class="section-title">申请状态</view>
         <view class="status-row">
           <text class="status-pill {{statusClassName}}">{{statusTextValue}}</text>
+          <button wx:if="{{canEditCurrent}}" class="edit-btn" bindtap="onEditTap">编辑</button>
         </view>
       </view>
 

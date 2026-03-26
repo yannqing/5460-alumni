@@ -1,5 +1,5 @@
 // pages/alumni-association/apply/apply.js
-const { associationApi, fileApi, userApi } = require('../../../api/api.js')
+const { associationApi, fileApi, userApi, myApplicationRecordApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 const auth = require('../../../utils/auth.js')
 
@@ -33,6 +33,11 @@ Page({
     loadingUserInfo: false,
     applicationDetail: null, // 申请详情
     loadingDetail: false,
+    fromMyRecord: false,
+    myRecordType: 'ALUMNI_ASSOCIATION_JOIN',
+    myRecordId: '',
+    editableAssociationList: [],
+    editableAssociationIndex: -1,
     headerImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png`,
   },
 
@@ -72,7 +77,22 @@ Page({
 
     // 判断是编辑模式还是查看模式
     const mode = options.mode || 'edit'
-    this.setData({ mode })
+    this.setData({
+      mode,
+      fromMyRecord: options.fromMyRecord === '1',
+      myRecordType: decodeURIComponent(options.recordType || 'ALUMNI_ASSOCIATION_JOIN'),
+      myRecordId: decodeURIComponent(options.recordId || ''),
+    })
+
+    if (this.data.fromMyRecord) {
+      await this.loadApplicationDetail()
+      if (mode === 'edit') {
+        this.setData({ isEditingApplication: true })
+        await this.loadEditableAssociationList()
+        this.syncEditableAssociationSelection()
+      }
+      return
+    }
 
     if (mode === 'view') {
       // 查看模式：加载申请详情
@@ -97,6 +117,70 @@ Page({
 
       // 加载用户信息并填充表单
       await this.loadUserInfo()
+    }
+  },
+
+  // 加载编辑模式可选的校友会列表（仅我的申请编辑使用）
+  async loadEditableAssociationList() {
+    try {
+      const res = await associationApi.getAssociationList({
+        current: 1,
+        pageSize: 200,
+        associationName: '',
+      })
+      if (!(res.data && res.data.code === 200 && res.data.data)) {
+        this.setData({ editableAssociationList: [], editableAssociationIndex: -1 })
+        return
+      }
+      const records = Array.isArray(res.data.data.records) ? res.data.data.records : []
+      const editableAssociationList = records
+        .map(item => {
+          const associationId =
+            item.alumniAssociationId || item.associationId || item.id || item.alumni_association_id
+          const associationName = item.associationName || item.name || ''
+          const schoolInfo = item.schoolInfo || {}
+          const schoolId = schoolInfo.schoolId || item.schoolId || ''
+          const schoolName = schoolInfo.schoolName || item.schoolName || ''
+          if (!associationId || !associationName) return null
+          return {
+            associationId: String(associationId),
+            associationName,
+            schoolId: schoolId ? String(schoolId) : '',
+            schoolName,
+          }
+        })
+        .filter(Boolean)
+      this.setData({ editableAssociationList })
+    } catch (error) {
+      console.error('[Apply] loadEditableAssociationList', error)
+      this.setData({ editableAssociationList: [], editableAssociationIndex: -1 })
+    }
+  },
+
+  syncEditableAssociationSelection() {
+    const { editableAssociationList, alumniAssociationId } = this.data
+    if (!editableAssociationList.length || !alumniAssociationId) {
+      this.setData({ editableAssociationIndex: -1 })
+      return
+    }
+    const idx = editableAssociationList.findIndex(
+      item => String(item.associationId) === String(alumniAssociationId)
+    )
+    this.setData({ editableAssociationIndex: idx >= 0 ? idx : -1 })
+  },
+
+  async handleAssociationChange(e) {
+    const index = Number(e.detail.value)
+    const selected = this.data.editableAssociationList[index]
+    if (!selected) return
+    this.setData({
+      editableAssociationIndex: index,
+      alumniAssociationId: selected.associationId,
+      schoolId: selected.schoolId || '',
+      schoolName: selected.schoolName || '',
+    })
+    if (!selected.schoolId) {
+      await this.fetchSchoolIdFromAssociation()
     }
   },
 
@@ -400,7 +484,15 @@ Page({
 
   // 表单验证
   validateForm() {
-    const { formData } = this.data
+    const { formData, fromMyRecord, myRecordType, alumniAssociationId } = this.data
+
+    if (fromMyRecord && myRecordType === 'ALUMNI_ASSOCIATION_JOIN' && !alumniAssociationId) {
+      wx.showToast({
+        title: '请选择校友会',
+        icon: 'none',
+      })
+      return false
+    }
 
     if (!formData.name || !formData.name.trim()) {
       wx.showToast({
@@ -554,10 +646,20 @@ Page({
 
     try {
       // 根据是否为编辑模式调用不同的接口
-      const res =
-        isEditingApplication && applicationId
-          ? await associationApi.updateApplication(requestData)
-          : await associationApi.applyToJoinAssociation(requestData)
+      let res
+      if (isEditingApplication && applicationId) {
+        if (this.data.fromMyRecord && this.data.myRecordType === 'ALUMNI_ASSOCIATION_JOIN') {
+          requestData.alumniAssociationId = String(alumniAssociationId)
+        }
+        const recordId = this.data.myRecordId || String(applicationId)
+        res = await myApplicationRecordApi.update({
+          recordType: this.data.myRecordType || 'ALUMNI_ASSOCIATION_JOIN',
+          recordId,
+          payload: requestData,
+        })
+      } else {
+        res = await associationApi.applyToJoinAssociation(requestData)
+      }
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
@@ -598,7 +700,12 @@ Page({
     this.setData({ loadingDetail: true })
 
     try {
-      const res = await associationApi.getApplicationDetail(this.data.alumniAssociationId)
+      let res
+      if (this.data.fromMyRecord && this.data.myRecordType === 'ALUMNI_ASSOCIATION_JOIN' && this.data.myRecordId) {
+        res = await associationApi.getJoinApplicationDetailById(this.data.myRecordId)
+      } else {
+        res = await associationApi.getApplicationDetail(this.data.alumniAssociationId)
+      }
 
       if (res.data && res.data.code === 200) {
         const detail = res.data.data || {}
@@ -632,6 +739,7 @@ Page({
         this.setData({
           applicationDetail: detail,
           applicationId: detail.applicationId || '', // 保存申请ID
+          alumniAssociationId: detail.alumniAssociationId || this.data.alumniAssociationId || '',
           formData,
           educationLevelIndex,
           attachments,
@@ -639,6 +747,8 @@ Page({
           schoolName: detail.schoolName || '',
           loadingDetail: false,
         })
+
+        await this.fillBasicFormByUserInfoIfMissing()
 
         // 更新年份选择器索引
         this.updateYearPickerIndex()
@@ -656,6 +766,25 @@ Page({
         title: '加载失败，请重试',
         icon: 'none',
       })
+    }
+  },
+
+  // 详情字段缺失时，用当前用户信息兜底（仅补空值）
+  async fillBasicFormByUserInfoIfMissing() {
+    const current = this.data.formData || {}
+    const needFallback = !current.name || !current.identifyCode || !current.phone
+    if (!needFallback) return
+    try {
+      const res = await userApi.getUserInfo()
+      if (!(res.data && res.data.code === 200 && res.data.data)) return
+      const userInfo = res.data.data
+      this.setData({
+        'formData.name': current.name || userInfo.name || '',
+        'formData.identifyCode': current.identifyCode || userInfo.identifyCode || '',
+        'formData.phone': current.phone || userInfo.phone || '',
+      })
+    } catch (error) {
+      console.warn('[Apply] fillBasicFormByUserInfoIfMissing', error)
     }
   },
 
@@ -711,10 +840,14 @@ Page({
   },
 
   // 进入编辑模式
-  enterEditMode() {
+  async enterEditMode() {
     this.setData({
       mode: 'edit',
       isEditingApplication: true, // 标记为编辑已有申请
     })
+    if (this.data.fromMyRecord && this.data.myRecordType === 'ALUMNI_ASSOCIATION_JOIN') {
+      await this.loadEditableAssociationList()
+      this.syncEditableAssociationSelection()
+    }
   },
 })

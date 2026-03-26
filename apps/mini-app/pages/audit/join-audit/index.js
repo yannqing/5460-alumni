@@ -107,115 +107,41 @@ Page({
     return joinApplicationApi.getApplicationPage(params)
   },
 
-  // 加载校友会列表（从缓存中获取校友会管理员的alumniAssociationId，然后调用接口）
+  // 加载校友会列表（与 member 页面一致：直接调用 managed-organizations 接口）
   async loadAlumniAssociationList() {
     try {
       console.log('[Debug] 开始加载校友会列表')
+      const res = await userApi.getManagedOrganizations({ type: 0 })
+      console.log('[Debug] 获取用户管理的校友会列表:', res)
 
-      // 从 storage 中获取角色列表
-      const roles = wx.getStorageSync('roles') || []
-      console.log('[Debug] 从storage获取的角色列表:', roles)
+      if (!(res.data && res.data.code === 200)) {
+        console.error('[Debug] 获取校友会列表接口调用失败:', res)
+        this.setData({
+          alumniAssociationList: [],
+          hasAlumniAdminPermission: false
+        })
+        return
+      }
 
-      // 查找所有校友会管理员角色（根据roleCode）
-      const alumniAdminRoles = roles.filter(role => 
-        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
-      )
-      console.log('[Debug] 找到的所有校友会管理员角色:', alumniAdminRoles)
-
-      // 设置是否有校友会管理员身份
-      this.setData({
-        hasAlumniAdminPermission: alumniAdminRoles.length > 0
+      const organizationList = res.data.data || []
+      const alumniAssociationList = organizationList.map(org => {
+        let logo = org.logo || ''
+        if (logo && !logo.startsWith('http://') && !logo.startsWith('https://')) {
+          logo = config.getImageUrl(logo)
+        }
+        return {
+          id: org.id,
+          alumniAssociationId: org.id,
+          alumniAssociationName: org.name || '校友会',
+          organizeId: org.id,
+          logo,
+          location: org.location || '',
+          type: org.type
+        }
       })
-
-      // 存储所有校友会数据
-      const alumniAssociationList = []
-
-      if (alumniAdminRoles.length > 0) {
-        console.log('[Debug] 存在校友会管理员角色，开始处理每个角色')
-        
-        // 遍历所有校友会管理员角色，创建校友会数据
-        for (const alumniAdminRole of alumniAdminRoles) {
-          console.log('[Debug] 处理校友会管理员角色:', alumniAdminRole)
-          
-          // 尝试从不同可能的位置获取ID
-          let alumniAssociationId = null
-
-          // 检查直接字段
-          if (alumniAdminRole.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.alumniAssociationId
-            console.log('[Debug] 从直接字段获取到alumniAssociationId:', alumniAssociationId)
-          }
-          // 检查嵌套的organization字段
-          else if (alumniAdminRole.organization && alumniAdminRole.organization.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.organization.alumniAssociationId
-            console.log('[Debug] 从organization字段获取到alumniAssociationId:', alumniAssociationId)
-          }
-          // 检查organizeId字段（作为备用）
-          else if (alumniAdminRole.organizeId) {
-            alumniAssociationId = alumniAdminRole.organizeId
-            console.log('[Debug] 从organizeId字段获取到ID:', alumniAssociationId)
-          }
-          // 检查嵌套的organization.organizeId字段
-          else if (alumniAdminRole.organization && alumniAdminRole.organization.organizeId) {
-            alumniAssociationId = alumniAdminRole.organization.organizeId
-            console.log('[Debug] 从organization.organizeId字段获取到ID:', alumniAssociationId)
-          }
-
-          console.log('[Debug] 最终获取到的alumniAssociationId:', alumniAssociationId)
-
-          if (alumniAssociationId) {
-            // 获取协会名称（如果直接提供）
-            const associationName = alumniAdminRole.associationName || alumniAdminRole.organization?.associationName || '校友会'
-            
-            // 创建基本的校友会对象
-            const basicAlumniData = {
-              id: alumniAssociationId,
-              alumniAssociationId: alumniAssociationId,
-              alumniAssociationName: associationName,
-              organizeId: alumniAdminRole.organizeId || alumniAssociationId // 存储organizeId
-            }
-            
-            // 检查是否已经存在相同ID的校友会
-            const existingIndex = alumniAssociationList.findIndex(item => 
-              item.alumniAssociationId === alumniAssociationId
-            )
-            
-            // 如果不存在，则添加到列表
-            if (existingIndex === -1) {
-              alumniAssociationList.push(basicAlumniData)
-              console.log('[Debug] 添加校友会到列表:', basicAlumniData)
-            } else {
-              console.log('[Debug] 校友会已存在，跳过:', alumniAssociationId)
-            }
-          }
-        }
-      }
-
-      // 如果通过 roles 没找到，尝试接口兜底（仅 role_user 绑定，系统管理员不展开全站组织）
-      if (alumniAssociationList.length === 0) {
-        console.log('[Debug] roles 缓存未找到管理权，尝试接口兜底获取...')
-        try {
-          const res = await userApi.getManagedOrganizations({ type: 0, roleScopedOnly: true })
-          const list = (res?.data?.data ?? res?.data ?? []) || []
-          if (Array.isArray(list) && list.length > 0) {
-            list.forEach(item => {
-              alumniAssociationList.push({
-                id: item.id,
-                alumniAssociationId: item.id,
-                alumniAssociationName: item.name,
-                organizeId: item.id
-              })
-            })
-            // role_user 中绑定了至少一个可管理的校友会
-            this.setData({
-              hasAlumniAdminPermission: true
-            })
-            console.log('[Debug] 接口兜底获取到校友会列表:', alumniAssociationList)
-          }
-        } catch (err) {
-          console.warn('[Debug] 接口兜底获取校友会列表失败:', err)
-        }
-      }
+      this.setData({
+        hasAlumniAdminPermission: alumniAssociationList.length > 0
+      })
 
       if (alumniAssociationList.length > 0) {
         // 设置基本列表
@@ -269,14 +195,16 @@ Page({
         // 没有找到校友会管理员权限
         console.warn('[Debug] 没有找到校友会管理员权限')
         this.setData({
-          alumniAssociationList: []
+          alumniAssociationList: [],
+          hasAlumniAdminPermission: false
         })
       }
     } catch (error) {
       console.error('[Debug] 加载校友会列表失败:', error)
       // 发生错误时，设置为空数组
       this.setData({
-        alumniAssociationList: []
+        alumniAssociationList: [],
+        hasAlumniAdminPermission: false
       })
     }
   },

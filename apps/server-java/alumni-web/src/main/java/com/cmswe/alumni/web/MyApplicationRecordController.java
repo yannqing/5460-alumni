@@ -5,6 +5,7 @@ import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordDetailDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordListDto;
+import com.cmswe.alumni.common.dto.UpdateMyApplicationRecordDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.MyApplicationRecordDetailVo;
@@ -16,6 +17,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,5 +57,21 @@ public class MyApplicationRecordController {
         Long wxId = securityUser.getWxUser().getWxId();
         MyApplicationRecordDetailVo detailVo = myApplicationRecordService.queryMyApplicationRecordDetail(wxId, queryDto);
         return ResultUtils.success(Code.SUCCESS, detailVo, "查询成功");
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "更新我的申请记录（按 recordType + recordId）")
+    public BaseResponse<Boolean> updateMyApplicationRecord(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody UpdateMyApplicationRecordDto updateDto) {
+        if (securityUser == null || securityUser.getWxUser() == null) {
+            return ResultUtils.failure(Code.TOKEN_ERROR, null, "用户未登录");
+        }
+        Long wxId = securityUser.getWxUser().getWxId();
+        boolean updated = myApplicationRecordService.updateMyApplicationRecord(wxId, updateDto);
+        if (updated) {
+            return ResultUtils.success(Code.SUCCESS, true, "更新成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, false, "更新失败");
     }
 }

@@ -11,6 +11,9 @@ import com.cmswe.alumni.api.association.SchoolService;
 import com.cmswe.alumni.common.constant.MyApplicationRecordType;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordDetailDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordListDto;
+import com.cmswe.alumni.common.dto.UpdateAlumniAssociationJoinApplicationDto;
+import com.cmswe.alumni.common.dto.UpdateMyJoinPlatformApplicationDto;
+import com.cmswe.alumni.common.dto.UpdateMyApplicationRecordDto;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
@@ -30,6 +33,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -62,6 +66,9 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
 
     @Resource
     private LocalPlatformService localPlatformService;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
     public PageVo<MyApplicationRecordListVo> queryMyApplicationRecordPage(Long wxId, QueryMyApplicationRecordListDto dto) {
@@ -117,6 +124,51 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         };
     }
 
+    @Override
+    public boolean updateMyApplicationRecord(Long wxId, UpdateMyApplicationRecordDto dto) {
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户未登录");
+        }
+        if (dto == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "更新参数不能为空");
+        }
+        if (!MyApplicationRecordType.isValid(dto.getRecordType())) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "非法的 recordType: " + dto.getRecordType());
+        }
+        Long recordId = parseRecordId(dto.getRecordId());
+        if (dto.getPayload() == null || dto.getPayload().isNull()) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "payload不能为空");
+        }
+
+        String type = dto.getRecordType().trim();
+        if (MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN.equals(type)) {
+            UpdateAlumniAssociationJoinApplicationDto updateDto =
+                    objectMapper.convertValue(dto.getPayload(), UpdateAlumniAssociationJoinApplicationDto.class);
+            updateDto.setApplicationId(recordId);
+            return alumniAssociationJoinApplicationService.updateAndResubmitApplication(wxId, updateDto);
+        }
+        if (MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM.equals(type)) {
+            UpdateMyJoinPlatformApplicationDto updateDto =
+                    objectMapper.convertValue(dto.getPayload(), UpdateMyJoinPlatformApplicationDto.class);
+            if (updateDto.getPlatformId() == null) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "platformId不能为空");
+            }
+            AlumniAssociationJoinApply apply = alumniAssociationJoinApplyService.getById(recordId);
+            if (apply == null) {
+                throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "申请记录不存在");
+            }
+            if (!wxId.equals(apply.getApplicantWxId())) {
+                throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权修改该申请");
+            }
+            if (apply.getStatus() == null || apply.getStatus() != 0) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "只能编辑待审核的申请");
+            }
+            apply.setPlatformId(updateDto.getPlatformId());
+            return alumniAssociationJoinApplyService.updateById(apply);
+        }
+        throw new BusinessException(ErrorType.ARGS_ERROR, "当前类型暂不支持编辑: " + type);
+    }
+
     private MyApplicationRecordDetailVo buildCreateDetail(Long wxId, Long recordId) {
         AlumniAssociationApplication application = alumniAssociationApplicationService.getById(recordId);
         if (application == null) {
@@ -133,6 +185,8 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setApplicationStatus(application.getApplicationStatus());
         vo.setApplicationStatusText(fourStateText(application.getApplicationStatus()));
         vo.setStatusGroup(fourStateGroup(application.getApplicationStatus()));
+        vo.setCanEdit(false);
+        vo.setCanCancel(false);
         vo.setDetail(detail);
         return vo;
     }
@@ -153,6 +207,9 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setApplicationStatus(application.getApplicationStatus());
         vo.setApplicationStatusText(AlumniAssociationJoinApplicationListVo.getApplicationStatusText(application.getApplicationStatus()));
         vo.setStatusGroup(fourStateGroup(application.getApplicationStatus()));
+        boolean pending = application.getApplicationStatus() != null && application.getApplicationStatus() == 0;
+        vo.setCanEdit(pending);
+        vo.setCanCancel(pending);
         vo.setDetail(detail);
         return vo;
     }
@@ -173,6 +230,9 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setApplicationStatus(application.getStatus());
         vo.setApplicationStatusText(threeStateText(application.getStatus()));
         vo.setStatusGroup(threeStateGroup(application.getStatus()));
+        boolean pending = application.getStatus() != null && application.getStatus() == 0;
+        vo.setCanEdit(pending);
+        vo.setCanCancel(false);
         vo.setDetail(detail);
         return vo;
     }
@@ -362,7 +422,8 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setApplicationStatusText(threeStateText(e.getStatus()));
         vo.setStatusGroup(threeStateGroup(e.getStatus()));
         vo.setApplyTime(e.getCreateTime());
-        vo.setCanEdit(false);
+        boolean pending = e.getStatus() != null && e.getStatus() == 0;
+        vo.setCanEdit(pending);
         vo.setCanCancel(false);
         return vo;
     }

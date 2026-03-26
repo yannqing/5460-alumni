@@ -7,6 +7,11 @@ const RECORD_TYPE_TEXT_MAP = {
   ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM: '校友会加入校促会',
 }
 
+const EDITABLE_RECORD_TYPE = {
+  ALUMNI_ASSOCIATION_JOIN: true,
+  ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM: true,
+}
+
 function fmtTime(t) {
   if (!t) return ''
   if (typeof t === 'string') return t.replace('T', ' ').substring(0, 19)
@@ -55,6 +60,7 @@ Page({
     attachmentUrls: [],
     statusTextValue: '',
     statusClassName: 'unknown',
+    canEditCurrent: false,
   },
 
   onLoad(options) {
@@ -100,6 +106,7 @@ Page({
         auditRows,
         attachmentFiles,
         attachmentUrls,
+        canEditCurrent: this.isRecordEditable(detailWrapper),
         loading: false,
       })
     } catch (e) {
@@ -107,6 +114,45 @@ Page({
       wx.showToast({ title: '加载失败', icon: 'none' })
       this.setData({ loading: false })
     }
+  },
+
+  isRecordEditable(detailWrapper) {
+    if (!detailWrapper || !detailWrapper.canEdit) {
+      return false
+    }
+    const t = detailWrapper.recordType || this.data.recordType
+    return !!EDITABLE_RECORD_TYPE[t]
+  },
+
+  onEditTap() {
+    const { detailWrapper, detail, recordType, recordId } = this.data
+    if (!this.isRecordEditable(detailWrapper)) {
+      wx.showToast({ title: '当前申请暂不支持编辑', icon: 'none' })
+      return
+    }
+    if (recordType === 'ALUMNI_ASSOCIATION_JOIN') {
+      const associationId = detail?.alumniAssociationId || detail?.associationId
+      if (!associationId) {
+        wx.showToast({ title: '缺少校友会信息', icon: 'none' })
+        return
+      }
+      wx.navigateTo({
+        url: `/pages/alumni-association/apply/apply?id=${encodeURIComponent(String(associationId))}&mode=edit&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
+      })
+      return
+    }
+    if (recordType === 'ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM') {
+      const associationId = detail?.alumniAssociationId
+      if (!associationId) {
+        wx.showToast({ title: '缺少校友会信息', icon: 'none' })
+        return
+      }
+      wx.navigateTo({
+        url: `/pages/local-platform/apply/apply?fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}&alumniAssociationId=${encodeURIComponent(String(associationId))}&platformId=${encodeURIComponent(String(detail?.platformId || ''))}`,
+      })
+      return
+    }
+    wx.showToast({ title: '当前申请暂不支持编辑', icon: 'none' })
   },
 
   normalizeAttachments(detail) {

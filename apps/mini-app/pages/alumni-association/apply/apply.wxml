@@ -12,6 +12,21 @@
     <view class="form-section">
       <view class="section-title">基本信息</view>
 
+      <view wx:if="{{fromMyRecord && myRecordType === 'ALUMNI_ASSOCIATION_JOIN' && mode === 'edit'}}" class="form-item required">
+        <view class="form-label">申请加入的校友会</view>
+        <picker
+          mode="selector"
+          range="{{editableAssociationList}}"
+          range-key="associationName"
+          value="{{editableAssociationIndex}}"
+          bindchange="handleAssociationChange"
+        >
+          <view class="form-picker">
+            {{editableAssociationIndex >= 0 ? editableAssociationList[editableAssociationIndex].associationName : '请选择校友会'}}
+          </view>
+        </picker>
+      </view>
+
       <view class="form-item required">
         <view class="form-label">真实姓名</view>
         <view class="form-display">{{formData.name || '未获取到姓名'}}</view>

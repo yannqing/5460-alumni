@@ -48,6 +48,9 @@ const associationApi = {
   // 查看用户自己的校友会申请详情
   getApplicationDetail: alumniAssociationId =>
     get(`/AlumniAssociationApplication/detail/${alumniAssociationId}`),
+  // 根据申请ID查看加入校友会申请详情（用于我的申请编辑）
+  getJoinApplicationDetailById: applicationId =>
+    get(`/AlumniAssociationJoinApplication/detailById/${applicationId}`),
   // 撤销校友会申请
   cancelApplication: applicationId => put(`/AlumniAssociationApplication/cancel/${applicationId}`),
   // 编辑并重新提交待审核的校友会申请（普通用户）
@@ -810,6 +813,7 @@ const auditApi = {
 // ==================== 我的申请记录（创建校友会 / 加入校友会 / 加入校促会 聚合） ====================
 const myApplicationRecordApi = {
   queryPage: params => post('/users/my-application-records/page', params),
+  update: data => put('/users/my-application-records/update', data),
 }
 
 module.exports = {

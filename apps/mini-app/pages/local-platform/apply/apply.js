@@ -1,5 +1,5 @@
 // pages/local-platform/apply/apply.js
-const { associationApi, localPlatformApi, userApi } = require('../../../api/api.js')
+const { associationApi, localPlatformApi, userApi, myApplicationRecordApi } = require('../../../api/api.js')
 const { refreshUserRoles } = require('../../../utils/auth.js')
 const config = require('../../../utils/config.js')
 
@@ -21,19 +21,47 @@ Page({
         defaultAlumniAvatar: config.defaultAvatar,
         defaultBackground: config.defaultCover,
         platformList: [],
-        platformIndex: -1
+        platformIndex: -1,
+        fromMyRecord: false,
+        myRecordType: '',
+        myRecordId: '',
+        fixedAlumniAssociationId: '',
+        fixedPlatformId: ''
     },
 
-    onLoad(options) {
+    async onLoad(options) {
         // 如果从列表页传递了平台名称，则自动填充
         this.platformNameFromList = options.platformName ? decodeURIComponent(options.platformName) : null
+        const fromMyRecord = options.fromMyRecord === '1'
+        const fixedAlumniAssociationId = options.alumniAssociationId
+          ? decodeURIComponent(options.alumniAssociationId)
+          : ''
+        const fixedPlatformId = options.platformId ? decodeURIComponent(options.platformId) : ''
+        this.setData({
+            fromMyRecord,
+            myRecordType: decodeURIComponent(options.recordType || ''),
+            myRecordId: decodeURIComponent(options.recordId || ''),
+            fixedAlumniAssociationId,
+            fixedPlatformId,
+        })
         if (this.platformNameFromList) {
             this.setData({
                 'formData.platformName': this.platformNameFromList
             })
         }
         // 初始化页面数据
-        this.initPage()
+        await this.initPage()
+        if (fromMyRecord && fixedAlumniAssociationId) {
+            const fixed = this.data.alumniAssociationList.find(
+                item => String(item.alumniAssociationId) === String(fixedAlumniAssociationId)
+            )
+            this.setData({
+                selectedAlumniAssociationId: fixedAlumniAssociationId,
+                selectedAlumniAssociationName: fixed?.alumniAssociationName || '校友会',
+                hasSingleAlumniAssociation: true,
+            })
+            await this.getAlumniAssociationDetail(fixedAlumniAssociationId)
+        }
     },
 
     // 初始化页面数据
@@ -67,6 +95,19 @@ Page({
                             platformIndex: platformIndex,
                             'formData.platformId': platform.platformId,
                             'formData.platformName': platform.platformName
+                        })
+                    }
+                }
+                if (this.data.fixedPlatformId) {
+                    const fixedIndex = platformList.findIndex(
+                        item => String(item.platformId) === String(this.data.fixedPlatformId)
+                    )
+                    if (fixedIndex !== -1) {
+                        const p = platformList[fixedIndex]
+                        this.setData({
+                            platformIndex: fixedIndex,
+                            'formData.platformId': p.platformId,
+                            'formData.platformName': p.platformName,
                         })
                     }
                 }
@@ -302,15 +343,27 @@ Page({
         }
 
         try {
-            // 调用申请加入校促会接口
-            const res = await associationApi.applyJoinPlatform({
-                alumniAssociationId: selectedAlumniAssociationId,
-                platformId: formData.platformId,
-                applicantWxId: applicantWxId
-            })
+            let res
+            if (this.data.fromMyRecord && this.data.myRecordId) {
+                // 编辑场景仅允许修改 platformId
+                res = await myApplicationRecordApi.update({
+                    recordType: this.data.myRecordType || 'ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM',
+                    recordId: this.data.myRecordId,
+                    payload: {
+                        platformId: formData.platformId,
+                    },
+                })
+            } else {
+                // 调用申请加入校促会接口
+                res = await associationApi.applyJoinPlatform({
+                    alumniAssociationId: selectedAlumniAssociationId,
+                    platformId: formData.platformId,
+                    applicantWxId: applicantWxId
+                })
+            }
 
             if (res.data && res.data.code === 200) {
-                wx.showToast({ title: '提交成功', icon: 'success' })
+                wx.showToast({ title: this.data.fromMyRecord ? '修改成功' : '提交成功', icon: 'success' })
                 // 提交成功后返回上一页
                 setTimeout(() => {
                     wx.navigateBack()

@@ -40,6 +40,18 @@
   gap: 12rpx;
 }
 
+.edit-btn {
+  min-width: 120rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #40b2e6;
+  color: #40b2e6;
+  background: #fff;
+  font-size: 24rpx;
+}
+
 .status-pill {
   font-size: 24rpx;
   padding: 8rpx 18rpx;
