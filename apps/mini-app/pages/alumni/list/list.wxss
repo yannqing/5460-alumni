@@ -33,11 +33,11 @@ view, text, scroll-view, picker, input, button, image {
   overflow: hidden;
 }
 
-/* 屏蔽旧的固定高度逻辑 */
+/* scroll-view 高度：flex: 1 占满剩余空间，不要用 height:100% 避免与 flex 冲突 */
 .main-scroller {
   flex: 1;
   width: 100%;
-  height: 100%;
+  min-height: 0;
 }
 
 .banner-area {
@@ -342,8 +342,6 @@ view, text, picker, input, button, image, navigator {
 /* 校友列表 */
 .alumni-list {
   padding: 30rpx 30rpx 20rpx;
-  background-color: #F5F5F5;
-  min-height: 100%;
   background: #F5F5F5;
   position: relative;
   z-index: 0;
