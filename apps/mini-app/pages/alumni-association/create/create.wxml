@@ -1,4 +1,4 @@
-<custom-nav-bar useAuditStyle="{{true}}" auditTitle="创建校友会" showBack="{{true}}">
+<custom-nav-bar useAuditStyle="{{true}}" auditTitle="{{pageTitle}}" showBack="{{true}}">
   <view class="white-background-content">
     <view class="container" bindtap="closeAllDropdowns">
   <image src="{{headerImageUrl}}" class="header-image" mode="aspectFit"></image>

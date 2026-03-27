@@ -10,6 +10,17 @@
     </view>
 
     <view wx:else class="content">
+      <view wx:if="{{isCreateAssociation && createUi && createUi.header}}" class="create-assoc-header">
+        <image class="create-assoc-header-bg" src="{{createUi.header.bgUrl}}" mode="aspectFill" />
+        <view class="create-assoc-header-mask"></view>
+        <view class="create-assoc-header-inner">
+          <view class="create-assoc-logo-wrap">
+            <image class="create-assoc-logo" src="{{createUi.header.logoUrl}}" mode="aspectFill" />
+          </view>
+          <text class="create-assoc-title">{{createUi.header.name}}</text>
+        </view>
+      </view>
+
       <view class="card">
         <view class="section-title">申请状态</view>
         <view class="status-row">
@@ -28,12 +39,85 @@
         </block>
       </view>
 
-      <view class="card" wx:if="{{contentRows.length > 0}}">
+      <block wx:if="{{isCreateAssociation && createUi}}">
+        <view class="card create-assoc-card" wx:if="{{createUi.school}}">
+          <view class="create-assoc-section-title">所属母校</view>
+          <view class="row">
+            <text class="label">学校名称</text>
+            <text class="value">{{createUi.school.schoolName}}</text>
+          </view>
+          <view wx:if="{{createUi.school.province}}" class="row">
+            <text class="label">所在省份</text>
+            <text class="value">{{createUi.school.province}}</text>
+          </view>
+        </view>
+
+        <view class="card create-assoc-card" wx:if="{{createUi.location || createUi.coverageArea}}">
+          <view class="create-assoc-section-title">基本信息</view>
+          <view wx:if="{{createUi.location}}" class="row">
+            <text class="label">常驻地点</text>
+            <text class="value">{{createUi.location}}</text>
+          </view>
+          <view wx:if="{{createUi.coverageArea}}" class="row">
+            <text class="label">覆盖区域</text>
+            <text class="value">{{createUi.coverageArea}}</text>
+          </view>
+        </view>
+
+        <view class="card create-assoc-card" wx:if="{{createUi.chargeRows.length > 0}}">
+          <view class="create-assoc-section-title">主要负责人信息</view>
+          <block wx:for="{{createUi.chargeRows}}" wx:key="label">
+            <view class="row {{item.multiline ? 'vertical' : ''}}">
+              <text class="label">{{item.label}}</text>
+              <text class="value {{item.multiline ? 'multiline' : ''}} {{item.noWrap ? 'nowrap' : ''}}">{{item.value}}</text>
+            </view>
+          </block>
+        </view>
+
+        <view class="card create-assoc-card" wx:if="{{createUi.zhRows.length > 0}}">
+          <view class="create-assoc-section-title">驻会代表信息</view>
+          <block wx:for="{{createUi.zhRows}}" wx:key="label">
+            <view class="row {{item.multiline ? 'vertical' : ''}}">
+              <text class="label">{{item.label}}</text>
+              <text class="value {{item.multiline ? 'multiline' : ''}} {{item.noWrap ? 'nowrap' : ''}}">{{item.value}}</text>
+            </view>
+          </block>
+        </view>
+
+        <view class="card create-assoc-card" wx:if="{{createUi.associationProfile}}">
+          <view class="create-assoc-section-title">校友会简介</view>
+          <view class="row vertical">
+            <text class="value multiline">{{createUi.associationProfile}}</text>
+          </view>
+        </view>
+
+        <view class="card create-assoc-card" wx:if="{{createUi.applicationReason}}">
+          <view class="create-assoc-section-title">申请理由</view>
+          <view class="row vertical">
+            <text class="value multiline">{{createUi.applicationReason}}</text>
+          </view>
+        </view>
+
+        <view class="card create-assoc-card" wx:if="{{createUi.initialMembersList.length > 0}}">
+          <view class="create-assoc-section-title">初始成员 ({{createUi.initialMembersList.length}}人)</view>
+          <view class="create-member-list">
+            <view class="create-member-item" wx:for="{{createUi.initialMembersList}}" wx:key="index">
+              <view class="create-member-line">
+                <text class="create-member-name">{{item.name || '未知'}}</text>
+                <text wx:if="{{item.phone}}" class="create-member-phone">{{item.phone}}</text>
+              </view>
+              <text wx:if="{{item.affiliation}}" class="create-member-affil">{{item.affiliation}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <view class="card" wx:elif="{{contentRows.length > 0}}">
         <view class="section-title">申请内容</view>
         <block wx:for="{{contentRows}}" wx:key="label">
           <view class="row {{item.multiline ? 'vertical' : ''}}">
             <text class="label">{{item.label}}</text>
-            <text class="value {{item.multiline ? 'multiline' : ''}}">{{item.value}}</text>
+            <text class="value {{item.multiline ? 'multiline' : ''}} {{item.noWrap ? 'nowrap' : ''}}">{{item.value}}</text>
           </view>
         </block>
       </view>
@@ -43,7 +127,7 @@
         <block wx:for="{{auditRows}}" wx:key="label">
           <view class="row {{item.multiline ? 'vertical' : ''}}">
             <text class="label">{{item.label}}</text>
-            <text class="value {{item.multiline ? 'multiline' : ''}}">{{item.value}}</text>
+            <text class="value {{item.multiline ? 'multiline' : ''}} {{item.noWrap ? 'nowrap' : ''}}">{{item.value}}</text>
           </view>
         </block>
       </view>

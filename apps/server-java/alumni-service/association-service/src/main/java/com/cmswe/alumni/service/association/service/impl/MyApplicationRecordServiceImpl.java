@@ -185,7 +185,8 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setApplicationStatus(application.getApplicationStatus());
         vo.setApplicationStatusText(fourStateText(application.getApplicationStatus()));
         vo.setStatusGroup(fourStateGroup(application.getApplicationStatus()));
-        vo.setCanEdit(false);
+        boolean pending = application.getApplicationStatus() != null && application.getApplicationStatus() == 0;
+        vo.setCanEdit(pending);
         vo.setCanCancel(false);
         vo.setDetail(detail);
         return vo;

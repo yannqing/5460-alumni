@@ -10,6 +10,7 @@ import com.cmswe.alumni.api.user.OrganizeArchiTemplateService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
+import com.cmswe.alumni.common.dto.UpdatePendingAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.dto.InitialMemberDto;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationApplicationListDto;
 import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
@@ -151,6 +152,89 @@ public class AlumniAssociationApplicationServiceImpl
 
         // 4. 创建申请记录
         AlumniAssociationApplication application = new AlumniAssociationApplication();
+        copyApplyDtoOntoApplication(application, applyDto);
+        application.setApplicationStatus(0); // 0-待审核
+        application.setApplyTime(LocalDateTime.now());
+
+        // 7. 保存申请记录
+        boolean result = this.save(application);
+
+        if (result) {
+            log.info("用户{}成功提交创建校友会申请：{}", wxId, applyDto.getAssociationName());
+
+            // 8. 发送申请提交成功通知
+            sendApplicationSubmittedNotification(wxId, applyDto.getAssociationName());
+        }
+
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updatePendingApplication(Long wxId, UpdatePendingAlumniAssociationApplicationDto dto) {
+        Optional.ofNullable(dto.getApplicationId())
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_ERROR, "申请ID不能为空"));
+
+        AlumniAssociationApplication application = this.getById(dto.getApplicationId());
+        if (application == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "申请记录不存在");
+        }
+        if (!wxId.equals(application.getZhWxId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权修改该申请");
+        }
+        if (application.getApplicationStatus() == null || application.getApplicationStatus() != 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "只能编辑待审核的申请");
+        }
+
+        ApplyCreateAlumniAssociationDto applyDto = dto;
+        // 与提交申请相同的业务校验（驻会代表、负责人、初始成员等）
+        LambdaQueryWrapper<WxUserInfo> userQuery = new LambdaQueryWrapper<>();
+        userQuery.eq(WxUserInfo::getWxId, wxId);
+        WxUserInfo applicant = wxUserInfoService.getOne(userQuery);
+        if (applicant == null) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "申请人不存在");
+        }
+        if (applyDto.getChargeWxId() != null && applyDto.getChargeWxId() > 0) {
+            LambdaQueryWrapper<WxUserInfo> chargeQuery = new LambdaQueryWrapper<>();
+            chargeQuery.eq(WxUserInfo::getWxId, applyDto.getChargeWxId());
+            WxUserInfo charge = wxUserInfoService.getOne(chargeQuery);
+            if (charge == null) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "指定的负责人用户不存在");
+            }
+        }
+        if (applyDto.getZhWxId() == null || applyDto.getZhWxId() <= 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "驻会代表（联系人）用户ID不能为空");
+        }
+        LambdaQueryWrapper<WxUserInfo> zhQuery = new LambdaQueryWrapper<>();
+        zhQuery.eq(WxUserInfo::getWxId, applyDto.getZhWxId());
+        WxUserInfo zhUser = wxUserInfoService.getOne(zhQuery);
+        if (zhUser == null) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "指定的驻会代表（联系人）用户不存在");
+        }
+        if (applyDto.getInitialMembers() != null && !applyDto.getInitialMembers().isEmpty()) {
+            for (InitialMemberDto memberDto : applyDto.getInitialMembers()) {
+                if (memberDto.getWxId() != null && memberDto.getWxId() > 0) {
+                    LambdaQueryWrapper<WxUserInfo> memberQuery = new LambdaQueryWrapper<>();
+                    memberQuery.eq(WxUserInfo::getWxId, memberDto.getWxId());
+                    WxUserInfo member = wxUserInfoService.getOne(memberQuery);
+                    if (member == null) {
+                        throw new BusinessException(
+                                ErrorType.ARGS_ERROR,
+                                "初始成员【" + memberDto.getName() + "】(ID: " + memberDto.getWxId() + ")在系统中不存在");
+                    }
+                }
+            }
+        }
+
+        copyApplyDtoOntoApplication(application, applyDto);
+        return this.updateById(application);
+    }
+
+    /**
+     * 将申请 DTO 中的可变字段写入实体（不含申请状态、申请时间）
+     */
+    private void copyApplyDtoOntoApplication(
+            AlumniAssociationApplication application, ApplyCreateAlumniAssociationDto applyDto) {
         application.setAssociationName(applyDto.getAssociationName());
         application.setSchoolId(applyDto.getSchoolId());
         application.setPlatformId(applyDto.getPlatformId());
@@ -165,7 +249,6 @@ public class AlumniAssociationApplicationServiceImpl
         application.setZhSocialAffiliation(applyDto.getZhSocialAffiliation());
         application.setZhWxId(applyDto.getZhWxId());
 
-        // 将背景图列表转换为 JSON 字符串
         if (applyDto.getBgImg() != null && !applyDto.getBgImg().isEmpty()) {
             try {
                 String bgImgJson = objectMapper.writeValueAsString(applyDto.getBgImg());
@@ -185,10 +268,7 @@ public class AlumniAssociationApplicationServiceImpl
         application.setApplicationReason(applyDto.getApplicationReason());
         application.setAssociationProfile(applyDto.getAssociationProfile());
         application.setTemplateId(applyDto.getTemplateId());
-        application.setApplicationStatus(0); // 0-待审核
-        application.setApplyTime(LocalDateTime.now());
 
-        // 5. 将初始成员列表转换为JSON字符串
         if (applyDto.getInitialMembers() != null && !applyDto.getInitialMembers().isEmpty()) {
             try {
                 String initialMembersJson = objectMapper.writeValueAsString(applyDto.getInitialMembers());
@@ -197,9 +277,10 @@ public class AlumniAssociationApplicationServiceImpl
                 log.error("转换初始成员列表为JSON失败", e);
                 throw new BusinessException(ErrorType.SYSTEM_ERROR, "初始成员信息处理失败");
             }
+        } else {
+            application.setInitialMembers(null);
         }
 
-        // 6. 将附件ID列表转换为JSON字符串
         if (applyDto.getAttachmentIds() != null && !applyDto.getAttachmentIds().isEmpty()) {
             try {
                 String attachmentIdsJson = objectMapper.writeValueAsString(applyDto.getAttachmentIds());
@@ -208,19 +289,9 @@ public class AlumniAssociationApplicationServiceImpl
                 log.error("转换附件ID列表为JSON失败", e);
                 throw new BusinessException(ErrorType.SYSTEM_ERROR, "附件信息处理失败");
             }
+        } else {
+            application.setAttachmentIds(null);
         }
-
-        // 7. 保存申请记录
-        boolean result = this.save(application);
-
-        if (result) {
-            log.info("用户{}成功提交创建校友会申请：{}", wxId, applyDto.getAssociationName());
-
-            // 8. 发送申请提交成功通知
-            sendApplicationSubmittedNotification(wxId, applyDto.getAssociationName());
-        }
-
-        return result;
     }
 
     /**

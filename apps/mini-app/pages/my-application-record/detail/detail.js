@@ -1,6 +1,8 @@
 const { post } = require('../../../utils/request.js')
 const config = require('../../../utils/config.js')
 
+const RECORD_TYPE_CREATE = 'ALUMNI_ASSOCIATION_CREATE'
+
 const RECORD_TYPE_TEXT_MAP = {
   ALUMNI_ASSOCIATION_CREATE: '创建校友会',
   ALUMNI_ASSOCIATION_JOIN: '加入校友会',
@@ -61,6 +63,8 @@ Page({
     statusTextValue: '',
     statusClassName: 'unknown',
     canEditCurrent: false,
+    isCreateAssociation: false,
+    createUi: null,
   },
 
   onLoad(options) {
@@ -71,13 +75,32 @@ Page({
       setTimeout(() => wx.navigateBack(), 1200)
       return
     }
+    this._skipFirstOnShow = true
     this.setData({ recordType, recordId })
     this.loadDetail()
   },
 
-  async loadDetail() {
-    if (this.data.loading) return
-    this.setData({ loading: true })
+  onShow() {
+    if (this._skipFirstOnShow) {
+      this._skipFirstOnShow = false
+      return
+    }
+    if (this.data.recordType && this.data.recordId) {
+      // 从编辑页返回时已有详情则静默刷新，避免整页变成「加载中」
+      this.loadDetail({ silent: !!this.data.detailWrapper })
+    }
+  },
+
+  async loadDetail(opts = {}) {
+    const silent = !!opts.silent
+    if (!silent) {
+      if (this.data.loading) return
+      this.setData({ loading: true })
+    } else if (this._silentRefreshing) {
+      return
+    } else {
+      this._silentRefreshing = true
+    }
     try {
       const res = await post('/users/my-application-records/detail', {
         recordType: this.data.recordType,
@@ -85,7 +108,9 @@ Page({
       })
       if (!(res.data && res.data.code === 200 && res.data.data)) {
         wx.showToast({ title: res.data?.msg || res.data?.message || '加载失败', icon: 'none' })
-        this.setData({ loading: false })
+        if (!silent) {
+          this.setData({ loading: false })
+        }
         return
       }
 
@@ -93,7 +118,7 @@ Page({
       const detail = detailWrapper.detail || {}
       const attachmentFiles = this.normalizeAttachments(detail)
       const attachmentUrls = attachmentFiles.map(f => f._url)
-      const { basicRows, contentRows, auditRows } = this.buildDisplayRows(detailWrapper, detail)
+      const { basicRows, contentRows, auditRows, createUi } = this.buildDisplayRows(detailWrapper, detail)
       this.setData({
         detailWrapper,
         detail,
@@ -107,20 +132,34 @@ Page({
         attachmentFiles,
         attachmentUrls,
         canEditCurrent: this.isRecordEditable(detailWrapper),
+        isCreateAssociation: !!createUi,
+        createUi: createUi || null,
         loading: false,
       })
     } catch (e) {
       console.error('[MyApplicationRecordDetail] loadDetail', e)
       wx.showToast({ title: '加载失败', icon: 'none' })
-      this.setData({ loading: false })
+      if (!silent) {
+        this.setData({ loading: false })
+      }
+    } finally {
+      if (silent) {
+        this._silentRefreshing = false
+      }
     }
   },
 
   isRecordEditable(detailWrapper) {
-    if (!detailWrapper || !detailWrapper.canEdit) {
+    if (!detailWrapper) {
       return false
     }
     const t = detailWrapper.recordType || this.data.recordType
+    if (t === RECORD_TYPE_CREATE) {
+      return detailWrapper.canEdit === true
+    }
+    if (!detailWrapper.canEdit) {
+      return false
+    }
     return !!EDITABLE_RECORD_TYPE[t]
   },
 
@@ -128,6 +167,17 @@ Page({
     const { detailWrapper, detail, recordType, recordId } = this.data
     if (!this.isRecordEditable(detailWrapper)) {
       wx.showToast({ title: '当前申请暂不支持编辑', icon: 'none' })
+      return
+    }
+    if (recordType === RECORD_TYPE_CREATE) {
+      const applicationId = detail?.applicationId
+      if (!applicationId) {
+        wx.showToast({ title: '缺少申请信息', icon: 'none' })
+        return
+      }
+      wx.navigateTo({
+        url: `/pages/alumni-association/create/create?mode=edit&applicationId=${encodeURIComponent(String(applicationId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
+      })
       return
     }
     if (recordType === 'ALUMNI_ASSOCIATION_JOIN') {
@@ -184,12 +234,107 @@ Page({
     return String(code)
   },
 
-  addRow(target, label, value, multiline = false) {
+  addRow(target, label, value, multiline = false, noWrap = false) {
     if (!isPresent(value)) return
-    target.push({ label, value: String(value), multiline })
+    target.push({ label, value: String(value), multiline, noWrap })
+  },
+
+  buildCreateAssociationHeader(detail) {
+    const name = firstNonEmpty(detail.associationName, detail.alumniAssociationName) || '—'
+    let bgUrl = config.defaultCover
+    const rawBg = detail.bgImg
+    if (rawBg != null && String(rawBg).trim()) {
+      try {
+        const parsed = JSON.parse(rawBg)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          bgUrl = config.getImageUrl(parsed[0])
+        } else {
+          bgUrl = config.getImageUrl(String(rawBg))
+        }
+      } catch (e) {
+        bgUrl = config.getImageUrl(String(rawBg))
+      }
+    }
+    let logoUrl = config.defaultAvatar
+    if (detail.logo != null && String(detail.logo).trim()) {
+      logoUrl = config.getImageUrl(detail.logo)
+    }
+    return { bgUrl, logoUrl, name }
+  },
+
+  parseInitialMembersList(detail) {
+    const raw = detail.initialMembers
+    if (!raw || typeof raw !== 'string') {
+      return []
+    }
+    try {
+      const list = JSON.parse(raw)
+      return Array.isArray(list) ? list : []
+    } catch (e) {
+      return []
+    }
+  },
+
+  buildCreateAssociationRows(detailWrapper, detail) {
+    const basicRows = []
+    const auditRows = []
+
+    const applyTime = fmtTime(firstNonEmpty(detail.applyTime, detail.createTime))
+    const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
+
+    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(basicRows, '申请时间', applyTime)
+    this.addRow(basicRows, '审核时间', reviewTime)
+
+    this.addRow(auditRows, '审核意见', detail.reviewComment, true)
+    this.addRow(auditRows, '审核时间', reviewTime)
+
+    const header = this.buildCreateAssociationHeader(detail)
+
+    let school = null
+    const si = detail.schoolInfo
+    if (si && (isPresent(si.schoolName) || isPresent(si.province))) {
+      school = {
+        schoolName: firstNonEmpty(si.schoolName) || '—',
+        province: firstNonEmpty(si.province),
+      }
+    }
+
+    const chargeRows = []
+    this.addRow(chargeRows, '姓名', detail.chargeName)
+    this.addRow(chargeRows, '联系方式', detail.contactInfo)
+    this.addRow(chargeRows, '校友会职务', detail.chargeRole)
+    this.addRow(chargeRows, '社会职务', detail.msocialAffiliation, false, true)
+
+    const zhRows = []
+    this.addRow(zhRows, '姓名', detail.zhName)
+    this.addRow(zhRows, '联系电话', detail.zhPhone)
+    this.addRow(zhRows, '校友会职务', detail.zhRole)
+    this.addRow(zhRows, '社会职务', detail.zhSocialAffiliation, false, true)
+
+    const initialMembersList = this.parseInitialMembersList(detail)
+
+    const createUi = {
+      header,
+      school,
+      chargeRows,
+      zhRows,
+      location: isPresent(detail.location) ? String(detail.location) : '',
+      coverageArea: isPresent(detail.coverageArea) ? String(detail.coverageArea) : '',
+      associationProfile: isPresent(detail.associationProfile) ? String(detail.associationProfile) : '',
+      applicationReason: isPresent(detail.applicationReason) ? String(detail.applicationReason) : '',
+      initialMembersList,
+    }
+
+    return { basicRows, contentRows: [], auditRows, createUi }
   },
 
   buildDisplayRows(detailWrapper, detail) {
+    const recordType = detailWrapper.recordType || this.data.recordType
+    if (recordType === RECORD_TYPE_CREATE) {
+      return this.buildCreateAssociationRows(detailWrapper, detail)
+    }
+
     const basicRows = []
     const contentRows = []
     const auditRows = []
@@ -223,7 +368,7 @@ Page({
     this.addRow(auditRows, '审核意见', detail.reviewComment, true)
     this.addRow(auditRows, '审核时间', reviewTime)
 
-    return { basicRows, contentRows, auditRows }
+    return { basicRows, contentRows, auditRows, createUi: null }
   },
 
   previewAttachment(e) {

@@ -2,6 +2,7 @@ package com.cmswe.alumni.api.association;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
+import com.cmswe.alumni.common.dto.UpdatePendingAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationApplicationListDto;
 import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
@@ -23,6 +24,11 @@ public interface AlumniAssociationApplicationService extends IService<AlumniAsso
      * @return 是否申请成功
      */
     boolean applyToCreateAssociation(Long wxId, ApplyCreateAlumniAssociationDto applyDto);
+
+    /**
+     * 申请人编辑待审核的创建校友会申请（仅驻会代表本人、且状态为待审核）
+     */
+    boolean updatePendingApplication(Long wxId, UpdatePendingAlumniAssociationApplicationDto dto);
 
     /**
      * 分页查询校友会创建申请列表
