@@ -1,0 +1,120 @@
+<!--pages/my-application-record/my-application-record.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="我的申请记录">
+  <message-notification />
+
+  <view class="page">
+    <view class="group_7">
+      <view class="filter-block">
+        <view class="filter-section filter-section--type">
+          <view class="filter-label-row">
+            <view class="filter-label-accent filter-label-accent--type"></view>
+            <text class="filter-label">申请类型</text>
+          </view>
+          <scroll-view class="filter-scroll" scroll-x enable-flex="{{true}}" show-scrollbar="{{false}}" scroll-with-animation="{{true}}">
+            <view class="filter-tabs">
+              <view
+                wx:for="{{typeTabs}}"
+                wx:key="value"
+                class="filter-tab {{selectedRecordType === item.value ? 'active' : ''}}"
+                hover-class="filter-tab-hover"
+                hover-stay-time="80"
+                bindtap="selectRecordType"
+                data-value="{{item.value}}"
+              >
+                {{item.label}}
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+
+        <view class="filter-section filter-section--status">
+          <view class="filter-label-row">
+            <view class="filter-label-accent filter-label-accent--status"></view>
+            <text class="filter-label">状态</text>
+          </view>
+          <scroll-view class="filter-scroll" scroll-x enable-flex="{{true}}" show-scrollbar="{{false}}" scroll-with-animation="{{true}}">
+            <view class="filter-tabs">
+              <view
+                wx:for="{{statusTabs}}"
+                wx:key="value"
+                class="filter-tab filter-tab--status {{selectedStatusGroup === item.value ? 'active' : ''}}"
+                hover-class="filter-tab-hover"
+                hover-stay-time="80"
+                bindtap="selectStatus"
+                data-value="{{item.value}}"
+              >
+                {{item.label}}
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+
+      <scroll-view
+        class="scroll-list"
+        scroll-y
+        enable-back-to-top
+        show-scrollbar="{{false}}"
+        enhanced
+        bindscrolltolower="loadMore"
+        lower-threshold="100"
+      >
+        <view class="list">
+          <block wx:for="{{list}}" wx:key="_key" wx:for-item="item" wx:for-index="index">
+            <view class="record-card {{item.showDualLogos ? 'record-card--join-platform' : ''}}" bindtap="onItemTap" data-index="{{index}}">
+              <block wx:if="{{item.showDualLogos}}">
+                <view class="join-platform-stack">
+                  <view class="join-platform-inner">
+                    <view class="join-platform-panel join-platform-panel--association">
+                      <view class="join-platform-logo-wrap">
+                        <image class="join-platform-logo" src="{{item.associationLogoUrl}}" mode="aspectFill" />
+                      </view>
+                      <view class="join-platform-text">
+                        <text class="join-platform-label">校友会</text>
+                        <text class="join-platform-name">{{item.title}}</text>
+                      </view>
+                    </view>
+                    <view class="join-platform-panel join-platform-panel--platform">
+                      <view class="join-platform-logo-wrap join-platform-logo-wrap--platform">
+                        <image class="join-platform-logo" src="{{item.platformLogoUrl}}" mode="aspectFill" />
+                      </view>
+                      <view class="join-platform-text">
+                        <text class="join-platform-label join-platform-label--platform">校促会</text>
+                        <text class="join-platform-name">{{item.platformNameOnly || '—'}}</text>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+                <view class="record-meta-row join-platform-meta">
+                  <text class="record-time">{{item.applyTimeText || '—'}}</text>
+                  <text class="record-status-pill record-status-pill--join-platform">{{item.applicationStatusText || '—'}}</text>
+                </view>
+              </block>
+              <block wx:else>
+                <view class="record-card-row">
+                  <image class="record-logo record-logo--single" src="{{item.associationLogoUrl}}" mode="aspectFill" />
+                  <view class="record-card-main">
+                    <view class="record-unit-name">{{item.title}}</view>
+                    <view wx:if="{{item.subtitle && item.recordType !== 'ALUMNI_ASSOCIATION_JOIN'}}" class="record-subtitle">{{item.subtitle}}</view>
+                    <view class="record-meta-row">
+                      <text class="record-time">{{item.applyTimeText || '—'}}</text>
+                      <text class="record-status-pill">{{item.applicationStatusText || '—'}}</text>
+                    </view>
+                  </view>
+                </view>
+              </block>
+            </view>
+          </block>
+        </view>
+
+        <view wx:if="{{loading && list.length === 0}}" class="loading-state">加载中...</view>
+
+        <view wx:if="{{!loading && list.length === 0}}" class="empty-state">
+          <text class="empty-text">暂无申请记录</text>
+        </view>
+
+        <view wx:if="{{!loading && list.length > 0 && !hasMore}}" class="no-more">没有更多了</view>
+      </scroll-view>
+    </view>
+  </view>
+</custom-nav-bar>

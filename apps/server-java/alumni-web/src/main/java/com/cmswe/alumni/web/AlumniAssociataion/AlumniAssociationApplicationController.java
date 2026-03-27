@@ -4,6 +4,7 @@ import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.ApplyCreateAlumniAssociationDto;
+import com.cmswe.alumni.common.dto.UpdatePendingAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.dto.QuerySystemAdminApplicationListDto;
 import com.cmswe.alumni.common.dto.ReviewAlumniAssociationApplicationDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
@@ -52,6 +53,24 @@ public class AlumniAssociationApplicationController {
         } else {
             return ResultUtils.failure(Code.FAILURE, false, "校友会创建申请提交失败");
         }
+    }
+
+    /**
+     * 编辑待审核的校友会创建申请（驻会代表本人）
+     */
+    @PutMapping("/update")
+    @Operation(summary = "编辑待审核的校友会创建申请")
+    public BaseResponse<Boolean> updatePendingApplication(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody UpdatePendingAlumniAssociationApplicationDto dto) {
+
+        Long wxId = securityUser.getWxUser().getWxId();
+        boolean result = alumniAssociationApplicationService.updatePendingApplication(wxId, dto);
+
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, true, "申请已更新");
+        }
+        return ResultUtils.failure(Code.FAILURE, false, "更新失败");
     }
 
     /**

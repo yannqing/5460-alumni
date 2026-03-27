@@ -110,6 +110,7 @@ Page({
       location: '',
       coverageArea: '', // 覆盖区域（选填）
       logoType: 'default', // logo来源类型: default, school, upload
+      platformId: '', // 所属校促会（选填，编辑时回填）
     },
     schoolLogoUrl: '',
     defaultAlumniLogo: '',
@@ -139,33 +140,23 @@ Page({
 
     loading: false,
     submitting: false,
+    isEditMode: false,
+    editApplicationId: '',
+    pageTitle: '创建校友会',
+    fromMyRecord: false,
     defaultAvatar: config.defaultAvatar,
     headerImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/9f328fe3-fcad-4019-a379-1a6db70f3a5d.png`,
     keyboardHeight: 0,
   },
 
-  onLoad() {
+  async onLoad(options) {
     // 创建学校搜索防抖函数（负责人姓名等由用户直接填写，不使用校友列表选择）
     this.searchSchoolDebounced = debounce(this.searchSchool, 500)
-
-    this.loadInitialData()
-    this.loadTemplateList()
-
-    // 默认初始化logo为平台默认logo（本地静态资源）
-    const defaultLogoUrl = '/assets/avatar/avatar.jpg'
-
-    this.setData({
-      defaultAlumniLogo: defaultLogoUrl,
-      'formData.logo': defaultLogoUrl,
-      // 初始化第一个成员为"主要负责人"，不能删除（负责人不传 wxid，姓名等由用户直接填写）
-      members: [{ name: '', role: '会长', affiliation: '', phone: '' }],
-    })
 
     // 监听键盘高度变化，手动控制滚动（替代 adjust-position）
     this._keyboardHandler = res => {
       this.setData({ keyboardHeight: res.height })
       if (res.height > 0 && this._focusScrollTop !== undefined) {
-        // 键盘弹起后，将页面向上滚动，确保输入框在键盘上方可见
         setTimeout(() => {
           wx.pageScrollTo({
             scrollTop: this._focusScrollTop + res.height * 0.3,
@@ -175,6 +166,33 @@ Page({
       }
     }
     wx.onKeyboardHeightChange(this._keyboardHandler)
+
+    const defaultLogoUrl = '/assets/avatar/avatar.jpg'
+    const mode = options?.mode || ''
+    const applicationId = options?.applicationId || ''
+    const isEdit = mode === 'edit' && applicationId
+
+    this.setData({
+      defaultAlumniLogo: defaultLogoUrl,
+      isEditMode: !!isEdit,
+      editApplicationId: isEdit ? applicationId : '',
+      pageTitle: isEdit ? '编辑创建申请' : '创建校友会',
+      fromMyRecord: options?.fromMyRecord === '1',
+    })
+
+    if (isEdit) {
+      // 编辑模式也先加载当前登录用户，兜底拿到 zhWxId/presidentWxId
+      await this.loadInitialData()
+      await this.loadTemplateList()
+      await this.loadApplicationForEdit(applicationId)
+    } else {
+      await this.loadInitialData()
+      await this.loadTemplateList()
+      this.setData({
+        'formData.logo': defaultLogoUrl,
+        members: [{ name: '', role: '会长', affiliation: '', phone: '' }],
+      })
+    }
   },
 
   onUnload() {
@@ -256,6 +274,141 @@ Page({
     } catch (error) {
       console.error('加载初始化数据失败:', error)
     } finally {
+      this.setData({ loading: false })
+    }
+  },
+
+  /** 从「我的申请」进入编辑：拉取待审核申请并回填表单 */
+  async loadApplicationForEdit(applicationId) {
+    this.setData({ loading: true })
+    wx.showLoading({ title: '加载中...', mask: true })
+    try {
+      const res = await associationApi.getApplicationDetail(applicationId)
+      if (!res.data || res.data.code !== 200 || !res.data.data) {
+        wx.showToast({ title: res.data?.msg || res.data?.message || '加载失败', icon: 'none' })
+        setTimeout(() => wx.navigateBack(), 1500)
+        return
+      }
+      const d = res.data.data
+      const st = d.applicationStatus
+      if (st !== 0 && st !== '0') {
+        wx.showToast({ title: '仅待审核的申请可编辑', icon: 'none' })
+        setTimeout(() => wx.navigateBack(), 1500)
+        return
+      }
+
+      const schoolId = d.schoolId != null ? String(d.schoolId) : ''
+      const schoolName = d.schoolInfo?.schoolName || ''
+      const schoolLogoUrl = d.schoolInfo?.logo ? config.getImageUrl(d.schoolInfo.logo) : config.defaultSchoolAvatar
+
+      const leader = {
+        name: d.chargeName || '',
+        role: d.chargeRole || '会长',
+        phone: d.contactInfo || '',
+        affiliation: d.msocialAffiliation || '',
+      }
+      let extra = []
+      if (d.initialMembers) {
+        try {
+          const parsed =
+            typeof d.initialMembers === 'string' ? JSON.parse(d.initialMembers) : d.initialMembers
+          if (Array.isArray(parsed)) {
+            extra = parsed.map(m => ({
+              name: m.name || '',
+              role: m.role || '',
+              phone: m.phone || '',
+              affiliation: m.affiliation || '',
+            }))
+          }
+        } catch (e) {
+          console.error('parse initialMembers', e)
+        }
+      }
+      const members = [leader, ...extra]
+
+      let bgImages = []
+      if (d.bgImg && String(d.bgImg).trim()) {
+        try {
+          const raw = String(d.bgImg).trim()
+          const arr = raw.startsWith('[') ? JSON.parse(raw) : [raw]
+          const list = Array.isArray(arr) ? arr : [raw]
+          bgImages = list.filter(Boolean).map(u => ({ url: config.getImageUrl(u) }))
+        } catch (e) {
+          bgImages = [{ url: config.getImageUrl(d.bgImg) }]
+        }
+      }
+
+      let logoType = 'default'
+      let logo = this.data.defaultAlumniLogo
+      if (d.logo && String(d.logo).trim()) {
+        logoType = 'upload'
+        logo = config.getImageUrl(d.logo)
+      }
+
+      const attachments = (d.attachments || []).map(f => {
+        const id = f.fileId != null ? String(f.fileId) : ''
+        const rawUrl = f.fileUrl || ''
+        const url = rawUrl ? config.getImageUrl(rawUrl) : ''
+        const ft = (f.fileType || '').toLowerCase()
+        const ext = (f.fileExtension || '').toLowerCase()
+        const isImage =
+          ft.includes('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext)
+        return {
+          id,
+          name: f.displayName || '附件',
+          url: isImage ? url : '',
+          type: isImage ? 'image' : undefined,
+        }
+      })
+
+      const tid = d.templateId
+      let templateIndex = this.data.templateIndex
+      let selectedTemplate = this.data.selectedTemplate
+      let templateTreeData = this.data.templateTreeData
+      if (tid != null && this.data.templateList && this.data.templateList.length) {
+        const idx = this.data.templateList.findIndex(t => String(t.templateId) === String(tid))
+        if (idx >= 0) {
+          templateIndex = idx
+          selectedTemplate = this.data.templateList[idx]
+          templateTreeData = selectedTemplate.templateContent || []
+        }
+      }
+
+      const currentWxId =
+        this.data.formData.presidentWxId || this.data.formData.zhWxId || ''
+      const zhWxStr = d.zhWxId != null ? String(d.zhWxId) : currentWxId
+
+      this.setData({
+        schoolLogoUrl,
+        bgImages,
+        attachments,
+        members,
+        templateIndex,
+        selectedTemplate,
+        templateTreeData,
+        'formData.associationName': d.associationName || '',
+        'formData.schoolId': schoolId,
+        'formData.schoolName': schoolName,
+        'formData.platformId': d.platformId != null ? String(d.platformId) : '',
+        'formData.location': d.location || '',
+        'formData.coverageArea': d.coverageArea || '',
+        'formData.applicationReason': d.applicationReason || '',
+        'formData.associationProfile': d.associationProfile || '',
+        'formData.zhName': d.zhName || '',
+        'formData.zhRole': d.zhRole || '',
+        'formData.zhPhone': d.zhPhone || '',
+        'formData.zhSocialAffiliation': d.zhSocialAffiliation || '',
+        'formData.zhWxId': zhWxStr,
+        'formData.presidentWxId': zhWxStr,
+        'formData.logoType': logoType,
+        'formData.logo': logo,
+      })
+    } catch (e) {
+      console.error('[create] loadApplicationForEdit', e)
+      wx.showToast({ title: '加载失败', icon: 'none' })
+      setTimeout(() => wx.navigateBack(), 1500)
+    } finally {
+      wx.hideLoading()
       this.setData({ loading: false })
     }
   },
@@ -924,8 +1077,9 @@ Page({
       return
     }
 
-    // 确保presidentWxId不为空
-    if (!formData.presidentWxId) {
+    const submitterWxId = String(formData.zhWxId || formData.presidentWxId || '').trim()
+    // 编辑/创建都要求提交者wxid（写入zh_wx_id）
+    if (!submitterWxId) {
       wx.showToast({ title: '提交者的wx_id不能为空', icon: 'none' })
       return
     }
@@ -999,7 +1153,7 @@ Page({
       zhRole: formData.zhRole || undefined,
       zhPhone: formData.zhPhone || undefined,
       zhSocialAffiliation: formData.zhSocialAffiliation || undefined,
-      zhWxId: formData.zhWxId || undefined,
+      zhWxId: submitterWxId || undefined,
       logo: formData.logoType === 'default' ? undefined : formData.logo || undefined,
       applicationReason: formData.applicationReason,
       associationProfile: formData.associationProfile || undefined,
@@ -1026,6 +1180,14 @@ Page({
       submitData.coverageArea = formData.coverageArea
     }
 
+    // 校促会（选填，编辑时回填后需带回）
+    if (formData.platformId) {
+      const pid = String(formData.platformId).trim()
+      if (pid) {
+        submitData.platformId = Number(pid)
+      }
+    }
+
     // 只有当bgImg存在时才添加到提交数据中
     if (bgImg !== undefined) {
       submitData.bgImg = bgImg
@@ -1041,11 +1203,21 @@ Page({
     this.setData({ submitting: true })
 
     try {
-      const res = await associationApi.applyCreateAssociation(submitData)
+      const isEdit = this.data.isEditMode && this.data.editApplicationId
+      let res
+      if (isEdit) {
+        const updateBody = {
+          applicationId: this.data.editApplicationId,
+          ...submitData,
+        }
+        res = await associationApi.updateApplication(updateBody)
+      } else {
+        res = await associationApi.applyCreateAssociation(submitData)
+      }
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
-          title: '申请已提交',
+          title: isEdit ? '已保存' : '申请已提交',
           icon: 'success',
         })
         setTimeout(() => {

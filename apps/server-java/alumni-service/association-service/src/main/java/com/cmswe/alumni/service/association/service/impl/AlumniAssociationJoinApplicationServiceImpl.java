@@ -416,12 +416,14 @@ public class AlumniAssociationJoinApplicationServiceImpl
 
     @Override
     public PageVo<AlumniAssociationJoinApplicationListVo> queryApplicationPage(Long wxId, QueryAlumniAssociationJoinApplicationListDto queryDto) {
+        boolean isSystemSuperAdmin = roleService.getRolesByUserId(wxId).stream()
+                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
         Set<Long> managedAlumniIds = userService.getManagedAlumniAssociationIdsByRole(wxId);
         Long aid = queryDto.getAlumniAssociationId();
         if (aid == null || aid <= 0) {
             return new PageVo<>(new ArrayList<>(), 0L, (long) queryDto.getCurrent(), (long) queryDto.getPageSize());
         }
-        if (!managedAlumniIds.contains(aid)) {
+        if (!isSystemSuperAdmin && !managedAlumniIds.contains(aid)) {
             throw new BusinessException(ErrorType.NO_AUTH_ERROR, "您无权限查看该校友会的加入申请");
         }
 
@@ -736,7 +738,15 @@ public class AlumniAssociationJoinApplicationServiceImpl
             throw new BusinessException(ErrorType.ARGS_ERROR, "只能编辑待审核的申请");
         }
 
-        // 4. 更新用户信息
+        // 4. 如传入新的校友会ID，允许切换目标校友会（仅待审核记录）
+        Long targetAssociationId = application.getAlumniAssociationId();
+        if (updateDto.getAlumniAssociationId() != null) {
+            targetAssociationId = updateDto.getAlumniAssociationId();
+            validateTargetAssociationForUpdate(wxId, application, targetAssociationId);
+        }
+        application.setAlumniAssociationId(targetAssociationId);
+
+        // 5. 更新用户信息
         LambdaQueryWrapper<WxUserInfo> userInfoQuery = new LambdaQueryWrapper<>();
         userInfoQuery.eq(WxUserInfo::getWxId, wxId);
         WxUserInfo userInfo = wxUserInfoService.getOne(userInfoQuery);
@@ -762,7 +772,7 @@ public class AlumniAssociationJoinApplicationServiceImpl
             wxUserInfoService.updateById(userInfo);
         }
 
-        // 5. 保存或更新教育经历信息（仅当 schoolId 不为空时）
+        // 6. 保存或更新教育经历信息（仅当 schoolId 不为空时）
         if (updateDto.getSchoolId() != null) {
             AlumniEducation education = new AlumniEducation();
             education.setWxId(wxId);
@@ -779,7 +789,7 @@ public class AlumniAssociationJoinApplicationServiceImpl
             log.info("用户{}的教育经历信息已保存/更新 - schoolId: {}", wxId, updateDto.getSchoolId());
         }
 
-        // 6. 更新申请记录
+        // 7. 更新申请记录
         application.setApplicationReason(updateDto.getApplicationReason());
         application.setSchoolId(updateDto.getSchoolId());
         application.setEnrollmentYear(updateDto.getEnrollmentYear());
@@ -816,6 +826,40 @@ public class AlumniAssociationJoinApplicationServiceImpl
         }
 
         return result;
+    }
+
+    private void validateTargetAssociationForUpdate(
+            Long wxId,
+            AlumniAssociationJoinApplication currentApplication,
+            Long targetAssociationId) {
+        if (targetAssociationId == null) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "校友会ID不能为空");
+        }
+
+        AlumniAssociation association = alumniAssociationMapper.selectById(targetAssociationId);
+        if (association == null) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "目标校友会不存在");
+        }
+
+        LambdaQueryWrapper<AlumniAssociationMember> memberQuery = new LambdaQueryWrapper<>();
+        memberQuery.eq(AlumniAssociationMember::getWxId, wxId)
+                .eq(AlumniAssociationMember::getAlumniAssociationId, targetAssociationId)
+                .eq(AlumniAssociationMember::getStatus, 1);
+        Long memberCount = alumniAssociationMemberMapper.selectCount(memberQuery);
+        if (memberCount > 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "您已经是该校友会成员");
+        }
+
+        LambdaQueryWrapper<AlumniAssociationJoinApplication> pendingQuery = new LambdaQueryWrapper<>();
+        pendingQuery.eq(AlumniAssociationJoinApplication::getTargetId, wxId)
+                .eq(AlumniAssociationJoinApplication::getAlumniAssociationId, targetAssociationId)
+                .eq(AlumniAssociationJoinApplication::getApplicantType, 1)
+                .eq(AlumniAssociationJoinApplication::getApplicationStatus, 0)
+                .ne(AlumniAssociationJoinApplication::getApplicationId, currentApplication.getApplicationId());
+        Long pendingCount = this.count(pendingQuery);
+        if (pendingCount > 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "您已有待审核的申请，请勿重复提交");
+        }
     }
 
     /**

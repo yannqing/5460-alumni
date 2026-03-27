@@ -25,6 +25,10 @@
         <image class="function-icon" src="{{iconFollow}}" mode="aspectFit"></image>
         <text class="function-text">我的关注</text>
       </view>
+      <view class="function-item" bindtap="navigateToMyApplicationRecords">
+        <image class="function-icon" src="https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/home/application_record.png" mode="aspectFit"></image>
+        <text class="function-text">我的申请记录</text>
+      </view>
     </view>
   </view>
 

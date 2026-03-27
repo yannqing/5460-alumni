@@ -99,6 +99,12 @@ public class UpdateAlumniAssociationJoinApplicationDto implements Serializable {
     @Schema(description = "学历层次")
     private String educationLevel;
 
+    /**
+     * 校友会ID（编辑时允许切换目标校友会）
+     */
+    @Schema(description = "校友会ID（可选，编辑时切换目标校友会）")
+    private Long alumniAssociationId;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

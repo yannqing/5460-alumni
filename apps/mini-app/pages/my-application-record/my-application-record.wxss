@@ -1,0 +1,385 @@
+/* pages/my-application-record/my-application-record.wxss */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.group_7 {
+  width: 714rpx;
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 20rpx 18rpx;
+  padding: 24rpx 20rpx 24rpx 20rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  min-height: 400rpx;
+}
+
+.filter-block {
+  flex-shrink: 0;
+  margin-bottom: 8rpx;
+}
+
+/* 分区卡片：类型 / 状态 视觉区分 */
+.filter-section {
+  background: linear-gradient(165deg, #fafbfd 0%, #f3f5f9 100%);
+  border-radius: 20rpx;
+  padding: 22rpx 18rpx 24rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid rgba(55, 89, 199, 0.1);
+  box-shadow: 0 4rpx 20rpx rgba(15, 35, 95, 0.06);
+}
+
+.filter-section--status {
+  background: linear-gradient(165deg, #fcfcfe 0%, #f6f7fb 100%);
+  border-color: rgba(255, 149, 0, 0.12);
+  box-shadow: 0 4rpx 20rpx rgba(95, 75, 40, 0.05);
+}
+
+.filter-label-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 18rpx;
+}
+
+.filter-label-accent {
+  width: 6rpx;
+  height: 28rpx;
+  border-radius: 6rpx;
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
+
+.filter-label-accent--type {
+  background: linear-gradient(180deg, #3759c7 0%, #6b8ee8 100%);
+  box-shadow: 0 2rpx 8rpx rgba(55, 89, 199, 0.35);
+}
+
+.filter-label-accent--status {
+  background: linear-gradient(180deg, #ff9500 0%, #ffb84d 100%);
+  box-shadow: 0 2rpx 8rpx rgba(255, 149, 0, 0.35);
+}
+
+.filter-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: 0.5rpx;
+}
+
+.filter-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.filter-tabs {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14rpx;
+  padding: 4rpx 4rpx 8rpx 2rpx;
+  box-sizing: border-box;
+}
+
+/* 未选中：白底细边框，选中：蓝紫渐变 + 投影 */
+.filter-tab {
+  flex-shrink: 0;
+  padding: 16rpx 26rpx;
+  min-height: 64rpx;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25rpx;
+  line-height: 1.25;
+  color: #4b5563;
+  background-color: #ffffff;
+  border-radius: 999rpx;
+  border: 1rpx solid #e5e7eb;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.04);
+}
+
+.filter-tab--status {
+  border-color: #ebe6df;
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.filter-tab.active {
+  color: #ffffff;
+  font-weight: 600;
+  border-color: transparent;
+  background: linear-gradient(135deg, #3a5dcc 0%, #5c7fe0 55%, #6b8ee8 100%);
+  box-shadow: 0 6rpx 18rpx rgba(55, 89, 199, 0.38);
+}
+
+.filter-tab--status.active {
+  background: linear-gradient(135deg, #e68600 0%, #ff9f0a 45%, #ffb340 100%);
+  box-shadow: 0 6rpx 18rpx rgba(255, 149, 0, 0.38);
+}
+
+.filter-tab-hover {
+  opacity: 0.88;
+}
+
+.scroll-list {
+  flex: 1;
+  width: 100%;
+  min-height: 200rpx;
+  position: relative;
+  z-index: 0;
+  margin-right: -20rpx;
+  padding-right: 20rpx;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.scroll-list::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.list {
+  padding: 8rpx 0 20rpx;
+}
+
+.record-card {
+  padding: 28rpx 24rpx;
+  margin-bottom: 20rpx;
+  background: #f8f9fc;
+  border-radius: 16rpx;
+  border: 1rpx solid #eef0f4;
+}
+
+/* 加入校促会：校友会上、校促会下（内层分区 + 时间轴连接） */
+.record-card--join-platform {
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(165deg, #fbfcff 0%, #f4f6fb 100%);
+  border: 1rpx solid rgba(55, 89, 199, 0.12);
+  box-shadow: 0 8rpx 28rpx rgba(15, 35, 95, 0.06);
+}
+
+.join-platform-stack {
+  padding: 22rpx 20rpx 8rpx;
+}
+
+.join-platform-inner {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 8rpx 8rpx 12rpx;
+  border: 1rpx solid rgba(226, 232, 240, 0.95);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
+}
+
+.join-platform-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 22rpx;
+  padding: 20rpx 18rpx 22rpx;
+  border-radius: 16rpx;
+}
+
+.join-platform-panel--association {
+  background: linear-gradient(135deg, rgba(55, 89, 199, 0.06) 0%, rgba(107, 142, 232, 0.04) 100%);
+  border: 1rpx solid rgba(55, 89, 199, 0.1);
+}
+
+.join-platform-panel--platform {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.05) 0%, rgba(251, 191, 36, 0.04) 100%);
+  border: 1rpx solid rgba(234, 88, 12, 0.12);
+  margin-top: 12rpx;
+}
+
+.join-platform-logo-wrap {
+  flex-shrink: 0;
+  width: 100rpx;
+  height: 100rpx;
+  padding: 4rpx;
+  border-radius: 22rpx;
+  background: linear-gradient(145deg, #ffffff 0%, #eef2ff 100%);
+  box-shadow:
+    0 4rpx 14rpx rgba(55, 89, 199, 0.12),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.95);
+}
+
+.join-platform-logo-wrap--platform {
+  background: linear-gradient(145deg, #ffffff 0%, #fff7ed 100%);
+  box-shadow:
+    0 4rpx 14rpx rgba(234, 88, 12, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.95);
+}
+
+.join-platform-logo {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 18rpx;
+  display: block;
+  background: #e8eaef;
+}
+
+.join-platform-text {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2rpx;
+}
+
+.join-platform-label {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  margin-bottom: 12rpx;
+  font-size: 22rpx;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #3759c7;
+  letter-spacing: 0.5rpx;
+  border-radius: 999rpx;
+  background: rgba(55, 89, 199, 0.12);
+  border: 1rpx solid rgba(55, 89, 199, 0.15);
+}
+
+.join-platform-label--platform {
+  color: #c2410c;
+  background: rgba(234, 88, 12, 0.12);
+  border-color: rgba(234, 88, 12, 0.2);
+}
+
+.join-platform-name {
+  display: block;
+  font-size: 28rpx;
+  line-height: 40rpx;
+  color: #111827;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+/* 中间连接：竖线 + 节点 */
+.join-platform-connector {
+  display: none;
+}
+
+.join-platform-connector-line {
+  width: 4rpx;
+  height: 18rpx;
+  border-radius: 4rpx;
+  background: linear-gradient(180deg, #93b4ff 0%, #7c9ef0 100%);
+}
+
+.join-platform-connector-line--bottom {
+  background: linear-gradient(180deg, #7c9ef0 0%, #fdba74 100%);
+}
+
+.join-platform-connector-node {
+  width: 14rpx;
+  height: 14rpx;
+  margin: 4rpx 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffffff 0%, #e8edff 100%);
+  border: 2rpx solid #93b4ff;
+  box-shadow: 0 2rpx 8rpx rgba(55, 89, 199, 0.2);
+}
+
+.join-platform-meta {
+  margin-top: 0;
+  padding: 20rpx 22rpx 22rpx;
+  border-top: none;
+  background: rgba(255, 255, 255, 0.65);
+  border-top: 1rpx solid rgba(226, 232, 240, 0.9);
+}
+
+.record-status-pill--join-platform {
+  color: #1d4ed8;
+  background: linear-gradient(135deg, rgba(55, 89, 199, 0.14) 0%, rgba(107, 142, 232, 0.12) 100%);
+  border: 1rpx solid rgba(55, 89, 199, 0.18);
+}
+
+.record-card-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 22rpx;
+}
+
+.record-logo {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 16rpx;
+  background: #e8eaef;
+  flex-shrink: 0;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.record-logo--single {
+  margin-top: 2rpx;
+}
+
+.record-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.record-unit-name {
+  font-size: 30rpx;
+  color: #111;
+  font-weight: 600;
+  line-height: 42rpx;
+  margin-bottom: 8rpx;
+}
+
+.record-subtitle {
+  font-size: 24rpx;
+  color: #6b7280;
+  line-height: 34rpx;
+  margin-bottom: 16rpx;
+}
+
+.record-meta-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 4rpx;
+}
+
+.record-time {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: #888;
+}
+
+.record-status-pill {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #3759c7;
+  font-weight: 500;
+  padding: 8rpx 20rpx;
+  background: rgba(55, 89, 199, 0.1);
+  border-radius: 8rpx;
+}
+
+.loading-state,
+.empty-state,
+.no-more {
+  text-align: center;
+  padding: 40rpx 0 60rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.empty-text {
+  color: #999;
+}

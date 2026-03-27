@@ -29,6 +29,8 @@
     "pages/benefit/list/list",
     "pages/benefit/detail/detail",
     "pages/my-follow/my-follow",
+    "pages/my-application-record/my-application-record",
+    "pages/my-application-record/detail/detail",
     "pages/alumni-union/detail/detail",
     "pages/promotion/detail/detail",
     "pages/my-favorites/my-favorites",
