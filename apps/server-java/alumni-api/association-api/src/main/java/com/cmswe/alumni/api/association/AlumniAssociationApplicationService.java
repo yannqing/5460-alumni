@@ -31,6 +31,11 @@ public interface AlumniAssociationApplicationService extends IService<AlumniAsso
     boolean updatePendingApplication(Long wxId, UpdatePendingAlumniAssociationApplicationDto dto);
 
     /**
+     * 申请人撤销待审核的创建校友会申请（仅驻会代表本人、且状态为待审核）
+     */
+    boolean cancelPendingApplication(Long wxId, Long applicationId);
+
+    /**
      * 分页查询校友会创建申请列表
      *
      * @param queryDto 查询条件

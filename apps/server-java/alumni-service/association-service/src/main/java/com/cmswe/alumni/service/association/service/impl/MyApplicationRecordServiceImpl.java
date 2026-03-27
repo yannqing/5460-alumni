@@ -9,6 +9,7 @@ import com.cmswe.alumni.api.association.LocalPlatformService;
 import com.cmswe.alumni.api.association.MyApplicationRecordService;
 import com.cmswe.alumni.api.association.SchoolService;
 import com.cmswe.alumni.common.constant.MyApplicationRecordType;
+import com.cmswe.alumni.common.dto.CancelMyApplicationRecordDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordDetailDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordListDto;
 import com.cmswe.alumni.common.dto.UpdateAlumniAssociationJoinApplicationDto;
@@ -169,6 +170,32 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         throw new BusinessException(ErrorType.ARGS_ERROR, "当前类型暂不支持编辑: " + type);
     }
 
+    @Override
+    public boolean cancelMyApplicationRecord(Long wxId, CancelMyApplicationRecordDto dto) {
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户未登录");
+        }
+        if (dto == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "撤销参数不能为空");
+        }
+        if (!MyApplicationRecordType.isValid(dto.getRecordType())) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "非法的 recordType: " + dto.getRecordType());
+        }
+        Long recordId = parseRecordId(dto.getRecordId());
+        String type = dto.getRecordType().trim();
+
+        if (MyApplicationRecordType.ALUMNI_ASSOCIATION_CREATE.equals(type)) {
+            return alumniAssociationApplicationService.cancelPendingApplication(wxId, recordId);
+        }
+        if (MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN.equals(type)) {
+            return alumniAssociationJoinApplicationService.cancelApplication(wxId, recordId);
+        }
+        if (MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM.equals(type)) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "当前类型不支持撤销: " + type);
+        }
+        throw new BusinessException(ErrorType.ARGS_ERROR, "当前类型暂不支持撤销: " + type);
+    }
+
     private MyApplicationRecordDetailVo buildCreateDetail(Long wxId, Long recordId) {
         AlumniAssociationApplication application = alumniAssociationApplicationService.getById(recordId);
         if (application == null) {
@@ -187,7 +214,7 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setStatusGroup(fourStateGroup(application.getApplicationStatus()));
         boolean pending = application.getApplicationStatus() != null && application.getApplicationStatus() == 0;
         vo.setCanEdit(pending);
-        vo.setCanCancel(false);
+        vo.setCanCancel(pending);
         vo.setDetail(detail);
         return vo;
     }
@@ -369,8 +396,9 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setApplicationStatusText(fourStateText(e.getApplicationStatus()));
         vo.setStatusGroup(fourStateGroup(e.getApplicationStatus()));
         vo.setApplyTime(e.getApplyTime());
-        vo.setCanEdit(false);
-        vo.setCanCancel(false);
+        boolean pending = e.getApplicationStatus() != null && e.getApplicationStatus() == 0;
+        vo.setCanEdit(pending);
+        vo.setCanCancel(pending);
         return vo;
     }
 

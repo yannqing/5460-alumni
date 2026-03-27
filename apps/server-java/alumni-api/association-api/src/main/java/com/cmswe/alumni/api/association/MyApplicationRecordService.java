@@ -1,5 +1,6 @@
 package com.cmswe.alumni.api.association;
 
+import com.cmswe.alumni.common.dto.CancelMyApplicationRecordDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordListDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordDetailDto;
 import com.cmswe.alumni.common.dto.UpdateMyApplicationRecordDto;
@@ -17,4 +18,6 @@ public interface MyApplicationRecordService {
     MyApplicationRecordDetailVo queryMyApplicationRecordDetail(Long wxId, QueryMyApplicationRecordDetailDto dto);
 
     boolean updateMyApplicationRecord(Long wxId, UpdateMyApplicationRecordDto dto);
+
+    boolean cancelMyApplicationRecord(Long wxId, CancelMyApplicationRecordDto dto);
 }

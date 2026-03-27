@@ -2,6 +2,7 @@
 const { associationApi, localPlatformApi, userApi, myApplicationRecordApi } = require('../../../api/api.js')
 const { refreshUserRoles } = require('../../../utils/auth.js')
 const config = require('../../../utils/config.js')
+const MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY = 'MY_APPLICATION_RECORD_LIST_NEED_REFRESH'
 
 Page({
     data: {
@@ -363,6 +364,9 @@ Page({
             }
 
             if (res.data && res.data.code === 200) {
+                if (this.data.fromMyRecord && this.data.myRecordId) {
+                    wx.setStorageSync(MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY, Date.now())
+                }
                 wx.showToast({ title: this.data.fromMyRecord ? '修改成功' : '提交成功', icon: 'success' })
                 // 提交成功后返回上一页
                 setTimeout(() => {

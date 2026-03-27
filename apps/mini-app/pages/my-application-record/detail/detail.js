@@ -1,7 +1,10 @@
 const { post } = require('../../../utils/request.js')
+const { myApplicationRecordApi, associationApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
+const MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY = 'MY_APPLICATION_RECORD_LIST_NEED_REFRESH'
 
 const RECORD_TYPE_CREATE = 'ALUMNI_ASSOCIATION_CREATE'
+const RECORD_TYPE_JOIN = 'ALUMNI_ASSOCIATION_JOIN'
 
 const RECORD_TYPE_TEXT_MAP = {
   ALUMNI_ASSOCIATION_CREATE: '创建校友会',
@@ -63,8 +66,12 @@ Page({
     statusTextValue: '',
     statusClassName: 'unknown',
     canEditCurrent: false,
+    canCancelCurrent: false,
+    actionSubmitting: false,
     isCreateAssociation: false,
     createUi: null,
+    isJoinAssociation: false,
+    joinAssociationUi: null,
   },
 
   onLoad(options) {
@@ -119,6 +126,7 @@ Page({
       const attachmentFiles = this.normalizeAttachments(detail)
       const attachmentUrls = attachmentFiles.map(f => f._url)
       const { basicRows, contentRows, auditRows, createUi } = this.buildDisplayRows(detailWrapper, detail)
+      const joinAssociationUi = await this.buildJoinAssociationUi(detailWrapper, detail)
       this.setData({
         detailWrapper,
         detail,
@@ -132,8 +140,11 @@ Page({
         attachmentFiles,
         attachmentUrls,
         canEditCurrent: this.isRecordEditable(detailWrapper),
+        canCancelCurrent: this.isRecordCancelable(detailWrapper),
         isCreateAssociation: !!createUi,
         createUi: createUi || null,
+        isJoinAssociation: !!joinAssociationUi,
+        joinAssociationUi: joinAssociationUi || null,
         loading: false,
       })
     } catch (e) {
@@ -161,6 +172,14 @@ Page({
       return false
     }
     return !!EDITABLE_RECORD_TYPE[t]
+  },
+
+  isRecordCancelable(detailWrapper) {
+    if (!detailWrapper || detailWrapper.canCancel !== true) {
+      return false
+    }
+    const t = detailWrapper.recordType || this.data.recordType
+    return t === 'ALUMNI_ASSOCIATION_CREATE' || t === 'ALUMNI_ASSOCIATION_JOIN'
   },
 
   onEditTap() {
@@ -203,6 +222,50 @@ Page({
       return
     }
     wx.showToast({ title: '当前申请暂不支持编辑', icon: 'none' })
+  },
+
+  onCancelTap() {
+    if (this.data.actionSubmitting) {
+      return
+    }
+    const { detailWrapper, recordType, recordId } = this.data
+    if (!this.isRecordCancelable(detailWrapper)) {
+      wx.showToast({ title: '当前申请暂不支持撤销', icon: 'none' })
+      return
+    }
+    wx.showModal({
+      title: '撤销申请',
+      content: '确认撤销该申请吗？撤销后不可恢复。',
+      confirmText: '确认撤销',
+      confirmColor: '#ef4444',
+      success: async res => {
+        if (!res.confirm) {
+          return
+        }
+        this.setData({ actionSubmitting: true })
+        try {
+          const result = await myApplicationRecordApi.cancel({
+            recordType,
+            recordId,
+          })
+          if (result?.data?.code === 200) {
+            wx.setStorageSync(MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY, Date.now())
+            wx.showToast({ title: '撤销成功', icon: 'success' })
+            this.loadDetail({ silent: true })
+            return
+          }
+          wx.showToast({
+            title: result?.data?.msg || result?.data?.message || '撤销失败',
+            icon: 'none',
+          })
+        } catch (e) {
+          console.error('[MyApplicationRecordDetail] cancel', e)
+          wx.showToast({ title: '撤销失败', icon: 'none' })
+        } finally {
+          this.setData({ actionSubmitting: false })
+        }
+      },
+    })
   },
 
   normalizeAttachments(detail) {
@@ -260,6 +323,61 @@ Page({
       logoUrl = config.getImageUrl(detail.logo)
     }
     return { bgUrl, logoUrl, name }
+  },
+
+  buildJoinAssociationHeader(detail, associationDetail) {
+    const source = associationDetail || detail || {}
+    const name = firstNonEmpty(
+      source.associationName,
+      detail?.associationName,
+      detail?.alumniAssociationName
+    ) || '—'
+
+    let bgUrl = config.defaultCover
+    const rawBg = firstNonEmpty(source.bgImg, detail?.bgImg)
+    if (rawBg != null && String(rawBg).trim()) {
+      try {
+        const parsed = typeof rawBg === 'string' ? JSON.parse(rawBg) : rawBg
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          bgUrl = config.getImageUrl(parsed[0])
+        } else if (typeof parsed === 'string') {
+          bgUrl = config.getImageUrl(parsed)
+        } else {
+          bgUrl = config.getImageUrl(String(rawBg))
+        }
+      } catch (e) {
+        bgUrl = config.getImageUrl(String(rawBg))
+      }
+    }
+
+    let logoUrl = config.defaultAvatar
+    const rawLogo = firstNonEmpty(source.logo, detail?.logo)
+    if (rawLogo != null && String(rawLogo).trim()) {
+      logoUrl = config.getImageUrl(String(rawLogo))
+    }
+    return { bgUrl, logoUrl, name }
+  },
+
+  async buildJoinAssociationUi(detailWrapper, detail) {
+    const recordType = detailWrapper?.recordType || this.data.recordType
+    if (recordType !== RECORD_TYPE_JOIN) {
+      return null
+    }
+    const associationId = firstNonEmpty(detail?.alumniAssociationId, detail?.associationId)
+    let associationDetail = null
+    if (associationId) {
+      try {
+        const res = await associationApi.getAssociationDetail(associationId)
+        if (res?.data?.code === 200 && res?.data?.data) {
+          associationDetail = res.data.data
+        }
+      } catch (e) {
+        console.warn('[MyApplicationRecordDetail] getAssociationDetail failed', e)
+      }
+    }
+    return {
+      header: this.buildJoinAssociationHeader(detail, associationDetail),
+    }
   },
 
   parseInitialMembersList(detail) {

@@ -40,6 +40,12 @@
   gap: 12rpx;
 }
 
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
 .edit-btn {
   min-width: 120rpx;
   height: 56rpx;
@@ -48,6 +54,18 @@
   border-radius: 999rpx;
   border: 1rpx solid #40b2e6;
   color: #40b2e6;
+  background: #fff;
+  font-size: 24rpx;
+}
+
+.cancel-btn {
+  min-width: 120rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #ef4444;
+  color: #ef4444;
   background: #fff;
   font-size: 24rpx;
 }

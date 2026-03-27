@@ -814,6 +814,7 @@ const auditApi = {
 const myApplicationRecordApi = {
   queryPage: params => post('/users/my-application-records/page', params),
   update: data => put('/users/my-application-records/update', data),
+  cancel: data => put('/users/my-application-records/cancel', data),
 }
 
 module.exports = {

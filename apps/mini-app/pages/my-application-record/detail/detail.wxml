@@ -21,11 +21,25 @@
         </view>
       </view>
 
+      <view wx:if="{{isJoinAssociation && joinAssociationUi && joinAssociationUi.header}}" class="create-assoc-header">
+        <image class="create-assoc-header-bg" src="{{joinAssociationUi.header.bgUrl}}" mode="aspectFill" />
+        <view class="create-assoc-header-mask"></view>
+        <view class="create-assoc-header-inner">
+          <view class="create-assoc-logo-wrap">
+            <image class="create-assoc-logo" src="{{joinAssociationUi.header.logoUrl}}" mode="aspectFill" />
+          </view>
+          <text class="create-assoc-title">{{joinAssociationUi.header.name}}</text>
+        </view>
+      </view>
+
       <view class="card">
         <view class="section-title">申请状态</view>
         <view class="status-row">
           <text class="status-pill {{statusClassName}}">{{statusTextValue}}</text>
-          <button wx:if="{{canEditCurrent}}" class="edit-btn" bindtap="onEditTap">编辑</button>
+          <view class="action-buttons">
+            <button wx:if="{{canEditCurrent}}" class="edit-btn" bindtap="onEditTap">编辑</button>
+            <button wx:if="{{canCancelCurrent}}" class="cancel-btn" loading="{{actionSubmitting}}" disabled="{{actionSubmitting}}" bindtap="onCancelTap">撤销</button>
+          </view>
         </view>
       </view>
 

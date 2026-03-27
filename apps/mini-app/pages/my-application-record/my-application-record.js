@@ -3,6 +3,7 @@
 // 请求体：QueryMyApplicationRecordListDto — current, pageSize, recordTypes(可选), statusGroup(可选)
 const { post } = require('../../utils/request.js')
 const config = require('../../utils/config.js')
+const MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY = 'MY_APPLICATION_RECORD_LIST_NEED_REFRESH'
 
 const TYPE_TABS = [
   { value: '', label: '全部' },
@@ -38,6 +39,12 @@ Page({
   },
 
   onShow() {
+    const needRefresh = !!wx.getStorageSync(MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY)
+    if (needRefresh) {
+      wx.removeStorageSync(MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY)
+      this.loadList(true)
+      return
+    }
     if (this.data.list.length === 0 && !this.data.loading) {
       this.loadList(true)
     }

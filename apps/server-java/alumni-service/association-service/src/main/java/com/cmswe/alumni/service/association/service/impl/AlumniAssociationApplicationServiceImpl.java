@@ -230,6 +230,31 @@ public class AlumniAssociationApplicationServiceImpl
         return this.updateById(application);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean cancelPendingApplication(Long wxId, Long applicationId) {
+        Optional.ofNullable(applicationId)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_ERROR, "申请ID不能为空"));
+
+        AlumniAssociationApplication application = this.getById(applicationId);
+        if (application == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "申请记录不存在");
+        }
+        if (!wxId.equals(application.getZhWxId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权撤销该申请");
+        }
+        if (application.getApplicationStatus() == null || application.getApplicationStatus() != 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "只能撤销待审核的申请");
+        }
+
+        application.setApplicationStatus(3);
+        boolean result = this.updateById(application);
+        if (result) {
+            log.info("用户{}成功撤销创建校友会申请{}", wxId, applicationId);
+        }
+        return result;
+    }
+
     /**
      * 将申请 DTO 中的可变字段写入实体（不含申请状态、申请时间）
      */

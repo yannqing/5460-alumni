@@ -3,6 +3,7 @@ package com.cmswe.alumni.web;
 import com.cmswe.alumni.api.association.MyApplicationRecordService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
+import com.cmswe.alumni.common.dto.CancelMyApplicationRecordDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordDetailDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordListDto;
 import com.cmswe.alumni.common.dto.UpdateMyApplicationRecordDto;
@@ -73,5 +74,21 @@ public class MyApplicationRecordController {
             return ResultUtils.success(Code.SUCCESS, true, "更新成功");
         }
         return ResultUtils.failure(Code.FAILURE, false, "更新失败");
+    }
+
+    @PutMapping("/cancel")
+    @Operation(summary = "撤销我的申请记录（按 recordType + recordId）")
+    public BaseResponse<Boolean> cancelMyApplicationRecord(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody CancelMyApplicationRecordDto cancelDto) {
+        if (securityUser == null || securityUser.getWxUser() == null) {
+            return ResultUtils.failure(Code.TOKEN_ERROR, null, "用户未登录");
+        }
+        Long wxId = securityUser.getWxUser().getWxId();
+        boolean cancelled = myApplicationRecordService.cancelMyApplicationRecord(wxId, cancelDto);
+        if (cancelled) {
+            return ResultUtils.success(Code.SUCCESS, true, "撤销成功");
+        }
+        return ResultUtils.failure(Code.FAILURE, false, "撤销失败");
     }
 }
