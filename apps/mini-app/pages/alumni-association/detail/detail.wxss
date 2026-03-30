@@ -239,13 +239,13 @@ page {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 20rpx;
+  gap: 65rpx;
 }
 
 .show-member-name {
   font-size: 28rpx;
   color: #333;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .show-member-contact {
