@@ -17,6 +17,10 @@
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="phone" column="phone" jdbcType="VARCHAR"/>
         <result property="contactPerson" column="contact_person" jdbcType="VARCHAR"/>
+        <result property="president" column="president" jdbcType="VARCHAR"/>
+        <result property="secretaryGeneral" column="secretary_general" jdbcType="VARCHAR"/>
+        <result property="position" column="position" jdbcType="VARCHAR"/>
+        <result property="officePhone" column="office_phone" jdbcType="VARCHAR"/>
         <result property="establishedDate" column="established_date" jdbcType="DATE"/>
         <result property="memberCount" column="member_count" jdbcType="INTEGER"/>
         <result property="activeStatus" column="active_status" jdbcType="TINYINT"/>
@@ -34,7 +38,7 @@
 
     <sql id="Base_Column_List">
         headquarters_id, headquarters_name, school_id, logo, description, contact_info,
-        address, website, wechat_public_account, email, phone, contact_person, established_date,
+        address, website, wechat_public_account, email, phone, contact_person, president, secretary_general, position, office_phone, established_date,
         member_count, active_status, approval_status, level, bg_img, registration_certificate, create_code, created_user_id,
         created_time, updated_user_id, updated_time, is_deleted
     </sql>

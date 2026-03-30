@@ -91,6 +91,30 @@ public class AlumniHeadquarters implements Serializable {
     private String contactPerson;
 
     /**
+     * 总会会长姓名
+     */
+    @TableField(value = "president")
+    private String president;
+
+    /**
+     * 总会秘书长姓名
+     */
+    @TableField(value = "secretary_general")
+    private String secretaryGeneral;
+
+    /**
+     * 总会职务
+     */
+    @TableField(value = "position")
+    private String position;
+
+    /**
+     * 办公电话
+     */
+    @TableField(value = "office_phone")
+    private String officePhone;
+
+    /**
      * 校庆日
      */
     @TableField(value = "school_anniversary")

@@ -46,24 +46,39 @@
             </picker>
           </view>
 
-          <view class="form-item">
-            <text class="label">校友总会描述</text>
-            <textarea class="textarea" placeholder="请输入校友总会描述" value="{{formData.description}}" data-field="description" bindinput="handleInput" />
+          <view class="form-item required">
+            <text class="label">总会会长</text>
+            <input class="input" placeholder="请输入总会会长姓名" value="{{formData.president}}" data-field="president" bindinput="handleInput" />
           </view>
 
-          <view class="form-item">
+          <view class="form-item required">
+            <text class="label">总会秘书长</text>
+            <input class="input" placeholder="请输入总会秘书长姓名" value="{{formData.secretaryGeneral}}" data-field="secretaryGeneral" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item required">
             <text class="label">联系人</text>
             <input class="input" placeholder="请输入联系人" value="{{formData.contactPerson}}" data-field="contactPerson" bindinput="handleInput" />
           </view>
 
-          <view class="form-item">
-            <text class="label">联系电话</text>
-            <input class="input" placeholder="请输入联系电话" value="{{formData.phone}}" data-field="phone" bindinput="handleInput" />
+          <view class="form-item required">
+            <text class="label">总会职务</text>
+            <input class="input" placeholder="请输入总会职务" value="{{formData.position}}" data-field="position" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item required">
+            <text class="label">办公电话</text>
+            <input class="input" placeholder="请输入办公电话" value="{{formData.officePhone}}" data-field="officePhone" bindinput="handleInput" />
           </view>
 
           <view class="form-item">
-            <text class="label">联系邮箱</text>
-            <input class="input" placeholder="请输入联系邮箱" value="{{formData.email}}" data-field="email" bindinput="handleInput" />
+            <text class="label">移动电话</text>
+            <input class="input" placeholder="请输入移动电话" value="{{formData.phone}}" data-field="phone" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item">
+            <text class="label">电子邮箱</text>
+            <input class="input" placeholder="请输入电子邮箱" value="{{formData.email}}" data-field="email" bindinput="handleInput" />
           </view>
 
           <view class="form-item">
@@ -109,7 +124,7 @@
           </view>
 
           <view class="form-item">
-            <text class="label">请上传背景图</text>
+            <text class="label">上传背景图</text>
             <view class="logo-options">
               <view class="upload-row">
                 <view class="upload-action upload-action-inline">
@@ -136,6 +151,11 @@
                 </view>
               </view>
             </view>
+          </view>
+
+          <view class="form-item">
+            <text class="label">校友总会描述</text>
+            <textarea class="textarea" placeholder="请输入校友总会描述" value="{{formData.description}}" data-field="description" bindinput="handleInput" />
           </view>
         </block>
       </view>
