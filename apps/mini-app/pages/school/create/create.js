@@ -31,6 +31,10 @@ Page({
             wechatPublicAccount: '',
             email: '',
             phone: '',
+            president: '',
+            secretaryGeneral: '',
+            position: '',
+            officePhone: '',
             schoolAnniversary: '',
             establishedDate: '',
             registrationCertificate: '',
@@ -114,7 +118,9 @@ Page({
                     'formData.createdUserId': userId,
                     'formData.updatedUserId': userId,
                     'formData.phone': userInfo.phone || userInfo.mobile || '',
-                    'formData.email': userInfo.email || ''
+                    'formData.email': userInfo.email || '',
+                    // 联系人默认取用户真实姓名（与移动电话/邮箱一致的自动填充方式）
+                    'formData.contactPerson': userInfo.realName || userInfo.name || userInfo.nickname || ''
                 })
             }
         } catch (e) {
@@ -559,6 +565,38 @@ Page({
             return
         }
 
+        // 校验联系人（必填）
+        if (!formData.contactPerson || !String(formData.contactPerson).trim()) {
+            wx.showToast({ title: '请输入联系人', icon: 'none' })
+            return
+        }
+
+        // 校验移动电话（选填；若填写则必须为 11 位数字）
+        if (formData.phone && String(formData.phone).trim()) {
+            if (!/^\d{11}$/.test(String(formData.phone).trim())) {
+                wx.showToast({ title: '移动电话须为11位数字', icon: 'none' })
+                return
+            }
+        }
+
+        // 校验新增的必填信息
+        if (!formData.president || !String(formData.president).trim()) {
+            wx.showToast({ title: '请输入总会会长', icon: 'none' })
+            return
+        }
+        if (!formData.secretaryGeneral || !String(formData.secretaryGeneral).trim()) {
+            wx.showToast({ title: '请输入总会秘书长', icon: 'none' })
+            return
+        }
+        if (!formData.position || !String(formData.position).trim()) {
+            wx.showToast({ title: '请输入总会职务', icon: 'none' })
+            return
+        }
+        if (!formData.officePhone || !String(formData.officePhone).trim()) {
+            wx.showToast({ title: '请输入办公电话', icon: 'none' })
+            return
+        }
+
         // 验证日期格式
         if (formData.establishedDate) {
             const date = new Date(formData.establishedDate)
@@ -577,25 +615,21 @@ Page({
             }
         }
 
-        // 验证联系电话（如已填写须为11位数字）
-        if (formData.phone && String(formData.phone).trim()) {
-            if (!/^\d{11}$/.test(String(formData.phone).trim())) {
-                wx.showToast({ title: '联系电话须为11位数字', icon: 'none' })
-                return
-            }
-        }
-
         const submitData = {
             headquartersId: formData.headquartersId,
             createCode: formData.createCode,
             description: formData.description || undefined,
-            contactPerson: formData.contactPerson || undefined,
+            contactPerson: formData.contactPerson.trim(),
             contactInfo: formData.contactInfo ? JSON.stringify({ content: formData.contactInfo }) : undefined,
             address: formData.address || undefined,
             website: formData.website || undefined,
             wechatPublicAccount: formData.wechatPublicAccount || undefined,
             email: formData.email || undefined,
-            phone: formData.phone || undefined,
+            phone: formData.phone && String(formData.phone).trim() ? String(formData.phone).trim() : undefined,
+            president: formData.president.trim(),
+            secretaryGeneral: formData.secretaryGeneral.trim(),
+            position: formData.position.trim(),
+            officePhone: formData.officePhone.trim(),
             schoolAnniversary: formData.schoolAnniversary || undefined,
             establishedDate: formData.establishedDate || undefined,
             createdUserId: formData.createdUserId || undefined,

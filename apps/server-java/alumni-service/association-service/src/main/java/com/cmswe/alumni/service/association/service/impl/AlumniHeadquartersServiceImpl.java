@@ -270,6 +270,18 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
         if (StringUtils.isNotBlank(request.getContactPerson())) {
             alumniHeadquarters.setContactPerson(request.getContactPerson());
         }
+        if (StringUtils.isNotBlank(request.getPresident())) {
+            alumniHeadquarters.setPresident(request.getPresident());
+        }
+        if (StringUtils.isNotBlank(request.getSecretaryGeneral())) {
+            alumniHeadquarters.setSecretaryGeneral(request.getSecretaryGeneral());
+        }
+        if (StringUtils.isNotBlank(request.getPosition())) {
+            alumniHeadquarters.setPosition(request.getPosition());
+        }
+        if (StringUtils.isNotBlank(request.getOfficePhone())) {
+            alumniHeadquarters.setOfficePhone(request.getOfficePhone());
+        }
         if (request.getSchoolAnniversary() != null) {
             alumniHeadquarters.setSchoolAnniversary(request.getSchoolAnniversary());
         }
@@ -456,6 +468,10 @@ public class AlumniHeadquartersServiceImpl extends ServiceImpl<AlumniHeadquarter
                     .set(AlumniHeadquarters::getEmail, null)
                     .set(AlumniHeadquarters::getPhone, null)
                     .set(AlumniHeadquarters::getContactPerson, null)
+                    .set(AlumniHeadquarters::getPresident, null)
+                    .set(AlumniHeadquarters::getSecretaryGeneral, null)
+                    .set(AlumniHeadquarters::getPosition, null)
+                    .set(AlumniHeadquarters::getOfficePhone, null)
                     .set(AlumniHeadquarters::getSchoolAnniversary, null)
                     .set(AlumniHeadquarters::getEstablishedDate, null)
                     .set(AlumniHeadquarters::getMemberCount, 0)

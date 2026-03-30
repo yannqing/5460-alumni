@@ -3,6 +3,7 @@ package com.cmswe.alumni.common.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -77,16 +78,46 @@ public class ApplyActivateHeadquartersRequest implements Serializable {
     private String email;
 
     /**
-     * 联系电话
+     * 移动电话
      */
-    @Schema(description = "联系电话")
+    @Schema(description = "移动电话")
+    @Pattern(regexp = "^(\\d{11})?$", message = "移动电话须为11位数字")
     private String phone;
 
     /**
      * 联系人
      */
-    @Schema(description = "联系人")
+    @Schema(description = "联系人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "联系人不能为空")
     private String contactPerson;
+
+    /**
+     * 总会会长姓名
+     */
+    @Schema(description = "总会会长姓名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "总会会长不能为空")
+    private String president;
+
+    /**
+     * 总会秘书长姓名
+     */
+    @Schema(description = "总会秘书长姓名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "总会秘书长不能为空")
+    private String secretaryGeneral;
+
+    /**
+     * 总会职务
+     */
+    @Schema(description = "总会职务", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "总会职务不能为空")
+    private String position;
+
+    /**
+     * 办公电话
+     */
+    @Schema(description = "办公电话", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "办公电话不能为空")
+    private String officePhone;
 
     /**
      * 校庆日

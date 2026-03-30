@@ -102,6 +102,30 @@ public class AlumniHeadquartersDetailVo implements Serializable {
     private String contactPerson;
 
     /**
+     * 总会会长姓名
+     */
+    @Schema(description = "总会会长姓名")
+    private String president;
+
+    /**
+     * 总会秘书长姓名
+     */
+    @Schema(description = "总会秘书长姓名")
+    private String secretaryGeneral;
+
+    /**
+     * 总会职务
+     */
+    @Schema(description = "总会职务")
+    private String position;
+
+    /**
+     * 办公电话
+     */
+    @Schema(description = "办公电话")
+    private String officePhone;
+
+    /**
      * 校庆日
      */
     @Schema(description = "校庆日")
