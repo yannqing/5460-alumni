@@ -94,6 +94,14 @@
   display: block;
 }
 
+.poster-save-canvas {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* 空状态 */
 .empty-container {
   flex: 1;
