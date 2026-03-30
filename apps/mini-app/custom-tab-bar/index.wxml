@@ -8,7 +8,7 @@
       <!-- 第五个tab（我的）显示审核待办角标 -->
       <view wx:if="{{index === 4 && auditTodoCount > 0}}" class="tab-bar-badge">{{auditTodoCount > 99 ? '99+' : auditTodoCount}}</view>
       <!-- 第二个tab（发现）显示"组建设中"标签 -->
-      <view wx:if="{{index === 1}}" class="tab-bar-construction-tag">建设中</view>
+      <view wx:if="{{index === 1}}" class="tab-bar-construction-tag">开发中</view>
     </view>
     <view class="tab-bar-text {{index === 0 && selected === index ? 'tab-bar-text-selected' : ''}}" wx:if="{{index !== 2}}">{{item.text}}</view>
   </view>
