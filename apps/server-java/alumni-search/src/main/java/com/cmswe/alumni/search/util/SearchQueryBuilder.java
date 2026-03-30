@@ -109,15 +109,33 @@ public class SearchQueryBuilder {
 
     /**
      * 构建多字段匹配查询
+     *
+     * 修复：增强 nickname 的模糊匹配能力
+     * - 对于短关键词（<= 3 个字符），同时使用 wildcard 查询 nickname.keyword
+     * - 保留原有的 multi_match 查询以支持分词匹配
      */
     private static Query multiMatchQuery(String keyword) {
-        return Query.of(q -> q.multiMatch(m -> m
+        // 原有的 multi_match 查询
+        Query baseQuery = Query.of(q -> q.multiMatch(m -> m
                 .query(keyword)
                 .fields("realName^3", "nickname^2", "schoolName^1.5",
                         "major", "company", "position", "signature")
                 .type(TextQueryType.BestFields)
                 .fuzziness("AUTO")
                 .prefixLength(1)));
+
+        // 如果是短关键词，添加 wildcard 查询增强 nickname 匹配
+        if (keyword != null && keyword.length() <= 10) {
+            return Query.of(q -> q.bool(b -> b
+                    .should(baseQuery)
+                    .should(Query.of(wq -> wq.wildcard(w -> w
+                            .field("nickname.keyword")
+                            .value("*" + keyword + "*")
+                            .boost(1.5f)))) // 给 wildcard 查询更高的权重
+                    .minimumShouldMatch("1")));
+        }
+
+        return baseQuery;
     }
 
     /**

@@ -70,10 +70,35 @@ Page({
   },
 
   /**
-   * 滚动事件
+   * 滚动事件（节流：200ms 内只处理一次底部检测）
    */
   onScroll: function (e) {
-    this.setData({ scrollTop: e.detail.scrollTop })
+    const { scrollTop, scrollHeight } = e.detail
+    this.setData({ scrollTop })
+
+    // 节流：避免高频触发加载
+    const now = Date.now()
+    if (this._lastScrollCheck && now - this._lastScrollCheck < 200) return
+    this._lastScrollCheck = now
+
+    // 手动检测是否接近底部（兼容 bindscrolltolower 不触发的情况）
+    if (scrollHeight && scrollHeight > 0) {
+      // 获取 scroll-view 的可视高度（首次时查询并缓存）
+      if (!this._scrollViewHeight) {
+        const query = wx.createSelectorQuery()
+        query.select('.main-scroller').boundingClientRect()
+        query.exec(res => {
+          if (res && res[0]) {
+            this._scrollViewHeight = res[0].height
+          }
+        })
+        return
+      }
+      const distanceToBottom = scrollHeight - scrollTop - this._scrollViewHeight
+      if (distanceToBottom < 150 && this.data.hasMore && !this._isLoading) {
+        this.loadAlumniList(false)
+      }
+    }
   },
 
   /**
@@ -130,19 +155,21 @@ Page({
   },
 
   onReachBottom() {
-    if (this.data.hasMore && !this.data.loading) {
+    if (this.data.hasMore && !this._isLoading) {
       this.loadAlumniList(false)
     }
   },
 
   async loadAlumniList(reset = false) {
-    if (this.data.loading) {
+    // 使用同步实例变量防重入（setData 是异步的，this.data.loading 无法阻止高频并发调用）
+    if (this._isLoading) {
       return
     }
     if (!reset && !this.data.hasMore) {
       return
     }
 
+    this._isLoading = true
     this.setData({ loading: true })
 
     const { keyword, filters, current, pageSize, myFollow } = this.data
@@ -150,7 +177,7 @@ Page({
 
     // 构建请求参数
     const params = {
-      pageNum: reset ? 1 : current,
+      current: reset ? 1 : current,
       pageSize: pageSize,
       // 关注筛选：0-全部，1-仅我关注的
       myFollow: myFollow,
@@ -209,7 +236,7 @@ Page({
               data: {
                 records: uniqueRecords,
                 total: uniqueRecords.length,
-                current: params.pageNum,
+                current: params.current,
                 size: pageSize,
               },
               msg: 'success',
@@ -229,6 +256,7 @@ Page({
       if (res.data && res.data.code === 200) {
         const data = res.data.data || {}
         const records = data.records || []
+        const total = data.total || 0
 
         // 数据映射
         const mappedList = records.map(item => this.mapAlumniItem(item))
@@ -243,10 +271,14 @@ Page({
           finalList = [...this.data.alumniList, ...newItems]
         }
 
+        // 判断是否还有更多数据：优先用 total 判断，兜底用返回记录数判断
+        const hasMore = total > 0 ? finalList.length < total : records.length >= pageSize
+
+        this._isLoading = false
         this.setData({
           alumniList: finalList,
           current: reset ? 2 : current + 1,
-          hasMore: records.length >= pageSize,
+          hasMore: hasMore,
           loading: false,
           refreshing: false,
           refresherHeight: 0,
@@ -257,6 +289,7 @@ Page({
         // 加载完列表后，获取关注状态（使用工具类方法）
         loadAndUpdateFollowStatus(this, 'alumniList', FollowTargetType.USER)
       } else {
+        this._isLoading = false
         this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
         wx.showToast({
           title: res.data?.msg || '加载失败',
@@ -266,6 +299,7 @@ Page({
       }
     } catch (error) {
       console.error('加载校友列表失败:', error)
+      this._isLoading = false
       this.setData({ loading: false, refreshing: false, refresherHeight: 0 })
       wx.showToast({
         title: '加载失败，请重试',
