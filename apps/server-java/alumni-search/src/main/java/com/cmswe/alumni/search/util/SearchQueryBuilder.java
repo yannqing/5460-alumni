@@ -121,7 +121,8 @@ public class SearchQueryBuilder {
                 .fields("realName^3", "nickname^2", "schoolName^1.5",
                         "major", "company", "position", "signature")
                 .type(TextQueryType.BestFields)
-                .fuzziness("AUTO")
+                .fuzziness("0")  // 禁用模糊匹配，提升搜索精准度，避免误召回（2026-03-31）
+                .operator(Operator.And)  // 要求所有分词都必须匹配（AND逻辑）（2026-03-31）
                 .prefixLength(1)));
 
         // 如果是短关键词，添加 wildcard 查询增强 nickname 匹配

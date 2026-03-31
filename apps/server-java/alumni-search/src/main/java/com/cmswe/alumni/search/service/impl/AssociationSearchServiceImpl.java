@@ -192,7 +192,8 @@ public class AssociationSearchServiceImpl implements AssociationSearchService {
             boolQueryBuilder.must(Query.of(q -> q.multiMatch(m -> m
                     .query(keyword)
                     .fields("associationName^3", "schoolName^2", "introduction", "presidentName", "platformName")
-                    .fuzziness("AUTO")
+                    .fuzziness("0")  // 禁用模糊匹配，提升搜索精准度，避免误召回（2026-03-31）
+                    .operator(co.elastic.clients.elasticsearch._types.query_dsl.Operator.And)  // 要求所有分词都必须匹配（AND逻辑）（2026-03-31）
                     .prefixLength(1))));
         }
 

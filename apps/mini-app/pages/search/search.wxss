@@ -165,6 +165,10 @@
   border-bottom: 4rpx solid #40B2E6;
 }
 
+.search-result-container {
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
 .result-section {
   margin: 20rpx;
 }
@@ -243,6 +247,21 @@
 
 .mt-8 {
   margin-top: 8rpx;
+}
+
+/* 校友会列表项样式 */
+.association-item {
+  padding: 24rpx;
+  align-items: center;
+}
+
+.association-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+  border: 2rpx solid #e0e0e0;
 }
 
 /* 校友列表项特殊样式 */
