@@ -666,4 +666,67 @@ public class AlumniAssociationManagementController {
                         return ResultUtils.failure(Code.FAILURE, false, "添加失败");
                 }
         }
+
+        /**
+         * 超级管理员完全删除校友会及所有关联数据
+         * <p>
+         * 此接口仅供超级管理员使用，用于删除测试数据或清理无效数据。
+         * 删除范围包括：
+         * 1. 校友会成员表
+         * 2. 校友会加入申请表
+         * 3. 校友会申请加入校促会表
+         * 4. 校友会邀请记录表
+         * 5. 校友会主办的活动及活动报名记录
+         * 6. 校友企业/场所及申请表
+         * 7. 关联的商户表
+         * 8. 校友会发布的文章及审核记录
+         * 9. 组织架构角色表
+         * 10. 角色用户关联表
+         * 11. 用户关注记录
+         * 12. 校友会主表
+         * </p>
+         *
+         * @param alumniAssociationId 校友会ID
+         * @return 返回删除结果
+         */
+        @DeleteMapping("/deleteCompletely/{alumniAssociationId}")
+        @Operation(summary = "超级管理员完全删除校友会及所有关联数据（用于删除测试数据）")
+        @Transactional(rollbackFor = Exception.class)
+        public BaseResponse<Boolean> deleteAlumniAssociationCompletely(
+                @PathVariable Long alumniAssociationId,
+                @AuthenticationPrincipal SecurityUser securityUser) {
+
+                Long operatorWxId = securityUser.getWxUser().getWxId();
+                log.warn("[超级管理员操作] 开始完全删除校友会及所有关联数据 - 校友会ID: {}, 操作人ID: {}",
+                        alumniAssociationId, operatorWxId);
+
+                // 参数校验
+                if (alumniAssociationId == null) {
+                        log.error("校友会ID不能为空");
+                        throw new BusinessException(ErrorType.ARGS_NOT_NULL, "校友会ID不能为空");
+                }
+
+                try {
+                        // 调用Service层的完全删除方法
+                        boolean result = alumniAssociationService.deleteAlumniAssociationCompletely(alumniAssociationId);
+
+                        if (result) {
+                                log.warn("[超级管理员操作] 完全删除校友会成功 - 校友会ID: {}, 操作人ID: {}",
+                                        alumniAssociationId, operatorWxId);
+                                return ResultUtils.success(Code.SUCCESS, true, "校友会及所有关联数据删除成功");
+                        } else {
+                                log.error("[超级管理员操作] 完全删除校友会失败 - 校友会ID: {}, 操作人ID: {}",
+                                        alumniAssociationId, operatorWxId);
+                                return ResultUtils.failure(Code.FAILURE, false, "删除失败");
+                        }
+                } catch (BusinessException e) {
+                        log.error("[超级管理员操作] 完全删除校友会异常 - 校友会ID: {}, 操作人ID: {}, Error: {}",
+                                alumniAssociationId, operatorWxId, e.getMessage(), e);
+                        throw e;
+                } catch (Exception e) {
+                        log.error("[超级管理员操作] 完全删除校友会系统异常 - 校友会ID: {}, 操作人ID: {}, Error: {}",
+                                alumniAssociationId, operatorWxId, e.getMessage(), e);
+                        throw new BusinessException(ErrorType.OPERATION_ERROR, "删除校友会失败：" + e.getMessage());
+                }
+        }
 }

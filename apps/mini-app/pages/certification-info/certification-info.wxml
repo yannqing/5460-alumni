@@ -20,7 +20,7 @@
             <image class="cert-level-img" src="{{certSecondImg}}" mode="heightFix" />
             <text class="cert-level-title">二级认证</text>
           </view>
-          <text class="cert-description">校友会已在民政部门登记注册，或加入所在城市校友联盟，即取得二级认证；\n该校友会的校友同步享有二级认证。</text>
+          <text class="cert-description">校友会已在民政部门登记注册，或加入所在城市校友联盟，即取得二级认证。</text>
         </view>
 
         <view class="cert-item">

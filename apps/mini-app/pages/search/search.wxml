@@ -60,7 +60,7 @@
   </view>
 
   <!-- 搜索结果 -->
-  <view wx:else>
+  <view wx:else class="search-result-container">
     <view class="tabs">
       <view class="tab-item {{activeTab === index ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="*this" bindtap="switchTab" data-index="{{index}}">
         {{item}}
@@ -71,7 +71,8 @@
     <view wx:if="{{activeTab === 0}}">
       <view wx:if="{{searchResult.associations.length > 0}}" class="result-section">
         <view class="section-title-small">校友会</view>
-        <view class="list-item" wx:for="{{searchResult.associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
+        <view class="list-item association-item" wx:for="{{searchResult.associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
+          <image class="association-avatar" src="{{item.avatar}}" mode="aspectFill" />
           <view class="flex-1">
             <view class="text-primary text-bold">{{item.name}}</view>
             <view class="text-placeholder mt-10">{{item.location}} · {{item.memberCount}}人</view>
@@ -81,13 +82,11 @@
 
       <view wx:if="{{searchResult.alumni.length > 0}}" class="result-section">
         <view class="section-title-small">校友</view>
-        <view class="list-item alumni-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
-          <image class="avatar alumni-avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="flex-1 alumni-content">
-            <view class="text-primary text-bold alumni-name">{{item.name}}</view>
-            <view class="text-placeholder mt-10 alumni-info">{{item.school}} {{item.company}}</view>
-            <view class="text-placeholder mt-8 alumni-location">位置：{{item.location || '无'}}</view>
-            <view class="text-placeholder mt-8 alumni-signature">签名：{{item.signature || '无'}}</view>
+        <view class="list-item association-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
+          <image class="association-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.school}} {{item.company}}</view>
           </view>
         </view>
       </view>
@@ -109,7 +108,8 @@
     <!-- 校友会结果 -->
     <view wx:if="{{activeTab === 1}}">
       <view wx:if="{{searchResult.associations.length > 0}}" class="result-section">
-        <view class="list-item" wx:for="{{searchResult.associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
+        <view class="list-item association-item" wx:for="{{searchResult.associations}}" wx:key="id" bindtap="viewAssociationDetail" data-id="{{item.id}}">
+          <image class="association-avatar" src="{{item.avatar}}" mode="aspectFill" />
           <view class="flex-1">
             <view class="text-primary text-bold">{{item.name}}</view>
             <view class="text-placeholder mt-10">{{item.location}} · {{item.memberCount}}人</view>
@@ -131,13 +131,11 @@
     <!-- 校友结果 -->
     <view wx:if="{{activeTab === 2}}">
       <view wx:if="{{searchResult.alumni.length > 0}}" class="result-section">
-        <view class="list-item alumni-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
-          <image class="avatar alumni-avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="flex-1 alumni-content">
-            <view class="text-primary text-bold alumni-name">{{item.name}}</view>
-            <view class="text-placeholder mt-10 alumni-info">{{item.school}} {{item.company}}</view>
-            <view class="text-placeholder mt-8 alumni-location">位置：{{item.location || '无'}}</view>
-            <view class="text-placeholder mt-8 alumni-signature">签名：{{item.signature || '无'}}</view>
+        <view class="list-item association-item" wx:for="{{searchResult.alumni}}" wx:key="id" bindtap="viewAlumniDetail" data-id="{{item.id}}">
+          <image class="association-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="flex-1">
+            <view class="text-primary text-bold">{{item.name}}</view>
+            <view class="text-placeholder mt-10">{{item.school}} {{item.company}}</view>
           </view>
         </view>
       </view>

@@ -523,39 +523,25 @@ Page({
     }
   },
 
-  // 查看人员详情：有 wxId 跳转详情，无 wxId 弹窗提示
+  // 查看人员详情：有 wxId 跳转详情，无 wxId 不做任何操作
   viewMemberDetail(e) {
     const { member } = e.currentTarget.dataset
     if (!member) return
 
     const wxId = member.wxId
-
     if (wxId) {
       wx.navigateTo({
         url: `/pages/alumni/detail/detail?id=${wxId}`,
-      })
-    } else {
-      wx.showToast({
-        title: '管理员未设置关联系统内校友用户',
-        icon: 'none',
-        duration: 2500,
       })
     }
   },
 
-  // 查看主要联系人详情：有 wxId 跳转详情，无 wxId 弹窗提示
+  // 查看主要联系人详情：有 wxId 跳转详情，无 wxId 不做任何操作
   viewContactDetail(e) {
     const { wxId } = e.currentTarget.dataset
-
     if (wxId) {
       wx.navigateTo({
         url: `/pages/alumni/detail/detail?id=${wxId}`,
-      })
-    } else {
-      wx.showToast({
-        title: '管理员未设置关联系统内校友用户',
-        icon: 'none',
-        duration: 2500,
       })
     }
   },

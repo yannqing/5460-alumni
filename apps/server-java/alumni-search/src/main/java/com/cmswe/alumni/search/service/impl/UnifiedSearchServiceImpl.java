@@ -95,22 +95,25 @@ public class UnifiedSearchServiceImpl implements UnifiedSearchService {
         List<SearchResultItem> allItems = new ArrayList<>();
 
         try {
-            // 处理 ALL 类型：将 ALL 展开为所有具体类型
+            // 处理 ALL 类型：将 ALL 展开为所有具体类型（不包含母校）
             List<SearchType> actualTypes = new ArrayList<>();
             for (SearchType type : request.getTypes()) {
                 if (type == SearchType.ALL) {
-                    // ALL 表示搜索所有类型，展开为具体类型
+                    // ALL 表示搜索所有类型，展开为具体类型（母校搜索已隐藏）
                     actualTypes.add(SearchType.ALUMNI);
                     actualTypes.add(SearchType.ASSOCIATION);
                     actualTypes.add(SearchType.MERCHANT);
-                    actualTypes.add(SearchType.SCHOOL);
+                    // actualTypes.add(SearchType.SCHOOL); // 🔴 母校搜索功能已隐藏（2026-03-31）
                 } else {
                     actualTypes.add(type);
                 }
             }
 
-            // 去重（避免重复搜索）
-            actualTypes = actualTypes.stream().distinct().collect(Collectors.toList());
+            // 去重并过滤掉 SCHOOL 类型（避免用户直接传入母校类型）
+            actualTypes = actualTypes.stream()
+                    .distinct()
+                    .filter(type -> type != SearchType.SCHOOL) // 🔴 统一过滤母校类型，确保不返回母校搜索结果（2026-03-31）
+                    .collect(Collectors.toList());
 
             log.debug("实际搜索类型: {}", actualTypes);
 

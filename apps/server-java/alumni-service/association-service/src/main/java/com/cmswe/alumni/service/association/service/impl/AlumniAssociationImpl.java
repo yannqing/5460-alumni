@@ -118,6 +118,21 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     @Resource
     private com.cmswe.alumni.service.association.mapper.AlumniAssociationInvitationMapper alumniAssociationInvitationMapper;
 
+    @Resource
+    private com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplyMapper alumniAssociationJoinApplyMapper;
+
+    @Resource
+    private com.cmswe.alumni.service.system.mapper.ActivityMapper activityMapper;
+
+    @Resource
+    private com.cmswe.alumni.service.system.mapper.HomePageArticleMapper homePageArticleMapper;
+
+    @Resource
+    private com.cmswe.alumni.service.system.mapper.ActivityRegistrationMapper activityRegistrationMapper;
+
+    @Resource
+    private com.cmswe.alumni.service.system.mapper.HomePageArticleApplyMapper homePageArticleApplyMapper;
+
     // 分页查询 获取校友会列表
     @Override
     public PageVo<AlumniAssociationListVo> selectByPage(QueryAlumniAssociationListDto alumniAssociationListDto,
@@ -2482,9 +2497,12 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                         alumniAssociationId, applicationCount);
             }
 
-            // 3. 删除校友会加入校促会申请表（注：需要在对应的Service中添加删除方法）
-            log.info("[deleteAlumniAssociationCompletely] 跳过删除校友会加入校促会申请（如需要请手动处理） - 校友会ID: {}",
-                    alumniAssociationId);
+            // 3. 删除校友会加入校促会申请表
+            LambdaQueryWrapper<AlumniAssociationJoinApply> joinApplyQuery = new LambdaQueryWrapper<>();
+            joinApplyQuery.eq(AlumniAssociationJoinApply::getAlumniAssociationId, alumniAssociationId);
+            int joinApplyCount = alumniAssociationJoinApplyMapper.delete(joinApplyQuery);
+            log.info("[deleteAlumniAssociationCompletely] 删除校友会申请加入校促会记录 - 校友会ID: {}, 删除数量: {}",
+                    alumniAssociationId, joinApplyCount);
 
             // 4. 删除校友会邀请记录表
             LambdaQueryWrapper<AlumniAssociationInvitation> invitationQuery = new LambdaQueryWrapper<>();
@@ -2493,15 +2511,79 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             log.info("[deleteAlumniAssociationCompletely] 删除校友会邀请记录 - 校友会ID: {}, 删除数量: {}",
                     alumniAssociationId, invitationCount);
 
-            // 5. 删除该校友会的所有活动（通过 ActivityService）
-            log.info("[deleteAlumniAssociationCompletely] 删除校友会活动（需在ActivityService中实现） - 校友会ID: {}",
+            // 5. 删除该校友会主办的活动（organizer_type=1 且 organizer_id=校友会ID）
+            LambdaQueryWrapper<Activity> activityQuery = new LambdaQueryWrapper<>();
+            activityQuery.eq(Activity::getOrganizerType, 1) // 1-校友会
+                    .eq(Activity::getOrganizerId, alumniAssociationId);
+            List<Activity> activities = activityMapper.selectList(activityQuery);
+            if (!activities.isEmpty()) {
+                // 获取活动ID列表，用于删除活动报名记录
+                List<Long> activityIds = activities.stream()
+                        .map(Activity::getActivityId)
+                        .collect(Collectors.toList());
+
+                // 删除活动报名记录
+                if (!activityIds.isEmpty()) {
+                    LambdaQueryWrapper<ActivityRegistration> registrationQuery = new LambdaQueryWrapper<>();
+                    registrationQuery.in(ActivityRegistration::getActivityId, activityIds);
+                    int registrationCount = activityRegistrationMapper.delete(registrationQuery);
+                    log.info("[deleteAlumniAssociationCompletely] 删除活动报名记录 - 校友会ID: {}, 删除数量: {}",
+                            alumniAssociationId, registrationCount);
+                }
+
+                // 删除活动表
+                int activityCount = activityMapper.delete(activityQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除校友会活动 - 校友会ID: {}, 删除数量: {}",
+                        alumniAssociationId, activityCount);
+            }
+
+            // 6. 删除校友企业/场所表（通过 AlumniPlaceService）
+            LambdaQueryWrapper<AlumniPlace> placeQuery = new LambdaQueryWrapper<>();
+            placeQuery.eq(AlumniPlace::getAlumniAssociationId, alumniAssociationId);
+            long placeCount = alumniPlaceService.count(placeQuery);
+            if (placeCount > 0) {
+                boolean placeDeleted = alumniPlaceService.remove(placeQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除校友企业/场所 - 校友会ID: {}, 删除数量: {}, 结果: {}",
+                        alumniAssociationId, placeCount, placeDeleted);
+            }
+
+            // 7. 删除校友企业/场所申请表（通过查询删除）
+            // 注意：AlumniPlaceApplication 没有对应的 Service，这里跳过或者通过其他方式处理
+            log.info("[deleteAlumniAssociationCompletely] 跳过删除场所申请记录（如需要请在alumni-search模块中添加删除逻辑） - 校友会ID: {}",
                     alumniAssociationId);
 
-            // 6. 删除该校友会发布的文章（通过 HomePageArticleService）
-            log.info("[deleteAlumniAssociationCompletely] 删除校友会文章（需在HomePageArticleService中实现） - 校友会ID: {}",
+            // 8. 删除商户表（关联校友会的商户）
+            // 注意：Merchant 也在 alumni-search 模块中，这里跳过或者通过其他方式处理
+            log.info("[deleteAlumniAssociationCompletely] 跳过删除关联商户（如需要请在alumni-search模块中添加删除逻辑） - 校友会ID: {}",
                     alumniAssociationId);
 
-            // 7. 删除角色用户关联表（组织类型为校友会的角色）
+            // 9. 删除该校友会发布的首页文章（publish_type='ASSOCIATION'）
+            LambdaQueryWrapper<HomePageArticle> articleQuery = new LambdaQueryWrapper<>();
+            articleQuery.eq(HomePageArticle::getPublishWxId, alumniAssociationId)
+                    .eq(HomePageArticle::getPublishType, "ASSOCIATION");
+            List<HomePageArticle> articles = homePageArticleMapper.selectList(articleQuery);
+            if (!articles.isEmpty()) {
+                // 获取文章ID列表，用于删除文章审核记录
+                List<Long> articleIds = articles.stream()
+                        .map(HomePageArticle::getHomeArticleId)
+                        .collect(Collectors.toList());
+
+                // 删除文章审核记录
+                if (!articleIds.isEmpty()) {
+                    LambdaQueryWrapper<HomePageArticleApply> applyQuery = new LambdaQueryWrapper<>();
+                    applyQuery.in(HomePageArticleApply::getHomeArticleId, articleIds);
+                    int applyCount = homePageArticleApplyMapper.delete(applyQuery);
+                    log.info("[deleteAlumniAssociationCompletely] 删除文章审核记录 - 校友会ID: {}, 删除数量: {}",
+                            alumniAssociationId, applyCount);
+                }
+
+                // 删除文章表
+                int articleCount = homePageArticleMapper.delete(articleQuery);
+                log.info("[deleteAlumniAssociationCompletely] 删除校友会文章 - 校友会ID: {}, 删除数量: {}",
+                        alumniAssociationId, articleCount);
+            }
+
+            // 10. 删除角色用户关联表（组织类型为校友会的角色）
             LambdaQueryWrapper<RoleUser> roleUserQuery = new LambdaQueryWrapper<>();
             roleUserQuery.eq(RoleUser::getType, 2) // 2-组织角色
                     .eq(RoleUser::getOrganizeId, alumniAssociationId);
@@ -2512,7 +2594,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                         alumniAssociationId, roleUserCount, roleUserDeleted);
             }
 
-            // 8. 删除组织架构角色
+            // 11. 删除组织架构角色
             LambdaQueryWrapper<OrganizeArchiRole> archiRoleQuery = new LambdaQueryWrapper<>();
             archiRoleQuery.eq(OrganizeArchiRole::getOrganizeType, 0) // 0-校友会
                     .eq(OrganizeArchiRole::getOrganizeId, alumniAssociationId);
@@ -2523,7 +2605,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                         alumniAssociationId, archiRoleCount, archiRoleDeleted);
             }
 
-            // 9. 删除用户关注记录
+            // 12. 删除用户关注记录
             LambdaQueryWrapper<UserFollow> followQuery = new LambdaQueryWrapper<>();
             followQuery.eq(UserFollow::getTargetId, alumniAssociationId)
                     .eq(UserFollow::getTargetType, 2); // 2-校友会
@@ -2534,7 +2616,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                         alumniAssociationId, followCount, followDeleted);
             }
 
-            // 10. 最后删除校友会主表
+            // 13. 最后删除校友会主表
             boolean associationDeleted = this.removeById(alumniAssociationId);
             log.info("[deleteAlumniAssociationCompletely] 删除校友会主表 - 校友会ID: {}, 结果: {}",
                     alumniAssociationId, associationDeleted);

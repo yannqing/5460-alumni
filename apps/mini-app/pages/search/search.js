@@ -247,6 +247,7 @@ Page({
             associations.push({
               id: item.id,
               name: item.title || '',
+              avatar: item.avatar || config.defaultAvatar,
               location: extra.location || extra.city || extra.province || item.subtitle || '',
               memberCount: extra.memberCount || extra.memberNum || 0,
             })
@@ -278,6 +279,7 @@ Page({
               associations.push({
                 id: item.id,
                 name: item.title || '',
+                avatar: item.avatar || config.defaultAvatar,
                 location: extra.location || extra.city || extra.province || item.subtitle || '',
                 memberCount: extra.memberCount || extra.memberNum || 0,
               })

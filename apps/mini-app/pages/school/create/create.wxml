@@ -57,13 +57,13 @@
           </view>
 
           <view class="form-item required">
-            <text class="label">联系人</text>
-            <input class="input" placeholder="请输入联系人" value="{{formData.contactPerson}}" data-field="contactPerson" bindinput="handleInput" />
+            <text class="label">总会联系人</text>
+            <input class="input" placeholder="请输入总会联系人" value="{{formData.contactPerson}}" data-field="contactPerson" bindinput="handleInput" />
           </view>
 
           <view class="form-item required">
             <text class="label">总会职务</text>
-            <input class="input" placeholder="请输入总会职务" value="{{formData.position}}" data-field="position" bindinput="handleInput" />
+            <input class="input" placeholder="请输入联系人总会职务" value="{{formData.position}}" data-field="position" bindinput="handleInput" />
           </view>
 
           <view class="form-item required">

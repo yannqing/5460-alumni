@@ -1146,8 +1146,9 @@ Page({
    */
   onShareAppMessage() {
     return {
-      title: '校友圈',
+      title: '搭建校友平台，助力校友经济',
       path: '/pages/index/index',
+      imageUrl: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/home/home_share_poster.png',
     }
   },
 
@@ -1156,8 +1157,9 @@ Page({
    */
   onShareTimeline() {
     return {
-      title: '校友圈',
+      title: '搭建校友平台，助力校友经济',
       query: '',
+      imageUrl: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/home/home_share_poster.png',
     }
   },
 })

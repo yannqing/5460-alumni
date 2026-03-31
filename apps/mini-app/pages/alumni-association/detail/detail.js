@@ -448,18 +448,12 @@ Page({
     } */
   },
 
-  // 成员列表点击：有 wxId 跳转详情，无 wxId 弹窗提示
+  // 成员列表点击：有 wxId 跳转详情，无 wxId 不做任何操作
   viewMemberDetail(e) {
     const { id } = e.currentTarget.dataset
     if (id) {
       wx.navigateTo({
         url: `/pages/alumni/detail/detail?id=${id}`,
-      })
-    } else {
-      wx.showToast({
-        title: '管理员未设置关联系统内校友用户',
-        icon: 'none',
-        duration: 2500,
       })
     }
   },
