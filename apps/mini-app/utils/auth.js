@@ -253,6 +253,7 @@ async function login(inviter_wx_uuid) {
           data.uuid ||
           '',
       }
+      app.globalData.userDataLoaded = true
       app.globalData.token = data.token || ''
       app.globalData.isProfileComplete = data.isProfileComplete === true
 
@@ -488,8 +489,15 @@ function checkProfileComplete() {
     isComplete = wx.getStorageSync('isProfileComplete') === true
   }
 
-  // 额外检查：即使后端标记为已完善，如果昵称为空也视为未完善
-  if (isComplete && app && app.globalData && app.globalData.userData) {
+  // 额外检查：仅在用户数据已完成加载后，才用昵称兜底校验
+  // 避免冷启动异步登录尚未回填 userData 时，误判为未完善并弹注册页
+  if (
+    isComplete &&
+    app &&
+    app.globalData &&
+    app.globalData.userDataLoaded === true &&
+    app.globalData.userData
+  ) {
     const nickname = app.globalData.userData.nickname
     if (!nickname || (typeof nickname === 'string' && !nickname.trim())) {
       console.log('[Auth] 用户昵称为空，视为基本信息未完善')
@@ -506,6 +514,14 @@ function checkProfileComplete() {
  * @returns {boolean} 是否可以继续导航（true-可以，false-已拦截并跳转到注册页）
  */
 function checkProfileAndRedirect(targetUrl = '') {
+  const app = getApp()
+  // 启动登录初始化尚未完成时，不直接判定为未完善并跳注册页
+  // 先短暂拦截当前点击，待初始化完成后再按真实状态判断
+  if (app && app.globalData && app.globalData.authInitializing === true) {
+    console.log('[Auth] 登录初始化中，暂不触发注册页跳转:', targetUrl)
+    return false
+  }
+
   const isComplete = checkProfileComplete()
 
   if (!isComplete) {
@@ -531,6 +547,10 @@ function updateProfileComplete(isComplete) {
   const app = getApp()
   if (app && app.globalData) {
     app.globalData.isProfileComplete = isComplete
+    if (isComplete) {
+      // 注册完成后，认为用户基本数据已具备可校验条件
+      app.globalData.userDataLoaded = true
+    }
   }
   wx.setStorageSync('isProfileComplete', isComplete)
   console.log('[Auth] 更新用户基本信息完善状态:', isComplete)
