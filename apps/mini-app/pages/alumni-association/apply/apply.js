@@ -124,38 +124,74 @@ Page({
 
   normalizeLoadOptions(rawOptions) {
     const options = rawOptions || {}
-    if (options.id) {
-      return options
+    const decodeSafely = value => {
+      if (!value) return ''
+      let current = String(value)
+      for (let i = 0; i < 2; i += 1) {
+        try {
+          const decoded = decodeURIComponent(current)
+          if (decoded === current) break
+          current = decoded
+        } catch (error) {
+          break
+        }
+      }
+      return current
     }
 
-    const scene = options.scene
-    if (!scene) {
-      return options
+    const parseKvString = value => {
+      const result = {}
+      if (!value) return result
+      const text = decodeSafely(value).trim()
+      if (!text) return result
+
+      if (!text.includes('=') && /^\d+$/.test(text)) {
+        result.id = text
+        return result
+      }
+
+      text.split('&').forEach(pair => {
+        const idx = pair.indexOf('=')
+        if (idx <= 0) return
+        const key = pair.slice(0, idx)
+        const val = pair.slice(idx + 1)
+        if (!key) return
+        result[key] = decodeSafely(val)
+      })
+      return result
     }
 
-    let decodedScene = ''
-    try {
-      decodedScene = decodeURIComponent(scene)
-    } catch (error) {
-      decodedScene = scene
+    const sceneParams = parseKvString(options.scene)
+
+    let qParams = {}
+    if (options.q) {
+      const decodedQ = decodeSafely(options.q)
+      const queryIndex = decodedQ.indexOf('?')
+      if (queryIndex >= 0) {
+        qParams = parseKvString(decodedQ.slice(queryIndex + 1))
+      }
     }
 
-    if (!decodedScene) {
-      return options
-    }
+    const idFromParams =
+      options.id ||
+      options.alumniAssociationId ||
+      options.associationId ||
+      sceneParams.id ||
+      sceneParams.alumniAssociationId ||
+      sceneParams.associationId ||
+      qParams.id ||
+      qParams.alumniAssociationId ||
+      qParams.associationId ||
+      ''
 
-    const sceneParams = {}
-    decodedScene.split('&').forEach(pair => {
-      const [rawKey, rawValue = ''] = pair.split('=')
-      if (!rawKey) return
-      sceneParams[rawKey] = rawValue
-    })
+    const schoolIdFromParams = options.schoolId || sceneParams.schoolId || qParams.schoolId || ''
+    const schoolNameFromParams = options.schoolName || sceneParams.schoolName || qParams.schoolName || ''
 
     return {
       ...options,
-      id: options.id || sceneParams.id || '',
-      schoolId: options.schoolId || sceneParams.schoolId || '',
-      schoolName: options.schoolName || sceneParams.schoolName || '',
+      id: idFromParams ? String(idFromParams) : '',
+      schoolId: schoolIdFromParams ? String(schoolIdFromParams) : '',
+      schoolName: schoolNameFromParams || '',
     }
   },
 
@@ -230,8 +266,8 @@ Page({
       if (res.data && res.data.code === 200 && res.data.data) {
         const detail = res.data.data
         const schoolInfo = detail.schoolInfo || {}
-        const schoolId = schoolInfo.schoolId || ''
-        const schoolName = schoolInfo.schoolName || ''
+        const schoolId = schoolInfo.schoolId || detail.schoolId || ''
+        const schoolName = schoolInfo.schoolName || detail.schoolName || ''
         if (schoolId) {
           this.setData({ schoolId: String(schoolId), schoolName })
           console.log('[Apply] 从校友会详情获取到 schoolId:', schoolId)
@@ -633,16 +669,16 @@ Page({
       return
     }
 
-    const {
-      formData,
-      attachments,
-      alumniAssociationId,
-      schoolId,
-      isEditingApplication,
-      applicationId,
-    } = this.data
+    const { formData, attachments, alumniAssociationId, isEditingApplication, applicationId } = this.data
+    let { schoolId } = this.data
 
     // 校验 schoolId 是否存在
+    if (!schoolId) {
+      // 兜底：提交前再次尝试从校友会详情拉取 schoolId（解决扫码场景偶发未初始化完整问题）
+      await this.fetchSchoolIdFromAssociation()
+      schoolId = this.data.schoolId
+    }
+
     if (!schoolId) {
       wx.showToast({
         title: '您申请的校友会存在异常，无法成功申请',
