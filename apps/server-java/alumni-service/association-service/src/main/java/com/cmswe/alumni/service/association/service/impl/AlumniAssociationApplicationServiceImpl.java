@@ -137,18 +137,24 @@ public class AlumniAssociationApplicationServiceImpl
             log.info("初始成员列表验证通过 - 成员数: {}", applyDto.getInitialMembers().size());
         }
 
-        // 4. 检查是否已有相同学校和地点的待审核申请
-        // LambdaQueryWrapper<AlumniAssociationApplication> checkQuery = new
-        // LambdaQueryWrapper<>();
-        // checkQuery.eq(AlumniAssociationApplication::getSchoolId,
-        // applyDto.getSchoolId())
-        // .eq(AlumniAssociationApplication::getLocation, applyDto.getLocation())
-        // .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
-        // Long existingCount = this.count(checkQuery);
-        // if (existingCount > 0) {
-        // throw new BusinessException(ErrorType.ARGS_ERROR,
-        // "该学校和地点已有待审核的校友会创建申请，请勿重复提交");
-        // }
+        // 4. 同一学校唯一性校验：一个学校只能创建一个校友会
+        // 4.1 若该学校已存在已创建的校友会，直接禁止再次申请
+        LambdaQueryWrapper<AlumniAssociation> existingAssociationQuery = new LambdaQueryWrapper<>();
+        existingAssociationQuery.eq(AlumniAssociation::getSchoolId, applyDto.getSchoolId());
+        Long existingAssociationCount = alumniAssociationService.count(existingAssociationQuery);
+        if (existingAssociationCount != null && existingAssociationCount > 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校已创建校友会，不能重复创建");
+        }
+
+        // 4.2 若该学校已有待审核申请，也禁止重复提交
+        LambdaQueryWrapper<AlumniAssociationApplication> pendingApplicationQuery = new LambdaQueryWrapper<>();
+        pendingApplicationQuery
+                .eq(AlumniAssociationApplication::getSchoolId, applyDto.getSchoolId())
+                .eq(AlumniAssociationApplication::getApplicationStatus, 0); // 待审核
+        Long pendingApplicationCount = this.count(pendingApplicationQuery);
+        if (pendingApplicationCount != null && pendingApplicationCount > 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校已有待审核的校友会创建申请，请勿重复提交");
+        }
 
         // 4. 创建申请记录
         AlumniAssociationApplication application = new AlumniAssociationApplication();
@@ -224,6 +230,26 @@ public class AlumniAssociationApplicationServiceImpl
                     }
                 }
             }
+        }
+
+        // 同一学校唯一性校验（编辑场景）：
+        // 1) 学校已存在已创建校友会 -> 禁止编辑后提交
+        LambdaQueryWrapper<AlumniAssociation> existingAssociationQuery = new LambdaQueryWrapper<>();
+        existingAssociationQuery.eq(AlumniAssociation::getSchoolId, applyDto.getSchoolId());
+        Long existingAssociationCount = alumniAssociationService.count(existingAssociationQuery);
+        if (existingAssociationCount != null && existingAssociationCount > 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校已创建校友会，不能重复创建");
+        }
+
+        // 2) 学校存在其他待审核申请（排除当前申请）-> 禁止编辑后提交
+        LambdaQueryWrapper<AlumniAssociationApplication> pendingApplicationQuery = new LambdaQueryWrapper<>();
+        pendingApplicationQuery
+                .eq(AlumniAssociationApplication::getSchoolId, applyDto.getSchoolId())
+                .eq(AlumniAssociationApplication::getApplicationStatus, 0)
+                .ne(AlumniAssociationApplication::getApplicationId, dto.getApplicationId());
+        Long pendingApplicationCount = this.count(pendingApplicationQuery);
+        if (pendingApplicationCount != null && pendingApplicationCount > 0) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "该学校已有待审核的校友会创建申请，请勿重复提交");
         }
 
         copyApplyDtoOntoApplication(application, applyDto);

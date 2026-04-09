@@ -1226,7 +1226,7 @@ Page({
       } else if (res.data && res.data.code === 50006) {
         // 处理重复提交的情况
         wx.showToast({
-          title: res.data.msg || '该学校和地点已有待审核的校友会创建申请，请勿重复提交',
+          title: res.data.msg || '该学校已存在校友会或待审核申请，请勿重复提交',
           icon: 'none',
         })
       } else {
