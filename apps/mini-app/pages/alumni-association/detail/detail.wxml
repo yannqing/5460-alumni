@@ -55,7 +55,9 @@
           <view class="card">
             <view class="text-bold mb-20">基本信息</view>
             <view class="basic-info-item">成员数量：{{associationInfo.memberCount || 0}}人</view>
-            <view wx:if="{{associationInfo.description}}" class="basic-info-item">简介：{{associationInfo.description}}</view>
+            <view wx:if="{{associationInfo.description}}" class="basic-info-profile">
+              <text class="basic-info-profile-text">简介：{{associationInfo.description}}</text>
+            </view>
 
             <!-- 主要负责人：有 charge 信息时展示，不依赖 coreMemberList -->
             <view wx:if="{{associationInfo.chargeName || associationInfo.chargeWxId}}" class="show-members-section">
