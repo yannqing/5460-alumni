@@ -42,6 +42,8 @@ Page({
   },
 
   async onLoad(options) {
+    options = this.normalizeLoadOptions(options)
+
     // 保存页面参数，用于注册后返回
     this.pageOptions = options
 
@@ -117,6 +119,43 @@ Page({
 
       // 加载用户信息并填充表单
       await this.loadUserInfo()
+    }
+  },
+
+  normalizeLoadOptions(rawOptions) {
+    const options = rawOptions || {}
+    if (options.id) {
+      return options
+    }
+
+    const scene = options.scene
+    if (!scene) {
+      return options
+    }
+
+    let decodedScene = ''
+    try {
+      decodedScene = decodeURIComponent(scene)
+    } catch (error) {
+      decodedScene = scene
+    }
+
+    if (!decodedScene) {
+      return options
+    }
+
+    const sceneParams = {}
+    decodedScene.split('&').forEach(pair => {
+      const [rawKey, rawValue = ''] = pair.split('=')
+      if (!rawKey) return
+      sceneParams[rawKey] = rawValue
+    })
+
+    return {
+      ...options,
+      id: options.id || sceneParams.id || '',
+      schoolId: options.schoolId || sceneParams.schoolId || '',
+      schoolName: options.schoolName || sceneParams.schoolName || '',
     }
   },
 
@@ -668,9 +707,9 @@ Page({
           duration: 2000,
         })
 
-        // 延迟返回上一页
+        // 延迟退出当前页面：有历史栈则返回，否则回到首页
         setTimeout(() => {
-          wx.navigateBack()
+          this.navigateAfterSubmitSuccess()
         }, 2000)
       } else {
         // 检查是否是重复加入的错误
@@ -689,6 +728,38 @@ Page({
       })
       this.setData({ submitting: false })
     }
+  },
+
+  navigateAfterSubmitSuccess() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) {
+      wx.navigateBack({
+        fail: () => {
+          this.redirectToHomeAfterSubmit()
+        },
+      })
+      return
+    }
+
+    this.redirectToHomeAfterSubmit()
+  },
+
+  redirectToHomeAfterSubmit() {
+    wx.switchTab({
+      url: '/pages/index/index',
+      fail: () => {
+        // 极端情况下 switchTab 失败，兜底重启到首页
+        wx.reLaunch({
+          url: '/pages/index/index',
+          complete: () => {
+            this.setData({ submitting: false })
+          },
+        })
+      },
+      complete: () => {
+        this.setData({ submitting: false })
+      },
+    })
   },
 
   // 加载申请详情（查看模式或编辑已有申请）
