@@ -111,6 +111,17 @@
   overflow-x: hidden;
 }
 
+/* 长表单：由页面滚动，便于键盘顶起与系统 adjust-position 生效 */
+.audit-content-wrapper--page-scroll {
+  position: relative;
+  top: auto;
+  height: auto;
+  min-height: calc(100vh - 190.22rpx);
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* ========== 默认样式 ========== */
 .custom-nav-bar {
   position: fixed;
