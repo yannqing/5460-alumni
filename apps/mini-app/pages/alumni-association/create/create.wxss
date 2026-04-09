@@ -145,6 +145,11 @@ page {
   line-height: 80rpx;
 }
 
+.input-placeholder,
+.textarea-placeholder {
+  color: #bfbfbf;
+}
+
 .textarea {
   width: 100%;
   min-height: 120rpx;

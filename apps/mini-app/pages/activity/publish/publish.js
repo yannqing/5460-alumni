@@ -56,6 +56,9 @@ Page({
     minuteList: [], // 分列表
   },
 
+  _keyboardOpen: false,
+  _lastScrollTop: 0,
+
   onLoad(options) {
     // 优先从路由参数获取 associationId
     if (options.associationId) {
@@ -105,6 +108,29 @@ Page({
     this.setData({
       [`formData.${field}`]: e.detail.value,
     })
+  },
+
+  onFieldFocus() {
+    this._keyboardOpen = true
+  },
+
+  onFieldBlur() {
+    this._keyboardOpen = false
+  },
+
+  onFormScroll(e) {
+    if (!this._keyboardOpen) {
+      this._lastScrollTop = e.detail.scrollTop || 0
+      return
+    }
+    const scrollTop = e.detail.scrollTop || 0
+    const delta = Math.abs(scrollTop - (this._lastScrollTop || 0))
+    this._lastScrollTop = scrollTop
+    // 用户开始拖动内容区时，主动收起键盘，避免键盘悬停在底部
+    if (delta >= 4) {
+      this._keyboardOpen = false
+      wx.hideKeyboard()
+    }
   },
 
   onPickerChange(e) {

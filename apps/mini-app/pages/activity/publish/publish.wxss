@@ -114,6 +114,11 @@
   font-size: 28rpx;
 }
 
+.textarea-placeholder {
+  color: #999;
+  font-size: 28rpx;
+}
+
 .textarea {
   width: 100%;
   min-height: 160rpx;

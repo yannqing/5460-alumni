@@ -13,7 +13,18 @@
 
     <view class="form-item search-group required" style="z-index: 20;" catchtap="preventBubble">
       <text class="label">母校全称（现用名）</text>
-      <input class="input" placeholder="请输入关键字" value="{{formData.schoolName}}" data-field="schoolName" bindinput="handleSchoolInput" bindfocus="handleSchoolFocus" />
+      <input
+        class="input"
+        placeholder="请输入关键字"
+        placeholder-class="input-placeholder"
+        value="{{formData.schoolName}}"
+        data-field="schoolName"
+        bindinput="handleSchoolInput"
+        bindfocus="handleSchoolFocus"
+        confirm-type="search"
+        maxlength="80"
+        adjust-position="{{false}}"
+      />
       <scroll-view scroll-y class="search-results" wx:if="{{showSchoolResults}}">
         <view wx:if="{{schoolList.length === 0}}" class="search-placeholder">未找到相关学校</view>
         <view wx:for="{{schoolList}}" wx:key="schoolId" class="search-item" bindtap="selectSchool" data-index="{{index}}">
@@ -26,17 +37,17 @@
       <view class="label-with-hint">
         <text class="label">曾用名</text>
       </view>
-      <input class="input" placeholder="请输入母校曾用名（以毕业证书为准）" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" />
+      <input class="input" placeholder="请输入母校曾用名（以毕业证书为准）" placeholder-class="input-placeholder" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" maxlength="100" />
     </view>
 
     <view class="form-item required">
       <text class="label">校友会全称</text>
-      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" />
+      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" placeholder-class="input-placeholder" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" maxlength="100" />
     </view>
 
     <view class="form-item">
       <text class="label">覆盖区域</text>
-      <input class="input" placeholder="请输入管理覆盖区域" value="{{formData.coverageArea}}" data-field="coverageArea" bindinput="handleInput" />
+      <input class="input" placeholder="请输入管理覆盖区域" placeholder-class="input-placeholder" value="{{formData.coverageArea}}" data-field="coverageArea" bindinput="handleInput" maxlength="120" />
     </view>
 
     <view class="form-item required">
@@ -172,19 +183,19 @@
     <view class="form-title">校友会信息</view>
     <view class="form-item required">
       <text class="label">联系人姓名</text>
-      <input class="input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" />
+      <input class="input" placeholder="请输入联系人姓名" placeholder-class="input-placeholder" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" maxlength="32" />
     </view>
     <view class="form-item required">
       <text class="label">联系电话</text>
-      <input class="input" placeholder="请输入联系人联系电话" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" />
+      <input class="input" type="digit" placeholder="请输入11位手机号" placeholder-class="input-placeholder" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" maxlength="11" />
     </view>
     <view class="form-item required">
       <text class="label">校友会职务</text>
-      <input class="input" placeholder="请输入联系人职务" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" />
+      <input class="input" placeholder="请输入联系人职务" placeholder-class="input-placeholder" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" maxlength="50" />
     </view>
     <view class="form-item required">
       <text class="label">社会职务</text>
-      <input class="input" placeholder="如工作单位和职务" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" />
+      <input class="input" placeholder="如工作单位和职务" placeholder-class="input-placeholder" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" maxlength="100" />
     </view>
 
     <view class="form-subsection-title" style="display: flex; justify-content: space-between; align-items: center;">
@@ -201,19 +212,19 @@
         <view class="member-form-group">
           <view class="member-form-row">
             <text class="member-label required">姓名</text>
-            <input class="input member-full-input" placeholder="请直接输入姓名" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="handleMemberInput" />
+            <input class="input member-full-input" placeholder="请直接输入姓名" placeholder-class="input-placeholder" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="handleMemberInput" maxlength="32" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">联系电话</text>
-            <input class="input member-full-input" placeholder="请输入联系电话" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" />
+            <input class="input member-full-input" type="digit" placeholder="请输入11位手机号" placeholder-class="input-placeholder" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" maxlength="11" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">校友会职务</text>
-            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" />
+            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" placeholder-class="input-placeholder" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" maxlength="50" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">社会职务</text>
-            <input class="input member-full-input" placeholder="请输入社会职务" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" />
+            <input class="input member-full-input" placeholder="请输入社会职务" placeholder-class="input-placeholder" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" maxlength="100" />
           </view>
         </view>
       </view>
@@ -264,10 +275,12 @@
       <text class="label">申请理由</text>
       <textarea
         class="textarea"
-        placeholder="选填"
+        placeholder="选填，可说明申请背景等"
+        placeholder-class="textarea-placeholder"
         value="{{formData.applicationReason}}"
         data-field="applicationReason"
         bindinput="handleInput"
+        maxlength="500"
         adjust-position="{{true}}"
         cursor-spacing="100"
       />
@@ -278,9 +291,11 @@
       <textarea
         class="textarea"
         placeholder="请输入校友会简介"
+        placeholder-class="textarea-placeholder"
         value="{{formData.associationProfile}}"
         data-field="associationProfile"
         bindinput="handleInput"
+        maxlength="2000"
         adjust-position="{{true}}"
         cursor-spacing="100"
       />
