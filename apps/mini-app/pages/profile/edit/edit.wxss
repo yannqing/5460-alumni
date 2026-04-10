@@ -221,6 +221,31 @@
   line-height: 1;
 }
 
+.clear-field-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 10rpx 20rpx;
+  background: rgba(64, 178, 230, 0.14);
+  border: 1rpx solid rgba(64, 178, 230, 0.55);
+  border-radius: 999rpx;
+  box-shadow: 0 2rpx 8rpx rgba(64, 178, 230, 0.18);
+  transition: all 0.2s;
+}
+
+.clear-field-btn:active {
+  background: rgba(64, 178, 230, 0.22);
+  transform: scale(0.96);
+}
+
+.clear-field-text {
+  font-size: 26rpx;
+  color: #2a9fd4;
+  font-weight: 600;
+  line-height: 1;
+}
+
 .picker-value {
   flex: 1;
   font-size: 28rpx;
@@ -290,6 +315,35 @@
   font-size: 22rpx;
   color: #999;
   margin-top: 10rpx;
+}
+
+/* 个人简介置空按钮 */
+.description-clear-btn {
+  position: absolute;
+  bottom: 20rpx;
+  left: 20rpx;
+  padding: 12rpx 36rpx;
+  background: rgba(64, 178, 230, 0.14);
+  border: 1rpx solid rgba(64, 178, 230, 0.55);
+  border-radius: 999rpx;
+  box-shadow: 0 2rpx 10rpx rgba(64, 178, 230, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.description-clear-btn:active {
+  background: rgba(64, 178, 230, 0.22);
+  transform: scale(0.96);
+}
+
+.description-clear-text {
+  color: #2a9fd4;
+  font-size: 28rpx;
+  font-weight: 600;
 }
 
 /* 个人简介确定按钮 */
