@@ -23,6 +23,13 @@ public interface AlumniAssociationMapper extends BaseMapper<AlumniAssociation> {
      */
     int updateMemberCount(@org.apache.ibatis.annotations.Param("alumniAssociationId") Long alumniAssociationId, 
                          @org.apache.ibatis.annotations.Param("delta") Integer delta);
+
+    /**
+     * 按 alumni_association_member（status=1、未删除）聚合结果，批量校准 alumni_association.member_count。
+     *
+     * @return 实际发生更新的校友会行数
+     */
+    int reconcileMemberCountsFromMemberTable();
 }
 
 

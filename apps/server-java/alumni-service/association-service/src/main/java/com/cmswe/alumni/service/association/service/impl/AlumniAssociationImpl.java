@@ -2473,6 +2473,13 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     }
 
     @Override
+    public int reconcileMemberCountsFromMemberTable() {
+        int updated = this.baseMapper.reconcileMemberCountsFromMemberTable();
+        log.info("校友会成员人数校准完成，更新行数: {}", updated);
+        return updated;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteAlumniAssociationCompletely(Long alumniAssociationId) {
         if (alumniAssociationId == null) {
