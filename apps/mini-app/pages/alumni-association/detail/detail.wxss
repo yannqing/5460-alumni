@@ -22,6 +22,12 @@
   z-index: 1;
 }
 
+/* 与 pages/alumni-activity/list 一致：在 audit 白底区域内滚动，顶部蓝色导航保持固定 */
+.detail-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+}
+
 /* 封面轮播图 */
 .cover-swiper {
   width: 100%;
@@ -571,6 +577,13 @@ page {
 .member-company {
   font-size: 24rpx;
   color: #888888;
+}
+
+.member-list-footer {
+  padding: 20rpx 0 10rpx;
+  font-size: 24rpx;
+  color: #999999;
+  text-align: center;
 }
 
 /* 骨架屏样式 */

@@ -34,6 +34,10 @@ Page({
     // 成员列表相关
     memberList: [],
     memberLoading: false, // 成员加载状态
+    memberPage: 1,
+    memberPageSize: 20,
+    memberHasMore: true,
+    memberLoadingMore: false,
     // 邀请成员相关
     showInviteModal: false,
     inviteMethod: 'link', // 邀请方式：search/link/qrcode
@@ -169,7 +173,7 @@ Page({
       })
       console.log('[Debug] 只有一个校友会权限，自动选择:', singleAlumni)
       // 加载成员列表
-      await this.loadMemberList(singleAlumni.alumniAssociationId)
+      await this.loadMemberList(singleAlumni.alumniAssociationId, true)
     } else if (alumniAssociationList.length > 1) {
       // 多个校友会权限，正常显示选择器
       this.setData({
@@ -229,46 +233,79 @@ Page({
       }
 
       // 加载该校友会的成员列表
-      await this.loadMemberList(alumniAssociationId)
+      await this.loadMemberList(alumniAssociationId, true)
     } catch (apiError) {
       console.error('[Debug] 调用 /AlumniAssociation/{id} 接口失败:', apiError)
     }
   },
 
   // 加载成员列表
-  async loadMemberList(alumniAssociationId) {
+  async loadMemberList(alumniAssociationId, reset = false) {
     try {
-      this.setData({ memberLoading: true })
+      const { memberLoading, memberLoadingMore, memberHasMore, memberPage, memberPageSize } = this.data
+      if ((reset && memberLoading) || (!reset && (memberLoading || memberLoadingMore || !memberHasMore))) {
+        return
+      }
+
+      const current = reset ? 1 : memberPage
+      this.setData({
+        memberLoading: reset ? true : memberLoading,
+        memberLoadingMore: reset ? false : true,
+        memberHasMore: reset ? true : memberHasMore,
+      })
       console.log('[Debug] 开始加载成员列表，alumniAssociationId:', alumniAssociationId)
 
       // 调用成员列表接口
-      const res = await this.queryMemberList(alumniAssociationId)
+      const res = await this.queryMemberList(alumniAssociationId, current, memberPageSize)
 
       if (res.data && res.data.code === 200) {
+        const pageData = res.data.data || {}
+        const records = pageData.records || []
+        const mergedList = reset ? records : this.data.memberList.concat(records)
+        const total = Number(pageData.total || 0)
+        const hasMoreByTotal = total > 0 ? mergedList.length < total : null
+        const hasMoreByFlag = typeof pageData.hasNext === 'boolean' ? pageData.hasNext : null
+        const hasMore =
+          hasMoreByTotal !== null ? hasMoreByTotal : hasMoreByFlag !== null ? hasMoreByFlag : records.length > 0
+
         this.setData({
-          memberList: (res.data.data && res.data.data.records) || [],
+          memberList: mergedList,
+          memberPage: hasMore ? current + 1 : current,
+          memberHasMore: hasMore,
           memberLoading: false,
+          memberLoadingMore: false,
         })
-        console.log('[Debug] 成员列表加载完成:', (res.data.data && res.data.data.records) || [])
+        console.log('[Debug] 成员列表加载完成:', mergedList)
       } else {
         this.setData({
-          memberList: [],
+          memberList: reset ? [] : this.data.memberList,
           memberLoading: false,
+          memberLoadingMore: false,
         })
         console.error('[Debug] 成员列表接口调用失败，返回数据:', res)
       }
     } catch (error) {
       console.error('[Debug] 加载成员列表失败:', error)
       this.setData({
-        memberList: [],
+        memberList: reset ? [] : this.data.memberList,
         memberLoading: false,
+        memberLoadingMore: false,
       })
     }
   },
 
   // 调用查询成员列表接口
-  queryMemberList(alumniAssociationId) {
-    return alumniAssociationManagementApi.getMemberList(alumniAssociationId)
+  queryMemberList(alumniAssociationId, current, pageSize) {
+    return alumniAssociationManagementApi.getMemberList(alumniAssociationId, '', current, pageSize)
+  },
+
+  // 成员列表触底加载更多
+  onMemberScrollToLower() {
+    const { selectedAlumniAssociationId, memberLoading, memberLoadingMore, memberHasMore } = this.data
+    if (!selectedAlumniAssociationId || memberLoading || memberLoadingMore || !memberHasMore) {
+      return
+    }
+    this.loadMemberList(selectedAlumniAssociationId, false)
   },
 
   // 取消选择校友会
@@ -747,7 +784,7 @@ Page({
         // 关闭弹窗
         this.hideInviteModal()
         // 刷新成员列表
-        await this.loadMemberList(alumniAssociationId)
+        await this.loadMemberList(alumniAssociationId, true)
       } else {
         wx.showToast({
           title: (res.data && res.data.message) || '添加失败',
@@ -981,7 +1018,7 @@ Page({
         })
         this.hideEditModal()
         // 刷新成员列表
-        await this.loadMemberList(alumniAssociationId)
+        await this.loadMemberList(alumniAssociationId, true)
       } else {
         wx.showToast({
           title: (res.data && res.data.msg) || '修改失败',
@@ -1019,7 +1056,7 @@ Page({
                 icon: 'success',
               })
               // 刷新成员列表
-              await this.loadMemberList(alumniAssociationId)
+              await this.loadMemberList(alumniAssociationId, true)
             } else {
               wx.showToast({
                 title: (result.data && result.data.message) || '删除失败',

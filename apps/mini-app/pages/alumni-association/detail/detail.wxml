@@ -1,8 +1,16 @@
 <!--pages/alumni-association/detail/detail.wxml-->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会详情">
   <message-notification />
-  
+
   <view class="association-detail-page">
+    <scroll-view
+      class="detail-scroll"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      bindscrolltolower="onDetailScrollToLower"
+      lower-threshold="120"
+    >
     <view wx:if="{{associationInfo}}">
       <!-- 轮播背景图 -->
       <swiper class="cover-swiper" 
@@ -235,6 +243,8 @@
                   <view class="member-company">{{item.company}}</view>
                 </view>
               </view>
+              <view wx:if="{{memberLoadingMore}}" class="member-list-footer">加载中...</view>
+              <view wx:elif="{{!memberHasMore}}" class="member-list-footer">没有更多了</view>
             </view>
             
             <!-- 空状态 -->
@@ -247,6 +257,7 @@
         </view>
       </view>
     </view>
+    </scroll-view>
   </view>
 </custom-nav-bar>
 

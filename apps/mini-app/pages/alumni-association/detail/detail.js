@@ -62,6 +62,12 @@ Page({
     articleList: [],
     // 核心成员列表
     coreMemberList: [],
+    // 成员列表分页
+    memberPage: 1,
+    memberPageSize: 20,
+    memberHasMore: true,
+    memberLoadingMore: false,
+    memberLoaded: false,
   },
 
   async onLoad(options) {
@@ -317,18 +323,24 @@ Page({
   },
 
   // 加载成员列表
-  async loadMembers() {
-    if (this.data.loading) {
+  async loadMembers(reset = false) {
+    const { loading, memberLoadingMore, memberHasMore, memberPage, memberPageSize } = this.data
+    if ((reset && loading) || (!reset && (loading || memberLoadingMore || !memberHasMore))) {
       return
     }
 
-    this.setData({ loading: true })
+    const page = reset ? 1 : memberPage
+    this.setData({
+      loading: reset ? true : loading,
+      memberLoadingMore: reset ? false : true,
+      memberHasMore: reset ? true : memberHasMore,
+    })
 
     try {
       const res = await associationApi.getMemberPage({
         alumniAssociationId: this.data.associationId,
-        page: 1,
-        size: 20,
+        current: page,
+        pageSize: memberPageSize,
       })
 
       if (res.data && res.data.code === 200) {
@@ -376,12 +388,32 @@ Page({
           }
         })
 
+        const mergedMembers = reset ? mappedMembers : this.data.members.concat(mappedMembers)
+        const total = Number(memberData.total || 0)
+        // 优先使用 total 判断；无 total 时回退到 hasNext / 本页条数
+        const hasMoreByTotal = total > 0 ? mergedMembers.length < total : null
+        const hasMoreByFlag =
+          typeof memberData.hasNext === 'boolean' ? memberData.hasNext : null
+        const hasMore =
+          hasMoreByTotal !== null
+            ? hasMoreByTotal
+            : hasMoreByFlag !== null
+            ? hasMoreByFlag
+            : mappedMembers.length > 0
+
         this.setData({
-          members: mappedMembers,
+          members: mergedMembers,
+          memberPage: hasMore ? page + 1 : page,
+          memberHasMore: hasMore,
+          memberLoaded: true,
           loading: false,
+          memberLoadingMore: false,
         })
       } else {
-        this.setData({ loading: false })
+        this.setData({
+          loading: false,
+          memberLoadingMore: false,
+        })
         wx.showToast({
           title: res.data?.msg || '加载成员列表失败',
           icon: 'none',
@@ -389,7 +421,10 @@ Page({
       }
     } catch (error) {
       console.error('加载成员列表失败:', error)
-      this.setData({ loading: false })
+      this.setData({
+        loading: false,
+        memberLoadingMore: false,
+      })
       wx.showToast({
         title: '加载成员列表失败，请重试',
         icon: 'none',
@@ -421,8 +456,8 @@ Page({
     // 切换到成员列表标签时 (index 3)
     else if (index === 3) {
       // 如果还没加载过成员数据，则加载
-      if (this.data.members.length === 0) {
-        this.loadMembers()
+      if (!this.data.memberLoaded) {
+        this.loadMembers(true)
       }
     }
     /* // 切换到图谱标签时
@@ -1175,6 +1210,20 @@ Page({
         // 忽略错误
       }
     } */
+  },
+
+  // 页面触底：成员列表分页加载（无 scroll-view 时仍可能触发）
+  onReachBottom() {
+    if (this.data.activeTab === 3) {
+      this.loadMembers(false)
+    }
+  },
+
+  // scroll-view 触底：与活动列表页一致，主滚动在 audit 内容区内，需在此加载更多成员
+  onDetailScrollToLower() {
+    if (this.data.activeTab === 3) {
+      this.loadMembers(false)
+    }
   },
 
   // 点击加入/退出按钮

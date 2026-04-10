@@ -18,7 +18,7 @@
         <button class="invite-btn" bindtap="showInviteModal">+邀请加入</button>
       </view>
     </view>
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}" bindscrolltolower="onMemberScrollToLower" lower-threshold="100">
       <view wx:if="{{memberLoading}}" class="loading-state">
         <text>加载成员中...</text>
       </view>
@@ -38,7 +38,12 @@
               <text class="unregistered-tag" wx:if="{{!item.wxId}}">未注册</text>
               <text class="show-on-home-tag" wx:if="{{item.isShowOnHome === 1}}">主页展示</text>
             </view>
-            <view class="member-role-tag">{{item.organizeArchiRole && item.organizeArchiRole.roleOrName ? item.organizeArchiRole.roleOrName : (item.roleName || '普通成员')}}</view>
+            <view
+              class="member-role-tag"
+              wx:if="{{(item.organizeArchiRole && item.organizeArchiRole.roleOrName) || item.roleName}}"
+            >
+              {{(item.organizeArchiRole && item.organizeArchiRole.roleOrName) || item.roleName}}
+            </view>
           </view>
           <view class="member-actions">
             <view class="edit-btn" catchtap="openEditModal" data-member="{{item}}">编辑</view>
@@ -47,6 +52,12 @@
         </view>
         <view class="empty-state" wx:if="{{memberList.length === 0}}">
           <text>{{selectedAlumniAssociationId ? '暂无成员数据' : '请先选择校友会'}}</text>
+        </view>
+        <view class="list-footer" wx:if="{{memberList.length > 0 && memberLoadingMore}}">
+          <text>加载中...</text>
+        </view>
+        <view class="list-footer" wx:if="{{memberList.length > 0 && !memberHasMore}}">
+          <text>没有更多了</text>
         </view>
       </view>
     </scroll-view>
