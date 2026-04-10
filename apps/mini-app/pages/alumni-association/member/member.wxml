@@ -296,12 +296,12 @@
         </view>
         <view class="form-item">
           <text class="label">职务</text>
-          <picker bindchange="onEditRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{editingMember.editRoleIndex}}">
-            <view class="role-selector">
-              <text class="selector-text">{{editingMember.editRoleName || (editingMember.organizeArchiRole && editingMember.organizeArchiRole.roleOrName) || editingMember.roleName || '请选择职务'}}</text>
-              <text class="selector-arrow">▼</text>
-            </view>
-          </picker>
+          <input
+            class="form-input"
+            placeholder="请输入职务（保存至成员表职务名称）"
+            value="{{editingMember.editRoleName}}"
+            bindinput="onEditRoleNameInput"
+          />
         </view>
         <view class="form-item">
           <text class="label">所属单位/职位</text>
@@ -313,7 +313,10 @@
           />
         </view>
         <view class="form-item form-item-switch">
-          <text class="label">主页展示</text>
+          <view class="form-item-switch-text">
+            <text class="label">主页展示</text>
+            <text class="edit-form-hint">在主页展示为其他负责人</text>
+          </view>
           <switch
             checked="{{editingMember.editIsShowOnHome === 1}}"
             bindchange="onEditIsShowOnHomeChange"

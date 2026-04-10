@@ -33,4 +33,20 @@
           AND is_delete = 0
     </update>
 
+    <!-- 与业务统计口径一致：成员 status=1，且未逻辑删除 -->
+    <update id="reconcileMemberCountsFromMemberTable">
+        UPDATE alumni_association aa
+            LEFT JOIN (
+                SELECT alumni_association_id, COUNT(*) AS actual_count
+                FROM alumni_association_member
+                WHERE status = 1
+                  AND is_delete = 0
+                GROUP BY alumni_association_id
+            ) m ON aa.alumni_association_id = m.alumni_association_id
+        SET aa.member_count  = IFNULL(m.actual_count, 0),
+            aa.update_time   = NOW()
+        WHERE aa.is_delete = 0
+          AND IFNULL(aa.member_count, 0) != IFNULL(m.actual_count, 0)
+    </update>
+
 </mapper>

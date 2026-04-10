@@ -75,6 +75,9 @@
           <view class="label">个性签名</view>
           <view class="input-wrapper">
             <input class="input" placeholder="请输入个性签名" value="{{form.signature}}" data-field="signature" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
+            <view class="clear-field-btn" wx:if="{{editingField === 'signature'}}" data-field="signature" catchtap="handleClearField">
+              <text class="clear-field-text">置空</text>
+            </view>
             <view class="save-btn" wx:if="{{editingField === 'signature'}}" data-field="signature" catchtap="handleSaveField">
               <text class="save-icon">✓</text>
             </view>
@@ -84,6 +87,9 @@
           <view class="label">微信号</view>
           <view class="input-wrapper">
             <input class="input" placeholder="请输入微信号" value="{{form.wxNum}}" data-field="wxNum" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
+            <view class="clear-field-btn" wx:if="{{editingField === 'wxNum'}}" data-field="wxNum" catchtap="handleClearField">
+              <text class="clear-field-text">置空</text>
+            </view>
             <view class="save-btn" wx:if="{{editingField === 'wxNum'}}" data-field="wxNum" catchtap="handleSaveField">
               <text class="save-icon">✓</text>
             </view>
@@ -93,6 +99,9 @@
           <view class="label">邮箱</view>
           <view class="input-wrapper">
             <input class="input" type="text" placeholder="请输入常用邮箱" value="{{form.email}}" data-field="email" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
+            <view class="clear-field-btn" wx:if="{{editingField === 'email'}}" data-field="email" catchtap="handleClearField">
+              <text class="clear-field-text">置空</text>
+            </view>
             <view class="save-btn" wx:if="{{editingField === 'email'}}" data-field="email" catchtap="handleSaveField">
               <text class="save-icon">✓</text>
             </view>
@@ -108,6 +117,9 @@
           <view class="label">个人特长</view>
           <view class="input-wrapper">
             <input class="input" placeholder="请输入个人特长" value="{{form.personalSpecialty}}" data-field="personalSpecialty" bindinput="handleInput" bindfocus="handleInputFocus" bindblur="handleInputBlur" />
+            <view class="clear-field-btn" wx:if="{{editingField === 'personalSpecialty'}}" data-field="personalSpecialty" catchtap="handleClearField">
+              <text class="clear-field-text">置空</text>
+            </view>
             <view class="save-btn" wx:if="{{editingField === 'personalSpecialty'}}" data-field="personalSpecialty" catchtap="handleSaveField">
               <text class="save-icon">✓</text>
             </view>
@@ -328,7 +340,10 @@
               bindfocus="handleDescriptionFocus"
               bindblur="handleDescriptionBlur"
             ></textarea>
-            <!-- 确定按钮（只在编辑时显示） -->
+            <!-- 置空 / 确定（编辑时显示） -->
+            <view class="description-clear-btn" wx:if="{{editingDescription}}" data-field="description" catchtap="handleClearField">
+              <text class="description-clear-text">置空</text>
+            </view>
             <view class="description-save-btn" wx:if="{{editingDescription}}" catchtap="handleSaveDescription">
               <text class="description-save-text">确定</text>
             </view>

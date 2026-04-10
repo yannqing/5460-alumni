@@ -263,7 +263,8 @@ function mapFormToUpdateData(form) {
     constellation:
       form.constellation !== null && form.constellation !== undefined ? form.constellation : null,
     signature: form.signature !== undefined && form.signature !== null ? form.signature : null,
-    description: form.description || null,
+    description:
+      form.description !== undefined && form.description !== null ? form.description : null,
     // 证件信息
     identifyType:
       form.identifyType !== null && form.identifyType !== undefined ? form.identifyType : null,
@@ -331,6 +332,7 @@ function mapFormToUpdateData(form) {
     'wxNum',
     'email',
     'personalSpecialty',
+    'description',
     'originProvince',
     'curProvince',
     'curCity',
@@ -822,6 +824,55 @@ Page({
       isSaving: false,
       blurTimer: null,
     })
+  },
+
+  /** 置空可清空字段并立即保存（个性签名、微信号、邮箱、个人特长、个人简介） */
+  async handleClearField(e) {
+    const { field } = e.currentTarget.dataset
+    if (!field) {
+      return
+    }
+
+    if (e.stopPropagation) {
+      e.stopPropagation()
+    }
+    if (e.preventDefault) {
+      e.preventDefault()
+    }
+
+    if (field === 'description') {
+      if (this.data.descriptionBlurTimer) {
+        clearTimeout(this.data.descriptionBlurTimer)
+        this.data.descriptionBlurTimer = null
+      }
+    } else {
+      if (this.data.blurTimer) {
+        clearTimeout(this.data.blurTimer)
+        this.data.blurTimer = null
+      }
+    }
+
+    this.setData({
+      isSaving: true,
+      [`form.${field}`]: '',
+    })
+
+    const updateData = {}
+    updateData[field] = ''
+
+    await this.saveSingleField(updateData, true)
+
+    const nextState = {
+      isSaving: false,
+      blurTimer: null,
+      descriptionBlurTimer: null,
+    }
+    if (field === 'description') {
+      nextState.editingDescription = false
+    } else {
+      nextState.editingField = null
+    }
+    this.setData(nextState)
   },
 
   handleTextarea(e) {

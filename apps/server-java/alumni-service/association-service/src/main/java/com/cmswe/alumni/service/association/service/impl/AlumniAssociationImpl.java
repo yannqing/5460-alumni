@@ -778,6 +778,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
                             // 联系方式展示 alumni_association_member 表的 user_phone
                             response.setContactInformation(member.getUserPhone());
+                            // 社会职务/所属单位展示 alumni_association_member 表的 user_affiliation
+                            response.setSocialDuties(member.getUserAffiliation());
 
                             // 设置关注状态
                             if (currentUserId != null) {
@@ -2470,6 +2472,13 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         log.info("更新校友会成员数量 - 校友会ID: {}, 变化值: {}", alumniAssociationId, delta);
         int result = this.baseMapper.updateMemberCount(alumniAssociationId, delta);
         return result > 0;
+    }
+
+    @Override
+    public int reconcileMemberCountsFromMemberTable() {
+        int updated = this.baseMapper.reconcileMemberCountsFromMemberTable();
+        log.info("校友会成员人数校准完成，更新行数: {}", updated);
+        return updated;
     }
 
     @Override

@@ -289,6 +289,13 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
     boolean updateMemberCount(Long alumniAssociationId, Integer delta);
 
     /**
+     * 按成员表事实数据校准各校友会的 member_count（与增量更新口径不一致时修正）。
+     *
+     * @return 实际更新的校友会行数
+     */
+    int reconcileMemberCountsFromMemberTable();
+
+    /**
      * 删除校友会及所有相关数据（测试专用接口）
      * <p>删除内容包括：
      * <ul>

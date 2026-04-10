@@ -851,6 +851,21 @@
   margin-bottom: 0 !important;
 }
 
+.form-item-switch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  flex: 1;
+  min-width: 0;
+  padding-right: 24rpx;
+}
+
+.edit-form-hint {
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.45;
+}
+
 /* 编辑弹窗内容区域滚动 */
 .edit-modal .modal-body {
   max-height: 60vh;
