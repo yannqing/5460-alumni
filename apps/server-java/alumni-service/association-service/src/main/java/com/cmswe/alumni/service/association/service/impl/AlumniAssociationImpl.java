@@ -1884,9 +1884,15 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         List<AlumniAssociation> associationList = this.list(associationQueryWrapper);
 
-        // 5. 转换为 VO
+        // 5. 转换为 VO（「我的校友会」列表对外联系信息优先展示驻会代表电话 zh_phone）
         List<AlumniAssociationListVo> voList = associationList.stream()
-                .map(AlumniAssociationListVo::objToVo)
+                .map(a -> {
+                    AlumniAssociationListVo vo = AlumniAssociationListVo.objToVo(a);
+                    if (StringUtils.isNotBlank(a.getZhPhone())) {
+                        vo.setContactInfo(a.getZhPhone());
+                    }
+                    return vo;
+                })
                 .collect(Collectors.toList());
 
         log.info("查询用户加入的校友会列表成功，用户 ID: {}, 校友会数量: {}", wxId, voList.size());

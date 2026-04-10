@@ -22,6 +22,12 @@
   z-index: 1;
 }
 
+/* 与 pages/alumni-activity/list 一致：在 audit 白底区域内滚动，顶部蓝色导航保持固定 */
+.detail-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+}
+
 /* 封面轮播图 */
 .cover-swiper {
   width: 100%;
@@ -140,6 +146,19 @@ page {
   padding-top: 0;
 }
 
+/* 简介：多行、保留换行、长串换行（与审核页 multi-line 一致） */
+.basic-info-profile {
+  padding: 10rpx 0;
+  font-size: 25rpx;
+  color: #666666;
+}
+
+.basic-info-profile-text {
+  line-height: 1.65;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
 /* 核心成员样式 */
 .core-members-section {
   margin-bottom: 24rpx;
@@ -235,30 +254,63 @@ page {
   border-radius: 12rpx;
 }
 
-.show-member-left {
+/* 单行完整展示：职务固定小号；姓名与手机号固定同号；超出可横向滑动 */
+.show-member-row-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.show-member-row-inner {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 65rpx;
+  flex-wrap: nowrap;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 姓名 + 手机号：整组靠右；姓名与手机号间距固定 */
+.show-member-meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+  gap: 32rpx;
+}
+
+/* 姓名与手机号：固定同号，列表内所有人一致（不因行内职务长短变化） */
+.show-member-name,
+.show-member-contact {
+  font-size: 28rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.35;
 }
 
 .show-member-name {
-  font-size: 28rpx;
   color: #333;
   font-weight: 400;
 }
 
 .show-member-contact {
-  font-size: 24rpx;
   color: #666;
 }
 
 .show-member-role {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #40B2E6;
   padding: 6rpx 16rpx;
   background-color: rgba(64, 178, 230, 0.1);
   border-radius: 8rpx;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box;
+  line-height: 1.35;
   flex-shrink: 0;
 }
 
@@ -558,6 +610,13 @@ page {
 .member-company {
   font-size: 24rpx;
   color: #888888;
+}
+
+.member-list-footer {
+  padding: 20rpx 0 10rpx;
+  font-size: 24rpx;
+  color: #999999;
+  text-align: center;
 }
 
 /* 骨架屏样式 */

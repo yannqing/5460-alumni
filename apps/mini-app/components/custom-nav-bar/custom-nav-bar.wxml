@@ -22,8 +22,11 @@
     </view>
   </view>
   
-  <!-- 白色圆角内容区域 -->
-  <view class="audit-content-wrapper" style="top: 190.22rpx;">
+  <!-- 白色圆角内容区域：auditPageScroll 时用 margin-top + 页面滚动，否则固定高度内部滚动 -->
+  <view
+    class="audit-content-wrapper {{auditPageScroll ? 'audit-content-wrapper--page-scroll' : ''}}"
+    style="{{auditPageScroll ? 'margin-top: 190.22rpx;' : 'top: 190.22rpx;'}}"
+  >
     <slot></slot>
   </view>
 </view>

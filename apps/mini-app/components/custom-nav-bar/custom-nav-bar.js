@@ -32,6 +32,15 @@ Component({
     auditTitle: {
       type: String,
       value: '管理'
+    },
+    /**
+     * 审核样式下白底区域是否跟随页面滚动（用于长表单）。
+     * 默认 false：白底为固定高度 + 内部 overflow 滚动，与 wx.pageScrollTo / adjust-position 易冲突。
+     * true：白底随页面延伸，由页面滚动，键盘可正常顶起输入区。
+     */
+    auditPageScroll: {
+      type: Boolean,
+      value: false
     }
   },
 

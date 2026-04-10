@@ -3,7 +3,7 @@
 <view class="page">
   <form bindsubmit="submitForm">
     <view class="form-scroll-wrap">
-      <scroll-view class="scroll-content" scroll-y enable-back-to-top show-scrollbar="{{false}}">
+      <scroll-view class="scroll-content" scroll-y enable-back-to-top show-scrollbar="{{false}}" bindscroll="onFormScroll">
         <view class="group_7">
           <!-- 基本信息 -->
           <view class="form-card">
@@ -16,7 +16,7 @@
                   class="input"
                   placeholder="填写活动标题"
                   placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
+                  adjust-position="{{true}}"
                   data-field="activityTitle"
                   bindinput="onInput"
                   value="{{formData.activityTitle}}"
@@ -32,7 +32,7 @@
                   class="input"
                   placeholder="填写活动分类"
                   placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
+                  adjust-position="{{true}}"
                   data-field="activityCategory"
                   bindinput="onInput"
                   value="{{formData.activityCategory}}"
@@ -82,10 +82,13 @@
                 <textarea
                   class="textarea"
                   placeholder="请输入活动详情描述"
-                  placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
+                  placeholder-class="textarea-placeholder"
+                  adjust-position="{{true}}"
+                  cursor-spacing="120"
                   data-field="description"
                   bindinput="onInput"
+                  bindfocus="onFieldFocus"
+                  bindblur="onFieldBlur"
                   value="{{formData.description}}"
                   maxlength="-1"
                 />
@@ -163,7 +166,8 @@
                 <input
                   class="input"
                   placeholder="请输入省份"
-                  adjust-position="{{false}}"
+                  placeholder-class="input-placeholder"
+                  adjust-position="{{true}}"
                   data-field="province"
                   bindinput="onInput"
                   value="{{formData.province}}"
@@ -175,7 +179,8 @@
                 <input
                   class="input"
                   placeholder="请输入城市"
-                  adjust-position="{{false}}"
+                  placeholder-class="input-placeholder"
+                  adjust-position="{{true}}"
                   data-field="city"
                   bindinput="onInput"
                   value="{{formData.city}}"
@@ -187,7 +192,8 @@
                 <input
                   class="input"
                   placeholder="请输入区县"
-                  adjust-position="{{false}}"
+                  placeholder-class="input-placeholder"
+                  adjust-position="{{true}}"
                   data-field="district"
                   bindinput="onInput"
                   value="{{formData.district}}"
@@ -199,7 +205,8 @@
                 <input
                   class="input"
                   placeholder="请输入详细地址"
-                  adjust-position="{{false}}"
+                  placeholder-class="input-placeholder"
+                  adjust-position="{{true}}"
                   data-field="address"
                   bindinput="onInput"
                   value="{{formData.address}}"
@@ -219,7 +226,7 @@
                   class="input"
                   placeholder="请输入联系人"
                   placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
+                  adjust-position="{{true}}"
                   data-field="contactPerson"
                   bindinput="onInput"
                   value="{{formData.contactPerson}}"
@@ -232,10 +239,10 @@
               <view class="field-input-wrapper">
                 <input
                   class="input"
-                  type="number"
+                  type="digit"
                   placeholder="请输入联系电话"
                   placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
+                  adjust-position="{{true}}"
                   data-field="contactPhone"
                   bindinput="onInput"
                   value="{{formData.contactPhone}}"
@@ -250,7 +257,7 @@
                   class="input"
                   placeholder="请输入联系邮箱"
                   placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
+                  adjust-position="{{true}}"
                   data-field="contactEmail"
                   bindinput="onInput"
                   value="{{formData.contactEmail}}"
@@ -264,10 +271,13 @@
                 <textarea
                   class="textarea"
                   placeholder="请输入备注信息"
-                  placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
+                  placeholder-class="textarea-placeholder"
+                  adjust-position="{{true}}"
+                  cursor-spacing="120"
                   data-field="remark"
                   bindinput="onInput"
+                  bindfocus="onFieldFocus"
+                  bindblur="onFieldBlur"
                   value="{{formData.remark}}"
                 />
               </view>

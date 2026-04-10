@@ -11,6 +11,9 @@ App({
 
   async onLaunch(opt) {
     this.globalData.urlOpt = opt
+    // 启动早期先从缓存恢复基础完善状态，避免异步登录未完成时误判
+    this.globalData.isProfileComplete = wx.getStorageSync('isProfileComplete') === true
+    this.globalData.authInitializing = true
 
     // 从配置文件读取环境配置
     const config = require('./utils/config.js')
@@ -66,6 +69,8 @@ App({
       }, 1000)
     } catch (error) {
       console.error('登录初始化失败:', error)
+    } finally {
+      this.globalData.authInitializing = false
     }
   },
 
@@ -107,6 +112,8 @@ App({
     apploaded: false,
     onAppShowCallbacks: [], // 小程序从后台进入前台时的回调（用于刷新权限等）
     userData: {}, // 存储用户数据
+    userDataLoaded: false, // 标记用户数据是否已完成加载（用于完善状态判断）
+    authInitializing: false, // 标记启动登录初始化过程是否仍在进行
     userConfig: {
       roles: {},
       is_apply_acard: 0,

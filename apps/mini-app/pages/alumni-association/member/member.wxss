@@ -229,6 +229,15 @@
   font-size: 28rpx;
 }
 
+.list-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24rpx 0 16rpx;
+  color: #999;
+  font-size: 24rpx;
+}
+
 /* 成员列表卡片（与城市成员管理一致：固定标题，仅 scroll-list 内滚动） */
 .group_7 {
   width: 714rpx;
@@ -334,8 +343,8 @@
   margin-bottom: 14rpx;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  padding: 0;
+  align-items: flex-start;
+  padding: 20rpx 0;
   box-sizing: border-box;
 }
 
@@ -346,9 +355,11 @@
 .member-item-left {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  margin: 24rpx 0 0 31rpx;
-  flex-shrink: 0;
+  align-items: flex-start;
+  margin: 0 0 0 31rpx;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 42%;
 }
 
 .group_7 .member-avatar {
@@ -410,8 +421,10 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 8rpx;
-  margin-left: 16rpx;
-  flex-shrink: 0;
+  margin-left: 12rpx;
+  flex: 1;
+  min-width: 0;
+  padding-right: 8rpx;
 }
 
 /* 状态标签容器（未注册+主页展示横向排列） */
@@ -419,73 +432,88 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8rpx;
+  max-width: 100%;
 }
 
 .member-role-tag {
   background-color: rgba(24,144,255,1);
-  border-radius: 18rpx;
-  height: 36rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 94rpx;
-  padding: 0 16rpx;
-  flex-shrink: 0;
+  border-radius: 12rpx;
+  min-height: 36rpx;
+  height: auto;
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 8rpx 12rpx;
   font-size: 22rpx;
   letter-spacing: 0rpx;
   font-family: PingFangSC-Semibold, -apple-system, sans-serif;
   font-weight: 600;
   color: rgba(255,255,255,1);
-  line-height: 31rpx;
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  vertical-align: top;
+}
+
+/* 标签无文本时不展示底色块 */
+.member-role-tag:empty {
+  display: none;
 }
 
 .group_7 .member-actions {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   margin-left: auto;
-  padding: 0 33rpx 0 14rpx;
-  gap: 0;
+  padding: 0 12rpx 0 4rpx;
+  gap: 8rpx;
+  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
 .group_7 .edit-btn {
   background-color: rgba(255,255,255,1);
-  border-radius: 18rpx;
-  height: 43rpx;
-  min-width: 83rpx;
-  padding: 0 18rpx;
+  border-radius: 12rpx;
+  height: 34rpx;
+  min-width: 56rpx;
+  padding: 0 10rpx;
   border: 1rpx solid rgba(67,100,204,1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22rpx;
+  font-size: 20rpx;
   letter-spacing: 0rpx;
   font-family: PingFangSC-Semibold, -apple-system, sans-serif;
   font-weight: 600;
   color: rgba(67,100,204,1);
-  line-height: 29rpx;
-  margin-left: 14rpx;
+  line-height: 1;
+  margin-left: 0;
+  box-sizing: border-box;
 }
 
 .group_7 .delete-btn {
-  box-shadow: 0px 2px 11px 0px rgba(194,194,255,0.37);
+  box-shadow: 0px 1px 6px 0px rgba(194,194,255,0.28);
   background-color: rgba(255,255,255,1);
-  border-radius: 18rpx;
-  height: 43rpx;
-  min-width: 83rpx;
-  padding: 0 18rpx;
+  border-radius: 12rpx;
+  height: 34rpx;
+  min-width: 56rpx;
+  padding: 0 10rpx;
   border: 1rpx solid rgba(176,54,62,1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22rpx;
+  font-size: 20rpx;
   letter-spacing: 0rpx;
   font-family: PingFangSC-Semibold, -apple-system, sans-serif;
   font-weight: 600;
   color: rgba(176,54,62,1);
-  line-height: 29rpx;
-  margin-left: 14rpx;
+  line-height: 1;
+  margin-left: 0;
+  box-sizing: border-box;
 }
 
 .alumni-name-field {

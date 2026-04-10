@@ -734,9 +734,14 @@ const localPlatformManagementApi = {
 
 // ==================== 校友会管理相关接口 ====================
 const alumniAssociationManagementApi = {
-  // 获取校友会成员列表（支持 keyword 搜索）
-  getMemberList: (alumniAssociationId, keyword) =>
-    post('/alumniAssociationManagement/queryMemberList', { alumniAssociationId, keyword }),
+  // 获取校友会成员列表（支持分页与 keyword 搜索）
+  getMemberList: (alumniAssociationId, keyword, current = 1, pageSize = 20) =>
+    post('/alumniAssociationManagement/queryMemberList', {
+      alumniAssociationId,
+      keyword,
+      current,
+      pageSize,
+    }),
   // 获取校友会角色列表
   getRoleList: organizeId => post('/alumniAssociationManagement/role/list', { organizeId }),
   // 新增校友会角色

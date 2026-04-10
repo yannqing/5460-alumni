@@ -145,12 +145,24 @@ page {
   line-height: 80rpx;
 }
 
+.input-placeholder,
+.textarea-placeholder {
+  color: #bfbfbf;
+}
+
 .textarea {
   width: 100%;
   min-height: 120rpx;
   resize: none;
   padding: 16rpx 20rpx;
   line-height: 1.5;
+}
+
+.textarea-count {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 12rpx;
 }
 
 .input.disabled {

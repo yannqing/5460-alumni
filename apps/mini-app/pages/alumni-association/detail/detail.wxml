@@ -1,8 +1,16 @@
 <!--pages/alumni-association/detail/detail.wxml-->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友会详情">
   <message-notification />
-  
+
   <view class="association-detail-page">
+    <scroll-view
+      class="detail-scroll"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      bindscrolltolower="onDetailScrollToLower"
+      lower-threshold="120"
+    >
     <view wx:if="{{associationInfo}}">
       <!-- 轮播背景图 -->
       <swiper class="cover-swiper" 
@@ -55,17 +63,23 @@
           <view class="card">
             <view class="text-bold mb-20">基本信息</view>
             <view class="basic-info-item">成员数量：{{associationInfo.memberCount || 0}}人</view>
-            <view wx:if="{{associationInfo.description}}" class="basic-info-item">简介：{{associationInfo.description}}</view>
+            <view wx:if="{{associationInfo.description}}" class="basic-info-profile">
+              <text class="basic-info-profile-text">简介：{{associationInfo.description}}</text>
+            </view>
 
             <!-- 主要负责人：有 charge 信息时展示，不依赖 coreMemberList -->
             <view wx:if="{{associationInfo.chargeName || associationInfo.chargeWxId}}" class="show-members-section">
               <view class="show-members-title">主要负责人</view>
               <view class="show-members-list">
                 <view class="show-member-item">
-                  <view class="show-member-left">
-                    <text class="show-member-role">{{associationInfo.chargeRole || '-'}}</text>
-                    <text class="show-member-contact">{{associationInfo.contactInfo || '-'}}</text>
-                    <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
+                  <view class="show-member-row-scroll">
+                    <view class="show-member-row-inner">
+                      <text class="show-member-role">{{associationInfo.chargeRole || '-'}}</text>
+                      <view class="show-member-meta">
+                        <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
+                        <text class="show-member-contact">{{associationInfo.contactInfo || '-'}}</text>
+                      </view>
+                    </view>
                   </view>
                 </view>
               </view>
@@ -76,10 +90,14 @@
               <view class="show-members-title">其他负责人</view>
               <view class="show-members-list">
                 <view class="show-member-item" wx:for="{{coreMemberList}}" wx:key="index" data-member="{{item}}">
-                  <view class="show-member-left">
-                    <text class="show-member-role">{{item.roleName || '-'}}</text>
-                    <text class="show-member-contact">{{item.userPhone || '-'}}</text>
-                    <text class="show-member-name">{{item.username || '-'}}</text>
+                  <view class="show-member-row-scroll">
+                    <view class="show-member-row-inner">
+                      <text class="show-member-role">{{item.roleName || '-'}}</text>
+                      <view class="show-member-meta">
+                        <text class="show-member-name">{{item.username || '-'}}</text>
+                        <text class="show-member-contact">{{item.userPhone || '-'}}</text>
+                      </view>
+                    </view>
                   </view>
                 </view>
               </view>
@@ -90,10 +108,14 @@
               <view class="show-members-title">主要联系人</view>
               <view class="show-members-list">
                 <view class="show-member-item">
-                  <view class="show-member-left">
-                    <text class="show-member-role">{{associationInfo.zhRole || '-'}}</text>
-                    <text class="show-member-contact">{{associationInfo.zhPhone || '-'}}</text>
-                    <text class="show-member-name">{{associationInfo.zhName || '-'}}</text>
+                  <view class="show-member-row-scroll">
+                    <view class="show-member-row-inner">
+                      <text class="show-member-role">{{associationInfo.zhRole || '-'}}</text>
+                      <view class="show-member-meta">
+                        <text class="show-member-name">{{associationInfo.zhName || '-'}}</text>
+                        <text class="show-member-contact">{{associationInfo.zhPhone || '-'}}</text>
+                      </view>
+                    </view>
                   </view>
                 </view>
               </view>
@@ -233,6 +255,8 @@
                   <view class="member-company">{{item.company}}</view>
                 </view>
               </view>
+              <view wx:if="{{memberLoadingMore}}" class="member-list-footer">加载中...</view>
+              <view wx:elif="{{!memberHasMore}}" class="member-list-footer">没有更多了</view>
             </view>
             
             <!-- 空状态 -->
@@ -245,6 +269,7 @@
         </view>
       </view>
     </view>
+    </scroll-view>
   </view>
 </custom-nav-bar>
 

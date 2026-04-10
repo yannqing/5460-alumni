@@ -42,6 +42,8 @@ Page({
   },
 
   async onLoad(options) {
+    options = this.normalizeLoadOptions(options)
+
     // 保存页面参数，用于注册后返回
     this.pageOptions = options
 
@@ -120,6 +122,79 @@ Page({
     }
   },
 
+  normalizeLoadOptions(rawOptions) {
+    const options = rawOptions || {}
+    const decodeSafely = value => {
+      if (!value) return ''
+      let current = String(value)
+      for (let i = 0; i < 2; i += 1) {
+        try {
+          const decoded = decodeURIComponent(current)
+          if (decoded === current) break
+          current = decoded
+        } catch (error) {
+          break
+        }
+      }
+      return current
+    }
+
+    const parseKvString = value => {
+      const result = {}
+      if (!value) return result
+      const text = decodeSafely(value).trim()
+      if (!text) return result
+
+      if (!text.includes('=') && /^\d+$/.test(text)) {
+        result.id = text
+        return result
+      }
+
+      text.split('&').forEach(pair => {
+        const idx = pair.indexOf('=')
+        if (idx <= 0) return
+        const key = pair.slice(0, idx)
+        const val = pair.slice(idx + 1)
+        if (!key) return
+        result[key] = decodeSafely(val)
+      })
+      return result
+    }
+
+    const sceneParams = parseKvString(options.scene)
+
+    let qParams = {}
+    if (options.q) {
+      const decodedQ = decodeSafely(options.q)
+      const queryIndex = decodedQ.indexOf('?')
+      if (queryIndex >= 0) {
+        qParams = parseKvString(decodedQ.slice(queryIndex + 1))
+      }
+    }
+
+    const idFromParams =
+      options.id ||
+      options.alumniAssociationId ||
+      options.associationId ||
+      sceneParams.id ||
+      sceneParams.alumniAssociationId ||
+      sceneParams.associationId ||
+      qParams.id ||
+      qParams.alumniAssociationId ||
+      qParams.associationId ||
+      ''
+
+    const schoolIdFromParams = options.schoolId || sceneParams.schoolId || qParams.schoolId || ''
+    const schoolNameFromParams = options.schoolName || sceneParams.schoolName || qParams.schoolName || ''
+
+    return {
+      ...options,
+      id: idFromParams ? String(idFromParams) : '',
+      schoolId: schoolIdFromParams ? String(schoolIdFromParams) : '',
+      schoolName: schoolNameFromParams || '',
+    }
+  },
+
   // 加载编辑模式可选的校友会列表（仅我的申请编辑使用）
   async loadEditableAssociationList() {
     try {
@@ -191,8 +266,8 @@ Page({
       if (res.data && res.data.code === 200 && res.data.data) {
         const detail = res.data.data
         const schoolInfo = detail.schoolInfo || {}
-        const schoolId = schoolInfo.schoolId || ''
-        const schoolName = schoolInfo.schoolName || ''
+        const schoolId = schoolInfo.schoolId || detail.schoolId || ''
+        const schoolName = schoolInfo.schoolName || detail.schoolName || ''
         if (schoolId) {
           this.setData({ schoolId: String(schoolId), schoolName })
           console.log('[Apply] 从校友会详情获取到 schoolId:', schoolId)
@@ -594,16 +669,16 @@ Page({
       return
     }
 
-    const {
-      formData,
-      attachments,
-      alumniAssociationId,
-      schoolId,
-      isEditingApplication,
-      applicationId,
-    } = this.data
+    const { formData, attachments, alumniAssociationId, isEditingApplication, applicationId } = this.data
+    let { schoolId } = this.data
 
     // 校验 schoolId 是否存在
+    if (!schoolId) {
+      // 兜底：提交前再次尝试从校友会详情拉取 schoolId（解决扫码场景偶发未初始化完整问题）
+      await this.fetchSchoolIdFromAssociation()
+      schoolId = this.data.schoolId
+    }
+
     if (!schoolId) {
       wx.showToast({
         title: '您申请的校友会存在异常，无法成功申请',
@@ -668,9 +743,9 @@ Page({
           duration: 2000,
         })
 
-        // 延迟返回上一页
+        // 延迟退出当前页面：有历史栈则返回，否则回到首页
         setTimeout(() => {
-          wx.navigateBack()
+          this.navigateAfterSubmitSuccess()
         }, 2000)
       } else {
         // 检查是否是重复加入的错误
@@ -689,6 +764,38 @@ Page({
       })
       this.setData({ submitting: false })
     }
+  },
+
+  navigateAfterSubmitSuccess() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) {
+      wx.navigateBack({
+        fail: () => {
+          this.redirectToHomeAfterSubmit()
+        },
+      })
+      return
+    }
+
+    this.redirectToHomeAfterSubmit()
+  },
+
+  redirectToHomeAfterSubmit() {
+    wx.switchTab({
+      url: '/pages/index/index',
+      fail: () => {
+        // 极端情况下 switchTab 失败，兜底重启到首页
+        wx.reLaunch({
+          url: '/pages/index/index',
+          complete: () => {
+            this.setData({ submitting: false })
+          },
+        })
+      },
+      complete: () => {
+        this.setData({ submitting: false })
+      },
+    })
   },
 
   // 加载申请详情（查看模式或编辑已有申请）
