@@ -778,6 +778,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
                             // 联系方式展示 alumni_association_member 表的 user_phone
                             response.setContactInformation(member.getUserPhone());
+                            // 社会职务/所属单位展示 alumni_association_member 表的 user_affiliation
+                            response.setSocialDuties(member.getUserAffiliation());
 
                             // 设置关注状态
                             if (currentUserId != null) {

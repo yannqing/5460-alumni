@@ -55,7 +55,6 @@ Page({
     // 编辑成员相关
     showEditModal: false,
     editingMember: {},
-    roleList: [],
     defaultUserAvatarUrl: config.defaultAvatar,
     // 添加未注册成员表单
     unregisteredForm: {
@@ -800,63 +799,14 @@ Page({
     }
   },
 
-  // 加载角色列表
-  async loadRoleList() {
-    try {
-      const alumniAssociationId = this.data.selectedAlumniAssociationId
-      if (!alumniAssociationId) {
-        console.error('[Debug] 加载角色列表失败：缺少alumniAssociationId')
-        return
-      }
-
-      const res = await this.getRoleList(alumniAssociationId)
-      if (res.data && res.data.code === 200) {
-        // 将树形结构的角色数据扁平化为一维数组
-        const flattenedRoles = this.flattenRoleTree(res.data.data || [])
-        this.setData({
-          roleList: flattenedRoles,
-        })
-      }
-    } catch (error) {
-      console.error('[Debug] 加载角色列表失败:', error)
-    }
-  },
-
-  // 将树形结构的角色数据扁平化为一维数组
-  flattenRoleTree(roleTree) {
-    const result = []
-
-    function traverse(node) {
-      // 添加当前节点，不保留层级信息
-      result.push(node)
-
-      // 递归处理子节点
-      if (node.children && node.children.length > 0) {
-        node.children.forEach(child => traverse(child))
-      }
-    }
-
-    // 遍历所有根节点
-    roleTree.forEach(root => traverse(root))
-
-    return result
-  },
-
-  // 调用获取角色列表接口
-  getRoleList(organizeId) {
-    return alumniAssociationManagementApi.getRoleList(organizeId)
-  },
-
   // 调用邀请成员接口（roleOrId 可选）
   inviteMemberAPI(alumniAssociationId, wxId, roleOrId) {
     return alumniAssociationManagementApi.inviteMember(alumniAssociationId, wxId, roleOrId)
   },
 
   // 打开编辑成员弹窗
-  async openEditModal(e) {
+  openEditModal(e) {
     const member = e.currentTarget.dataset.member
-    // 获取当前成员的角色ID
-    const currentRoleId = member.organizeArchiRole ? member.organizeArchiRole.roleOrId : ''
 
     this.setData({
       editingMember: {
@@ -864,33 +814,15 @@ Page({
         // 编辑表单字段（用户名和手机号仅未注册用户可编辑）
         editUsername: member.name || member.nickname || '',
         editUserPhone: member.userPhone || member.phone || member.contactInformation || '',
-        editUserAffiliation: member.userAffiliation || '',
+        editUserAffiliation: member.userAffiliation || member.socialDuties || '',
         editIsShowOnHome: member.isShowOnHome || 0,
-        // 角色相关
-        editRoleOrId: currentRoleId,
-        editRoleName: (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || member.roleName || '普通成员',
+        // 职务：自由输入，对应 alumni_association_member.role_name
+        editRoleName:
+          (member.roleName != null && member.roleName !== '') ? member.roleName
+            : (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
       },
       showEditModal: true,
     })
-
-    // 加载角色列表
-    await this.loadRoleList()
-
-    // 设置职务选择器当前选中索引
-    const roleId =
-      (member.organizeArchiRole && member.organizeArchiRole.roleOrId) || ''
-    const roleIndex = this.data.roleList.findIndex(
-      role => String(role.roleOrId) === String(roleId)
-    )
-    if (roleIndex !== -1) {
-      this.setData({
-        'editingMember.editRoleIndex': roleIndex,
-      })
-    } else {
-      this.setData({
-        'editingMember.editRoleIndex': 0,
-      })
-    }
   },
 
   // 编辑表单输入处理 - 用户名
@@ -907,6 +839,13 @@ Page({
     })
   },
 
+  // 编辑表单输入处理 - 职务（写入成员表 role_name）
+  onEditRoleNameInput(e) {
+    this.setData({
+      'editingMember.editRoleName': e.detail.value,
+    })
+  },
+
   // 编辑表单输入处理 - 所属单位/职位
   onEditUserAffiliationInput(e) {
     this.setData({
@@ -919,19 +858,6 @@ Page({
     this.setData({
       'editingMember.editIsShowOnHome': e.detail.value ? 1 : 0,
     })
-  },
-
-  // 编辑表单 - 职务选择
-  onEditRoleChange(e) {
-    const index = parseInt(e.detail.value, 10)
-    const selectedRole = this.data.roleList[index]
-    if (selectedRole) {
-      this.setData({
-        'editingMember.editRoleOrId': selectedRole.roleOrId,
-        'editingMember.editRoleName': selectedRole.roleOrName,
-        'editingMember.editRoleIndex': index,
-      })
-    }
   },
 
   // 关闭编辑成员弹窗
@@ -972,9 +898,14 @@ Page({
         }
       }
 
-      // 所属单位/职位 -> 提交到 roleName 字段
+      // 所属单位/职位 -> userAffiliation（与未注册成员邀请表单、后端 UpdateAlumniAssociationMemberDto 一致）
       if (editingMember.editUserAffiliation !== undefined) {
-        updateData.roleName = editingMember.editUserAffiliation.trim()
+        updateData.userAffiliation = editingMember.editUserAffiliation.trim()
+      }
+
+      // 职务文案 -> role_name（alumni_association_member.role_name；不修改 role_or_id）
+      if (editingMember.editRoleName !== undefined) {
+        updateData.roleName = editingMember.editRoleName.trim()
       }
 
       // 主页展示
@@ -986,32 +917,6 @@ Page({
       const res = await alumniAssociationManagementApi.updateMemberInfo(updateData)
 
       if (res.data && res.data.code === 200) {
-        // 检查角色是否有变化，如果有变化则更新角色
-        const originalRoleId = editingMember.organizeArchiRole
-          ? editingMember.organizeArchiRole.roleOrId
-          : ''
-        const newRoleId = editingMember.editRoleOrId || ''
-
-        if (newRoleId && String(newRoleId) !== String(originalRoleId)) {
-          console.log('[Debug] 角色有变化，更新角色:', { originalRoleId, newRoleId })
-          // 调用更新角色接口
-          const roleRes = await this.updateMemberRoleAPI(
-            alumniAssociationId,
-            editingMember.wxId,
-            newRoleId
-          )
-          if (roleRes.data && roleRes.data.code === 200) {
-            console.log('[Debug] 角色更新成功')
-          } else {
-            console.error('[Debug] 角色更新失败:', roleRes)
-            wx.showToast({
-              title: (roleRes.data && roleRes.data.msg) || '角色更新失败',
-              icon: 'none',
-            })
-            return
-          }
-        }
-
         wx.showToast({
           title: '修改成功',
           icon: 'success',
@@ -1073,11 +978,6 @@ Page({
         }
       },
     })
-  },
-
-  // 调用更新成员角色接口
-  updateMemberRoleAPI(alumniAssociationId, wxId, roleOrId) {
-    return alumniAssociationManagementApi.updateMemberRole(alumniAssociationId, wxId, roleOrId)
   },
 
   // 调用删除成员接口

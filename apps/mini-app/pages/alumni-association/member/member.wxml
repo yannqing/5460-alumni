@@ -296,12 +296,12 @@
         </view>
         <view class="form-item">
           <text class="label">职务</text>
-          <picker bindchange="onEditRoleChange" range="{{roleList}}" range-key="roleOrName" value="{{editingMember.editRoleIndex}}">
-            <view class="role-selector">
-              <text class="selector-text">{{editingMember.editRoleName || (editingMember.organizeArchiRole && editingMember.organizeArchiRole.roleOrName) || editingMember.roleName || '请选择职务'}}</text>
-              <text class="selector-arrow">▼</text>
-            </view>
-          </picker>
+          <input
+            class="form-input"
+            placeholder="请输入职务（保存至成员表职务名称）"
+            value="{{editingMember.editRoleName}}"
+            bindinput="onEditRoleNameInput"
+          />
         </view>
         <view class="form-item">
           <text class="label">所属单位/职位</text>
