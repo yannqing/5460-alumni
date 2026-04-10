@@ -313,7 +313,10 @@
           />
         </view>
         <view class="form-item form-item-switch">
-          <text class="label">主页展示</text>
+          <view class="form-item-switch-text">
+            <text class="label">主页展示</text>
+            <text class="edit-form-hint">在主页展示为其他负责人</text>
+          </view>
           <switch
             checked="{{editingMember.editIsShowOnHome === 1}}"
             bindchange="onEditIsShowOnHomeChange"
