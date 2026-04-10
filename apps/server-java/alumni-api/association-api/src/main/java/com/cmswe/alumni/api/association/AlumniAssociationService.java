@@ -36,7 +36,7 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
 
     /**
      * 根据id获取校友会详情
-     * 
+     *
      * @param id   校友会id
      * @param wxId 当前用户wxId（可为null，表示未登录）
      * @return 返回结果
@@ -313,4 +313,33 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @return 删除是否成功
      */
     boolean deleteAlumniAssociationCompletely(Long alumniAssociationId);
+
+    /**
+     * 检查并更新用户的认证标识
+     * <p>根据用户是否加入校友会来更新认证标识：
+     * <ul>
+     *   <li>0: 未认证（未加入任何校友会）</li>
+     *   <li>1: 校友总会认证</li>
+     *   <li>2: 校促会认证</li>
+     *   <li>3: 校友会认证（已加入至少一个校友会）</li>
+     * </ul>
+     *
+     * @param wxId 用户微信ID
+     * @return 用户当前的认证标识
+     */
+    Integer checkAndUpdateUserCertification(Long wxId);
+
+    /**
+     * 批量检查并更新所有用户的认证标识
+     * <p>遍历所有用户，根据是否加入校友会来更新认证标识：
+     * <ul>
+     *   <li>0: 未认证（未加入任何校友会）</li>
+     *   <li>1: 校友总会认证</li>
+     *   <li>2: 校促会认证</li>
+     *   <li>3: 校友会认证（已加入至少一个校友会）</li>
+     * </ul>
+     *
+     * @return 返回统计结果信息
+     */
+    String checkAndUpdateAllUsersCertification();
 }

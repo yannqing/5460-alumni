@@ -39,6 +39,7 @@ import com.cmswe.alumni.common.vo.ActivityDetailVo;
 import com.cmswe.alumni.common.vo.AlumniPlaceListVo;
 import com.cmswe.alumni.common.vo.CoreMemberVo;
 import com.cmswe.alumni.common.vo.UserListResponse;
+import com.cmswe.alumni.service.association.mapper.AlumniAssociationApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationMapper;
 import com.cmswe.alumni.service.association.mapper.SchoolMapper;
@@ -133,10 +134,13 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     @Resource
     private com.cmswe.alumni.service.system.mapper.HomePageArticleApplyMapper homePageArticleApplyMapper;
 
+    @Resource
+    private AlumniAssociationApplicationMapper alumniAssociationApplicationMapper;
+
     // 分页查询 获取校友会列表
     @Override
     public PageVo<AlumniAssociationListVo> selectByPage(QueryAlumniAssociationListDto alumniAssociationListDto,
-            Long currentUserId) {
+                                                        Long currentUserId) {
         // 1.参数校验
         Optional.ofNullable(alumniAssociationListDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.SYSTEM_ERROR));
@@ -859,7 +863,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
     @Override
     public PageVo<AlumniAssociationListVo> getMyPresidentAssociationPage(QueryAlumniAssociationListDto queryDto,
-            Long wxId) {
+                                                                         Long wxId) {
         // 1. 参数校验
         Optional.ofNullable(queryDto).orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
         if (wxId == null) {
@@ -1457,7 +1461,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateMemberRoleV2(Long operatorWxId, Long alumniAssociationId, Long id, String username,
-            Long roleOrId, String roleName) {
+                                      Long roleOrId, String roleName) {
         // 1. 参数校验
         if (operatorWxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "操作人用户ID不能为空");
@@ -1555,7 +1559,7 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
      * @param roleName            新角色名称
      */
     private void sendRoleUpdateNotification(Long operatorWxId, Long targetWxId, Long alumniAssociationId,
-            String associationName, String roleName) {
+                                            String associationName, String roleName) {
         try {
             // 查询操作人信息
             WxUserInfo operatorInfo = wxUserInfoService.getById(operatorWxId);
@@ -1886,15 +1890,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         List<AlumniAssociation> associationList = this.list(associationQueryWrapper);
 
-        // 5. 转换为 VO（「我的校友会」列表对外联系信息优先展示驻会代表电话 zh_phone）
+        // 5. 转换为 VO
         List<AlumniAssociationListVo> voList = associationList.stream()
-                .map(a -> {
-                    AlumniAssociationListVo vo = AlumniAssociationListVo.objToVo(a);
-                    if (StringUtils.isNotBlank(a.getZhPhone())) {
-                        vo.setContactInfo(a.getZhPhone());
-                    }
-                    return vo;
-                })
+                .map(AlumniAssociationListVo::objToVo)
                 .collect(Collectors.toList());
 
         log.info("查询用户加入的校友会列表成功，用户 ID: {}, 校友会数量: {}", wxId, voList.size());
@@ -2492,14 +2490,28 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         log.info("[deleteAlumniAssociationCompletely] 开始删除校友会及所有相关数据 - 校友会ID: {}", alumniAssociationId);
 
         try {
-            // 1. 删除校友会成员表
+            // 1. 删除校友会成员表（删除前先获取所有成员的wxId，用于后续更新认证状态）
             LambdaQueryWrapper<AlumniAssociationMember> memberQuery = new LambdaQueryWrapper<>();
             memberQuery.eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId);
-            long memberCount = alumniAssociationMemberService.count(memberQuery);
-            if (memberCount > 0) {
+            List<AlumniAssociationMember> members = alumniAssociationMemberService.list(memberQuery);
+            List<Long> memberWxIds = members.stream()
+                    .map(AlumniAssociationMember::getWxId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            if (!members.isEmpty()) {
                 boolean memberDeleted = alumniAssociationMemberService.remove(memberQuery);
                 log.info("[deleteAlumniAssociationCompletely] 删除校友会成员 - 校友会ID: {}, 删除数量: {}, 结果: {}",
-                        alumniAssociationId, memberCount, memberDeleted);
+                        alumniAssociationId, members.size(), memberDeleted);
+
+                // 删除成员后，更新这些用户的认证状态
+                if (!memberWxIds.isEmpty()) {
+                    log.info("[deleteAlumniAssociationCompletely] 开始更新 {} 个用户的认证状态", memberWxIds.size());
+                    for (Long wxId : memberWxIds) {
+                        updateUserAlumniStatus(wxId);
+                    }
+                }
             }
 
             // 2. 删除校友会加入申请表
@@ -2546,8 +2558,8 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                             alumniAssociationId, registrationCount);
                 }
 
-                // 删除活动表
-                int activityCount = activityMapper.delete(activityQuery);
+                // 物理删除活动表
+                int activityCount = activityMapper.deleteBatchIds(activityIds);
                 log.info("[deleteAlumniAssociationCompletely] 删除校友会活动 - 校友会ID: {}, 删除数量: {}",
                         alumniAssociationId, activityCount);
             }
@@ -2585,11 +2597,21 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
                 // 删除文章审核记录
                 if (!articleIds.isEmpty()) {
-                    LambdaQueryWrapper<HomePageArticleApply> applyQuery = new LambdaQueryWrapper<>();
-                    applyQuery.in(HomePageArticleApply::getHomeArticleId, articleIds);
-                    int applyCount = homePageArticleApplyMapper.delete(applyQuery);
-                    log.info("[deleteAlumniAssociationCompletely] 删除文章审核记录 - 校友会ID: {}, 删除数量: {}",
-                            alumniAssociationId, applyCount);
+                    try {
+                        LambdaQueryWrapper<HomePageArticleApply> applyQuery = new LambdaQueryWrapper<>();
+                        applyQuery.in(HomePageArticleApply::getHomeArticleId, articleIds);
+                        int applyCount = homePageArticleApplyMapper.delete(applyQuery);
+                        log.info("[deleteAlumniAssociationCompletely] 删除文章审核记录 - 校友会ID: {}, 删除数量: {}",
+                                alumniAssociationId, applyCount);
+                    } catch (Exception e) {
+                        // 如果表不存在，记录日志并跳过
+                        if (e.getMessage() != null && e.getMessage().contains("doesn't exist")) {
+                            log.warn("[deleteAlumniAssociationCompletely] 文章审核记录表不存在，跳过删除 - 校友会ID: {}", alumniAssociationId);
+                        } else {
+                            // 其他异常继续抛出
+                            throw e;
+                        }
+                    }
                 }
 
                 // 删除文章表
@@ -2631,12 +2653,19 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
                         alumniAssociationId, followCount, followDeleted);
             }
 
-            // 13. 最后删除校友会主表
-            boolean associationDeleted = this.removeById(alumniAssociationId);
-            log.info("[deleteAlumniAssociationCompletely] 删除校友会主表 - 校友会ID: {}, 结果: {}",
-                    alumniAssociationId, associationDeleted);
+            // 13. 删除校友会创建申请表（通过 created_association_id 关联）
+            LambdaQueryWrapper<AlumniAssociationApplication> createApplicationQuery = new LambdaQueryWrapper<>();
+            createApplicationQuery.eq(AlumniAssociationApplication::getCreatedAssociationId, alumniAssociationId);
+            int createApplicationCount = alumniAssociationApplicationMapper.delete(createApplicationQuery);
+            log.info("[deleteAlumniAssociationCompletely] 删除校友会创建申请记录 - 校友会ID: {}, 删除数量: {}",
+                    alumniAssociationId, createApplicationCount);
 
-            if (associationDeleted) {
+            // 14. 最后物理删除校友会主表（使用 baseMapper.deleteById 进行物理删除）
+            int associationDeleted = this.baseMapper.deleteById(alumniAssociationId);
+            log.info("[deleteAlumniAssociationCompletely] 删除校友会主表 - 校友会ID: {}, 结果: {}",
+                    alumniAssociationId, associationDeleted > 0);
+
+            if (associationDeleted > 0) {
                 log.info("[deleteAlumniAssociationCompletely] 校友会及所有相关数据删除成功 - 校友会ID: {}", alumniAssociationId);
                 return true;
             } else {
@@ -2648,6 +2677,148 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             log.error("[deleteAlumniAssociationCompletely] 删除校友会异常 - 校友会ID: {}, Error: {}",
                     alumniAssociationId, e.getMessage(), e);
             throw new BusinessException(ErrorType.OPERATION_ERROR, "删除校友会失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 检查并更新用户的认证标识（公开接口）
+     * <p>根据用户是否加入校友会来更新认证标识：
+     * <ul>
+     *   <li>0: 未认证（未加入任何校友会）</li>
+     *   <li>1: 校友总会认证</li>
+     *   <li>2: 校促会认证</li>
+     *   <li>3: 校友会认证（已加入至少一个校友会）</li>
+     * </ul>
+     *
+     * @param wxId 用户微信ID
+     * @return 用户当前的认证标识
+     */
+    @Override
+    public Integer checkAndUpdateUserCertification(Long wxId) {
+        log.info("开始检查并更新用户认证标识 - 用户ID: {}", wxId);
+
+        // 1. 参数校验
+        if (wxId == null) {
+            log.error("用户ID不能为空");
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+
+        // 2. 查询用户信息
+        WxUser wxUser = userService.getById(wxId);
+        if (wxUser == null) {
+            log.error("用户不存在 - 用户ID: {}", wxId);
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户不存在");
+        }
+
+        // 3. 查询用户是否加入了校友会（状态为正常的成员记录）
+        Long associationCount = alumniAssociationMemberService.count(
+                new LambdaQueryWrapper<AlumniAssociationMember>()
+                        .eq(AlumniAssociationMember::getWxId, wxId)
+                        .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
+        );
+
+        log.info("用户校友会数量 - 用户ID: {}, 校友会数量: {}", wxId, associationCount);
+
+        // 4. 根据校友会数量确定认证标识
+        Integer newCertificationFlag;
+        if (associationCount > 0) {
+            // 已加入至少一个校友会，认证标识为 3
+            newCertificationFlag = 3;
+        } else {
+            // 未加入任何校友会，认证标识为 0
+            newCertificationFlag = 0;
+        }
+
+        // 5. 如果认证标识发生变化，更新用户信息
+        Integer currentCertificationFlag = wxUser.getCertificationFlag();
+        if (!newCertificationFlag.equals(currentCertificationFlag)) {
+            wxUser.setCertificationFlag(newCertificationFlag);
+            boolean updateResult = userService.updateById(wxUser);
+
+            if (updateResult) {
+                log.info("用户认证标识已更新 - 用户ID: {}, {} -> {}", wxId, currentCertificationFlag, newCertificationFlag);
+            } else {
+                log.warn("用户认证标识更新失败 - 用户ID: {}", wxId);
+                throw new BusinessException(ErrorType.OPERATION_ERROR, "更新用户认证标识失败");
+            }
+        } else {
+            log.info("用户认证标识无需更新 - 用户ID: {}, 当前认证标识: {}", wxId, currentCertificationFlag);
+        }
+
+        return newCertificationFlag;
+    }
+
+    /**
+     * 批量检查并更新所有用户的认证标识
+     *
+     * @return 返回统计结果信息
+     */
+    @Override
+    public String checkAndUpdateAllUsersCertification() {
+        log.info("开始批量检查并更新所有用户的认证标识");
+
+        try {
+            // 1. 查询所有用户
+            List<WxUser> allUsers = userService.list();
+            log.info("查询到用户总数: {}", allUsers.size());
+
+            int totalUsers = allUsers.size();
+            int updatedCount = 0;
+            int certifiedCount = 0;
+            int uncertifiedCount = 0;
+            int errorCount = 0;
+
+            // 2. 遍历所有用户，检查并更新认证标识
+            for (WxUser user : allUsers) {
+                try {
+                    Long wxId = user.getWxId();
+                    Integer oldFlag = user.getCertificationFlag();
+
+                    // 查询用户是否加入了校友会
+                    Long associationCount = alumniAssociationMemberService.count(
+                            new LambdaQueryWrapper<AlumniAssociationMember>()
+                                    .eq(AlumniAssociationMember::getWxId, wxId)
+                                    .eq(AlumniAssociationMember::getStatus, 1)
+                    );
+
+                    // 确定新的认证标识
+                    Integer newFlag = (associationCount > 0) ? 3 : 0;
+
+                    // 统计
+                    if (newFlag == 3) {
+                        certifiedCount++;
+                    } else {
+                        uncertifiedCount++;
+                    }
+
+                    // 如果认证标识发生变化，更新用户信息
+                    if (!newFlag.equals(oldFlag)) {
+                        user.setCertificationFlag(newFlag);
+                        boolean updateResult = userService.updateById(user);
+
+                        if (updateResult) {
+                            updatedCount++;
+                            log.debug("用户认证标识已更新 - 用户ID: {}, {} -> {}", wxId, oldFlag, newFlag);
+                        } else {
+                            errorCount++;
+                            log.warn("用户认证标识更新失败 - 用户ID: {}", wxId);
+                        }
+                    }
+                } catch (Exception e) {
+                    errorCount++;
+                    log.error("处理用户认证标识时发生异常 - 用户ID: {}, Error: {}", user.getWxId(), e.getMessage());
+                }
+            }
+
+            String result = String.format("批量检查完成 - 总用户数: %d, 更新数量: %d, 已认证: %d, 未认证: %d, 失败: %d",
+                    totalUsers, updatedCount, certifiedCount, uncertifiedCount, errorCount);
+
+            log.info(result);
+            return result;
+
+        } catch (Exception e) {
+            log.error("批量检查用户认证标识异常 - Error: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "批量检查失败：" + e.getMessage());
         }
     }
 

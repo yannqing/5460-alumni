@@ -216,8 +216,8 @@ public class AlumniAssociationManagementController {
         @PostMapping("/queryMemberList")
         @Operation(summary = "根据校友会 id 查询校友会成员列表")
         public BaseResponse<Page<OrganizationMemberResponse>> queryMemberList(
-                        @Valid @RequestBody QueryAlumniAssociationMemberListRequest request,
-                        @AuthenticationPrincipal SecurityUser securityUser) {
+                @Valid @RequestBody QueryAlumniAssociationMemberListRequest request,
+                @AuthenticationPrincipal SecurityUser securityUser) {
                 log.info("查询校友会成员列表，校友会 ID: {}, 查询条件: {}", request.getAlumniAssociationId(), request);
 
                 // 获取当前用户ID（如果未登录则为null）
@@ -226,10 +226,10 @@ public class AlumniAssociationManagementController {
                         : null;
 
                 Page<OrganizationMemberResponse> memberPage = alumniAssociationService
-                                .getAlumniAssociationMemberPage(request, currentUserId);
+                        .getAlumniAssociationMemberPage(request, currentUserId);
 
                 log.info("查询校友会成员列表成功，校友会 ID: {}, 总记录数: {}",
-                                request.getAlumniAssociationId(), memberPage.getTotal());
+                        request.getAlumniAssociationId(), memberPage.getTotal());
 
                 return ResultUtils.success(Code.SUCCESS, memberPage, "查询成功");
         }
@@ -244,20 +244,20 @@ public class AlumniAssociationManagementController {
         @Operation(summary = "删除校友会成员")
         public BaseResponse<Boolean> deleteMember(@Valid @RequestBody DeleteAlumniAssociationMemberDto deleteDto) {
                 log.info("删除校友会成员，校友会 ID: {}, 成员记录 ID: {}, 成员用户 ID: {}",
-                                deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
+                        deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
 
                 boolean result = alumniAssociationService.deleteMember(
-                                deleteDto.getAlumniAssociationId(),
-                                deleteDto.getId(),
-                                deleteDto.getWxId());
+                        deleteDto.getAlumniAssociationId(),
+                        deleteDto.getId(),
+                        deleteDto.getWxId());
 
                 if (result) {
                         log.info("删除校友会成员成功，校友会 ID: {}, 成员记录 ID: {}, 成员用户 ID: {}",
-                                        deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
+                                deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
                         return ResultUtils.success(Code.SUCCESS, true, "删除成功");
                 } else {
                         log.error("删除校友会成员失败，校友会 ID: {}, 成员记录 ID: {}, 成员用户 ID: {}",
-                                        deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
+                                deleteDto.getAlumniAssociationId(), deleteDto.getId(), deleteDto.getWxId());
                         return ResultUtils.failure(Code.FAILURE, false, "删除失败");
                 }
         }
@@ -272,22 +272,22 @@ public class AlumniAssociationManagementController {
         @Operation(summary = "邀请校友加入校友会")
         public BaseResponse<Boolean> inviteMember(@Valid @RequestBody InviteAlumniAssociationMemberDto inviteDto) {
                 log.info("邀请校友加入校友会，校友会 ID: {}, 校友用户 ID: {}, 角色 ID: {}",
-                                inviteDto.getAlumniAssociationId(), inviteDto.getWxId(), inviteDto.getRoleOrId());
+                        inviteDto.getAlumniAssociationId(), inviteDto.getWxId(), inviteDto.getRoleOrId());
 
                 boolean result = alumniAssociationService.inviteMember(
-                                inviteDto.getAlumniAssociationId(),
-                                inviteDto.getWxId(),
-                                inviteDto.getRoleOrId());
+                        inviteDto.getAlumniAssociationId(),
+                        inviteDto.getWxId(),
+                        inviteDto.getRoleOrId());
 
                 if (result) {
                         log.info("邀请校友加入校友会成功，校友会 ID: {}, 校友用户 ID: {}, 角色 ID: {}",
-                                        inviteDto.getAlumniAssociationId(), inviteDto.getWxId(),
-                                        inviteDto.getRoleOrId());
+                                inviteDto.getAlumniAssociationId(), inviteDto.getWxId(),
+                                inviteDto.getRoleOrId());
                         return ResultUtils.success(Code.SUCCESS, true, "邀请成功");
                 } else {
                         log.error("邀请校友加入校友会失败，校友会 ID: {}, 校友用户 ID: {}, 角色 ID: {}",
-                                        inviteDto.getAlumniAssociationId(), inviteDto.getWxId(),
-                                        inviteDto.getRoleOrId());
+                                inviteDto.getAlumniAssociationId(), inviteDto.getWxId(),
+                                inviteDto.getRoleOrId());
                         return ResultUtils.failure(Code.FAILURE, false, "邀请失败");
                 }
         }
@@ -341,8 +341,8 @@ public class AlumniAssociationManagementController {
                 log.info("删除组织架构角色，角色 ID: {}, 组织 ID: {}", deleteDto.getRoleOrId(), deleteDto.getOrganizeId());
 
                 boolean result = organizeArchiRoleService.deleteOrganizeArchiRole(
-                                deleteDto.getRoleOrId(),
-                                deleteDto.getOrganizeId());
+                        deleteDto.getRoleOrId(),
+                        deleteDto.getOrganizeId());
 
                 log.info("删除组织架构角色成功，角色 ID: {}, 组织 ID: {}", deleteDto.getRoleOrId(), deleteDto.getOrganizeId());
                 return ResultUtils.success(Code.SUCCESS, result, "删除成功");
@@ -357,17 +357,17 @@ public class AlumniAssociationManagementController {
         @PostMapping("/role/list")
         @Operation(summary = "查询组织架构角色列表（树形结构）")
         public BaseResponse<List<OrganizeArchiRoleVo>> getOrganizeArchiRoleList(
-                        @Valid @RequestBody QueryOrganizeArchiRoleListDto queryDto) {
+                @Valid @RequestBody QueryOrganizeArchiRoleListDto queryDto) {
                 log.info("查询校友会组织架构角色树，组织 ID: {}", queryDto.getOrganizeId());
 
                 // 后端指定组织类型为校友会（0）
                 queryDto.setOrganizeType(0);
 
                 List<OrganizeArchiRoleVo> roleTree = organizeArchiRoleService.getOrganizeArchiRoleTree(
-                                queryDto.getOrganizeId(),
-                                queryDto.getOrganizeType(),
-                                queryDto.getRoleOrName(),
-                                queryDto.getStatus());
+                        queryDto.getOrganizeId(),
+                        queryDto.getOrganizeType(),
+                        queryDto.getRoleOrName(),
+                        queryDto.getStatus());
 
                 log.info("查询校友会组织架构角色树成功，组织 ID: {}, 根节点数: {}", queryDto.getOrganizeId(), roleTree.size());
                 return ResultUtils.success(Code.SUCCESS, roleTree, "查询成功");
@@ -383,31 +383,31 @@ public class AlumniAssociationManagementController {
         @PutMapping("/updateMemberRole")
         @Operation(summary = "更新校友会成员的组织架构角色")
         public BaseResponse<Boolean> updateMemberRole(
-                        @AuthenticationPrincipal SecurityUser securityUser,
-                        @Valid @RequestBody UpdateMemberRoleDto updateDto) {
+                @AuthenticationPrincipal SecurityUser securityUser,
+                @Valid @RequestBody UpdateMemberRoleDto updateDto) {
 
                 Long operatorWxId = securityUser.getWxUser().getWxId();
 
                 log.info("更新校友会成员角色，操作人 ID: {}, 校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}, 角色名称: {}",
-                                operatorWxId, updateDto.getAlumniAssociationId(), updateDto.getWxId(),
-                                updateDto.getRoleOrId(), updateDto.getRoleName());
+                        operatorWxId, updateDto.getAlumniAssociationId(), updateDto.getWxId(),
+                        updateDto.getRoleOrId(), updateDto.getRoleName());
 
                 boolean result = alumniAssociationService.updateMemberRole(
-                                operatorWxId,
-                                updateDto.getAlumniAssociationId(),
-                                updateDto.getWxId(),
-                                updateDto.getRoleOrId(),
-                                updateDto.getRoleName());
+                        operatorWxId,
+                        updateDto.getAlumniAssociationId(),
+                        updateDto.getWxId(),
+                        updateDto.getRoleOrId(),
+                        updateDto.getRoleName());
 
                 if (result) {
                         log.info("更新校友会成员角色成功，校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",
-                                        updateDto.getAlumniAssociationId(), updateDto.getWxId(),
-                                        updateDto.getRoleOrId());
+                                updateDto.getAlumniAssociationId(), updateDto.getWxId(),
+                                updateDto.getRoleOrId());
                         return ResultUtils.success(Code.SUCCESS, true, "更新成功");
                 } else {
                         log.error("更新校友开成员角色失败，校友会 ID: {}, 成员用户 ID: {}, 新角色 ID: {}",
-                                        updateDto.getAlumniAssociationId(), updateDto.getWxId(),
-                                        updateDto.getRoleOrId());
+                                updateDto.getAlumniAssociationId(), updateDto.getWxId(),
+                                updateDto.getRoleOrId());
                         return ResultUtils.failure(Code.FAILURE, false, "更新失败");
                 }
         }
@@ -422,33 +422,33 @@ public class AlumniAssociationManagementController {
         @PutMapping("/updateMemberRole/v2")
         @Operation(summary = "更新校友会成员的组织架构角色V2（基于username）")
         public BaseResponse<Boolean> updateMemberRoleV2(
-                        @AuthenticationPrincipal SecurityUser securityUser,
-                        @Valid @RequestBody UpdateAlumniAssociationMemberRoleV2Dto updateDto) {
+                @AuthenticationPrincipal SecurityUser securityUser,
+                @Valid @RequestBody UpdateAlumniAssociationMemberRoleV2Dto updateDto) {
 
                 Long operatorWxId = securityUser.getWxUser().getWxId();
 
                 log.info("更新校友会成员角色V2，操作人 ID: {}, 校友会 ID: {}, 成员 ID: {}, 成员用户名: {}, 新角色 ID: {}",
-                                operatorWxId, updateDto.getAlumniAssociationId(), updateDto.getId(),
-                                updateDto.getUsername(),
-                                updateDto.getRoleOrId());
+                        operatorWxId, updateDto.getAlumniAssociationId(), updateDto.getId(),
+                        updateDto.getUsername(),
+                        updateDto.getRoleOrId());
 
                 boolean result = alumniAssociationService.updateMemberRoleV2(
-                                operatorWxId,
-                                updateDto.getAlumniAssociationId(),
-                                updateDto.getId(),
-                                updateDto.getUsername(),
-                                updateDto.getRoleOrId(),
-                                updateDto.getRoleName());
+                        operatorWxId,
+                        updateDto.getAlumniAssociationId(),
+                        updateDto.getId(),
+                        updateDto.getUsername(),
+                        updateDto.getRoleOrId(),
+                        updateDto.getRoleName());
 
                 if (result) {
                         log.info("更新校友会成员角色V2成功，校友会 ID: {}, 成员记录 ID: {}, 成员用户名: {}, 新角色 ID: {}",
-                                        updateDto.getAlumniAssociationId(), updateDto.getId(), updateDto.getUsername(),
-                                        updateDto.getRoleOrId());
+                                updateDto.getAlumniAssociationId(), updateDto.getId(), updateDto.getUsername(),
+                                updateDto.getRoleOrId());
                         return ResultUtils.success(Code.SUCCESS, true, "更新成功");
                 } else {
                         log.error("更新校友会成员角色V2失败，校友会 ID: {}, 成员记录 ID: {}, 成员用户名: {}, 新角色 ID: {}",
-                                        updateDto.getAlumniAssociationId(), updateDto.getId(), updateDto.getUsername(),
-                                        updateDto.getRoleOrId());
+                                updateDto.getAlumniAssociationId(), updateDto.getId(), updateDto.getUsername(),
+                                updateDto.getRoleOrId());
                         return ResultUtils.failure(Code.FAILURE, false, "更新失败");
                 }
         }
@@ -727,6 +727,36 @@ public class AlumniAssociationManagementController {
                         log.error("[超级管理员操作] 完全删除校友会系统异常 - 校友会ID: {}, 操作人ID: {}, Error: {}",
                                 alumniAssociationId, operatorWxId, e.getMessage(), e);
                         throw new BusinessException(ErrorType.OPERATION_ERROR, "删除校友会失败：" + e.getMessage());
+                }
+        }
+
+        /**
+         * 检查并更新所有用户的认证标识
+         * <p>
+         * 此接口用于批量检查所有用户是否加入了校友会，并根据情况更新认证标识：
+         * - 0: 未认证（未加入任何校友会）
+         * - 1: 校友总会认证
+         * - 2: 校促会认证
+         * - 3: 校友会认证（已加入至少一个校友会）
+         * </p>
+         *
+         * @return 返回检查结果统计信息
+         */
+        @PostMapping("/checkAllUsersCertification")
+        @Operation(summary = "检查并更新所有用户的认证标识")
+        public BaseResponse<String> checkAllUsersCertification() {
+                log.info("[超级管理员操作] 开始批量检查所有用户的认证标识");
+
+                try {
+                        String result = alumniAssociationService.checkAndUpdateAllUsersCertification();
+                        log.info("[超级管理员操作] 批量检查所有用户认证标识完成: {}", result);
+                        return ResultUtils.success(Code.SUCCESS, result, "批量检查完成");
+                } catch (BusinessException e) {
+                        log.error("[超级管理员操作] 批量检查用户认证标识失败 - Error: {}", e.getMessage());
+                        throw e;
+                } catch (Exception e) {
+                        log.error("[超级管理员操作] 批量检查用户认证标识系统异常 - Error: {}", e.getMessage(), e);
+                        throw new BusinessException(ErrorType.OPERATION_ERROR, "批量检查用户认证标识失败：" + e.getMessage());
                 }
         }
 }
