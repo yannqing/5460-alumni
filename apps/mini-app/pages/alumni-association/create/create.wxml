@@ -295,10 +295,11 @@
         value="{{formData.associationProfile}}"
         data-field="associationProfile"
         bindinput="handleInput"
-        maxlength="2000"
+        maxlength="1000"
         adjust-position="{{true}}"
         cursor-spacing="100"
       />
+      <view class="textarea-count">{{formData.associationProfile.length || 0}}/1000</view>
     </view>
 
     <view class="form-item">

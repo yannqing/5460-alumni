@@ -158,6 +158,13 @@ page {
   line-height: 1.5;
 }
 
+.textarea-count {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 12rpx;
+}
+
 .input.disabled {
   background-color: #f9f9f9;
   color: #999;

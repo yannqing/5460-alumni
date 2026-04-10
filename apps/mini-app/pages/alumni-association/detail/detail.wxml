@@ -72,10 +72,14 @@
               <view class="show-members-title">主要负责人</view>
               <view class="show-members-list">
                 <view class="show-member-item">
-                  <view class="show-member-left">
-                    <text class="show-member-role">{{associationInfo.chargeRole || '-'}}</text>
-                    <text class="show-member-contact">{{associationInfo.contactInfo || '-'}}</text>
-                    <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
+                  <view class="show-member-row-scroll">
+                    <view class="show-member-row-inner">
+                      <text class="show-member-role">{{associationInfo.chargeRole || '-'}}</text>
+                      <view class="show-member-meta">
+                        <text class="show-member-name">{{associationInfo.chargeName || '-'}}</text>
+                        <text class="show-member-contact">{{associationInfo.contactInfo || '-'}}</text>
+                      </view>
+                    </view>
                   </view>
                 </view>
               </view>
@@ -86,10 +90,14 @@
               <view class="show-members-title">其他负责人</view>
               <view class="show-members-list">
                 <view class="show-member-item" wx:for="{{coreMemberList}}" wx:key="index" data-member="{{item}}">
-                  <view class="show-member-left">
-                    <text class="show-member-role">{{item.roleName || '-'}}</text>
-                    <text class="show-member-contact">{{item.userPhone || '-'}}</text>
-                    <text class="show-member-name">{{item.username || '-'}}</text>
+                  <view class="show-member-row-scroll">
+                    <view class="show-member-row-inner">
+                      <text class="show-member-role">{{item.roleName || '-'}}</text>
+                      <view class="show-member-meta">
+                        <text class="show-member-name">{{item.username || '-'}}</text>
+                        <text class="show-member-contact">{{item.userPhone || '-'}}</text>
+                      </view>
+                    </view>
                   </view>
                 </view>
               </view>
@@ -100,10 +108,14 @@
               <view class="show-members-title">主要联系人</view>
               <view class="show-members-list">
                 <view class="show-member-item">
-                  <view class="show-member-left">
-                    <text class="show-member-role">{{associationInfo.zhRole || '-'}}</text>
-                    <text class="show-member-contact">{{associationInfo.zhPhone || '-'}}</text>
-                    <text class="show-member-name">{{associationInfo.zhName || '-'}}</text>
+                  <view class="show-member-row-scroll">
+                    <view class="show-member-row-inner">
+                      <text class="show-member-role">{{associationInfo.zhRole || '-'}}</text>
+                      <view class="show-member-meta">
+                        <text class="show-member-name">{{associationInfo.zhName || '-'}}</text>
+                        <text class="show-member-contact">{{associationInfo.zhPhone || '-'}}</text>
+                      </view>
+                    </view>
                   </view>
                 </view>
               </view>
