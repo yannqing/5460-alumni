@@ -382,7 +382,7 @@ Page({
             wxId: item.wxId,
             avatar: avatarUrl,
             nickname: item.nickname || '',
-            name: item.name || item.realName || '未知用户',
+            name: item.name || item.nickname || '未知用户',
             role: roleOrName,
             company: signature,
           }
@@ -392,14 +392,13 @@ Page({
         const total = Number(memberData.total || 0)
         // 优先使用 total 判断；无 total 时回退到 hasNext / 本页条数
         const hasMoreByTotal = total > 0 ? mergedMembers.length < total : null
-        const hasMoreByFlag =
-          typeof memberData.hasNext === 'boolean' ? memberData.hasNext : null
+        const hasMoreByFlag = typeof memberData.hasNext === 'boolean' ? memberData.hasNext : null
         const hasMore =
           hasMoreByTotal !== null
             ? hasMoreByTotal
             : hasMoreByFlag !== null
-            ? hasMoreByFlag
-            : mappedMembers.length > 0
+              ? hasMoreByFlag
+              : mappedMembers.length > 0
 
         this.setData({
           members: mergedMembers,
