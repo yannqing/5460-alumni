@@ -17,6 +17,7 @@ import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.system.HomePageArticleService;
 import com.cmswe.alumni.common.constant.Code;
+import com.cmswe.alumni.web.aop.PrivacyFilter;
 import com.cmswe.alumni.common.dto.QueryAlumniAssociationListDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
@@ -184,6 +185,7 @@ public class AlumniAssociationController {
         return ResultUtils.success(Code.SUCCESS, alumniAssociationDetailVo, "查询成功");
     }
 
+    @PrivacyFilter
     @PostMapping("/member/page")
     @Operation(summary = "查看校友会下的成员列表")
     public BaseResponse<Page<OrganizationMemberResponse>> getAlumniAssociationMemberPage(

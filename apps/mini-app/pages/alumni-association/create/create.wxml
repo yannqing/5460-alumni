@@ -37,17 +37,17 @@
       <view class="label-with-hint">
         <text class="label">曾用名</text>
       </view>
-      <input class="input" placeholder="请输入母校曾用名（以毕业证书为准）" placeholder-class="input-placeholder" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" maxlength="100" />
+      <input class="input" placeholder="请输入母校曾用名（以毕业证书为准）" placeholder-class="input-placeholder" value="{{formData.previousName}}" data-field="previousName" bindinput="handleInput" maxlength="100" adjust-position="{{false}}" />
     </view>
 
     <view class="form-item required">
       <text class="label">校友会全称</text>
-      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" placeholder-class="input-placeholder" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" maxlength="100" />
+      <input class="input" placeholder="请输入校友会名称 (推荐 学校名+地区+校友会)" placeholder-class="input-placeholder" value="{{formData.associationName}}" data-field="associationName" bindinput="handleInput" maxlength="100" adjust-position="{{false}}" />
     </view>
 
     <view class="form-item">
       <text class="label">覆盖区域</text>
-      <input class="input" placeholder="请输入管理覆盖区域" placeholder-class="input-placeholder" value="{{formData.coverageArea}}" data-field="coverageArea" bindinput="handleInput" maxlength="120" />
+      <input class="input" placeholder="请输入管理覆盖区域" placeholder-class="input-placeholder" value="{{formData.coverageArea}}" data-field="coverageArea" bindinput="handleInput" maxlength="120" adjust-position="{{false}}" />
     </view>
 
     <view class="form-item required">
@@ -183,19 +183,19 @@
     <view class="form-title">校友会信息</view>
     <view class="form-item required">
       <text class="label">联系人姓名</text>
-      <input class="input" placeholder="请输入联系人姓名" placeholder-class="input-placeholder" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" maxlength="32" />
+      <input class="input" placeholder="请输入联系人姓名" placeholder-class="input-placeholder" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" maxlength="32" adjust-position="{{false}}" />
     </view>
     <view class="form-item required">
       <text class="label">联系电话</text>
-      <input class="input" type="digit" placeholder="请输入11位手机号" placeholder-class="input-placeholder" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" maxlength="11" />
+      <input class="input" type="digit" placeholder="请输入11位手机号" placeholder-class="input-placeholder" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" maxlength="11" adjust-position="{{false}}" />
     </view>
     <view class="form-item required">
       <text class="label">校友会职务</text>
-      <input class="input" placeholder="请输入联系人职务" placeholder-class="input-placeholder" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" maxlength="50" />
+      <input class="input" placeholder="请输入联系人职务" placeholder-class="input-placeholder" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" maxlength="50" adjust-position="{{false}}" />
     </view>
     <view class="form-item required">
       <text class="label">社会职务</text>
-      <input class="input" placeholder="如工作单位和职务" placeholder-class="input-placeholder" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" maxlength="100" />
+      <input class="input" placeholder="如工作单位和职务" placeholder-class="input-placeholder" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" maxlength="100" adjust-position="{{false}}" />
     </view>
 
     <view class="form-subsection-title" style="display: flex; justify-content: space-between; align-items: center;">
@@ -212,19 +212,19 @@
         <view class="member-form-group">
           <view class="member-form-row">
             <text class="member-label required">姓名</text>
-            <input class="input member-full-input" placeholder="请直接输入姓名" placeholder-class="input-placeholder" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="handleMemberInput" maxlength="32" />
+            <input class="input member-full-input" placeholder="请直接输入姓名" placeholder-class="input-placeholder" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="handleMemberInput" maxlength="32" adjust-position="{{false}}" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">联系电话</text>
-            <input class="input member-full-input" type="digit" placeholder="请输入11位手机号" placeholder-class="input-placeholder" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" maxlength="11" />
+            <input class="input member-full-input" type="digit" placeholder="请输入11位手机号" placeholder-class="input-placeholder" value="{{item.phone}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="phone" maxlength="11" adjust-position="{{false}}" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">校友会职务</text>
-            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" placeholder-class="input-placeholder" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" maxlength="50" />
+            <input class="input member-full-input" placeholder="{{index === 0 ? '如：会长' : '如：副会长'}}" placeholder-class="input-placeholder" value="{{item.role}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="role" maxlength="50" adjust-position="{{false}}" />
           </view>
           <view class="member-form-row">
             <text class="member-label required">社会职务</text>
-            <input class="input member-full-input" placeholder="请输入社会职务" placeholder-class="input-placeholder" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" maxlength="100" />
+            <input class="input member-full-input" placeholder="请输入社会职务" placeholder-class="input-placeholder" value="{{item.affiliation}}" bindinput="handleMemberInput" data-index="{{index}}" data-field="affiliation" maxlength="100" adjust-position="{{false}}" />
           </view>
         </view>
       </view>

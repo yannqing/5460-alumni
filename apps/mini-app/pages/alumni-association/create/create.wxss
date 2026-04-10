@@ -4,6 +4,8 @@ page {
   padding-bottom: 60rpx;
   padding: 0;
   margin: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .white-background-content {
