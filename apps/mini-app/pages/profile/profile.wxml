@@ -97,10 +97,10 @@
           <image src="{{iconWdsc}}" class="label_9-3"></image>
           <text lines="1" class="text-group_2-3">我的名片</text>
         </view>
-        <view class="image-text_8-2">
+        <view class="image-text_8-2" bindtap="onMyFavoritesFromGridTap">
           <image src="{{iconWdsc}}" class="label_9-2"></image>
           <text lines="1" class="text-group_2-2">我的收藏</text>
-          <view class="construction-tag">开发中</view>
+          <view wx:if="{{constructionNavBlocked}}" class="construction-tag">开发中</view>
         </view>
         <view class="image-text_9-3" bindtap="navigateTo" data-url="/pages/profile/privacy/privacy">
           <image src="{{iconGrys}}" class="label_10-3"></image>

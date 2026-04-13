@@ -295,9 +295,13 @@ const searchApi = {
 }
 
 // ==================== 文件上传相关接口 ====================
-// 使用独立的文件上传工具
+// 说明：图片/音频/文档在「云托管」与「传统 API（如连 localhost）」下走不同链路。
+// - IS_CLOUD_HOST === true：走 cosUpload（先调后端 /file/cos/credential 拿临时密钥，再直传 COS），
+//   用于绕开云托管网关对包体大小的限制；要求后端 file.storage-type=cos 且能签发凭证。
+// - IS_CLOUD_HOST === false：走 fileUploadUtil（wx.uploadFile  multipart 到后端），
+//   与本地开发 file.storage-type=local 一致，不会出现「未启用 COS 无法获取临时凭证」。
 const fileUploadUtil = require('../utils/fileUpload.js')
-// COS 前端直传工具（绕过云托管网关大小限制）
+const config = require('../utils/config.js')
 const cosUploadUtil = require('../utils/cosUpload.js')
 
 // 文件上传/下载接口路径配置
@@ -314,23 +318,43 @@ const FILE_API_PATHS = {
 }
 
 const fileApi = {
-  // 上传图片（通过 COS 前端直传，绕过云托管网关大小限制）
-  // 返回格式与旧接口保持一致：{ code: 200, data: FilesVo }
-  uploadImage: async (filePath, originalName, fileSize) => {
-    const filesVo = await cosUploadUtil.uploadImageToCos(filePath, originalName, fileSize)
-    return { code: 200, data: filesVo }
+  /**
+   * 上传图片（统一入口：各业务页如商户申请营业执照、资料编辑等调用此方法即可）
+   * @param {string} filePath 本地临时文件路径
+   * @param {string} [originalName] 原始文件名（可选，传统上传会带给后端）
+   * @param {number} [fileSize] 字节大小（可选；仅 COS 直传链路会用到）
+   * @returns {Promise<{code:number,data:FilesVo}>} 与历史约定一致：成功时 code=200，data 含 fileUrl 等
+   */
+  uploadImage: async (filePath, originalName = '', fileSize) => {
+    if (config.IS_CLOUD_HOST) {
+      // 云托管：浏览器/小程序不经过网关直传 COS，返回的 FilesVo 与 saveFileRecord 等后端逻辑对齐
+      const filesVo = await cosUploadUtil.uploadImageToCos(filePath, originalName, fileSize)
+      return { code: 200, data: filesVo }
+    }
+    // 传统模式：POST multipart 到 Java，后端 FileController /file/upload/images，支持 local 磁盘存储
+    return fileUploadUtil.uploadImage(filePath, FILE_API_PATHS.UPLOAD_IMAGE, originalName || '')
   },
 
-  // 上传音频（通过 COS 前端直传）
-  uploadAudio: async (filePath, originalName, fileSize) => {
-    const filesVo = await cosUploadUtil.uploadAudioToCos(filePath, originalName, fileSize)
-    return { code: 200, data: filesVo }
+  /**
+   * 上传音频（分支规则同 uploadImage）
+   */
+  uploadAudio: async (filePath, originalName = '', fileSize) => {
+    if (config.IS_CLOUD_HOST) {
+      const filesVo = await cosUploadUtil.uploadAudioToCos(filePath, originalName, fileSize)
+      return { code: 200, data: filesVo }
+    }
+    return fileUploadUtil.uploadAudio(filePath, FILE_API_PATHS.UPLOAD_AUDIO, originalName || '')
   },
 
-  // 上传文档文件（通过 COS 前端直传）
-  uploadDocument: async (filePath, originalName, fileSize) => {
-    const filesVo = await cosUploadUtil.uploadDocumentToCos(filePath, originalName, fileSize)
-    return { code: 200, data: filesVo }
+  /**
+   * 上传文档（分支规则同 uploadImage）
+   */
+  uploadDocument: async (filePath, originalName = '', fileSize) => {
+    if (config.IS_CLOUD_HOST) {
+      const filesVo = await cosUploadUtil.uploadDocumentToCos(filePath, originalName, fileSize)
+      return { code: 200, data: filesVo }
+    }
+    return fileUploadUtil.uploadDocument(filePath, FILE_API_PATHS.UPLOAD_DOCUMENT, originalName || '')
   },
 
   // 上传视频（接口路径在 FILE_API_PATHS.UPLOAD_VIDEO 中配置）
@@ -353,7 +377,7 @@ const fileApi = {
     return fileUploadUtil.saveFileToLocal(tempFilePath)
   },
 
-  // ===== COS 前端直传方法（返回 FilesVo，不包装）=====
+  // ===== 显式 COS 直传（始终走凭证接口；仅当确认后端已启用 COS 时使用，一般业务请用 uploadImage）=====
   cosUploadImage: (tempFilePath, originalName, fileSize) => {
     return cosUploadUtil.uploadImageToCos(tempFilePath, originalName, fileSize)
   },

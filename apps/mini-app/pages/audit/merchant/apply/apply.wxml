@@ -17,7 +17,7 @@
         {{item}}
       </view>
     </view>
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;" bindscrolltolower="loadMore">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" bindscrolltolower="loadMore">
       <view class="loading-state" wx:if="{{loading}}">
         <text>加载中...</text>
       </view>

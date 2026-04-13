@@ -2,6 +2,7 @@
 const { homeArticleApi, associationApi, bannerApi, activityApi } = require('../../api/api')
 const config = require('../../utils/config.js')
 const auth = require('../../utils/auth.js')
+const featureFlags = require('../../utils/feature-flags.js')
 const app = getApp()
 
 Page({
@@ -66,6 +67,8 @@ Page({
     refresherHeight: 0,
     // 当前滚动位置
     scrollTop: 0,
+    /** 与 utils/feature-flags.constructionNavBlocked 同步，供 WXML 绑定 */
+    constructionNavBlocked: featureFlags.constructionNavBlocked,
   },
 
   /**
@@ -495,8 +498,8 @@ Page({
    * 页面导航
    */
   navTo(e) {
-    const disabled = e.currentTarget.dataset.disabled
-    if (disabled) {
+    const d = e.currentTarget.dataset.disabled
+    if (d === true || d === 'true') {
       return
     }
     const url = e.currentTarget.dataset.url

@@ -284,7 +284,7 @@ Page({
     // 获取用户的原始角色列表（从缓存中读取）
     const originalRoles = wx.getStorageSync('roles') || []
 
-    // 默认不显示任何功能模块（商家模块全局不展示）
+    // 默认不显示任何功能模块
     let showSchoolOfficeFunctions = false
     let showAlumniFunctions = false
     let showMerchantFunctions = false
@@ -403,9 +403,12 @@ Page({
           return false
         })
 
-    // 过滤商家管理功能（merchantFunctions）
-    // 需求：商家及其下面的功能暂不展示（包括超级管理员）
-    const filteredMerchantFunctions = []
+    // 商家管理（店铺/成员/架构/优惠券等）：超管、商户管理员、门店管理员，或接口兜底识别到商户组织时展示；子页再做细粒度校验
+    const filteredMerchantFunctions =
+      hasSuperAdmin || hasMerchantAdmin || hasShopAdmin || merchantFromApi
+        ? this.data._allMerchantFunctions
+        : []
+    showMerchantFunctions = filteredMerchantFunctions.length > 0
 
     // 展示「城市」「校友会」整块：系统超级管理员或具备对应模块配置权限（与是否担任校促会/校友会组织管理员无关）
     if (hasSuperAdmin || hasLocalAdmin || this.hasPermission('LOCAL_PLATFORM_CONFIG')) {
@@ -414,8 +417,6 @@ Page({
     if (hasSuperAdmin || hasLocalAdmin || hasAlumniAdmin || this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')) {
       showAlumniFunctions = true
     }
-    // 商家模块全局隐藏，不再根据任何角色或权限展示
-    showMerchantFunctions = false
 
     // 更新数据，根据权限过滤功能列表
     this.setData({

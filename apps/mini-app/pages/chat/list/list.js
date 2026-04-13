@@ -1,5 +1,6 @@
 // pages/chat/list/list.js
 const config = require('../../../utils/config.js')
+const featureFlags = require('../../../utils/feature-flags.js')
 const { chatApi } = require('../../../api/api.js')
 
 Page({
@@ -29,7 +30,8 @@ Page({
     iconAlumni: config.getIconUrl('chatwdxyh@2x.png'), // Using existing icons as placeholders if specific ones aren't known
     iconFav: config.getIconUrl('chatwdsc@2x.png'),
     iconFollow: config.getIconUrl('chatwdgz@2x.png'),
-    defaultAvatar: config.defaultAvatar
+    defaultAvatar: config.defaultAvatar,
+    constructionNavBlocked: featureFlags.constructionNavBlocked,
   },
 
   // WebSocket 事件监听器引用（用于移除监听）
@@ -408,6 +410,13 @@ Page({
     wx.navigateTo({
       url: '/pages/my-favorites/my-favorites'
     })
+  },
+
+  onMyFavoritesTap() {
+    if (this.data.constructionNavBlocked) {
+      return
+    }
+    this.navigateToMyFavorites()
   },
 
   // ================= 手势滑动逻辑 =================

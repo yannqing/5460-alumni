@@ -1,8 +1,10 @@
 const auth = require('../utils/auth.js');
 const config = require('../utils/config.js');
+const featureFlags = require('../utils/feature-flags.js');
 
 Component({
   data: {
+    constructionNavBlocked: featureFlags.constructionNavBlocked,
     selected: 0,
     color: "#999999",
     selectedColor: "#40B2E6",
@@ -52,18 +54,21 @@ Component({
   methods: {
     switchTab(e) {
       const data = e.currentTarget.dataset;
-      const index = data.index;
-      const url = data.path;
+      const tabIndex = Number(data.index);
+      const idx = Number.isNaN(tabIndex) ? 0 : tabIndex;
+      const rawPath = data.path || '';
+      const url = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
+      const blocked = featureFlags.constructionNavBlocked;
 
-      // 禁用"发现"按钮（index === 1）的跳转
-      if (index === 1) {
+      if (idx === 1 && blocked) {
         return;
       }
 
-      // 如果当前已经在首页（index === 0），不需要检查
-      // 其他页面需要检查用户基本信息是否完善
-      if (index !== 0) {
-        // 检查用户基本信息是否完善，未完善则跳转注册页
+      const app = getApp();
+      const authInitializing = !!(app && app.globalData && app.globalData.authInitializing);
+
+      // 首页不校验；其余 tab 需资料完善。登录初始化中若仍校验会静默 return，导致「点了没反应」
+      if (idx !== 0 && !authInitializing) {
         if (!auth.checkProfileAndRedirect(url)) {
           return;
         }
@@ -72,11 +77,12 @@ Component({
       wx.switchTab({
         url,
         success: () => {
-          // 切换页面后更新未读消息数
           this.updateUnreadCount();
-          // 切换页面后更新审核待办数
           this.updateAuditTodoCount();
-        }
+        },
+        fail: (err) => {
+          console.error('[tabBar] switchTab fail', url, err);
+        },
       });
     },
 
