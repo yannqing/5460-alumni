@@ -74,15 +74,13 @@ public class CreateShopDto implements Serializable {
     /**
      * 纬度
      */
-    @NotNull(message = "纬度不能为空")
-    @Schema(description = "纬度", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "纬度")
     private BigDecimal latitude;
 
     /**
      * 经度
      */
-    @NotNull(message = "经度不能为空")
-    @Schema(description = "经度", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "经度")
     private BigDecimal longitude;
 
     /**

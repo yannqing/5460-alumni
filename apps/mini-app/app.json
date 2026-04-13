@@ -69,6 +69,7 @@
         "content/list/list",
         "merchant/list/list",
         "merchant/shop/shop",
+        "merchant/shop/create/create",
         "merchant/architecture/architecture",
         "merchant/member/member",
         "merchant/coupon/coupon",

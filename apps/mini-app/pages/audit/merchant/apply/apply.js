@@ -10,7 +10,10 @@ Page({
     tabs: ['全部', '待审核', '已通过', '已拒绝'],
     hasMore: true,
     pageNum: 1,
-    pageSize: 10
+    pageSize: 10,
+    isRejectModalVisible: false,
+    currentRejectId: '',
+    rejectReason: ''
   },
 
   onLoad(options) {
@@ -162,10 +165,19 @@ Page({
 
   async handleAudit(e) {
     const { id, status } = e.currentTarget.dataset
-    
+
+    if (status === 'rejected') {
+      this.setData({
+        isRejectModalVisible: true,
+        currentRejectId: id,
+        rejectReason: ''
+      })
+      return
+    }
+
     wx.showModal({
       title: '确认审核',
-      content: status === 'approved' ? '确定通过该商户申请吗？' : '确定拒绝该商户申请吗？',
+      content: '确定通过该商户申请吗？',
       success: async (res) => {
         if (res.confirm) {
           await this.submitAudit(id, status)
@@ -174,21 +186,14 @@ Page({
     })
   },
 
-  async submitAudit(id, status) {
+  async submitAudit(id, status, reason = '') {
     try {
       // 映射状态值：approved->1, rejected->2
       const reviewStatus = status === 'approved' ? 1 : 2
-      
-      // 准备审核原因
+
       let reviewReason = ''
       if (reviewStatus === 2) {
-        // 审核失败时，提示用户输入原因
-        await this.showReasonInput().then(reason => {
-          reviewReason = reason
-        }).catch(() => {
-          // 用户取消输入，终止审核
-          return
-        })
+        reviewReason = String(reason || '').trim()
       }
       
       const res = await request.post('/merchant-management/approve', {
@@ -224,33 +229,32 @@ Page({
       })
     }
   },
-  
-  // 显示审核原因输入框
-  showReasonInput() {
-    return new Promise((resolve, reject) => {
-      wx.showModal({
-        title: '审核失败原因',
-        editable: true,
-        placeholderText: '请输入审核失败原因',
-        success: (res) => {
-          if (res.confirm) {
-            if (!res.content || res.content.trim() === '') {
-              wx.showToast({
-                title: '请输入审核失败原因',
-                icon: 'none'
-              })
-              reject()
-            } else {
-              resolve(res.content.trim())
-            }
-          } else {
-            reject()
-          }
-        },
-        fail: () => {
-          reject()
-        }
-      })
+
+  onRejectReasonInput(e) {
+    this.setData({
+      rejectReason: e.detail.value
     })
+  },
+
+  hideRejectModal() {
+    this.setData({
+      isRejectModalVisible: false,
+      currentRejectId: '',
+      rejectReason: ''
+    })
+  },
+
+  async submitRejectAudit() {
+    const reason = String(this.data.rejectReason || '').trim()
+    if (!reason) {
+      wx.showToast({
+        title: '请填写拒绝原因',
+        icon: 'none'
+      })
+      return
+    }
+
+    await this.submitAudit(this.data.currentRejectId, 'rejected', reason)
+    this.hideRejectModal()
   }
 })

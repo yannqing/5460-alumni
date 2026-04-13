@@ -39,7 +39,7 @@
     </scroll-view>
   </view>
 
-  <view class="add-shop-btn" bindtap="showCreateShopModal">+</view>
+  <view class="add-shop-btn" bindtap="goToCreateShopPage">+</view>
 </view>
 
 <!-- 创建/编辑店铺弹窗（保留原功能与表单项） -->
@@ -90,9 +90,8 @@
         <input class="form-input" name="address" placeholder="请输入详细地址" value="{{formData.address}}" bindinput="onInputChange" data-field="address" />
       </view>
       <view class="form-item">
-        <text class="form-label">店铺位置 <text class="required">*</text></text>
+        <text class="form-label">店铺位置</text>
         <view class="location-selector">
-          <input class="form-input location-input" placeholder="请选择店铺位置" value="{{formData.locationName}}" disabled />
           <button class="select-location-btn" bindtap="selectLocation">选择位置</button>
         </view>
       </view>

@@ -197,6 +197,22 @@ Page({
     })
   },
 
+  // 跳转到创建店铺页面
+  goToCreateShopPage() {
+    const { selectedMerchantId, selectedMerchantName } = this.data
+    const query = []
+    if (selectedMerchantId) {
+      query.push(`merchantId=${encodeURIComponent(selectedMerchantId)}`)
+    }
+    if (selectedMerchantName) {
+      query.push(`merchantName=${encodeURIComponent(selectedMerchantName)}`)
+    }
+    const suffix = query.length > 0 ? `?${query.join('&')}` : ''
+    wx.navigateTo({
+      url: `/pages/audit/merchant/shop/create/create${suffix}`,
+    })
+  },
+
   // 显示编辑店铺弹窗
   async showEditShopModal(e) {
     const shopId = e.currentTarget.dataset.shopId
@@ -499,14 +515,6 @@ Page({
         return
       }
 
-      if (!formData.latitude || !formData.longitude) {
-        wx.showToast({
-          title: '请选择店铺位置',
-          icon: 'none',
-        })
-        return
-      }
-
       // 处理店铺图片，将上传的图片数组转换为JSON格式字符串
       const shopImages = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : undefined
 
@@ -532,8 +540,8 @@ Page({
           city: formData.city,
           district: formData.district,
           address: formData.address,
-          latitude: parseFloat(formData.latitude),
-          longitude: parseFloat(formData.longitude),
+          latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
+          longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
           phone: formData.phone || undefined,
           businessHours: formData.businessHours || undefined,
           shopImages: shopImages,
@@ -550,8 +558,8 @@ Page({
           city: formData.city,
           district: formData.district,
           address: formData.address,
-          latitude: parseFloat(formData.latitude),
-          longitude: parseFloat(formData.longitude),
+          latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
+          longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
           phone: formData.phone || undefined,
           businessHours: formData.businessHours || undefined,
           shopImages: shopImages,

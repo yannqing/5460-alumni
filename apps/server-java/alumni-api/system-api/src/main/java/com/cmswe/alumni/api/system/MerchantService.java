@@ -59,6 +59,14 @@ public interface MerchantService extends IService<Merchant> {
     PageVo<MerchantApprovalVo> selectApprovalRecordsByPage(QueryMerchantApprovalDto queryDto);
 
     /**
+     * 管理员查看单条商户入驻申请详情（含营业执照等申请资料）
+     *
+     * @param merchantId 商户ID
+     * @return 审批记录详情
+     */
+    MerchantApprovalVo getApprovalRecordByMerchantId(Long merchantId);
+
+    /**
      * 根据商户ID查询商户详情
      *
      * @param merchantId 商户ID

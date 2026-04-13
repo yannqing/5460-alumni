@@ -17,7 +17,7 @@
         {{item}}
       </view>
     </view>
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" bindscrolltolower="loadMore">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{true}}" bindscrolltolower="loadMore">
       <view class="loading-state" wx:if="{{loading}}">
         <text>加载中...</text>
       </view>
@@ -25,7 +25,13 @@
         <text class="empty-text">暂无商户申请数据</text>
       </view>
       <view class="apply-list" wx:else>
-        <view class="apply-item" wx:for="{{applyList}}" wx:key="id" data-id="{{item.id}}">
+        <view
+          class="apply-item"
+          wx:for="{{applyList}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="viewDetail"
+        >
           <view class="apply-header">
             <view class="apply-name">{{item.merchantName}}</view>
             <view class="apply-status {{item.status}}">{{item.statusText}}</view>
@@ -59,3 +65,27 @@
   </view>
 </view>
 </custom-nav-bar>
+
+<view class="modal-overlay" wx:if="{{isRejectModalVisible}}" bindtap="hideRejectModal"></view>
+<view class="edit-modal" wx:if="{{isRejectModalVisible}}">
+  <view class="modal-header">
+    <text class="modal-title">拒绝商户申请</text>
+    <text class="modal-close" bindtap="hideRejectModal">×</text>
+  </view>
+  <view class="modal-content">
+    <view class="form-item">
+      <text class="form-label">拒绝原因</text>
+      <textarea
+        class="form-textarea"
+        placeholder="请填写拒绝原因（必填）"
+        value="{{rejectReason}}"
+        bindinput="onRejectReasonInput"
+        maxlength="200"
+      ></textarea>
+    </view>
+  </view>
+  <view class="modal-footer">
+    <button class="modal-btn cancel-btn" bindtap="hideRejectModal">取消</button>
+    <button class="modal-btn confirm-btn reject-confirm-btn" bindtap="submitRejectAudit">确定拒绝</button>
+  </view>
+</view>

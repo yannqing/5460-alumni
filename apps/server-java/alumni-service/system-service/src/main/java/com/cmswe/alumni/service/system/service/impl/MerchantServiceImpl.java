@@ -600,6 +600,52 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     }
 
     @Override
+    public MerchantApprovalVo getApprovalRecordByMerchantId(Long merchantId) {
+        if (merchantId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "商户ID不能为空");
+        }
+
+        Merchant merchant = this.getById(merchantId);
+        if (merchant == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
+        }
+
+        MerchantApprovalVo vo = MerchantApprovalVo.objToVo(merchant);
+        vo.setApplicantName(resolveUserDisplayName(merchant.getUserId()));
+        vo.setReviewerName(resolveUserDisplayName(merchant.getReviewerId()));
+
+        if (merchant.getAlumniAssociationId() != null && merchant.getAlumniAssociationId() > 0) {
+            AlumniAssociation alumniAssociation = alumniAssociationService.getById(merchant.getAlumniAssociationId());
+            if (alumniAssociation != null) {
+                vo.setAlumniAssociation(AlumniAssociationListVo.objToVo(alumniAssociation));
+            }
+        }
+
+        log.info("查询商户入驻申请详情 - merchantId: {}, reviewStatus: {}", merchantId, merchant.getReviewStatus());
+        return vo;
+    }
+
+    /**
+     * 用户展示名：优先真实姓名，否则微信昵称
+     */
+    private String resolveUserDisplayName(Long wxId) {
+        if (wxId == null) {
+            return null;
+        }
+        WxUserInfo info = wxUserInfoService.getOne(
+                new LambdaQueryWrapper<WxUserInfo>()
+                        .eq(WxUserInfo::getWxId, wxId)
+                        .last("LIMIT 1"));
+        if (info == null) {
+            return null;
+        }
+        if (StringUtils.isNotBlank(info.getName())) {
+            return info.getName();
+        }
+        return info.getNickname();
+    }
+
+    @Override
     public MerchantDetailVo getMerchantDetailById(Long merchantId) {
         // 1. 参数校验
         if (merchantId == null) {

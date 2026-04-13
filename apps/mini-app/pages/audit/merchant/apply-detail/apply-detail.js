@@ -1,12 +1,11 @@
 // pages/audit/merchant/apply-detail/apply-detail.js
-const app = getApp()
 const request = require('../../../../utils/request.js')
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
     applyInfo: {},
-    loading: true,
-    remark: ''
+    loading: true
   },
 
   onLoad(options) {
@@ -22,11 +21,20 @@ Page({
       
       if (res.data && res.data.code === 200) {
         let applyInfo = res.data.data || {}
-        
+
+        const formatTime = (t) => {
+          if (!t) { return '' }
+          const s = typeof t === 'string' ? t.replace('T', ' ') : String(t)
+          return s.length > 19 ? s.slice(0, 19) : s
+        }
+
+        // 接口可能返回字符串或数字，统一成数字再分支
+        const rs = Number(applyInfo.reviewStatus)
+
         // 格式化状态文本
         let statusText = ''
         let status = ''
-        switch (applyInfo.reviewStatus) {
+        switch (rs) {
           case 0:
             statusText = '待审核'
             status = 'pending'
@@ -43,20 +51,38 @@ Page({
             statusText = '未知状态'
             status = 'unknown'
         }
-        
+
+        const mt = applyInfo.merchantType
+        let merchantTypeText = ''
+        if (mt === 1 || mt === '1') { merchantTypeText = '校友商铺' }
+        else if (mt === 2 || mt === '2') { merchantTypeText = '普通商铺' }
+        else { merchantTypeText = mt != null ? String(mt) : '' }
+
+        let alumniAssociation = applyInfo.alumniAssociation
+        if (alumniAssociation && typeof alumniAssociation === 'object') {
+          alumniAssociation = {
+            ...alumniAssociation,
+            logoUrl: config.getImageUrl(alumniAssociation.logo || '')
+          }
+        } else {
+          alumniAssociation = null
+        }
+
         // 格式化数据
         applyInfo = {
           ...applyInfo,
+          alumniAssociation,
           status: status,
           statusText: statusText,
+          merchantTypeText,
+          submitTime: formatTime(applyInfo.createTime),
+          businessLicenseUrl: config.getImageUrl(applyInfo.businessLicense || ''),
           // 调整字段名称以匹配页面模板
-          businessLicenseCode: applyInfo.uniformSocialCreditCode || '',
-          businessLicenseName: applyInfo.merchantName || '',
+          businessLicenseCode: applyInfo.unifiedSocialCreditCode || '',
           legalRepresentative: applyInfo.legalPerson || '',
           businessAddress: applyInfo.merchantAddress || '',
           businessScope: applyInfo.businessScope || '',
-          registrationDate: applyInfo.establishmentDate || '',
-          auditorName: applyInfo.reviewerName || ''
+          registrationDate: applyInfo.establishmentDate || ''
         }
         
         this.setData({
@@ -80,12 +106,6 @@ Page({
     }
   },
 
-  onRemarkInput(e) {
-    this.setData({
-      remark: e.detail.value
-    })
-  },
-
   handleApprove() {
     this.submitAudit('approved')
   },
@@ -98,19 +118,10 @@ Page({
     try {
       // 映射状态值：approved->1, rejected->2
       const reviewStatus = status === 'approved' ? 1 : 2
-      
-      let reviewReason = this.data.remark
-      
-      // 审核失败时，确保有审核原因
+      // 后端拒绝时要求非空原因；页面无备注输入时使用默认文案
+      let reviewReason = ''
       if (reviewStatus === 2) {
-        if (!reviewReason || reviewReason.trim() === '') {
-          wx.showToast({
-            title: '审核失败原因不能为空',
-            icon: 'none'
-          })
-          return
-        }
-        reviewReason = reviewReason.trim()
+        reviewReason = '审核未通过'
       }
       
       const res = await request.post('/merchant-management/approve', {

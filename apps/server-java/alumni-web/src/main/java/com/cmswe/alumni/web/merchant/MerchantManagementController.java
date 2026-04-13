@@ -85,6 +85,20 @@ public class MerchantManagementController {
     }
 
     /**
+     * 查询单条商户入驻申请详情（含营业执照图片 URL 等申请资料）
+     *
+     * @param merchantId 商户ID
+     * @return 单条审批记录
+     */
+    @GetMapping("/approval/record")
+    @Operation(summary = "查询商户入驻申请详情")
+    public BaseResponse<MerchantApprovalVo> getApprovalRecord(@RequestParam Long merchantId) {
+        log.info("管理员查询商户入驻申请详情 - merchantId: {}", merchantId);
+        MerchantApprovalVo vo = merchantService.getApprovalRecordByMerchantId(merchantId);
+        return ResultUtils.success(Code.SUCCESS, vo, "查询成功");
+    }
+
+    /**
      * 查询本人负责的商户列表
      *
      * @param securityUser 当前登录用户
