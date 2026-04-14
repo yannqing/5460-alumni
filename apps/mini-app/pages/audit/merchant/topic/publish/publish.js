@@ -65,7 +65,7 @@ Page({
         'publishForm.organizerName': options.shopName,
       })
 
-      // 获取店铺详情以获取主办方头像
+      // 获取店铺详情以获取主办方头像（使用 shop 表的 logo）
       this.getShopDetail(options.shopId)
     }
 
@@ -105,17 +105,10 @@ Page({
           const shopData = res.data.data
           const updates = {}
 
-          // 从shopImages中提取第一个图片作为主办方头像
-          if (shopData.shopImages) {
-            try {
-              const shopImages = JSON.parse(shopData.shopImages)
-              if (Array.isArray(shopImages) && shopImages.length > 0) {
-                updates.organizerAvatarUrl = shopImages[0]
-                updates['publishForm.organizerAvatar'] = shopImages[0]
-              }
-            } catch (e) {
-              console.error('解析店铺图片失败:', e)
-            }
+          // 主办方头像：使用店铺 logo（对应数据库 shop.logo）
+          if (shopData.logo) {
+            updates.organizerAvatarUrl = shopData.logo
+            updates['publishForm.organizerAvatar'] = shopData.logo
           }
 
           // 填充地址信息
@@ -141,11 +134,6 @@ Page({
       .catch(err => {
         console.error('获取店铺详情失败:', err)
       })
-  },
-
-  // 返回上一页
-  onBack() {
-    wx.navigateBack()
   },
 
   // 初始化时间选择器的列数据
@@ -641,14 +629,13 @@ Page({
     // 处理表单数据
     const formData = {
       ...publishForm,
+      // 创建话题固定为：无需报名、无需审核
+      isSignup: 0,
+      isNeedReview: 0,
+      registrationStartTime: null,
+      registrationEndTime: null,
+      maxParticipants: null,
       activityImages: JSON.stringify(imageUrls), // 活动图片URL数组（JSON格式）
-    }
-
-    // 处理最大参与人数，空值表示不限
-    if (formData.maxParticipants === '') {
-      formData.maxParticipants = null
-    } else {
-      formData.maxParticipants = parseInt(formData.maxParticipants)
     }
 
     const finalForm = formData

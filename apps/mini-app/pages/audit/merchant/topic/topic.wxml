@@ -15,8 +15,8 @@
   <view class="group_7" wx:if="{{shops.length > 0}}">
     <view class="topic-list-header">
       <text class="text_20">活动列表</text>
-      <view class="publish-btn-wrap">
-        <button class="publish-btn" bindtap="onNavigateToPublish">发布话题</button>
+      <view class="topic-publish-wrap">
+        <button class="topic-publish-btn" hover-class="topic-publish-btn--hover" bindtap="onNavigateToPublish">发布话题</button>
       </view>
     </view>
     <view class="filter-container">

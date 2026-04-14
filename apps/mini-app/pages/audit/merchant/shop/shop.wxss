@@ -135,9 +135,18 @@
 
 .shop-item {
   background-color: #f9f9f9;
-  padding: 20rpx 24rpx;
+  padding: 0;
   border-radius: 12rpx;
   border: 1rpx solid #f0f0f0;
+  overflow: hidden;
+}
+
+.shop-item-body {
+  padding: 20rpx 24rpx 12rpx;
+}
+
+.shop-item-body:active {
+  opacity: 0.92;
 }
 
 .shop-info {
@@ -184,8 +193,9 @@
 .shop-actions {
   display: flex;
   gap: 16rpx;
-  padding-top: 12rpx;
+  padding: 12rpx 24rpx 20rpx;
   border-top: 1rpx solid #f0f0f0;
+  background-color: #f9f9f9;
 }
 
 .edit-btn, .delete-btn {
@@ -230,261 +240,6 @@
 
 .add-shop-btn:active {
   transform: scale(0.95);
-}
-
-.form-item {
-  margin-bottom: 24rpx;
-}
-
-.form-label {
-  display: block;
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 12rpx;
-}
-
-/* 弹窗遮罩层 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1001;
-}
-
-/* 弹窗容器 */
-.modal-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 600rpx;
-  background-color: white;
-  border-radius: 16rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.2);
-  z-index: 1002;
-  overflow: hidden;
-}
-
-/* 弹窗头部 */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24rpx 32rpx;
-  border-bottom: 1rpx solid #E5E5E5;
-}
-
-.modal-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.modal-close {
-  font-size: 48rpx;
-  color: #999;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.modal-close:active {
-  color: #666;
-}
-
-/* 弹窗内容 */
-.modal-content {
-  padding: 32rpx;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-/* 表单样式 */
-.form-item {
-  margin-bottom: 32rpx;
-}
-
-.form-label {
-  display: block;
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 12rpx;
-}
-
-.required {
-  color: #FF4D4F;
-}
-
-.form-input {
-  width: 100%;
-  height: 80rpx;
-  padding: 0 24rpx;
-  border: 1rpx solid #E5E5E5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  box-sizing: border-box;
-  background-color: #FAFAFA;
-}
-
-.form-input:focus {
-  border-color: #1AAD19;
-  background-color: white;
-  outline: none;
-}
-
-.form-textarea {
-  width: 100%;
-  min-height: 160rpx;
-  padding: 20rpx 24rpx;
-  border: 1rpx solid #E5E5E5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  box-sizing: border-box;
-  background-color: #FAFAFA;
-  resize: vertical;
-}
-
-.form-textarea:focus {
-  border-color: #1AAD19;
-  background-color: white;
-  outline: none;
-}
-
-/* 单选框样式 */
-.radio-group {
-  display: flex;
-  gap: 40rpx;
-  margin-top: 12rpx;
-}
-
-.radio-item {
-  display: flex;
-  align-items: center;
-  font-size: 28rpx;
-  color: #333;
-}
-
-.radio-item radio {
-  margin-right: 12rpx;
-}
-
-/* 表单操作按钮 */
-.form-actions {
-  display: flex;
-  gap: 24rpx;
-  margin-top: 40rpx;
-}
-
-.btn-cancel,
-.btn-submit {
-  flex: 1;
-  height: 88rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  font-weight: 500;
-  border: none;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.btn-cancel {
-  background-color: #F5F5F5;
-  color: #666;
-}
-
-.btn-cancel:active {
-  background-color: #E5E5E5;
-}
-
-.btn-submit {
-  background-color: #1AAD19;
-  color: white;
-}
-
-.btn-submit:active {
-  background-color: #179B16;
-}
-
-/* 位置选择器样式 */
-.location-selector {
-  display: flex;
-  gap: 16rpx;
-  align-items: center;
-}
-
-.location-input {
-  flex: 1;
-  background-color: white;
-  color: #666;
-}
-
-.select-location-btn {
-  width: 200rpx;
-  height: 80rpx;
-  background-color: #1AAD19;
-  color: white;
-  font-size: 28rpx;
-  border: none;
-  border-radius: 8rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-.select-location-btn:active {
-  background-color: #179B16;
-}
-
-/* 去除按钮默认样式 */
-.select-location-btn::after {
-  border: none;
-}
-
-
-
-/* 去除按钮默认样式 */
-.btn-cancel::after,
-.btn-submit::after {
-  border: none;
-}
-
-/* 商户选择器样式 */
-.merchant-selector {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: 80rpx;
-  padding: 0 24rpx;
-  border: 1rpx solid #E5E5E5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  box-sizing: border-box;
-  background-color: #FAFAFA;
-  cursor: pointer;
-}
-
-.merchant-selector:active {
-  border-color: #1AAD19;
-  background-color: white;
-}
-
-.selector-label {
-  color: #333;
-}
-
-.selector-label:empty::before {
-  content: '请选择商户';
-  color: #999;
-}
-
-.selector-arrow {
-  color: #999;
-  font-size: 20rpx;
 }
 
 /* 商户选择器弹窗（与校友会审核页一致，底部弹出） */
@@ -574,99 +329,5 @@
 /* 去除按钮默认样式 */
 .edit-btn::after,
 .delete-btn::after {
-  border: none;
-}
-
-/* 加载状态 */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 120rpx 40rpx;
-  text-align: center;
-}
-
-.loading-text {
-  font-size: 28rpx;
-  color: #999;
-  margin-top: 20rpx;
-}
-
-/* 空状态 */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 120rpx 40rpx;
-  text-align: center;
-  background-color: white;
-  border-radius: 16rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-  border: 1rpx solid #F0F0F0;
-}
-
-.empty-text {
-  font-size: 28rpx;
-  color: #999;
-  margin-top: 20rpx;
-  line-height: 1.5;
-}
-
-/* 图片上传样式 */
-.image-upload-container {
-  margin-top: 12rpx;
-}
-
-.uploaded-images {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
-  margin-bottom: 16rpx;
-}
-
-.uploaded-image {
-  position: relative;
-  width: 140rpx;
-  height: 140rpx;
-  border-radius: 8rpx;
-  overflow: hidden;
-  border: 1rpx solid #E5E5E5;
-}
-
-.image-preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.image-delete {
-  position: absolute;
-  top: -12rpx;
-  right: -12rpx;
-  width: 36rpx;
-  height: 36rpx;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rpx;
-  cursor: pointer;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-}
-
-.upload-btn {
-  margin: 0;
-  width: auto;
-  height: 72rpx;
-  font-size: 26rpx;
-  padding: 0 32rpx;
-}
-
-/* 去除上传按钮默认样式 */
-.upload-btn::after {
   border: none;
 }

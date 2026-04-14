@@ -15,7 +15,7 @@
     <view class="list-header">
       <text class="text_20">审核列表</text>
     </view>
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top enhanced show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
       <view class="loading-state" wx:if="{{shopLoading}}">
         <text>加载中...</text>
       </view>
@@ -33,7 +33,9 @@
     >
       <view class="shop-header">
         <view class="shop-name">{{item.shopName}}</view>
-        <view class="shop-type">{{item.shopType === 1 ? '总店' : '分店'}}</view>
+        <view class="shop-header-right">
+          <view class="status-badge status-badge--{{item.reviewStatusKind}}">{{item.reviewStatusLabel}}</view>
+        </view>
       </view>
       
       <view class="shop-info">
@@ -56,7 +58,7 @@
         <view class="info-item">
           <!-- 单行 text 嵌套 + nowrap，避免多个 text 在 flex 下仍换行或产生空白节点 -->
           <text class="status-line">
-            <text class="info-label">审核状态：</text><text class="info-value status-text">{{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '已通过' : '已拒绝'}}</text>
+            <text class="info-label">审核状态：</text><text class="info-value status-text status-text--{{item.reviewStatusKind}}">{{item.reviewStatusLabel}}</text>
           </text>
         </view>
         <view class="info-item" wx:if="{{item.reviewStatus !== 0}}">
@@ -71,11 +73,8 @@
       
       <!-- 审核操作按钮 -->
       <view class="audit-actions" wx:if="{{item.reviewStatus === 0}}">
-        <button class="approve-btn" catchtap="showAuditModal" data-shop-id="{{item.shopId}}">通过</button>
-        <button class="reject-btn" catchtap="showAuditModal" data-shop-id="{{item.shopId}}">拒绝</button>
-      </view>
-      <view class="audit-result" wx:else>
-        <text class="result-text">{{item.reviewStatus === 1 ? '已通过审核' : '已拒绝审核'}}</text>
+        <button class="approve-btn" catchtap="confirmApprove" data-shop-id="{{item.shopId}}">通过</button>
+        <button class="reject-btn" catchtap="openRejectModal" data-shop-id="{{item.shopId}}">拒绝</button>
       </view>
     </view>
     
@@ -93,46 +92,28 @@
     </scroll-view>
   </view>
 
-  <!-- 审核弹窗 -->
-  <view class="modal-overlay" wx:if="{{showAuditModal}}" bindtap="hideAuditModal"></view>
-  <view class="modal-container" wx:if="{{showAuditModal}}">
+  <!-- 拒绝审核：填写原因，再二次确认提交 -->
+  <view class="modal-overlay" wx:if="{{showRejectModal}}" catchtap="hideRejectModal"></view>
+  <view class="modal-container" wx:if="{{showRejectModal}}">
     <view class="modal-header">
-      <text class="modal-title">店铺审核</text>
-      <view class="modal-close" bindtap="hideAuditModal">×</view>
+      <text class="modal-title">拒绝审核</text>
+      <view class="modal-close" catchtap="hideRejectModal">×</view>
     </view>
     <view class="modal-content">
-      <!-- 店铺名称 -->
       <view class="audit-shop-name" wx:if="{{currentAuditShop}}">{{currentAuditShop.shopName}}</view>
-      
-      <!-- 审核状态选择 -->
       <view class="form-item">
-        <text class="form-label">审核结果</text>
-        <view class="radio-group">
-          <label class="radio-item">
-            <radio checked="{{auditStatus === 1}}" bindtap="onAuditStatusChange" data-status="1" />通过
-          </label>
-          <label class="radio-item">
-            <radio checked="{{auditStatus === 2}}" bindtap="onAuditStatusChange" data-status="2" />拒绝
-          </label>
-        </view>
-      </view>
-      
-      <!-- 审核备注 -->
-      <view class="form-item">
-        <text class="form-label">审核备注</text>
-        <textarea 
-          class="form-textarea" 
-          placeholder="请输入审核备注" 
-          value="{{auditRemark}}" 
+        <text class="form-label">拒绝原因<text class="form-label-required">（必填）</text></text>
+        <textarea
+          class="form-textarea"
+          placeholder="请填写拒绝原因"
+          value="{{auditRemark}}"
           bindinput="onRemarkInput"
           maxlength="200"
         ></textarea>
       </view>
-      
-      <!-- 提交按钮 -->
       <view class="form-actions">
-        <button class="btn-cancel" bindtap="hideAuditModal">取消</button>
-        <button class="btn-submit" bindtap="submitAudit" loading="{{loading}}">提交审核</button>
+        <button class="btn-cancel" catchtap="hideRejectModal">取消</button>
+        <button class="btn-submit btn-submit--danger" catchtap="confirmRejectFromModal" loading="{{loading}}">确认拒绝</button>
       </view>
     </view>
   </view>

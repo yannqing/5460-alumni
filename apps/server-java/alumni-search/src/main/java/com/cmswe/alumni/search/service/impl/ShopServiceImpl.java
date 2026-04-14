@@ -22,6 +22,7 @@ import com.cmswe.alumni.common.vo.ShopApprovalVo;
 import com.cmswe.alumni.common.vo.ShopCouponVo;
 import com.cmswe.alumni.common.vo.ShopDetailVo;
 import com.cmswe.alumni.common.vo.ShopListVo;
+import com.cmswe.alumni.search.mapper.MerchantMapper;
 import com.cmswe.alumni.search.mapper.ShopMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements ShopService {
+
+    @Resource
+    private MerchantMapper merchantMapper;
 
     @Lazy
     @Resource
@@ -148,7 +152,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         }
 
         // 3. 逻辑删除
-        return this.removeById(shopId);
+        Long merchantId = shop.getMerchantId();
+        boolean removed = this.removeById(shopId);
+        if (removed) {
+            refreshMerchantStatistics(merchantId);
+        }
+        return removed;
     }
 
     @Override
@@ -375,9 +384,23 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
             String statusMsg = approveDto.getReviewStatus() == 1 ? "审核通过" : "审核驳回";
             log.info("店铺审核成功 - 审核人ID: {}, 店铺ID: {}, 审核状态: {}",
                     reviewerId, approveDto.getShopId(), statusMsg);
+            if (approveDto.getReviewStatus() == 1) {
+                refreshMerchantStatistics(shop.getMerchantId());
+            }
         }
 
         return result;
+    }
+
+    /**
+     * 按库中 shop 记录重算商户冗余统计（shop_count、券相关累计等），与 {@link MerchantMapper#updateStatistics} 一致。
+     */
+    private void refreshMerchantStatistics(Long merchantId) {
+        if (merchantId == null) {
+            return;
+        }
+        int rows = merchantMapper.updateStatistics(merchantId);
+        log.info("已刷新商户统计信息 merchantId={}, 影响行数={}", merchantId, rows);
     }
 
     @Override

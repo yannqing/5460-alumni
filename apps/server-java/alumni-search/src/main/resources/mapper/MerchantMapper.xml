@@ -42,10 +42,10 @@
           AND is_delete = 0
     </select>
 
-    <!-- 更新商户统计数据 -->
+    <!-- 更新商户统计数据（门店数仅统计审核通过且未删除的店铺） -->
     <update id="updateStatistics">
         UPDATE merchant
-        SET shop_count = (SELECT COUNT(*) FROM shop WHERE merchant_id = #{merchantId} AND is_delete = 0),
+        SET shop_count = (SELECT COUNT(*) FROM shop WHERE merchant_id = #{merchantId} AND is_delete = 0 AND review_status = 1),
             total_coupon_issued = (SELECT COUNT(*) FROM coupon WHERE merchant_id = #{merchantId} AND is_delete = 0),
             total_coupon_verified = (SELECT COUNT(*) FROM coupon_verification WHERE merchant_id = #{merchantId})
         WHERE merchant_id = #{merchantId}
