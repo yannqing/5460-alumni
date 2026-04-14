@@ -1,0 +1,116 @@
+<!-- pages/shop-audit-detail/shop-audit-detail.wxml — 与 audit/alumni-association/detail：白底区内部 scroll-view，顶栏固定 -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="申请详情">
+<scroll-view class="container" scroll-y enable-back-to-top>
+<view class="page">
+  <view class="group_5">
+    <view class="group_5-head">
+      <image wx:if="{{!loading && detail && logoUrl && gallery.length > 0}}" class="card-logo" src="{{logoUrl}}" mode="aspectFill" />
+      <view class="group_5-head-text">
+        <text class="text_14">店铺申请详情</text>
+        <text class="label_text" wx:if="{{detail && detail.shopName}}">{{detail.shopName}}</text>
+        <text class="label_text muted" wx:elif="{{!loading && !detail}}">暂无数据</text>
+      </view>
+    </view>
+    <view class="loading-inline" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <view wx:if="{{!loading && detail}}" class="detail-main">
+    <!-- 基本信息 / 审核信息：样式对齐 pages/audit/alumni-association/detail/detail -->
+    <view class="detail-card">
+      <view class="detail-section">
+        <view class="section-title">基本信息</view>
+        <view class="info-grid">
+          <view class="info-item">
+            <text class="info-label">店铺名称</text>
+            <text class="info-value">{{detail.shopName || '—'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">所属商家</text>
+            <text class="info-value">{{detail.merchantName || '—'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">店铺类型</text>
+            <text class="info-value">{{detail.shopType === 1 ? '总店' : detail.shopType === 2 ? '分店' : '—'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">联系电话</text>
+            <text class="info-value">{{detail.phone || '—'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">营业时间</text>
+            <text class="info-value">{{detail.businessHours || '未设置'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">店铺地址</text>
+            <text class="info-value multi-line">{{detail.province || ''}}{{detail.city || ''}}{{detail.district || ''}}{{detail.address || ''}}</text>
+          </view>
+          <view class="info-item" wx:if="{{detail.description}}">
+            <text class="info-label">店铺简介</text>
+            <text class="info-value multi-line">{{detail.description}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">申请时间</text>
+            <text class="info-value">{{formatCreateTime}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="detail-section detail-section--review">
+        <view class="section-title">审核信息</view>
+        <view class="info-item">
+          <text class="info-label">审核状态</text>
+          <view class="status-tag {{auditTagClass}}" wx:if="{{auditTagClass}}">
+            <text class="status-text">{{reviewStatusText}}</text>
+          </view>
+          <text class="info-value" wx:else>{{reviewStatusText}}</text>
+        </view>
+        <view class="info-item" wx:if="{{detail.reviewStatus !== 0}}">
+          <text class="info-label">审核时间</text>
+          <text class="info-value">{{formatReviewTime}}</text>
+        </view>
+        <view class="info-item" wx:if="{{detail.reviewStatus === 2}}">
+          <text class="info-label">审核原因</text>
+          <text class="info-value multi-line reject-reason">{{detail.reviewReason || '未填写'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 背景图置于末尾展示 -->
+    <view class="gallery-all gallery-all--after-card" wx:if="{{gallery.length > 0}}">
+      <view class="gallery-section-header">
+        <view class="section-title section-title--no-margin">门店背景图</view>
+        <text class="gallery-count">共 {{gallery.length}} 张</text>
+      </view>
+      <view
+        class="gallery-item"
+        wx:for="{{gallery}}"
+        wx:for-item="imgUrl"
+        wx:for-index="imgIdx"
+        wx:key="imgIdx"
+      >
+        <image
+          class="gallery-full-img"
+          src="{{imgUrl}}"
+          mode="widthFix"
+          lazy-load="{{true}}"
+          bindtap="previewGalleryImage"
+          data-index="{{imgIdx}}"
+        />
+      </view>
+    </view>
+    <view class="hero-wrap hero-logo-only hero-after-card" wx:elif="{{showLogoHero}}">
+      <view class="section-title logo-only-section-title">店铺 logo</view>
+      <image class="hero-img hero-img-logo" src="{{logoUrl}}" mode="aspectFit" lazy-load="{{true}}" />
+    </view>
+  </view>
+
+  <view class="empty-block" wx:if="{{!loading && !detail && shopId}}">
+    <text class="empty-text">无法加载该店铺申请信息</text>
+  </view>
+</view>
+</scroll-view>
+</custom-nav-bar>

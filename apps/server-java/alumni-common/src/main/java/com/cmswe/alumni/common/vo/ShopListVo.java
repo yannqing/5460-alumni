@@ -101,6 +101,12 @@ public class ShopListVo implements Serializable {
     private String shopImages;
 
     /**
+     * 店铺 logo（图片 URL）
+     */
+    @Schema(description = "店铺logo（图片URL）")
+    private String logo;
+
+    /**
      * 状态：0-停业 1-营业中 2-装修中
      */
     @Schema(description = "状态：0-停业 1-营业中 2-装修中")

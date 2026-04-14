@@ -102,6 +102,13 @@ public class CreateShopDto implements Serializable {
     private String shopImages;
 
     /**
+     * 店铺 logo（图片 URL，与数据库 shop.logo 一致）
+     */
+    @Size(max = 500, message = "店铺logo URL长度不能超过500个字符")
+    @Schema(description = "店铺logo（图片URL）")
+    private String logo;
+
+    /**
      * 店铺简介
      */
     @Schema(description = "店铺简介")

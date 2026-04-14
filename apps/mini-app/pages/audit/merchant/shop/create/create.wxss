@@ -90,6 +90,9 @@
 
 .image-upload-container {
   margin-top: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .uploaded-images {
@@ -128,8 +131,31 @@
   font-size: 24rpx;
 }
 
+/* 上传按钮：蓝色实心，与主色区分布开来仍清晰可点 */
+.upload-btn {
+  margin: 0;
+  padding: 0 40rpx;
+  min-width: 200rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  font-size: 28rpx;
+  font-weight: 400;
+  color: #fff;
+  background-color: #1677ff;
+  border: 1rpx solid #1677ff;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  text-align: center;
+}
+
 .upload-btn::after {
   border: none;
+}
+
+.upload-btn-hover {
+  opacity: 0.9;
+  background-color: #0958d9 !important;
+  border-color: #0958d9 !important;
 }
 
 .form-actions {

@@ -1,0 +1,300 @@
+/* pages/shop-audit-detail/shop-audit-detail.wxss — 与 custom-nav-bar 非 auditPageScroll：内部滚动、顶栏固定 */
+.container {
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  background-color: #f7f7fe;
+  padding: 24rpx;
+}
+
+.page {
+  background-color: transparent;
+  width: 100%;
+  max-width: 750rpx;
+  box-sizing: border-box;
+}
+
+.page .group_5 {
+  width: 100%;
+  min-height: auto;
+  margin: 47rpx 0 0 0;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
+}
+
+.group_5 {
+  background-color: #ffffff;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_5 .text_14 {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1);
+  line-height: 40rpx;
+}
+
+.group_5 .label_text {
+  font-size: 25rpx;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 16rpx;
+  display: block;
+  line-height: 36rpx;
+}
+
+.group_5 .label_text.muted {
+  color: #999;
+}
+
+.group_5-head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.group_5-head-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-logo {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 16rpx;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+
+.gallery-all {
+  width: 100%;
+  margin: 0 0 24rpx 0;
+  box-sizing: border-box;
+}
+
+.gallery-all--after-card {
+  margin-top: 24rpx;
+}
+
+.gallery-section-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  gap: 16rpx;
+}
+
+.section-title--no-margin {
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.gallery-count {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+
+.logo-only-section-title {
+  margin-bottom: 20rpx;
+}
+
+.gallery-item {
+  margin-bottom: 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.gallery-item:last-child {
+  margin-bottom: 0;
+}
+
+.gallery-full-img {
+  width: 100%;
+  display: block;
+  vertical-align: top;
+}
+
+.hero-wrap {
+  width: 100%;
+  margin: 0 0 20rpx 0;
+  border-radius: 20rpx;
+  overflow: hidden;
+  background-color: #f0f0f0;
+}
+
+.hero-after-card {
+  margin: 24rpx 0 20rpx 0;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border-radius: 32rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.05);
+  padding: 32rpx 32rpx 24rpx 32rpx;
+}
+
+.hero-logo-only .hero-img-logo {
+  width: 100%;
+  height: 320rpx;
+  display: block;
+  background-color: #fafafa;
+}
+
+.loading-inline {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+.detail-main {
+  width: 100%;
+  margin-top: 20rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* —— 以下对齐 pages/audit/alumni-association/detail/detail —— */
+.detail-card {
+  width: 100%;
+  margin: 0 0 24rpx 0;
+  padding: 40rpx 32rpx;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 32rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.05);
+}
+
+.detail-section {
+  margin-bottom: 0;
+}
+
+.detail-section--review {
+  padding-top: 4rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 24rpx;
+  padding-left: 12rpx;
+  border-left: 6rpx solid #4a8bf5;
+}
+
+.info-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding-bottom: 4rpx;
+}
+
+.info-grid .info-item {
+  width: 100%;
+  margin-bottom: 20rpx;
+}
+
+.info-grid .info-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-section--review .info-item {
+  margin-bottom: 24rpx;
+}
+
+.detail-section--review .info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+}
+
+.info-label {
+  width: 180rpx;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.55);
+  flex-shrink: 0;
+  padding-top: 4rpx;
+  line-height: 1.45;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.85);
+  word-break: break-all;
+  line-height: 1.45;
+}
+
+.info-value.multi-line {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.divider {
+  height: 1rpx;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 28rpx 0;
+}
+
+.status-tag {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+  background: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.status-tag.status-pending {
+  background-color: rgba(250, 156, 0, 0.1);
+}
+
+.status-tag.status-approved {
+  background-color: rgba(80, 200, 32, 0.1);
+}
+
+.status-tag.status-rejected {
+  background-color: rgba(255, 77, 79, 0.1);
+}
+
+.status-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.status-pending .status-text {
+  color: rgba(250, 156, 0, 1);
+}
+
+.status-approved .status-text {
+  color: rgba(80, 200, 32, 1);
+}
+
+.status-rejected .status-text {
+  color: rgba(255, 77, 79, 1);
+}
+
+.reject-reason {
+  color: rgba(255, 77, 79, 1);
+}
+
+.empty-block {
+  padding: 60rpx 40rpx;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}

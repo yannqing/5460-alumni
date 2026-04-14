@@ -22,6 +22,7 @@ Page({
       phone: '',
       businessHours: '',
       shopImages: '',
+      logo: '',
       description: '',
       status: 1,
     },
@@ -104,6 +105,48 @@ Page({
     this.setData({
       [`formData.${field}`]: parseInt(value, 10),
     })
+  },
+
+  /** 店铺 Logo：单张上传，写入 formData.logo（图片 URL） */
+  chooseLogo() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: async res => {
+        const tempFilePaths = res.tempFilePaths || []
+        if (!tempFilePaths.length) return
+        try {
+          wx.showLoading({ title: '上传中...', mask: true })
+          const uploadRes = await uploadImage(tempFilePaths[0], '/file/upload/images', 'image')
+          if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
+            this.setData({
+              [`formData.logo`]: uploadRes.data.fileUrl,
+            })
+            wx.showToast({ title: 'Logo 上传成功', icon: 'success' })
+          } else {
+            throw new Error(uploadRes.msg || '上传失败')
+          }
+        } catch (error) {
+          console.error('上传 Logo 失败:', error)
+          wx.showToast({
+            title: (error && error.message) || '上传失败',
+            icon: 'none',
+          })
+        } finally {
+          wx.hideLoading()
+        }
+      },
+      fail: err => {
+        if (err.errMsg !== 'chooseImage:fail cancel') {
+          wx.showToast({ title: '选择图片失败', icon: 'none' })
+        }
+      },
+    })
+  },
+
+  clearLogo() {
+    this.setData({ [`formData.logo`]: '' })
   },
 
   chooseImage() {
@@ -209,6 +252,7 @@ Page({
         phone: formData.phone || undefined,
         businessHours: formData.businessHours || undefined,
         shopImages: shopImages,
+        logo: formData.logo || undefined,
         description: formData.description || undefined,
       })
 

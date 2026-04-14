@@ -58,6 +58,19 @@
         </view>
 
         <view class="form-item">
+          <text class="form-label">店铺 Logo</text>
+          <view class="image-upload-container">
+            <view class="uploaded-images">
+              <view class="uploaded-image" wx:if="{{formData.logo}}">
+                <image src="{{formData.logo}}" mode="aspectFill" class="image-preview" />
+                <view class="image-delete" bindtap="clearLogo">×</view>
+              </view>
+            </view>
+            <button class="upload-btn" bindtap="chooseLogo" hover-class="upload-btn-hover">上传logo</button>
+          </view>
+        </view>
+
+        <view class="form-item">
           <text class="form-label">上传店铺背景图</text>
           <view class="image-upload-container">
             <view class="uploaded-images">
@@ -66,7 +79,7 @@
                 <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
               </view>
             </view>
-            <button class="upload-btn" bindtap="chooseImage" type="primary" size="mini">上传图片</button>
+            <button class="upload-btn" bindtap="chooseImage" hover-class="upload-btn-hover">上传背景图</button>
           </view>
         </view>
 

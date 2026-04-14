@@ -102,6 +102,12 @@ public class ShopDetailVo implements Serializable {
     private String shopImages;
 
     /**
+     * 店铺 logo（图片 URL）
+     */
+    @Schema(description = "店铺logo（图片URL）")
+    private String logo;
+
+    /**
      * 店铺简介
      */
     @Schema(description = "店铺简介")

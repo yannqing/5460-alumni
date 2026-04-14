@@ -100,6 +100,12 @@ public class Shop implements Serializable {
     private String shopImages;
 
     /**
+     * 店铺 logo（图片 URL）
+     */
+    @TableField(value = "logo")
+    private String logo;
+
+    /**
      * 店铺简介
      */
     @TableField(value = "description")

@@ -40,7 +40,8 @@
     "pages/info-maintenance/edit/edit",
     "pages/register/register",
     "pages/feedback/feedback",
-    "pages/certification-info/certification-info"
+    "pages/certification-info/certification-info",
+    "pages/shop-audit-detail/shop-audit-detail"
   ],
   "subpackages": [
     {

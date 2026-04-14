@@ -23,7 +23,14 @@
         <text class="empty-text">暂无待审核店铺</text>
       </view>
       <view class="approval-list" wx:else>
-    <view class="shop-item" wx:for="{{approvalList}}" wx:key="shopId">
+    <view
+      class="shop-item"
+      hover-class="shop-item--tap"
+      wx:for="{{approvalList}}"
+      wx:key="shopId"
+      bindtap="goApprovalDetail"
+      data-shop-id="{{item.shopId}}"
+    >
       <view class="shop-header">
         <view class="shop-name">{{item.shopName}}</view>
         <view class="shop-type">{{item.shopType === 1 ? '总店' : '分店'}}</view>
@@ -47,9 +54,9 @@
           <text class="info-value">{{item.businessHours || '未设置'}}</text>
         </view>
         <view class="info-item">
-          <text class="info-label">审核状态：</text>
-          <text class="info-value status-text">
-            {{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '已通过' : '已拒绝'}}
+          <!-- 单行 text 嵌套 + nowrap，避免多个 text 在 flex 下仍换行或产生空白节点 -->
+          <text class="status-line">
+            <text class="info-label">审核状态：</text><text class="info-value status-text">{{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '已通过' : '已拒绝'}}</text>
           </text>
         </view>
         <view class="info-item" wx:if="{{item.reviewStatus !== 0}}">
@@ -64,8 +71,8 @@
       
       <!-- 审核操作按钮 -->
       <view class="audit-actions" wx:if="{{item.reviewStatus === 0}}">
-        <button class="approve-btn" bindtap="showAuditModal" data-shop-id="{{item.shopId}}">通过</button>
-        <button class="reject-btn" bindtap="showAuditModal" data-shop-id="{{item.shopId}}">拒绝</button>
+        <button class="approve-btn" catchtap="showAuditModal" data-shop-id="{{item.shopId}}">通过</button>
+        <button class="reject-btn" catchtap="showAuditModal" data-shop-id="{{item.shopId}}">拒绝</button>
       </view>
       <view class="audit-result" wx:else>
         <text class="result-text">{{item.reviewStatus === 1 ? '已通过审核' : '已拒绝审核'}}</text>

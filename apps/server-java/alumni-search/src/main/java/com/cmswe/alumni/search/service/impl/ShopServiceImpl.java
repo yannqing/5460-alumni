@@ -438,6 +438,29 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
     }
 
     @Override
+    public ShopApprovalVo getShopApprovalDetailByShopId(Long shopId) {
+        if (shopId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "shop_id 不能为空");
+        }
+        Shop shop = this.getById(shopId);
+        if (shop == null) {
+            throw new BusinessException("店铺不存在");
+        }
+        ShopApprovalVo vo = ShopApprovalVo.objToVo(shop);
+        try {
+            if (shop.getMerchantId() != null) {
+                Merchant merchant = merchantService.getById(shop.getMerchantId());
+                if (merchant != null) {
+                    vo.setMerchantName(merchant.getMerchantName());
+                }
+            }
+        } catch (Exception e) {
+            log.error("加载店铺 {} 的商户名称失败", shopId, e);
+        }
+        return vo;
+    }
+
+    @Override
     public List<ShopListVo> getMyAvailableShops(Long wxId) {
         // 1. 参数校验
         if (wxId == null) {

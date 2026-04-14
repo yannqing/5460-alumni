@@ -38,6 +38,17 @@ Page({
     this.loadMerchants()
   },
 
+  /** 跳转店铺申请详情（/shop/approval/detail） */
+  goApprovalDetail(e) {
+    const shopId = e.currentTarget.dataset.shopId
+    if (!shopId) {
+      return
+    }
+    wx.navigateTo({
+      url: `/pages/shop-audit-detail/shop-audit-detail?shop_id=${encodeURIComponent(shopId)}`,
+    })
+  },
+
   setScrollListHeight() {
     try {
       const res = wx.getSystemInfoSync()

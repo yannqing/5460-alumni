@@ -82,6 +82,10 @@
   border: 1rpx solid #f0f0f0;
 }
 
+.shop-item--tap {
+  background-color: #f0f4ff;
+}
+
 /* 店铺头部 */
 .shop-header {
   display: flex;
@@ -94,6 +98,9 @@
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
+  flex: 1;
+  min-width: 0;
+  margin-right: 16rpx;
 }
 
 .shop-type {
@@ -113,6 +120,16 @@
   margin-bottom: 12rpx;
   font-size: 28rpx;
   line-height: 1.5;
+}
+
+/* 审核状态：同一 text 流 + nowrap，避免 text 作 flex 子项时仍换行 */
+.status-line {
+  display: block;
+  font-size: 28rpx;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .info-label {
