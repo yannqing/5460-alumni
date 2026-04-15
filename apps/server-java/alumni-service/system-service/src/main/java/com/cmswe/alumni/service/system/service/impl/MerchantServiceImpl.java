@@ -448,6 +448,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             merchantMember.setMerchantId(merchantId);
             merchantMember.setShopId(null); // 店铺ID暂时为空
             merchantMember.setRoleOrId(memberRole.getRoleOrId());
+            merchantMember.setPosition("商户负责人");
             merchantMember.setJoinTime(LocalDateTime.now());
             merchantMember.setStatus(1); // 1-正常
             merchantMember.setCreateTime(LocalDateTime.now());
@@ -712,7 +713,40 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             size = 10L;
         }
 
-        // 2. 根据角色代码查询角色ID
+        // 2. 判断是否是系统超级管理员：超级管理员可查看所有商户
+        List<Role> userRoles = roleService.getRolesByUserId(wxId);
+        boolean isSystemSuperAdmin = userRoles.stream()
+                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
+        if (isSystemSuperAdmin) {
+            log.info("系统超级管理员查询商户列表 - 用户ID: {}, 当前页: {}, 每页大小: {}", wxId, current, size);
+
+            Page<Merchant> page = new Page<>(current, size);
+            Page<Merchant> merchantPage = this.lambdaQuery()
+                    .orderByDesc(Merchant::getCreateTime)
+                    .page(page);
+
+            List<MerchantListVo> merchantListVos = merchantPage.getRecords().stream()
+                    .map(merchant -> {
+                        MerchantListVo vo = MerchantListVo.objToVo(merchant);
+                        vo.setMerchantId(String.valueOf(merchant.getMerchantId()));
+                        if (merchant.getUserId() != null) {
+                            vo.setUserId(String.valueOf(merchant.getUserId()));
+                        }
+                        if (merchant.getAlumniAssociationId() != null) {
+                            vo.setAlumniAssociationId(String.valueOf(merchant.getAlumniAssociationId()));
+                        }
+                        return vo;
+                    })
+                    .collect(Collectors.toList());
+
+            Page<MerchantListVo> voPage = new Page<>(current, size, merchantPage.getTotal());
+            voPage.setRecords(merchantListVos);
+
+            log.info("系统超级管理员查询商户列表成功 - 用户ID: {}, 找到{}个商户", wxId, merchantPage.getTotal());
+            return PageVo.of(voPage);
+        }
+
+        // 3. 根据角色代码查询角色ID
         Role role = roleService.getRoleByCodeInner("ORGANIZE_MERCHANT_ADMIN");
         if (role == null) {
             log.warn("商户管理员角色不存在，roleCode: ORGANIZE_MERCHANT_ADMIN");
@@ -721,7 +755,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             return PageVo.of(emptyPage);
         }
 
-        // 3. 查询用户拥有该角色的所有组织ID（商户ID）
+        // 4. 查询用户拥有该角色的所有组织ID（商户ID）
         List<RoleUser> roleUsers = roleUserService.lambdaQuery()
                 .eq(RoleUser::getWxId, wxId)
                 .eq(RoleUser::getRoleId, role.getRoleId())
@@ -735,7 +769,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             return PageVo.of(emptyPage);
         }
 
-        // 4. 提取商户ID列表
+        // 5. 提取商户ID列表
         List<Long> merchantIds = roleUsers.stream()
                 .map(RoleUser::getOrganizeId)
                 .distinct()
@@ -743,14 +777,14 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         log.info("查询用户负责的商户列表 - 用户ID: {}, 商户数量: {}", wxId, merchantIds.size());
 
-        // 5. 分页查询商户列表
+        // 6. 分页查询商户列表
         Page<Merchant> page = new Page<>(current, size);
         Page<Merchant> merchantPage = this.lambdaQuery()
                 .in(Merchant::getMerchantId, merchantIds)
                 .orderByDesc(Merchant::getCreateTime)
                 .page(page);
 
-        // 6. 转换为 VO
+        // 7. 转换为 VO
         List<MerchantListVo> merchantListVos = merchantPage.getRecords().stream()
                 .map(merchant -> {
                     MerchantListVo vo = MerchantListVo.objToVo(merchant);
@@ -766,7 +800,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 })
                 .collect(Collectors.toList());
 
-        // 7. 构建分页结果
+        // 8. 构建分页结果
         Page<MerchantListVo> voPage = new Page<>(current, size, merchantPage.getTotal());
         voPage.setRecords(merchantListVos);
 
@@ -804,6 +838,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     .merchantId(member.getMerchantId())
                     .shopId(member.getShopId())
                     .roleOrId(member.getRoleOrId())
+                    .position(member.getPosition())
                     .joinTime(member.getJoinTime())
                     .status(member.getStatus())
                     .build();
@@ -851,11 +886,39 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         Optional.ofNullable(addDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
 
-        Long merchantId = addDto.getMerchantId();
-        Long wxId = addDto.getWxId();
-        Long roleOrId = addDto.getRoleOrId();
+        Long merchantId;
+        Long wxId;
+        try {
+            merchantId = Long.parseLong(addDto.getMerchantId().trim());
+            wxId = Long.parseLong(addDto.getWxId().trim());
+        } catch (NumberFormatException e) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "商户ID或用户ID格式不正确");
+        }
 
-        log.info("添加商户成员 - 商户ID: {}, 用户ID: {}, 角色ID: {}", merchantId, wxId, roleOrId);
+        Long roleOrId = null;
+        if (StringUtils.isNotBlank(addDto.getRoleOrId())) {
+            try {
+                roleOrId = Long.parseLong(addDto.getRoleOrId().trim());
+            } catch (NumberFormatException e) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "角色ID格式不正确");
+            }
+        }
+
+        Long shopId = null;
+        if (StringUtils.isNotBlank(addDto.getShopId())) {
+            try {
+                shopId = Long.parseLong(addDto.getShopId().trim());
+            } catch (NumberFormatException e) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "店铺ID格式不正确");
+            }
+        }
+
+        String position = addDto.getPosition() != null ? addDto.getPosition().trim() : "";
+        if (StringUtils.isBlank(position)) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "职务不能为空");
+        }
+
+        log.info("添加商户成员 - 商户ID: {}, 用户ID: {}, 角色ID: {}, 职务: {}", merchantId, wxId, roleOrId, position);
 
         // 2. 校验商户是否存在且已审核通过
         Merchant merchant = this.getOne(
@@ -874,16 +937,18 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "用户不存在");
         }
 
-        // 4. 校验角色是否存在且属于该商户
-        OrganizeArchiRole role = organizeArchiRoleService.getOne(
-                new LambdaQueryWrapper<OrganizeArchiRole>()
-                        .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
-                        .eq(OrganizeArchiRole::getOrganizeId, merchantId)
-                        .eq(OrganizeArchiRole::getOrganizeType, 3) // 3-商户
-                        .eq(OrganizeArchiRole::getStatus, 1));
+        // 4. 若传了架构角色 ID，则校验角色是否存在且属于该商户
+        if (roleOrId != null) {
+            OrganizeArchiRole role = organizeArchiRoleService.getOne(
+                    new LambdaQueryWrapper<OrganizeArchiRole>()
+                            .eq(OrganizeArchiRole::getRoleOrId, roleOrId)
+                            .eq(OrganizeArchiRole::getOrganizeId, merchantId)
+                            .eq(OrganizeArchiRole::getOrganizeType, 3) // 3-商户
+                            .eq(OrganizeArchiRole::getStatus, 1));
 
-        if (role == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "角色不存在或不属于该商户");
+            if (role == null) {
+                throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "角色不存在或不属于该商户");
+            }
         }
 
         // 5. 检查用户是否已是该商户的成员
@@ -901,8 +966,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         MerchantMember merchantMember = new MerchantMember();
         merchantMember.setWxId(wxId);
         merchantMember.setMerchantId(merchantId);
-        merchantMember.setShopId(addDto.getShopId());
+        merchantMember.setShopId(shopId);
         merchantMember.setRoleOrId(roleOrId);
+        merchantMember.setPosition(position);
         merchantMember.setJoinTime(LocalDateTime.now());
         merchantMember.setStatus(1);
         merchantMember.setCreateTime(LocalDateTime.now());
@@ -913,7 +979,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             throw new BusinessException(ErrorType.OPERATION_ERROR, "添加商户成员失败");
         }
 
-        log.info("添加商户成员成功 - 商户ID: {}, 用户ID: {}, 角色ID: {}", merchantId, wxId, roleOrId);
+        log.info("添加商户成员成功 - 商户ID: {}, 用户ID: {}, 角色ID: {}, 职务: {}", merchantId, wxId, roleOrId, position);
 
         return true;
     }
@@ -925,22 +991,53 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         Optional.ofNullable(updateDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
 
-        Long merchantId = updateDto.getMerchantId();
-        Long wxId = updateDto.getWxId();
-        Long newRoleOrId = updateDto.getRoleOrId();
+        Long merchantId;
+        Long wxId;
+        try {
+            merchantId = Long.parseLong(updateDto.getMerchantId().trim());
+            wxId = Long.parseLong(updateDto.getWxId().trim());
+        } catch (NumberFormatException e) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "商户ID或用户ID格式不正确");
+        }
 
-        log.info("更新商户成员角色 - 商户ID: {}, 用户ID: {}, 新角色ID: {}", merchantId, wxId, newRoleOrId);
+        Long newRoleOrId = null;
+        if (StringUtils.isNotBlank(updateDto.getRoleOrId())) {
+            try {
+                newRoleOrId = Long.parseLong(updateDto.getRoleOrId().trim());
+            } catch (NumberFormatException e) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "角色ID格式不正确");
+            }
+        }
 
-        // 2. 校验新角色是否存在且属于该商户
-        OrganizeArchiRole newRole = organizeArchiRoleService.getOne(
-                new LambdaQueryWrapper<OrganizeArchiRole>()
-                        .eq(OrganizeArchiRole::getRoleOrId, newRoleOrId)
-                        .eq(OrganizeArchiRole::getOrganizeId, merchantId)
-                        .eq(OrganizeArchiRole::getOrganizeType, 3) // 3-商户
-                        .eq(OrganizeArchiRole::getStatus, 1));
+        Long newShopId = null;
+        if (StringUtils.isNotBlank(updateDto.getShopId())) {
+            try {
+                newShopId = Long.parseLong(updateDto.getShopId().trim());
+            } catch (NumberFormatException e) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "店铺ID格式不正确");
+            }
+        }
 
-        if (newRole == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "角色不存在或不属于该商户");
+        String position = updateDto.getPosition() != null ? updateDto.getPosition().trim() : "";
+        if (StringUtils.isBlank(position)) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "职务不能为空");
+        }
+
+        log.info("更新商户成员 - 商户ID: {}, 用户ID: {}, 新角色ID: {}, 新店铺ID: {}, 职务: {}",
+                merchantId, wxId, newRoleOrId, newShopId, position);
+
+        // 2. 若传了架构角色 ID，则校验角色是否存在且属于该商户
+        if (newRoleOrId != null) {
+            OrganizeArchiRole newRole = organizeArchiRoleService.getOne(
+                    new LambdaQueryWrapper<OrganizeArchiRole>()
+                            .eq(OrganizeArchiRole::getRoleOrId, newRoleOrId)
+                            .eq(OrganizeArchiRole::getOrganizeId, merchantId)
+                            .eq(OrganizeArchiRole::getOrganizeType, 3) // 3-商户
+                            .eq(OrganizeArchiRole::getStatus, 1));
+
+            if (newRole == null) {
+                throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "角色不存在或不属于该商户");
+            }
         }
 
         // 3. 查询成员记录
@@ -954,16 +1051,31 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "该用户不是商户成员");
         }
 
-        // 4. 更新角色
-        member.setRoleOrId(newRoleOrId);
+        // 4. 若传了店铺 ID，校验店铺属于该商户
+        if (newShopId != null) {
+            Shop shop = shopService.getById(newShopId);
+            if (shop == null || shop.getMerchantId() == null || !shop.getMerchantId().equals(merchantId)) {
+                throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "店铺不存在或不属于该商户");
+            }
+        }
+
+        // 5. 更新职务；架构角色、店铺仅在入参提供时修改
+        member.setPosition(position);
+        if (newRoleOrId != null) {
+            member.setRoleOrId(newRoleOrId);
+        }
+        if (newShopId != null) {
+            member.setShopId(newShopId);
+        }
         member.setUpdateTime(LocalDateTime.now());
 
         int updateResult = merchantMemberMapper.updateById(member);
         if (updateResult <= 0) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新商户成员角色失败");
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新商户成员失败");
         }
 
-        log.info("更新商户成员角色成功 - 商户ID: {}, 用户ID: {}, 新角色ID: {}", merchantId, wxId, newRoleOrId);
+        log.info("更新商户成员成功 - 商户ID: {}, 用户ID: {}, 角色ID: {}, 店铺ID: {}, 职务: {}",
+                merchantId, wxId, newRoleOrId, newShopId, position);
 
         return true;
     }
@@ -975,8 +1087,8 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         Optional.ofNullable(deleteDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
 
-        Long merchantId = deleteDto.getMerchantId();
-        Long wxId = deleteDto.getWxId();
+        long merchantId = Long.parseLong(deleteDto.getMerchantId().trim());
+        long wxId = Long.parseLong(deleteDto.getWxId().trim());
 
         log.info("删除商户成员 - 商户ID: {}, 用户ID: {}", merchantId, wxId);
 

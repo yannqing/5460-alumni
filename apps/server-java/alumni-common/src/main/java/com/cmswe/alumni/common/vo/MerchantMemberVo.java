@@ -1,5 +1,7 @@
 package com.cmswe.alumni.common.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,12 +26,14 @@ public class MerchantMemberVo implements Serializable {
      * 成员ID
      */
     @Schema(description = "成员ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
-     * 用户ID
+     * 用户ID（JSON 输出为字符串，避免前端 Number 精度丢失导致编辑/删除时查不到成员）
      */
     @Schema(description = "用户ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long wxId;
 
     /**
@@ -60,12 +64,14 @@ public class MerchantMemberVo implements Serializable {
      * 商户ID
      */
     @Schema(description = "商户ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long merchantId;
 
     /**
      * 店铺ID
      */
     @Schema(description = "店铺ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long shopId;
 
     /**
@@ -78,6 +84,7 @@ public class MerchantMemberVo implements Serializable {
      * 角色ID
      */
     @Schema(description = "角色ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long roleOrId;
 
     /**
@@ -85,6 +92,12 @@ public class MerchantMemberVo implements Serializable {
      */
     @Schema(description = "角色名称")
     private String roleName;
+
+    /**
+     * 职务
+     */
+    @Schema(description = "职务")
+    private String position;
 
     /**
      * 加入时间

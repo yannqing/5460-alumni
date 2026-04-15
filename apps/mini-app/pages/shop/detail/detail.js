@@ -238,9 +238,10 @@ Page({
     }
 
     if (status === 'claimed') {
-      // 跳转到优惠券详情或使用页面
       wx.navigateTo({
-        url: `/pages/coupon/detail/detail?id=${id}`
+        url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(
+          String(id)
+        )}`,
       })
       return
     }
@@ -291,9 +292,13 @@ Page({
   // 查看优惠券详情
   viewCouponDetail(e) {
     const { id } = e.currentTarget.dataset
-    if (!id) {return}
+    if (!id) {
+      return
+    }
     wx.navigateTo({
-      url: `/pages/coupon/detail/detail?id=${id}`
+      url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(
+        String(id)
+      )}`,
     })
   },
 

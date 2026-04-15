@@ -1,4 +1,5 @@
 /* pages/audit/merchant/coupon/coupon.wxss */
+/* 与 shop 页一致：.page + group_5 + group_7 + 商户选择弹窗 */
 .page {
   background-color: transparent;
   width: 750rpx;
@@ -8,12 +9,74 @@
   overflow: hidden;
 }
 
+.page .group_5 {
+  width: 714rpx;
+  min-height: auto;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
+}
+
+.group_5 {
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_5 .text_14 {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: rgba(0,0,0,1);
+  line-height: 40rpx;
+}
+
+.group_5 .label_text {
+  font-size: 25rpx;
+  color: rgba(0,0,0,0.6);
+  line-height: 36rpx;
+  margin-top: 16rpx;
+  display: block;
+}
+
+.group_5 .text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+
+.group_5 .text_15 {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(0,0,0,0.85);
+  line-height: 36rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group_5 .text-wrapper_8::after {
+  content: '▼';
+  color: #999;
+  font-size: 20rpx;
+  margin-left: 10rpx;
+}
+
 .group_7 {
   width: 714rpx;
   flex: 1;
   background-color: #FFFFFF;
   border-radius: 28.99rpx;
-  margin: 47rpx 0 20rpx 18rpx;
+  margin: 34rpx 0 20rpx 18rpx;
   padding: 38rpx 43rpx 27rpx 43rpx;
   box-sizing: border-box;
   overflow: hidden;
@@ -29,12 +92,220 @@
   line-height: 40rpx;
 }
 
-.placeholder-block {
-  padding: 60rpx 0;
+.merchant-loading,
+.merchant-empty,
+.coupon-empty,
+.coupon-loading {
+  padding: 48rpx 0;
   text-align: center;
+  font-size: 28rpx;
+  color: #999;
 }
 
-.placeholder-text {
+.empty-text { font-size: 28rpx; color: #999; }
+
+.coupon-scroll {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.coupon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding-bottom: 16rpx;
+}
+
+.coupon-item {
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  border: 1rpx solid #f0f0f0;
+  padding: 20rpx 24rpx;
+}
+
+.coupon-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.coupon-name {
+  flex: 1;
+  font-size: 29rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 40rpx;
+}
+
+.coupon-status {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #1890ff;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background-color: rgba(24,144,255,0.1);
+}
+
+.coupon-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 25rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.meta-tag {
+  font-size: 22rpx;
+  color: #52c41a;
+  background-color: rgba(82,196,26,0.12);
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+}
+
+.meta-label { color: #999; }
+.meta-text { color: #666; }
+
+.page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 20rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.page-btn {
+  flex-shrink: 0;
+  padding: 12rpx 24rpx;
+  font-size: 26rpx;
+  color: #1890ff;
+  border: 1rpx solid #1890ff;
+  border-radius: 8rpx;
+  background-color: rgba(24,144,255,0.08);
+}
+
+.page-btn:active {
+  opacity: 0.85;
+}
+
+.page-btn.disabled {
+  color: #ccc;
+  border-color: #e8e8e8;
+  background-color: #fafafa;
+  pointer-events: none;
+}
+
+.page-info {
+  flex: 1;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+  line-height: 36rpx;
+}
+
+.fab-create {
+  position: fixed;
+  bottom: 60rpx;
+  right: 60rpx;
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #1890ff;
+  color: #fff;
+  font-size: 80rpx;
+  text-align: center;
+  line-height: 110rpx;
+  border-radius: 50%;
+  box-shadow: 0 4rpx 12rpx rgba(24,144,255,0.3);
+  z-index: 1000;
+}
+
+.fab-create:active {
+  transform: scale(0.95);
+}
+
+.merchant-picker {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
+}
+
+.merchant-picker .picker-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.merchant-picker .picker-content {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #E5E5E5;
+  background-color: #FAFAFA;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.picker-cancel {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.picker-cancel:active {
+  color: #333;
+}
+
+.picker-list {
+  max-height: calc(80vh - 88rpx + 40px);
+  overflow-y: auto;
+  padding: 16rpx 0;
+}
+
+.picker-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  font-size: 28rpx;
+  color: #333;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.picker-item:active {
+  background-color: #F5F5F5;
+}
+
+.item-name {
+  flex: 1;
+}
+
+.item-check {
+  color: #1AAD19;
+  font-weight: bold;
+}
+
+.picker-empty {
+  padding: 40rpx;
+  text-align: center;
   font-size: 28rpx;
   color: #999;
 }

@@ -1,4 +1,11 @@
 /* pages/audit/merchant/member/member.wxss */
+/* 页面根节点：弹窗挂在导航外，需占满屏宽以便 fixed 遮罩对齐 */
+.member-page-root {
+  width: 750rpx;
+  min-height: 100vh;
+  position: relative;
+}
+
 /* 与校友会审核页一致：.page + group_5 + group_7，仅 group_7 内 scroll-list 滚动 */
 .page {
   background-color: transparent;
@@ -172,6 +179,56 @@
   margin-bottom: 16rpx;
 }
 
+.member-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  gap: 12rpx;
+}
+
+/* 列表行内操作：小描边按钮，与「新增成员」主按钮色系一致 */
+.member-btn {
+  flex-shrink: 0;
+  min-width: 88rpx;
+  padding: 0 20rpx;
+  height: 52rpx;
+  border-radius: 26rpx;
+  box-sizing: border-box;
+  border: 1rpx solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.member-btn__text {
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.member-btn--edit {
+  background-color: rgba(24, 144, 255, 0.08);
+  border-color: rgba(24, 144, 255, 0.35);
+}
+
+.member-btn--edit .member-btn__text {
+  color: #1890ff;
+}
+
+.member-btn--delete {
+  background-color: rgba(255, 77, 79, 0.06);
+  border-color: rgba(255, 77, 79, 0.35);
+}
+
+.member-btn--delete .member-btn__text {
+  color: #ff4d4f;
+}
+
+.member-btn--pressed {
+  opacity: 0.78;
+}
+
 .member-avatar {
   width: 80rpx;
   height: 80rpx;
@@ -231,9 +288,6 @@
 
 .detail-value { color: #333; flex: 1; word-break: break-word; }
 
-.status-active { color: #52c41a; }
-.status-inactive { color: #ff4d4f; }
-
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -280,6 +334,22 @@
   overflow-y: auto;
 }
 
+/* 新增成员：姓名搜索下拉不被裁剪 */
+.add-member-modal .modal-content {
+  overflow: visible;
+  max-height: none;
+}
+
+/* 编辑成员：普通滚动，避免与 add-member-modal 的 overflow:visible 混用导致输入框焦点异常 */
+.edit-member-modal {
+  z-index: 1002;
+}
+
+.edit-member-modal .modal-content {
+  overflow-y: auto;
+  max-height: 72vh;
+}
+
 .form-item { margin-bottom: 24rpx; }
 
 .form-label {
@@ -287,6 +357,13 @@
   font-size: 28rpx;
   color: #333;
   margin-bottom: 12rpx;
+}
+
+.form-readonly {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.85);
+  line-height: 40rpx;
 }
 
 .required { color: #ff4d4f; }
@@ -300,6 +377,49 @@
   font-size: 28rpx;
   box-sizing: border-box;
   background-color: #fafafa;
+}
+
+.form-select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #E0E0E0;
+  border-radius: 12rpx;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+
+.form-select-text {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.form-select-arrow {
+  color: #999;
+  font-size: 20rpx;
+  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+
+.merchant-picker .picker-item-shop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.merchant-picker .picker-item .item-sub {
+  font-size: 24rpx;
+  color: #999;
 }
 
 .form-actions {
@@ -397,4 +517,97 @@
   text-align: center;
   color: #999;
   font-size: 28rpx;
+}
+
+/* 按姓名搜索用户（与校促会成员页一致） */
+.alumni-name-field {
+  position: relative;
+  margin-bottom: 24rpx;
+}
+
+.field-input-wrapper {
+  position: relative;
+  width: 100%;
+  height: 80rpx;
+}
+
+.field-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #E0E0E0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  line-height: 80rpx;
+  background-color: #fafafa;
+  box-sizing: border-box;
+  color: #333;
+}
+
+.field-placeholder {
+  color: #999;
+  font-size: 28rpx;
+}
+
+.alumni-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8rpx;
+  background-color: #fff;
+  border: 1rpx solid #eee;
+  border-radius: 12rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  max-height: 400rpx;
+  overflow: hidden;
+}
+
+.alumni-search-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.alumni-search-item:last-child {
+  border-bottom: none;
+}
+
+.alumni-search-item:active {
+  background-color: #f5f5f5;
+}
+
+.alumni-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.alumni-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.alumni-item-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alumni-item-school {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

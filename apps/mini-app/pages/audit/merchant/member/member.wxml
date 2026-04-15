@@ -1,4 +1,6 @@
 <!-- pages/audit/merchant/member/member.wxml -->
+<!-- 弹窗必须放在 custom-nav-bar 外：slot 内 audit-content-wrapper 有 overflow，会导致原生 input 无法聚焦/输入 -->
+<view class="member-page-root">
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商家成员">
 <view class="page">
   <!-- 选择商家卡片（与校友会审核页 group_5 一致） -->
@@ -26,7 +28,7 @@
         <text class="empty-text">暂无成员数据</text>
       </view>
       <view class="member-list" wx:else>
-        <view class="member-item" wx:for="{{memberList}}" wx:key="id">
+        <view class="member-item" wx:for="{{memberList}}" wx:key="wxId">
           <view class="member-header">
             <image class="member-avatar" src="{{item.avatarUrl || '../../../../assets/avatar/default_avatar.jpeg'}}" mode="aspectFill"></image>
             <view class="member-info">
@@ -34,7 +36,15 @@
                 <text class="member-name">{{item.nickname || item.name || '未知'}}</text>
                 <text class="member-real-name">({{item.name || '未设置'}})</text>
               </view>
-              <view class="member-role">{{item.roleName || '普通成员'}}</view>
+              <view class="member-role">{{item.position || item.roleName || '—'}}</view>
+            </view>
+            <view class="member-actions">
+              <view class="member-btn member-btn--edit" hover-class="member-btn--pressed" hover-stay-time="80" catchtap="openEditMember" data-wx-id="{{item.wxId + ''}}">
+                <text class="member-btn__text">编辑</text>
+              </view>
+              <view class="member-btn member-btn--delete" hover-class="member-btn--pressed" hover-stay-time="80" catchtap="confirmDeleteMember" data-wx-id="{{item.wxId + ''}}">
+                <text class="member-btn__text">删除</text>
+              </view>
             </view>
           </view>
           <view class="member-details">
@@ -42,46 +52,145 @@
               <text class="detail-label">店铺：</text>
               <text class="detail-value">{{item.shopName || '未分配'}}</text>
             </view>
-            <view class="member-detail-item">
-              <text class="detail-label">加入时间：</text>
-              <text class="detail-value">{{item.joinTime ? item.joinTime.split('T')[0] : '未知'}}</text>
-            </view>
-            <view class="member-detail-item">
-              <text class="detail-label">状态：</text>
-              <text class="detail-value status-{{item.status === 1 ? 'active' : 'inactive'}}">{{item.status === 1 ? '正常' : '禁用'}}</text>
-            </view>
           </view>
         </view>
       </view>
     </scroll-view>
   </view>
+</view>
+</custom-nav-bar>
 
   <!-- 新增成员弹窗 -->
   <view class="modal-overlay" wx:if="{{showAddModal}}" bindtap="hideAddMemberModal"></view>
-  <view class="modal-container" wx:if="{{showAddModal}}">
+  <view class="modal-container add-member-modal" wx:if="{{showAddModal}}">
     <view class="modal-header">
       <text class="modal-title">新增成员</text>
       <view class="modal-close" bindtap="hideAddMemberModal">×</view>
     </view>
     <view class="modal-content">
       <form bindsubmit="submitAddMember">
-        <view class="form-item">
-          <text class="form-label">校友用户ID <text class="required">*</text></text>
-          <input class="form-input" name="wxId" placeholder="请输入校友用户ID" value="{{addForm.wxId}}" bindinput="onAddFormInput" data-field="wxId" type="number" />
+        <view class="alumni-name-field" catchtap="preventBubble">
+          <text class="form-label">用户姓名 <text class="required">*</text></text>
+          <view class="field-input-wrapper">
+            <input
+              class="field-input"
+              name="memberName"
+              placeholder="输入姓名搜索并选择用户"
+              placeholder-class="field-placeholder"
+              adjust-position="{{false}}"
+              bindinput="onAddMemberNameInput"
+              bindfocus="onAddMemberNameFocus"
+              value="{{addForm.name}}"
+            />
+          </view>
+          <scroll-view
+            scroll-y
+            class="alumni-search-dropdown"
+            show-scrollbar="{{false}}"
+            wx:if="{{showAlumniSearchResults && alumniSearchResults.length > 0}}"
+          >
+            <view
+              wx:for="{{alumniSearchResults}}"
+              wx:key="wxIdStr"
+              class="alumni-search-item"
+              bindtap="selectAddMemberAlumni"
+              data-wx-id="{{item.wxIdStr}}"
+            >
+              <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="alumni-avatar" mode="aspectFill" />
+              <image wx:else src="{{defaultAvatar}}" class="alumni-avatar" mode="aspectFill" />
+              <view class="alumni-item-info">
+                <text class="alumni-item-name">{{item.name || item.nickname || item.realName}}</text>
+                <text class="alumni-item-school">{{item.school || '暂无学校信息'}}</text>
+              </view>
+            </view>
+          </scroll-view>
         </view>
         <view class="form-item">
-          <text class="form-label">店铺ID</text>
-          <input class="form-input" name="shopId" placeholder="请输入店铺ID（可选）" value="{{addForm.shopId}}" bindinput="onAddFormInput" data-field="shopId" type="number" />
+          <text class="form-label">店铺</text>
+          <view class="form-select-row" bindtap="showShopPickerModal">
+            <text class="form-select-text">{{addForm.shopName ? addForm.shopName : (shopListLoading ? '店铺列表加载中…' : '请选择店铺')}}</text>
+            <text class="form-select-arrow">▼</text>
+          </view>
         </view>
         <view class="form-item">
-          <text class="form-label">角色ID <text class="required">*</text></text>
-          <input class="form-input" name="roleOrId" placeholder="请输入角色ID" value="{{addForm.roleOrId}}" bindinput="onAddFormInput" data-field="roleOrId" type="number" />
+          <text class="form-label">职务 <text class="required">*</text></text>
+          <input class="form-input" name="position" placeholder="请输入职务" value="{{addForm.position}}" bindinput="onAddPositionInput" />
         </view>
         <view class="form-actions">
           <button class="btn-cancel" bindtap="hideAddMemberModal">取消</button>
           <button class="btn-submit" form-type="submit" loading="{{submitting}}">提交</button>
         </view>
       </form>
+    </view>
+  </view>
+
+  <!-- 编辑成员：店铺 + 职务；POST /merchant/member/update-role（含 shopId，不传 roleOrId） -->
+  <view class="modal-overlay" wx:if="{{showEditModal}}" bindtap="hideEditMemberModal"></view>
+  <view class="modal-container edit-member-modal" wx:if="{{showEditModal}}">
+    <view class="modal-header">
+      <text class="modal-title">编辑成员</text>
+      <view class="modal-close" bindtap="hideEditMemberModal">×</view>
+    </view>
+    <view class="modal-content">
+      <view class="form-item">
+        <text class="form-label">成员</text>
+        <text class="form-readonly">{{editForm.displayName}}</text>
+      </view>
+      <view class="form-item">
+        <text class="form-label">店铺</text>
+        <view class="form-select-row" bindtap="showEditShopPickerModal">
+          <text class="form-select-text">{{editForm.shopName ? editForm.shopName : (shopListLoading ? '店铺列表加载中…' : '请选择店铺')}}</text>
+          <text class="form-select-arrow">▼</text>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="form-label">职务 <text class="required">*</text></text>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="请输入职务"
+          value="{{editForm.position}}"
+          bindinput="onEditPositionInput"
+          hold-keyboard="{{true}}"
+          adjust-position="{{true}}"
+          confirm-type="done"
+        />
+      </view>
+      <view class="form-actions">
+        <button class="btn-cancel" bindtap="hideEditMemberModal">取消</button>
+        <button class="btn-submit" bindtap="submitEditMember" loading="{{editSubmitting}}">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新增成员：选择店铺（当前商户下店铺列表，与店铺管理接口一致） -->
+  <view class="merchant-picker" wx:if="{{showShopPicker}}">
+    <view class="picker-overlay" bindtap="cancelShopSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择店铺</text>
+        <text class="picker-cancel" bindtap="cancelShopSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view
+          class="picker-item"
+          wx:for="{{addShopList}}"
+          wx:key="shopId"
+          data-shop-id="{{item.shopId + ''}}"
+          data-shop-name="{{item.shopName}}"
+          bindtap="selectShopForPicker"
+        >
+          <view class="picker-item-shop">
+            <text class="item-name">{{item.shopName || '未命名店铺'}}</text>
+            <text class="item-sub">{{item.shopType === 1 ? '总店' : '分店'}}</text>
+          </view>
+          <text class="item-check" wx:if="{{shopPickerContext === 'edit' && editForm.shopId == (item.shopId + '')}}">✓</text>
+          <text class="item-check" wx:if="{{shopPickerContext !== 'edit' && addForm.shopId == (item.shopId + '')}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{!shopListLoading && addShopList.length === 0}}">
+          <text>暂无店铺数据</text>
+        </view>
+      </view>
     </view>
   </view>
 
@@ -105,4 +214,3 @@
     </view>
   </view>
 </view>
-</custom-nav-bar>

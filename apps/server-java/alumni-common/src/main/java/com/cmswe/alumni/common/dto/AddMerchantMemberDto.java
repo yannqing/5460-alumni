@@ -1,7 +1,7 @@
 package com.cmswe.alumni.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,31 +18,37 @@ import java.io.Serializable;
 public class AddMerchantMemberDto implements Serializable {
 
     /**
-     * 商户 ID
+     * 商户 ID（雪花 ID，请用字符串传递以避免 JS 等端 Number 精度丢失）
      */
-    @Schema(description = "商户 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "商户 ID不能为空")
-    private Long merchantId;
+    @Schema(description = "商户 ID（字符串形式的雪花 ID）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "商户 ID不能为空")
+    private String merchantId;
 
     /**
-     * 校友用户 ID
+     * 校友用户 wxId（雪花 ID，请用字符串传递）
      */
-    @Schema(description = "校友用户 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "校友用户 ID不能为空")
-    private Long wxId;
+    @Schema(description = "校友用户 wxId（字符串形式的雪花 ID）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "校友用户 ID不能为空")
+    private String wxId;
 
     /**
-     * 店铺 ID（可选）
+     * 店铺 ID（可选，字符串形式的雪花 ID）
      */
-    @Schema(description = "店铺 ID")
-    private Long shopId;
+    @Schema(description = "店铺 ID（可选）")
+    private String shopId;
 
     /**
-     * 角色 ID
+     * 成员架构角色 ID（organize_archi_role.role_or_id，可选，字符串形式的雪花 ID）
      */
-    @Schema(description = "角色 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "角色 ID不能为空")
-    private Long roleOrId;
+    @Schema(description = "成员架构角色 ID（可选）")
+    private String roleOrId;
+
+    /**
+     * 职务（必填）
+     */
+    @Schema(description = "职务", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "职务不能为空")
+    private String position;
 
     @Serial
     private static final long serialVersionUID = 1L;

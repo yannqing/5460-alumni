@@ -109,7 +109,6 @@
               <view class="coupon-divider"></view>
               <view class="coupon-right">
                 <view class="coupon-title">{{item.couponName}}</view>
-                <view class="coupon-desc">{{item.couponDesc}}</view>
                 <view class="coupon-expire">有效期至 {{item.validEndTime}}</view>
               </view>
               <view class="coupon-action" catchtap="handleCoupon" data-id="{{item.couponId}}">

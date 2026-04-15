@@ -154,6 +154,7 @@ Page({
       }
     ],
     // 商户功能列表 (源数据)
+    // 暂时下线：商户下「架构管理」，先隐藏页面入口
     _allMerchantFunctions: [
       {
         id: 1,
@@ -168,13 +169,6 @@ Page({
         icon: config.getIconUrl('shcygl@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/member/member'
-      },
-      {
-        id: 2,
-        name: '架构管理',
-        icon: config.getIconUrl('jggl@3x.png'),
-        iconType: 'image',
-        url: '/pages/audit/merchant/architecture/architecture'
       },
       {
         id: 4,

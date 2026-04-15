@@ -1,12 +1,83 @@
 <!-- pages/audit/merchant/coupon/coupon.wxml -->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="优惠券管理">
 <view class="page">
+  <view class="group_5" wx:if="{{merchantList.length > 1}}">
+    <text class="text_14">优惠券管理</text>
+    <text class="label_text">选择商家</text>
+    <view class="text-wrapper_8" bindtap="showMerchantSelector">
+      <text class="text_15">{{selectedMerchantName || '请选择商家'}}</text>
+    </view>
+  </view>
+
   <view class="group_7">
     <view class="list-header">
-      <text class="text_20">优惠券管理</text>
+      <text class="text_20">优惠券列表</text>
     </view>
-    <view class="placeholder-block">
-      <text class="placeholder-text">优惠券管理功能页面</text>
+
+    <view class="merchant-loading" wx:if="{{merchantLoading}}">
+      <text class="empty-text">加载商户中...</text>
+    </view>
+
+    <view class="merchant-empty" wx:elif="{{merchantList.length === 0}}">
+      <text class="empty-text">暂无可用商户</text>
+    </view>
+
+    <block wx:elif="{{selectedMerchantId}}">
+      <scroll-view class="coupon-scroll" scroll-y enable-back-to-top show-scrollbar="{{false}}" lower-threshold="80" bindscrolltolower="onCouponScrollToLower" style="height: {{scrollListHeight}}px;">
+        <view class="coupon-loading" wx:if="{{couponLoading}}">
+          <text>加载中...</text>
+        </view>
+        <view class="coupon-empty" wx:elif="{{!couponLoading && couponList.length === 0}}">
+          <text class="empty-text">暂无优惠券</text>
+        </view>
+        <view class="coupon-list" wx:else>
+          <view class="coupon-item" wx:for="{{couponList}}" wx:key="couponId">
+            <view class="coupon-item-top">
+              <text class="coupon-name">{{item.couponName}}</text>
+              <text class="coupon-status">{{item._statusLabel}}</text>
+            </view>
+            <view class="coupon-meta">
+              <text class="meta-tag">{{item._couponTypeLabel}}</text>
+              <text class="meta-text">{{item._discountText}}</text>
+            </view>
+            <view class="coupon-meta" wx:if="{{item.validEndTime || item._validEndShort}}">
+              <text class="meta-label">有效期至</text>
+              <text class="meta-text">{{item._validEndShort || item.validEndTime}}</text>
+            </view>
+            <view class="coupon-meta">
+              <text class="meta-label">余量</text>
+              <text class="meta-text">{{item.remainQuantity != null ? item.remainQuantity : '—'}} / {{item.totalQuantity != null ? item.totalQuantity : '—'}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="page-footer" wx:if="{{couponTotal > 0}}">
+        <view class="page-btn {{couponHasPrevious ? '' : 'disabled'}}" bindtap="goCouponPrevPage">上一页</view>
+        <text class="page-info">第 {{couponCurrentPage}} / {{couponPages}} 页 · 共 {{couponTotal}} 条</text>
+        <view class="page-btn {{couponHasNext ? '' : 'disabled'}}" bindtap="goCouponNextPage">下一页</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="fab-create" bindtap="goCreateCoupon" wx:if="{{selectedMerchantId}}">+</view>
+</view>
+
+<view class="merchant-picker" wx:if="{{showMerchantPicker}}">
+  <view class="picker-overlay" bindtap="cancelMerchantSelect"></view>
+  <view class="picker-content">
+    <view class="picker-header">
+      <text class="picker-title">选择商户</text>
+      <text class="picker-cancel" bindtap="cancelMerchantSelect">取消</text>
+    </view>
+    <view class="picker-list">
+      <view class="picker-item" wx:for="{{merchantList}}" wx:key="merchantId" data-merchant-id="{{item.merchantId + ''}}" data-merchant-name="{{item.merchantName}}" bindtap="selectMerchant">
+        <text class="item-name">{{item.merchantName}}</text>
+        <text class="item-check" wx:if="{{selectedMerchantId == item.merchantId}}">✓</text>
+      </view>
+      <view class="picker-empty" wx:if="{{merchantList.length === 0}}">
+        <text>暂无商户数据</text>
+      </view>
     </view>
   </view>
 </view>

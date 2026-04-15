@@ -1,6 +1,6 @@
 <!--pages/coupon/detail/detail.wxml-->
 <!-- 自定义导航栏 -->
-<custom-nav-bar title="优惠券详情" showBack="{{true}}"></custom-nav-bar>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="优惠券详情"></custom-nav-bar>
 
 <view class="coupon-detail-page">
   <!-- 加载中 -->
@@ -9,6 +9,7 @@
         </view>
 
   <view wx:elif="{{couponInfo}}">
+    <view class="group_tabs">
     <!-- 核销二维码卡片 - 只显示二维码，居中 -->
     <!-- 已使用状态：显示已消费提示 -->
     <view wx:if="{{couponInfo.status === 2}}" class="qr-code-card">
@@ -35,6 +36,7 @@
           <text class="refresh-text">刷新</text>
         </view>
       </view>
+    </view>
     </view>
 
     <!-- 优惠券基本信息卡片 -->

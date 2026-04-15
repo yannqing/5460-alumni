@@ -2,6 +2,14 @@
 const { merchantApi, couponApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
+/** ISO 时间展示：去掉日期与时间之间的 T，如 2026-04-13T10:42:22 → 2026-04-13 10:42:22 */
+function formatCouponValidTime(value) {
+  if (value == null || value === '') {
+    return value
+  }
+  return String(value).replace('T', ' ')
+}
+
 Page({
   data: {
     shopId: '',
@@ -74,6 +82,13 @@ Page({
           location = shopData.address
         } else if (shopData.province || shopData.city || shopData.district) {
           location = [shopData.province, shopData.city, shopData.district].filter(Boolean).join('')
+        }
+
+        if (shopData.coupons && Array.isArray(shopData.coupons)) {
+          shopData.coupons = shopData.coupons.map(c => ({
+            ...c,
+            validEndTime: formatCouponValidTime(c.validEndTime),
+          }))
         }
 
         this.setData({
@@ -153,9 +168,9 @@ Page({
       
       // 调用新的领取优惠券接口
       const res = await couponApi.claimCoupon({
-        couponId: parseInt(id),
+        couponId: String(id),
         receiveChannel: 'shop_detail',
-        receiveSource: 'shop_id_' + this.data.shopId
+        receiveSource: 'shop_id_' + String(this.data.shopId),
       })
       
       wx.hideLoading()
@@ -170,7 +185,7 @@ Page({
         const updatedShopInfo = { ...this.data.shopInfo }
         if (updatedShopInfo.coupons) {
           updatedShopInfo.coupons = updatedShopInfo.coupons.map(coupon => {
-            if (coupon.couponId === id && coupon.remainQuantity > 0) {
+            if (String(coupon.couponId) === String(id) && coupon.remainQuantity > 0) {
               return { ...coupon, remainQuantity: coupon.remainQuantity - 1 }
             }
             return coupon

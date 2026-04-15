@@ -1,8 +1,21 @@
 /* pages/coupon/detail/detail.wxss */
 .coupon-detail-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: transparent;
   padding-bottom: 40rpx;
+}
+
+/* 顶部卡片容器（参考券包列表页顶部样式） */
+.group_tabs {
+  width: 714rpx;
+  background-color: #ffffff;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  margin: 10rpx 0 20rpx 18rpx;
+  padding: 20rpx 20rpx 24rpx 20rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 /* 加载中 */
@@ -20,7 +33,7 @@
 
 /* 二维码卡片 - 只显示二维码，居中 */
 .qr-code-card {
-  margin: 30rpx;
+  margin: 0;
   padding: 40rpx 30rpx;
   background: linear-gradient(135deg, #40B2E6, #6BC5ED);
   border-radius: 24rpx;

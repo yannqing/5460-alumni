@@ -143,6 +143,9 @@ const alumniApi = {
   // 查询校友列表（ES版本，支持降级到MySQL）
   // params: { nickname, name, phone, gender, myFollow, pageNum, pageSize, ... }
   queryAlumniList: params => post('/users/query/alumni/es', params),
+  // 查询校友列表（MySQL 版本）— 管理端选人等场景 wxId 常以字符串返回，避免大整数精度问题
+  // params: { current, pageSize, name, nickname, phone, ... } 见 QueryAlumniListDto
+  queryAlumniListMysql: params => post('/users/query/alumni', params),
   // 获取校友信息（根据隐私设置）
   getAlumniInfo: id => get(`/users/getAlumniInfo/${id}`),
   // 关注校友
@@ -174,9 +177,15 @@ const couponApi = {
   // 核销优惠券
   verifyCoupon: data => post('/coupon/verify', data),
   // 获取用户券详情（含核销码生成）
-  getUserCouponDetail: userCouponId => get(`/coupon/user-coupon/${userCouponId}`),
-  // 刷新优惠券核销码
-  refreshCouponCode: userCouponId => post(`/coupon/user-coupon/refresh-code/${userCouponId}`),
+  // 路径中的 userCouponId 必须用字符串拼接，避免大整数经 Number 后精度丢失
+  getUserCouponDetail: userCouponId =>
+    get(`/coupon/user-coupon/${encodeURIComponent(String(userCouponId))}`),
+  refreshCouponCode: userCouponId =>
+    post(`/coupon/user-coupon/refresh-code/${encodeURIComponent(String(userCouponId))}`),
+  // 商户端：分页查询优惠券列表（管理）
+  getManagementCouponList: data => post('/coupon/management/list', data),
+  // 商户端：创建优惠券
+  createCoupon: data => post('/coupon/create', data),
 }
 
 // ==================== 圈子相关接口 ====================
