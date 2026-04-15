@@ -6,6 +6,7 @@ import com.cmswe.alumni.common.dto.QueryUserCouponDto;
 import com.cmswe.alumni.common.dto.VerifyCouponDto;
 import com.cmswe.alumni.common.dto.QueryMerchantCouponDto;
 import com.cmswe.alumni.common.dto.UpdateCouponDto;
+import com.cmswe.alumni.common.vo.CouponManagementDetailVo;
 import com.cmswe.alumni.common.vo.CouponVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.UserCouponVo;
@@ -100,4 +101,12 @@ public interface CouponService {
      * @return 是否成功
      */
     boolean deleteCoupon(Long couponId);
+
+    /**
+     * 获取管理端优惠券详情（包含可使用店铺）
+     *
+     * @param couponId 优惠券ID
+     * @return 管理端优惠券详情
+     */
+    CouponManagementDetailVo getManagementCouponDetail(Long couponId);
 }

@@ -31,7 +31,7 @@
           <text class="empty-text">暂无优惠券</text>
         </view>
         <view class="coupon-list" wx:else>
-          <view class="coupon-item" wx:for="{{couponList}}" wx:key="couponId">
+          <view class="coupon-item" wx:for="{{couponList}}" wx:key="couponId" data-coupon-id="{{item.couponId + ''}}" bindtap="goCouponDetail">
             <view class="coupon-item-top">
               <text class="coupon-name">{{item.couponName}}</text>
               <text class="coupon-status">{{item._statusLabel}}</text>
@@ -47,6 +47,26 @@
             <view class="coupon-meta">
               <text class="meta-label">余量</text>
               <text class="meta-text">{{item.remainQuantity != null ? item.remainQuantity : '—'}} / {{item.totalQuantity != null ? item.totalQuantity : '—'}}</text>
+            </view>
+            <view class="coupon-action">
+              <view
+                class="coupon-edit-btn"
+                hover-class="coupon-edit-btn--pressed"
+                hover-stay-time="80"
+                data-coupon-id="{{item.couponId + ''}}"
+                catchtap="goEditCoupon"
+              >
+                <text class="coupon-edit-btn__text">编辑</text>
+              </view>
+              <view
+                class="coupon-delete-btn"
+                hover-class="coupon-delete-btn--pressed"
+                hover-stay-time="80"
+                data-coupon-id="{{item.couponId + ''}}"
+                catchtap="confirmDeleteCoupon"
+              >
+                <text class="coupon-delete-btn__text">删除</text>
+              </view>
             </view>
           </view>
         </view>

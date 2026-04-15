@@ -184,8 +184,18 @@ const couponApi = {
     post(`/coupon/user-coupon/refresh-code/${encodeURIComponent(String(userCouponId))}`),
   // 商户端：分页查询优惠券列表（管理）
   getManagementCouponList: data => post('/coupon/management/list', data),
+  // 商户端：查询优惠券详情（管理）
+  // couponId 为雪花 ID，必须按字符串透传，避免 Number 精度丢失
+  getManagementCouponDetail: couponId =>
+    get(`/coupon/management/${encodeURIComponent(String(couponId))}`),
   // 商户端：创建优惠券
   createCoupon: data => post('/coupon/create', data),
+  // 商户端：更新优惠券
+  updateManagementCoupon: data => post('/coupon/management/update', data),
+  // 商户端：删除优惠券（管理）
+  // couponId 为雪花 ID，必须按字符串透传，避免 Number 精度丢失
+  deleteManagementCoupon: couponId =>
+    del(`/coupon/management/${encodeURIComponent(String(couponId))}`),
 }
 
 // ==================== 圈子相关接口 ====================

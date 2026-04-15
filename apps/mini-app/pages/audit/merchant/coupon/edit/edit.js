@@ -1,4 +1,3 @@
-// pages/audit/merchant/coupon/create/create.js
 const { couponApi } = require('../../../../../api/api.js')
 const { uploadImage } = require('../../../../../utils/fileUpload.js')
 const { get } = require('../../../../../utils/request.js')
@@ -30,15 +29,37 @@ function toDateTimeLocal(dateStr, timeStr) {
   return `${dateStr}T${timeStr}:00`
 }
 
+function splitDateTime(value, defaultDate, defaultTime) {
+  if (!value) {
+    return { date: defaultDate, time: defaultTime }
+  }
+  const d = new Date(value)
+  if (!isNaN(d.getTime())) {
+    return {
+      date: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
+      time: `${pad2(d.getHours())}:${pad2(d.getMinutes())}`,
+    }
+  }
+  const s = String(value).replace('T', ' ').trim()
+  if (s.length >= 16) {
+    return {
+      date: s.slice(0, 10).replace(/\//g, '-'),
+      time: s.slice(11, 16),
+    }
+  }
+  return { date: defaultDate, time: defaultTime }
+}
+
 Page({
   data: {
+    couponId: '',
     loading: false,
     submitting: false,
     selectedMerchantId: '',
     selectedMerchantName: '',
 
     shopList: [],
-    shopPickerRange: [],
+    shopPickerRange: ['全部门店（不限制）'],
     shopIndex: 0,
 
     couponTypeLabels: ['折扣券', '满减券', '礼品券'],
@@ -77,28 +98,108 @@ Page({
   },
 
   onLoad(options) {
-    const merchantId = options.merchantId || ''
-    const merchantName = decodeURIComponent(options.merchantName || '')
-    if (!merchantId) {
-      wx.showToast({ title: '请从列表页进入并选择商户', icon: 'none' })
-      setTimeout(() => {
-        wx.navigateBack()
-      }, 1500)
+    const couponId = options.couponId ? decodeURIComponent(options.couponId) : ''
+    if (!couponId) {
+      wx.showToast({ title: '优惠券ID缺失', icon: 'none' })
+      setTimeout(() => wx.navigateBack(), 1200)
       return
     }
     this.setData({
-      selectedMerchantId: merchantId,
-      selectedMerchantName: merchantName,
+      couponId: String(couponId),
+      selectedMerchantId: options.merchantId ? decodeURIComponent(options.merchantId) : '',
+      selectedMerchantName: decodeURIComponent(options.merchantName || ''),
     })
-    this.loadShops(merchantId)
+    this.loadCouponDetail()
   },
 
-  async loadShops(merchantId) {
+  async loadCouponDetail() {
+    this.setData({ loading: true })
+    try {
+      const res = await couponApi.getManagementCouponDetail(this.data.couponId)
+      if (!(res.data && res.data.code === 200 && res.data.data && res.data.data.coupon)) {
+        wx.showToast({ title: (res.data && res.data.msg) || '加载失败', icon: 'none' })
+        this.setData({ loading: false })
+        return
+      }
+
+      const coupon = res.data.data.coupon || {}
+      const merchantId = coupon.merchantId != null ? String(coupon.merchantId) : this.data.selectedMerchantId
+      const couponType = Number(coupon.couponType || 1)
+      const publishType = Number(coupon.publishType || 1)
+      let discountType = Number(coupon.discountType || 2)
+      if (couponType === 2 || couponType === 3) {
+        discountType = 1
+      }
+
+      const couponTypeIndex = Math.max(0, this.data.couponTypeValues.indexOf(couponType))
+      const discountTypeIndex = Math.max(0, this.data.discountTypeValues.indexOf(discountType))
+      const publishIndex = Math.max(0, this.data.publishValues.indexOf(publishType))
+
+      const start = splitDateTime(coupon.validStartTime, todayDateStr(), '00:00')
+      const end = splitDateTime(coupon.validEndTime, addDaysDateStr(30), '23:59')
+      const publish = splitDateTime(coupon.publishTime, todayDateStr(), '09:00')
+
+      this.setData({
+        selectedMerchantId: merchantId,
+        selectedMerchantName: this.data.selectedMerchantName || coupon.merchantName || '',
+        couponTypeIndex,
+        discountTypeIndex,
+        publishIndex,
+        formData: {
+          couponName: coupon.couponName || '',
+          couponDesc: coupon.couponDesc || '',
+          couponImage: coupon.couponImage || '',
+          couponType,
+          discountType,
+          discountValue:
+            coupon.discountValue != null && coupon.discountValue !== ''
+              ? String(coupon.discountValue)
+              : '',
+          minSpend:
+            coupon.minSpend != null && coupon.minSpend !== '' ? String(coupon.minSpend) : '',
+          maxDiscount:
+            coupon.maxDiscount != null && coupon.maxDiscount !== ''
+              ? String(coupon.maxDiscount)
+              : '',
+          totalQuantity:
+            coupon.totalQuantity != null && coupon.totalQuantity !== ''
+              ? String(coupon.totalQuantity)
+              : '',
+          perUserLimit:
+            coupon.perUserLimit != null && coupon.perUserLimit !== ''
+              ? String(coupon.perUserLimit)
+              : '1',
+          isAlumniOnly: Number(coupon.isAlumniOnly || 0),
+          useTimeLimit: coupon.useTimeLimit || '',
+          publishType,
+          validStartDate: start.date,
+          validStartTime: start.time,
+          validEndDate: end.date,
+          validEndTime: end.time,
+          publishDate: publish.date,
+          publishTime: publish.time,
+        },
+      })
+
+      await this.loadShops(merchantId, coupon.shopId)
+    } catch (e) {
+      console.error(e)
+      wx.showToast({ title: '加载失败', icon: 'none' })
+    } finally {
+      this.setData({ loading: false })
+    }
+  },
+
+  async loadShops(merchantId, selectedShopId) {
     if (!merchantId) {
+      this.setData({
+        shopList: [],
+        shopPickerRange: ['全部门店（不限制）'],
+        shopIndex: 0,
+      })
       return
     }
     try {
-      this.setData({ loading: true })
       const res = await get(`/shop/list/${merchantId}`)
       if (res.data && res.data.code === 200) {
         const records = res.data.data?.records || res.data.data || []
@@ -106,11 +207,13 @@ Page({
         const shopPickerRange = ['全部门店（不限制）'].concat(
           list.map(s => s.shopName || `店铺${s.shopId}`)
         )
-        this.setData({
-          shopList: list,
-          shopPickerRange,
-          shopIndex: 0,
-        })
+        let shopIndex = 0
+        if (selectedShopId != null && selectedShopId !== '') {
+          const target = String(selectedShopId)
+          const idx = list.findIndex(s => String(s.shopId) === target)
+          shopIndex = idx >= 0 ? idx + 1 : 0
+        }
+        this.setData({ shopList: list, shopPickerRange, shopIndex })
       }
     } catch (e) {
       console.error(e)
@@ -119,8 +222,6 @@ Page({
         shopPickerRange: ['全部门店（不限制）'],
         shopIndex: 0,
       })
-    } finally {
-      this.setData({ loading: false })
     }
   },
 
@@ -143,18 +244,15 @@ Page({
     const couponType = this.data.couponTypeValues[idx]
     let discountType = 2
     let discountTypeIndex = 1
-    if (couponType === 2) {
-      discountType = 1
-      discountTypeIndex = 0
-    } else if (couponType === 3) {
+    if (couponType === 2 || couponType === 3) {
       discountType = 1
       discountTypeIndex = 0
     }
     this.setData({
       couponTypeIndex: idx,
+      discountTypeIndex,
       'formData.couponType': couponType,
       'formData.discountType': discountType,
-      discountTypeIndex,
     })
   },
 
@@ -171,8 +269,7 @@ Page({
   },
 
   onShopChange(e) {
-    const idx = Number(e.detail.value)
-    this.setData({ shopIndex: idx })
+    this.setData({ shopIndex: Number(e.detail.value) })
   },
 
   onPublishTypeChange(e) {
@@ -241,7 +338,11 @@ Page({
   },
 
   validate() {
-    const { formData, selectedMerchantId, shopIndex, shopList } = this.data
+    const { formData, selectedMerchantId, shopIndex, shopList, couponId } = this.data
+    if (!couponId) {
+      wx.showToast({ title: '优惠券ID缺失', icon: 'none' })
+      return null
+    }
     if (!selectedMerchantId) {
       wx.showToast({ title: '缺少商户信息', icon: 'none' })
       return null
@@ -251,7 +352,6 @@ Page({
       wx.showToast({ title: '请填写优惠券名称', icon: 'none' })
       return null
     }
-    const couponType = Number(formData.couponType)
 
     const parseOptNumber = (raw, label) => {
       const t = raw != null && raw !== '' ? String(raw).trim() : ''
@@ -280,20 +380,18 @@ Page({
       return n
     }
 
+    const couponType = Number(formData.couponType)
     let discountValueParsed = null
     let minSpendParsed = null
     let maxDiscountParsed = null
 
     if (couponType === 1) {
-      const md = parseRequiredNumber(
-        formData.maxDiscount,
-        '请填写最高优惠金额（限制折扣上限）'
-      )
+      const md = parseRequiredNumber(formData.maxDiscount, '请填写最高优惠金额')
       if (md === undefined) {
         return null
       }
       maxDiscountParsed = md
-      const dv = parseOptNumber(formData.discountValue, '优惠值')
+      const dv = parseRequiredNumber(formData.discountValue, '请填写优惠值')
       if (dv === undefined) {
         return null
       }
@@ -304,7 +402,7 @@ Page({
       }
       minSpendParsed = ms
     } else if (couponType === 2) {
-      const ms = parseRequiredNumber(formData.minSpend, '请填写使用门槛（满多少可用）')
+      const ms = parseRequiredNumber(formData.minSpend, '请填写使用门槛')
       if (ms === undefined) {
         return null
       }
@@ -314,8 +412,8 @@ Page({
         return null
       }
       discountValueParsed = dv
-    } else if (couponType === 3) {
-      const dv = parseOptNumber(formData.discountValue, '礼品价值')
+    } else {
+      const dv = parseRequiredNumber(formData.discountValue, '请填写礼品价值')
       if (dv === undefined) {
         return null
       }
@@ -329,17 +427,20 @@ Page({
       wx.showToast({ title: '请填写发行总量', icon: 'none' })
       return null
     }
+
     const validStartTime = toDateTimeLocal(formData.validStartDate, formData.validStartTime)
     const validEndTime = toDateTimeLocal(formData.validEndDate, formData.validEndTime)
     if (!validStartTime || !validEndTime) {
       wx.showToast({ title: '请完善有效期', icon: 'none' })
       return null
     }
-    // 雪花 ID 超出 JS 安全整数，禁止 Number()，否则入库会错位
+
     const payload = {
+      couponId: String(couponId),
       merchantId: String(selectedMerchantId),
       couponName: name,
       couponType,
+      discountValue: discountValueParsed,
       totalQuantity,
       validStartTime,
       validEndTime,
@@ -348,22 +449,15 @@ Page({
 
     if (couponType === 2) {
       payload.discountType = 1
-      payload.discountValue = discountValueParsed
       payload.minSpend = minSpendParsed
     } else if (couponType === 1) {
       payload.discountType = Number(formData.discountType)
-      if (discountValueParsed !== null) {
-        payload.discountValue = discountValueParsed
-      }
+      payload.maxDiscount = maxDiscountParsed
       if (minSpendParsed !== null) {
         payload.minSpend = minSpendParsed
       }
-      payload.maxDiscount = maxDiscountParsed
-    } else if (couponType === 3) {
+    } else {
       payload.discountType = 1
-      if (discountValueParsed !== null) {
-        payload.discountValue = discountValueParsed
-      }
     }
 
     if (shopIndex > 0 && shopList[shopIndex - 1]) {
@@ -382,14 +476,15 @@ Page({
       payload.couponImage = img
     }
 
-    let perUserLimit = 1
-    if (formData.perUserLimit !== '' && formData.perUserLimit != null) {
-      perUserLimit = parseInt(formData.perUserLimit, 10)
+    const perUserLimitRaw = (formData.perUserLimit || '').trim()
+    if (perUserLimitRaw !== '') {
+      const perUserLimit = parseInt(perUserLimitRaw, 10)
       if (Number.isNaN(perUserLimit)) {
-        perUserLimit = 1
+        wx.showToast({ title: '每人限领格式错误', icon: 'none' })
+        return null
       }
+      payload.perUserLimit = perUserLimit
     }
-    payload.perUserLimit = perUserLimit
     payload.isAlumniOnly = Number(formData.isAlumniOnly)
 
     const utl = (formData.useTimeLimit || '').trim()
@@ -420,23 +515,21 @@ Page({
     this.setData({ submitting: true })
     wx.showLoading({ title: '提交中...', mask: true })
     try {
-      const res = await couponApi.createCoupon(payload)
+      const res = await couponApi.updateManagementCoupon(payload)
       if (res.data && res.data.code === 200) {
-        wx.showToast({ title: '创建成功', icon: 'success' })
+        wx.showToast({ title: '更新成功', icon: 'success' })
         setTimeout(() => {
-          wx.redirectTo({
-            url: '/pages/audit/merchant/coupon/coupon',
-          })
+          wx.navigateBack()
         }, 800)
       } else {
         wx.showToast({
-          title: (res.data && res.data.msg) || '创建失败',
+          title: (res.data && res.data.msg) || '更新失败',
           icon: 'none',
         })
       }
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '创建失败', icon: 'none' })
+      wx.showToast({ title: '更新失败', icon: 'none' })
     } finally {
       wx.hideLoading()
       this.setData({ submitting: false })

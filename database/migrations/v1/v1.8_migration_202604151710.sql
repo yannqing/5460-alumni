@@ -1,0 +1,1 @@
+INSERT INTO cni_alumni.permission (per_id, per_uuid, pid, name, code, type, create_time, update_time, is_delete, status, sort_order) VALUES (1995342452768153634, null, 1995342452768153618, '信息维护', 'MERCHANT_ASSOCIATION_INFORMATION', 1, '2026-04-15 09:07:37', '2026-04-15 09:07:37', 0, 1, 0);

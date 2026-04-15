@@ -46,6 +46,7 @@ Page({
     couponPages: 0,
     couponHasNext: false,
     couponHasPrevious: false,
+    couponDeleting: false,
 
     scrollListHeight: 400,
   },
@@ -234,5 +235,83 @@ Page({
     wx.navigateTo({
       url: `/pages/audit/merchant/coupon/create/create?${q.join('&')}`,
     })
+  },
+
+  goCouponDetail(e) {
+    const couponId = e.currentTarget.dataset.couponId
+    if (!couponId) {
+      wx.showToast({ title: '优惠券ID缺失', icon: 'none' })
+      return
+    }
+    // 雪花 ID 超出 JS 安全整数范围，保持字符串传递
+    wx.navigateTo({
+      url: `/pages/audit/merchant/coupon/detail/detail?couponId=${encodeURIComponent(String(couponId))}`,
+    })
+  },
+
+  goEditCoupon(e) {
+    const couponId = e.currentTarget.dataset.couponId
+    const { selectedMerchantId, selectedMerchantName } = this.data
+    if (!couponId) {
+      wx.showToast({ title: '优惠券ID缺失', icon: 'none' })
+      return
+    }
+    wx.navigateTo({
+      url: `/pages/audit/merchant/coupon/edit/edit?couponId=${encodeURIComponent(String(couponId))}&merchantId=${encodeURIComponent(String(selectedMerchantId || ''))}&merchantName=${encodeURIComponent(selectedMerchantName || '')}`,
+    })
+  },
+
+  confirmDeleteCoupon(e) {
+    const couponId = e.currentTarget.dataset.couponId
+    if (!couponId) {
+      wx.showToast({ title: '优惠券ID缺失', icon: 'none' })
+      return
+    }
+    wx.showModal({
+      title: '删除确认',
+      content: '删除后不可恢复，确定删除该优惠券吗？',
+      confirmColor: '#ff4d4f',
+      success: ({ confirm }) => {
+        if (confirm) {
+          this.deleteCouponById(String(couponId))
+        }
+      },
+    })
+  },
+
+  async deleteCouponById(couponId) {
+    if (!couponId || this.data.couponDeleting) {
+      return
+    }
+
+    this.setData({ couponDeleting: true })
+    wx.showLoading({ title: '删除中...', mask: true })
+
+    try {
+      const res = await couponApi.deleteManagementCoupon(String(couponId))
+      const ok = res && res.data && res.data.code === 200 && res.data.data === true
+      if (!ok) {
+        wx.showToast({
+          title: (res && res.data && res.data.msg) || '删除失败',
+          icon: 'none',
+        })
+        return
+      }
+
+      wx.showToast({ title: '删除成功', icon: 'success' })
+
+      const { couponCurrentPage, couponList } = this.data
+      const isLastItemOnPage = Array.isArray(couponList) && couponList.length <= 1
+      const targetPage = isLastItemOnPage && couponCurrentPage > 1
+        ? couponCurrentPage - 1
+        : couponCurrentPage
+      await this.loadCouponList(targetPage)
+    } catch (error) {
+      console.error('删除优惠券失败:', error)
+      wx.showToast({ title: '删除失败', icon: 'none' })
+    } finally {
+      wx.hideLoading()
+      this.setData({ couponDeleting: false })
+    }
   },
 })

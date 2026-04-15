@@ -190,6 +190,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/topic/topic'
+      },
+      {
+        id: 7,
+        name: '信息维护',
+        code: 'MERCHANT_ASSOCIATION_INFORMATION',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image'
       }
     ],
     // 实际渲染用的数据
@@ -400,7 +407,12 @@ Page({
     // 商家管理（店铺/成员/架构/优惠券等）：超管、商户管理员、门店管理员，或接口兜底识别到商户组织时展示；子页再做细粒度校验
     const filteredMerchantFunctions =
       hasSuperAdmin || hasMerchantAdmin || hasShopAdmin || merchantFromApi
-        ? this.data._allMerchantFunctions
+        ? this.data._allMerchantFunctions.filter(item => {
+            if (item.name === '信息维护') {
+              return this.hasPermission('MERCHANT_ASSOCIATION_INFORMATION')
+            }
+            return true
+          })
         : []
     showMerchantFunctions = filteredMerchantFunctions.length > 0
 

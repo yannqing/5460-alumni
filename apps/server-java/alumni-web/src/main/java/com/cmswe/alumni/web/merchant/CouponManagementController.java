@@ -6,6 +6,7 @@ import com.cmswe.alumni.common.dto.QueryMerchantCouponDto;
 import com.cmswe.alumni.common.dto.UpdateCouponDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
+import com.cmswe.alumni.common.vo.CouponManagementDetailVo;
 import com.cmswe.alumni.common.vo.CouponVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,10 +99,10 @@ public class CouponManagementController {
      */
     @GetMapping("/{couponId}")
     @Operation(summary = "查询优惠券详情")
-    public BaseResponse<CouponVo> getCouponDetail(@PathVariable Long couponId) {
+    public BaseResponse<CouponManagementDetailVo> getCouponDetail(@PathVariable Long couponId) {
         log.info("查询优惠券详情 - 优惠券ID: {}", couponId);
 
-        CouponVo couponVo = couponService.getCouponDetail(couponId);
+        CouponManagementDetailVo couponVo = couponService.getManagementCouponDetail(couponId);
 
         return ResultUtils.success(Code.SUCCESS, couponVo, "查询成功");
     }

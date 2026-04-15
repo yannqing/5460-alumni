@@ -76,6 +76,8 @@
         "merchant/member/member",
         "merchant/coupon/coupon",
         "merchant/coupon/create/create",
+        "merchant/coupon/edit/edit",
+        "merchant/coupon/detail/detail",
         "merchant/coupon/verify/verify",
         "merchant/topic/topic",
         "merchant/topic/publish/publish",

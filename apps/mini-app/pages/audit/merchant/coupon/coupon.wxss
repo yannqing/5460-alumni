@@ -123,6 +123,10 @@
   padding: 20rpx 24rpx;
 }
 
+.coupon-item:active {
+  opacity: 0.92;
+}
+
 .coupon-item-top {
   display: flex;
   justify-content: space-between;
@@ -168,6 +172,64 @@
 
 .meta-label { color: #999; }
 .meta-text { color: #666; }
+
+.coupon-action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 12rpx;
+}
+
+.coupon-edit-btn {
+  flex-shrink: 0;
+  min-width: 88rpx;
+  height: 52rpx;
+  padding: 0 20rpx;
+  border-radius: 26rpx;
+  box-sizing: border-box;
+  border: 1rpx solid rgba(24, 144, 255, 0.35);
+  background-color: rgba(24, 144, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coupon-edit-btn__text {
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1;
+  color: #1890ff;
+}
+
+.coupon-edit-btn--pressed {
+  opacity: 0.78;
+}
+
+.coupon-delete-btn {
+  flex-shrink: 0;
+  min-width: 88rpx;
+  height: 52rpx;
+  padding: 0 20rpx;
+  border-radius: 26rpx;
+  box-sizing: border-box;
+  border: 1rpx solid rgba(255, 77, 79, 0.35);
+  background-color: rgba(255, 77, 79, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coupon-delete-btn__text {
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1;
+  color: #ff4d4f;
+}
+
+.coupon-delete-btn--pressed {
+  opacity: 0.78;
+}
 
 .page-footer {
   display: flex;

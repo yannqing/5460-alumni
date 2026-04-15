@@ -1,0 +1,93 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="优惠券详情" auditPageScroll="{{true}}">
+<view class="page">
+  <view class="loading-block" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="detail-card" wx:elif="{{couponDetail}}">
+    <view class="coupon-header">
+      <view class="card-title">{{couponDetail.couponName || '优惠券'}}</view>
+      <view class="card-sub">
+        <text class="tag">{{couponDetail.couponTypeLabel}}</text>
+        <text class="status">{{couponDetail.statusLabel || '—'}}</text>
+      </view>
+      <view class="header-metrics">
+        <view class="metric-item">
+          <text class="metric-label">优惠值</text>
+          <text class="metric-value">{{couponDetail.discountDisplay}}</text>
+        </view>
+        <view class="metric-item">
+          <text class="metric-label">发行/剩余</text>
+          <text class="metric-value">{{couponDetail.totalQuantity != null ? couponDetail.totalQuantity : '—'}} / {{couponDetail.remainQuantity != null ? couponDetail.remainQuantity : '—'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="detail-section-title">基础信息</view>
+    <view class="detail-item">
+      <text class="label">优惠描述</text>
+      <text class="value">{{couponDetail.couponDesc || '—'}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">折扣类型</text>
+      <text class="value">{{couponDetail.discountTypeLabel || '—'}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">最低消费</text>
+      <text class="value">{{couponDetail.minSpend != null ? couponDetail.minSpend : '—'}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">最高优惠</text>
+      <text class="value">{{couponDetail.maxDiscount != null ? couponDetail.maxDiscount : '—'}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">每人限领</text>
+      <text class="value">{{couponDetail.perUserLimit != null ? couponDetail.perUserLimit : '—'}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">仅校友可领</text>
+      <text class="value">{{couponDetail.alumniOnlyLabel}}</text>
+    </view>
+
+    <view class="detail-section-title">投放与数据</view>
+    <view class="detail-item">
+      <text class="label">有效期</text>
+      <text class="value">{{couponDetail.validStartText}} ~ {{couponDetail.validEndText}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">使用时段</text>
+      <text class="value">{{couponDetail.useTimeLimit || '—'}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">发布方式</text>
+      <text class="value">{{couponDetail.publishTypeLabel || '—'}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">发布时间</text>
+      <text class="value">{{couponDetail.publishTimeText}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="label">领取/使用/浏览</text>
+      <text class="value">{{couponDetail.receivedCount || 0}} / {{couponDetail.usedCount || 0}} / {{couponDetail.viewCount || 0}}</text>
+    </view>
+
+    <view class="detail-section-title">可使用店铺</view>
+    <view class="shop-empty" wx:if="{{availableShops.length === 0}}">
+      <text class="shop-empty-text">暂无可使用店铺信息</text>
+    </view>
+    <view class="shop-list" wx:else>
+      <view class="shop-item" wx:for="{{availableShops}}" wx:key="shopId">
+        <view class="shop-name">{{item.shopName || '未命名店铺'}}</view>
+        <view class="shop-meta">
+          <text class="shop-meta-text">联系电话：{{item.phone || '—'}}</text>
+          <text class="shop-meta-text">地址：{{item.province || ''}}{{item.city || ''}}{{item.district || ''}}{{item.address || ''}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading-block" wx:else>
+    <text class="loading-text">暂无详情数据</text>
+  </view>
+</view>
+</custom-nav-bar>
