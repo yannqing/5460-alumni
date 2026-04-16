@@ -217,6 +217,52 @@ public class RedisCache
     }
 
     /**
+     * 批量设置缓存的 Set（使用 Pipeline 减少网络往返）
+     *
+     * @param dataMap key -> Set<T> 的映射
+     * @param timeout 过期时间
+     * @param timeUnit 时间单位
+     */
+    public <T> void batchSetCacheSet(final Map<String, Set<T>> dataMap, final long timeout, final TimeUnit timeUnit) {
+        if (dataMap == null || dataMap.isEmpty()) {
+            return;
+        }
+
+        // 使用 SessionCallback 配合 Pipeline 批量写入
+        redisTemplate.executePipelined(new org.springframework.data.redis.core.SessionCallback<Object>() {
+            @Override
+            public <K, V> Object execute(org.springframework.data.redis.core.RedisOperations<K, V> operations) {
+                for (Map.Entry<String, Set<T>> entry : dataMap.entrySet()) {
+                    String key = entry.getKey();
+                    Set<T> dataSet = entry.getValue();
+
+                    @SuppressWarnings("unchecked")
+                    org.springframework.data.redis.core.SetOperations<K, V> setOps =
+                            (org.springframework.data.redis.core.SetOperations<K, V>) redisTemplate.opsForSet();
+
+                    // 如果集合为空，添加空字符串占位符（防止缓存穿透）
+                    if (dataSet.isEmpty()) {
+                        setOps.add((K) key, (V) "");
+                    } else {
+                        // 批量添加元素（转换为字符串）
+                        Object[] values = dataSet.stream()
+                                .filter(item -> item != null)
+                                .map(Object::toString)
+                                .toArray();
+                        if (values.length > 0) {
+                            setOps.add((K) key, (V[]) values);
+                        }
+                    }
+
+                    // 设置过期时间
+                    redisTemplate.expire(key, timeout, timeUnit);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
      * 缓存Map
      *
      * @param key key

@@ -183,23 +183,33 @@ public class UserPrivacySettingServiceImpl extends ServiceImpl<UserPrivacySettin
         }
 
         try {
+            long startTime = System.currentTimeMillis();
+            log.info("开始批量查询隐私设置 - 用户数: {}, 用户ID列表: {}", userIds.size(), userIds);
+
             // 批量查询所有用户的隐私设置
             LambdaQueryWrapper<UserPrivacySetting> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.in(UserPrivacySetting::getWxId, userIds);
 
+            long queryStartTime = System.currentTimeMillis();
             List<UserPrivacySetting> allSettings = this.list(queryWrapper);
+            long queryDuration = System.currentTimeMillis() - queryStartTime;
+
+            log.info("数据库查询完成 - 耗时: {}ms, 查询到记录数: {}", queryDuration, allSettings.size());
 
             // 按用户ID分组
+            long groupStartTime = System.currentTimeMillis();
             java.util.Map<Long, List<UserPrivacySetting>> settingsMap = allSettings.stream()
                     .collect(java.util.stream.Collectors.groupingBy(UserPrivacySetting::getWxId));
+            long groupDuration = System.currentTimeMillis() - groupStartTime;
 
-            log.debug("批量查询隐私设置完成 - 查询用户数: {}, 有设置的用户数: {}",
-                    userIds.size(), settingsMap.size());
+            long totalDuration = System.currentTimeMillis() - startTime;
+            log.info("批量查询隐私设置完成 - 总耗时: {}ms (查询: {}ms, 分组: {}ms), 查询用户数: {}, 有设置的用户数: {}",
+                    totalDuration, queryDuration, groupDuration, userIds.size(), settingsMap.size());
 
             return settingsMap;
 
         } catch (Exception e) {
-            log.error("批量查询隐私设置失败", e);
+            log.error("批量查询隐私设置失败 - 用户ID列表: {}", userIds, e);
             return new java.util.HashMap<>();
         }
     }

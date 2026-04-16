@@ -230,7 +230,7 @@
         <view wx:if="{{activeTab === 3}}">
           <view class="member-list">
             <!-- 骨架屏 -->
-            <view wx:if="{{loading && members.length === 0}}" class="skeleton-list">
+            <view wx:if="{{memberLoading && members.length === 0}}" class="skeleton-list">
               <view class="member-item skeleton-item" wx:for="[1,2,3,4,5]" wx:key="*this">
                 <view class="member-avatar skeleton-avatar"></view>
                 <view class="member-info">

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 /**
  * 全局异常处理器
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public BaseResponse<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e,
-                                                      HttpServletRequest request) {
+                                                                    HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址 {},不支持 {} 请求", requestURI, e.getMethod());
         return ResultUtils.failure(e.getMessage());
@@ -58,7 +59,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public BaseResponse<Object> handleIllegalArgumentException(IllegalArgumentException e,
-                                                    HttpServletRequest request) {
+                                                               HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("非法参数=>{}",e.getMessage());
         return ResultUtils.failure(e.getMessage());
@@ -66,7 +67,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ClassCastException.class)
     public BaseResponse<Object> handleClassCastException(ClassCastException e,
-                                                       HttpServletRequest request) {
+                                                         HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址 {},权限异常: {}", requestURI, e.getMessage());
         return ResultUtils.failure("您没有权限访问此接口，请联系管理员");
@@ -96,11 +97,29 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 客户端中断连接异常（如用户取消请求、刷新页面等）
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public BaseResponse<Object> handleAsyncRequestNotUsableException(AsyncRequestNotUsableException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.debug("客户端中断异步请求 - 请求地址: {}, 原因: {}", requestURI, e.getMessage());
+        return null; // 客户端已断开，无需返回响应
+    }
+
+    /**
      * IO异常
      */
     @ExceptionHandler(IOException.class)
     public BaseResponse<Object> handleIOException(IOException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
+
+        // Broken pipe 异常通常是客户端主动断开连接，属于正常现象，降低日志级别
+        if (e instanceof org.apache.catalina.connector.ClientAbortException ||
+                e.getMessage() != null && e.getMessage().contains("Broken pipe")) {
+            log.debug("客户端中断连接 - 请求地址: {}, 原因: {}", requestURI, e.getMessage());
+            return null; // 客户端已断开，无需返回响应
+        }
+
         log.error("请求地址 {},发生IO处理异常.", requestURI, e);
         return ResultUtils.failure(e.getMessage());
     }
