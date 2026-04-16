@@ -5,6 +5,7 @@ Page({
   data: {
     shops: [],
     selectedShopIndex: -1,
+    showShopPicker: false,
     loading: false,
     activityList: [],
     current: 1,
@@ -71,15 +72,27 @@ Page({
       });
   },
 
-  // 选择店铺
-  onShopChange(e) {
+  showShopPicker() {
+    this.setData({ showShopPicker: true })
+  },
+
+  cancelShopSelect() {
+    this.setData({ showShopPicker: false })
+  },
+
+  selectShop(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    if (Number.isNaN(index) || index < 0) {
+      return
+    }
     this.setData({
-      selectedShopIndex: e.detail.value,
-      activityList: [], // 重置活动列表
-      total: 0, // 重置总数
-      current: 1 // 重置页码
-    });
-    this.getActivityList();
+      selectedShopIndex: index,
+      showShopPicker: false,
+      activityList: [],
+      total: 0,
+      current: 1,
+    })
+    this.getActivityList()
   },
 
   // 获取活动列表

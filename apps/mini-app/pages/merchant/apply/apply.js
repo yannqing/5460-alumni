@@ -9,6 +9,8 @@ Page({
       merchantName: '',
       merchantType: 1,
       businessLicense: '',
+      logo: '',
+      backgroundImageList: [],
       unifiedSocialCreditCode: '',
       legalPerson: '',
       legalPersonId: '',
@@ -56,6 +58,8 @@ Page({
       merchantName: '',
       merchantType: 1,
       businessLicense: '',
+      logo: '',
+      backgroundImageList: [],
       unifiedSocialCreditCode: '',
       legalPerson: userInfo.nickName || userData.nickName || userData.name || '',
       legalPersonId: '',
@@ -93,6 +97,8 @@ Page({
             merchantName: data.merchantName || '',
             merchantType: data.merchantType || 1,
             businessLicense: data.businessLicense || '',
+            logo: data.logo || '',
+            backgroundImageList: this.parseBackgroundImage(data.backgroundImage),
             unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
             legalPerson: data.legalPerson || '',
             legalPersonId: '', // 敏感信息不返回
@@ -279,7 +285,7 @@ Page({
       success: (res) => {
         const tempFilePath = res.tempFiles?.[0]?.tempFilePath
         if (tempFilePath) {
-          const field = this.data.uploadType === 'logo' ? 'shopLogo' : 'businessLicense'
+          const field = this.data.uploadType === 'logo' ? 'logo' : 'businessLicense'
           this.setData({
             [`form.${field}`]: tempFilePath
           })
@@ -290,43 +296,85 @@ Page({
     })
   },
 
-  uploadImage(filePath, field) {
-    wx.showLoading({ title: '上传中...' })
-    
-    fileApi.uploadImage(filePath).then((res) => {
-      wx.hideLoading()
+  chooseBusinessLicense() {
+    this.setData({ uploadType: 'license' })
+    this.chooseImage()
+  },
+
+  chooseLogo() {
+    this.setData({ uploadType: 'logo' })
+    this.chooseImage()
+  },
+
+  chooseBackgroundImage() {
+    wx.chooseMedia({
+      count: 9,
+      mediaType: ['image'],
+      success: (res) => {
+        const files = res.tempFiles || []
+        if (!files.length) {return}
+        const uploadTasks = files.map(file => this.uploadImage(file.tempFilePath, 'backgroundImageList', false))
+        Promise.all(uploadTasks).then(urls => {
+          const validUrls = urls.filter(Boolean)
+          if (!validUrls.length) {return}
+          this.setData({
+            'form.backgroundImageList': [...(this.data.form.backgroundImageList || []), ...validUrls]
+          })
+          wx.showToast({
+            title: '上传成功',
+            icon: 'success'
+          })
+        })
+      }
+    })
+  },
+
+  uploadImage(filePath, field, showLoading = true) {
+    if (showLoading) {
+      wx.showLoading({ title: '上传中...' })
+    }
+    return fileApi.uploadImage(filePath).then((res) => {
+      if (showLoading) {
+        wx.hideLoading()
+      }
       
       if (res.code === 200 && res.data && res.data.fileUrl) {
-        // 上传成功，保存文件URL到表单字段
-        this.setData({
-          [`form.${field}`]: res.data.fileUrl
-        })
-        
-        wx.showToast({
-          title: '上传成功',
-          icon: 'success'
-        })
+        if (field !== 'backgroundImageList') {
+          this.setData({
+            [`form.${field}`]: res.data.fileUrl
+          })
+          wx.showToast({
+            title: '上传成功',
+            icon: 'success'
+          })
+        }
+        return res.data.fileUrl
       } else {
-        // 上传失败
         wx.showToast({
           title: res.msg || '上传失败',
           icon: 'none'
         })
-        // 清除本地临时文件路径
-        this.setData({
-          [`form.${field}`]: ''
-        })
+        if (field !== 'backgroundImageList') {
+          this.setData({
+            [`form.${field}`]: ''
+          })
+        }
+        return ''
       }
     }).catch((err) => {
-      wx.hideLoading()
+      if (showLoading) {
+        wx.hideLoading()
+      }
       wx.showToast({
         title: err.msg || '上传失败，请稍后重试',
         icon: 'none'
       })
-      // 清除本地临时文件路径
-      this.setData({
-        [`form.${field}`]: ''
-      })
+      if (field !== 'backgroundImageList') {
+        this.setData({
+          [`form.${field}`]: ''
+        })
+      }
+      return ''
     })
   },
 
@@ -335,6 +383,29 @@ Page({
     this.setData({
       [`form.${field}`]: ''
     })
+  },
+
+  removeBackgroundImage(e) {
+    const { index } = e.currentTarget.dataset
+    const list = [...(this.data.form.backgroundImageList || [])]
+    list.splice(index, 1)
+    this.setData({
+      'form.backgroundImageList': list
+    })
+  },
+
+  parseBackgroundImage(backgroundImage) {
+    if (!backgroundImage) {return []}
+    if (Array.isArray(backgroundImage)) {return backgroundImage}
+    if (typeof backgroundImage === 'string') {
+      try {
+        const parsed = JSON.parse(backgroundImage)
+        return Array.isArray(parsed) ? parsed : []
+      } catch (e) {
+        return []
+      }
+    }
+    return []
   },
 
   validateForm() {
@@ -445,6 +516,10 @@ Page({
       merchantName: form.merchantName,
       merchantType: form.merchantType,
       businessLicense: form.businessLicense,
+      logo: form.logo || undefined,
+      backgroundImage: (form.backgroundImageList && form.backgroundImageList.length)
+        ? JSON.stringify(form.backgroundImageList)
+        : undefined,
       unifiedSocialCreditCode: normalizedCreditCode,
       legalPerson: form.legalPerson,
       legalPersonId: normalizedLegalPersonId,

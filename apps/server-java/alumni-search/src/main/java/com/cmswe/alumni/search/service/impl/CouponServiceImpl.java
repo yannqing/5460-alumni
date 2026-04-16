@@ -17,8 +17,10 @@ import com.cmswe.alumni.common.entity.UserCoupon;
 import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.CouponManagementDetailVo;
 import com.cmswe.alumni.common.vo.CouponVo;
 import com.cmswe.alumni.common.vo.PageVo;
+import com.cmswe.alumni.common.vo.ShopListVo;
 import com.cmswe.alumni.common.vo.UserCouponVo;
 import com.cmswe.alumni.search.mapper.CouponMapper;
 import com.cmswe.alumni.search.mapper.CouponVerificationMapper;
@@ -33,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 优惠券服务实现
@@ -642,7 +645,29 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         coupon.setCouponId(couponId); // 确保ID不被覆盖
         coupon.setUpdateTime(LocalDateTime.now());
 
-        // 如果修改了发行总量，同步更新剩余数量
+        // 5. 发布逻辑：编辑时允许从未发布改为立即发布/定时发布
+        if (updateDto.getPublishType() != null) {
+            coupon.setPublishType(updateDto.getPublishType());
+            if (updateDto.getPublishType() == 1) {
+                // 立即发布：状态置为已发布，并补齐发布时间
+                coupon.setStatus(1);
+                if (coupon.getPublishTime() == null) {
+                    coupon.setPublishTime(LocalDateTime.now());
+                }
+            } else if (updateDto.getPublishType() == 2) {
+                if (updateDto.getPublishTime() == null) {
+                    throw new BusinessException("定时发布时必须填写发布时间");
+                }
+                if (updateDto.getPublishTime().isBefore(LocalDateTime.now())) {
+                    throw new BusinessException("发布时间不能早于当前时间");
+                }
+                // 定时发布保持未发布，等待任务触发
+                coupon.setStatus(0);
+                coupon.setPublishTime(updateDto.getPublishTime());
+            }
+        }
+
+        // 6. 如果修改了发行总量，同步更新剩余数量
         if (updateDto.getTotalQuantity() != null) {
             // 剩余数量 = 新的总量 - 已领取数量
             long receivedCount = coupon.getReceivedCount() != null ? coupon.getReceivedCount() : 0;
@@ -706,5 +731,38 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         log.info("删除优惠券成功 - 优惠券ID: {}", couponId);
 
         return true;
+    }
+
+    @Override
+    public CouponManagementDetailVo getManagementCouponDetail(Long couponId) {
+        CouponVo coupon = getCouponDetail(couponId);
+        if (coupon == null) {
+            return new CouponManagementDetailVo(null, Collections.emptyList());
+        }
+
+        List<ShopListVo> availableShops = new ArrayList<>();
+        if (coupon.getShopId() != null) {
+            com.cmswe.alumni.common.entity.Shop shop = shopMapper.selectById(coupon.getShopId());
+            if (isShopAvailable(shop)) {
+                availableShops.add(ShopListVo.objToVo(shop));
+            }
+        } else if (coupon.getMerchantId() != null) {
+            availableShops = shopMapper.selectByMerchantId(coupon.getMerchantId()).stream()
+                    .filter(this::isShopAvailable)
+                    .map(ShopListVo::objToVo)
+                    .collect(Collectors.toList());
+        }
+
+        return new CouponManagementDetailVo(coupon, availableShops);
+    }
+
+    /**
+     * 可使用门店需满足：未删除、营业中、审核通过。
+     */
+    private boolean isShopAvailable(com.cmswe.alumni.common.entity.Shop shop) {
+        return shop != null
+                && (shop.getIsDelete() == null || shop.getIsDelete() == 0)
+                && Integer.valueOf(1).equals(shop.getStatus())
+                && Integer.valueOf(1).equals(shop.getReviewStatus());
     }
 }

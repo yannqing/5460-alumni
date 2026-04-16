@@ -1,0 +1,116 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="创建店铺">
+  <view class="page">
+    <view class="form-card">
+      <form bindsubmit="submitShopForm">
+        <view class="form-item">
+          <text class="form-label">所属商户 <text class="required">*</text></text>
+          <view class="merchant-selector" bindtap="showMerchantSelector">
+            <text class="selector-label">{{selectedMerchantName || '请选择商户'}}</text>
+            <text class="selector-arrow">▼</text>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">店铺名称 <text class="required">*</text></text>
+          <input class="form-input" placeholder="请输入店铺名称" value="{{formData.shopName}}" bindinput="onInputChange" data-field="shopName" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">店铺类型 <text class="required">*</text></text>
+          <view class="radio-group">
+            <label class="radio-item">
+              <radio value="1" checked="{{formData.shopType === 1}}" bindtap="onRadioChange" data-field="shopType" data-value="1" />总店
+            </label>
+            <label class="radio-item">
+              <radio value="2" checked="{{formData.shopType === 2}}" bindtap="onRadioChange" data-field="shopType" data-value="2" />分店
+            </label>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">省份 <text class="required">*</text></text>
+          <input class="form-input" placeholder="请输入省份" value="{{formData.province}}" bindinput="onInputChange" data-field="province" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">城市 <text class="required">*</text></text>
+          <input class="form-input" placeholder="请输入城市" value="{{formData.city}}" bindinput="onInputChange" data-field="city" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">区县 <text class="required">*</text></text>
+          <input class="form-input" placeholder="请输入区县" value="{{formData.district}}" bindinput="onInputChange" data-field="district" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">详细地址 <text class="required">*</text></text>
+          <input class="form-input" placeholder="请输入详细地址" value="{{formData.address}}" bindinput="onInputChange" data-field="address" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">店铺电话</text>
+          <input class="form-input" type="number" placeholder="请输入店铺电话" value="{{formData.phone}}" bindinput="onInputChange" data-field="phone" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">营业时间</text>
+          <input class="form-input" placeholder="请输入营业时间" value="{{formData.businessHours}}" bindinput="onInputChange" data-field="businessHours" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">店铺 Logo</text>
+          <view class="image-upload-container">
+            <view class="uploaded-images">
+              <view class="uploaded-image" wx:if="{{formData.logo}}">
+                <image src="{{formData.logo}}" mode="aspectFill" class="image-preview" />
+                <view class="image-delete" bindtap="clearLogo">×</view>
+              </view>
+            </view>
+            <button class="upload-btn" bindtap="chooseLogo" hover-class="upload-btn-hover">上传logo</button>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">上传店铺背景图</text>
+          <view class="image-upload-container">
+            <view class="uploaded-images">
+              <view class="uploaded-image" wx:for="{{uploadedImages}}" wx:key="index">
+                <image src="{{item}}" mode="aspectFill" class="image-preview" />
+                <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
+              </view>
+            </view>
+            <button class="upload-btn" bindtap="chooseImage" hover-class="upload-btn-hover">上传背景图</button>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">店铺简介</text>
+          <textarea class="form-textarea" placeholder="请输入店铺简介" value="{{formData.description}}" bindinput="onInputChange" data-field="description" />
+        </view>
+
+        <view class="form-actions">
+          <button class="btn-submit" form-type="submit" loading="{{submitting}}">提交</button>
+        </view>
+      </form>
+    </view>
+  </view>
+
+  <view class="merchant-picker" wx:if="{{showMerchantPicker}}">
+    <view class="picker-overlay" bindtap="cancelMerchantSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择商户</text>
+        <text class="picker-cancel" bindtap="cancelMerchantSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view class="picker-item" wx:for="{{merchantList}}" wx:key="merchantId" data-merchant-id="{{item.merchantId + ''}}" data-merchant-name="{{item.merchantName}}" bindtap="selectMerchant">
+          <text class="item-name">{{item.merchantName}}</text>
+          <text class="item-check" wx:if="{{selectedMerchantId == item.merchantId}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{merchantList.length === 0}}">
+          <text>暂无商户数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>

@@ -90,4 +90,20 @@ public interface CouponMapper extends BaseMapper<Coupon> {
      */
     List<Coupon> selectExpiringSoon(@Param("hours") Integer hours,
                                     @Param("currentTime") LocalDateTime currentTime);
+
+    /**
+     * 定时发布：将到发布时间的优惠券置为已发布
+     *
+     * @param currentTime 当前时间
+     * @return 更新行数
+     */
+    int publishScheduledCoupons(@Param("currentTime") LocalDateTime currentTime);
+
+    /**
+     * 定时结束：将已过期的已发布优惠券置为已结束
+     *
+     * @param currentTime 当前时间
+     * @return 更新行数
+     */
+    int closeExpiredPublishedCoupons(@Param("currentTime") LocalDateTime currentTime);
 }

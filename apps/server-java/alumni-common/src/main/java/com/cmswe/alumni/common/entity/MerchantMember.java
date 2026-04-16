@@ -45,6 +45,12 @@ public class MerchantMember implements Serializable {
     private Long roleOrId;
 
     /**
+     * 职务
+     */
+    @TableField(value = "position")
+    private String position;
+
+    /**
      * 加入时间
      */
     @TableField(value = "join_time")

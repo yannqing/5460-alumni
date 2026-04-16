@@ -19,7 +19,15 @@
         <view class="card basic-info-card focus-card">
           <view class="shop-header">
             <view class="shop-name-row">
-              <text class="shop-name">{{shopInfo.shopName}}</text>
+              <view class="shop-name-left">
+                <image
+                  class="shop-logo"
+                  wx:if="{{shopInfo.logoUrl}}"
+                  src="{{shopInfo.logoUrl}}"
+                  mode="aspectFill"
+                ></image>
+                <text class="shop-name">{{shopInfo.shopName}}</text>
+              </view>
               <text class="shop-item-type">{{shopInfo.shopType === 1 ? '总店' : '分店'}}</text>
             </view>
             <view class="shop-rating-row" wx:if="{{shopInfo.ratingScore}}">
@@ -109,7 +117,6 @@
               <view class="coupon-divider"></view>
               <view class="coupon-right">
                 <view class="coupon-title">{{item.couponName}}</view>
-                <view class="coupon-desc">{{item.couponDesc}}</view>
                 <view class="coupon-expire">有效期至 {{item.validEndTime}}</view>
               </view>
               <view class="coupon-action" catchtap="handleCoupon" data-id="{{item.couponId}}">

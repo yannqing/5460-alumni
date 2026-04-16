@@ -65,6 +65,12 @@ public class MerchantDetailVo implements Serializable {
     private String legalPerson;
 
     /**
+     * 法人身份证号（与库表一致；前端编辑页展示用）
+     */
+    @Schema(description = "法人身份证号")
+    private String legalPersonId;
+
+    /**
      * 联系电话
      */
     @Schema(description = "联系电话")
@@ -87,6 +93,18 @@ public class MerchantDetailVo implements Serializable {
      */
     @Schema(description = "经营类目")
     private String businessCategory;
+
+    /**
+     * 商家logo
+     */
+    @Schema(description = "商家logo")
+    private String logo;
+
+    /**
+     * 商家背景图（JSON字符串）
+     */
+    @Schema(description = "商家背景图（JSON字符串）")
+    private String backgroundImage;
 
     /**
      * 审核状态：0-待审核 1-审核通过 2-审核失败

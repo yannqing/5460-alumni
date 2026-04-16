@@ -82,4 +82,27 @@
           AND is_delete = 0
     </select>
 
+    <!-- 定时发布：到发布时间后自动发布 -->
+    <update id="publishScheduledCoupons">
+        UPDATE coupon
+        SET status = 1,
+            update_time = #{currentTime}
+        WHERE is_delete = 0
+          AND status = 0
+          AND publish_type = 2
+          AND publish_time IS NOT NULL
+          AND publish_time &lt;= #{currentTime}
+    </update>
+
+    <!-- 定时结束：已发布且超过有效期的券自动结束 -->
+    <update id="closeExpiredPublishedCoupons">
+        UPDATE coupon
+        SET status = 2,
+            update_time = #{currentTime}
+        WHERE is_delete = 0
+          AND status = 1
+          AND valid_end_time IS NOT NULL
+          AND valid_end_time &lt; #{currentTime}
+    </update>
+
 </mapper>

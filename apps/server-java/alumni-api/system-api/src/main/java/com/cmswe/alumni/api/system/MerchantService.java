@@ -59,6 +59,14 @@ public interface MerchantService extends IService<Merchant> {
     PageVo<MerchantApprovalVo> selectApprovalRecordsByPage(QueryMerchantApprovalDto queryDto);
 
     /**
+     * 管理员查看单条商户入驻申请详情（含营业执照等申请资料）
+     *
+     * @param merchantId 商户ID
+     * @return 审批记录详情
+     */
+    MerchantApprovalVo getApprovalRecordByMerchantId(Long merchantId);
+
+    /**
      * 根据商户ID查询商户详情
      *
      * @param merchantId 商户ID
@@ -75,6 +83,15 @@ public interface MerchantService extends IService<Merchant> {
      * @return 商户列表分页数据
      */
     PageVo<MerchantListVo> getMyManagedMerchants(Long wxId, Long current, Long size);
+
+    /**
+     * 商户管理员更新商户基本信息（部分字段更新，未传的字段不变）
+     *
+     * @param wxId 当前用户微信ID
+     * @param dto  更新内容（须含 merchantId）
+     * @return 更新后的商户详情
+     */
+    MerchantDetailVo updateMerchantInfo(Long wxId, UpdateMerchantDto dto);
 
     /**
      * 查询商户成员列表

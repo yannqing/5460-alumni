@@ -1,6 +1,13 @@
 // pages/coupon/list/list.js
 const { couponApi } = require('../../../api/api.js')
 
+function formatCouponTime(t) {
+  if (t == null || t === '') {
+    return ''
+  }
+  return String(t).replace('T', ' ')
+}
+
 Page({
   data: {
     activeTab: 0,
@@ -43,19 +50,23 @@ Page({
           3: '礼品券'
         }
 
-        const list = records.map(item => {
+        const list = records
+          .filter(
+            item =>
+              item.userCouponId != null &&
+              String(item.userCouponId).trim() !== ''
+          )
+          .map(item => {
+            const userCouponId = String(item.userCouponId).trim()
 
-          return {
-            // 使用 couponId 作为详情/抢购用的主键
-            id: item.couponId || item.userCouponId,
-            // 保存 userCouponId 用于详情页查询，确保有值
-            userCouponId: item.userCouponId || '',
+            return {
+            userCouponId,
             title: item.couponName || '',
             merchant: item.merchantName || item.shopName || '',
             discountPrice: item.discountValue || 0,
             // 左侧金额区备用文案（当没有金额时显示券类型）
             discount: couponTypeLabelMap[item.couponType] || '优惠券',
-            endTime: item.validEndTime || '',
+            endTime: formatCouponTime(item.validEndTime),
             // 个人券没有库存概念，这里固定为 1/1，进度条展示为满
             stock: 1,
             totalStock: 1,
@@ -64,8 +75,8 @@ Page({
             rawStatus: item.status,
             statusText: statusTextMap[item.status] || '',
             couponType: item.couponType || 0
-          }
-        })
+            }
+          })
 
         this.setData({ allCoupons: list }, () => {
           this.applyFilter()
@@ -118,7 +129,6 @@ Page({
 
   viewDetail(e) {
     const { userCouponId, index } = e.currentTarget.dataset
-    // 如果从 dataset 获取不到，尝试从 couponList 中获取
     let finalUserCouponId = userCouponId
     if (!finalUserCouponId && (index !== undefined && index !== null)) {
       const item = this.data.couponList[index]
@@ -126,9 +136,20 @@ Page({
         finalUserCouponId = item.userCouponId
       }
     }
-    // 检查 userCouponId 是否有效（不能为空字符串、null、undefined）
-    if (!finalUserCouponId || finalUserCouponId === 'null' || finalUserCouponId === 'undefined') {
-      console.error('[CouponList] userCouponId 无效:', { userCouponId, finalUserCouponId, index, item: index !== undefined ? this.data.couponList[index] : null })
+    finalUserCouponId =
+      finalUserCouponId != null ? String(finalUserCouponId).trim() : ''
+    if (
+      !finalUserCouponId ||
+      finalUserCouponId === 'null' ||
+      finalUserCouponId === 'undefined'
+    ) {
+      console.error('[CouponList] userCouponId 无效:', {
+        userCouponId,
+        finalUserCouponId,
+        index,
+        item:
+          index !== undefined ? this.data.couponList[index] : null,
+      })
       wx.showToast({
         title: '参数错误',
         icon: 'none'
@@ -136,7 +157,9 @@ Page({
       return
     }
     wx.navigateTo({
-      url: `/pages/coupon/detail/detail?userCouponId=${finalUserCouponId}`
+      url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(
+        finalUserCouponId
+      )}`,
     })
   },
 

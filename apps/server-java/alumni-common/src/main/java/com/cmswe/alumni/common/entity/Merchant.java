@@ -88,6 +88,18 @@ public class Merchant implements Serializable {
     private String businessCategory;
 
     /**
+     * 商家logo
+     */
+    @TableField(value = "logo")
+    private String logo;
+
+    /**
+     * 商家背景图（JSON）
+     */
+    @TableField(value = "background_image")
+    private String backgroundImage;
+
+    /**
      * 审核状态：0-待审核 1-审核通过 2-审核失败
      */
     @TableField(value = "review_status")

@@ -153,13 +153,45 @@
           <text class="required">*</text>
         </view>
         <view class="upload-hint">请上传清晰的营业执照照片，确保信息完整可见</view>
-        <view class="upload-area" wx:if="{{!form.businessLicense}}" bindtap="chooseImage">
+        <view class="upload-area" wx:if="{{!form.businessLicense}}" bindtap="chooseBusinessLicense">
           <view class="upload-icon">📷</view>
           <view class="upload-text">点击上传营业执照</view>
         </view>
         <view class="image-preview" wx:else>
           <image class="preview-image" src="{{form.businessLicense}}" mode="aspectFit" />
           <view class="remove-btn" bindtap="removeImage" data-field="businessLicense">✕</view>
+        </view>
+      </view>
+
+      <!-- 商家 Logo -->
+      <view class="upload-section">
+        <view class="upload-label">
+          <text class="label-text">商家Logo</text>
+        </view>
+        <view class="upload-hint">建议上传 1:1 图片，用于商家头像展示</view>
+        <view class="upload-area" wx:if="{{!form.logo}}" bindtap="chooseLogo">
+          <view class="upload-icon">🖼️</view>
+          <view class="upload-text">点击上传商家Logo</view>
+        </view>
+        <view class="image-preview" wx:else>
+          <image class="preview-image" src="{{form.logo}}" mode="aspectFit" />
+          <view class="remove-btn" bindtap="removeImage" data-field="logo">✕</view>
+        </view>
+      </view>
+
+      <!-- 商家背景图 -->
+      <view class="upload-section">
+        <view class="upload-label">
+          <text class="label-text">商家背景图</text>
+        </view>
+        <view class="upload-hint">可上传多张图片，用于商家详情轮播</view>
+        <view class="upload-area" bindtap="chooseBackgroundImage">
+          <view class="upload-icon">🖼️</view>
+          <view class="upload-text">点击上传背景图</view>
+        </view>
+        <view class="image-preview" wx:for="{{form.backgroundImageList}}" wx:key="index">
+          <image class="preview-image" src="{{item}}" mode="aspectFit" />
+          <view class="remove-btn" bindtap="removeBackgroundImage" data-index="{{index}}">✕</view>
         </view>
       </view>
     </view>

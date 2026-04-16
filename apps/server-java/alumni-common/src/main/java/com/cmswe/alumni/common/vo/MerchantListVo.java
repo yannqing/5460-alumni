@@ -82,6 +82,18 @@ public class MerchantListVo implements Serializable {
     private String businessCategory;
 
     /**
+     * 商家logo
+     */
+    @Schema(description = "商家logo")
+    private String logo;
+
+    /**
+     * 商家背景图（JSON，如多张图片 URL 数组）
+     */
+    @Schema(description = "商家背景图（JSON）")
+    private String backgroundImage;
+
+    /**
      * 会员等级：1-基础版 2-标准版 3-专业版 4-旗舰版
      */
     @Schema(description = "会员等级：1-基础版 2-标准版 3-专业版 4-旗舰版")

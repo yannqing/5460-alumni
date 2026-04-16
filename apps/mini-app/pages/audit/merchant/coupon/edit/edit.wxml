@@ -1,0 +1,192 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑优惠券">
+<scroll-view class="page-scroll" scroll-y enable-back-to-top>
+  <view class="loading-tip" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="group_7">
+    <text class="text_20">基本信息</text>
+    <view class="form-item">
+      <text class="label_text">所属商户</text>
+      <view class="merchant-fixed">
+        <text class="merchant-fixed-text">{{selectedMerchantName || '—'}}</text>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">适用店铺 <text class="hint">（选「全部门店」表示不限制）</text></text>
+      <picker mode="selector" range="{{shopPickerRange}}" value="{{shopIndex}}" bindchange="onShopChange">
+        <view class="text-wrapper_8 picker-row">
+          <text class="text_15">{{shopPickerRange[shopIndex]}}</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">优惠券名称 <text class="required">*</text></text>
+      <input class="form-input" placeholder="请输入名称" value="{{formData.couponName}}" maxlength="64" bindinput="onInputChange" data-field="couponName" />
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">优惠券类型 <text class="required">*</text></text>
+      <picker mode="selector" range="{{couponTypeLabels}}" value="{{couponTypeIndex}}" bindchange="onCouponTypeChange">
+        <view class="text-wrapper_8 picker-row">
+          <text class="text_15">{{couponTypeLabels[couponTypeIndex]}}</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item" wx:if="{{formData.couponType !== 3}}">
+      <text class="label_text">优惠券描述</text>
+      <textarea class="form-textarea" placeholder="选填" value="{{formData.couponDesc}}" maxlength="500" bindinput="onInputChange" data-field="couponDesc" />
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">优惠券图片</text>
+      <view class="image-row">
+        <view class="img-preview" wx:if="{{formData.couponImage}}">
+          <image src="{{formData.couponImage}}" mode="aspectFill" class="img-cover" />
+          <view class="img-del" bindtap="clearCouponImage">×</view>
+        </view>
+        <view class="upload-btn" bindtap="chooseCouponImage">上传</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="group_7">
+    <text class="text_20">优惠规则</text>
+    <text class="rule-lead">按券类型填写，切换类型会对应不同字段</text>
+
+    <block wx:if="{{formData.couponType === 1}}">
+      <view class="form-item">
+        <text class="label_text">折扣方式 <text class="required">*</text></text>
+        <view class="radio-group">
+          <label class="radio-item" bindtap="onDiscountTypeRadio" data-value="1">
+            <radio value="1" checked="{{formData.discountType === 1}}" color="#1890ff" />固定金额
+          </label>
+          <label class="radio-item" bindtap="onDiscountTypeRadio" data-value="2">
+            <radio value="2" checked="{{formData.discountType === 2}}" color="#1890ff" />折扣比例
+          </label>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="label_text">优惠值 <text class="required">*</text></text>
+        <text class="field-hint">{{formData.discountType === 1 ? '固定金额：例：减 10 元，填 10' : '折扣比例：例：8.5 折，输入 8.5'}}</text>
+        <input class="form-input" type="digit" placeholder="{{formData.discountType === 1 ? '例：10' : '例：8.5'}}" value="{{formData.discountValue}}" bindinput="onNumberInput" data-field="discountValue" />
+      </view>
+      <view class="form-item">
+        <text class="label_text">最高优惠金额 <text class="required">*</text></text>
+        <text class="field-hint">折扣比例时用于限制最大减免，避免超额优惠</text>
+        <input class="form-input" type="digit" placeholder="必填，如 50" value="{{formData.maxDiscount}}" bindinput="onNumberInput" data-field="maxDiscount" />
+      </view>
+      <view class="form-item">
+        <text class="label_text">使用门槛</text>
+        <text class="field-hint">满 X 元可用，不填表示无门槛</text>
+        <input class="form-input" type="digit" placeholder="选填，如 100" value="{{formData.minSpend}}" bindinput="onNumberInput" data-field="minSpend" />
+      </view>
+    </block>
+
+    <block wx:if="{{formData.couponType === 2}}">
+      <view class="form-item">
+        <text class="label_text">使用门槛 <text class="required">*</text></text>
+        <text class="field-hint">满减条件：订单满该金额才可使用</text>
+        <input class="form-input" type="digit" placeholder="例：满 100 元填 100" value="{{formData.minSpend}}" bindinput="onNumberInput" data-field="minSpend" />
+      </view>
+      <view class="form-item">
+        <text class="label_text">减免金额 <text class="required">*</text></text>
+        <text class="field-hint">固定减免金额（满减券按固定金额抵扣）</text>
+        <input class="form-input" type="digit" placeholder="例：减 20 元填 20" value="{{formData.discountValue}}" bindinput="onNumberInput" data-field="discountValue" />
+      </view>
+    </block>
+
+    <block wx:if="{{formData.couponType === 3}}">
+      <view class="form-item">
+        <text class="label_text">礼品价值 <text class="required">*</text></text>
+        <text class="field-hint">请填写礼品参考价值，可填 0</text>
+        <input class="form-input" type="digit" placeholder="必填" value="{{formData.discountValue}}" bindinput="onNumberInput" data-field="discountValue" />
+      </view>
+      <view class="form-item">
+        <text class="label_text">礼品说明 <text class="hint">（请写清兑换内容）</text></text>
+        <textarea class="form-textarea" placeholder="例如：可兑换店内指定饮品一杯、周边礼品一份等" value="{{formData.couponDesc}}" maxlength="500" bindinput="onInputChange" data-field="couponDesc" />
+      </view>
+    </block>
+  </view>
+
+  <view class="group_7">
+    <text class="text_20">发放与领取</text>
+
+    <view class="form-item">
+      <text class="label_text">发行总量 <text class="required">*</text></text>
+      <input class="form-input" type="digit" placeholder="-1 表示不限量" value="{{formData.totalQuantity}}" bindinput="onNumberInput" data-field="totalQuantity" />
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">每人限领</text>
+      <input class="form-input" type="number" placeholder="默认 1，0 表示不限" value="{{formData.perUserLimit}}" bindinput="onInputChange" data-field="perUserLimit" />
+    </view>
+
+    <view class="form-item row-between">
+      <text class="label_text">仅校友可领</text>
+      <switch checked="{{formData.isAlumniOnly === 1}}" bindchange="onAlumniSwitch" color="#1890ff" />
+    </view>
+  </view>
+
+  <view class="group_7">
+    <text class="text_20">有效期与发布</text>
+
+    <view class="form-item">
+      <text class="label_text">开始时间 <text class="required">*</text></text>
+      <view class="datetime-row">
+        <picker mode="date" value="{{formData.validStartDate}}" bindchange="onValidStartDateChange">
+          <view class="date-picker-cell">{{formData.validStartDate}}</view>
+        </picker>
+        <picker mode="time" value="{{formData.validStartTime}}" bindchange="onValidStartTimeChange">
+          <view class="date-picker-cell">{{formData.validStartTime}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">结束时间 <text class="required">*</text></text>
+      <view class="datetime-row">
+        <picker mode="date" value="{{formData.validEndDate}}" bindchange="onValidEndDateChange">
+          <view class="date-picker-cell">{{formData.validEndDate}}</view>
+        </picker>
+        <picker mode="time" value="{{formData.validEndTime}}" bindchange="onValidEndTimeChange">
+          <view class="date-picker-cell">{{formData.validEndTime}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">使用时段限制</text>
+      <input class="form-input" placeholder="选填，如 10:00-22:00" value="{{formData.useTimeLimit}}" bindinput="onInputChange" data-field="useTimeLimit" />
+    </view>
+
+    <view class="form-item">
+      <text class="label_text">发布方式</text>
+      <picker mode="selector" range="{{publishLabels}}" value="{{publishIndex}}" bindchange="onPublishTypeChange">
+        <view class="text-wrapper_8 picker-row">
+          <text class="text_15">{{publishLabels[publishIndex]}}</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item" wx:if="{{formData.publishType === 2}}">
+      <text class="label_text">定时发布时间</text>
+      <view class="datetime-row">
+        <picker mode="date" value="{{formData.publishDate}}" bindchange="onPublishDateChange">
+          <view class="date-picker-cell">{{formData.publishDate}}</view>
+        </picker>
+        <picker mode="time" value="{{formData.publishTime}}" bindchange="onPublishTimeChange">
+          <view class="date-picker-cell">{{formData.publishTime}}</view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="submit-bar">
+    <button class="submit-btn" bindtap="submitForm" hover-class="submit-btn-hover">提交保存</button>
+  </view>
+</scroll-view>
+</custom-nav-bar>

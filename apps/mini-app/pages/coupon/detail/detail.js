@@ -1,6 +1,13 @@
 // pages/coupon/detail/detail.js
 const { couponApi } = require('../../../api/api.js')
 
+function normalizeUserCouponId(raw) {
+  if (raw == null || raw === '') {
+    return ''
+  }
+  return String(raw).trim()
+}
+
 Page({
   data: {
     userCouponId: '',
@@ -13,8 +20,7 @@ Page({
   },
 
   onLoad(options) {
-    // 从URL参数获取userCouponId
-    const userCouponId = options.id || options.userCouponId
+    const userCouponId = normalizeUserCouponId(options.userCouponId || options.id)
     if (!userCouponId) {
       wx.showToast({
         title: '参数错误',
@@ -25,7 +31,7 @@ Page({
       }, 1500)
       return
     }
-    this.setData({ userCouponId })
+    this.setData({ userCouponId: String(userCouponId) })
     this.loadCouponDetail()
   },
 
@@ -33,7 +39,7 @@ Page({
   async loadCouponDetail() {
     try {
       this.setData({ loading: true })
-      const res = await couponApi.getUserCouponDetail(this.data.userCouponId)
+      const res = await couponApi.getUserCouponDetail(String(this.data.userCouponId))
       
       if (res.data && res.data.code === 200 && res.data.data) {
         const data = res.data.data
@@ -87,7 +93,7 @@ Page({
   async refreshCode() {
     try {
       wx.showLoading({ title: '刷新中...' })
-      const res = await couponApi.refreshCouponCode(this.data.userCouponId)
+      const res = await couponApi.refreshCouponCode(String(this.data.userCouponId))
       
       wx.hideLoading()
       

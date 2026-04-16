@@ -56,6 +56,39 @@ public class MerchantApprovalVo implements Serializable {
     @Schema(description = "法人姓名")
     private String legalPerson;
 
+    @Schema(description = "营业执照图片 URL（申请时上传）")
+    private String businessLicense;
+
+    @Schema(description = "统一社会信用代码")
+    private String unifiedSocialCreditCode;
+
+    @Schema(description = "联系邮箱")
+    private String contactEmail;
+
+    @Schema(description = "经营范围")
+    private String businessScope;
+
+    @Schema(description = "经营类目")
+    private String businessCategory;
+
+    @Schema(description = "商家logo")
+    private String logo;
+
+    @Schema(description = "商家背景图（JSON）")
+    private String backgroundImage;
+
+    @Schema(description = "法人身份证号（脱敏或密文，按存储策略）")
+    private String legalPersonId;
+
+    @Schema(description = "申请人展示名（真实姓名优先，否则昵称）")
+    private String applicantName;
+
+    @Schema(description = "审核人展示名（真实姓名优先，否则昵称）")
+    private String reviewerName;
+
+    @Schema(description = "关联校友会基础信息（校友商铺等存在 alumni_association_id 时返回）")
+    private AlumniAssociationListVo alumniAssociation;
+
     /**
      * 对象转VO
      *

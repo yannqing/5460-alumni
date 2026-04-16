@@ -16,10 +16,10 @@
         <image class="function-icon" src="{{iconAlumni}}" mode="aspectFit"></image>
         <text class="function-text">我的校友会</text>
       </view>
-      <view class="function-item">
+      <view class="function-item" bindtap="onMyFavoritesTap">
         <image class="function-icon" src="{{iconFav}}" mode="aspectFit"></image>
         <text class="function-text">我的收藏</text>
-        <view class="construction-tag">开发中</view>
+        <view wx:if="{{constructionNavBlocked}}" class="construction-tag">开发中</view>
       </view>
       <view class="function-item" bindtap="navigateToMyFollows">
         <image class="function-icon" src="{{iconFollow}}" mode="aspectFit"></image>

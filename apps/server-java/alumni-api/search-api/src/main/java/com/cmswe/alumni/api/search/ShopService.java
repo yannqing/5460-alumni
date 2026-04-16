@@ -94,6 +94,14 @@ public interface ShopService extends IService<Shop> {
     PageVo<ShopApprovalVo> selectApprovalRecordsByPage(QueryShopApprovalDto queryDto);
 
     /**
+     * 根据店铺 ID 查询单条申请详情（与审批列表字段一致，含商户名称）
+     *
+     * @param shopId 店铺 ID
+     * @return 申请详情；店铺不存在时由实现抛出业务异常
+     */
+    ShopApprovalVo getShopApprovalDetailByShopId(Long shopId);
+
+    /**
      * 获取本人可用的门店列表
      * 1. 如果是门店管理员(ORGANIZE_SHOP_ADMIN)，返回其管理的门店
      * 2. 如果是商户管理员(ORGANIZE_MERCHANT_ADMIN)，返回该商户下所有审核通过且启用的门店

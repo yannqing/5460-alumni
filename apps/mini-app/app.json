@@ -40,7 +40,8 @@
     "pages/info-maintenance/edit/edit",
     "pages/register/register",
     "pages/feedback/feedback",
-    "pages/certification-info/certification-info"
+    "pages/certification-info/certification-info",
+    "pages/shop-audit-detail/shop-audit-detail"
   ],
   "subpackages": [
     {
@@ -69,9 +70,16 @@
         "content/list/list",
         "merchant/list/list",
         "merchant/shop/shop",
+        "merchant/info-maintenance/info-maintenance",
+        "merchant/info-maintenance/edit/edit",
+        "merchant/shop/create/create",
+        "merchant/shop/edit/edit",
         "merchant/architecture/architecture",
         "merchant/member/member",
         "merchant/coupon/coupon",
+        "merchant/coupon/create/create",
+        "merchant/coupon/edit/edit",
+        "merchant/coupon/detail/detail",
         "merchant/coupon/verify/verify",
         "merchant/topic/topic",
         "merchant/topic/publish/publish",

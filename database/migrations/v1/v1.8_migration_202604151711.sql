@@ -1,0 +1,2 @@
+INSERT INTO cni_alumni.role_permissions (id, role_id, per_id, create_time, update_time, is_delete) VALUES (56, 2002944992284250113, 1995342452768153634, '2026-04-15 09:10:21', '2026-04-15 09:10:21', 0);
+INSERT INTO cni_alumni.role_permissions (id, role_id, per_id, create_time, update_time, is_delete) VALUES (57, 2002944992284254113, 1995342452768153634, '2026-04-15 09:10:39', '2026-04-15 09:10:39', 0);

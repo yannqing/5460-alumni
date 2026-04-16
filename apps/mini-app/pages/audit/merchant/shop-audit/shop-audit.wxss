@@ -46,12 +46,12 @@
 .group_7 {
   width: 714rpx;
   flex: 1;
-  max-height: 55vh;
   min-height: 0;
   background-color: #FFFFFF;
   border-radius: 28.99rpx;
-  margin: 34rpx 0 20rpx 18rpx;
-  padding: 38rpx 43rpx 27rpx 43rpx;
+  /* 底部留白略收紧，列表区尽量占满剩余屏高 */
+  margin: 34rpx 0 12rpx 18rpx;
+  padding: 38rpx 43rpx 20rpx 43rpx;
   box-sizing: border-box;
   overflow: hidden;
   display: flex;
@@ -67,13 +67,22 @@
   flex-shrink: 0;
   position: relative;
   z-index: 0;
+  /* 与 show-scrollbar="{{false}}"、enhanced 配合，尽量隐藏滚动条 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
 }
 
 .loading-state { display: flex; justify-content: center; align-items: center; padding: 40rpx 0; color: #999; font-size: 28rpx; }
 .empty-block { padding: 16rpx 0 60rpx; text-align: center; }
 .empty-text { font-size: 28rpx; color: #999; }
 
-.approval-list { display: flex; flex-direction: column; gap: 16rpx; padding-bottom: 16rpx; }
+.approval-list { display: flex; flex-direction: column; gap: 16rpx; padding-bottom: 8rpx; }
 
 .shop-item {
   background-color: #f9f9f9;
@@ -82,26 +91,62 @@
   border: 1rpx solid #f0f0f0;
 }
 
+.shop-item--tap {
+  background-color: #f0f4ff;
+}
+
 /* 店铺头部 */
 .shop-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 16rpx;
+  gap: 16rpx;
 }
 
 .shop-name {
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
+  flex: 1;
+  min-width: 0;
 }
 
-.shop-type {
+.shop-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
+/* 列表顶部即展示审核状态，避免与「通过」混淆 */
+.status-badge {
   font-size: 24rpx;
-  color: #666;
-  background-color: #f0f0f0;
-  padding: 4rpx 12rpx;
-  border-radius: 16rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.status-badge--pending {
+  color: #e65100;
+  background-color: #fff3e0;
+  border: 1rpx solid #ffcc80;
+}
+.status-badge--approved {
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  border: 1rpx solid #a5d6a7;
+}
+.status-badge--rejected {
+  color: #c62828;
+  background-color: #ffebee;
+  border: 1rpx solid #ef9a9a;
+}
+.status-badge--unknown {
+  color: #616161;
+  background-color: #f5f5f5;
+  border: 1rpx solid #e0e0e0;
 }
 
 /* 店铺信息 */
@@ -115,6 +160,16 @@
   line-height: 1.5;
 }
 
+/* 审核状态：同一 text 流 + nowrap，避免 text 作 flex 子项时仍换行 */
+.status-line {
+  display: block;
+  font-size: 28rpx;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .info-label {
   color: #999;
   margin-right: 10rpx;
@@ -124,9 +179,21 @@
   color: #666;
 }
 
-/* 状态文本 */
-.status-text {
-  color: #ff9800;
+/* 状态文本（与 badge 语义一致） */
+.status-text--pending {
+  color: #e65100;
+  font-weight: 600;
+}
+.status-text--approved {
+  color: #2e7d32;
+  font-weight: 600;
+}
+.status-text--rejected {
+  color: #c62828;
+  font-weight: 600;
+}
+.status-text--unknown {
+  color: #616161;
 }
 
 /* 审核操作 */
@@ -154,17 +221,6 @@
   padding: 12rpx 24rpx;
   font-size: 28rpx;
   line-height: 1.2;
-}
-
-/* 审核结果 */
-.audit-result {
-  text-align: right;
-  padding: 8rpx 0;
-}
-
-.result-text {
-  font-size: 28rpx;
-  color: #4caf50;
 }
 
 /* 模态框 */
@@ -239,6 +295,12 @@
   margin-bottom: 12rpx;
 }
 
+.form-label-required {
+  color: #f44336;
+  font-size: 24rpx;
+  font-weight: normal;
+}
+
 /* 单选组 */
 .radio-group {
   display: flex;
@@ -287,8 +349,9 @@
   color: #999;
 }
 
-/* 商户选择器弹窗 */
-.merchant-picker {
+/* 校友会选择器弹窗（对齐 join-audit/index） */
+.merchant-picker,
+.alumni-association-picker {
   position: fixed;
   top: 0;
   left: 0;
@@ -312,45 +375,42 @@
   left: 0;
   right: 0;
   background-color: #fff;
-  border-radius: 16rpx 16rpx 0 0;
-  padding: 20rpx;
-  max-height: 60vh;
-  overflow-y: auto;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
 }
 
 .picker-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10rpx 0;
-  border-bottom: 1rpx solid #e0e0e0;
-  margin-bottom: 20rpx;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .picker-title {
   font-size: 32rpx;
-  font-weight: bold;
+  font-weight: 600;
   color: #333;
 }
 
 .picker-cancel {
   font-size: 28rpx;
   color: #999;
-  padding: 10rpx 20rpx;
 }
 
 .picker-list {
-  margin-bottom: 20rpx;
+  max-height: calc(50vh + 40px);
+  overflow-y: auto;
+  padding: 0 30rpx;
 }
 
 .picker-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20rpx;
-  border-radius: 8rpx;
-  margin-bottom: 10rpx;
-  background-color: #f5f5f5;
+  justify-content: space-between;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .item-name {
@@ -359,22 +419,22 @@
 }
 
 .item-check {
-  font-size: 28rpx;
-  color: #1989fa;
-  font-weight: bold;
+  font-size: 32rpx;
+  color: #52c41a;
+  font-weight: 600;
 }
 
 .picker-empty {
+  padding: 60rpx 0;
   text-align: center;
-  padding: 40rpx 0;
   color: #999;
   font-size: 28rpx;
 }
 
 /* 分页样式 */
 .pagination {
-  margin-top: 30rpx;
-  padding-top: 20rpx;
+  margin-top: 16rpx;
+  padding-top: 12rpx;
   border-top: 1rpx solid #e0e0e0;
 }
 
@@ -382,7 +442,7 @@
   text-align: center;
   font-size: 24rpx;
   color: #666;
-  margin-bottom: 20rpx;
+  margin-bottom: 12rpx;
 }
 
 .pagination-controls {
@@ -454,4 +514,8 @@
   padding: 16rpx 32rpx;
   font-size: 28rpx;
   line-height: 1.2;
+}
+
+.btn-submit--danger {
+  background-color: #f44336;
 }

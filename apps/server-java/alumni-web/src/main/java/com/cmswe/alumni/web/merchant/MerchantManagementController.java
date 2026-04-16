@@ -8,6 +8,7 @@ import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
+import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.OrganizeArchiRoleVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -85,6 +86,20 @@ public class MerchantManagementController {
     }
 
     /**
+     * 查询单条商户入驻申请详情（含营业执照图片 URL 等申请资料）
+     *
+     * @param merchantId 商户ID
+     * @return 单条审批记录
+     */
+    @GetMapping("/approval/record")
+    @Operation(summary = "查询商户入驻申请详情")
+    public BaseResponse<MerchantApprovalVo> getApprovalRecord(@RequestParam Long merchantId) {
+        log.info("管理员查询商户入驻申请详情 - merchantId: {}", merchantId);
+        MerchantApprovalVo vo = merchantService.getApprovalRecordByMerchantId(merchantId);
+        return ResultUtils.success(Code.SUCCESS, vo, "查询成功");
+    }
+
+    /**
      * 查询本人负责的商户列表
      *
      * @param securityUser 当前登录用户
@@ -108,6 +123,24 @@ public class MerchantManagementController {
                 wxId, pageVo.getTotal());
 
         return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
+    }
+
+    /**
+     * 商户管理员更新商户基本信息（部分字段更新，未传的字段不变）
+     *
+     * @param securityUser 当前登录用户
+     * @param dto          更新内容（须含 merchantId）
+     * @return 更新后的商户详情
+     */
+    @PutMapping("/merchant/info")
+    @Operation(summary = "更新商户基本信息（商户管理员）")
+    public BaseResponse<MerchantDetailVo> updateMerchantInfo(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody UpdateMerchantDto dto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("更新商户基本信息 - 用户ID: {}, merchantId: {}", wxId, dto.getMerchantId());
+        MerchantDetailVo vo = merchantService.updateMerchantInfo(wxId, dto);
+        return ResultUtils.success(Code.SUCCESS, vo, "保存成功");
     }
 
     /**

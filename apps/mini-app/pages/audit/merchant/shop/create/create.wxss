@@ -1,0 +1,253 @@
+.page {
+  min-height: calc(100vh - 190.22rpx);
+  padding: 28rpx 18rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.form-card {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  box-sizing: border-box;
+}
+
+.form-item {
+  margin-bottom: 28rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.required {
+  color: #ff4d4f;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: 20rpx 24rpx;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+
+.radio-group {
+  display: flex;
+  gap: 40rpx;
+  margin-top: 8rpx;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.radio-item radio {
+  margin-right: 12rpx;
+}
+
+.merchant-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 8rpx;
+  background-color: #fafafa;
+  box-sizing: border-box;
+}
+
+.selector-label {
+  color: #333;
+}
+
+.selector-arrow {
+  color: #999;
+  font-size: 20rpx;
+}
+
+.image-upload-container {
+  margin-top: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.uploaded-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.uploaded-image {
+  position: relative;
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 8rpx;
+  overflow: hidden;
+  border: 1rpx solid #e5e5e5;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.image-delete {
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  width: 36rpx;
+  height: 36rpx;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+/* 上传按钮：蓝色实心，与主色区分布开来仍清晰可点 */
+.upload-btn {
+  margin: 0;
+  padding: 0 40rpx;
+  min-width: 200rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  font-size: 28rpx;
+  font-weight: 400;
+  color: #fff;
+  background-color: #1677ff;
+  border: 1rpx solid #1677ff;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.upload-btn::after {
+  border: none;
+}
+
+.upload-btn-hover {
+  opacity: 0.9;
+  background-color: #0958d9 !important;
+  border-color: #0958d9 !important;
+}
+
+.form-actions {
+  margin-top: 40rpx;
+}
+
+.btn-submit {
+  width: 100%;
+  height: 88rpx;
+  border-radius: 8rpx;
+  font-size: 30rpx;
+  background-color: #1aad19;
+  color: #fff;
+}
+
+.btn-submit::after {
+  border: none;
+}
+
+.merchant-picker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+}
+
+.merchant-picker .picker-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.merchant-picker .picker-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #e5e5e5;
+  background-color: #fafafa;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.picker-cancel {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.picker-list {
+  max-height: calc(70vh - 88rpx);
+  overflow-y: auto;
+  padding: 16rpx 0;
+}
+
+.picker-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  font-size: 28rpx;
+  color: #333;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.item-check {
+  color: #1aad19;
+  font-weight: bold;
+}
+
+.picker-empty {
+  padding: 40rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+}

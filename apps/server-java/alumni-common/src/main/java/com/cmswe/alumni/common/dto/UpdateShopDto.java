@@ -2,6 +2,7 @@ package com.cmswe.alumni.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -91,6 +92,13 @@ public class UpdateShopDto implements Serializable {
      */
     @Schema(description = "店铺图片URL数组（JSON格式）")
     private String shopImages;
+
+    /**
+     * 店铺 logo（图片 URL）
+     */
+    @Size(max = 500, message = "店铺logo URL长度不能超过500个字符")
+    @Schema(description = "店铺logo（图片URL）")
+    private String logo;
 
     /**
      * 店铺简介

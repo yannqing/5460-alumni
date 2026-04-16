@@ -154,6 +154,7 @@ Page({
       }
     ],
     // 商户功能列表 (源数据)
+    // 暂时下线：商户下「架构管理」，先隐藏页面入口
     _allMerchantFunctions: [
       {
         id: 1,
@@ -168,13 +169,6 @@ Page({
         icon: config.getIconUrl('shcygl@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/member/member'
-      },
-      {
-        id: 2,
-        name: '架构管理',
-        icon: config.getIconUrl('jggl@3x.png'),
-        iconType: 'image',
-        url: '/pages/audit/merchant/architecture/architecture'
       },
       {
         id: 4,
@@ -196,6 +190,14 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/topic/topic'
+      },
+      {
+        id: 7,
+        name: '信息维护',
+        code: 'MERCHANT_ASSOCIATION_INFORMATION',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant/info-maintenance/info-maintenance'
       }
     ],
     // 实际渲染用的数据
@@ -284,7 +286,7 @@ Page({
     // 获取用户的原始角色列表（从缓存中读取）
     const originalRoles = wx.getStorageSync('roles') || []
 
-    // 默认不显示任何功能模块（商家模块全局不展示）
+    // 默认不显示任何功能模块
     let showSchoolOfficeFunctions = false
     let showAlumniFunctions = false
     let showMerchantFunctions = false
@@ -403,9 +405,20 @@ Page({
           return false
         })
 
-    // 过滤商家管理功能（merchantFunctions）
-    // 需求：商家及其下面的功能暂不展示（包括超级管理员）
-    const filteredMerchantFunctions = []
+    // 商家管理（店铺/成员/架构/优惠券等）：超管、商户管理员、门店管理员，或接口兜底识别到商户组织时展示；子页再做细粒度校验
+    const filteredMerchantFunctions =
+      hasSuperAdmin || hasMerchantAdmin || hasShopAdmin || merchantFromApi
+        ? this.data._allMerchantFunctions.filter(item => {
+            if (item.name === '店铺管理') return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
+            if (item.name === '成员管理') return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
+            if (item.name === '优惠券管理') return this.hasPermission('MERCHANT_COUPON_MANAGEMENT')
+            if (item.name === '核销优惠券') return this.hasPermission('MERCHANT_DEAL_COUPON')
+            if (item.name === '话题管理') return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT')
+            if (item.name === '信息维护') return this.hasPermission('MERCHANT_ASSOCIATION_INFORMATION')
+            return false
+          })
+        : []
+    showMerchantFunctions = filteredMerchantFunctions.length > 0
 
     // 展示「城市」「校友会」整块：系统超级管理员或具备对应模块配置权限（与是否担任校促会/校友会组织管理员无关）
     if (hasSuperAdmin || hasLocalAdmin || this.hasPermission('LOCAL_PLATFORM_CONFIG')) {
@@ -414,8 +427,6 @@ Page({
     if (hasSuperAdmin || hasLocalAdmin || hasAlumniAdmin || this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')) {
       showAlumniFunctions = true
     }
-    // 商家模块全局隐藏，不再根据任何角色或权限展示
-    showMerchantFunctions = false
 
     // 更新数据，根据权限过滤功能列表
     this.setData({

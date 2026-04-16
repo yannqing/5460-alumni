@@ -74,15 +74,13 @@ public class CreateShopDto implements Serializable {
     /**
      * 纬度
      */
-    @NotNull(message = "纬度不能为空")
-    @Schema(description = "纬度", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "纬度")
     private BigDecimal latitude;
 
     /**
      * 经度
      */
-    @NotNull(message = "经度不能为空")
-    @Schema(description = "经度", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "经度")
     private BigDecimal longitude;
 
     /**
@@ -102,6 +100,13 @@ public class CreateShopDto implements Serializable {
      */
     @Schema(description = "店铺图片URL数组（JSON格式）")
     private String shopImages;
+
+    /**
+     * 店铺 logo（图片 URL，与数据库 shop.logo 一致）
+     */
+    @Size(max = 500, message = "店铺logo URL长度不能超过500个字符")
+    @Schema(description = "店铺logo（图片URL）")
+    private String logo;
 
     /**
      * 店铺简介

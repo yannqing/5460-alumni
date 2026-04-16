@@ -13,6 +13,7 @@ import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopApprovalVo;
 import com.cmswe.alumni.common.vo.ShopListVo;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.List;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -188,6 +189,21 @@ public class ShopController {
         log.info("管理员查询店铺审批记录 - 条件: {}", queryDto);
         PageVo<ShopApprovalVo> result = shopService.selectApprovalRecordsByPage(queryDto);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 根据店铺 ID 查询单条申请详情
+     *
+     * @param shopId 店铺 ID（查询参数名：shop_id）
+     */
+    @GetMapping("/approval/detail")
+    @Operation(summary = "根据店铺ID查询申请详情")
+    public BaseResponse<ShopApprovalVo> getShopApprovalDetail(
+            @Parameter(description = "店铺ID", required = true)
+            @RequestParam("shop_id") Long shopId) {
+        log.info("查询店铺申请详情 - shop_id: {}", shopId);
+        ShopApprovalVo vo = shopService.getShopApprovalDetailByShopId(shopId);
+        return ResultUtils.success(Code.SUCCESS, vo, "查询成功");
     }
 
     /**

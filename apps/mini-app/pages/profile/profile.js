@@ -2,6 +2,7 @@
 const app = getApp()
 const { userApi, followApi, auditApi } = require('../../api/api.js')
 const config = require('../../utils/config.js')
+const featureFlags = require('../../utils/feature-flags.js')
 const { hasManagementPermission, refreshUserRoles } = require('../../utils/auth.js')
 
 Page({
@@ -54,6 +55,7 @@ Page({
     alumniCertThirdImg:
       'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/alumni_third_certification.png',
     totalTodoCount: 0,
+    constructionNavBlocked: featureFlags.constructionNavBlocked,
   },
 
   onLoad() {
@@ -361,6 +363,13 @@ Page({
     }
 
     wx.navigateTo({ url })
+  },
+
+  onMyFavoritesFromGridTap() {
+    if (this.data.constructionNavBlocked) {
+      return
+    }
+    wx.navigateTo({ url: '/pages/my-favorites/my-favorites' })
   },
 
   editProfile() {

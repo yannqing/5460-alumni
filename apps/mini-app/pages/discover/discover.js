@@ -1117,9 +1117,9 @@ Page({
     try {
       // 调用领取优惠券接口
       const res = await couponApi.claimCoupon({
-        couponId: parseInt(couponId),
+        couponId: String(couponId),
         receiveChannel: 'discover_page',
-        receiveSource: 'shop_id_' + shopId,
+        receiveSource: 'shop_id_' + String(shopId),
       })
 
       wx.hideLoading()
@@ -1133,9 +1133,9 @@ Page({
         // 更新优惠券剩余数量
         const updatedCouponList = [...this.data.couponList]
         for (let i = 0; i < updatedCouponList.length; i++) {
-          if (updatedCouponList[i].id === shopId && updatedCouponList[i].coupons) {
+          if (String(updatedCouponList[i].id) === String(shopId) && updatedCouponList[i].coupons) {
             updatedCouponList[i].coupons = updatedCouponList[i].coupons.map(coupon => {
-              if (coupon.couponId === couponId && coupon.remainQuantity > 0) {
+              if (String(coupon.couponId) === String(couponId) && coupon.remainQuantity > 0) {
                 return { ...coupon, remainQuantity: coupon.remainQuantity - 1 }
               }
               return coupon

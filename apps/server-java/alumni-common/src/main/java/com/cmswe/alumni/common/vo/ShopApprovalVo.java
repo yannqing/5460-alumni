@@ -68,6 +68,9 @@ public class ShopApprovalVo implements Serializable {
     @Schema(description = "店铺图片URL数组")
     private String shopImages;
 
+    @Schema(description = "店铺logo（图片URL）")
+    private String logo;
+
     @Schema(description = "店铺简介")
     private String description;
 
