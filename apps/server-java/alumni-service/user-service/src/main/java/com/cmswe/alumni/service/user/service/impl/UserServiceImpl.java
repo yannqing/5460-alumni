@@ -40,14 +40,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
-* @author yanqing
-* @description 针对表【sys_user(用户信息表)】的数据库操作Service实现
-* @createDate 2025-05-28 09:32:20
-*/
+ * @author yanqing
+ * @description 针对表【sys_user(用户信息表)】的数据库操作Service实现
+ * @createDate 2025-05-28 09:32:20
+ */
 @Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
-    implements UserService {
+        implements UserService {
 
     @Resource
     private WxUserInfoMapper wxUserInfoMapper;
@@ -254,7 +254,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             }
 
             return generateTokenForUser(wxUser, "用户ID: " + userId);
-            
+
         } catch (Exception e) {
             log.error("生成测试token失败，userId: {}", userId, e);
             throw new BusinessException("Token生成失败: " + e.getMessage());
@@ -485,8 +485,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
     @Override
     @Cacheable(value = "alumniList",
-               key = "#queryAlumniListDto.hashCode() + '_' + #wxId",
-               unless = "#result == null || #result.records.isEmpty()")
+            key = "#queryAlumniListDto.hashCode() + '_' + #wxId",
+            unless = "#result == null || #result.records.isEmpty()")
     public Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId) {
         if (queryAlumniListDto == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL);
@@ -918,9 +918,9 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
         // 使用工具类发送消息（使用 userId 作为 key，保证同一用户的消息顺序）
         kafkaUtils.sendAsync(
-            KafkaTopicConstants.USER_ONLINE_STATUS_TOPIC,
-            String.valueOf(wxId),
-            statusMessage
+                KafkaTopicConstants.USER_ONLINE_STATUS_TOPIC,
+                String.valueOf(wxId),
+                statusMessage
         );
     }
 
@@ -1109,8 +1109,39 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
             return result;
         }
 
+        // 获取所有角色ID并批量查询角色信息
+        List<Long> roleIds = roleUsers.stream()
+                .map(RoleUser::getRoleId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Role> roles = roleService.listByIds(roleIds);
+
+        // 创建角色ID到角色Code的映射
+        Map<Long, String> roleIdToCodeMap = roles.stream()
+                .collect(Collectors.toMap(Role::getRoleId, Role::getRoleCode));
+
+        // 过滤出只有管理员角色的 RoleUser 记录
+        List<RoleUser> adminRoleUsers = roleUsers.stream()
+                .filter(roleUser -> {
+                    String roleCode = roleIdToCodeMap.get(roleUser.getRoleId());
+                    // 只保留管理员角色：校友会管理员、校处会管理员、商户管理员、门店管理员
+                    return roleCode != null && (
+                            "ORGANIZE_ALUMNI_ADMIN".equals(roleCode) ||
+                                    "ORGANIZE_LOCAL_ADMIN".equals(roleCode) ||
+                                    "ORGANIZE_MERCHANT_ADMIN".equals(roleCode) ||
+                                    "ORGANIZE_SHOP_ADMIN".equals(roleCode)
+                    );
+                })
+                .collect(Collectors.toList());
+
+        if (adminRoleUsers.isEmpty()) {
+            log.info("用户无管理员权限的组织 - 用户ID: {}", wxId);
+            return result;
+        }
+
         // 按类型分组
-        Map<Integer, List<Long>> organizeIdsByType = roleUsers.stream()
+        Map<Integer, List<Long>> organizeIdsByType = adminRoleUsers.stream()
                 .collect(Collectors.groupingBy(
                         RoleUser::getType,
                         Collectors.mapping(RoleUser::getOrganizeId, Collectors.toList())
