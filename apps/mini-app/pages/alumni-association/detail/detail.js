@@ -66,6 +66,7 @@ Page({
     memberPage: 1,
     memberPageSize: 20,
     memberHasMore: true,
+    memberLoading: false,
     memberLoadingMore: false,
     memberLoaded: false,
   },
@@ -76,6 +77,8 @@ Page({
     await this.ensureLogin()
     this.loadAssociationDetail()
     this.checkPermission()
+    // 提前异步预加载成员列表，避免用户切换到成员列表 tab 时等待
+    this.loadMembers(true)
   },
 
   onShow() {
@@ -324,14 +327,15 @@ Page({
 
   // 加载成员列表
   async loadMembers(reset = false) {
-    const { loading, memberLoadingMore, memberHasMore, memberPage, memberPageSize } = this.data
-    if ((reset && loading) || (!reset && (loading || memberLoadingMore || !memberHasMore))) {
+    const { memberLoading, memberLoadingMore, memberHasMore, memberPage, memberPageSize } =
+      this.data
+    if ((reset && memberLoading) || (!reset && (memberLoadingMore || !memberHasMore))) {
       return
     }
 
     const page = reset ? 1 : memberPage
     this.setData({
-      loading: reset ? true : loading,
+      memberLoading: reset ? true : memberLoading,
       memberLoadingMore: reset ? false : true,
       memberHasMore: reset ? true : memberHasMore,
     })
@@ -405,12 +409,12 @@ Page({
           memberPage: hasMore ? page + 1 : page,
           memberHasMore: hasMore,
           memberLoaded: true,
-          loading: false,
+          memberLoading: false,
           memberLoadingMore: false,
         })
       } else {
         this.setData({
-          loading: false,
+          memberLoading: false,
           memberLoadingMore: false,
         })
         wx.showToast({
@@ -421,7 +425,7 @@ Page({
     } catch (error) {
       console.error('加载成员列表失败:', error)
       this.setData({
-        loading: false,
+        memberLoading: false,
         memberLoadingMore: false,
       })
       wx.showToast({
