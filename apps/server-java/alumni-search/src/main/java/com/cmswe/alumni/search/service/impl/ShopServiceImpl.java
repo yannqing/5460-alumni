@@ -422,12 +422,35 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
 
         Page<Shop> page = new Page<>(current, pageSize);
 
+        Long alumniAssociationId = queryDto.getAlumniAssociationId();
+        Long merchantId = queryDto.getMerchantId();
+        List<Long> scopedMerchantIds = null;
+        if (alumniAssociationId != null) {
+            scopedMerchantIds = merchantService.lambdaQuery()
+                    .select(Merchant::getMerchantId)
+                    .eq(Merchant::getAlumniAssociationId, alumniAssociationId)
+                    .eq(merchantId != null, Merchant::getMerchantId, merchantId)
+                    .list()
+                    .stream()
+                    .map(Merchant::getMerchantId)
+                    .filter(id -> id != null)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            if (scopedMerchantIds.isEmpty()) {
+                Page<ShopApprovalVo> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(List.of());
+                return PageVo.of(emptyPage);
+            }
+        }
+
         // 3. 构建查询条件
         Page<Shop> shopPage = this.lambdaQuery()
                 .like(queryDto.getShopName() != null && !queryDto.getShopName().trim().isEmpty(),
                       Shop::getShopName, queryDto.getShopName())
                 .eq(queryDto.getReviewStatus() != null, Shop::getReviewStatus, queryDto.getReviewStatus())
-                .eq(queryDto.getMerchantId() != null, Shop::getMerchantId, queryDto.getMerchantId())
+                .eq(alumniAssociationId == null && merchantId != null, Shop::getMerchantId, merchantId)
+                .in(alumniAssociationId != null, Shop::getMerchantId, scopedMerchantIds)
                 .eq(queryDto.getShopType() != null, Shop::getShopType, queryDto.getShopType())
                 .orderByDesc(Shop::getCreateTime)
                 .page(page);
@@ -493,14 +516,36 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         log.info("开始查询用户可用门店列表 - 用户ID: {}", wxId);
 
         // 2. 定义角色代码常量
+        final String SYSTEM_SUPER_ADMIN_ROLE_CODE = "SYSTEM_SUPER_ADMIN"; // 系统超级管理员
         final String SHOP_ADMIN_ROLE_CODE = "ORGANIZE_SHOP_ADMIN"; // 门店管理员
         final String MERCHANT_ADMIN_ROLE_CODE = "ORGANIZE_MERCHANT_ADMIN"; // 商户管理员
 
         List<ShopListVo> shopVoList = new java.util.ArrayList<>();
 
-        // 3. 查询门店管理员角色的门店
+        // 3. 系统超级管理员：可查看全部审核通过且营业中的门店
         try {
-            // 3.1 查询门店管理员角色
+            List<com.cmswe.alumni.common.entity.Role> userRoles = roleService.getRolesByUserId(wxId);
+            boolean isSystemSuperAdmin = userRoles != null && userRoles.stream()
+                    .anyMatch(role -> SYSTEM_SUPER_ADMIN_ROLE_CODE.equals(role.getRoleCode()));
+            if (isSystemSuperAdmin) {
+                List<Shop> allShops = this.lambdaQuery()
+                        .eq(Shop::getReviewStatus, 1) // 审核通过
+                        .eq(Shop::getStatus, 1) // 营业中
+                        .list();
+
+                List<ShopListVo> allShopVos = allShops.stream()
+                        .map(ShopListVo::objToVo)
+                        .collect(Collectors.toList());
+                log.info("系统超级管理员查询可用门店成功 - 用户ID: {}, 门店数量: {}", wxId, allShopVos.size());
+                return allShopVos;
+            }
+        } catch (Exception e) {
+            log.error("查询系统超级管理员角色失败 - 用户ID: {}", wxId, e);
+        }
+
+        // 4. 查询门店管理员角色的门店
+        try {
+            // 4.1 查询门店管理员角色
             com.cmswe.alumni.common.entity.Role shopAdminRole = roleService.lambdaQuery()
                     .eq(com.cmswe.alumni.common.entity.Role::getRoleCode, SHOP_ADMIN_ROLE_CODE)
                     .eq(com.cmswe.alumni.common.entity.Role::getStatus, 1)
@@ -510,7 +555,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                 log.info("找到门店管理员角色 - 角色ID: {}, 角色代码: {}",
                         shopAdminRole.getRoleId(), shopAdminRole.getRoleCode());
 
-                // 3.2 查询该用户在门店管理员角色下的关联关系
+                // 4.2 查询该用户在门店管理员角色下的关联关系
                 List<com.cmswe.alumni.common.entity.RoleUser> shopAdminRoleUsers = roleUserService.lambdaQuery()
                         .eq(com.cmswe.alumni.common.entity.RoleUser::getWxId, wxId)
                         .eq(com.cmswe.alumni.common.entity.RoleUser::getRoleId, shopAdminRole.getRoleId())
@@ -518,7 +563,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                         .list();
 
                 if (!shopAdminRoleUsers.isEmpty()) {
-                    // 3.3 提取门店ID列表（organizeId就是shopId）
+                    // 4.3 提取门店ID列表（organizeId就是shopId）
                     List<Long> shopIds = shopAdminRoleUsers.stream()
                             .map(com.cmswe.alumni.common.entity.RoleUser::getOrganizeId)
                             .filter(java.util.Objects::nonNull)
@@ -528,14 +573,14 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                     log.info("用户作为门店管理员管理的门店数量: {}", shopIds.size());
 
                     if (!shopIds.isEmpty()) {
-                        // 3.4 查询这些门店的详细信息
+                        // 4.4 查询这些门店的详细信息
                         List<Shop> shops = this.lambdaQuery()
                                 .in(Shop::getShopId, shopIds)
                                 .eq(Shop::getReviewStatus, 1) // 审核通过
                                 .eq(Shop::getStatus, 1) // 营业中
                                 .list();
 
-                        // 3.5 转换为VO
+                        // 4.5 转换为VO
                         List<ShopListVo> shopAdminShops = shops.stream()
                                 .map(ShopListVo::objToVo)
                                 .collect(Collectors.toList());
@@ -551,9 +596,9 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
             log.error("查询门店管理员角色门店失败 - 用户ID: {}", wxId, e);
         }
 
-        // 4. 查询商户管理员角色的门店
+        // 5. 查询商户管理员角色的门店
         try {
-            // 4.1 查询商户管理员角色
+            // 5.1 查询商户管理员角色
             com.cmswe.alumni.common.entity.Role merchantAdminRole = roleService.lambdaQuery()
                     .eq(com.cmswe.alumni.common.entity.Role::getRoleCode, MERCHANT_ADMIN_ROLE_CODE)
                     .eq(com.cmswe.alumni.common.entity.Role::getStatus, 1)
@@ -563,7 +608,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                 log.info("找到商户管理员角色 - 角色ID: {}, 角色代码: {}",
                         merchantAdminRole.getRoleId(), merchantAdminRole.getRoleCode());
 
-                // 4.2 查询该用户在商户管理员角色下的关联关系
+                // 5.2 查询该用户在商户管理员角色下的关联关系
                 List<com.cmswe.alumni.common.entity.RoleUser> merchantAdminRoleUsers = roleUserService.lambdaQuery()
                         .eq(com.cmswe.alumni.common.entity.RoleUser::getWxId, wxId)
                         .eq(com.cmswe.alumni.common.entity.RoleUser::getRoleId, merchantAdminRole.getRoleId())
@@ -571,7 +616,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                         .list();
 
                 if (!merchantAdminRoleUsers.isEmpty()) {
-                    // 4.3 提取商户ID列表（organizeId就是merchantId）
+                    // 5.3 提取商户ID列表（organizeId就是merchantId）
                     List<Long> merchantIds = merchantAdminRoleUsers.stream()
                             .map(com.cmswe.alumni.common.entity.RoleUser::getOrganizeId)
                             .filter(java.util.Objects::nonNull)
@@ -581,14 +626,14 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                     log.info("用户作为商户管理员管理的商户数量: {}", merchantIds.size());
 
                     if (!merchantIds.isEmpty()) {
-                        // 4.4 查询这些商户下所有审核通过且启用的门店
+                        // 5.4 查询这些商户下所有审核通过且启用的门店
                         List<Shop> merchantShops = this.lambdaQuery()
                                 .in(Shop::getMerchantId, merchantIds)
                                 .eq(Shop::getReviewStatus, 1) // 审核通过
                                 .eq(Shop::getStatus, 1) // 营业中
                                 .list();
 
-                        // 4.5 转换为VO，并去重（避免与门店管理员角色的门店重复）
+                        // 5.5 转换为VO，并去重（避免与门店管理员角色的门店重复）
                         List<Long> existingShopIds = shopVoList.stream()
                                 .map(vo -> Long.valueOf(vo.getShopId()))
                                 .collect(Collectors.toList());

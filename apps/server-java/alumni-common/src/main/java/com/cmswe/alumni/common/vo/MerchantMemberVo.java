@@ -111,6 +111,12 @@ public class MerchantMemberVo implements Serializable {
     @Schema(description = "状态")
     private Integer status;
 
+    /**
+     * 是否为当前店铺的门店管理员
+     */
+    @Schema(description = "是否为当前店铺管理员")
+    private Boolean isShopAdmin;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

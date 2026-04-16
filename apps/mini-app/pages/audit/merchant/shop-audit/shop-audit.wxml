@@ -1,12 +1,12 @@
 <!-- pages/audit/merchant/shop-audit/shop-audit.wxml -->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="店铺审核">
 <view class="page">
-  <!-- 选择商家卡片 -->
-  <view class="group_5">
+  <!-- 选择校友会卡片 -->
+  <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
     <text class="text_14">店铺审核</text>
-    <text class="label_text">选择商家</text>
-    <view class="text-wrapper_8" bindtap="showMerchantSelector">
-      <text class="text_15">{{selectedMerchantName || '请选择商家'}}</text>
+    <text class="label_text">选择校友会</text>
+    <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
+      <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
     </view>
   </view>
 
@@ -20,7 +20,7 @@
         <text>加载中...</text>
       </view>
       <view class="empty-block" wx:elif="{{approvalList.length === 0}}">
-        <text class="empty-text">暂无待审核店铺</text>
+        <text class="empty-text">{{hasAlumniAdminPermission ? (selectedAlumniAssociationId ? '暂无待审核店铺' : '请先选择校友会') : '暂无待审核店铺'}}</text>
       </view>
       <view class="approval-list" wx:else>
     <view
@@ -118,28 +118,28 @@
     </view>
   </view>
   
-  <!-- 商户选择器弹窗 -->
-  <view class="merchant-picker" wx:if="{{showMerchantPicker}}">
-    <view class="picker-overlay" bindtap="cancelMerchantSelect"></view>
+  <!-- 校友会选择器弹窗 -->
+  <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
+    <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
     <view class="picker-content">
       <view class="picker-header">
-        <text class="picker-title">选择商户</text>
-        <text class="picker-cancel" bindtap="cancelMerchantSelect">取消</text>
+        <text class="picker-title">选择校友会</text>
+        <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
       </view>
       <view class="picker-list">
         <view 
           class="picker-item" 
-          wx:for="{{merchantList}}" 
-          wx:key="merchantId"
-          data-merchant-id="{{item.merchantId + ''}}"
-          data-merchant-name="{{item.merchantName}}"
-          bindtap="selectMerchant"
+          wx:for="{{alumniAssociationList}}" 
+          wx:key="alumniAssociationId"
+          data-alumni-association-id="{{item.alumniAssociationId}}"
+          data-alumni-association-name="{{item.alumniAssociationName}}"
+          bindtap="selectAlumniAssociation"
         >
-          <text class="item-name">{{item.merchantName}}</text>
-          <text class="item-check" wx:if="{{selectedMerchantId == item.merchantId}}">✓</text>
+          <text class="item-name">{{item.alumniAssociationName}}</text>
+          <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
         </view>
-        <view class="picker-empty" wx:if="{{merchantList.length === 0}}">
-          <text>暂无商户数据</text>
+        <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">
+          <text>暂无校友会数据</text>
         </view>
       </view>
     </view>

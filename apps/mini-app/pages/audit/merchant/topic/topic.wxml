@@ -4,10 +4,8 @@
   <view class="group_5" wx:if="{{shops.length > 1}}">
     <text class="text_14">话题管理</text>
     <text class="label_text">选择店铺</text>
-    <view class="text-wrapper_8">
-      <picker bindchange="onShopChange" value="{{selectedShopIndex}}" range="{{shops}}" range-key="shopName" disabled="{{shops.length === 0}}" style="flex:1;display:flex;align-items:center;">
-        <text class="text_15">{{selectedShopIndex >= 0 ? shops[selectedShopIndex].shopName : '请选择店铺'}}</text>
-      </picker>
+    <view class="text-wrapper_8" bindtap="showShopPicker">
+      <text class="text_15">{{selectedShopIndex >= 0 ? shops[selectedShopIndex].shopName : '请选择店铺'}}</text>
     </view>
   </view>
 
@@ -109,6 +107,26 @@
       </view>
       </view>
     </scroll-view>
+  </view>
+</view>
+
+<!-- 选择店铺弹窗（与 pages/audit/merchant/shop/shop 商户列表样式一致） -->
+<view class="merchant-picker" wx:if="{{showShopPicker}}">
+  <view class="picker-overlay" bindtap="cancelShopSelect"></view>
+  <view class="shop-picker-sheet">
+    <view class="picker-header">
+      <text class="picker-title">选择店铺</text>
+      <text class="picker-cancel" bindtap="cancelShopSelect">取消</text>
+    </view>
+    <view class="picker-list">
+      <view class="shop-picker-row" wx:for="{{shops}}" wx:key="shopId" data-index="{{index}}" bindtap="selectShop">
+        <text class="shop-picker-name">{{item.shopName}}</text>
+        <text class="shop-picker-check" wx:if="{{selectedShopIndex === index}}">✓</text>
+      </view>
+      <view class="picker-empty" wx:if="{{shops.length === 0}}">
+        <text>暂无店铺数据</text>
+      </view>
+    </view>
   </view>
 </view>
 </custom-nav-bar>

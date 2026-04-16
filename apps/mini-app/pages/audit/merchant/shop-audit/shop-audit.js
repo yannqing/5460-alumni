@@ -1,5 +1,6 @@
 // pages/audit/merchant/shop-audit/shop-audit.js
 const app = getApp()
+const { userApi } = require('../../../../api/api.js')
 
 /** ISO 时间串中的 T 不展示，改为空格分隔日期与时间 */
 function formatReviewTimeDisplay(value) {
@@ -32,6 +33,8 @@ Page({
   data: {
     loading: false,
     shopLoading: false,
+    hasAlumniAdminPermission: false,
+    hasSingleAlumniAssociation: false,
     // 审核列表相关
     approvalList: [],
     total: 0,
@@ -44,14 +47,15 @@ Page({
     filters: {
       shopName: '',
       reviewStatus: '',
+      alumniAssociationId: '',
       merchantId: '',
       shopType: ''
     },
-    // 商户选择相关
-    merchantList: [],
-    showMerchantPicker: false,
-    selectedMerchantId: '',
-    selectedMerchantName: '',
+    // 校友会选择相关
+    alumniAssociationList: [],
+    showAlumniAssociationPicker: false,
+    selectedAlumniAssociationId: '',
+    selectedAlumniAssociationName: '',
     // 拒绝审核弹窗（需填备注）
     showRejectModal: false,
     currentAuditShop: null,
@@ -60,7 +64,7 @@ Page({
   },
 
   onLoad(options) {
-    this.loadMerchants()
+    this.loadAlumniAssociationList()
   },
 
   onReady() {
@@ -132,40 +136,50 @@ Page({
     })
   },
 
-  // 加载商户列表
-  async loadMerchants() {
+  // 加载校友会列表
+  async loadAlumniAssociationList() {
     try {
       this.setData({ loading: true })
-      const { get } = require('../../../../utils/request.js')
-      const res = await get('/merchant-management/my-merchants', {
-        current: 1,
-        size: 100 // 加载足够多的商户数据
-      })
-      
+      const res = await userApi.getManagedOrganizations({ type: 0 })
       if (res.data && res.data.code === 200) {
-        const merchantList = res.data.data.records || []
+        const organizationList = res.data.data || []
+        const alumniAssociationList = organizationList.map((org) => ({
+          alumniAssociationId: String(org.id),
+          alumniAssociationName: org.name || '校友会'
+        }))
         this.setData({
-          merchantList: merchantList
+          alumniAssociationList,
+          hasAlumniAdminPermission: alumniAssociationList.length > 0
         })
-        
-        // 如果没有选中的商户且列表不为空，自动选择第一个商户
-        if (!this.data.selectedMerchantId && merchantList.length > 0) {
-          const firstMerchant = merchantList[0]
-          // 将商户ID转换为字符串，避免大数字精度问题
-          const merchantIdStr = firstMerchant.merchantId + ''
+
+        if (alumniAssociationList.length === 1) {
+          const firstAssociation = alumniAssociationList[0]
           this.setData({
-            selectedMerchantId: merchantIdStr,
-            selectedMerchantName: firstMerchant.merchantName,
-            'filters.merchantId': merchantIdStr
+            hasSingleAlumniAssociation: true,
+            selectedAlumniAssociationId: firstAssociation.alumniAssociationId,
+            selectedAlumniAssociationName: firstAssociation.alumniAssociationName,
+            'filters.alumniAssociationId': firstAssociation.alumniAssociationId
           })
-          // 加载第一个商户的审核列表
           this.loadShopApprovalRecords()
+          return
         }
+
+        this.setData({
+          hasSingleAlumniAssociation: false,
+          selectedAlumniAssociationId: '',
+          selectedAlumniAssociationName: '',
+          'filters.alumniAssociationId': ''
+        })
       }
     } catch (error) {
-      console.error('加载商户列表失败:', error)
+      console.error('加载校友会列表失败:', error)
+      this.setData({
+        alumniAssociationList: [],
+        hasAlumniAdminPermission: false,
+        hasSingleAlumniAssociation: false
+      })
       wx.showToast({
-        title: '加载商户列表失败',
+        title: '加载校友会失败',
         icon: 'none'
       })
     } finally {
@@ -176,6 +190,21 @@ Page({
   // 加载店铺审核列表
   async loadShopApprovalRecords() {
     try {
+      if (
+        this.data.hasAlumniAdminPermission &&
+        !this.data.hasSingleAlumniAssociation &&
+        !this.data.selectedAlumniAssociationId
+      ) {
+        this.setData({
+          approvalList: [],
+          total: 0,
+          current: 1,
+          hasNext: false,
+          hasPrevious: false,
+          pages: 0
+        })
+        return
+      }
       this.setData({ shopLoading: true })
       const { get } = require('../../../../utils/request.js')
       
@@ -289,29 +318,33 @@ Page({
     })
   },
 
-  // 显示商户选择器
-  showMerchantSelector() {
-    this.setData({ showMerchantPicker: true })
+  // 显示校友会选择器
+  showAlumniAssociationSelector() {
+    if (this.data.hasSingleAlumniAssociation || !this.data.hasAlumniAdminPermission) {
+      return
+    }
+    this.setData({ showAlumniAssociationPicker: true })
   },
 
-  // 取消商户选择
-  cancelMerchantSelect() {
-    this.setData({ showMerchantPicker: false })
+  // 取消校友会选择
+  cancelAlumniAssociationSelect() {
+    this.setData({ showAlumniAssociationPicker: false })
   },
 
-  // 选择商户
-  selectMerchant(e) {
-    const merchantId = e.currentTarget.dataset.merchantId
-    const merchantName = e.currentTarget.dataset.merchantName
-    
+  // 选择校友会
+  selectAlumniAssociation(e) {
+    const alumniAssociationId = String(e.currentTarget.dataset.alumniAssociationId || '')
+    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName || ''
+
     this.setData({
-      selectedMerchantId: merchantId,
-      selectedMerchantName: merchantName,
-      showMerchantPicker: false,
-      'filters.merchantId': merchantId
+      selectedAlumniAssociationId: alumniAssociationId,
+      selectedAlumniAssociationName: alumniAssociationName,
+      showAlumniAssociationPicker: false,
+      current: 1,
+      'filters.alumniAssociationId': alumniAssociationId,
+      'filters.merchantId': ''
     })
-    
-    // 根据选中的商户ID加载对应的审核列表
+
     this.loadShopApprovalRecords()
   },
 

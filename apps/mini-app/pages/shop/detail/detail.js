@@ -2,18 +2,74 @@
 const { nearbyApi, merchantApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
-const DEFAULT_AVATAR = config.defaultAvatar
+// 无商户 logo 时与 pages/merchant/list 一致
+const DEFAULT_MERCHANT_LOGO = config.defaultAvatar
+// 无背景轮播图时与 pages/alumni-association/detail 一致
+const DEFAULT_COVER = config.defaultCover
+
+/** 与 merchant/list 的 resolveLogoUrl 一致 */
+function resolveLogoUrl(logo) {
+  if (!logo) return ''
+  const s = String(logo).trim().replace(/[`\s]/g, '')
+  return s ? config.getImageUrl(s) : ''
+}
+
+/** 解析商户 background_image（JSON 数组或已解析数组） */
+function parseBackgroundImageList(backgroundImage) {
+  if (!backgroundImage) return []
+  if (Array.isArray(backgroundImage)) {
+    return backgroundImage.map((x) => String(x).trim()).filter(Boolean)
+  }
+  if (typeof backgroundImage === 'string') {
+    const s = backgroundImage.trim()
+    if (!s) return []
+    try {
+      const parsed = JSON.parse(s)
+      return Array.isArray(parsed) ? parsed.map((x) => String(x).trim()).filter(Boolean) : []
+    } catch (e) {
+      return []
+    }
+  }
+  return []
+}
+
+function dedupeImageUrls(urls) {
+  const seen = new Set()
+  const out = []
+  for (const u of urls) {
+    if (u && !seen.has(u)) {
+      seen.add(u)
+      out.push(u)
+    }
+  }
+  return out
+}
+
+/** 从第一家门店取门店图（完整 URL） */
+function collectShopGalleryImages(merchantData) {
+  const gallery = []
+  if (!merchantData.shops || merchantData.shops.length === 0) return gallery
+  const firstShop = merchantData.shops[0]
+  if (!firstShop.shopImages) return gallery
+  if (Array.isArray(firstShop.shopImages) && firstShop.shopImages.length > 0) {
+    firstShop.shopImages.forEach((img) => {
+      const u = config.getImageUrl(String(img).trim())
+      if (u) gallery.push(u)
+    })
+  } else if (typeof firstShop.shopImages === 'string') {
+    const u = config.getImageUrl(firstShop.shopImages.trim())
+    if (u) gallery.push(u)
+  }
+  return gallery
+}
 
 Page({
   data: {
     shopId: '',
     shopInfo: null,
     loading: true,
-    defaultAvatar: DEFAULT_AVATAR,
-    // 图标路径
-    iconLocation: config.getIconUrl('position.png'),
-    iconPhone: config.getIconUrl('电话.png'),
-    iconTime: config.getIconUrl('时间.png')
+    defaultAvatar: DEFAULT_MERCHANT_LOGO,
+    iconLocation: config.getIconUrl('position.png')
   },
 
   onLoad(options) {
@@ -33,25 +89,21 @@ Page({
 
       if (res.data && res.data.code === 200 && res.data.data) {
         const merchantData = res.data.data
-        
-        // 处理图片 - 从第一个门店获取图片
-        let avatar = config.defaultAvatar
-        let gallery = []
-        if (merchantData.shops && merchantData.shops.length > 0) {
-          const firstShop = merchantData.shops[0]
-          if (firstShop.shopImages) {
-            if (Array.isArray(firstShop.shopImages) && firstShop.shopImages.length > 0) {
-              avatar = config.getImageUrl(firstShop.shopImages[0])
-              gallery = firstShop.shopImages.map(img => config.getImageUrl(img))
-            } else if (typeof firstShop.shopImages === 'string') {
-              avatar = config.getImageUrl(firstShop.shopImages)
-              gallery = [avatar]
-            }
-          }
+
+        const shopGallery = collectShopGalleryImages(merchantData)
+        const bgList = parseBackgroundImageList(merchantData.backgroundImage)
+        let gallery = dedupeImageUrls(
+          bgList.map((p) => config.getImageUrl(String(p).trim())).filter(Boolean)
+        )
+        if (gallery.length === 0) {
+          gallery = dedupeImageUrls([...shopGallery])
         }
         if (gallery.length === 0) {
-          gallery = [avatar]
+          gallery = [DEFAULT_COVER]
         }
+
+        // 无 logo 时仅用默认头像，与 merchant/list 一致（不用门店图顶替）
+        const avatar = resolveLogoUrl(merchantData.logo) || DEFAULT_MERCHANT_LOGO
 
         // 处理地址信息 - 从第一个门店获取地址
         let location = ''
@@ -77,6 +129,7 @@ Page({
           id: this.data.shopId,
           name: merchantData.merchantName || '未知商户',
           avatar: avatar,
+          logo: avatar,
           category: merchantData.businessCategory || '其他',
           location: location,
           distance: '0m', // 新接口未提供距离信息
@@ -170,34 +223,6 @@ Page({
         console.error('跳转失败:', err)
         wx.showToast({
           title: '跳转失败',
-          icon: 'none'
-        })
-      }
-    })
-  },
-
-  // 一键导航
-  openLocation() {
-    const { shopInfo } = this.data
-    if (!shopInfo || !shopInfo.location) {
-      wx.showToast({
-        title: '地址信息不完整',
-        icon: 'none'
-      })
-      return
-    }
-
-    wx.openLocation({
-      latitude: shopInfo.latitude || 31.2304, // 默认上海坐标，实际应从后端获取
-      longitude: shopInfo.longitude || 121.4737,
-      name: shopInfo.name,
-      address: shopInfo.location,
-      success: () => {
-        console.log('打开地图成功')
-      },
-      fail: () => {
-        wx.showToast({
-          title: '打开地图失败',
           icon: 'none'
         })
       }

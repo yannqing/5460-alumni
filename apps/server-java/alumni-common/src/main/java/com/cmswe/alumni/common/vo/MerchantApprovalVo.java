@@ -71,6 +71,12 @@ public class MerchantApprovalVo implements Serializable {
     @Schema(description = "经营类目")
     private String businessCategory;
 
+    @Schema(description = "商家logo")
+    private String logo;
+
+    @Schema(description = "商家背景图（JSON）")
+    private String backgroundImage;
+
     @Schema(description = "法人身份证号（脱敏或密文，按存储策略）")
     private String legalPersonId;
 

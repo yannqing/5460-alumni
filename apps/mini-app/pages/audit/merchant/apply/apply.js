@@ -1,6 +1,7 @@
 // pages/audit/merchant/apply/apply.js
 const app = getApp()
 const request = require('../../../../utils/request.js')
+const { userApi } = require('../../../../api/api.js')
 
 Page({
   data: {
@@ -11,13 +12,20 @@ Page({
     hasMore: true,
     pageNum: 1,
     pageSize: 10,
+    alumniAssociationList: [],
+    selectedAlumniAssociationId: '',
+    selectedAlumniAssociationName: '',
+    showAlumniAssociationPicker: false,
+    hasSingleAlumniAssociation: false,
+    hasAlumniAdminPermission: false,
+    initialized: false,
     isRejectModalVisible: false,
     currentRejectId: '',
     rejectReason: ''
   },
 
   onLoad(options) {
-    this.loadApplyList()
+    this.initPage()
   },
 
   loadMore() {
@@ -28,16 +36,12 @@ Page({
   },
 
   onShow() {
-    this.loadApplyList()
+    if (!this.data.initialized) {return}
+    this.reloadApplyList()
   },
 
   onPullDownRefresh() {
-    this.setData({
-      pageNum: 1,
-      applyList: [],
-      hasMore: true
-    })
-    this.loadApplyList()
+    this.reloadApplyList()
     wx.stopPullDownRefresh()
   },
 
@@ -61,8 +65,100 @@ Page({
     this.loadApplyList()
   },
 
+  async initPage() {
+    await this.loadAlumniAssociationList()
+    this.setData({ initialized: true })
+  },
+
+  async loadAlumniAssociationList() {
+    try {
+      const res = await userApi.getManagedOrganizations({ type: 0 })
+      if (!(res.data && res.data.code === 200)) {
+        this.setData({
+          alumniAssociationList: [],
+          hasAlumniAdminPermission: false,
+          hasSingleAlumniAssociation: false
+        })
+        return
+      }
+
+      const organizationList = res.data.data || []
+      const alumniAssociationList = organizationList.map(org => ({
+        alumniAssociationId: org.id,
+        alumniAssociationName: org.name || '校友会'
+      }))
+
+      this.setData({
+        alumniAssociationList,
+        hasAlumniAdminPermission: alumniAssociationList.length > 0
+      })
+
+      if (alumniAssociationList.length === 1) {
+        const singleAlumni = alumniAssociationList[0]
+        this.setData({
+        selectedAlumniAssociationId: String(singleAlumni.alumniAssociationId),
+          selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
+          hasSingleAlumniAssociation: true
+        })
+        this.reloadApplyList()
+        return
+      }
+
+      this.setData({
+        hasSingleAlumniAssociation: false,
+        selectedAlumniAssociationId: '',
+        selectedAlumniAssociationName: ''
+      })
+    } catch (error) {
+      console.error('加载校友会列表失败:', error)
+      this.setData({
+        alumniAssociationList: [],
+        hasAlumniAdminPermission: false,
+        hasSingleAlumniAssociation: false
+      })
+    }
+  },
+
+  showAlumniAssociationSelector() {
+    if (this.data.hasSingleAlumniAssociation || !this.data.hasAlumniAdminPermission) {return}
+    this.setData({ showAlumniAssociationPicker: true })
+  },
+
+  cancelAlumniAssociationSelect() {
+    this.setData({ showAlumniAssociationPicker: false })
+  },
+
+  selectAlumniAssociation(e) {
+    const alumniAssociationId = String(e.currentTarget.dataset.alumniAssociationId || '')
+    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName || ''
+
+    this.setData({
+      selectedAlumniAssociationId: alumniAssociationId,
+      selectedAlumniAssociationName: alumniAssociationName,
+      showAlumniAssociationPicker: false
+    })
+
+    this.reloadApplyList()
+  },
+
+  reloadApplyList() {
+    this.setData({
+      pageNum: 1,
+      applyList: [],
+      hasMore: true
+    })
+    this.loadApplyList()
+  },
+
   async loadApplyList() {
     if (this.data.loading) {return}
+    if (
+      this.data.hasAlumniAdminPermission &&
+      !this.data.hasSingleAlumniAssociation &&
+      !this.data.selectedAlumniAssociationId
+    ) {
+      return
+    }
     
     this.setData({ loading: true })
     
@@ -81,6 +177,10 @@ Page({
       const params = {
         current: this.data.pageNum,
         pageSize: this.data.pageSize
+      }
+
+      if (this.data.selectedAlumniAssociationId) {
+        params.alumniAssociationId = this.data.selectedAlumniAssociationId
       }
       
       if (reviewStatus !== '') {
@@ -123,7 +223,7 @@ Page({
             applicantName: item.legalPerson,
             status: status,
             statusText: statusText,
-            submitTime: item.createTime,
+            submitTime: this.formatDisplayTime(item.createTime),
             reviewStatus: item.reviewStatus,
             merchantType: item.merchantType === 1 ? '校友商铺' : '普通商铺',
             reviewReason: item.reviewReason
@@ -154,6 +254,11 @@ Page({
       })
       this.setData({ loading: false })
     }
+  },
+
+  formatDisplayTime(timeStr) {
+    if (!timeStr) {return ''}
+    return String(timeStr).replace('T', ' ')
   },
 
   viewDetail(e) {

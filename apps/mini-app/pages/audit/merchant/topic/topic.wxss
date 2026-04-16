@@ -916,3 +916,85 @@
 .modal-content {
   padding: 30rpx;
 }
+
+/* 选择店铺底部弹窗（与 pages/audit/merchant/shop/shop 一致） */
+.merchant-picker {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
+}
+
+.merchant-picker .picker-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.merchant-picker .shop-picker-sheet {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.merchant-picker .picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #E5E5E5;
+  background-color: #FAFAFA;
+}
+
+.merchant-picker .picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.merchant-picker .picker-cancel {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.merchant-picker .picker-cancel:active {
+  color: #333;
+}
+
+.merchant-picker .picker-list {
+  max-height: calc(80vh - 88rpx + 40px);
+  overflow-y: auto;
+  padding: 16rpx 0;
+}
+
+.merchant-picker .shop-picker-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  font-size: 28rpx;
+  color: #333;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.merchant-picker .shop-picker-row:active {
+  background-color: #F5F5F5;
+}
+
+.merchant-picker .shop-picker-name {
+  flex: 1;
+}
+
+.merchant-picker .shop-picker-check {
+  color: #1AAD19;
+  font-weight: bold;
+}
+
+.merchant-picker .picker-empty {
+  padding: 40rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+}

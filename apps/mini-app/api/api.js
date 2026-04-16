@@ -234,6 +234,8 @@ const merchantApi = {
   getShopDetail: shopId => get(`/merchant/shop/${shopId}`),
   // 获取我的商户列表
   getMyMerchants: params => get('/merchant-management/my-merchants', params),
+  // 商户管理员更新商户基本信息（部分字段更新）
+  updateMerchantInfo: data => put('/merchant-management/merchant/info', data),
 }
 
 // ==================== 商铺相关接口 ====================

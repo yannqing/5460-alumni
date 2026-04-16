@@ -7,6 +7,7 @@ Page({
     showMerchantPicker: false,
     selectedMerchantId: '',
     selectedMerchantName: '',
+    showMerchantSelector: false,
     // 店铺列表相关
     shopList: [],
     shopLoading: false,
@@ -45,9 +46,12 @@ Page({
       })
 
       if (res.data && res.data.code === 200) {
-        const merchantList = res.data.data.records || []
+        const records = res.data.data.records || []
+        const merchantList = Array.isArray(records) ? records : []
+        const showMerchantSelector = merchantList.length > 1
         this.setData({
           merchantList: merchantList,
+          showMerchantSelector: showMerchantSelector,
         })
 
         const { selectedMerchantId } = this.data
@@ -60,7 +64,28 @@ Page({
           })
           this.loadShopList(merchantIdStr)
         } else if (selectedMerchantId) {
-          this.loadShopList(selectedMerchantId)
+          const selectedExist = merchantList.some(
+            item => item && String(item.merchantId) === String(selectedMerchantId)
+          )
+          if (selectedExist) {
+            this.loadShopList(selectedMerchantId)
+          } else if (merchantList.length > 0) {
+            const firstMerchant = merchantList[0]
+            const merchantIdStr = firstMerchant.merchantId + ''
+            this.setData({
+              selectedMerchantId: merchantIdStr,
+              selectedMerchantName: firstMerchant.merchantName,
+            })
+            this.loadShopList(merchantIdStr)
+          } else {
+            this.setData({
+              selectedMerchantId: '',
+              selectedMerchantName: '',
+              shopList: [],
+            })
+          }
+        } else {
+          this.setData({ shopList: [] })
         }
       }
     } catch (error) {

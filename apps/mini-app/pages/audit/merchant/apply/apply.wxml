@@ -1,6 +1,14 @@
 <!--pages/audit/merchant/apply/apply.wxml-->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商户审核">
 <view class="page">
+  <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <text class="text_14">商户审核</text>
+    <text class="label_text">选择校友会</text>
+    <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
+      <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+    </view>
+  </view>
+
   <view class="group_7">
     <view class="list-header">
       <text class="text_20">商户申请</text>
@@ -22,7 +30,7 @@
         <text>加载中...</text>
       </view>
       <view class="empty-block" wx:elif="{{!loading && applyList.length === 0}}">
-        <text class="empty-text">暂无商户申请数据</text>
+        <text class="empty-text">{{selectedAlumniAssociationId ? '暂无商户申请数据' : '请先选择校友会'}}</text>
       </view>
       <view class="apply-list" wx:else>
         <view
@@ -62,6 +70,32 @@
         <text>加载更多</text>
       </view>
     </scroll-view>
+  </view>
+
+  <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
+    <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校友会</text>
+        <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
+      </view>
+      <view class="picker-list">
+        <view
+          class="picker-item"
+          wx:for="{{alumniAssociationList}}"
+          wx:key="alumniAssociationId"
+          data-alumni-association-id="{{item.alumniAssociationId}}"
+          data-alumni-association-name="{{item.alumniAssociationName}}"
+          bindtap="selectAlumniAssociation"
+        >
+          <text class="item-name">{{item.alumniAssociationName}}</text>
+          <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">
+          <text>暂无校友会数据</text>
+        </view>
+      </view>
+    </view>
   </view>
 </view>
 </custom-nav-bar>

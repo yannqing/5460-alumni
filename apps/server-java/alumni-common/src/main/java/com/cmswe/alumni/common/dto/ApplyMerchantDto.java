@@ -95,6 +95,19 @@ public class ApplyMerchantDto implements Serializable {
     private String businessCategory;
 
     /**
+     * 商家logo
+     */
+    @Size(max = 1024, message = "商家logo长度不能超过1024个字符")
+    @Schema(description = "商家logo", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String logo;
+
+    /**
+     * 商家背景图（JSON字符串）
+     */
+    @Schema(description = "商家背景图（JSON字符串）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String backgroundImage;
+
+    /**
      * 关联校友会ID（校友商铺时必填）
      */
     @Schema(description = "关联校友会ID（校友商铺时必填）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

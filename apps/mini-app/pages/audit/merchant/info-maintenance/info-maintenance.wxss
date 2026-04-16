@@ -1,0 +1,382 @@
+/* pages/audit/merchant/info-maintenance/info-maintenance.wxss */
+/* 与 pages/audit/merchant/shop/shop 一致：.page + group_5 + 商户选择器 */
+.page {
+  background-color: transparent;
+  position: relative;
+  width: 750rpx;
+  min-height: calc(100vh - 190.22rpx);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page .group_5 {
+  width: 714rpx;
+  min-height: auto;
+  margin: 47rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  flex-shrink: 0;
+}
+
+.group_5 {
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.group_5 .text_14 {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: rgba(0,0,0,1);
+  line-height: 40rpx;
+}
+
+.group_5 .label_text {
+  font-size: 25rpx;
+  color: rgba(0,0,0,0.6);
+  line-height: 36rpx;
+  margin-top: 16rpx;
+  display: block;
+}
+
+.group_5 .text-wrapper_8 {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+
+.group_5 .text_15 {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(0,0,0,0.85);
+  line-height: 36rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group_5 .text-wrapper_8::after {
+  content: '▼';
+  color: #999;
+  font-size: 20rpx;
+  margin-left: 10rpx;
+}
+
+.merchant-picker {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
+}
+
+.merchant-picker .picker-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.merchant-picker .picker-content {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #E5E5E5;
+  background-color: #FAFAFA;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.picker-cancel {
+  font-size: 28rpx;
+  color: #666;
+  cursor: pointer;
+}
+
+.picker-cancel:active {
+  color: #333;
+}
+
+.picker-list {
+  max-height: calc(80vh - 88rpx + 40px);
+  overflow-y: auto;
+  padding: 16rpx 0;
+}
+
+.picker-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  font-size: 28rpx;
+  color: #333;
+  cursor: pointer;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.picker-item:active {
+  background-color: #F5F5F5;
+}
+
+.item-name {
+  flex: 1;
+}
+
+.item-check {
+  color: #1AAD19;
+  font-weight: bold;
+}
+
+.picker-empty {
+  padding: 40rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 商家详情卡片（对齐 pages/info-maintenance/index/index） */
+.group_7 {
+  width: 714rpx;
+  flex-shrink: 0;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  margin: 34rpx 0 20rpx 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.edit-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  background-color: #1890ff;
+  color: #fff;
+  padding: 12rpx 28rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  min-width: 120rpx;
+  line-height: 1.4;
+  border: none;
+}
+
+.edit-button::after {
+  border: none;
+}
+
+.edit-button-hover {
+  opacity: 0.88;
+}
+
+.group_7 .text_20 {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1);
+  line-height: 40rpx;
+}
+
+.detail-loading {
+  padding: 40rpx 0;
+  text-align: center;
+}
+
+.detail-loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.merchant-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.logo-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  object-fit: cover;
+}
+
+.merchant-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  font-size: 28rpx;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-item-profile {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.detail-label {
+  color: #666;
+  flex: 1;
+}
+
+.detail-value {
+  color: #333;
+  flex: 2;
+  text-align: right;
+}
+
+/* 身份证号：完整换行展示，避免被截断或异常断行 */
+.detail-value-idcard {
+  word-break: break-all;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-value-profile {
+  text-align: left;
+  width: 100%;
+  margin-top: 12rpx;
+  line-height: 1.6;
+  color: #333;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+/* 统一社会信用代码：左侧文案与右侧值均单行不换行 */
+.detail-item-credit-code .detail-label-nowrap {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  margin-right: 16rpx;
+}
+
+.detail-item-credit-code .detail-value-nowrap {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 统一社会信用代码、经营范围：单行展示不换行，过长省略 */
+.detail-value-nowrap {
+  flex: 2;
+  min-width: 0;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail-section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1890ff;
+  padding: 24rpx 0 8rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+  margin-top: 8rpx;
+}
+
+.license-block {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.license-label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.license-image {
+  width: 100%;
+  border-radius: 12rpx;
+  background-color: #f5f5f5;
+}
+
+.shop-row {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.shop-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.shop-meta {
+  font-size: 24rpx;
+  color: #1890ff;
+}
+
+.shop-addr {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.5;
+}
+
+.detail-empty {
+  padding: 40rpx 0;
+  text-align: center;
+}
+
+.detail-empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.empty-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60rpx 20rpx;
+  flex: 1;
+}
+
+.empty-text {
+  color: #999;
+  font-size: 28rpx;
+  text-align: center;
+}

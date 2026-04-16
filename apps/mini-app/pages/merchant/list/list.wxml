@@ -57,8 +57,8 @@
   <!-- 商铺列表 -->
   <view class="merchant-list">
     <view class="merchant-card" wx:for="{{merchantList}}" wx:key="merchantId" bindtap="viewDetail" data-id="{{item.merchantId}}">
-      <!-- 头部：商铺名称和会员等级 -->
       <view class="card-header">
+        <image class="card-logo" src="{{item.logoUrl}}" mode="aspectFill" />
         <view class="card-info">
           <view class="card-title-row">
             <text class="card-title">{{item.merchantName}}</text>
@@ -69,27 +69,13 @@
               <view wx:if="{{item.isAlumniCertified === 1}}" class="cert-badge">✓ 校友认证</view>
             </view>
           </view>
-
-          <!-- 业务类别 -->
           <view class="card-subtitle" wx:if="{{item.businessCategory}}">
             <image class="subtitle-icon" src="{{iconCategory}}" mode="aspectFit" />
             <text>{{item.businessCategory}}</text>
           </view>
-
-          <!-- 评分信息 -->
-          <view class="card-rating" wx:if="{{item.ratingScore > 0}}">
-            <image class="rating-icon" src="{{iconStar}}" mode="aspectFit" />
-            <text class="rating-score">{{item.ratingScore}}</text>
-            <text class="rating-count">({{item.ratingCount}}条评价)</text>
-          </view>
-
-          <!-- 商铺数量 -->
-          <view class="card-stats">
-            <view class="stat-item">
-              <text class="stat-label">门店：</text>
-              <text class="stat-value">{{item.shopCount}}家</text>
-            </view>
-            
+          <view class="card-meta-line">
+            <text class="meta-label">门店：</text>
+            <text class="meta-value">{{item.shopCount}}家</text>
           </view>
         </view>
       </view>

@@ -49,7 +49,8 @@ Page({
       displayName: '',
       shopId: '',
       shopName: '',
-      position: ''
+      position: '',
+      setAsShopAdmin: false
     },
     /** 店铺选择器当前服务于「新增」或「编辑」 */
     shopPickerContext: 'add',
@@ -60,7 +61,9 @@ Page({
       wxId: '',
       shopId: '',
       shopName: '',
-      position: ''
+      position: '',
+      /** 是否同时设为所选门店的系统管理员（传 setAsShopAdmin 给后端） */
+      setAsShopAdmin: false
     },
     // 新增成员弹窗内：当前商户下的店铺列表（GET /shop/list/{merchantId}）
     addShopList: [],
@@ -290,7 +293,8 @@ Page({
         wxId: '',
         shopId: '',
         shopName: '',
-        position: ''
+        position: '',
+        setAsShopAdmin: false
       },
       alumniSearchResults: [],
       showAlumniSearchResults: false,
@@ -372,9 +376,20 @@ Page({
       this.setData({
         'addForm.shopId': sid,
         'addForm.shopName': name,
+        'addForm.setAsShopAdmin': sid ? this.data.addForm.setAsShopAdmin : false,
         showShopPicker: false
       })
     }
+  },
+
+  onAddSetAsShopAdminChange(e) {
+    const v = !!(e.detail && e.detail.value)
+    if (v && !String(this.data.addForm.shopId || '').trim()) {
+      wx.showToast({ title: '请先选择店铺', icon: 'none' })
+      this.setData({ 'addForm.setAsShopAdmin': false })
+      return
+    }
+    this.setData({ 'addForm.setAsShopAdmin': v })
   },
 
   // 隐藏新增成员弹窗
@@ -466,7 +481,8 @@ Page({
         displayName,
         shopId: shopIdStr,
         shopName,
-        position: selected.position != null ? String(selected.position) : ''
+        position: selected.position != null ? String(selected.position) : '',
+        setAsShopAdmin: !!selected.isShopAdmin
       }
     })
     const mid = this.data.selectedMerchantId
@@ -482,6 +498,16 @@ Page({
   /** 原生 input 上 data-* 在 bindinput 里往往取不到 dataset，勿用通用 data-field 写法 */
   onEditPositionInput(e) {
     this.setData({ 'editForm.position': e.detail.value })
+  },
+
+  onEditSetAsShopAdminChange(e) {
+    const v = !!(e.detail && e.detail.value)
+    if (v && !String(this.data.editForm.shopId || '').trim()) {
+      wx.showToast({ title: '请先选择店铺', icon: 'none' })
+      this.setData({ 'editForm.setAsShopAdmin': false })
+      return
+    }
+    this.setData({ 'editForm.setAsShopAdmin': v })
   },
 
   async submitEditMember() {
@@ -507,9 +533,14 @@ Page({
       const payload = {
         merchantId: String(selectedMerchantId).trim(),
         wxId: wxIdStr,
-        position: pos
+        position: pos,
+        setAsShopAdmin: !!editForm.setAsShopAdmin
       }
       const shopIdStr = String(editForm.shopId || '').trim()
+      if (editForm.setAsShopAdmin && (!shopIdStr || !/^\d+$/.test(shopIdStr))) {
+        wx.showToast({ title: '设为门店管理员时需选择店铺', icon: 'none' })
+        return
+      }
       if (shopIdStr && /^\d+$/.test(shopIdStr)) {
         payload.shopId = shopIdStr
       }
@@ -578,6 +609,13 @@ Page({
       const { post } = require('../../../../utils/request.js')
       const merchantIdStr = String(selectedMerchantId).trim()
       const shopIdStr = String(addForm.shopId || '').trim()
+      if (addForm.setAsShopAdmin && (!shopIdStr || !/^\d+$/.test(shopIdStr))) {
+        wx.showToast({
+          title: '设为门店管理员时需选择店铺',
+          icon: 'none'
+        })
+        return
+      }
       const payload = {
         merchantId: merchantIdStr,
         wxId: wxIdStr,
@@ -585,6 +623,9 @@ Page({
       }
       if (shopIdStr && /^\d+$/.test(shopIdStr)) {
         payload.shopId = shopIdStr
+      }
+      if (addForm.setAsShopAdmin) {
+        payload.setAsShopAdmin = true
       }
 
       const res = await post('/merchant/member/add', payload)

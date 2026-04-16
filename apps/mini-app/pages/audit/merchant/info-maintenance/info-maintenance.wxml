@@ -1,0 +1,134 @@
+<!-- pages/audit/merchant/info-maintenance/info-maintenance.wxml -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="信息维护">
+<view class="page">
+  <view class="group_5" wx:if="{{showMerchantSelector}}">
+    <text class="text_14">信息维护</text>
+    <text class="label_text">选择商家</text>
+    <view class="text-wrapper_8" bindtap="showMerchantSelector">
+      <text class="text_15">{{selectedMerchantName || '请选择商家'}}</text>
+    </view>
+  </view>
+
+  <view class="group_7" wx:if="{{selectedMerchantId}}">
+    <view class="detail-header">
+      <text class="text_20">商家详情</text>
+      <button
+        class="edit-button"
+        wx:if="{{currentMerchantDetail && !detailLoading}}"
+        bindtap="goToEditPage"
+        hover-class="edit-button-hover"
+      >编辑</button>
+    </view>
+    <view class="detail-loading" wx:if="{{detailLoading}}">
+      <text class="detail-loading-text">加载中...</text>
+    </view>
+    <block wx:elif="{{currentMerchantDetail}}">
+      <view class="merchant-logo" wx:if="{{currentMerchantDetail.logoUrl}}">
+        <image class="logo-image" src="{{currentMerchantDetail.logoUrl}}" mode="aspectFill"></image>
+      </view>
+      <view class="merchant-detail">
+        <view class="detail-item">
+          <text class="detail-label">商家名称</text>
+          <text class="detail-value">{{currentMerchantDetail.merchantName || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">商家类型</text>
+          <text class="detail-value">{{currentMerchantDetail.merchantTypeText}}</text>
+        </view>
+        <view class="detail-item detail-item-credit-code" wx:if="{{currentMerchantDetail.unifiedSocialCreditCode}}">
+          <text class="detail-label detail-label-nowrap">统一社会信用代码</text>
+          <text class="detail-value detail-value-nowrap">{{currentMerchantDetail.unifiedSocialCreditCode}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">法人姓名</text>
+          <text class="detail-value">{{currentMerchantDetail.legalPerson || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">法人身份证号</text>
+          <text class="detail-value detail-value-idcard">{{currentMerchantDetail.legalPersonId || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">联系电话</text>
+          <text class="detail-value">{{currentMerchantDetail.contactPhone || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">联系邮箱</text>
+          <text class="detail-value">{{currentMerchantDetail.contactEmail || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">经营范围</text>
+          <text class="detail-value detail-value-nowrap">{{currentMerchantDetail.businessScope || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">经营类目</text>
+          <text class="detail-value">{{currentMerchantDetail.businessCategory || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">审核状态</text>
+          <text class="detail-value">{{currentMerchantDetail.reviewStatusText}}</text>
+        </view>
+        <view class="detail-item" wx:if="{{currentMerchantDetail.reviewReason}}">
+          <text class="detail-label">审核说明</text>
+          <text class="detail-value detail-value-profile">{{currentMerchantDetail.reviewReason}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">账号状态</text>
+          <text class="detail-value">{{currentMerchantDetail.statusText}}</text>
+        </view>
+        <view class="detail-item" wx:if="{{currentMerchantDetail.tierExpireTimeText}}">
+          <text class="detail-label">等级到期时间</text>
+          <text class="detail-value">{{currentMerchantDetail.tierExpireTimeText}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">门店数量</text>
+          <text class="detail-value">{{currentMerchantDetail.shopCount != null ? currentMerchantDetail.shopCount : '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">校友认证</text>
+          <text class="detail-value">{{currentMerchantDetail.isAlumniCertifiedText}}</text>
+        </view>
+        <view class="detail-item" wx:if="{{currentMerchantDetail.alumniAssociation}}">
+          <text class="detail-label">关联校友会</text>
+          <text class="detail-value">{{currentMerchantDetail.alumniAssociation.associationName || '—'}}</text>
+        </view>
+        <view class="license-block" wx:if="{{currentMerchantDetail.businessLicenseUrl}}">
+          <text class="detail-label license-label">营业执照</text>
+          <image class="license-image" src="{{currentMerchantDetail.businessLicenseUrl}}" mode="widthFix"></image>
+        </view>
+        <view class="detail-section-title" wx:if="{{currentMerchantDetail.shops && currentMerchantDetail.shops.length}}">门店列表</view>
+        <view class="shop-row" wx:for="{{currentMerchantDetail.shops}}" wx:key="shopId">
+          <text class="shop-name">{{item.shopName || '门店'}}</text>
+          <text class="shop-meta" wx:if="{{item.shopTypeText}}">{{item.shopTypeText}}</text>
+          <text class="shop-addr" wx:if="{{item.addressLine}}">{{item.addressLine}}</text>
+        </view>
+      </view>
+    </block>
+    <view class="detail-empty" wx:elif="{{!detailLoading}}">
+      <text class="detail-empty-text">暂无详情数据</text>
+    </view>
+  </view>
+
+  <view class="empty-block" wx:if="{{merchantList.length === 0 && !loading}}">
+    <text class="empty-text">暂无商户数据</text>
+  </view>
+</view>
+
+<view class="merchant-picker" wx:if="{{showMerchantPicker}}">
+  <view class="picker-overlay" bindtap="cancelMerchantSelect"></view>
+  <view class="picker-content">
+    <view class="picker-header">
+      <text class="picker-title">选择商户</text>
+      <text class="picker-cancel" bindtap="cancelMerchantSelect">取消</text>
+    </view>
+    <view class="picker-list">
+      <view class="picker-item" wx:for="{{merchantList}}" wx:key="merchantId" data-merchant-id="{{item.merchantId + ''}}" data-merchant-name="{{item.merchantName}}" bindtap="selectMerchant">
+        <text class="item-name">{{item.merchantName}}</text>
+        <text class="item-check" wx:if="{{selectedMerchantId == item.merchantId + ''}}">✓</text>
+      </view>
+      <view class="picker-empty" wx:if="{{merchantList.length === 0}}">
+        <text>暂无商户数据</text>
+      </view>
+    </view>
+  </view>
+</view>
+</custom-nav-bar>

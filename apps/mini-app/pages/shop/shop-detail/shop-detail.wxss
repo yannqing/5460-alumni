@@ -73,13 +73,34 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16rpx;
-  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.shop-name-left {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  min-width: 0;
+  flex: 1;
+}
+
+.shop-logo {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 14rpx;
+  flex-shrink: 0;
+  background-color: #f2f2f2;
+  border: 1rpx solid #f0f0f0;
 }
 
 .shop-name {
   font-size: 36rpx;
   font-weight: 600;
   color: #1f1f1f;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .shop-item-type {
@@ -88,6 +109,7 @@
   padding: 4rpx 16rpx;
   border: 1rpx solid #40B2E6;
   border-radius: 12rpx;
+  flex-shrink: 0;
 }
 
 .shop-rating-row {

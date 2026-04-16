@@ -34,6 +34,9 @@ public class QueryShopApprovalDto extends PageRequest implements Serializable {
     @Schema(description = "商户ID", example = "123456789")
     private Long merchantId;
 
+    @Schema(description = "校友会ID（仅返回该校友会下商户的店铺）", example = "10001")
+    private Long alumniAssociationId;
+
     @Schema(description = "店铺类型：1-总店 2-分店", example = "1")
     private Integer shopType;
 }

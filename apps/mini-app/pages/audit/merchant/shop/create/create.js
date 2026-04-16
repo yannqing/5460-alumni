@@ -50,7 +50,9 @@ Page({
         size: 100,
       })
       if (res.data && res.data.code === 200) {
-        const merchantList = res.data.data.records || []
+        const records = res.data.data.records || []
+        // 双重兜底：前端仅展示审核通过且启用的商户
+        const merchantList = records.filter(item => item && item.reviewStatus === 1 && item.status === 1)
         this.setData({ merchantList })
         if (!this.data.selectedMerchantId && merchantList.length > 0) {
           const firstMerchant = merchantList[0]

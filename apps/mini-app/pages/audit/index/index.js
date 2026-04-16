@@ -196,7 +196,8 @@ Page({
         name: '信息维护',
         code: 'MERCHANT_ASSOCIATION_INFORMATION',
         icon: config.getIconUrl('xyhsh@3x.png'),
-        iconType: 'image'
+        iconType: 'image',
+        url: '/pages/audit/merchant/info-maintenance/info-maintenance'
       }
     ],
     // 实际渲染用的数据
@@ -408,10 +409,13 @@ Page({
     const filteredMerchantFunctions =
       hasSuperAdmin || hasMerchantAdmin || hasShopAdmin || merchantFromApi
         ? this.data._allMerchantFunctions.filter(item => {
-            if (item.name === '信息维护') {
-              return this.hasPermission('MERCHANT_ASSOCIATION_INFORMATION')
-            }
-            return true
+            if (item.name === '店铺管理') return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
+            if (item.name === '成员管理') return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
+            if (item.name === '优惠券管理') return this.hasPermission('MERCHANT_COUPON_MANAGEMENT')
+            if (item.name === '核销优惠券') return this.hasPermission('MERCHANT_DEAL_COUPON')
+            if (item.name === '话题管理') return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT')
+            if (item.name === '信息维护') return this.hasPermission('MERCHANT_ASSOCIATION_INFORMATION')
+            return false
           })
         : []
     showMerchantFunctions = filteredMerchantFunctions.length > 0

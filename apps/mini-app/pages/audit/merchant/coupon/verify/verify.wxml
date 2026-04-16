@@ -9,26 +9,35 @@
         <text wx:if="{{selectedShop}}">{{selectedShop.shopName || '未选择'}}</text>
         <text wx:else class="placeholder-text">请选择门店</text>
       </view>
-      <view class="shop-selector-arrow">{{showShopSelector ? '▲' : '▼'}}</view>
+      <view class="shop-selector-arrow">▼</view>
     </view>
-    
-    <!-- 门店列表 -->
-    <view wx:if="{{showShopSelector}}" class="shop-list-dropdown">
-      <view 
-        class="shop-item {{selectedShop && selectedShop.shopId === item.shopId ? 'selected' : ''}}"
-        wx:for="{{shopList}}" 
-        wx:key="shopId"
-        bindtap="onSelectShop"
-        data-shopid="{{item.shopId}}"
-      >
-        <view class="shop-item-info">
-          <view class="shop-item-name">{{item.shopName || '未命名门店'}}</view>
-          <view class="shop-item-address" wx:if="{{item.address}}">{{item.address}}</view>
-        </view>
-        <view wx:if="{{selectedShop && selectedShop.shopId === item.shopId}}" class="shop-item-check">✓</view>
+  </view>
+
+  <!-- 门店选择器弹窗 -->
+  <view class="shop-picker" wx:if="{{showShopSelector}}">
+    <view class="picker-overlay" bindtap="cancelShopSelector"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择门店</text>
+        <text class="picker-cancel" bindtap="cancelShopSelector">取消</text>
       </view>
-      <view wx:if="{{shopList.length === 0 && !loadingShops}}" class="shop-empty">
-        <text>暂无可用门店</text>
+      <view class="picker-list">
+        <view
+          class="picker-item"
+          wx:for="{{shopList}}"
+          wx:key="shopId"
+          bindtap="onSelectShop"
+          data-shopid="{{item.shopId}}"
+        >
+          <view class="picker-item-main">
+            <text class="item-name">{{item.shopName || '未命名门店'}}</text>
+            <text class="item-address" wx:if="{{item.address}}">{{item.address}}</text>
+          </view>
+          <text class="item-check" wx:if="{{selectedShop && selectedShop.shopId === item.shopId}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{shopList.length === 0 && !loadingShops}}">
+          <text>暂无可用门店</text>
+        </view>
       </view>
     </view>
   </view>

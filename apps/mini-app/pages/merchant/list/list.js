@@ -7,7 +7,6 @@ Page({
     // 图标路径
     iconSearch: config.getIconUrl('sslss.png'),
     iconCategory: config.getIconUrl('xx.png'),
-    iconStar: config.getIconUrl('star.png'),
     topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/ec78b300-ab01-470d-a504-97eb149caf24.png`,
     keyword: '',
     filters: [
@@ -125,6 +124,12 @@ Page({
     }
   },
 
+  resolveLogoUrl(logo) {
+    if (!logo) { return '' }
+    const s = String(logo).trim().replace(/[`\s]/g, '')
+    return s ? config.getImageUrl(s) : ''
+  },
+
   // 数据映射：将后端数据映射为前端所需格式
   mapMerchantItem(item) {
     // 会员等级名称映射
@@ -136,10 +141,10 @@ Page({
       merchantName: item.merchantName || '未命名商户',
       merchantType: item.merchantType || 0,
       businessCategory: item.businessCategory || '',
+      // 与 pages/alumni-association/list/list 一致：无 logo 时用 config.defaultAvatar
+      logoUrl: this.resolveLogoUrl(item.logo) || config.defaultAvatar,
       memberTier: item.memberTier || 0,
       tierName: tierName,
-      ratingScore: item.ratingScore ? item.ratingScore.toFixed(1) : '0.0',
-      ratingCount: item.ratingCount || 0,
       shopCount: item.shopCount || 0,
       totalCouponIssued: item.totalCouponIssued || 0,
       isAlumniCertified: item.isAlumniCertified || 0,

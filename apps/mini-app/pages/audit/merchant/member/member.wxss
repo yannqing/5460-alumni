@@ -352,6 +352,30 @@
 
 .form-item { margin-bottom: 24rpx; }
 
+.form-item--switch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-switch-label-wrap {
+  flex: 1;
+  margin-right: 24rpx;
+}
+
+.form-hint {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+
+.form-switch {
+  transform: scale(0.92);
+  transform-origin: center right;
+}
+
 .form-label {
   display: block;
   font-size: 28rpx;

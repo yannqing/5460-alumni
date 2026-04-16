@@ -78,6 +78,13 @@ Page({
     })
   },
 
+  // 取消门店选择
+  cancelShopSelector() {
+    this.setData({
+      showShopSelector: false
+    })
+  },
+
   // 选择门店
   onSelectShop(e) {
     const { shopid } = e.currentTarget.dataset

@@ -2,7 +2,7 @@
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="店铺管理">
 <view class="page">
   <!-- 选择商家卡片（与校友会审核页 group_5 一致） -->
-  <view class="group_5" wx:if="{{merchantList.length > 1}}">
+  <view class="group_5" wx:if="{{showMerchantSelector}}">
     <text class="text_14">店铺管理</text>
     <text class="label_text">选择商家</text>
     <view class="text-wrapper_8" bindtap="showMerchantSelector">

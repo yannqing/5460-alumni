@@ -112,6 +112,19 @@
             <text class="form-select-arrow">▼</text>
           </view>
         </view>
+        <view class="form-item form-item--switch">
+          <view class="form-switch-label-wrap">
+            <text class="form-label">设为该门店管理员</text>
+            <text class="form-hint" wx:if="{{!addForm.shopId}}">请先选择店铺</text>
+          </view>
+          <switch
+            class="form-switch"
+            checked="{{addForm.setAsShopAdmin}}"
+            disabled="{{!addForm.shopId}}"
+            color="#1890ff"
+            bindchange="onAddSetAsShopAdminChange"
+          />
+        </view>
         <view class="form-item">
           <text class="form-label">职务 <text class="required">*</text></text>
           <input class="form-input" name="position" placeholder="请输入职务" value="{{addForm.position}}" bindinput="onAddPositionInput" />
@@ -142,6 +155,19 @@
           <text class="form-select-text">{{editForm.shopName ? editForm.shopName : (shopListLoading ? '店铺列表加载中…' : '请选择店铺')}}</text>
           <text class="form-select-arrow">▼</text>
         </view>
+      </view>
+      <view class="form-item form-item--switch">
+        <view class="form-switch-label-wrap">
+          <text class="form-label">设为该门店管理员</text>
+          <text class="form-hint" wx:if="{{!editForm.shopId}}">请先选择店铺</text>
+        </view>
+        <switch
+          class="form-switch"
+          checked="{{editForm.setAsShopAdmin}}"
+          disabled="{{!editForm.shopId}}"
+          color="#1890ff"
+          bindchange="onEditSetAsShopAdminChange"
+        />
       </view>
       <view class="form-item">
         <text class="form-label">职务 <text class="required">*</text></text>

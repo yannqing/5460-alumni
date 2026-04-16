@@ -1,12 +1,27 @@
 <!--pages/audit/merchant/apply-detail/apply-detail.wxml-->
 <!-- 审核样式下内容必须放在 custom-nav-bar 内部，否则不会进入 slot，白底区域为空 -->
-<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商户申请详情" auditPageScroll="{{true}}">
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商户申请详情">
 <view class="apply-detail-page">
   <view class="detail-section" wx:if="{{loading}}">
     <view class="loading-text">加载中...</view>
   </view>
 
   <view class="detail-content" wx:else>
+    <!-- 商家头图 -->
+    <view class="detail-header">
+      <image class="header-bg" src="{{applyInfo.backgroundImageUrl || defaultBackground}}" mode="aspectFill" />
+      <view class="header-content">
+        <view class="header-left">
+          <view class="logo-container">
+            <image class="merchant-logo" src="{{applyInfo.logoUrl || defaultLogo}}" mode="aspectFill" />
+          </view>
+        </view>
+        <view class="merchant-basic">
+          <text class="merchant-name">{{applyInfo.merchantName || '-'}}</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 基本信息 -->
     <view class="detail-section">
       <view class="section-title">基本信息</view>
@@ -64,8 +79,8 @@
         />
       </view>
       <view class="detail-item">
-        <text class="detail-label">统一社会信用代码：</text>
-        <text class="detail-value">{{applyInfo.businessLicenseCode}}</text>
+        <text class="detail-label detail-label-single-line">统一社会信用代码：</text>
+        <text class="detail-value detail-value-single-line">{{applyInfo.businessLicenseCode}}</text>
       </view>
       <view class="detail-item">
         <text class="detail-label">法定代表人：</text>

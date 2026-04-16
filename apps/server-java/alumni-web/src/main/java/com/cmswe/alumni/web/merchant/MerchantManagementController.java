@@ -8,6 +8,7 @@ import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
+import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.OrganizeArchiRoleVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -122,6 +123,24 @@ public class MerchantManagementController {
                 wxId, pageVo.getTotal());
 
         return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
+    }
+
+    /**
+     * 商户管理员更新商户基本信息（部分字段更新，未传的字段不变）
+     *
+     * @param securityUser 当前登录用户
+     * @param dto          更新内容（须含 merchantId）
+     * @return 更新后的商户详情
+     */
+    @PutMapping("/merchant/info")
+    @Operation(summary = "更新商户基本信息（商户管理员）")
+    public BaseResponse<MerchantDetailVo> updateMerchantInfo(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody UpdateMerchantDto dto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("更新商户基本信息 - 用户ID: {}, merchantId: {}", wxId, dto.getMerchantId());
+        MerchantDetailVo vo = merchantService.updateMerchantInfo(wxId, dto);
+        return ResultUtils.success(Code.SUCCESS, vo, "保存成功");
     }
 
     /**

@@ -70,6 +70,8 @@
         "content/list/list",
         "merchant/list/list",
         "merchant/shop/shop",
+        "merchant/info-maintenance/info-maintenance",
+        "merchant/info-maintenance/edit/edit",
         "merchant/shop/create/create",
         "merchant/shop/edit/edit",
         "merchant/architecture/architecture",

@@ -5,7 +5,9 @@ const config = require('../../../../utils/config.js')
 Page({
   data: {
     applyInfo: {},
-    loading: true
+    loading: true,
+    defaultLogo: config.defaultAvatar,
+    defaultBackground: config.defaultCover
   },
 
   onLoad(options) {
@@ -68,6 +70,25 @@ Page({
           alumniAssociation = null
         }
 
+        const normalizeBgImage = (rawBg) => {
+          if (!rawBg || typeof rawBg !== 'string') {
+            return ''
+          }
+          const bg = rawBg.trim()
+          if (!bg) {
+            return ''
+          }
+          try {
+            const parsed = JSON.parse(bg)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return config.getImageUrl(parsed[0] || '')
+            }
+          } catch (e) {
+            // 非 JSON 字符串时按普通图片路径处理
+          }
+          return config.getImageUrl(bg)
+        }
+
         // 格式化数据
         applyInfo = {
           ...applyInfo,
@@ -75,6 +96,8 @@ Page({
           status: status,
           statusText: statusText,
           merchantTypeText,
+          logoUrl: config.getImageUrl(applyInfo.logo || ''),
+          backgroundImageUrl: normalizeBgImage(applyInfo.backgroundImage),
           submitTime: formatTime(applyInfo.createTime),
           businessLicenseUrl: config.getImageUrl(applyInfo.businessLicense || ''),
           // 调整字段名称以匹配页面模板

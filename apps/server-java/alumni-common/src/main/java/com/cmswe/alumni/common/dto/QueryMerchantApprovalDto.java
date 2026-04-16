@@ -31,4 +31,7 @@ public class QueryMerchantApprovalDto extends PageRequest implements Serializabl
 
     @Schema(description = "商户类型：1-校友商铺 2-普通商铺", example = "1")
     private Integer merchantType;
+
+    @Schema(description = "校友会ID（仅返回申请时关联该校友会的商户）", example = "10001")
+    private Long alumniAssociationId;
 }

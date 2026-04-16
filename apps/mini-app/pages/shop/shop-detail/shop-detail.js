@@ -38,6 +38,7 @@ Page({
 
       if (res.data && res.data.code === 200 && res.data.data) {
         const shopData = res.data.data
+        shopData.logoUrl = shopData.logo ? config.getImageUrl(shopData.logo) : ''
         
         // 处理店铺图片
         let gallery = []

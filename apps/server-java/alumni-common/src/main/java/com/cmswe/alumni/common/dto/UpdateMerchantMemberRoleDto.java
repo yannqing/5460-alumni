@@ -50,6 +50,12 @@ public class UpdateMerchantMemberRoleDto implements Serializable {
     @NotBlank(message = "职务不能为空")
     private String position;
 
+    /**
+     * 是否同时将该用户设为所选门店的系统门店管理员（ORGANIZE_SHOP_ADMIN）
+     */
+    @Schema(description = "是否设为该门店管理员（需同时传 shopId）")
+    private Boolean setAsShopAdmin;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }
