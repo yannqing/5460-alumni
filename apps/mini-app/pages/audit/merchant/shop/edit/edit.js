@@ -46,8 +46,8 @@ Page({
   },
 
   async loadShopDetail(shopId) {
-    const { get } = require('../../../../../utils/request.js')
-    const res = await get(`/merchant/shop/${shopId}`)
+    const { merchantApi } = require('../../../../../api/api.js')
+    const res = await merchantApi.getShopDetailForEdit(shopId)
     if (!res.data || res.data.code !== 200 || !res.data.data) {
       wx.showToast({
         title: res.data?.msg || '加载店铺失败',

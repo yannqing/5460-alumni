@@ -18,10 +18,18 @@ public final class MyApplicationRecordType {
     /** 校友会申请加入校促会（当前用户为 applicant_wx_id） */
     public static final String ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM = "ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM";
 
+    /** 商户入驻申请（当前用户为 merchant.user_id） */
+    public static final String MERCHANT_APPLICATION = "MERCHANT_APPLICATION";
+
+    /** 门店申请（当前用户为 shop.created_by） */
+    public static final String SHOP_APPLICATION = "SHOP_APPLICATION";
+
     public static final Set<String> ALL = Set.of(
             ALUMNI_ASSOCIATION_CREATE,
             ALUMNI_ASSOCIATION_JOIN,
-            ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM
+            ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM,
+            MERCHANT_APPLICATION,
+            SHOP_APPLICATION
     );
 
     public static boolean isValid(String type) {

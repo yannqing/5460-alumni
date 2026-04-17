@@ -1,4 +1,20 @@
 <!--pages/audit/index/index.wxml-->
+<!-- WXS：用函数按 code 取 todoCounts；WXML 里 todoCounts[item.code] 对 wx:for 的 item 动态键不可靠 -->
+<wxs module="auditTodo">
+function todoCount(map, code) {
+  if (!code || !map) return 0
+  var v = map[code]
+  if (v == undefined) return 0
+  return +v
+}
+function todoBadgeText(map, code) {
+  var n = todoCount(map, code)
+  if (n > 99) return '99+'
+  return n + ''
+}
+module.exports.todoCount = todoCount
+module.exports.todoBadgeText = todoBadgeText
+</wxs>
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="管理入口">
 <view class="page">
     <view class="section_7">
@@ -14,8 +30,8 @@
                 <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
                 <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
                 <!-- 待处理角标 -->
-                <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
-                  {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+                <view wx:if="{{item.code && auditTodo.todoCount(todoCounts, item.code) > 0}}" class="badge">
+                  {{auditTodo.todoBadgeText(todoCounts, item.code)}}
                 </view>
               </view>
               <text lines="1" class="text-group_name_common">{{item.name}}</text>
@@ -34,8 +50,8 @@
                 <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
                 <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
                 <!-- 待处理角标 -->
-                <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
-                  {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+                <view wx:if="{{item.code && auditTodo.todoCount(todoCounts, item.code) > 0}}" class="badge">
+                  {{auditTodo.todoBadgeText(todoCounts, item.code)}}
                 </view>
               </view>
               <text lines="1" class="text-group_name_common">{{item.name}}</text>
@@ -54,8 +70,8 @@
                 <image src="{{item.icon}}" class="label_icon_common" wx:if="{{item.iconType === 'image'}}"></image>
                 <view class="label_icon_common" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
                 <!-- 待处理角标 -->
-                <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
-                  {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+                <view wx:if="{{item.code && auditTodo.todoCount(todoCounts, item.code) > 0}}" class="badge">
+                  {{auditTodo.todoBadgeText(todoCounts, item.code)}}
                 </view>
               </view>
               <text lines="1" class="text-group_name_common">{{item.name}}</text>
@@ -74,8 +90,8 @@
             <image src="{{item.icon}}" class="label_3-0" wx:if="{{item.iconType === 'image'}}"></image>
             <view class="label_3-0" style="display:flex;align-items:center;justify-content:center;font-size:40rpx;" wx:else>{{item.icon}}</view>
             <!-- 待处理角标 -->
-            <view wx:if="{{item.code && todoCounts[item.code] > 0}}" class="badge">
-              {{todoCounts[item.code] > 99 ? '99+' : todoCounts[item.code]}}
+            <view wx:if="{{item.code && auditTodo.todoCount(todoCounts, item.code) > 0}}" class="badge">
+              {{auditTodo.todoBadgeText(todoCounts, item.code)}}
             </view>
           </view>
           <text lines="1" class="text-group_3-0">{{item.name}}</text>

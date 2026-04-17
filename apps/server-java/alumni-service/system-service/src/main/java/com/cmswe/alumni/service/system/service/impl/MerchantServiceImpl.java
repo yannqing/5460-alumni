@@ -194,24 +194,95 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
         }
 
-        log.info("查询审核失败商户 - 商户ID: {}, 用户ID: {}", merchantId, wxId);
+        log.info("查询本人待审核/审核失败商户申请 - 商户ID: {}, 用户ID: {}", merchantId, wxId);
 
-        // 2. 查询商户
+        // 2. 查询商户（0-待审核 2-审核失败，均可回填后修改/重新提交）
         Merchant merchant = this.getOne(
                 new LambdaQueryWrapper<Merchant>()
                         .eq(Merchant::getMerchantId, merchantId)
                         .eq(Merchant::getUserId, wxId)
-                        .eq(Merchant::getReviewStatus, 2) // 2-审核失败
+                        .in(Merchant::getReviewStatus, java.util.Arrays.asList(0, 2))
         );
 
         if (merchant == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "未找到审核失败的商户申请");
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "未找到待审核或审核失败的商户申请");
         }
 
-        log.info("查询审核失败商户成功 - 商户ID: {}, 商户名称: {}", merchantId, merchant.getMerchantName());
+        log.info("查询本人商户申请成功 - 商户ID: {}, 商户名称: {}", merchantId, merchant.getMerchantName());
 
         // 3. 转换为 VO
         return MerchantDetailVo.objToVo(merchant);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updatePendingMerchantApplication(Long wxId, Long merchantId, ApplyMerchantDto applyDto) {
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+        if (merchantId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "商户ID不能为空");
+        }
+        Optional.ofNullable(applyDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
+
+        Merchant merchant = this.getById(merchantId);
+        if (merchant == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户申请不存在");
+        }
+        if (!wxId.equals(merchant.getUserId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权修改该申请");
+        }
+        if (merchant.getReviewStatus() == null || merchant.getReviewStatus() != 0) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "仅待审核的申请可修改");
+        }
+
+        BeanUtils.copyProperties(applyDto, merchant);
+        merchant.setMerchantId(merchantId);
+        merchant.setUserId(wxId);
+        merchant.setReviewStatus(0);
+        merchant.setReviewerId(null);
+        merchant.setReviewReason(null);
+        merchant.setReviewTime(null);
+        merchant.setIsAlumniCertified(applyDto.getMerchantType() != null && applyDto.getMerchantType() == 1 ? 1 : 0);
+
+        log.info("用户更新待审核商户申请 - 用户ID: {}, 商户ID: {}, 商户名称: {}", wxId, merchantId, merchant.getMerchantName());
+        boolean ok = this.updateById(merchant);
+        if (!ok) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "更新申请失败");
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean cancelPendingMerchantApplication(Long wxId, Long merchantId) {
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+        if (merchantId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "商户ID不能为空");
+        }
+        Merchant merchant = this.getById(merchantId);
+        if (merchant == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户申请不存在");
+        }
+        if (!wxId.equals(merchant.getUserId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权撤销该申请");
+        }
+        if (merchant.getReviewStatus() == null || merchant.getReviewStatus() != 0) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "仅待审核的申请可撤销");
+        }
+        merchant.setReviewStatus(3);
+        merchant.setReviewerId(null);
+        merchant.setReviewReason(null);
+        merchant.setReviewTime(null);
+        log.info("用户撤销待审核商户申请 - 用户ID: {}, 商户ID: {}", wxId, merchantId);
+        boolean ok = this.updateById(merchant);
+        if (!ok) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "撤销失败");
+        }
+        return true;
     }
 
     @Override
@@ -713,7 +784,8 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 .like(StringUtils.isNotBlank(merchantName), Merchant::getMerchantName, merchantName)
                 .eq(reviewStatus != null, Merchant::getReviewStatus, reviewStatus)
                 .eq(merchantType != null, Merchant::getMerchantType, merchantType)
-                .eq(alumniAssociationId != null, Merchant::getAlumniAssociationId, alumniAssociationId);
+                .eq(alumniAssociationId != null, Merchant::getAlumniAssociationId, alumniAssociationId)
+                .ne(Merchant::getReviewStatus, 3); // 3-已撤销，审批列表不展示
 
         // 4.添加排序
         if (StringUtils.isNotBlank(sortField)) {

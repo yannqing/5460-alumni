@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 「我的申请」聚合详情返回
@@ -39,5 +40,11 @@ public class MyApplicationRecordDetailVo implements Serializable {
 
     @Schema(description = "业务详情对象（按 recordType 返回对应详情结构）")
     private Object detail;
+
+    /**
+     * 商户入驻 / 门店申请：结构化图片列表（便于前端展示；与 detail 中字段同源）
+     */
+    @Schema(description = "申请资料图片（仅商户入驻、门店申请；含 Logo、营业执照、背景图、门店图等）")
+    private List<MaterialImageItemVo> materialImages;
 }
 

@@ -29,7 +29,7 @@ public class QueryMyApplicationRecordListDto extends PageRequest implements Seri
      * 取值见 {@link MyApplicationRecordType}
      */
     @Schema(
-            description = "申请类型过滤，可多选。为空表示全部。取值：ALUMNI_ASSOCIATION_CREATE / ALUMNI_ASSOCIATION_JOIN / ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM",
+            description = "申请类型过滤，可多选。为空表示全部。取值：ALUMNI_ASSOCIATION_CREATE / ALUMNI_ASSOCIATION_JOIN / ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM / MERCHANT_APPLICATION / SHOP_APPLICATION",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private List<String> recordTypes;

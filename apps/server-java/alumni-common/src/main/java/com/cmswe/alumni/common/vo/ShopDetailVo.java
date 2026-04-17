@@ -126,6 +126,18 @@ public class ShopDetailVo implements Serializable {
     private Integer reviewStatus;
 
     /**
+     * 审核原因（审核不通过时填写）
+     */
+    @Schema(description = "审核原因（审核不通过时填写）")
+    private String reviewReason;
+
+    /**
+     * 审核时间
+     */
+    @Schema(description = "审核时间")
+    private LocalDateTime reviewTime;
+
+    /**
      * 校友会推荐：0-否 1-是
      */
     @Schema(description = "校友会推荐：0-否 1-是")

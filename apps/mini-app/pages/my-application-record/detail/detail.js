@@ -10,6 +10,8 @@ const RECORD_TYPE_TEXT_MAP = {
   ALUMNI_ASSOCIATION_CREATE: '创建校友会',
   ALUMNI_ASSOCIATION_JOIN: '加入校友会',
   ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM: '校友会加入校促会',
+  MERCHANT_APPLICATION: '商户入驻',
+  SHOP_APPLICATION: '门店申请',
 }
 
 const EDITABLE_RECORD_TYPE = {
@@ -72,6 +74,12 @@ Page({
     createUi: null,
     isJoinAssociation: false,
     joinAssociationUi: null,
+    merchantApplyUi: null,
+    shopApplyUi: null,
+    shopMerchantUi: null,
+    merchantAssocUi: null,
+    materialImageItems: [],
+    materialImageUrls: [],
   },
 
   onLoad(options) {
@@ -125,7 +133,18 @@ Page({
       const detail = detailWrapper.detail || {}
       const attachmentFiles = this.normalizeAttachments(detail)
       const attachmentUrls = attachmentFiles.map(f => f._url)
-      const { basicRows, contentRows, auditRows, createUi } = this.buildDisplayRows(detailWrapper, detail)
+      const materialImageItems = this.normalizeMaterialImages(detailWrapper, detail)
+      const materialImageUrls = materialImageItems.map(it => it._url).filter(Boolean)
+      const {
+        basicRows,
+        contentRows,
+        auditRows,
+        createUi,
+        merchantApplyUi,
+        shopApplyUi,
+        shopMerchantUi,
+        merchantAssocUi,
+      } = this.buildDisplayRows(detailWrapper, detail)
       const joinAssociationUi = await this.buildJoinAssociationUi(detailWrapper, detail)
       this.setData({
         detailWrapper,
@@ -139,12 +158,18 @@ Page({
         auditRows,
         attachmentFiles,
         attachmentUrls,
+        materialImageItems,
+        materialImageUrls,
         canEditCurrent: this.isRecordEditable(detailWrapper),
         canCancelCurrent: this.isRecordCancelable(detailWrapper),
         isCreateAssociation: !!createUi,
         createUi: createUi || null,
         isJoinAssociation: !!joinAssociationUi,
         joinAssociationUi: joinAssociationUi || null,
+        merchantApplyUi: merchantApplyUi || null,
+        shopApplyUi: shopApplyUi || null,
+        shopMerchantUi: shopMerchantUi || null,
+        merchantAssocUi: merchantAssocUi || null,
         loading: false,
       })
     } catch (e) {
@@ -165,7 +190,7 @@ Page({
       return false
     }
     const t = detailWrapper.recordType || this.data.recordType
-    if (t === RECORD_TYPE_CREATE) {
+    if (t === RECORD_TYPE_CREATE || t === 'MERCHANT_APPLICATION' || t === 'SHOP_APPLICATION') {
       return detailWrapper.canEdit === true
     }
     if (!detailWrapper.canEdit) {
@@ -179,7 +204,12 @@ Page({
       return false
     }
     const t = detailWrapper.recordType || this.data.recordType
-    return t === 'ALUMNI_ASSOCIATION_CREATE' || t === 'ALUMNI_ASSOCIATION_JOIN'
+    return (
+      t === RECORD_TYPE_CREATE ||
+      t === 'ALUMNI_ASSOCIATION_JOIN' ||
+      t === 'MERCHANT_APPLICATION' ||
+      t === 'SHOP_APPLICATION'
+    )
   },
 
   onEditTap() {
@@ -218,6 +248,28 @@ Page({
       }
       wx.navigateTo({
         url: `/pages/local-platform/apply/apply?fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}&alumniAssociationId=${encodeURIComponent(String(associationId))}&platformId=${encodeURIComponent(String(detail?.platformId || ''))}`,
+      })
+      return
+    }
+    if (recordType === 'MERCHANT_APPLICATION') {
+      const merchantId = firstNonEmpty(detail?.merchantId, recordId)
+      if (!merchantId) {
+        wx.showToast({ title: '缺少商户信息', icon: 'none' })
+        return
+      }
+      wx.navigateTo({
+        url: `/pages/merchant/apply/apply?merchantId=${encodeURIComponent(String(merchantId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
+      })
+      return
+    }
+    if (recordType === 'SHOP_APPLICATION') {
+      const shopId = firstNonEmpty(detail?.shopId, recordId)
+      if (!shopId) {
+        wx.showToast({ title: '缺少门店信息', icon: 'none' })
+        return
+      }
+      wx.navigateTo({
+        url: `/pages/audit/merchant/shop/edit/edit?shopId=${encodeURIComponent(String(shopId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
       })
       return
     }
@@ -266,6 +318,74 @@ Page({
         }
       },
     })
+  },
+
+  normalizeMaterialImages(detailWrapper, detail) {
+    const raw = detailWrapper?.materialImages
+    const recordType = detailWrapper?.recordType || ''
+    const d = detail || {}
+    if (!Array.isArray(raw) || raw.length === 0) {
+      return []
+    }
+    const mapped = raw
+      .map((item, index) => {
+        const u = item?.url != null ? String(item.url).trim() : ''
+        if (!u) {
+          return null
+        }
+        const full = /^https?:\/\//i.test(u) ? u : config.getImageUrl(u)
+        return {
+          kind: item.kind || '',
+          label: item.label || `图片${index + 1}`,
+          url: u,
+          _url: full,
+        }
+      })
+      .filter(Boolean)
+    // 商户详情顶部已展示 Logo + 背景图，下方资料区仅保留营业执照等
+    if (recordType === 'MERCHANT_APPLICATION') {
+      return mapped.filter(it => it.kind !== 'LOGO' && it.kind !== 'BACKGROUND')
+    }
+    // 门店：顶栏展示 Logo + 首张门店图作背景，下方不再重复这两项
+    if (recordType === 'SHOP_APPLICATION') {
+      const firstGallery = this.extractFirstShopGalleryPath(d.shopImages)
+      let skippedFirstGallery = false
+      return mapped.filter(it => {
+        if (it.kind === 'SHOP_LOGO') {
+          return false
+        }
+        if (firstGallery && it.kind === 'SHOP_IMAGE' && !skippedFirstGallery) {
+          if (String(it.url).trim() === String(firstGallery).trim()) {
+            skippedFirstGallery = true
+            return false
+          }
+        }
+        return true
+      })
+    }
+    return mapped
+  },
+
+  /** 取门店图 JSON 首张路径（与 buildShopApplicationHeader 一致） */
+  extractFirstShopGalleryPath(shopImagesJson) {
+    if (shopImagesJson == null || !String(shopImagesJson).trim()) {
+      return null
+    }
+    const t = String(shopImagesJson).trim()
+    try {
+      const parsed = JSON.parse(t)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const first = parsed[0]
+        if (typeof first === 'string') {
+          return first.trim() || null
+        }
+        const p = first?.url || first?.fileUrl || ''
+        return p ? String(p).trim() : null
+      }
+    } catch (e) {
+      return t
+    }
+    return null
   },
 
   normalizeAttachments(detail) {
@@ -444,13 +564,123 @@ Page({
       initialMembersList,
     }
 
-    return { basicRows, contentRows: [], auditRows, createUi }
+    return {
+      basicRows,
+      contentRows: [],
+      auditRows,
+      createUi,
+      merchantApplyUi: null,
+      shopApplyUi: null,
+      shopMerchantUi: null,
+      merchantAssocUi: null,
+    }
+  },
+
+  /**
+   * 关联校友会（MerchantDetailVo.alumniAssociation）
+   * 默认图与 pages/alumni-association/list/list 列表项 `icon` 一致：
+   * `item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar`
+   */
+  buildMerchantAssocUi(detail) {
+    const a = detail?.alumniAssociation
+    if (!a) {
+      return null
+    }
+    const name = firstNonEmpty(a.associationName)
+    if (!name) {
+      return null
+    }
+    const raw = a.logo != null ? String(a.logo).trim() : ''
+    const logoUrl = raw ? config.getImageUrl(raw) : config.defaultAvatar
+    const schoolName = firstNonEmpty(a.school?.schoolName)
+    return { associationName: name, logoUrl, schoolName }
+  },
+
+  /** 商户入驻：顶栏背景图 + Logo，与创建校友会详情同一套样式 */
+  buildMerchantApplicationHeader(detail) {
+    const name = firstNonEmpty(detail.merchantName) || '—'
+    let bgUrl = config.defaultCover
+    const rawBg = detail.backgroundImage
+    if (rawBg != null && String(rawBg).trim()) {
+      try {
+        const parsed = JSON.parse(String(rawBg))
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const first = parsed[0]
+          const path =
+            typeof first === 'string'
+              ? first
+              : first?.url || first?.fileUrl || ''
+          if (path) {
+            const p = String(path).trim()
+            bgUrl = /^https?:\/\//i.test(p) ? p : config.getImageUrl(p)
+          }
+        } else {
+          bgUrl = config.getImageUrl(String(rawBg).trim())
+        }
+      } catch (e) {
+        bgUrl = config.getImageUrl(String(rawBg).trim())
+      }
+    }
+    let logoUrl = config.defaultAvatar
+    if (detail.logo != null && String(detail.logo).trim()) {
+      logoUrl = config.getImageUrl(String(detail.logo).trim())
+    }
+    return { bgUrl, logoUrl, name }
+  },
+
+  /** 门店申请：首张门店图作顶栏背景 + 门店 Logo（样式与商户顶栏一致） */
+  buildShopApplicationHeader(detail) {
+    const name = firstNonEmpty(detail.shopName) || '—'
+    let bgUrl = config.defaultCover
+    const raw = detail.shopImages
+    if (raw != null && String(raw).trim()) {
+      try {
+        const parsed = JSON.parse(String(raw))
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const first = parsed[0]
+          const path =
+            typeof first === 'string'
+              ? first
+              : first?.url || first?.fileUrl || ''
+          if (path) {
+            const p = String(path).trim()
+            bgUrl = /^https?:\/\//i.test(p) ? p : config.getImageUrl(p)
+          }
+        } else {
+          bgUrl = config.getImageUrl(String(raw).trim())
+        }
+      } catch (e) {
+        bgUrl = config.getImageUrl(String(raw).trim())
+      }
+    }
+    let logoUrl = config.defaultAvatar
+    if (detail.logo != null && String(detail.logo).trim()) {
+      logoUrl = config.getImageUrl(String(detail.logo).trim())
+    }
+    return { bgUrl, logoUrl, name }
+  },
+
+  /** 门店申请详情「所属商家」：与「关联校友会」同一套，仅 logo + 名称 */
+  buildShopMerchantUi(detail) {
+    const m = detail?.merchant
+    if (!m || typeof m !== 'object') return null
+    const name = firstNonEmpty(m.merchantName)
+    if (!name) return null
+    const raw = m.logo != null ? String(m.logo).trim() : ''
+    const logoUrl = raw ? config.getImageUrl(raw) : config.defaultAvatar
+    return { merchantName: name, logoUrl }
   },
 
   buildDisplayRows(detailWrapper, detail) {
     const recordType = detailWrapper.recordType || this.data.recordType
     if (recordType === RECORD_TYPE_CREATE) {
       return this.buildCreateAssociationRows(detailWrapper, detail)
+    }
+    if (recordType === 'MERCHANT_APPLICATION') {
+      return this.buildMerchantApplicationRows(detailWrapper, detail)
+    }
+    if (recordType === 'SHOP_APPLICATION') {
+      return this.buildShopApplicationRows(detailWrapper, detail)
     }
 
     const basicRows = []
@@ -486,7 +716,81 @@ Page({
     this.addRow(auditRows, '审核意见', detail.reviewComment, true)
     this.addRow(auditRows, '审核时间', reviewTime)
 
-    return { basicRows, contentRows, auditRows, createUi: null }
+    return {
+      basicRows,
+      contentRows,
+      auditRows,
+      createUi: null,
+      merchantApplyUi: null,
+      shopApplyUi: null,
+      shopMerchantUi: null,
+      merchantAssocUi: null,
+    }
+  },
+
+  buildMerchantApplicationRows(detailWrapper, detail) {
+    const basicRows = []
+    const contentRows = []
+    const auditRows = []
+    const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
+    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(basicRows, '申请时间', fmtTime(firstNonEmpty(detail.createTime)))
+    this.addRow(basicRows, '审核时间', reviewTime)
+    this.addRow(contentRows, '商户名称', detail.merchantName)
+    this.addRow(contentRows, '商户类型', detail.merchantType === 1 ? '校友商铺' : detail.merchantType === 2 ? '普通商铺' : detail.merchantType)
+    this.addRow(contentRows, '经营类目', detail.businessCategory)
+    this.addRow(contentRows, '经营范围', detail.businessScope, false, true)
+    this.addRow(contentRows, '联系电话', detail.contactPhone)
+    this.addRow(contentRows, '联系邮箱', detail.contactEmail)
+    this.addRow(contentRows, '统一社会信用代码', detail.unifiedSocialCreditCode)
+    this.addRow(contentRows, '法人', detail.legalPerson)
+    this.addRow(auditRows, '审核意见', detail.reviewReason, true)
+    this.addRow(auditRows, '审核时间', reviewTime)
+    return {
+      basicRows,
+      contentRows,
+      auditRows,
+      createUi: null,
+      merchantApplyUi: {
+        header: this.buildMerchantApplicationHeader(detail),
+      },
+      shopApplyUi: null,
+      shopMerchantUi: null,
+      merchantAssocUi: this.buildMerchantAssocUi(detail),
+    }
+  },
+
+  buildShopApplicationRows(detailWrapper, detail) {
+    const basicRows = []
+    const contentRows = []
+    const auditRows = []
+    const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
+    const merchantName = firstNonEmpty(detail.merchant?.merchantName)
+    const addr = [detail.province, detail.city, detail.district, detail.address].filter(x => isPresent(x)).join(' ')
+    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(basicRows, '申请时间', fmtTime(firstNonEmpty(detail.createTime)))
+    this.addRow(basicRows, '审核时间', reviewTime)
+    this.addRow(contentRows, '门店名称', detail.shopName)
+    this.addRow(contentRows, '所属商户', merchantName)
+    this.addRow(contentRows, '门店类型', detail.shopType === 1 ? '总店' : detail.shopType === 2 ? '分店' : detail.shopType)
+    this.addRow(contentRows, '地址', addr, true)
+    this.addRow(contentRows, '门店电话', detail.phone)
+    this.addRow(contentRows, '营业时间', detail.businessHours)
+    this.addRow(contentRows, '简介', detail.description, true)
+    this.addRow(auditRows, '审核意见', detail.reviewReason, true)
+    this.addRow(auditRows, '审核时间', reviewTime)
+    return {
+      basicRows,
+      contentRows,
+      auditRows,
+      createUi: null,
+      merchantApplyUi: null,
+      shopApplyUi: {
+        header: this.buildShopApplicationHeader(detail),
+      },
+      shopMerchantUi: this.buildShopMerchantUi(detail),
+      merchantAssocUi: null,
+    }
   },
 
   previewAttachment(e) {
@@ -496,6 +800,15 @@ Page({
       current,
       urls: this.data.attachmentUrls,
     })
+  },
+
+  previewMaterialImage(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    const urls = this.data.materialImageUrls || []
+    if (!urls.length) return
+    const current = urls[Number.isFinite(index) ? index : 0]
+    if (!current) return
+    wx.previewImage({ current, urls })
   },
 
   getStatusText(detailWrapper) {
