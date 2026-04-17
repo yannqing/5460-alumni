@@ -45,6 +45,15 @@ function dedupeImageUrls(urls) {
   return out
 }
 
+function normalizeDisplayText(value) {
+  if (value == null) return ''
+  const text = String(value).trim()
+  if (!text || text.toLowerCase() === 'null' || text.toLowerCase() === 'undefined') {
+    return ''
+  }
+  return text
+}
+
 /** 从第一家门店取门店图（完整 URL） */
 function collectShopGalleryImages(merchantData) {
   const gallery = []
@@ -113,14 +122,18 @@ Page({
         let businessHours = ''
         if (merchantData.shops && merchantData.shops.length > 0) {
           const firstShop = merchantData.shops[0]
-          if (firstShop.address) {
-            location = firstShop.address
+          const address = normalizeDisplayText(firstShop.address)
+          if (address) {
+            location = address
           } else if (firstShop.province || firstShop.city || firstShop.district) {
-            location = [firstShop.province, firstShop.city, firstShop.district].filter(Boolean).join('')
+            location = [firstShop.province, firstShop.city, firstShop.district]
+              .map((item) => normalizeDisplayText(item))
+              .filter(Boolean)
+              .join('')
           }
           latitude = firstShop.latitude
           longitude = firstShop.longitude
-          phone = firstShop.phone || merchantData.contactPhone || ''
+          phone = normalizeDisplayText(firstShop.phone) || normalizeDisplayText(merchantData.contactPhone)
           businessHours = firstShop.businessHours || ''
         }
 

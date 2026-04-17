@@ -100,6 +100,10 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     @Resource
     private com.cmswe.alumni.api.search.ShopService shopService;
 
+    @org.springframework.context.annotation.Lazy
+    @Resource
+    private com.cmswe.alumni.api.system.MerchantService merchantService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateUserInfo(Long wxId, UpdateUserInfoDto updateDto) throws JsonProcessingException {
@@ -1094,11 +1098,16 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
         // 如果指定了类型，添加类型过滤
         if (type != null) {
-            // RoleUser.type: 1-校处会，2-校友会，3-商户
+            // RoleUser.type: 1-校处会，2-校友会，3-商户，4-门店
             // 请求参数 type: 0-校友会，1-校促会，2-商户
             Integer roleUserType = convertTypeToRoleUserType(type);
             if (roleUserType != null) {
-                queryWrapper.eq(RoleUser::getType, roleUserType);
+                if (roleUserType == 3) {
+                    // 若前端请求商户(2)，则对应查询 role_user 中的商户(3)和门店(4)
+                    queryWrapper.in(RoleUser::getType, java.util.Arrays.asList(3, 4));
+                } else {
+                    queryWrapper.eq(RoleUser::getType, roleUserType);
+                }
             }
         }
 
@@ -1187,14 +1196,33 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
         // 查询商户（type=3）
         if (organizeIdsByType.containsKey(3)) {
-            List<Long> shopIds = organizeIdsByType.get(3);
+            List<Long> merchantIds = organizeIdsByType.get(3);
+            if (!merchantIds.isEmpty()) {
+                List<com.cmswe.alumni.common.entity.Merchant> merchants = merchantService.listByIds(merchantIds);
+                merchants.forEach(merchant -> {
+                    if (merchant.getStatus() == 1 && merchant.getReviewStatus() == 1) { // 只返回启用且审核通过的
+                        ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
+                        vo.setId(merchant.getMerchantId());
+                        vo.setType(2); // 2-商户
+                        vo.setLogo(merchant.getLogo());
+                        vo.setName(merchant.getMerchantName());
+                        vo.setLocation(null);
+                        result.add(vo);
+                    }
+                });
+            }
+        }
+
+        // 查询门店（type=4）
+        if (organizeIdsByType.containsKey(4)) {
+            List<Long> shopIds = organizeIdsByType.get(4);
             if (!shopIds.isEmpty()) {
                 List<Shop> shops = shopService.listByIds(shopIds);
                 shops.forEach(shop -> {
                     if (shop.getStatus() == 1 && shop.getReviewStatus() == 1) { // 只返回营业中且审核通过的
                         ManagedOrganizationListVo vo = new ManagedOrganizationListVo();
                         vo.setId(shop.getShopId());
-                        vo.setType(2);
+                        vo.setType(2); // 门店在列表页也统一映射为商户类型(2)
                         vo.setLogo(null); // Shop 表没有 logo 字段
                         vo.setName(shop.getShopName());
                         // 拼接完整地址
@@ -1215,7 +1243,7 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
      * 将请求参数的类型转换为 RoleUser 表的类型
      *
      * @param type 请求参数类型（0-校友会，1-校促会，2-商户，3-校友总会）
-     * @return RoleUser 类型（1-校处会，2-校友会，3-商户）
+     * @return RoleUser 类型（1-校处会，2-校友会，3-商户，4-门店）
      */
     private Integer convertTypeToRoleUserType(Integer type) {
         if (type == null) {

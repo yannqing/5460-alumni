@@ -11,6 +11,7 @@ Page({
         iconScope: config.getIconUrl('xx.png'),
         iconContact: config.getIconUrl('phone.png'),
         topImageUrl: 'https://cni-alumni.yannqing.com/upload/images/2026/02/06/f782b6f3-c0b0-4b87-8ab5-a282c5798191.png',
+        cityBannerUrl: 'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/list/city.png',
         keyword: '',
         filters: [
             { label: '城市', options: ['全部城市'], selected: 0 },

@@ -30,7 +30,8 @@ Page({
     followFilterOptions: ['全部', '我的关注'],
     followFilterIndex: 0,
     myFollow: 0, // 0-全部，1-仅我关注的
-    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/26/1fbd821e-3a41-41eb-b284-d11d0296a2dc.png`,
+    topImageUrl:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/list/alumni.png',
     alumniList: [],
     current: 1,
     pageSize: 10,

@@ -64,7 +64,7 @@ view, text, scroll-view, picker, input, button, image {
 /* 顶部图片区域 */
 .top-image-container {
   width: 100%;
-  padding: 20rpx 30rpx 10rpx;
+  padding: 20rpx 30rpx;
   display: flex;
   justify-content: center;
   align-items: center;

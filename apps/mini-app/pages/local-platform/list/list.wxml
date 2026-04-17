@@ -20,10 +20,13 @@
     bindtouchend="onTouchEnd"
     lower-threshold="100"
   >
-    <!-- 顶部非吸顶区域：只有图片 -->
+    <!-- 顶部图片 -->
     <view class="banner-area">
       <view class="top-image-container">
         <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
+      </view>
+      <view class="city-banner-wrap">
+        <image class="city-banner-image" src="{{cityBannerUrl}}" mode="aspectFit" />
       </view>
     </view>
 

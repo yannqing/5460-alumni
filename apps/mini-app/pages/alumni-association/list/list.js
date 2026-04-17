@@ -17,7 +17,8 @@ Page({
     iconLocation: config.getIconUrl('position.png'),
     iconPeople: '../../../assets/icons/people.png',
     iconCreateAssociation: `https://${config.DOMAIN}/upload/images/assets/alumni_association/create_alumni_association.png`,
-    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/03/76e9ae49-1c52-4587-be1c-91bc90e483f6.png`,
+    topImageUrl:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/list/alumni_ass.png',
     // 校友会认证等级图片
     certFirstImg:
       'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/association_first_certification.png',

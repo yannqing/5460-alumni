@@ -70,6 +70,21 @@ view, text, scroll-view, picker, input, button, image {
   border-radius: 12rpx;
 }
 
+.city-banner-wrap {
+  width: 100%;
+  padding: 0rpx 30rpx 20rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.city-banner-image {
+  width: 529.49rpx;
+  height: 90.3rpx;
+  border-radius: 12rpx;
+}
+
 .search-bar {
   padding: 10rpx 26rpx 20rpx;
   box-shadow: none;
