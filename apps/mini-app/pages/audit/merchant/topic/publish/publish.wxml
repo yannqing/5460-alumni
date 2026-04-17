@@ -7,7 +7,7 @@
 
         <!-- 活动标题 -->
         <view class="form-item">
-          <text class="label">活动标题</text>
+          <text class="label"><text class="required-mark">*</text>活动标题</text>
           <input
             class="input"
             placeholder="请输入活动标题"
@@ -21,7 +21,7 @@
 
         <!-- 主办方名称 -->
         <view class="form-item">
-          <text class="label">主办方名称</text>
+          <text class="label"><text class="required-mark">*</text>主办方名称</text>
           <input
             class="input"
             placeholder="请输入主办方名称"
@@ -58,7 +58,7 @@
 
         <!-- 活动封面图 -->
         <view class="form-item">
-          <text class="label">活动封面图</text>
+          <text class="label"><text class="required-mark">*</text>活动封面图</text>
           <view class="upload-container">
             <view class="cover-preview" wx:if="{{publishForm.coverImage}}">
               <image class="cover-image" src="{{publishForm.coverImage}}" mode="aspectFill"></image>
@@ -76,7 +76,7 @@
 
         <!-- 活动图片 -->
         <view class="form-item">
-          <text class="label">活动图片</text>
+          <text class="label"><text class="required-mark">*</text>活动图片</text>
           <view class="upload-container">
             <view class="image-list">
               <view class="image-item" wx:for="{{imageUrls}}" wx:key="*this">
@@ -96,7 +96,7 @@
 
         <!-- 活动详情描述 -->
         <view class="form-item">
-          <text class="label">活动详情</text>
+          <text class="label"><text class="required-mark">*</text>活动详情</text>
           <textarea
             class="textarea"
             placeholder="请输入活动详情描述"

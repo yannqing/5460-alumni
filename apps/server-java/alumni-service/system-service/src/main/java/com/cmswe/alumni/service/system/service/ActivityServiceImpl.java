@@ -97,6 +97,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ActivityDetailVo getActivityDetail(Long activityId) {
         // 1. 参数校验
         Optional.ofNullable(activityId)
@@ -118,10 +119,16 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             throw new BusinessException("活动暂未发布");
         }
 
-        // 5. 转换为 VO
-        ActivityDetailVo activityDetail = ActivityDetailVo.objToVo(activity);
+        // 5. 浏览量 +1（原子更新），再取最新数据用于返回
+        this.baseMapper.incrementViewCount(activityId);
+        Activity latest = this.getById(activityId);
+        if (latest == null) {
+            throw new BusinessException("活动不存在或已被删除");
+        }
 
-        log.info("查询活动详情 - 活动ID: {}, 标题: {}", activityId, activity.getActivityTitle());
+        ActivityDetailVo activityDetail = ActivityDetailVo.objToVo(latest);
+
+        log.info("查询活动详情 - 活动ID: {}, 标题: {}", activityId, latest.getActivityTitle());
 
         return activityDetail;
     }

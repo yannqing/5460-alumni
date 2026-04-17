@@ -23,7 +23,7 @@
     </view>
 
     <block wx:elif="{{selectedMerchantId}}">
-      <scroll-view class="coupon-scroll" scroll-y enable-back-to-top show-scrollbar="{{false}}" lower-threshold="80" bindscrolltolower="onCouponScrollToLower" style="height: {{scrollListHeight}}px;">
+      <scroll-view class="coupon-scroll" scroll-y enable-back-to-top show-scrollbar="{{false}}" lower-threshold="80" bindscrolltolower="onCouponScrollToLower">
         <view class="coupon-loading" wx:if="{{couponLoading}}">
           <text>加载中...</text>
         </view>
@@ -72,11 +72,6 @@
         </view>
       </scroll-view>
 
-      <view class="page-footer" wx:if="{{couponTotal > 0}}">
-        <view class="page-btn {{couponHasPrevious ? '' : 'disabled'}}" bindtap="goCouponPrevPage">上一页</view>
-        <text class="page-info">第 {{couponCurrentPage}} / {{couponPages}} 页 · 共 {{couponTotal}} 条</text>
-        <view class="page-btn {{couponHasNext ? '' : 'disabled'}}" bindtap="goCouponNextPage">下一页</view>
-      </view>
     </block>
   </view>
 

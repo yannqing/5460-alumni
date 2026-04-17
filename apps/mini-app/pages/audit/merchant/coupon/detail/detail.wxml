@@ -1,4 +1,4 @@
-<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="优惠券详情" auditPageScroll="{{true}}">
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="优惠券详情">
 <view class="page">
   <view class="loading-block" wx:if="{{loading}}">
     <text class="loading-text">加载中...</text>

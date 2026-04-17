@@ -71,8 +71,7 @@ public class CreateCouponDto implements Serializable {
     /**
      * 优惠值（折扣券=折扣如0.8表示8折，满减券=减免金额）
      */
-    @NotNull(message = "优惠值不能为空")
-    @Schema(description = "优惠值", required = true)
+    @Schema(description = "优惠值（礼品券默认按0.00占位）")
     private BigDecimal discountValue;
 
     /**

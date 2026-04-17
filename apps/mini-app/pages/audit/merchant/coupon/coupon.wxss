@@ -2,8 +2,8 @@
 /* 与 shop 页一致：.page + group_5 + group_7 + 商户选择弹窗 */
 .page {
   background-color: transparent;
-  width: 750rpx;
-  height: calc(100vh - 190.22rpx);
+  width: 100%;
+  min-height: calc(100vh - 190.22rpx);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -74,9 +74,10 @@
 .group_7 {
   width: 714rpx;
   flex: 1;
+  min-height: 0;
   background-color: #FFFFFF;
   border-radius: 28.99rpx;
-  margin: 34rpx 0 20rpx 18rpx;
+  margin: 34rpx 0 0 18rpx;
   padding: 38rpx 43rpx 27rpx 43rpx;
   box-sizing: border-box;
   overflow: hidden;
@@ -106,7 +107,8 @@
 
 .coupon-scroll {
   width: 100%;
-  flex-shrink: 0;
+  flex: 1;
+  min-height: 0;
 }
 
 .coupon-list {

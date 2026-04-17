@@ -192,7 +192,8 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         shopList.forEach(shop -> {
             try {
                 Long shopId = Long.parseLong(shop.getShopId());
-                List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId);
+                Long merchantId = Long.parseLong(shop.getMerchantId());
+                List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId, merchantId);
                 shop.setCoupons(coupons);
                 log.debug("店铺 {} 加载了 {} 个优惠券", shopId, coupons.size());
             } catch (Exception e) {
@@ -265,7 +266,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
 
         // 6. 查询优惠券列表
         try {
-            List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId);
+            List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId, shop.getMerchantId());
             shopDetail.setCoupons(coupons);
             log.debug("店铺 {} 加载了 {} 个优惠券", shopId, coupons.size());
         } catch (Exception e) {

@@ -129,59 +129,58 @@
   color: #999;
 }
 
-/* 信息项 */
+/* 信息项（基础卡片：地址 / 电话 / 营业时间）— 无前置图标，标签列与内容列左对齐 */
 .info-section {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 0;
 }
 
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  padding: 20rpx 0;
+.info-section .info-item {
+  padding: 12rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
 }
 
-.info-item:last-child {
+.info-section .info-item:first-child {
+  padding-top: 0;
+}
+
+.info-section .info-item:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 
-.info-icon {
-  width: 40rpx;
-  height: 40rpx;
-  flex-shrink: 0;
-}
-
-.info-content {
-  flex: 1;
+.info-section .info-main {
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
-  flex-direction: column;
-  gap: 8rpx;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 20rpx;
 }
 
-.info-label {
-  font-size: 24rpx;
-  color: #999;
+.info-section .info-label-col {
+  width: 132rpx;
+  flex-shrink: 0;
+  font-size: 26rpx;
+  color: #888;
+  line-height: 1.35;
+  text-align: left;
 }
 
-.info-value {
+.info-section .info-value-col {
+  flex: 1;
+  min-width: 0;
   font-size: 28rpx;
   color: #333;
-  line-height: 1.5;
+  line-height: 1.38;
+  word-break: break-all;
+  text-align: left;
 }
 
-.link-text {
-  color: #40B2E6;
-}
-
-.nav-text {
-  font-size: 26rpx;
-  color: #40B2E6;
-  padding: 8rpx 20rpx;
-  border: 1rpx solid #40B2E6;
-  border-radius: 20rpx;
+.info-section .info-value--phone {
+  color: #40b2e6;
 }
 
 /* 店铺简介 */

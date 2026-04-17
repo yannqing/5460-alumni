@@ -131,12 +131,14 @@ public interface ShopMapper extends BaseMapper<Shop> {
     );
 
     /**
-     * 查询店铺的有效优惠券列表
+     * 查询店铺可用的有效优惠券列表（包含商家通用券）
      *
      * @param shopId 店铺ID
+     * @param merchantId 商户ID
      * @return 优惠券列表
      */
-    List<com.cmswe.alumni.common.vo.ShopCouponVo> selectCouponsByShopId(@Param("shopId") Long shopId);
+    List<com.cmswe.alumni.common.vo.ShopCouponVo> selectCouponsByShopId(@Param("shopId") Long shopId,
+                                                                         @Param("merchantId") Long merchantId);
 
     /**
      * 根据店铺ID查询商铺详情

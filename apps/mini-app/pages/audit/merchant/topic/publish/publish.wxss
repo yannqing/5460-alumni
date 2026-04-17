@@ -51,6 +51,11 @@ page {
   display: block;
 }
 
+.required-mark {
+  color: #ff4d4f;
+  margin-right: 6rpx;
+}
+
 .input,
 .textarea {
   border: 1rpx solid #eee;

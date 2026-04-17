@@ -20,7 +20,7 @@
         <button class="invite-btn" bindtap="showAddMemberModal">新增成员</button>
       </view>
     </view>
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
       <view class="loading-state" wx:if="{{loading}}">
         <text>加载中...</text>
       </view>

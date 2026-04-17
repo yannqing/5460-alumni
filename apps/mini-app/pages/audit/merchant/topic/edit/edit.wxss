@@ -1,50 +1,26 @@
 /* pages/audit/merchant/topic/edit/edit.wxss */
+page {
+  background-color: #f5f5f5;
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+}
+
+.white-background-content {
+  background-color: #ffffff;
+  border-radius: 24rpx 24rpx 0 0;
+  margin-top: -30rpx;
+  position: relative;
+  z-index: 1;
+  padding-top: 20rpx;
+  min-height: 100vh;
+}
+
 .activity-edit-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-top: 160rpx; /* 导航栏再次下移后，继续增加padding-top值 */
-}
-
-/* 顶部导航栏 */
-.nav-bar {
-  position: fixed;
-  top: 60rpx;
-  left: 0;
-  right: 0;
-  height: 100rpx;
-  background-color: #fff;
-  border-bottom: 1rpx solid #eee;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 30rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-  z-index: 100;
-}
-
-.nav-left, .nav-right {
-  width: 80rpx;
-  display: flex;
-  align-items: center;
-}
-
-.nav-left {
-  justify-content: flex-start;
-}
-
-.nav-right {
-  justify-content: flex-end;
-}
-
-.nav-icon {
-  font-size: 40rpx;
-  color: #333;
-}
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
+  background-color: transparent;
+  padding-top: 0;
+  box-sizing: border-box;
 }
 
 /* 加载状态 */
@@ -96,42 +72,46 @@
 /* 表单输入框 */
 .form-input {
   width: 100%;
-  padding: 32rpx 24rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  padding: 0 20rpx;
   font-size: 28rpx;
   color: #333;
-  border: 1rpx solid #e5e5e5;
-  border-radius: 10rpx;
-  background-color: #fafafa;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  background-color: #fff;
   box-sizing: border-box;
-  transition: all 0.3s ease;
-  letter-spacing: 0.5rpx;
+  line-height: 1.5;
 }
 
 .form-input:focus {
-  border-color: #667eea;
+  border-color: #1890ff;
   background-color: #fff;
 }
 
 /* 表单文本域 */
 .form-textarea {
   width: 100%;
-  min-height: 200rpx;
-  padding: 32rpx 24rpx;
+  min-height: 350rpx;
+  padding: 16rpx 20rpx;
   font-size: 28rpx;
   color: #333;
-  border: 1rpx solid #e5e5e5;
-  border-radius: 10rpx;
-  background-color: #fafafa;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  background-color: #fff;
   box-sizing: border-box;
   resize: vertical;
-  transition: all 0.3s ease;
-  line-height: 1.6;
-  letter-spacing: 0.5rpx;
+  line-height: 1.5;
 }
 
 .form-textarea:focus {
-  border-color: #667eea;
+  border-color: #1890ff;
   background-color: #fff;
+}
+
+.form-input-placeholder,
+.form-textarea-placeholder {
+  color: #bfbfbf;
 }
 
 /* 表单选择器 */
@@ -375,7 +355,7 @@
 
 .location-input {
   flex: 1;
-  background-color: white;
+  background-color: #f9f9f9;
   color: #666;
 }
 

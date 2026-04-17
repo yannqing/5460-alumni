@@ -38,25 +38,21 @@
 
           <view class="info-section">
             <view class="info-item" bindtap="openLocation">
-              <image class="info-icon" src="{{iconLocation}}" mode="aspectFit"></image>
-              <view class="info-content">
-                <text class="info-label">地址</text>
-                <text class="info-value">{{location}}</text>
+              <view class="info-main">
+                <text class="info-label-col">地址</text>
+                <text class="info-value-col">{{location}}</text>
               </view>
-              <text class="nav-text">导航</text>
             </view>
             <view class="info-item" bindtap="makeCall">
-              <image class="info-icon" src="{{iconPhone}}" mode="aspectFit"></image>
-              <view class="info-content">
-                <text class="info-label">电话</text>
-                <text class="info-value link-text">{{shopInfo.phone}}</text>
+              <view class="info-main">
+                <text class="info-label-col">电话</text>
+                <text class="info-value-col info-value--phone">{{shopInfo.phone}}</text>
               </view>
             </view>
             <view class="info-item" wx:if="{{shopInfo.businessHours}}">
-              <image class="info-icon" src="{{iconTime}}" mode="aspectFit"></image>
-              <view class="info-content">
-                <text class="info-label">营业时间</text>
-                <text class="info-value">{{shopInfo.businessHours}}</text>
+              <view class="info-main">
+                <text class="info-label-col">营业时间</text>
+                <text class="info-value-col">{{shopInfo.businessHours}}</text>
               </view>
             </view>
           </view>
