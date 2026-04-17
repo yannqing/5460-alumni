@@ -49,6 +49,13 @@
         <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
     </resultMap>
 
+    <update id="incrementViewCount">
+        UPDATE activity
+        SET view_count = view_count + 1
+        WHERE activity_id = #{activityId}
+          AND is_delete = 0
+    </update>
+
     <sql id="Base_Column_List">
         activity_id, activity_title, organizer_type, organizer_id, organizer_name, organizer_avatar,
         cover_image, activity_images, description, activity_category,

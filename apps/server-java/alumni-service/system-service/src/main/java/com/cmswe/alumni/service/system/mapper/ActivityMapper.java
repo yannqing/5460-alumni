@@ -2,6 +2,7 @@ package com.cmswe.alumni.service.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cmswe.alumni.common.entity.Activity;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author CMSWE
@@ -11,4 +12,8 @@ import com.cmswe.alumni.common.entity.Activity;
  */
 public interface ActivityMapper extends BaseMapper<Activity> {
 
+    /**
+     * 活动详情访问时浏览量 +1（与逻辑删除一致，仅更新未删除记录）
+     */
+    int incrementViewCount(@Param("activityId") Long activityId);
 }

@@ -15,25 +15,18 @@ Page({
     sortOrder: 'ascend',
     activityTitle: '',
     activityLoading: false,
-    scrollListHeight: 400
+    activityHasNext: false
+  },
+
+  formatActivityDateTime(dateTime) {
+    if (!dateTime || typeof dateTime !== 'string') {
+      return dateTime || ''
+    }
+    return dateTime.replace('T', ' ')
   },
 
   onLoad(options) {
-    this.setScrollListHeight()
     this.getShops()
-  },
-
-  setScrollListHeight() {
-    try {
-      const res = wx.getSystemInfoSync()
-      const navRpx = 190.22
-      const navPx = (res.windowWidth * navRpx) / 750
-      const contentH = res.windowHeight - navPx
-      const scrollH = Math.floor(contentH * 0.5)
-      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 })
-    } catch (e) {
-      this.setData({ scrollListHeight: 400 })
-    }
   },
 
   // 获取店铺列表
@@ -55,12 +48,13 @@ Page({
             selectedShopIndex: selectedShopIndex,
             activityList: [], // 重置活动列表
             total: 0, // 重置总数
-            current: 1 // 重置页码
+            current: 1, // 重置页码
+            activityHasNext: false
           });
           
           // 如果自动选择了店铺，获取活动列表
           if (selectedShopIndex >= 0) {
-            this.getActivityList();
+            this.getActivityList(1, false);
           }
         }
       })
@@ -91,12 +85,13 @@ Page({
       activityList: [],
       total: 0,
       current: 1,
+      activityHasNext: false,
     })
-    this.getActivityList()
+    this.getActivityList(1, false)
   },
 
   // 获取活动列表
-  getActivityList() {
+  getActivityList(page = 1, append = false) {
     if (this.data.selectedShopIndex < 0) {
       return;
     }
@@ -109,7 +104,7 @@ Page({
     this.setData({ activityLoading: true });
     
     const params = {
-      current: this.data.current,
+      current: page,
       pageSize: this.data.pageSize,
       sortField: this.data.sortField,
       sortOrder: this.data.sortOrder,
@@ -128,11 +123,23 @@ Page({
       .then(res => {
         if (res.data.code === 200) {
           const data = res.data.data || {};
+          const records = (data.records || []).map(item => ({
+            ...item,
+            createTime: this.formatActivityDateTime(item.createTime),
+            startTime: this.formatActivityDateTime(item.startTime),
+            endTime: this.formatActivityDateTime(item.endTime),
+          }));
+          const currentPage = data.current || page;
+          const pageSize = data.size || this.data.pageSize || 10;
+          const total = data.total || 0;
+          const pages = Math.ceil(total / pageSize);
+          const mergedList = append ? this.data.activityList.concat(records) : records;
           this.setData({
-            activityList: data.records || [],
-            total: data.total || 0,
-            current: data.current || 1,
-            pageSize: data.size || 10
+            activityList: mergedList,
+            total: total,
+            current: currentPage,
+            pageSize: pageSize,
+            activityHasNext: currentPage < pages
           });
         }
       })
@@ -172,7 +179,7 @@ Page({
   // 搜索活动
   onSearchActivity() {
     this.setData({ current: 1 });
-    this.getActivityList();
+    this.getActivityList(1, false);
   },
 
   // 重置搜索条件
@@ -181,15 +188,15 @@ Page({
       activityTitle: '',
       current: 1
     });
-    this.getActivityList();
+    this.getActivityList(1, false);
   },
 
-  // 分页事件
-  onPageChange(e) {
-    this.setData({
-      current: e.detail.current
-    });
-    this.getActivityList();
+  // 触底加载下一页
+  onActivityScrollToLower() {
+    if (this.data.activityLoading || !this.data.activityHasNext) {
+      return;
+    }
+    this.getActivityList(this.data.current + 1, true);
   },
 
   // 编辑活动
@@ -225,8 +232,9 @@ Page({
                   title: '删除成功',
                   icon: 'success'
                 });
-                // 重新获取活动列表
-                this.getActivityList();
+                // 删除后重置并重新拉取第一页
+                this.setData({ current: 1, activityHasNext: false, activityList: [] });
+                this.getActivityList(1, false);
               } else {
                 wx.showToast({
                   title: res.data.msg || '删除失败',

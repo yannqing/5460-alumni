@@ -15,7 +15,7 @@
     <view class="shop-list-header">
       <text class="text_20">店铺列表</text>
     </view>
-    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" style="height: {{scrollListHeight}}px;">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
       <view class="loading-state" wx:if="{{shopLoading}}">
         <text>加载中...</text>
       </view>

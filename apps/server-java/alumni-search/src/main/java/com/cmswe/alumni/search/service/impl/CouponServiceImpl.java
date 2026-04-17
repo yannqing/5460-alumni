@@ -33,6 +33,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -193,7 +194,11 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         if (createCouponDto.getCouponType() == null) {
             throw new BusinessException("优惠券类型不能为空");
         }
-        if (createCouponDto.getDiscountValue() == null) {
+        BigDecimal discountValue = createCouponDto.getDiscountValue();
+        if (Integer.valueOf(3).equals(createCouponDto.getCouponType())) {
+            // 礼品券按约定写入 0.00，占位满足 NOT NULL 列约束
+            discountValue = discountValue == null ? BigDecimal.ZERO : discountValue;
+        } else if (discountValue == null) {
             throw new BusinessException("优惠值不能为空");
         }
         if (createCouponDto.getTotalQuantity() == null) {
@@ -239,7 +244,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
 
         // 折扣信息
         coupon.setDiscountType(createCouponDto.getDiscountType());
-        coupon.setDiscountValue(createCouponDto.getDiscountValue());
+        coupon.setDiscountValue(discountValue);
         coupon.setMinSpend(createCouponDto.getMinSpend());
         coupon.setMaxDiscount(createCouponDto.getMaxDiscount());
 

@@ -32,6 +32,31 @@
         </view>
       </view>
 
+      <!-- 商户 / 门店：与 audit/merchant/apply-detail 一致（380rpx 头图、底部凸出 Logo） -->
+      <view wx:if="{{merchantApplyUi && merchantApplyUi.header}}" class="merchant-apply-header">
+        <image class="merchant-apply-bg" src="{{merchantApplyUi.header.bgUrl}}" mode="aspectFill" />
+        <view class="merchant-apply-header-inner">
+          <view class="merchant-apply-logo-wrap">
+            <image class="merchant-apply-logo" src="{{merchantApplyUi.header.logoUrl}}" mode="aspectFill" />
+          </view>
+          <view class="merchant-apply-name-col">
+            <text class="merchant-apply-name">{{merchantApplyUi.header.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{shopApplyUi && shopApplyUi.header}}" class="merchant-apply-header">
+        <image class="merchant-apply-bg" src="{{shopApplyUi.header.bgUrl}}" mode="aspectFill" />
+        <view class="merchant-apply-header-inner">
+          <view class="merchant-apply-logo-wrap">
+            <image class="merchant-apply-logo" src="{{shopApplyUi.header.logoUrl}}" mode="aspectFill" />
+          </view>
+          <view class="merchant-apply-name-col">
+            <text class="merchant-apply-name">{{shopApplyUi.header.name}}</text>
+          </view>
+        </view>
+      </view>
+
       <view class="card">
         <view class="section-title">申请状态</view>
         <view class="status-row">
@@ -40,6 +65,24 @@
             <button wx:if="{{canEditCurrent}}" class="edit-btn" bindtap="onEditTap">编辑</button>
             <button wx:if="{{canCancelCurrent}}" class="cancel-btn" loading="{{actionSubmitting}}" disabled="{{actionSubmitting}}" bindtap="onCancelTap">撤销</button>
           </view>
+        </view>
+      </view>
+
+      <view class="card" wx:if="{{materialImageItems.length > 0}}">
+        <view class="section-title">申请资料图片</view>
+        <view class="attachments">
+          <block wx:for="{{materialImageItems}}" wx:key="index">
+            <view class="attachment-item">
+              <image
+                class="attachment-image"
+                src="{{item._url}}"
+                mode="aspectFill"
+                bindtap="previewMaterialImage"
+                data-index="{{index}}"
+              />
+              <text class="attachment-name">{{item.label}}</text>
+            </view>
+          </block>
         </view>
       </view>
 
@@ -134,6 +177,31 @@
             <text class="value {{item.multiline ? 'multiline' : ''}} {{item.noWrap ? 'nowrap' : ''}}">{{item.value}}</text>
           </view>
         </block>
+      </view>
+
+      <view class="card" wx:if="{{shopMerchantUi}}">
+        <view class="section-title section-title--assoc-inline">所属商家</view>
+        <view class="merchant-assoc-row">
+          <image class="merchant-assoc-logo" src="{{shopMerchantUi.logoUrl}}" mode="aspectFill" />
+          <view class="merchant-assoc-name-body">
+            <text class="merchant-assoc-name">{{shopMerchantUi.merchantName}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="card" wx:if="{{merchantAssocUi}}">
+        <view class="section-title section-title--assoc-inline">关联校友会</view>
+        <view class="merchant-assoc-row">
+          <image
+            class="merchant-assoc-logo"
+            src="{{merchantAssocUi.logoUrl}}"
+            mode="aspectFill"
+          />
+          <view class="merchant-assoc-name-body">
+            <text class="merchant-assoc-name">{{merchantAssocUi.associationName}}</text>
+            <text wx:if="{{merchantAssocUi.schoolName}}" class="merchant-assoc-school">{{merchantAssocUi.schoolName}}</text>
+          </view>
+        </view>
       </view>
 
       <view class="card" wx:if="{{auditRows.length > 0}}">

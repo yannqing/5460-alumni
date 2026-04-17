@@ -24,13 +24,28 @@ public interface MerchantService extends IService<Merchant> {
     PageVo<MerchantListVo> selectByPage(QueryMerchantListDto queryMerchantListDto);
 
     /**
-     * 根据商户ID和用户ID查询审核失败的商户申请
+     * 根据商户ID和用户ID查询「待审核」或「审核失败」的本人商户申请（用于编辑页回填）
      *
      * @param merchantId 商户ID
      * @param wxId       用户ID
      * @return 商户详情
      */
     MerchantDetailVo getPendingMerchantByIdAndUserId(Long merchantId, Long wxId);
+
+    /**
+     * 更新本人「待审核」状态下的商户入驻申请（字段与 {@link #applyMerchant} 一致）
+     *
+     * @param wxId       用户ID
+     * @param merchantId 商户申请ID
+     * @param applyDto   申请信息
+     * @return 是否成功
+     */
+    boolean updatePendingMerchantApplication(Long wxId, Long merchantId, ApplyMerchantDto applyDto);
+
+    /**
+     * 撤销本人「待审核」的商户入驻申请（审核状态置为 3-已撤销）
+     */
+    boolean cancelPendingMerchantApplication(Long wxId, Long merchantId);
 
     /**
      * 用户提交商户入驻申请

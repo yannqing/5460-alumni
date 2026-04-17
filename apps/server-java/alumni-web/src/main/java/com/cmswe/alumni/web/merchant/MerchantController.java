@@ -73,15 +73,42 @@ public class MerchantController {
      * @return 商户详情
      */
     @GetMapping("/pending/{merchantId}")
-    @Operation(summary = "查询当前用户的审核失败商户申请")
+    @Operation(summary = "查询当前用户「待审核」或「审核失败」的商户申请（回填用）")
     public BaseResponse<MerchantDetailVo> getPendingMerchant(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long merchantId) {
         Long wxId = securityUser.getWxUser().getWxId();
-        log.info("查询审核失败商户 - 用户ID: {}, 商户ID: {}", wxId, merchantId);
+        log.info("查询待审核/审核失败商户申请 - 用户ID: {}, 商户ID: {}", wxId, merchantId);
 
         MerchantDetailVo merchantDetail = merchantService.getPendingMerchantByIdAndUserId(merchantId, wxId);
         return ResultUtils.success(Code.SUCCESS, merchantDetail, "查询成功");
+    }
+
+    /**
+     * 修改「待审核」状态下的商户入驻申请（与 POST /apply 字段一致）
+     */
+    @PutMapping("/pending-application/{merchantId}")
+    @Operation(summary = "更新待审核的商户入驻申请")
+    public BaseResponse<Boolean> updatePendingMerchantApplication(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long merchantId,
+            @Valid @RequestBody ApplyMerchantDto applyDto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+
+        WxUser wxUser = wxUserMapper.selectById(wxId);
+        if (wxUser == null) {
+            log.error("用户不存在 - 用户ID: {}", wxId);
+            throw new BusinessException("用户不存在");
+        }
+        if (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
+            throw new BusinessException("只有认证校友才能申请商户入驻");
+        }
+
+        boolean result = merchantService.updatePendingMerchantApplication(wxId, merchantId, applyDto);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, true, "保存成功，请等待审核");
+        }
+        return ResultUtils.failure(Code.FAILURE, false, "更新失败");
     }
 
     /**
@@ -151,6 +178,20 @@ public class MerchantController {
     public BaseResponse<ShopDetailVo> getShopById(@PathVariable Long shopId) {
         log.info("查询门店详情 - 店铺ID: {}", shopId);
         ShopDetailVo shopDetail = shopService.getShopDetail(shopId);
+        return ResultUtils.success(Code.SUCCESS, shopDetail, "查询成功");
+    }
+
+    /**
+     * 商户主账号查询待审核等门店详情（用于编辑；权限与更新店铺一致）
+     */
+    @GetMapping("/shop/{shopId}/for-edit")
+    @Operation(summary = "申请人/商户主账号查询门店编辑用详情（含待审核）")
+    public BaseResponse<ShopDetailVo> getShopForApplicantEdit(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long shopId) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("门店编辑详情 - 用户ID: {}, 店铺ID: {}", wxId, shopId);
+        ShopDetailVo shopDetail = shopService.getShopDetailForApplicantEdit(wxId, shopId);
         return ResultUtils.success(Code.SUCCESS, shopDetail, "查询成功");
     }
 

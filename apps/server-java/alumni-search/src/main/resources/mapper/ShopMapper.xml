@@ -167,7 +167,7 @@
         ) AS nearby_shops
     </select>
 
-    <!-- 查询店铺的有效优惠券列表 -->
+    <!-- 查询店铺可用的有效优惠券列表（包含商家通用券） -->
     <select id="selectCouponsByShopId" resultType="com.cmswe.alumni.common.vo.ShopCouponVo">
         SELECT
             CAST(coupon_id AS CHAR) AS couponId,
@@ -187,7 +187,10 @@
             valid_end_time AS validEndTime,
             status
         FROM coupon
-        WHERE shop_id = #{shopId}
+        WHERE (
+                shop_id = #{shopId}
+                OR (shop_id IS NULL AND merchant_id = #{merchantId})
+              )
           AND is_delete = 0
           AND status = 1
           AND valid_end_time > NOW()

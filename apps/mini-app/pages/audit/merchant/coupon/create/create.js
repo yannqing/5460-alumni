@@ -361,9 +361,7 @@ Page({
       payload.maxDiscount = maxDiscountParsed
     } else if (couponType === 3) {
       payload.discountType = 1
-      if (discountValueParsed !== null) {
-        payload.discountValue = discountValueParsed
-      }
+      payload.discountValue = 0
     }
 
     if (shopIndex > 0 && shopList[shopIndex - 1]) {

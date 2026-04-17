@@ -51,6 +51,11 @@ public interface ShopService extends IService<Shop> {
     boolean deleteShop(Long wxId, Long shopId);
 
     /**
+     * 撤销本人「待审核」的门店申请（审核状态置为 3-已撤销；仅创建人 createdBy 与「我的申请」详情权限一致）
+     */
+    boolean cancelPendingShopApplication(Long wxId, Long shopId);
+
+    /**
      * 根据地理位置查询附近店铺（分页）
      *
      * @param queryDto 查询参数（包含经纬度、半径、分页等）
@@ -65,6 +70,15 @@ public interface ShopService extends IService<Shop> {
      * @return 商铺详情
      */
     ShopDetailVo getShopDetail(Long shopId);
+
+    /**
+     * 商户主账号查询门店详情（含待审核），与 {@link #updateShop} 权限一致，用于编辑页
+     *
+     * @param wxId   当前用户
+     * @param shopId 店铺ID
+     * @return 详情；审核通过时等价于 {@link #getShopDetail(Long)}（不含强制公开字段裁剪）
+     */
+    ShopDetailVo getShopDetailForApplicantEdit(Long wxId, Long shopId);
 
     /**
      * 管理员根据商户ID查询店铺列表（分页）

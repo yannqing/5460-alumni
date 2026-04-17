@@ -224,14 +224,19 @@ const merchantApi = {
   getMerchantDetail: id => get(`/merchants/${id}`),
   // 新商家详情接口
   getMerchantInfo: id => get(`/merchant/${id}`),
-  // 获取待审核商家详情
+  // 获取待审核/审核失败商家详情（回填）
   getPendingMerchantDetail: merchantId => get(`/merchant/pending/${merchantId}`),
+  // 更新待审核的商户入驻申请
+  updatePendingMerchantApplication: (merchantId, data) =>
+    put(`/merchant/pending-application/${merchantId}`, data),
   // 关注商家
   followMerchant: id => post(`/merchants/${id}/follow`),
   // 取消关注商家
   unfollowMerchant: id => del(`/merchants/${id}/follow`),
-  // 获取店铺详情
+  // 获取店铺详情（公开：仅已通过审核）
   getShopDetail: shopId => get(`/merchant/shop/${shopId}`),
+  // 商户主账号编辑用（含待审核；已通过时与 getShopDetail 一致）
+  getShopDetailForEdit: shopId => get(`/merchant/shop/${shopId}/for-edit`),
   // 获取我的商户列表
   getMyMerchants: params => get('/merchant-management/my-merchants', params),
   // 商户管理员更新商户基本信息（部分字段更新）

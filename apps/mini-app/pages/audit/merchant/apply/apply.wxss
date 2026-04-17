@@ -119,15 +119,17 @@
   font-weight: 600;
 }
 
+/* 与 shop-audit 一致：scroll-view 宽度 100%，无负边距/不对称 padding，空状态才能与卡片同宽居中 */
 /* scroll-view 在 flex 列内需 height:0 + flex:1 才能吃满剩余高度，避免列表下方大块空白 */
 .scroll-list {
   flex: 1;
-  width: calc(100% + 140rpx);
-  margin-left: -43rpx;
-  padding: 0 43rpx 0 97rpx;
+  width: 100%;
   height: 0;
   min-height: 0;
   box-sizing: border-box;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 0;
 }
 
 .loading-state {
@@ -139,6 +141,7 @@
   font-size: 28rpx;
 }
 
+/* 与 pages/audit/merchant/shop-audit/shop-audit 的 empty-block 一致 */
 .empty-block {
   padding: 16rpx 0 60rpx;
   text-align: center;

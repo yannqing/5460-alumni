@@ -8,6 +8,8 @@ import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.association.LocalPlatformService;
 import com.cmswe.alumni.api.association.MyApplicationRecordService;
 import com.cmswe.alumni.api.association.SchoolService;
+import com.cmswe.alumni.api.search.ShopService;
+import com.cmswe.alumni.api.system.MerchantService;
 import com.cmswe.alumni.common.constant.MyApplicationRecordType;
 import com.cmswe.alumni.common.dto.CancelMyApplicationRecordDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordDetailDto;
@@ -17,23 +19,32 @@ import com.cmswe.alumni.common.dto.UpdateMyJoinPlatformApplicationDto;
 import com.cmswe.alumni.common.dto.UpdateMyApplicationRecordDto;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
+import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApplication;
+import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.entity.School;
+import com.cmswe.alumni.common.entity.Shop;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.AlumniAssociationJoinApplicationListVo;
+import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationJoinApplicationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationJoinApplyDetailVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
+import com.cmswe.alumni.common.vo.MaterialImageItemVo;
+import com.cmswe.alumni.common.vo.MerchantDetailVo;
+import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.MyApplicationRecordDetailVo;
 import com.cmswe.alumni.common.vo.MyApplicationRecordListVo;
 import com.cmswe.alumni.common.vo.PageVo;
+import com.cmswe.alumni.common.vo.ShopDetailVo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
@@ -71,6 +82,12 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
     @Resource
     private ObjectMapper objectMapper;
 
+    @Resource
+    private MerchantService merchantService;
+
+    @Resource
+    private ShopService shopService;
+
     @Override
     public PageVo<MyApplicationRecordListVo> queryMyApplicationRecordPage(Long wxId, QueryMyApplicationRecordListDto dto) {
         if (wxId == null) {
@@ -91,6 +108,12 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         }
         if (includeType(dto.getRecordTypes(), MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM)) {
             merged.addAll(loadJoinPlatformRows(wxId, dto.getStatusGroup()));
+        }
+        if (includeType(dto.getRecordTypes(), MyApplicationRecordType.MERCHANT_APPLICATION)) {
+            merged.addAll(loadMerchantRows(wxId, dto.getStatusGroup()));
+        }
+        if (includeType(dto.getRecordTypes(), MyApplicationRecordType.SHOP_APPLICATION)) {
+            merged.addAll(loadShopRows(wxId, dto.getStatusGroup()));
         }
 
         merged.sort(Comparator.comparing(MergedRow::sortTime, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
@@ -121,6 +144,8 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_CREATE -> buildCreateDetail(wxId, recordId);
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN -> buildJoinDetail(wxId, recordId);
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM -> buildJoinPlatformDetail(wxId, recordId);
+            case MyApplicationRecordType.MERCHANT_APPLICATION -> buildMerchantDetail(wxId, recordId);
+            case MyApplicationRecordType.SHOP_APPLICATION -> buildShopDetail(wxId, recordId);
             default -> throw new BusinessException(ErrorType.SYSTEM_ERROR, "未知记录类型");
         };
     }
@@ -193,6 +218,12 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         if (MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM.equals(type)) {
             throw new BusinessException(ErrorType.ARGS_ERROR, "当前类型不支持撤销: " + type);
         }
+        if (MyApplicationRecordType.MERCHANT_APPLICATION.equals(type)) {
+            return merchantService.cancelPendingMerchantApplication(wxId, recordId);
+        }
+        if (MyApplicationRecordType.SHOP_APPLICATION.equals(type)) {
+            return shopService.cancelPendingShopApplication(wxId, recordId);
+        }
         throw new BusinessException(ErrorType.ARGS_ERROR, "当前类型暂不支持撤销: " + type);
     }
 
@@ -262,6 +293,187 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         vo.setCanEdit(pending);
         vo.setCanCancel(false);
         vo.setDetail(detail);
+        return vo;
+    }
+
+    private MyApplicationRecordDetailVo buildMerchantDetail(Long wxId, Long recordId) {
+        Merchant merchant = merchantService.getById(recordId);
+        if (merchant == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
+        }
+        if (!wxId.equals(merchant.getUserId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权查看该申请详情");
+        }
+        MerchantDetailVo detail = MerchantDetailVo.objToVo(merchant);
+        if (merchant.getAlumniAssociationId() != null) {
+            AlumniAssociation alumniAssociation = alumniAssociationService.getById(merchant.getAlumniAssociationId());
+            if (alumniAssociation != null) {
+                detail.setAlumniAssociation(AlumniAssociationListVo.objToVo(alumniAssociation));
+            }
+        }
+        MyApplicationRecordDetailVo vo = new MyApplicationRecordDetailVo();
+        vo.setRecordType(MyApplicationRecordType.MERCHANT_APPLICATION);
+        vo.setRecordId(String.valueOf(recordId));
+        vo.setApplicationStatus(merchant.getReviewStatus());
+        vo.setApplicationStatusText(threeStateText(merchant.getReviewStatus()));
+        vo.setStatusGroup(threeStateGroup(merchant.getReviewStatus()));
+        boolean merchantPending = merchant.getReviewStatus() != null && merchant.getReviewStatus() == 0;
+        vo.setCanEdit(merchantPending);
+        vo.setCanCancel(merchantPending);
+        vo.setDetail(detail);
+        vo.setMaterialImages(collectMerchantMaterialImages(detail));
+        return vo;
+    }
+
+    private MyApplicationRecordDetailVo buildShopDetail(Long wxId, Long recordId) {
+        Shop shop = shopService.getById(recordId);
+        if (shop == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "门店不存在");
+        }
+        if (!wxId.equals(shop.getCreatedBy())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权查看该申请详情");
+        }
+        ShopDetailVo detailVo;
+        if (shop.getReviewStatus() != null && shop.getReviewStatus() == 1) {
+            detailVo = shopService.getShopDetail(recordId);
+        } else {
+            detailVo = buildShopDetailVoFromEntity(shop);
+        }
+        MyApplicationRecordDetailVo vo = new MyApplicationRecordDetailVo();
+        vo.setRecordType(MyApplicationRecordType.SHOP_APPLICATION);
+        vo.setRecordId(String.valueOf(recordId));
+        vo.setApplicationStatus(shop.getReviewStatus());
+        vo.setApplicationStatusText(threeStateText(shop.getReviewStatus()));
+        vo.setStatusGroup(threeStateGroup(shop.getReviewStatus()));
+        boolean shopPending = shop.getReviewStatus() != null && shop.getReviewStatus() == 0;
+        vo.setCanEdit(shopPending);
+        vo.setCanCancel(shopPending);
+        vo.setDetail(detailVo);
+        vo.setMaterialImages(collectShopMaterialImages(detailVo));
+        return vo;
+    }
+
+    private List<MaterialImageItemVo> collectMerchantMaterialImages(MerchantDetailVo d) {
+        List<MaterialImageItemVo> list = new ArrayList<>();
+        if (d == null) {
+            return list;
+        }
+        addMaterialImageIfPresent(list, "LOGO", "商家 Logo", d.getLogo());
+        addMaterialImageIfPresent(list, "LICENSE", "营业执照", d.getBusinessLicense());
+        appendJsonImageArray(list, "BACKGROUND", "背景图", d.getBackgroundImage());
+        return list;
+    }
+
+    private List<MaterialImageItemVo> collectShopMaterialImages(ShopDetailVo d) {
+        List<MaterialImageItemVo> list = new ArrayList<>();
+        if (d == null) {
+            return list;
+        }
+        addMaterialImageIfPresent(list, "SHOP_LOGO", "门店 Logo", d.getLogo());
+        appendJsonImageArray(list, "SHOP_IMAGE", "门店图片", d.getShopImages());
+        return list;
+    }
+
+    private void addMaterialImageIfPresent(List<MaterialImageItemVo> list, String kind, String label, String url) {
+        if (StringUtils.isBlank(url)) {
+            return;
+        }
+        MaterialImageItemVo vo = new MaterialImageItemVo();
+        vo.setKind(kind);
+        vo.setLabel(label);
+        vo.setUrl(url.trim());
+        list.add(vo);
+    }
+
+    /**
+     * 解析 JSON 数组（字符串 URL 或 {url|fileUrl}）；解析失败则按单张 URL 处理（与小程序编辑页一致）。
+     */
+    private void appendJsonImageArray(List<MaterialImageItemVo> list, String kind, String labelPrefix, String json) {
+        if (StringUtils.isBlank(json)) {
+            return;
+        }
+        String t = json.trim();
+        try {
+            JsonNode root = objectMapper.readTree(t);
+            if (root.isArray()) {
+                if (root.size() == 0) {
+                    return;
+                }
+                int idx = 0;
+                for (JsonNode n : root) {
+                    String u = extractImageUrlFromJsonNode(n);
+                    if (StringUtils.isNotBlank(u)) {
+                        String label = root.size() > 1 ? labelPrefix + " " + (idx + 1) : labelPrefix;
+                        addMaterialImageIfPresent(list, kind, label, u);
+                    }
+                    idx++;
+                }
+                return;
+            }
+        } catch (Exception ex) {
+            log.debug("解析图片 JSON 失败，按单 URL 处理: {}", ex.getMessage());
+        }
+        addMaterialImageIfPresent(list, kind, labelPrefix, t);
+    }
+
+    private static String extractImageUrlFromJsonNode(JsonNode n) {
+        if (n == null || n.isNull()) {
+            return null;
+        }
+        if (n.isTextual()) {
+            return n.asText();
+        }
+        if (n.isObject()) {
+            if (n.has("url") && !n.get("url").isNull()) {
+                return n.get("url").asText();
+            }
+            if (n.has("fileUrl") && !n.get("fileUrl").isNull()) {
+                return n.get("fileUrl").asText();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 未审核通过时无法走 {@link ShopService#getShopDetail(Long)}，改为组装基础详情。
+     */
+    private ShopDetailVo buildShopDetailVoFromEntity(Shop shop) {
+        ShopDetailVo vo = new ShopDetailVo();
+        vo.setShopId(shop.getShopId() != null ? String.valueOf(shop.getShopId()) : null);
+        vo.setShopName(shop.getShopName());
+        vo.setShopType(shop.getShopType());
+        vo.setProvince(shop.getProvince());
+        vo.setCity(shop.getCity());
+        vo.setDistrict(shop.getDistrict());
+        vo.setAddress(shop.getAddress());
+        vo.setLatitude(shop.getLatitude());
+        vo.setLongitude(shop.getLongitude());
+        vo.setPhone(shop.getPhone());
+        vo.setBusinessHours(shop.getBusinessHours());
+        vo.setShopImages(shop.getShopImages());
+        vo.setLogo(shop.getLogo());
+        vo.setDescription(shop.getDescription());
+        vo.setStatus(shop.getStatus());
+        vo.setReviewStatus(shop.getReviewStatus());
+        vo.setReviewReason(shop.getReviewReason());
+        vo.setReviewTime(shop.getReviewTime());
+        vo.setIsRecommended(shop.getIsRecommended());
+        vo.setCreateTime(shop.getCreateTime());
+        vo.setUpdateTime(shop.getUpdateTime());
+        if (shop.getMerchantId() != null) {
+            Merchant m = merchantService.getById(shop.getMerchantId());
+            if (m != null) {
+                MerchantListVo mvo = MerchantListVo.objToVo(m);
+                mvo.setMerchantId(String.valueOf(m.getMerchantId()));
+                if (m.getUserId() != null) {
+                    mvo.setUserId(String.valueOf(m.getUserId()));
+                }
+                if (m.getAlumniAssociationId() != null) {
+                    mvo.setAlumniAssociationId(String.valueOf(m.getAlumniAssociationId()));
+                }
+                vo.setMerchant(mvo);
+            }
+        }
         return vo;
     }
 
@@ -343,6 +555,34 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         return rows;
     }
 
+    private List<MergedRow> loadMerchantRows(Long wxId, String statusGroup) {
+        LambdaQueryWrapper<Merchant> w = new LambdaQueryWrapper<>();
+        w.eq(Merchant::getUserId, wxId);
+        applyThreeStateFilter(w, statusGroup, Merchant::getReviewStatus);
+        w.orderByDesc(Merchant::getCreateTime);
+        List<Merchant> list = merchantService.list(w);
+        List<MergedRow> rows = new ArrayList<>();
+        for (Merchant e : list) {
+            LocalDateTime t = e.getCreateTime() != null ? e.getCreateTime() : e.getUpdateTime();
+            rows.add(new MergedRow(MyApplicationRecordType.MERCHANT_APPLICATION, e.getMerchantId(), t, e));
+        }
+        return rows;
+    }
+
+    private List<MergedRow> loadShopRows(Long wxId, String statusGroup) {
+        LambdaQueryWrapper<Shop> w = new LambdaQueryWrapper<>();
+        w.eq(Shop::getCreatedBy, wxId);
+        applyThreeStateFilter(w, statusGroup, Shop::getReviewStatus);
+        w.orderByDesc(Shop::getCreateTime);
+        List<Shop> list = shopService.list(w);
+        List<MergedRow> rows = new ArrayList<>();
+        for (Shop e : list) {
+            LocalDateTime t = e.getCreateTime() != null ? e.getCreateTime() : e.getUpdateTime();
+            rows.add(new MergedRow(MyApplicationRecordType.SHOP_APPLICATION, e.getShopId(), t, e));
+        }
+        return rows;
+    }
+
     private static boolean isCancelledOnlyGroup(String statusGroup) {
         return "CANCELLED".equalsIgnoreCase(StringUtils.trimToEmpty(statusGroup));
     }
@@ -370,6 +610,7 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             case "PENDING" -> w.eq(statusGetter, 0);
             case "APPROVED" -> w.eq(statusGetter, 1);
             case "REJECTED" -> w.eq(statusGetter, 2);
+            case "CANCELLED" -> w.eq(statusGetter, 3);
             default -> throw new BusinessException(ErrorType.ARGS_ERROR, "非法的 statusGroup: " + statusGroup);
         }
     }
@@ -379,6 +620,8 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_CREATE -> toCreateVo((AlumniAssociationApplication) row.payload);
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN -> toJoinVo((AlumniAssociationJoinApplication) row.payload);
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM -> toJoinPlatformVo((AlumniAssociationJoinApply) row.payload);
+            case MyApplicationRecordType.MERCHANT_APPLICATION -> toMerchantVo((Merchant) row.payload);
+            case MyApplicationRecordType.SHOP_APPLICATION -> toShopVo((Shop) row.payload);
             default -> throw new BusinessException(ErrorType.SYSTEM_ERROR, "未知记录类型");
         };
     }
@@ -457,6 +700,82 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         return vo;
     }
 
+    private MyApplicationRecordListVo toMerchantVo(Merchant e) {
+        MyApplicationRecordListVo vo = new MyApplicationRecordListVo();
+        vo.setRecordType(MyApplicationRecordType.MERCHANT_APPLICATION);
+        vo.setRecordId(String.valueOf(e.getMerchantId()));
+        vo.setTitle(StringUtils.defaultIfBlank(e.getMerchantName(), "商户入驻申请"));
+        vo.setSubtitle(StringUtils.defaultIfBlank(e.getBusinessCategory(), e.getBusinessScope()));
+        vo.setAssociationLogo(e.getLogo());
+        vo.setPlatformLogo(null);
+        vo.setAlumniAssociationId(null);
+        vo.setPlatformId(null);
+        vo.setApplicationStatus(e.getReviewStatus());
+        vo.setApplicationStatusText(threeStateText(e.getReviewStatus()));
+        vo.setStatusGroup(threeStateGroup(e.getReviewStatus()));
+        vo.setApplyTime(e.getCreateTime());
+        boolean merchantListPending = e.getReviewStatus() != null && e.getReviewStatus() == 0;
+        vo.setCanEdit(merchantListPending);
+        vo.setCanCancel(merchantListPending);
+        return vo;
+    }
+
+    private MyApplicationRecordListVo toShopVo(Shop e) {
+        MyApplicationRecordListVo vo = new MyApplicationRecordListVo();
+        vo.setRecordType(MyApplicationRecordType.SHOP_APPLICATION);
+        vo.setRecordId(String.valueOf(e.getShopId()));
+        vo.setTitle(StringUtils.defaultIfBlank(e.getShopName(), "门店申请"));
+        String subtitle = null;
+        if (e.getMerchantId() != null) {
+            Merchant m = merchantService.getById(e.getMerchantId());
+            if (m != null && StringUtils.isNotBlank(m.getMerchantName())) {
+                subtitle = "所属商户：" + m.getMerchantName();
+            }
+        }
+        if (StringUtils.isBlank(subtitle)) {
+            subtitle = buildShopAddressLine(e);
+        }
+        vo.setSubtitle(subtitle);
+        vo.setAssociationLogo(e.getLogo());
+        vo.setPlatformLogo(null);
+        vo.setAlumniAssociationId(null);
+        vo.setPlatformId(null);
+        vo.setApplicationStatus(e.getReviewStatus());
+        vo.setApplicationStatusText(threeStateText(e.getReviewStatus()));
+        vo.setStatusGroup(threeStateGroup(e.getReviewStatus()));
+        vo.setApplyTime(e.getCreateTime());
+        boolean shopListPending = e.getReviewStatus() != null && e.getReviewStatus() == 0;
+        vo.setCanEdit(shopListPending);
+        vo.setCanCancel(shopListPending);
+        return vo;
+    }
+
+    private static String buildShopAddressLine(Shop e) {
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotBlank(e.getProvince())) {
+            sb.append(e.getProvince().trim());
+        }
+        if (StringUtils.isNotBlank(e.getCity())) {
+            if (sb.length() > 0) {
+                sb.append(' ');
+            }
+            sb.append(e.getCity().trim());
+        }
+        if (StringUtils.isNotBlank(e.getDistrict())) {
+            if (sb.length() > 0) {
+                sb.append(' ');
+            }
+            sb.append(e.getDistrict().trim());
+        }
+        if (StringUtils.isNotBlank(e.getAddress())) {
+            if (sb.length() > 0) {
+                sb.append(' ');
+            }
+            sb.append(e.getAddress().trim());
+        }
+        return sb.length() > 0 ? sb.toString() : null;
+    }
+
     private String buildSchoolSubtitle(Long schoolId) {
         if (schoolId == null) {
             return null;
@@ -486,6 +805,7 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             case 0 -> "待审核";
             case 1 -> "已通过";
             case 2 -> "已拒绝";
+            case 3 -> "已撤销";
             default -> "未知";
         };
     }
@@ -511,6 +831,7 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             case 0 -> "PENDING";
             case 1 -> "APPROVED";
             case 2 -> "REJECTED";
+            case 3 -> "CANCELLED";
             default -> "UNKNOWN";
         };
     }

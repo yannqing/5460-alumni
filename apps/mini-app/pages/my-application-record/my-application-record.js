@@ -10,6 +10,8 @@ const TYPE_TABS = [
   { value: 'ALUMNI_ASSOCIATION_CREATE', label: '创建校友会' },
   { value: 'ALUMNI_ASSOCIATION_JOIN', label: '加入校友会' },
   { value: 'ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM', label: '加入校促会' },
+  { value: 'MERCHANT_APPLICATION', label: '商户入驻' },
+  { value: 'SHOP_APPLICATION', label: '门店申请' },
 ]
 
 const STATUS_TABS = [

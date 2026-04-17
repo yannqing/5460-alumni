@@ -1,7 +1,7 @@
 /* pages/audit/merchant/member/member.wxss */
 /* 页面根节点：弹窗挂在导航外，需占满屏宽以便 fixed 遮罩对齐 */
 .member-page-root {
-  width: 750rpx;
+  width: 100%;
   min-height: 100vh;
   position: relative;
 }
@@ -9,9 +9,8 @@
 /* 与校友会审核页一致：.page + group_5 + group_7，仅 group_7 内 scroll-list 滚动 */
 .page {
   background-color: transparent;
-  position: relative;
-  width: 750rpx;
-  height: calc(100vh - 190.22rpx);
+  width: 100%;
+  min-height: calc(100vh - 190.22rpx);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -82,18 +81,13 @@
 .group_7 {
   width: 714rpx;
   flex: 1;
-  max-height: 55vh;
   min-height: 0;
   background-color: #FFFFFF;
   border-radius: 28.99rpx;
-  margin: 34rpx 0 20rpx 18rpx;
+  margin: 34rpx 0 0 18rpx;
   padding: 38rpx 43rpx 27rpx 43rpx;
   box-sizing: border-box;
   overflow: hidden;
-  position: relative;
-  z-index: 1;
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
 }
@@ -135,9 +129,8 @@
 
 .scroll-list {
   width: 100%;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 0;
+  flex: 1;
+  min-height: 0;
 }
 
 .loading-state {

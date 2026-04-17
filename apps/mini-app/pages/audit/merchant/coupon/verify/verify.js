@@ -2,6 +2,49 @@
 const config = require('../../../../../utils/config.js')
 const { couponApi, shopApi } = require('../../../../../api/api.js')
 
+function extractVerificationCode(raw) {
+  if (!raw) {
+    return ''
+  }
+
+  const value = String(raw).trim()
+  if (!value) {
+    return ''
+  }
+
+  // 已经是纯核销码（数字）时直接返回
+  if (/^\d+$/.test(value)) {
+    return value
+  }
+
+  // 兼容扫码结果为页面路径，如：pages/xx/verify?scene=123456 或 ?code=123456
+  const queryIndex = value.indexOf('?')
+  if (queryIndex >= 0) {
+    const query = value.slice(queryIndex + 1)
+    const params = {}
+    query.split('&').forEach((pair) => {
+      const [k, v = ''] = pair.split('=')
+      if (k) {
+        params[decodeURIComponent(k)] = decodeURIComponent(v)
+      }
+    })
+    return (params.scene || params.code || '').trim()
+  }
+
+  // 兼容完整 URL，例如 https://xxx/verify?scene=123456
+  const sceneMatch = value.match(/[?&]scene=([^&]+)/)
+  if (sceneMatch && sceneMatch[1]) {
+    return decodeURIComponent(sceneMatch[1]).trim()
+  }
+
+  const codeMatch = value.match(/[?&]code=([^&]+)/)
+  if (codeMatch && codeMatch[1]) {
+    return decodeURIComponent(codeMatch[1]).trim()
+  }
+
+  return value
+}
+
 Page({
   data: {
     searchValue: '',
@@ -19,15 +62,15 @@ Page({
   },
 
   onLoad(options) {
-    // 如果URL中有code参数，自动填入并搜索
-    if (options.code) {
-      const code = decodeURIComponent(options.code)
+    // 兼容后端通过 scene 传参的小程序码，以及 code 直传
+    const codeFromOptions = extractVerificationCode(options.scene || options.code)
+    if (codeFromOptions) {
       this.setData({ 
-        searchValue: code,
+        searchValue: codeFromOptions,
         verificationMethod: 1, // 来自扫码
         isFromScan: true
       })
-      this.searchCoupon(code)
+      this.searchCoupon(codeFromOptions)
     }
     
     // 加载门店列表
@@ -179,8 +222,10 @@ Page({
   onScanClick() {
     wx.scanCode({
       success: (res) => {
-        const result = res.result || ''
-        if (!result) {
+        // 扫小程序码时，优先使用 path（真实页面参数），result 可能是加密短链
+        const source = res.path || res.result || ''
+        const verificationCode = extractVerificationCode(source)
+        if (!verificationCode) {
           wx.showToast({
             title: '扫描失败，请重试',
             icon: 'none'
@@ -189,12 +234,12 @@ Page({
         }
         // 将扫描结果填入搜索框并搜索
         this.setData({
-          searchValue: result,
+          searchValue: verificationCode,
           verificationMethod: 1, // 扫码方式
           isFromScan: true
         })
         // 搜索优惠券
-        this.searchCoupon(result)
+        this.searchCoupon(verificationCode)
       },
       fail: (err) => {
         console.error('扫描失败:', err)

@@ -34,7 +34,9 @@ Page({
     associationList: [],
     associationPage: 1,
     associationTotal: 0,
-    associationLoading: false
+    associationLoading: false,
+    /** 编辑待审核申请时存在（与 onLoad options.merchantId 一致） */
+    merchantId: '',
   },
 
   onLoad(options) {
@@ -507,12 +509,11 @@ Page({
     
     this.setData({ submitting: true })
     
-    // 调用后端接口提交商家申请
     const { form } = this.data
     const normalizedCreditCode = String(form.unifiedSocialCreditCode || '').trim().toUpperCase()
     const normalizedLegalPersonId = String(form.legalPersonId || '').trim().toUpperCase()
-    
-    post('/merchant/apply', {
+
+    const applyPayload = {
       merchantName: form.merchantName,
       merchantType: form.merchantType,
       businessLicense: form.businessLicense,
@@ -528,7 +529,15 @@ Page({
       businessScope: form.businessScope,
       businessCategory: form.businessCategory,
       alumniAssociationId: form.selectedAlumniAssociation ? form.selectedAlumniAssociation.alumniAssociationId : 0
-    }).then((res) => {
+    }
+
+    const mid = this.data.merchantId
+    const useUpdatePending = mid && this.data.merchantStatus === 'pending'
+    const req = useUpdatePending
+      ? merchantApi.updatePendingMerchantApplication(mid, applyPayload)
+      : post('/merchant/apply', applyPayload)
+
+    req.then((res) => {
       const { code, data, msg } = res.data || {}
       
       if (code === 200 && data) {

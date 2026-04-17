@@ -532,6 +532,8 @@ Page({
   // 表单验证
   validateForm() {
     const { formData } = this.data
+    const contactPhone = (formData.contactPhone || '').trim()
+    const contactEmail = (formData.contactEmail || '').trim()
 
     if (!formData.activityTitle.trim()) {
       wx.showToast({
@@ -589,39 +591,31 @@ Page({
       return false
     }
 
-    if (formData.isSignup === 1) {
-      if (!formData.registrationStartTime) {
-        wx.showToast({
-          title: '请选择报名开始时间',
-          icon: 'none',
-        })
-        return false
-      }
-
-      if (!formData.registrationEndTime) {
-        wx.showToast({
-          title: '请选择报名截止时间',
-          icon: 'none',
-        })
-        return false
-      }
-
-      if (new Date(formData.registrationEndTime) <= new Date(formData.registrationStartTime)) {
-        wx.showToast({
-          title: '报名截止时间不能早于开始时间',
-          icon: 'none',
-        })
-        return false
-      }
-    }
-
-    if (!formData.latitude || !formData.longitude) {
+    if (contactPhone && !/^1\d{10}$/.test(contactPhone)) {
       wx.showToast({
-        title: '请选择活动位置',
+        title: '请输入正确的手机号',
         icon: 'none',
       })
       return false
     }
+
+    if (
+      contactEmail &&
+      !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(contactEmail)
+    ) {
+      wx.showToast({
+        title: '请输入正确的邮箱',
+        icon: 'none',
+      })
+      return false
+    }
+
+    this.setData({
+      'formData.contactPhone': contactPhone,
+      'formData.contactEmail': contactEmail,
+    })
+
+    // 已按需求暂时注销：报名相关与活动位置相关校验
 
     return true
   },
@@ -641,14 +635,16 @@ Page({
     const submitData = {
       ...this.data.formData,
       activityId: this.data.activityId,
+      // 已按需求暂时注销：这些字段在编辑页暂不展示，提交时固定值
+      isSignup: 0,
+      isNeedReview: 0,
+      registrationStartTime: null,
+      registrationEndTime: null,
+      maxParticipants: null,
     }
 
     // 处理空值和类型转换
-    if (submitData.maxParticipants === '') {
-      submitData.maxParticipants = null
-    } else {
-      submitData.maxParticipants = parseInt(submitData.maxParticipants)
-    }
+    submitData.maxParticipants = null
 
     post('/activity/update', submitData)
       .then(res => {

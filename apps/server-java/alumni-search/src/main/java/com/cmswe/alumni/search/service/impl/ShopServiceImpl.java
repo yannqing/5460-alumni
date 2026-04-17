@@ -161,6 +161,30 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean cancelPendingShopApplication(Long wxId, Long shopId) {
+        if (wxId == null || shopId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL);
+        }
+        Shop shop = this.getById(shopId);
+        if (shop == null) {
+            throw new BusinessException("店铺不存在");
+        }
+        if (!wxId.equals(shop.getCreatedBy())) {
+            throw new BusinessException("无权撤销该门店申请");
+        }
+        if (shop.getReviewStatus() == null || shop.getReviewStatus() != 0) {
+            throw new BusinessException("仅待审核的门店申请可撤销");
+        }
+        shop.setReviewStatus(3);
+        shop.setReviewReason(null);
+        shop.setReviewTime(null);
+        shop.setUpdateTime(LocalDateTime.now());
+        log.info("用户撤销待审核门店申请 - 用户ID: {}, 店铺ID: {}", wxId, shopId);
+        return this.updateById(shop);
+    }
+
+    @Override
     public PageVo<NearbyShopVo> getNearbyShops(QueryNearbyShopDto queryDto) {
         // 1. 参数校验
         Optional.ofNullable(queryDto)
@@ -192,7 +216,8 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         shopList.forEach(shop -> {
             try {
                 Long shopId = Long.parseLong(shop.getShopId());
-                List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId);
+                Long merchantId = Long.parseLong(shop.getMerchantId());
+                List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId, merchantId);
                 shop.setCoupons(coupons);
                 log.debug("店铺 {} 加载了 {} 个优惠券", shopId, coupons.size());
             } catch (Exception e) {
@@ -265,7 +290,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
 
         // 6. 查询优惠券列表
         try {
-            List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId);
+            List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByShopId(shopId, shop.getMerchantId());
             shopDetail.setCoupons(coupons);
             log.debug("店铺 {} 加载了 {} 个优惠券", shopId, coupons.size());
         } catch (Exception e) {
@@ -296,6 +321,68 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         log.info("查询商铺详情，shopId: {}", shopId);
 
         return shopDetail;
+    }
+
+    @Override
+    public ShopDetailVo getShopDetailForApplicantEdit(Long wxId, Long shopId) {
+        if (wxId == null || shopId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL);
+        }
+        Shop shop = this.getById(shopId);
+        if (shop == null) {
+            throw new BusinessException("商铺不存在");
+        }
+        Merchant merchant = merchantService.getById(shop.getMerchantId());
+        if (merchant == null || !merchant.getUserId().equals(wxId)) {
+            throw new BusinessException("无权查看或修改此店铺信息");
+        }
+        if (shop.getReviewStatus() != null && shop.getReviewStatus() == 1) {
+            return getShopDetail(shopId);
+        }
+        return buildShopDetailVoFromEntity(shop);
+    }
+
+    /**
+     * 未审核通过时无法走 {@link #getShopDetail(Long)}，改为从实体组装（与「我的申请」详情一致）
+     */
+    private ShopDetailVo buildShopDetailVoFromEntity(Shop shop) {
+        ShopDetailVo vo = new ShopDetailVo();
+        vo.setShopId(shop.getShopId() != null ? String.valueOf(shop.getShopId()) : null);
+        vo.setShopName(shop.getShopName());
+        vo.setShopType(shop.getShopType());
+        vo.setProvince(shop.getProvince());
+        vo.setCity(shop.getCity());
+        vo.setDistrict(shop.getDistrict());
+        vo.setAddress(shop.getAddress());
+        vo.setLatitude(shop.getLatitude());
+        vo.setLongitude(shop.getLongitude());
+        vo.setPhone(shop.getPhone());
+        vo.setBusinessHours(shop.getBusinessHours());
+        vo.setShopImages(shop.getShopImages());
+        vo.setLogo(shop.getLogo());
+        vo.setDescription(shop.getDescription());
+        vo.setStatus(shop.getStatus());
+        vo.setReviewStatus(shop.getReviewStatus());
+        vo.setReviewReason(shop.getReviewReason());
+        vo.setReviewTime(shop.getReviewTime());
+        vo.setIsRecommended(shop.getIsRecommended());
+        vo.setCreateTime(shop.getCreateTime());
+        vo.setUpdateTime(shop.getUpdateTime());
+        if (shop.getMerchantId() != null) {
+            Merchant m = merchantService.getById(shop.getMerchantId());
+            if (m != null) {
+                MerchantListVo mvo = MerchantListVo.objToVo(m);
+                mvo.setMerchantId(String.valueOf(m.getMerchantId()));
+                if (m.getUserId() != null) {
+                    mvo.setUserId(String.valueOf(m.getUserId()));
+                }
+                if (m.getAlumniAssociationId() != null) {
+                    mvo.setAlumniAssociationId(String.valueOf(m.getAlumniAssociationId()));
+                }
+                vo.setMerchant(mvo);
+            }
+        }
+        return vo;
     }
 
     @Override
@@ -444,11 +531,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
             }
         }
 
-        // 3. 构建查询条件
+        // 3. 构建查询条件（审核列表不展示已撤销：review_status = 3）
         Page<Shop> shopPage = this.lambdaQuery()
                 .like(queryDto.getShopName() != null && !queryDto.getShopName().trim().isEmpty(),
                       Shop::getShopName, queryDto.getShopName())
                 .eq(queryDto.getReviewStatus() != null, Shop::getReviewStatus, queryDto.getReviewStatus())
+                .ne(Shop::getReviewStatus, 3)
                 .eq(alumniAssociationId == null && merchantId != null, Shop::getMerchantId, merchantId)
                 .in(alumniAssociationId != null, Shop::getMerchantId, scopedMerchantIds)
                 .eq(queryDto.getShopType() != null, Shop::getShopType, queryDto.getShopType())

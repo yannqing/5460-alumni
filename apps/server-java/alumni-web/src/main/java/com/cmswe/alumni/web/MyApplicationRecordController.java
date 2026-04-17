@@ -35,7 +35,7 @@ public class MyApplicationRecordController {
     private MyApplicationRecordService myApplicationRecordService;
 
     @PostMapping("/page")
-    @Operation(summary = "分页查询我的申请记录（创建校友会 / 加入校友会 / 校友会加入校促会）")
+    @Operation(summary = "分页查询我的申请记录（校友会相关 / 商户入驻 / 门店申请）")
     public BaseResponse<PageVo<MyApplicationRecordListVo>> queryMyApplicationRecordPage(
             @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody QueryMyApplicationRecordListDto queryDto) {

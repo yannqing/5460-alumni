@@ -1,26 +1,20 @@
-<!-- 页面头部 -->
-<view class="nav-bar">
-  <view class="nav-left" bindtap="onBack">
-    <text class="nav-icon">←</text>
-  </view>
-  <text class="nav-title">编辑活动</text>
-  <view class="nav-right"></view>
-</view>
-
-<view class="activity-edit-page">
-  <!-- 加载状态 -->
-  <view class="loading-container" wx:if="{{loading}}">
-    <text class="loading-text">加载中...</text>
-  </view>
-  
-  <!-- 表单内容 -->
-  <view class="form-container" wx:else>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑活动">
+  <view class="white-background-content">
+    <view class="activity-edit-page">
+      <!-- 加载状态 -->
+      <view class="loading-container" wx:if="{{loading}}">
+        <text class="loading-text">加载中...</text>
+      </view>
+      
+      <!-- 表单内容 -->
+      <view class="form-container" wx:else>
     <!-- 标题 -->
     <view class="form-item">
       <text class="form-label required">活动标题</text>
       <input 
         class="form-input" 
         placeholder="请输入活动标题" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.activityTitle}}" 
         data-field="activityTitle"
         bindinput="onInput"
@@ -33,6 +27,7 @@
       <input 
         class="form-input" 
         placeholder="请输入主办方名称" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.organizerName}}" 
         data-field="organizerName"
         bindinput="onInput"
@@ -113,6 +108,7 @@
       <textarea 
         class="form-textarea" 
         placeholder="请输入活动详情描述" 
+        placeholder-class="form-textarea-placeholder"
         value="{{formData.description}}" 
         data-field="description"
         bindinput="onInput"
@@ -178,7 +174,8 @@
       <text class="form-hint">{{endTimeDisplay || '请选择结束时间'}}</text>
     </view>
     
-    <!-- 是否需要报名 -->
+    <!-- 已按需求暂时注销：是否需要报名 / 报名开始时间 / 报名截止时间 -->
+    <!--
     <view class="form-item">
       <text class="form-label required">是否需要报名</text>
       <radio-group class="radio-group" data-field="isSignup" bindchange="onIsSignupChange">
@@ -192,13 +189,12 @@
         </label>
       </radio-group>
     </view>
-    
-    <!-- 报名开始时间 -->
+
     <view class="form-item" wx:if="{{formData.isSignup === 1}}">
       <text class="form-label required">报名开始时间</text>
-      <picker-view 
-        class="form-picker-view" 
-        value="{{registrationStartTimePickerValue}}" 
+      <picker-view
+        class="form-picker-view"
+        value="{{registrationStartTimePickerValue}}"
         bindchange="onRegistrationStartTimePickerChange"
         indicator-style="height: 50rpx;"
         style="width: 100%; height: 300rpx;"
@@ -221,13 +217,12 @@
       </picker-view>
       <text class="form-hint">{{registrationStartTimeDisplay || '请选择报名开始时间'}}</text>
     </view>
-    
-    <!-- 报名截止时间 -->
+
     <view class="form-item" wx:if="{{formData.isSignup === 1}}">
       <text class="form-label required">报名截止时间</text>
-      <picker-view 
-        class="form-picker-view" 
-        value="{{registrationEndTimePickerValue}}" 
+      <picker-view
+        class="form-picker-view"
+        value="{{registrationEndTimePickerValue}}"
         bindchange="onRegistrationEndTimePickerChange"
         indicator-style="height: 50rpx;"
         style="width: 100%; height: 300rpx;"
@@ -250,6 +245,7 @@
       </picker-view>
       <text class="form-hint">{{registrationEndTimeDisplay || '请选择报名截止时间'}}</text>
     </view>
+    -->
     
     <!-- 省份 -->
     <view class="form-item">
@@ -257,6 +253,7 @@
       <input 
         class="form-input" 
         placeholder="请输入省份" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.province}}" 
         data-field="province"
         bindinput="onInput"
@@ -269,6 +266,7 @@
       <input 
         class="form-input" 
         placeholder="请输入城市" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.city}}" 
         data-field="city"
         bindinput="onInput"
@@ -281,6 +279,7 @@
       <input 
         class="form-input" 
         placeholder="请输入区县" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.district}}" 
         data-field="district"
         bindinput="onInput"
@@ -293,35 +292,39 @@
       <input 
         class="form-input" 
         placeholder="请输入详细地址" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.address}}" 
         data-field="address"
         bindinput="onInput"
       />
     </view>
     
-    <!-- 位置选择 -->
+    <!-- 已按需求暂时注销：活动位置 / 选择位置按钮 -->
+    <!--
     <view class="form-item">
       <text class="form-label">活动位置</text>
       <view class="location-selector">
-        <input class="form-input location-input" placeholder="请选择活动位置" value="{{formData.locationName}}" disabled />
+        <input class="form-input location-input" placeholder="请选择活动位置" placeholder-class="form-input-placeholder" value="{{formData.locationName}}" disabled />
         <button class="select-location-btn" bindtap="selectLocation">选择位置</button>
       </view>
     </view>
+    -->
     
-    <!-- 最大参与人数 -->
+    <!-- 已按需求暂时注销：最大参与人数 / 是否需要审核 -->
+    <!--
     <view class="form-item">
       <text class="form-label">最大参与人数</text>
-      <input 
-        class="form-input" 
-        placeholder="请输入最大参与人数（留空表示不限）" 
-        value="{{formData.maxParticipants}}" 
+      <input
+        class="form-input"
+        placeholder="请输入最大参与人数（留空表示不限）"
+        placeholder-class="form-input-placeholder"
+        value="{{formData.maxParticipants}}"
         data-field="maxParticipants"
         bindinput="onInput"
         type="number"
       />
     </view>
-    
-    <!-- 是否需要审核 -->
+
     <view class="form-item">
       <text class="form-label required">是否需要审核</text>
       <radio-group class="radio-group" data-field="isNeedReview" bindchange="onIsNeedReviewChange">
@@ -335,6 +338,7 @@
         </label>
       </radio-group>
     </view>
+    -->
     
     <!-- 联系人 -->
     <view class="form-item">
@@ -342,6 +346,7 @@
       <input 
         class="form-input" 
         placeholder="请输入联系人" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.contactPerson}}" 
         data-field="contactPerson"
         bindinput="onInput"
@@ -354,6 +359,7 @@
       <input 
         class="form-input" 
         placeholder="请输入联系电话" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.contactPhone}}" 
         data-field="contactPhone"
         bindinput="onInput"
@@ -366,17 +372,20 @@
       <input 
         class="form-input" 
         placeholder="请输入联系邮箱" 
+        placeholder-class="form-input-placeholder"
         value="{{formData.contactEmail}}" 
         data-field="contactEmail"
         bindinput="onInput"
       />
     </view>
     
-    <!-- 提交按钮 -->
-    <view class="submit-btn-container">
-      <button class="submit-btn" disabled="{{submitting || uploading}}" bindtap="onSubmit">
-        {{submitting ? '提交中...' : '保存修改'}}
-      </button>
+        <!-- 提交按钮 -->
+        <view class="submit-btn-container">
+          <button class="submit-btn" disabled="{{submitting || uploading}}" bindtap="onSubmit">
+            {{submitting ? '提交中...' : '保存修改'}}
+          </button>
+        </view>
+      </view>
     </view>
   </view>
-</view>
+</custom-nav-bar>

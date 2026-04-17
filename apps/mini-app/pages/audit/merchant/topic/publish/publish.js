@@ -575,6 +575,8 @@ Page({
   // 提交发布话题
   onSubmitPublish() {
     const { publishForm, imageUrls } = this.data
+    const contactPhone = (publishForm.contactPhone || '').trim()
+    const contactEmail = (publishForm.contactEmail || '').trim()
 
     // 表单验证
     if (!publishForm.activityTitle.trim()) {
@@ -626,9 +628,31 @@ Page({
       return
     }
 
+    // 联系方式有填写时，校验格式
+    if (contactPhone && !/^1\d{10}$/.test(contactPhone)) {
+      wx.showToast({
+        title: '请输入正确的手机号',
+        icon: 'none',
+      })
+      return
+    }
+
+    if (
+      contactEmail &&
+      !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(contactEmail)
+    ) {
+      wx.showToast({
+        title: '请输入正确的邮箱',
+        icon: 'none',
+      })
+      return
+    }
+
     // 处理表单数据
     const formData = {
       ...publishForm,
+      contactPhone,
+      contactEmail,
       // 创建话题固定为：无需报名、无需审核
       isSignup: 0,
       isNeedReview: 0,

@@ -113,6 +113,7 @@ Page({
       {
         id: 3,
         name: '商户审核',
+        code: 'ALUMNI_ASSOCIATION_MERCHANT_AUDIT',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/apply/apply'
@@ -120,6 +121,7 @@ Page({
       {
         id: 4,
         name: '店铺审核',
+        code: 'ALUMNI_ASSOCIATION_SHOP_AUDIT',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/shop-audit/shop-audit'
@@ -217,16 +219,16 @@ Page({
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight || 20
     })
-
-    // 页面加载
-    this.checkPermissions()
   },
 
   onShow() {
-    // 每次显示时重新检查权限，兼容审核通过后 roles 缓存未更新的情况
-    this.checkPermissions()
-    // 获取待办数量统计
-    this.getTodoCounts()
+    // 先算权限与列表，再拉待办角标，避免与 getTodoCounts 竞态；WXML 角标用 WXS 按 code 读 todoCounts
+    void this.refreshAuditPage()
+  },
+
+  async refreshAuditPage() {
+    await this.checkPermissions()
+    await this.getTodoCounts()
   },
 
   // 获取待办数量统计
@@ -235,7 +237,24 @@ Page({
       const res = await auditApi.getTodoCount()
       console.log('[AuditIndex] 待办统计返回:', res)
       if (res.data && res.data.code === 200 && res.data.data) {
-        const counts = res.data.data.todoCounts || {}
+        const counts = { ...(res.data.data.todoCounts || {}) }
+        // 兼容后端新旧 key：避免商户/店铺审核角标因字段名差异不显示
+        if (counts.ALUMNI_ASSOCIATION_MERCHANT_AUDIT == null &&
+            counts.ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT != null) {
+          counts.ALUMNI_ASSOCIATION_MERCHANT_AUDIT = counts.ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT
+        }
+        if (counts.ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT == null &&
+            counts.ALUMNI_ASSOCIATION_MERCHANT_AUDIT != null) {
+          counts.ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT = counts.ALUMNI_ASSOCIATION_MERCHANT_AUDIT
+        }
+        if (counts.ALUMNI_ASSOCIATION_SHOP_AUDIT == null &&
+            counts.ALUMNI_ASSOCIATION_SHOP_REVIEW != null) {
+          counts.ALUMNI_ASSOCIATION_SHOP_AUDIT = counts.ALUMNI_ASSOCIATION_SHOP_REVIEW
+        }
+        if (counts.ALUMNI_ASSOCIATION_SHOP_REVIEW == null &&
+            counts.ALUMNI_ASSOCIATION_SHOP_AUDIT != null) {
+          counts.ALUMNI_ASSOCIATION_SHOP_REVIEW = counts.ALUMNI_ASSOCIATION_SHOP_AUDIT
+        }
         this.setData({
           todoCounts: counts
         })

@@ -10,10 +10,17 @@ function formatCouponRow(item) {
     : ''
   let discountText = ''
   if (item.couponType === 1) {
-    discountText =
-      item.discountValue != null
-        ? `${item.discountValue}折`
-        : '折扣'
+    if (item.discountType === 1) {
+      discountText =
+        item.discountValue != null
+          ? `减${item.discountValue}元`
+          : '固定金额'
+    } else {
+      discountText =
+        item.discountValue != null
+          ? `${item.discountValue}折`
+          : '折扣'
+    }
   } else if (item.couponType === 2) {
     const min = item.minSpend != null ? item.minSpend : 0
     const val = item.discountValue != null ? item.discountValue : ''
@@ -47,29 +54,12 @@ Page({
     couponHasNext: false,
     couponHasPrevious: false,
     couponDeleting: false,
-
-    scrollListHeight: 400,
   },
 
-  onLoad() {
-    this.setScrollListHeight()
-  },
+  onLoad() {},
 
   onShow() {
     this.loadMerchants()
-  },
-
-  setScrollListHeight() {
-    try {
-      const res = wx.getSystemInfoSync()
-      const navRpx = 190.22
-      const navPx = (res.windowWidth * navRpx) / 750
-      const contentH = res.windowHeight - navPx
-      const scrollH = Math.floor(contentH * 0.5)
-      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 })
-    } catch (e) {
-      this.setData({ scrollListHeight: 400 })
-    }
   },
 
   async loadMerchants() {
@@ -113,7 +103,6 @@ Page({
       this.setData({ merchantLoading: false })
     }
 
-    this.setScrollListHeight()
     if (merchantIdForList) {
       await this.loadCouponList(1)
     } else {
@@ -128,7 +117,7 @@ Page({
     }
   },
 
-  async loadCouponList(page) {
+  async loadCouponList(page, append = false) {
     const merchantId = this.data.selectedMerchantId
     if (!merchantId) {
       return
@@ -157,8 +146,12 @@ Page({
             ? d.hasPrevious
             : cur > 1
 
+        const mergedList = append
+          ? this.data.couponList.concat(records)
+          : records
+
         this.setData({
-          couponList: records,
+          couponList: mergedList,
           couponCurrentPage: cur,
           couponTotal: d.total != null ? d.total : records.length,
           couponPages: pages,
@@ -170,34 +163,33 @@ Page({
           title: (res.data && res.data.msg) || '加载失败',
           icon: 'none',
         })
-        this.setData({ couponList: [] })
+        this.setData({
+          couponList: append ? this.data.couponList : [],
+        })
       }
     } catch (error) {
       console.error('加载优惠券列表失败:', error)
       wx.showToast({ title: '加载优惠券列表失败', icon: 'none' })
-      this.setData({ couponList: [] })
+      this.setData({
+        couponList: append ? this.data.couponList : [],
+      })
     } finally {
       this.setData({ couponLoading: false })
     }
   },
 
-  goCouponPrevPage() {
-    const { couponCurrentPage, couponLoading, couponHasPrevious } = this.data
-    if (couponLoading || !couponHasPrevious || couponCurrentPage <= 1) {
-      return
-    }
-    this.loadCouponList(couponCurrentPage - 1)
-  },
-
-  goCouponNextPage() {
+  async goCouponNextPage() {
     const { couponCurrentPage, couponLoading, couponHasNext } = this.data
     if (couponLoading || !couponHasNext) {
       return
     }
-    this.loadCouponList(couponCurrentPage + 1)
+    await this.loadCouponList(couponCurrentPage + 1, true)
   },
 
   onCouponScrollToLower() {
+    if (this.data.couponLoading || !this.data.couponHasNext) {
+      return
+    }
     this.goCouponNextPage()
   },
 
