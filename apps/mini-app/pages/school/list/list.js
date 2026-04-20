@@ -10,7 +10,8 @@ Page({
     // 图标路径
     iconSearch: '../../../assets/icons/magnifying glass.png',
     iconLocation: config.getIconUrl('position.png'),
-    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/03/b6b97719-59ca-4c60-a006-b0f44eb4931c.png`,
+    topImageUrl:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/list/alumni_asssss.png',
     // 是否为选择模式
     selectMode: false,
     // 搜索关键词

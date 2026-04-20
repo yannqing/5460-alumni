@@ -468,7 +468,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     private static final String SHOP_ADMIN_ROLE_CODE = "ORGANIZE_SHOP_ADMIN";
 
     /**
-     * 为用户分配门店管理员角色（role_user：type=3 商户，organize_id=门店ID）
+     * 为用户分配门店管理员角色（role_user：type=4 门店，organize_id=门店ID）
      */
     private void assignShopAdminRole(Long wxId, Long shopId) {
         try {
@@ -488,7 +488,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     new LambdaQueryWrapper<RoleUser>()
                             .eq(RoleUser::getWxId, wxId)
                             .eq(RoleUser::getRoleId, shopAdminRole.getRoleId())
-                            .eq(RoleUser::getType, 3)
+                            .eq(RoleUser::getType, 4)
                             .eq(RoleUser::getOrganizeId, shopId));
 
             if (existing != null) {
@@ -499,7 +499,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             RoleUser roleUser = new RoleUser();
             roleUser.setWxId(wxId);
             roleUser.setRoleId(shopAdminRole.getRoleId());
-            roleUser.setType(3);
+            roleUser.setType(4);
             roleUser.setOrganizeId(shopId);
             roleUser.setCreateTime(LocalDateTime.now());
             roleUser.setUpdateTime(LocalDateTime.now());
@@ -539,7 +539,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     new LambdaQueryWrapper<RoleUser>()
                             .eq(RoleUser::getWxId, wxId)
                             .eq(RoleUser::getRoleId, shopAdminRole.getRoleId())
-                            .eq(RoleUser::getType, 3)
+                            .eq(RoleUser::getType, 4)
                             .eq(RoleUser::getOrganizeId, shopId));
             log.info("已移除门店管理员角色 - 用户ID: {}, 门店ID: {}", wxId, shopId);
         } catch (Exception e) {
@@ -578,7 +578,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     new LambdaQueryWrapper<RoleUser>()
                             .eq(RoleUser::getWxId, wxId)
                             .eq(RoleUser::getRoleId, shopAdminRole.getRoleId())
-                            .eq(RoleUser::getType, 3)
+                            .eq(RoleUser::getType, 4)
                             .in(RoleUser::getOrganizeId, merchantShopIds));
             log.info("已移除用户在商户下所有门店管理员角色 - 用户ID: {}, 商户ID: {}, 门店数: {}",
                     wxId, merchantId, merchantShopIds.size());
@@ -602,7 +602,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         return roleUserService.lambdaQuery()
                 .eq(RoleUser::getWxId, wxId)
                 .eq(RoleUser::getRoleId, shopAdminRole.getRoleId())
-                .eq(RoleUser::getType, 3)
+                .eq(RoleUser::getType, 4)
                 .eq(RoleUser::getOrganizeId, shopId)
                 .count() > 0;
     }

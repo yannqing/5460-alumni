@@ -647,7 +647,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                 List<com.cmswe.alumni.common.entity.RoleUser> shopAdminRoleUsers = roleUserService.lambdaQuery()
                         .eq(com.cmswe.alumni.common.entity.RoleUser::getWxId, wxId)
                         .eq(com.cmswe.alumni.common.entity.RoleUser::getRoleId, shopAdminRole.getRoleId())
-                        .eq(com.cmswe.alumni.common.entity.RoleUser::getType, 3) // 3-商户
+                        .eq(com.cmswe.alumni.common.entity.RoleUser::getType, 4) // 4-门店
                         .list();
 
                 if (!shopAdminRoleUsers.isEmpty()) {

@@ -2576,7 +2576,7 @@ CREATE TABLE `role_user` (
   `id` bigint NOT NULL,
   `wx_id` bigint NOT NULL COMMENT '用户ID',
   `role_id` bigint DEFAULT NULL,
-  `type` tinyint DEFAULT NULL COMMENT '类型（1校处会，2校友会，3商户）',
+  `type` tinyint DEFAULT NULL COMMENT '类型（1校处会，2校友会，3商户，4门店）',
   `organize_id` bigint DEFAULT NULL COMMENT '组织id',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

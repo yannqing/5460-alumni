@@ -33,7 +33,7 @@ public class RoleUser implements Serializable {
     private Long roleId;
 
     /**
-     * 类型（1-校处会，2-校友会，3-商户）
+     * 类型（1-校处会，2-校友会，3-商户，4-门店）
      */
     @TableField(value = "type")
     private Integer type;

@@ -10,6 +10,17 @@ function formatCouponValidTime(value) {
   return String(value).replace('T', ' ')
 }
 
+function normalizeDisplayText(value) {
+  if (value == null) {
+    return ''
+  }
+  const text = String(value).trim()
+  if (!text || text.toLowerCase() === 'null' || text.toLowerCase() === 'undefined') {
+    return ''
+  }
+  return text
+}
+
 Page({
   data: {
     shopId: '',
@@ -18,7 +29,9 @@ Page({
     // 图标路径
     iconLocation: config.getIconUrl('position.png'),
     iconPhone: config.getIconUrl('电话.png'),
-    iconTime: config.getIconUrl('时间.png')
+    iconTime: config.getIconUrl('时间.png'),
+    defaultLogo: config.defaultAvatar,
+    defaultCover: config.defaultCover
   },
 
   onLoad(options) {
@@ -38,7 +51,7 @@ Page({
 
       if (res.data && res.data.code === 200 && res.data.data) {
         const shopData = res.data.data
-        shopData.logoUrl = shopData.logo ? config.getImageUrl(shopData.logo) : ''
+        shopData.logoUrl = shopData.logo ? config.getImageUrl(shopData.logo) : config.defaultAvatar
         
         // 处理店铺图片
         let gallery = []
@@ -77,13 +90,23 @@ Page({
           }
         }
 
+        // 如果没有图片，则使用默认背景图
+        if (gallery.length === 0) {
+          gallery = [config.defaultCover]
+        }
+
         // 处理地址信息
         let location = ''
-        if (shopData.address) {
-          location = shopData.address
+        const address = normalizeDisplayText(shopData.address)
+        if (address) {
+          location = address
         } else if (shopData.province || shopData.city || shopData.district) {
-          location = [shopData.province, shopData.city, shopData.district].filter(Boolean).join('')
+          location = [shopData.province, shopData.city, shopData.district]
+            .map((item) => normalizeDisplayText(item))
+            .filter(Boolean)
+            .join('')
         }
+        shopData.phone = normalizeDisplayText(shopData.phone)
 
         if (shopData.coupons && Array.isArray(shopData.coupons)) {
           shopData.coupons = shopData.coupons.map(c => ({

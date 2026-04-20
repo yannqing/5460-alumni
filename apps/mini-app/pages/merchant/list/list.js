@@ -7,7 +7,7 @@ Page({
     // 图标路径
     iconSearch: config.getIconUrl('sslss.png'),
     iconCategory: config.getIconUrl('xx.png'),
-    topImageUrl: `https://${config.DOMAIN}/upload/images/2026/02/09/ec78b300-ab01-470d-a504-97eb149caf24.png`,
+    topImageUrl: 'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/list/merchant.png',
     keyword: '',
     filters: [
       { label: '商铺类型', options: ['全部类型', '校友商铺', '普通商铺'], selected: 0 },

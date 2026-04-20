@@ -10,7 +10,7 @@
 
     <view wx:elif="{{shopInfo}}">
       <!-- 多图轮播 -->
-      <swiper class="shop-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
+      <swiper class="shop-swiper" indicator-dots="{{shopInfo.gallery.length > 1}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
         <swiper-item wx:for="{{shopInfo.gallery}}" wx:key="*this">
           <image class="swiper-image" src="{{item}}" mode="aspectFill"></image>
         </swiper-item>
@@ -20,15 +20,15 @@
       <view class="white-background-content">
         <!-- 基础信息卡片 -->
         <view class="card basic-info-card">
-          <!-- 右上角操作图标 -->
-          <view class="card-action-icons">
+          <!-- 右上角操作图标（暂时注销） -->
+          <!-- <view class="card-action-icons">
             <view class="action-icon-item" bindtap="goToChat">
               <text class="icon-text">💬</text>
             </view>
             <view class="action-icon-item" bindtap="toggleFavorite">
               <text class="icon-text {{shopInfo.isFavorited ? 'favorited' : ''}}">{{shopInfo.isFavorited ? '❤️' : '🤍'}}</text>
             </view>
-          </view>
+          </view> -->
           <view class="shop-header">
             <view class="shop-avatar-row">
               <image class="shop-avatar" src="{{shopInfo.avatar}}" mode="aspectFill"></image>
@@ -50,13 +50,13 @@
           </view>
 
           <view class="info-section">
-            <view class="info-item">
+            <view class="info-item" wx:if="{{shopInfo.location && shopInfo.location !== 'null' && shopInfo.location !== 'undefined'}}">
               <view class="info-main">
                 <text class="info-label-col">地址</text>
                 <text class="info-value-col">{{shopInfo.location}}</text>
               </view>
             </view>
-            <view class="info-item" bindtap="makeCall" data-phone="{{shopInfo.phone}}">
+            <view class="info-item" wx:if="{{shopInfo.phone && shopInfo.phone !== 'null' && shopInfo.phone !== 'undefined'}}" bindtap="makeCall" data-phone="{{shopInfo.phone}}">
               <view class="info-main">
                 <text class="info-label-col">电话</text>
                 <text class="info-value-col info-value--phone">{{shopInfo.phone}}</text>

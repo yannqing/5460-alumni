@@ -7,7 +7,7 @@
 
     <view wx:elif="{{shopInfo}}">
       <!-- 多图轮播 -->
-      <swiper class="shop-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
+      <swiper class="shop-swiper" indicator-dots="{{gallery.length > 1}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
         <swiper-item wx:for="{{gallery}}" wx:key="*this">
           <image class="swiper-image" src="{{item}}" mode="aspectFill"></image>
         </swiper-item>
@@ -22,7 +22,6 @@
               <view class="shop-name-left">
                 <image
                   class="shop-logo"
-                  wx:if="{{shopInfo.logoUrl}}"
                   src="{{shopInfo.logoUrl}}"
                   mode="aspectFill"
                 ></image>
@@ -37,13 +36,13 @@
           </view>
 
           <view class="info-section">
-            <view class="info-item" bindtap="openLocation">
+            <view class="info-item" wx:if="{{location && location !== 'null' && location !== 'undefined'}}" bindtap="openLocation">
               <view class="info-main">
                 <text class="info-label-col">地址</text>
                 <text class="info-value-col">{{location}}</text>
               </view>
             </view>
-            <view class="info-item" bindtap="makeCall">
+            <view class="info-item" wx:if="{{shopInfo.phone && shopInfo.phone !== 'null' && shopInfo.phone !== 'undefined'}}" bindtap="makeCall">
               <view class="info-main">
                 <text class="info-label-col">电话</text>
                 <text class="info-value-col info-value--phone">{{shopInfo.phone}}</text>
