@@ -118,6 +118,7 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/apply/apply'
       },
+      /*
       {
         id: 4,
         name: '店铺审核',
@@ -126,6 +127,7 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/shop-audit/shop-audit'
       },
+      */
       {
         id: 6,
         name: '活动管理',

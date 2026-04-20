@@ -93,7 +93,8 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         shop.setCreateTime(now);
         shop.setUpdateTime(now);
         shop.setStatus(1); // 默认营业中
-        shop.setReviewStatus(0); // 默认待审核
+        shop.setReviewStatus(1); // 直接审核通过
+        shop.setReviewTime(now); // 自动通过时间
         shop.setIsRecommended(0); // 默认不推荐
         shop.setViewCount(0L);
         shop.setClickCount(0L);
@@ -102,7 +103,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         shop.setIsDelete(0);
 
         // 4. 保存
-        return this.save(shop);
+        boolean saved = this.save(shop);
+        if (saved) {
+            // 5. 自动通过后，刷新商户统计信息（门店数量+1）
+            refreshMerchantStatistics(shop.getMerchantId());
+        }
+        return saved;
     }
 
     @Override
