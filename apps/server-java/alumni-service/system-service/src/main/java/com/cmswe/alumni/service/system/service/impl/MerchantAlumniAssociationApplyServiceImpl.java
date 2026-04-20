@@ -2,16 +2,21 @@ package com.cmswe.alumni.service.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.system.MerchantAlumniAssociationApplyService;
 import com.cmswe.alumni.api.system.MerchantService;
+import com.cmswe.alumni.api.user.UnifiedMessageApiService;
 import com.cmswe.alumni.common.dto.ApplyMerchantAssociationJoinDto;
 import com.cmswe.alumni.common.dto.QueryMerchantAssociationJoinApplyDto;
 import com.cmswe.alumni.common.dto.ReviewMerchantAssociationJoinApplyDto;
+import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.entity.MerchantAlumniAssociationApply;
 import com.cmswe.alumni.common.enums.ErrorType;
+import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
 import com.cmswe.alumni.common.vo.MerchantAssociationJoinApplyVo;
@@ -35,6 +40,12 @@ public class MerchantAlumniAssociationApplyServiceImpl
 
     @Resource
     private MerchantService merchantService;
+
+    @Resource
+    private AlumniAssociationService alumniAssociationService;
+
+    @Resource
+    private UnifiedMessageApiService unifiedMessageApiService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -70,7 +81,71 @@ public class MerchantAlumniAssociationApplyServiceImpl
         apply.setApplicantWxId(wxId);
         apply.setStatus(0); // 0-待审核
 
-        return this.save(apply);
+        boolean saved = this.save(apply);
+        if (saved) {
+            // 发送申请提交通知
+            sendJoinApplicationNotification(wxId, merchant.getMerchantName(), applyDto.getAlumniAssociationId());
+        }
+        return saved;
+    }
+
+    /**
+     * 发送商户申请加入校友会通知
+     */
+    private void sendJoinApplicationNotification(Long wxId, String merchantName, Long alumniAssociationId) {
+        try {
+            AlumniAssociation association = alumniAssociationService.getById(alumniAssociationId);
+            String associationName = association != null ? association.getAssociationName() : "校友会";
+
+            String title = "加入校友会申请已提交";
+            String content = "您的【" + merchantName + "】商户申请加入【" + associationName + "】校友会已提交，请耐心等待审核";
+
+            unifiedMessageApiService.sendSystemNotification(
+                    wxId,
+                    NotificationType.SYSTEM_ANNOUNCEMENT,
+                    title,
+                    content,
+                    alumniAssociationId,
+                    "MERCHANT_ASSOCIATION_JOIN"
+            );
+        } catch (Exception e) {
+            log.error("发送商户加入校友会申请通知失败", e);
+        }
+    }
+
+    /**
+     * 发送商户加入校友会审核结果通知
+     */
+    private void sendJoinReviewNotification(Long wxId, String merchantName, Long alumniAssociationId, Integer status, String reviewComment) {
+        try {
+            AlumniAssociation association = alumniAssociationService.getById(alumniAssociationId);
+            String associationName = association != null ? association.getAssociationName() : "校友会";
+
+            String title;
+            String content;
+
+            if (status == 1) {
+                title = "加入校友会申请已通过";
+                content = "恭喜！您的【" + merchantName + "】商户加入【" + associationName + "】校友会的申请已审核通过";
+            } else {
+                title = "加入校友会申请未通过";
+                content = "很抱歉，您的【" + merchantName + "】商户加入【" + associationName + "】校友会的申请未通过审核";
+                if (StringUtils.isNotBlank(reviewComment)) {
+                    content += "。原因：" + reviewComment;
+                }
+            }
+
+            unifiedMessageApiService.sendSystemNotification(
+                    wxId,
+                    NotificationType.SYSTEM_ANNOUNCEMENT,
+                    title,
+                    content,
+                    alumniAssociationId,
+                    "MERCHANT_ASSOCIATION_JOIN"
+            );
+        } catch (Exception e) {
+            log.error("发送商户加入校友会审核结果通知失败", e);
+        }
     }
 
     @Override
@@ -124,6 +199,12 @@ public class MerchantAlumniAssociationApplyServiceImpl
             if (!updateMerchantResult) {
                 throw new BusinessException(ErrorType.SYSTEM_ERROR, "更新商户信息失败");
             }
+        }
+
+        // 发送审核结果通知
+        Merchant merchant = merchantService.getById(apply.getMerchantId());
+        if (merchant != null) {
+            sendJoinReviewNotification(merchant.getUserId(), merchant.getMerchantName(), apply.getAlumniAssociationId(), reviewDto.getStatus(), reviewDto.getReviewComment());
         }
 
         return true;

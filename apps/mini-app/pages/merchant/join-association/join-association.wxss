@@ -118,7 +118,10 @@
 
 .header-bg-container {
   position: relative;
-  height: 240rpx;
+  height: 380rpx;
+  border-bottom-left-radius: 40rpx;
+  border-bottom-right-radius: 40rpx;
+  overflow: hidden;
 }
 
 .header-bg {
@@ -131,28 +134,28 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 30rpx;
+  padding: 40rpx;
   background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);
   display: flex;
   align-items: center;
 }
 
 .merchant-logo {
-  width: 100rpx;
-  height: 100rpx;
+  width: 130rpx;
+  height: 130rpx;
   border-radius: 50%;
   border: 4rpx solid #fff;
   background: #fff;
 }
 
 .merchant-basic {
-  margin-left: 20rpx;
+  margin-left: 24rpx;
   flex: 1;
 }
 
 .merchant-name {
   color: #fff;
-  font-size: 34rpx;
+  font-size: 38rpx;
   font-weight: 600;
   display: block;
 }
