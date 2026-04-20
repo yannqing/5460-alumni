@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 审核待办统计服务实现类
@@ -123,16 +124,26 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
 
             // 2.6 商户审核 (ALUMNI_ASSOCIATION_MERCHANT_AUDIT)：待审核商户，且所属校友会在管理范围内
             LambdaQueryWrapper<Merchant> merchantPendingWrapper = new LambdaQueryWrapper<>();
-            merchantPendingWrapper.eq(Merchant::getReviewStatus, 0)
-                    .in(Merchant::getAlumniAssociationId, alumniIdsByRole);
+            merchantPendingWrapper.eq(Merchant::getReviewStatus, 0);
+            if (!alumniIdsByRole.isEmpty()) {
+                String sql = alumniIdsByRole.stream()
+                        .map(id -> "(alumni_association_id = CAST(" + id + " AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST(" + id + " AS CHAR)))")
+                        .collect(Collectors.joining(" OR "));
+                merchantPendingWrapper.apply("(" + sql + ")");
+            }
             counts.put("ALUMNI_ASSOCIATION_MERCHANT_AUDIT",
                     Math.toIntExact(merchantService.count(merchantPendingWrapper)));
 
             // 2.7 店铺审核 (ALUMNI_ASSOCIATION_SHOP_AUDIT)：待审核店铺（review_status=0），且所属商户的校友会在管理范围内
-            List<Long> scopedMerchantIds = merchantService.lambdaQuery()
-                    .select(Merchant::getMerchantId)
-                    .in(Merchant::getAlumniAssociationId, alumniIdsByRole)
-                    .list()
+            LambdaQueryWrapper<Merchant> scopedMerchantQuery = new LambdaQueryWrapper<>();
+            scopedMerchantQuery.select(Merchant::getMerchantId);
+            if (!alumniIdsByRole.isEmpty()) {
+                String sql = alumniIdsByRole.stream()
+                        .map(id -> "(alumni_association_id = CAST(" + id + " AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST(" + id + " AS CHAR)))")
+                        .collect(Collectors.joining(" OR "));
+                scopedMerchantQuery.apply("(" + sql + ")");
+            }
+            List<Long> scopedMerchantIds = merchantService.list(scopedMerchantQuery)
                     .stream()
                     .map(Merchant::getMerchantId)
                     .filter(Objects::nonNull)

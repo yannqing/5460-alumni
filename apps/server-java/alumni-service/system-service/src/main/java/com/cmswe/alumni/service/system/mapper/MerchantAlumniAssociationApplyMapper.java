@@ -20,6 +20,7 @@ public interface MerchantAlumniAssociationApplyMapper extends BaseMapper<Merchan
     IPage<MerchantAssociationJoinApplyVo> selectJoinApplyPage(
             Page<MerchantAssociationJoinApplyVo> page,
             @Param("alumniAssociationId") Long alumniAssociationId,
+            @Param("merchantId") Long merchantId,
             @Param("status") Integer status);
 
     /**

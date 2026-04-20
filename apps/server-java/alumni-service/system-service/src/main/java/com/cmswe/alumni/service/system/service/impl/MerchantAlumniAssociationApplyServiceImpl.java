@@ -1,5 +1,6 @@
 package com.cmswe.alumni.service.system.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -18,6 +19,7 @@ import com.cmswe.alumni.common.entity.MerchantAlumniAssociationApply;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
 import com.cmswe.alumni.common.vo.MerchantAssociationJoinApplyVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -28,6 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 商户入驻校友会申请服务实现类
@@ -47,6 +52,27 @@ public class MerchantAlumniAssociationApplyServiceImpl
     @Resource
     private UnifiedMessageApiService unifiedMessageApiService;
 
+    private List<Long> parseAssociationIds(String associationIdStr) {
+        if (StringUtils.isBlank(associationIdStr)) {
+            return new ArrayList<>();
+        }
+        String trimmed = associationIdStr.trim();
+        if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+            try {
+                return JSON.parseArray(trimmed, Long.class);
+            } catch (Exception e) {
+                log.error("解析校友会ID数组失败: {}", trimmed, e);
+            }
+        }
+        try {
+            Long id = Long.parseLong(trimmed);
+            return new ArrayList<>(Collections.singletonList(id));
+        } catch (NumberFormatException e) {
+            log.warn("校友会ID字段格式非数字且非数组: {}", trimmed);
+        }
+        return new ArrayList<>();
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean applyJoinAssociation(Long wxId, ApplyMerchantAssociationJoinDto applyDto) {
@@ -60,8 +86,11 @@ public class MerchantAlumniAssociationApplyServiceImpl
         }
 
         // 2. 校验商户是否已经加入该校友会
-        if (merchant.getAlumniAssociationId() != null && merchant.getAlumniAssociationId().equals(applyDto.getAlumniAssociationId())) {
-            throw new BusinessException(ErrorType.ARGS_ERROR, "商户已在该校友会中");
+        if (StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
+            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            if (associationIds.contains(applyDto.getAlumniAssociationId())) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "商户已在该校友会中");
+            }
         }
 
         // 3. 校验是否有待审核的申请
@@ -152,7 +181,7 @@ public class MerchantAlumniAssociationApplyServiceImpl
     public PageVo<MerchantAssociationJoinApplyVo> queryJoinApplyPage(QueryMerchantAssociationJoinApplyDto queryDto) {
         Page<MerchantAssociationJoinApplyVo> page = new Page<>(queryDto.getCurrent(), queryDto.getPageSize());
         IPage<MerchantAssociationJoinApplyVo> resultPage = baseMapper.selectJoinApplyPage(
-                page, queryDto.getAlumniAssociationId(), queryDto.getStatus());
+                page, queryDto.getAlumniAssociationId(), queryDto.getMerchantId(), queryDto.getStatus());
         return new PageVo<>(resultPage.getRecords(), resultPage.getTotal(), resultPage.getCurrent(), resultPage.getSize());
     }
 
@@ -187,8 +216,19 @@ public class MerchantAlumniAssociationApplyServiceImpl
             if (merchant == null) {
                 throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
             }
-            // 设置关联校友会ID
-            merchant.setAlumniAssociationId(apply.getAlumniAssociationId());
+            // 设置关联校友会ID (追加到 JSON 数组)
+            List<Long> associationIds;
+            if (StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
+                associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            } else {
+                associationIds = new ArrayList<>();
+            }
+            
+            if (!associationIds.contains(apply.getAlumniAssociationId())) {
+                associationIds.add(apply.getAlumniAssociationId());
+            }
+            
+            merchant.setAlumniAssociationId(JSON.toJSONString(associationIds));
             // 更新为校友商铺
             merchant.setMerchantType(1); // 1-校友商铺
             // 设置为已校友认证
@@ -212,7 +252,11 @@ public class MerchantAlumniAssociationApplyServiceImpl
 
     @Override
     public MerchantAssociationJoinApplyVo getJoinApplyDetail(Long id) {
-        return baseMapper.selectJoinApplyDetail(id);
+        MerchantAssociationJoinApplyVo vo = baseMapper.selectJoinApplyDetail(id);
+        if (vo != null) {
+            populateJoinedAssociations(vo);
+        }
+        return vo;
     }
 
     @Override
@@ -243,6 +287,33 @@ public class MerchantAlumniAssociationApplyServiceImpl
                 vo.setAlumniAssociation(merchantApprovalVo.getAlumniAssociation());
             }
         }
+        if (vo != null) {
+            populateJoinedAssociations(vo);
+        }
         return vo;
+    }
+
+    private void populateJoinedAssociations(MerchantAssociationJoinApplyVo vo) {
+        if (vo.getMerchantId() == null) {
+            return;
+        }
+        Merchant merchant = merchantService.getById(Long.parseLong(vo.getMerchantId()));
+        if (merchant != null && StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
+            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            if (!associationIds.isEmpty()) {
+                List<AlumniAssociationListVo> joinedList = new ArrayList<>();
+                for (Long assocId : associationIds) {
+                    AlumniAssociation association = alumniAssociationService.getById(assocId);
+                    if (association != null) {
+                        AlumniAssociationListVo assocVo = new AlumniAssociationListVo();
+                        assocVo.setAlumniAssociationId(association.getAlumniAssociationId());
+                        assocVo.setAssociationName(association.getAssociationName());
+                        assocVo.setLogo(association.getLogo());
+                        joinedList.add(assocVo);
+                    }
+                }
+                vo.setJoinedAssociations(joinedList);
+            }
+        }
     }
 }

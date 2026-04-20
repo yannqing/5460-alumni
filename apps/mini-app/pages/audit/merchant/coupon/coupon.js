@@ -215,14 +215,16 @@ Page({
   },
 
   goCreateCoupon() {
-    const { selectedMerchantId, selectedMerchantName } = this.data
+    const { selectedMerchantId, selectedMerchantName, merchantList } = this.data
     if (!selectedMerchantId) {
       wx.showToast({ title: '请先选择商户', icon: 'none' })
       return
     }
+    const merchant = merchantList.find(m => String(m.merchantId) === String(selectedMerchantId))
     const q = [
       `merchantId=${encodeURIComponent(selectedMerchantId)}`,
       `merchantName=${encodeURIComponent(selectedMerchantName || '')}`,
+      `merchantType=${merchant ? merchant.merchantType : ''}`,
     ]
     wx.navigateTo({
       url: `/pages/audit/merchant/coupon/create/create?${q.join('&')}`,
@@ -243,13 +245,14 @@ Page({
 
   goEditCoupon(e) {
     const couponId = e.currentTarget.dataset.couponId
-    const { selectedMerchantId, selectedMerchantName } = this.data
+    const { selectedMerchantId, selectedMerchantName, merchantList } = this.data
     if (!couponId) {
       wx.showToast({ title: '优惠券ID缺失', icon: 'none' })
       return
     }
+    const merchant = merchantList.find(m => String(m.merchantId) === String(selectedMerchantId))
     wx.navigateTo({
-      url: `/pages/audit/merchant/coupon/edit/edit?couponId=${encodeURIComponent(String(couponId))}&merchantId=${encodeURIComponent(String(selectedMerchantId || ''))}&merchantName=${encodeURIComponent(selectedMerchantName || '')}`,
+      url: `/pages/audit/merchant/coupon/edit/edit?couponId=${encodeURIComponent(String(couponId))}&merchantId=${encodeURIComponent(String(selectedMerchantId || ''))}&merchantName=${encodeURIComponent(selectedMerchantName || '')}&merchantType=${merchant ? merchant.merchantType : ''}`,
     })
   },
 

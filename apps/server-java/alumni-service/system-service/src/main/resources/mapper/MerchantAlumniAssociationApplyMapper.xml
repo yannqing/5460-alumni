@@ -51,11 +51,16 @@
         JOIN merchant m ON a.merchant_id = m.merchant_id
         JOIN wx_user_info u ON a.applicant_wx_id = u.wx_id
         LEFT JOIN alumni_association asoc ON a.alumni_association_id = asoc.alumni_association_id
-        WHERE a.alumni_association_id = #{alumniAssociationId}
-          AND a.status != 3
+        WHERE a.status != 3
           AND a.is_delete = 0
           AND m.is_delete = 0
           AND u.is_delete = 0
+        <if test="alumniAssociationId != null">
+            AND a.alumni_association_id = #{alumniAssociationId}
+        </if>
+        <if test="merchantId != null">
+            AND a.merchant_id = #{merchantId}
+        </if>
         <if test="status != null">
             AND a.status = #{status}
         </if>

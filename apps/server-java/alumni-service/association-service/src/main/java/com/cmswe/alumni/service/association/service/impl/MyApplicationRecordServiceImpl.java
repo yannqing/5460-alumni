@@ -1,5 +1,6 @@
 package com.cmswe.alumni.service.association.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
 import com.cmswe.alumni.api.association.AlumniAssociationJoinApplyService;
@@ -49,6 +50,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -87,6 +89,27 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
 
     @Resource
     private ShopService shopService;
+
+    private List<Long> parseAssociationIds(String associationIdStr) {
+        if (StringUtils.isBlank(associationIdStr)) {
+            return new ArrayList<>();
+        }
+        String trimmed = associationIdStr.trim();
+        if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+            try {
+                return JSON.parseArray(trimmed, Long.class);
+            } catch (Exception e) {
+                log.error("解析校友会ID数组失败: {}", trimmed, e);
+            }
+        }
+        try {
+            Long id = Long.parseLong(trimmed);
+            return new ArrayList<>(Collections.singletonList(id));
+        } catch (NumberFormatException e) {
+            log.warn("校友会ID字段格式非数字且非数组: {}", trimmed);
+        }
+        return new ArrayList<>();
+    }
 
     @Override
     public PageVo<MyApplicationRecordListVo> queryMyApplicationRecordPage(Long wxId, QueryMyApplicationRecordListDto dto) {
@@ -305,10 +328,13 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权查看该申请详情");
         }
         MerchantDetailVo detail = MerchantDetailVo.objToVo(merchant);
-        if (merchant.getAlumniAssociationId() != null) {
-            AlumniAssociation alumniAssociation = alumniAssociationService.getById(merchant.getAlumniAssociationId());
-            if (alumniAssociation != null) {
-                detail.setAlumniAssociation(AlumniAssociationListVo.objToVo(alumniAssociation));
+        if (StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
+            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            if (!associationIds.isEmpty()) {
+                AlumniAssociation alumniAssociation = alumniAssociationService.getById(associationIds.get(0));
+                if (alumniAssociation != null) {
+                    detail.setAlumniAssociation(AlumniAssociationListVo.objToVo(alumniAssociation));
+                }
             }
         }
         MyApplicationRecordDetailVo vo = new MyApplicationRecordDetailVo();

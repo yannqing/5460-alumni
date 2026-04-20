@@ -111,6 +111,14 @@ Page({
             logoUrl: applyInfo.alumniAssociation.logo ? config.getImageUrl(applyInfo.alumniAssociation.logo) : config.defaultAvatar
           }
         }
+
+        // 格式化已加入的校友会列表
+        if (applyInfo.joinedAssociations && Array.isArray(applyInfo.joinedAssociations)) {
+          applyInfo.joinedAssociations = applyInfo.joinedAssociations.map(item => ({
+            ...item,
+            logoUrl: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar
+          }))
+        }
         
         this.setData({
           applyInfo: applyInfo,

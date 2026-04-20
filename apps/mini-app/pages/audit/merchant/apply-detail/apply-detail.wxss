@@ -145,6 +145,33 @@
   font-size: 30rpx;
   line-height: 1.5;
   word-break: break-all;
+  display: block;
+}
+
+.association-status-tag {
+  display: inline-block;
+  font-size: 22rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 4rpx;
+  margin-top: 8rpx;
+}
+
+.tag-pending {
+  background-color: #fff7e6;
+  color: #fa8c16;
+  border: 1rpx solid #ffd591;
+}
+
+.tag-approved {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1rpx solid #b7eb8f;
+}
+
+.tag-rejected {
+  background-color: #fff1f0;
+  color: #ff4d4f;
+  border: 1rpx solid #ffa39e;
 }
 
 .detail-item {

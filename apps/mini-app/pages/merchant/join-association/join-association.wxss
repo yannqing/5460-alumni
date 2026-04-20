@@ -191,6 +191,19 @@
   flex-shrink: 0;
 }
 
+.label-nowrap {
+  width: auto;
+  min-width: 200rpx;
+  white-space: nowrap;
+  padding-right: 10rpx;
+}
+
+.value-nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .value {
   color: #333;
   flex: 1;

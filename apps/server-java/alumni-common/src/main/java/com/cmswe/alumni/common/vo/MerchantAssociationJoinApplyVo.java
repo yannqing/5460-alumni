@@ -65,6 +65,9 @@ public class MerchantAssociationJoinApplyVo implements Serializable {
     @Schema(description = "审核意见")
     private String reviewComment;
 
-    @Schema(description = "关联校友会信息")
+    @Schema(description = "关联校友会信息（申请加入的）")
     private AlumniAssociationListVo alumniAssociation;
+
+    @Schema(description = "已加入的校友会列表")
+    private java.util.List<AlumniAssociationListVo> joinedAssociations;
 }

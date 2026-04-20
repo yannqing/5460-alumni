@@ -31,8 +31,8 @@
             <text class="value">{{applyInfo.legalRepresentative || '-'}}</text>
           </view>
           <view class="info-item">
-            <text class="label">统一社会信用代码：</text>
-            <text class="value">{{applyInfo.businessLicenseCode || '-'}}</text>
+            <text class="label label-nowrap">统一社会信用代码：</text>
+            <text class="value value-nowrap">{{applyInfo.businessLicenseCode || '-'}}</text>
           </view>
           <view class="info-item">
             <text class="label">联系电话：</text>
@@ -57,8 +57,6 @@
           </view>
           <view class="license-details">
             <view class="license-row">
-              <text class="l-label">经营地址：</text>
-              <text class="l-value">{{applyInfo.businessAddress || '-'}}</text>
             </view>
           </view>
         </view>

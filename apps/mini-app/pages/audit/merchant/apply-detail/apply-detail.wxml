@@ -50,9 +50,11 @@
         <text class="detail-value status-{{applyInfo.status}}">{{applyInfo.statusText}}</text>
       </view>
 
-      <block wx:if="{{applyInfo.alumniAssociation}}">
+      <block wx:if="{{applyInfo.alumniAssociation || (applyInfo.joinedAssociations && applyInfo.joinedAssociations.length > 0)}}">
         <view class="section-title section-title--assoc">关联校友会</view>
-        <view class="association-row">
+        
+        <!-- 当前申请的校友会 -->
+        <view class="association-row" wx:if="{{applyInfo.alumniAssociation}}">
           <image
             class="association-logo"
             src="{{applyInfo.alumniAssociation.logoUrl || defaultAlumniLogo}}"
@@ -60,8 +62,26 @@
           />
           <view class="association-name-body">
             <text class="association-name">{{applyInfo.alumniAssociation.associationName || '-'}}</text>
+            <text class="association-status-tag tag-approved" wx:if="{{applyInfo.status === 'approved'}}">已加入</text>
+            <text class="association-status-tag tag-pending" wx:if="{{applyInfo.status === 'pending'}}">申请中</text>
+            <text class="association-status-tag tag-rejected" wx:if="{{applyInfo.status === 'rejected'}}">已拒绝</text>
           </view>
         </view>
+
+        <!-- 已加入的其他校友会 -->
+        <block wx:for="{{applyInfo.joinedAssociations}}" wx:key="alumniAssociationId">
+          <view class="association-row" wx:if="{{item.alumniAssociationId != applyInfo.alumniAssociation.alumniAssociationId}}">
+            <image
+              class="association-logo"
+              src="{{item.logoUrl || defaultAlumniLogo}}"
+              mode="aspectFill"
+            />
+            <view class="association-name-body">
+              <text class="association-name">{{item.associationName || '-'}}</text>
+              <text class="association-status-tag tag-approved">已加入</text>
+            </view>
+          </view>
+        </block>
       </block>
     </view>
 

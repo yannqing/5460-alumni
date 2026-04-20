@@ -20,9 +20,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class QueryMerchantAssociationJoinApplyDto extends PageRequest implements Serializable {
 
-    @Schema(description = "校友会ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "校友会ID不能为空")
+    @Schema(description = "校友会ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long alumniAssociationId;
+
+    @Schema(description = "商户ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long merchantId;
 
     @Schema(description = "审核状态：0-待审核 1-已通过 2-已拒绝", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer status;

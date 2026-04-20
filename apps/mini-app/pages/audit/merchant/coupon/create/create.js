@@ -36,6 +36,7 @@ Page({
     submitting: false,
     selectedMerchantId: '',
     selectedMerchantName: '',
+    merchantType: '',
 
     shopList: [],
     shopPickerRange: [],
@@ -89,6 +90,7 @@ Page({
     this.setData({
       selectedMerchantId: merchantId,
       selectedMerchantName: merchantName,
+      merchantType: options.merchantType ? Number(options.merchantType) : '',
     })
     this.loadShops(merchantId)
   },
