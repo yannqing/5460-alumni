@@ -237,6 +237,10 @@ Page({
         wx.showToast({ title: '请输入详细地址', icon: 'none' })
         return
       }
+      if (formData.phone && !/^\d{11}$/.test(formData.phone)) {
+        wx.showToast({ title: '店铺电话须为11位数字', icon: 'none' })
+        return
+      }
 
       this.setData({ submitting: true })
       const shopImages = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : undefined
