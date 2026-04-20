@@ -44,6 +44,13 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/alumni-association/list/list'
+      },
+      {
+        id: 7,
+        name: '商户审核',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant-super/list/list'
       }
     ],
     // 校促会功能列表 (源数据)
@@ -384,6 +391,8 @@ Page({
         return this.hasPermission('SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT')
       } else if (item.name === '校友会审核') {
         return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_APPLICATION')
+      } else if (item.name === '商户审核') {
+        return hasSuperAdmin
       }
       return false
     })

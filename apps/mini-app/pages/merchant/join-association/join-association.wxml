@@ -1,0 +1,142 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商户加入校友会">
+<view class="page">
+  <view class="content">
+    <!-- 步骤1：选择商户 -->
+    <view class="section select-section">
+      <view class="section-title">商户加入校友会</view>
+      <view class="section-label">选择商户</view>
+      <view class="custom-picker-box" bindtap="showMerchantSelector">
+        <text wx:if="{{merchantIndex === -1}}" class="picker-text placeholder">请选择要加入的商户</text>
+        <text wx:else class="picker-text">{{myMerchants[merchantIndex].merchantName}}</text>
+      </view>
+    </view>
+
+    <!-- 步骤2：展示商户详情 -->
+    <block wx:if="{{selectedMerchantId && applyInfo.merchantId}}">
+      <view class="merchant-detail-card">
+        <view class="header-bg-container">
+          <image class="header-bg" src="{{applyInfo.backgroundImageUrl || defaultBackground}}" mode="aspectFill" />
+          <view class="header-content">
+            <image class="merchant-logo" src="{{applyInfo.logoUrl || defaultLogo}}" mode="aspectFill" />
+            <view class="merchant-basic">
+              <text class="merchant-name">{{applyInfo.merchantName}}</text>
+              <text class="merchant-type">{{applyInfo.merchantTypeText}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="info-list">
+          <view class="info-item">
+            <text class="label">法人代表：</text>
+            <text class="value">{{applyInfo.legalRepresentative || '-'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="label">统一社会信用代码：</text>
+            <text class="value">{{applyInfo.businessLicenseCode || '-'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="label">联系电话：</text>
+            <text class="value">{{applyInfo.contactPhone || '-'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="label">经营范围：</text>
+            <text class="value">{{applyInfo.businessScope || '-'}}</text>
+          </view>
+        </view>
+
+        <!-- 营业执照展示区块 -->
+        <view class="license-section" wx:if="{{applyInfo.businessLicenseUrl}}">
+          <view class="license-title">营业执照信息</view>
+          <view class="license-photo-wrapper">
+            <image 
+              class="license-image" 
+              src="{{applyInfo.businessLicenseUrl}}" 
+              mode="aspectFit" 
+              show-menu-by-longpress="{{true}}" 
+            />
+          </view>
+          <view class="license-details">
+            <view class="license-row">
+              <text class="l-label">经营地址：</text>
+              <text class="l-value">{{applyInfo.businessAddress || '-'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 步骤3：选择校友会 -->
+      <view class="section select-section">
+        <view class="section-title section-title--assoc">选择目标校友会</view>
+        <view class="section-label">校友会列表</view>
+        <view class="custom-picker-box" bindtap="showAssociationSelector">
+          <text wx:if="{{associationIndex === -1}}" class="picker-text placeholder">请选择要加入的校友会</text>
+          <text wx:else class="picker-text">{{associations[associationIndex].associationName}}</text>
+        </view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <view class="submit-btn-area">
+        <button class="submit-btn {{submitting ? 'loading' : ''}}" disabled="{{submitting}}" bindtap="submitApply">
+          提交加入申请
+        </button>
+      </view>
+    </block>
+
+    <view class="empty-tip" wx:if="{{!loading && myMerchants.length === 0}}">
+      您目前还没有已通过审核的商户，请先申请商户。
+    </view>
+  </view>
+
+  <!-- 商户选择器弹窗 -->
+  <view class="custom-picker-modal" wx:if="{{showMerchantPicker}}">
+    <view class="picker-overlay" bindtap="hideMerchantSelector"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择商户</text>
+        <text class="picker-cancel" bindtap="hideMerchantSelector">取消</text>
+      </view>
+      <view class="picker-list">
+        <view 
+          class="picker-item"
+          wx:for="{{myMerchants}}"
+          wx:key="merchantId"
+          bindtap="selectMerchant"
+          data-index="{{index}}"
+        >
+          <text class="item-name">{{item.merchantName}}</text>
+          <text class="item-check" wx:if="{{merchantIndex === index}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{myMerchants.length === 0}}">
+          <text>暂无商户数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 校友会选择器弹窗 -->
+  <view class="custom-picker-modal" wx:if="{{showAssociationPicker}}">
+    <view class="picker-overlay" bindtap="hideAssociationSelector"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择校友会</text>
+        <text class="picker-cancel" bindtap="hideAssociationSelector">取消</text>
+      </view>
+      <view class="picker-list">
+        <view 
+          class="picker-item"
+          wx:for="{{associations}}"
+          wx:key="alumniAssociationId"
+          bindtap="selectAssociation"
+          data-index="{{index}}"
+        >
+          <text class="item-name">{{item.associationName}}</text>
+          <text class="item-check" wx:if="{{associationIndex === index}}">✓</text>
+        </view>
+        <view class="picker-empty" wx:if="{{associations.length === 0}}">
+          <text>暂无校友会数据</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+</custom-nav-bar>

@@ -1184,8 +1184,9 @@ Page({
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
-          title: isEdit ? '已保存' : '申请已提交',
+          title: isEdit ? '已保存' : '申请提交成功，请等待审核',
           icon: 'success',
+          duration: 2000,
         })
         setTimeout(() => {
           wx.navigateBack()

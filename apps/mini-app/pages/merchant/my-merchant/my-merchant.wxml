@@ -20,6 +20,8 @@
           class="merchant-item" 
           wx:for="{{merchantList}}" 
           wx:key="merchantId"
+          bindtap="viewDetail"
+          data-id="{{item.merchantId}}"
         >
           <view class="certification-badge" wx:if="{{item.isAlumniCertified === 1}}">
             <text>已认证</text>
@@ -44,8 +46,13 @@
       </view>
       
       <!-- 申请商户按钮 -->
-      <view class="apply-merchant-btn" bindtap="goToApplyMerchant">
-        <text>申请商户</text>
+      <view class="btn-group">
+        <view class="apply-merchant-btn" bindtap="goToApplyMerchant">
+          <text>申请商户</text>
+        </view>
+        <view class="join-association-btn" bindtap="goToJoinAssociation">
+          <text>加入校友会</text>
+        </view>
       </view>
     </scroll-view>
   </view>

@@ -99,6 +99,7 @@
         "headquarters/detail/detail",
         "alumni-association/list/list",
         "alumni-association/detail/detail",
+        "merchant-super/list/list",
         "info-maintenance/index/index",
         "info-maintenance/edit/edit",
         "alumni-association-certification/list/list",
@@ -164,7 +165,8 @@
         "apply/apply",
         "list/list",
         "detail/detail",
-        "my-merchant/my-merchant"
+        "my-merchant/my-merchant",
+        "join-association/join-association"
       ]
     },
     {

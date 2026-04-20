@@ -54,9 +54,8 @@
         <view class="section-title section-title--assoc">关联校友会</view>
         <view class="association-row">
           <image
-            wx:if="{{applyInfo.alumniAssociation.logoUrl}}"
             class="association-logo"
-            src="{{applyInfo.alumniAssociation.logoUrl}}"
+            src="{{applyInfo.alumniAssociation.logoUrl || defaultAlumniLogo}}"
             mode="aspectFill"
           />
           <view class="association-name-body">
@@ -101,7 +100,7 @@
     </view>
 
     <!-- 审核操作区域 -->
-    <view class="audit-actions" wx:if="{{applyInfo.status === 'pending'}}">
+    <view class="audit-actions" wx:if="{{canAudit && applyInfo.status === 'pending'}}">
       <view class="action-buttons">
         <view class="action-btn reject" bindtap="handleReject">拒绝</view>
         <view class="action-btn approve" bindtap="handleApprove">通过</view>

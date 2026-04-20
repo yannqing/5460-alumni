@@ -367,7 +367,11 @@ Page({
                 if (this.data.fromMyRecord && this.data.myRecordId) {
                     wx.setStorageSync(MY_APPLICATION_RECORD_LIST_NEED_REFRESH_KEY, Date.now())
                 }
-                wx.showToast({ title: this.data.fromMyRecord ? '修改成功' : '提交成功', icon: 'success' })
+                wx.showToast({
+                    title: this.data.fromMyRecord ? '修改成功' : '申请提交成功，请等待审核',
+                    icon: 'success',
+                    duration: 2000
+                })
                 // 提交成功后返回上一页
                 setTimeout(() => {
                     wx.navigateBack()

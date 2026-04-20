@@ -32,6 +32,14 @@
   z-index: 0;
 }
 
+/* 隐藏滚动条 */
+.scroll-list ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+  display: none;
+}
+
 
 
 .loading-state {
@@ -128,10 +136,16 @@
   word-break: break-all;
 }
 
+/* 按钮组样式 */
+.btn-group {
+  margin-top: 40rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
 /* 申请商户按钮样式 */
 .apply-merchant-btn {
-  margin-top: 40rpx;
-  margin-bottom: 0;
   padding: 24rpx;
   background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
   color: #fff;
@@ -145,6 +159,24 @@
 
 .apply-merchant-btn:active {
   background: linear-gradient(180deg, #2d4ab3 0%, #4562c0 100%);
+  transform: scale(0.98);
+}
+
+/* 加入校友会按钮样式 */
+.join-association-btn {
+  padding: 24rpx;
+  background: #FFFFFF;
+  color: #3759C7;
+  font-size: 32rpx;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 16rpx;
+  border: 2rpx solid #3759C7;
+  transition: all 0.3s ease;
+}
+
+.join-association-btn:active {
+  background-color: #f0f4ff;
   transform: scale(0.98);
 }
 

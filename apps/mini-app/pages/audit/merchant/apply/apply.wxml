@@ -41,6 +41,7 @@
           bindtap="viewDetail"
         >
           <view class="apply-header">
+            <image class="merchant-logo" wx:if="{{item.logo}}" src="{{item.logo}}" mode="aspectFill"></image>
             <view class="apply-name">{{item.merchantName}}</view>
             <view class="apply-status {{item.status}}">{{item.statusText}}</view>
           </view>

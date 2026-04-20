@@ -146,7 +146,7 @@ public class MerchantController {
 
         if (result) {
             log.info("商户入驻申请提交成功 - 用户ID: {}, 商户名称: {}", wxId, applyDto.getMerchantName());
-            return ResultUtils.success(Code.SUCCESS, true, "申请提交成功，预计1-2个工作日内完成审核");
+            return ResultUtils.success(Code.SUCCESS, true, "申请提交成功，请等待审核");
         } else {
             log.error("商户入驻申请提交失败 - 用户ID: {}, 商户名称: {}", wxId, applyDto.getMerchantName());
             return ResultUtils.failure(Code.FAILURE, false, "申请提交失败");

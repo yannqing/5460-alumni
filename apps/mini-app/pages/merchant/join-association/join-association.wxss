@@ -1,0 +1,367 @@
+/* 基础页面背景 */
+.page {
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+.content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部选择卡片样式 - 完全同步 group_5 */
+.select-section {
+  width: 714rpx;
+  background-color: #FFFFFF;
+  border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 34rpx 0 0 18rpx;
+  padding: 38rpx 43rpx 27rpx 43rpx !important;
+  flex-shrink: 0;
+}
+
+.section-title {
+  width: auto;
+  height: 40rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,1);
+  font-size: 29rpx;
+  letter-spacing: 0rpx;
+  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 40rpx;
+  margin-bottom: 0;
+}
+
+.section-label {
+  width: auto;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.6);
+  font-size: 25rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  margin-top: 16rpx;
+  display: block;
+}
+
+/* 选择框主体 - 完全同步 text-wrapper_8 */
+.custom-picker-box {
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  border: 1rpx solid #E0E0E0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.custom-picker-box::after {
+  content: '▼';
+  color: #999;
+  font-size: 20rpx;
+  margin-left: 10rpx;
+}
+
+.picker-text {
+  flex: 1;
+  height: 36rpx;
+  overflow-wrap: break-word;
+  color: rgba(0,0,0,0.85);
+  font-size: 28rpx;
+  font-family: PingFangSC-Regular, -apple-system, sans-serif;
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: 36rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placeholder {
+  color: rgba(0,0,0,0.4) !important;
+}
+
+/* 普通区块样式 */
+.section {
+  background: #fff;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  margin: 20rpx 18rpx;
+  width: 714rpx;
+  box-sizing: border-box;
+}
+
+/* 商户详情卡片 */
+.merchant-detail-card {
+  background: #fff;
+  border-radius: 28.99rpx;
+  overflow: hidden;
+  margin: 20rpx 18rpx;
+  width: 714rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.header-bg-container {
+  position: relative;
+  height: 240rpx;
+}
+
+.header-bg {
+  width: 100%;
+  height: 100%;
+}
+
+.header-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30rpx;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);
+  display: flex;
+  align-items: center;
+}
+
+.merchant-logo {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+  background: #fff;
+}
+
+.merchant-basic {
+  margin-left: 20rpx;
+  flex: 1;
+}
+
+.merchant-name {
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 600;
+  display: block;
+}
+
+.merchant-type {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 24rpx;
+  margin-top: 4rpx;
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-block;
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.info-list {
+  padding: 30rpx;
+}
+
+.info-item {
+  display: flex;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  color: #999;
+  width: 200rpx;
+  flex-shrink: 0;
+}
+
+.value {
+  color: #333;
+  flex: 1;
+  word-break: break-all;
+}
+
+/* 营业执照展示区块样式 */
+.license-section {
+  padding: 30rpx;
+  border-top: 2rpx solid #f0f0f0;
+  background-color: #fafafa;
+}
+
+.license-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.license-photo-wrapper {
+  width: 100%;
+  height: 400rpx;
+  background: #fff;
+  border-radius: 8rpx;
+  border: 1rpx solid #eee;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.license-image {
+  width: 90%;
+  height: 90%;
+}
+
+.license-details {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.license-row {
+  display: flex;
+  line-height: 1.6;
+}
+
+.l-label {
+  color: #999;
+  flex-shrink: 0;
+  width: 140rpx;
+}
+
+.l-value {
+  flex: 1;
+}
+
+/* 提交按钮区域 */
+.submit-btn-area {
+  margin: 40rpx 18rpx 60rpx 18rpx;
+  width: 714rpx;
+}
+
+.submit-btn {
+  background: linear-gradient(180deg, #3759C7 0%, #5273D2 100%);
+  color: #fff;
+  height: 92rpx;
+  line-height: 92rpx;
+  border-radius: 46rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  box-shadow: 0 6rpx 20rpx rgba(55, 89, 199, 0.3);
+}
+
+.submit-btn.loading {
+  opacity: 0.8;
+}
+
+.empty-tip {
+  text-align: center;
+  padding: 100rpx 40rpx;
+  color: #999;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* 自定义选择器弹窗样式 - 参考 join-audit/index.wxss */
+.custom-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+}
+
+.picker-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.picker-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.picker-cancel {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.picker-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 30rpx;
+  -webkit-overflow-scrolling: touch;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.picker-item:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+}
+
+.item-check {
+  font-size: 32rpx;
+  color: #52c41a;
+  font-weight: 600;
+  margin-left: 20rpx;
+}
+
+.picker-empty {
+  padding: 60rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}

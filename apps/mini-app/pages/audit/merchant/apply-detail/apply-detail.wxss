@@ -130,7 +130,7 @@
   width: 88rpx;
   height: 88rpx;
   margin-right: 20rpx;
-  border-radius: 12rpx;
+  border-radius: 50%;
   background: #fafafa;
   border: 1rpx solid #eee;
 }

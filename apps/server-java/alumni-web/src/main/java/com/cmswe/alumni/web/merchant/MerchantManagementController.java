@@ -8,6 +8,7 @@ import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
+import com.cmswe.alumni.common.vo.SuperAdminMerchantApprovalVo;
 import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.OrganizeArchiRoleVo;
@@ -82,6 +83,20 @@ public class MerchantManagementController {
     public BaseResponse<PageVo<MerchantApprovalVo>> listApprovalRecords(@Valid QueryMerchantApprovalDto queryDto) {
         log.info("管理员查询商户审批记录 - 条件: {}", queryDto);
         PageVo<MerchantApprovalVo> result = merchantService.selectApprovalRecordsByPage(queryDto);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 超级管理员查看商户申请列表
+     *
+     * @param queryDto 查询条件
+     * @return 审批记录列表（不含校友会信息）
+     */
+    @GetMapping("/super-admin/approval/records")
+    @Operation(summary = "超级管理员查看商户申请列表")
+    public BaseResponse<PageVo<SuperAdminMerchantApprovalVo>> listAllApprovalRecords(@Valid QueryMerchantApprovalDto queryDto) {
+        log.info("超级管理员查看商户申请列表 - 条件: {}", queryDto);
+        PageVo<SuperAdminMerchantApprovalVo> result = merchantService.selectAllApprovalRecordsByPage(queryDto);
         return ResultUtils.success(result);
     }
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.cmswe.alumni.common.dto.*;
 import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
+import com.cmswe.alumni.common.vo.SuperAdminMerchantApprovalVo;
 import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -22,6 +23,14 @@ public interface MerchantService extends IService<Merchant> {
      * @return 分页结果
      */
     PageVo<MerchantListVo> selectByPage(QueryMerchantListDto queryMerchantListDto);
+
+    /**
+     * 超级管理员分页查询所有商户审批记录
+     *
+     * @param queryDto 查询条件
+     * @return 分页结果
+     */
+    PageVo<SuperAdminMerchantApprovalVo> selectAllApprovalRecordsByPage(QueryMerchantApprovalDto queryDto);
 
     /**
      * 根据商户ID和用户ID查询「待审核」或「审核失败」的本人商户申请（用于编辑页回填）

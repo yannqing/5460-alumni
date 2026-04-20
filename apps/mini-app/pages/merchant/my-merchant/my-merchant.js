@@ -35,9 +35,23 @@ Page({
     })
   },
 
+  viewDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/audit/merchant/apply-detail/apply-detail?merchantId=${id}`
+    })
+  },
+
   goToApplyMerchant() {
     wx.navigateTo({
       url: '/pages/merchant/apply/apply'
+    })
+  },
+
+  goToJoinAssociation() {
+    wx.navigateTo({
+      url: '/pages/merchant/join-association/join-association'
     })
   }
 })

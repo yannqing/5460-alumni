@@ -34,6 +34,7 @@ import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
+import com.cmswe.alumni.common.vo.SuperAdminMerchantApprovalVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopListVo;
 import com.cmswe.alumni.common.vo.MerchantMemberVo;
@@ -391,10 +392,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         log.info("商户审核完成 - 商户ID: {}, 审核结果: {}", merchantId, reviewStatus == 1 ? "通过" : "失败");
 
-        // 5. 审核通过时，为申请人分配商户管理员角色和添加商户成员
+        // 5. 审核通过时，为申请人分配商户管理员角色
         if (reviewStatus == 1) {
             assignMerchantAdminRole(merchant.getUserId(), merchantId);
-            addMerchantMember(merchant.getUserId(), merchantId);
         }
 
         // 6. 发送审核结果通知给用户
@@ -694,7 +694,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     private void sendApplicationNotification(Long wxId, String merchantName) {
         try {
             String title = "商户入驻申请已提交";
-            String content = "您的【" + merchantName + "】商户入驻申请已经成功提交，预计1-2个工作日内完成审核，请耐心等待";
+            String content = "您的【" + merchantName + "】商户入驻申请已经成功提交，请等待审核";
 
             boolean success = unifiedMessageApiService.sendSystemNotification(
                     wxId,
@@ -813,6 +813,64 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         // 7.转换结果并返回
         Page<MerchantApprovalVo> resultPage = new Page<MerchantApprovalVo>(current, pageSize, merchantPage.getTotal())
+                .setRecords(list);
+        return PageVo.of(resultPage);
+    }
+
+    @Override
+    public PageVo<SuperAdminMerchantApprovalVo> selectAllApprovalRecordsByPage(QueryMerchantApprovalDto queryDto) {
+        // 1.参数校验
+        Optional.ofNullable(queryDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.SYSTEM_ERROR));
+
+        // 2.获取参数
+        String merchantName = queryDto.getMerchantName();
+        Integer reviewStatus = queryDto.getReviewStatus();
+        Integer merchantType = queryDto.getMerchantType();
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+        String sortField = queryDto.getSortField();
+        String sortOrder = queryDto.getSortOrder();
+
+        // 3.构建查询条件 (超级管理员查看所有，不按校友会过滤)
+        LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .like(StringUtils.isNotBlank(merchantName), Merchant::getMerchantName, merchantName)
+                .eq(reviewStatus != null, Merchant::getReviewStatus, reviewStatus)
+                .eq(merchantType != null, Merchant::getMerchantType, merchantType)
+                .ne(Merchant::getReviewStatus, 3); // 3-已撤销，审批列表不展示
+
+        // 4.添加排序
+        if (StringUtils.isNotBlank(sortField)) {
+            boolean isAsc = CommonConstant.SORT_ORDER_ASC.equals(sortOrder);
+            if ("createTime".equals(sortField)) {
+                queryWrapper.orderBy(true, isAsc, Merchant::getCreateTime);
+            } else if ("reviewTime".equals(sortField)) {
+                queryWrapper.orderBy(true, isAsc, Merchant::getReviewTime);
+            } else {
+                queryWrapper.orderByDesc(Merchant::getCreateTime);
+            }
+        } else {
+            queryWrapper.orderByDesc(Merchant::getCreateTime);
+        }
+
+        // 5.执行分页查询
+        Page<Merchant> merchantPage = this.page(new Page<>(current, pageSize), queryWrapper);
+
+        // 6.转换为VO (并填充申请人/审核人显示名)
+        List<SuperAdminMerchantApprovalVo> list = merchantPage.getRecords().stream()
+                .map(merchant -> {
+                    SuperAdminMerchantApprovalVo vo = SuperAdminMerchantApprovalVo.objToVo(merchant);
+                    vo.setApplicantName(resolveUserDisplayName(merchant.getUserId()));
+                    vo.setReviewerName(resolveUserDisplayName(merchant.getReviewerId()));
+                    return vo;
+                })
+                .toList();
+
+        log.info("超级管理员分页查询所有商户审批记录，当前页：{}，每页数量：{}，总记录数：{}", current, pageSize, merchantPage.getTotal());
+
+        // 7.转换结果并返回
+        Page<SuperAdminMerchantApprovalVo> resultPage = new Page<SuperAdminMerchantApprovalVo>(current, pageSize, merchantPage.getTotal())
                 .setRecords(list);
         return PageVo.of(resultPage);
     }
