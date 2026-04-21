@@ -269,6 +269,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         merchant.setReviewReason(null);
         merchant.setReviewTime(null);
         merchant.setIsAlumniCertified(applyDto.getMerchantType() != null && applyDto.getMerchantType() == 1 ? 1 : 0);
+        merchant.setUpdateTime(LocalDateTime.now());
         
         // 处理关联校友会 ID (转换为 JSON 数组)
         if (applyDto.getAlumniAssociationId() != null) {

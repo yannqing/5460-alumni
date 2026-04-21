@@ -1,0 +1,342 @@
+/* pages/coupon/public-detail/detail.wxss */
+.shop-detail-page {
+  min-height: 100vh;
+  margin-top: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.loading {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 顶部图片区域 (参考门店详情) */
+.header-image-wrap {
+  width: 100%;
+  height: 500rpx;
+  background-color: #f0f0f0;
+}
+
+.header-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 白色内容区域 (参考门店详情) */
+.white-background-content {
+  background-color: #f5f5f5;
+  border-radius: 24rpx 24rpx 0 0;
+  margin-top: -30rpx;
+  position: relative;
+  z-index: 10;
+  padding-top: 10rpx;
+  min-height: 800rpx;
+  padding-bottom: 200rpx;
+}
+
+/* 卡片样式 (参考门店详情) */
+.card {
+  background-color: #fff;
+  border-radius: 24rpx;
+  margin: 20rpx 30rpx;
+  padding: 32rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 24rpx;
+}
+
+/* 优惠券基础信息 */
+.coupon-header {
+  margin-bottom: 32rpx;
+}
+
+.coupon-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  gap: 16rpx;
+}
+
+.coupon-name-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.coupon-type-icon {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.coupon-type-icon.type-1 { background-color: #ff8a00; }
+.coupon-type-icon.type-2 { background-color: #ff4d4f; }
+.coupon-type-icon.type-3 { background-color: #52c41a; }
+
+.coupon-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coupon-status-tag {
+  font-size: 22rpx;
+  color: #40B2E6;
+  padding: 4rpx 16rpx;
+  border: 1rpx solid #40B2E6;
+  border-radius: 12rpx;
+}
+
+.alumni-only-tag {
+  font-size: 22rpx;
+  color: #ff4d4f;
+  padding: 4rpx 16rpx;
+  border: 1rpx solid #ff4d4f;
+  border-radius: 12rpx;
+}
+
+.coupon-tags {
+  display: flex;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
+/* 校友专享卡片样式 */
+.alumni-exclusive-card {
+  background-color: #fff;
+}
+
+.exclusive-content {
+  padding: 4rpx 0;
+}
+
+.exclusive-tip {
+  font-size: 26rpx;
+  color: #8c8c8c;
+  margin-bottom: 20rpx;
+  line-height: 1.5;
+}
+
+.association-list-new {
+  display: flex;
+  flex-direction: column;
+}
+
+.association-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.association-item:last-child {
+  border-bottom: none;
+}
+
+.assoc-logo {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background-color: #f8f8f8;
+  flex-shrink: 0;
+}
+
+.assoc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.assoc-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.coupon-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  color: #ff4d4f;
+}
+
+.value-num {
+  font-size: 56rpx;
+  font-weight: bold;
+}
+
+.value-unit {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.min-spend-tip {
+  font-size: 26rpx;
+  color: #999;
+  margin-left: 12rpx;
+}
+
+/* 信息列表 (参考门店详情) */
+.info-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+}
+
+.info-label-col {
+  width: 120rpx;
+  font-size: 26rpx;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.info-value-col {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* 使用规则 */
+.rule-content {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 适用门店列表 */
+.shop-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.shop-item:last-child {
+  border-bottom: none;
+}
+
+.shop-item-logo {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  background-color: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.shop-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 6rpx;
+}
+
+.shop-addr {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.arrow-icon {
+  font-size: 28rpx;
+  color: #ccc;
+  margin-left: 20rpx;
+}
+
+/* 底部悬浮按钮 (参考门店详情) */
+.bottom-action {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 24rpx 30rpx calc(24rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.claim-btn {
+  height: 88rpx;
+  background: linear-gradient(90deg, #40B2E6, #6BC5ED);
+  color: #fff;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.claim-btn.disabled {
+  background: #ccc;
+}
+
+/* 空状态 */
+.empty-state {
+  padding-top: 200rpx;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.empty-text {
+  margin-top: 30rpx;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.back-btn {
+  margin-top: 60rpx;
+  width: 240rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  font-size: 28rpx;
+  border-radius: 36rpx;
+  background: #fff;
+  border: 2rpx solid #ddd;
+}

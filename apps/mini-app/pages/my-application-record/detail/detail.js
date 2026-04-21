@@ -258,7 +258,7 @@ Page({
         return
       }
       wx.navigateTo({
-        url: `/pages/merchant/apply/apply?merchantId=${encodeURIComponent(String(merchantId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
+        url: `/pages/merchant/edit-apply/edit-apply?merchantId=${encodeURIComponent(String(merchantId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
       })
       return
     }

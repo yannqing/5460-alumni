@@ -1,0 +1,2 @@
+/* pages/merchant/edit-apply/edit-apply.wxss */
+@import "../apply/apply.wxss";

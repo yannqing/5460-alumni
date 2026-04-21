@@ -40,6 +40,15 @@ Page({
     this.loadShopDetail()
   },
 
+  // 跳转到优惠券详情页
+  goCouponDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${id}&shopId=${this.data.shopId}`
+    })
+  },
+
   async loadShopDetail() {
     try {
       wx.showLoading({ title: '加载中...' })

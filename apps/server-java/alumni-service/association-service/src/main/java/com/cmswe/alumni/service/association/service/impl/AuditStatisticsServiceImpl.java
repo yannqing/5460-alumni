@@ -2,21 +2,20 @@ package com.cmswe.alumni.service.association.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cmswe.alumni.api.association.AuditStatisticsService;
+import com.cmswe.alumni.api.user.PermissionService;
 import com.cmswe.alumni.api.user.UserService;
 import com.cmswe.alumni.api.user.RoleService;
-import com.cmswe.alumni.api.search.ShopService;
-import com.cmswe.alumni.api.system.MerchantService;
 import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
 import com.cmswe.alumni.common.entity.AlumniHeadquarters;
-import com.cmswe.alumni.common.entity.Merchant;
-import com.cmswe.alumni.common.entity.Shop;
 import com.cmswe.alumni.common.vo.AuditStatisticsVo;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplyMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper;
+import com.cmswe.alumni.api.system.MerchantService;
+import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.entity.Role;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -55,10 +54,10 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
     private RoleService roleService;
 
     @Resource
-    private MerchantService merchantService;
+    private PermissionService permissionService;
 
     @Resource
-    private ShopService shopService;
+    private MerchantService merchantService;
 
     @Override
     public AuditStatisticsVo getAuditTodoStatistics(Long wxId) {
@@ -113,7 +112,7 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
             counts.put("SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION", 0);
         }
 
-        // 2.5～2.7 校友会维度待办：仅 RoleUser 绑定为该校友会管理员的才统计（含超级管理员亦须具备该校友会管理权限）
+        // 2.5 校友会加入审核 (ALUMNI_ASSOCIATION_JOIN_REVIEW)
         Set<Long> alumniIdsByRole = userService.getManagedAlumniAssociationIdsByRole(wxId);
         if (!alumniIdsByRole.isEmpty()) {
             LambdaQueryWrapper<AlumniAssociationJoinApplication> joinWrapper = new LambdaQueryWrapper<>();
@@ -121,47 +120,18 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
                     .eq(AlumniAssociationJoinApplication::getApplicantType, 1) // 1-用户
                     .in(AlumniAssociationJoinApplication::getAlumniAssociationId, alumniIdsByRole);
             counts.put("ALUMNI_ASSOCIATION_JOIN_REVIEW", Math.toIntExact(alumniAssociationJoinApplicationMapper.selectCount(joinWrapper)));
-
-            // 2.6 商户审核 (ALUMNI_ASSOCIATION_MERCHANT_AUDIT)：待审核商户，且所属校友会在管理范围内
-            LambdaQueryWrapper<Merchant> merchantPendingWrapper = new LambdaQueryWrapper<>();
-            merchantPendingWrapper.eq(Merchant::getReviewStatus, 0);
-            if (!alumniIdsByRole.isEmpty()) {
-                String sql = alumniIdsByRole.stream()
-                        .map(id -> "(alumni_association_id = CAST(" + id + " AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST(" + id + " AS CHAR)))")
-                        .collect(Collectors.joining(" OR "));
-                merchantPendingWrapper.apply("(" + sql + ")");
-            }
-            counts.put("ALUMNI_ASSOCIATION_MERCHANT_AUDIT",
-                    Math.toIntExact(merchantService.count(merchantPendingWrapper)));
-
-            // 2.7 店铺审核 (ALUMNI_ASSOCIATION_SHOP_AUDIT)：待审核店铺（review_status=0），且所属商户的校友会在管理范围内
-            LambdaQueryWrapper<Merchant> scopedMerchantQuery = new LambdaQueryWrapper<>();
-            scopedMerchantQuery.select(Merchant::getMerchantId);
-            if (!alumniIdsByRole.isEmpty()) {
-                String sql = alumniIdsByRole.stream()
-                        .map(id -> "(alumni_association_id = CAST(" + id + " AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST(" + id + " AS CHAR)))")
-                        .collect(Collectors.joining(" OR "));
-                scopedMerchantQuery.apply("(" + sql + ")");
-            }
-            List<Long> scopedMerchantIds = merchantService.list(scopedMerchantQuery)
-                    .stream()
-                    .map(Merchant::getMerchantId)
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .toList();
-            if (scopedMerchantIds.isEmpty()) {
-                counts.put("ALUMNI_ASSOCIATION_SHOP_AUDIT", 0);
-            } else {
-                LambdaQueryWrapper<Shop> shopPendingWrapper = new LambdaQueryWrapper<>();
-                shopPendingWrapper.eq(Shop::getReviewStatus, 0)
-                        .in(Shop::getMerchantId, scopedMerchantIds);
-                counts.put("ALUMNI_ASSOCIATION_SHOP_AUDIT",
-                        Math.toIntExact(shopService.count(shopPendingWrapper)));
-            }
         } else {
             counts.put("ALUMNI_ASSOCIATION_JOIN_REVIEW", 0);
-            counts.put("ALUMNI_ASSOCIATION_MERCHANT_AUDIT", 0);
-            counts.put("ALUMNI_ASSOCIATION_SHOP_AUDIT", 0);
+        }
+
+        // 2.6 商户审核 (HOME_MERCHANT_REVIEW)
+        // 仅拥有商户审核权限的用户统计待办数量
+        if (isSystemAdmin || permissionService.hasPermission(wxId, "HOME_MERCHANT_REVIEW")) {
+            LambdaQueryWrapper<Merchant> merchantWrapper = new LambdaQueryWrapper<>();
+            merchantWrapper.eq(Merchant::getReviewStatus, 0); // 0-待审核
+            counts.put("HOME_MERCHANT_REVIEW", Math.toIntExact(merchantService.count(merchantWrapper)));
+        } else {
+            counts.put("HOME_MERCHANT_REVIEW", 0);
         }
 
         return AuditStatisticsVo.builder()

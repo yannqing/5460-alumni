@@ -1,0 +1,132 @@
+<!--pages/merchant/edit-apply/edit-apply.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑商户申请">
+<view class="page">
+  <view class="group_7">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
+    <!-- 申请状态提示 -->
+    <view class="status-card card">
+      <view class="status-icon">⏳</view>
+      <view class="status-title">编辑待审核申请</view>
+      <view class="status-desc">您正在编辑已提交的商户入驻申请</view>
+    </view>
+    
+    <!-- 商户信息 -->
+    <view class="section-card card">
+      <view class="section-title">商户信息</view>
+      
+      <view class="form-item">
+        <view class="label">商户名称 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入商户名称" value="{{form.merchantName}}" data-field="merchantName" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">统一社会信用代码 <text class="required">*</text></view>
+        <input class="input" maxlength="18" placeholder="请输入统一社会信用代码" value="{{form.unifiedSocialCreditCode}}" data-field="unifiedSocialCreditCode" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">经营范围</view>
+        <input class="input" placeholder="请输入经营范围" value="{{form.businessScope}}" data-field="businessScope" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">经营类目</view>
+        <input class="input" placeholder="请输入经营类目" value="{{form.businessCategory}}" data-field="businessCategory" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <!-- 法人信息 -->
+    <view class="section-card card">
+      <view class="section-title">法人信息</view>
+      
+      <view class="form-item">
+        <view class="label">法人姓名 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入法人姓名" value="{{form.legalPerson}}" data-field="legalPerson" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">法人身份证号 <text class="required">*</text></view>
+        <input class="input" maxlength="18" placeholder="请输入法人身份证号" value="{{form.legalPersonId}}" data-field="legalPersonId" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <!-- 联系信息 -->
+    <view class="section-card card">
+      <view class="section-title">联系信息</view>
+      
+      <view class="form-item">
+        <view class="label">联系电话 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入联系电话" value="{{form.contactPhone}}" data-field="contactPhone" bindinput="handleInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="label">联系邮箱</view>
+        <input class="input" placeholder="请输入联系邮箱" value="{{form.contactEmail}}" data-field="contactEmail" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <!-- 资质证明 -->
+    <view class="section-card card">
+      <view class="section-title">资质证明</view>
+      
+      <!-- 营业执照 -->
+      <view class="upload-section">
+        <view class="upload-label">
+          <text class="label-text">营业执照</text>
+          <text class="required">*</text>
+        </view>
+        <view class="upload-hint">请上传清晰的营业执照照片</view>
+        <view class="upload-area" wx:if="{{!form.businessLicense}}" bindtap="chooseBusinessLicense">
+          <view class="upload-icon">📷</view>
+          <view class="upload-text">点击上传营业执照</view>
+        </view>
+        <view class="image-preview" wx:else>
+          <image class="preview-image" src="{{form.businessLicense}}" mode="aspectFit" />
+          <view class="remove-btn" bindtap="removeImage" data-field="businessLicense">✕</view>
+        </view>
+      </view>
+
+      <!-- 商家 Logo -->
+      <view class="upload-section">
+        <view class="upload-label">
+          <text class="label-text">商家Logo</text>
+        </view>
+        <view class="upload-hint">建议上传 1:1 图片</view>
+        <view class="upload-area" wx:if="{{!form.logo}}" bindtap="chooseLogo">
+          <view class="upload-icon">🖼️</view>
+          <view class="upload-text">点击上传商家Logo</view>
+        </view>
+        <view class="image-preview" wx:else>
+          <image class="preview-image" src="{{form.logo}}" mode="aspectFit" />
+          <view class="remove-btn" bindtap="removeImage" data-field="logo">✕</view>
+        </view>
+      </view>
+
+      <!-- 商家背景图 -->
+      <view class="upload-section">
+        <view class="upload-label">
+          <text class="label-text">商家背景图</text>
+        </view>
+        <view class="upload-hint">用于商家详情轮播</view>
+        <view class="upload-area" bindtap="chooseBackgroundImage">
+          <view class="upload-icon">🖼️</view>
+          <view class="upload-text">点击上传背景图</view>
+        </view>
+        <view class="image-preview" wx:for="{{form.backgroundImageList}}" wx:key="index">
+          <image class="preview-image" src="{{item}}" mode="aspectFit" />
+          <view class="remove-btn" bindtap="removeBackgroundImage" data-index="{{index}}">✕</view>
+        </view>
+      </view>
+    </view>
+
+      <!-- 底部留白 -->
+      <view class="bottom-space"></view>
+      
+      <!-- 提交按钮 -->
+      <view class="bottom-action">
+        <button class="btn btn-primary" loading="{{submitting}}" bindtap="submitEdit">保存修改</button>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+</custom-nav-bar>

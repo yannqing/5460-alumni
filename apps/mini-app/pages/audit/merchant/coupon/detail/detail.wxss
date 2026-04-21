@@ -174,3 +174,17 @@
   line-height: 36rpx;
   word-break: break-all;
 }
+
+.assoc-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.assoc-logo {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  flex-shrink: 0;
+}

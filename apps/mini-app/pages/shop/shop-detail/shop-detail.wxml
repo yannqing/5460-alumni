@@ -100,7 +100,7 @@
         <view class="card coupon-section" wx:if="{{shopInfo.coupons && shopInfo.coupons.length}}">
           <view class="section-title">优惠券</view>
           <view class="coupon-list">
-            <view class="coupon-card" wx:for="{{shopInfo.coupons}}" wx:key="couponId">
+            <view class="coupon-card" wx:for="{{shopInfo.coupons}}" wx:key="couponId" bindtap="goCouponDetail" data-id="{{item.couponId}}">
               <view class="coupon-left">
                 <view class="coupon-discount">
                   <text wx:if="{{item.couponType === 1}}">折</text>
