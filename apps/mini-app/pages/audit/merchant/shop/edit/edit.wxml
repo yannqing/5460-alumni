@@ -47,14 +47,17 @@
           <input class="form-input" placeholder="请输入详细地址" value="{{formData.address}}" bindinput="onInputChange" data-field="address" />
         </view>
 
-        <!-- 店铺位置 / 选择位置（暂不展示）
         <view class="form-item">
-          <text class="form-label">店铺位置</text>
-          <view class="location-selector">
-            <button class="select-location-btn" bindtap="selectLocation">选择位置</button>
+          <text class="form-label">店铺位置 <text class="required">*</text></text>
+          <view class="location-picker-container" bindtap="selectLocation">
+            <view class="location-info">
+              <text class="location-text" wx:if="{{formData.latitude && formData.longitude}}">已选择坐标: {{formData.longitude}}, {{formData.latitude}}</text>
+              <text class="location-placeholder" wx:else>请在地图上选择位置</text>
+            </view>
+            <view class="location-btn-mini">选择位置</view>
           </view>
+          <view class="location-hint" wx:if="{{formData.latitude}}">注：坐标将用于“附近优惠”功能</view>
         </view>
-        -->
 
         <view class="form-item">
           <text class="form-label">店铺电话</text>

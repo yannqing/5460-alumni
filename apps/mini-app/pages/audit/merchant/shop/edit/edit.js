@@ -113,13 +113,40 @@ Page({
     })
   },
 
-  // 与 wxml 中「店铺位置」一并注释，需要恢复时取消注释
-  // selectLocation() {
-  //   wx.showToast({
-  //     title: '位置选择功能暂时不可用',
-  //     icon: 'none',
-  //   })
-  // },
+  /** 选择店铺地理位置 */
+  selectLocation() {
+    wx.chooseLocation({
+      latitude: this.data.formData.latitude ? parseFloat(this.data.formData.latitude) : undefined,
+      longitude: this.data.formData.longitude ? parseFloat(this.data.formData.longitude) : undefined,
+      success: res => {
+        console.log('选择位置成功:', res)
+        this.setData({
+          [`formData.latitude`]: res.latitude,
+          [`formData.longitude`]: res.longitude,
+          // 如果用户还没填详细地址，自动填入地图选中的地址
+          [`formData.address`]: this.data.formData.address || res.address,
+        })
+        wx.showToast({
+          title: '位置已选择',
+          icon: 'success',
+        })
+      },
+      fail: err => {
+        console.error('选择位置失败:', err)
+        if (err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
+          wx.showModal({
+            title: '授权提示',
+            content: '需要位置权限才能选择店铺位置',
+            success: res => {
+              if (res.confirm) {
+                wx.openSetting()
+              }
+            },
+          })
+        }
+      },
+    })
+  },
 
   chooseLogo() {
     wx.chooseImage({
@@ -278,7 +305,7 @@ Page({
       const shopImages = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : undefined
 
       const { post } = require('../../../../../utils/request.js')
-      await post('/shop/update', {
+      const res = await post('/shop/update', {
         shopId: currentShopId,
         shopName: formData.shopName,
         shopType: formData.shopType,
@@ -296,19 +323,18 @@ Page({
         status: formData.status,
       })
 
-      wx.showToast({
-        title: '更新成功',
-        icon: 'success',
-      })
-      setTimeout(() => {
-        wx.navigateBack()
-      }, 500)
+      if (res && res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '更新成功',
+          icon: 'success',
+          duration: 1500,
+        })
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      }
     } catch (error) {
       console.error('更新店铺失败:', error)
-      wx.showToast({
-        title: '更新失败，请重试',
-        icon: 'none',
-      })
     } finally {
       this.setData({ submitting: false })
     }

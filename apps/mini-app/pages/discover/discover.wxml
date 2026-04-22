@@ -130,10 +130,9 @@
 
         <!-- 优惠券列表 -->
         <view class="coupons" wx:if="{{item.coupons && item.coupons.length > 0}}">
-          <view class="coupon" wx:for="{{item.coupons}}" wx:key="couponId" wx:for-item="coupon">
+          <view class="coupon" wx:for="{{item.coupons}}" wx:key="couponId" wx:for-item="coupon" catchtap="handleCouponTap" data-coupon-id="{{coupon.couponId}}" data-shop-id="{{item.id}}">
             <!-- 优惠券左侧 -->
             <view class="coupon-left">
-              <text class="coupon-value">{{coupon.discount}}</text>
               <text class="coupon-type">{{coupon.type}}</text>
               <view class="coupon-alumni-tag" wx:if="{{coupon.isAlumniOnly === 1}}">校友专享</view>
             </view>

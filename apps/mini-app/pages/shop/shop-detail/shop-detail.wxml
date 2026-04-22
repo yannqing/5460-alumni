@@ -103,9 +103,7 @@
             <view class="coupon-card" wx:for="{{shopInfo.coupons}}" wx:key="couponId" bindtap="goCouponDetail" data-id="{{item.couponId}}">
               <view class="coupon-left">
                 <view class="coupon-discount">
-                  <text wx:if="{{item.couponType === 1}}">{{item.discountValue}}折</text>
-                  <text wx:elif="{{item.couponType === 2}}">满{{item.minSpend}}减{{item.discountValue}}</text>
-                  <text wx:else>{{item.couponName}}</text>
+                  <text>{{item.discountText}}</text>
                 </view>
                 <view class="coupon-label">{{item.couponType === 1 ? '折扣券' : item.couponType === 2 ? '满减券' : '礼品券'}}</view>
               </view>

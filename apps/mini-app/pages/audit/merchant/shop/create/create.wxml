@@ -48,6 +48,17 @@
         </view>
 
         <view class="form-item">
+          <text class="form-label">店铺位置 <text class="required">*</text></text>
+          <view class="location-picker-container" bindtap="selectLocation">
+            <view class="location-info">
+              <text class="location-text" wx:if="{{formData.locationName}}">{{formData.locationName}}</text>
+              <text class="location-placeholder" wx:else>请在地图上选择位置</text>
+            </view>
+            <view class="location-btn-mini">选择位置</view>
+          </view>
+        </view>
+
+        <view class="form-item">
           <text class="form-label">店铺电话</text>
           <input class="form-input" type="number" maxlength="11" placeholder="请输入11位店铺电话" value="{{formData.phone}}" bindinput="onInputChange" data-field="phone" />
         </view>

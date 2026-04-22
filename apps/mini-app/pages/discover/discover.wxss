@@ -483,14 +483,14 @@
   overflow: hidden;
 }
 
-/* 优惠券左侧 - 折扣信息 */
+/* 优惠券左侧 - 类别信息 */
 .coupon-left {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  min-width: 160rpx;
+  gap: 12rpx;
+  min-width: 140rpx;
   padding-right: 20rpx;
   border-right: 1px dashed #ffe0cc;
 }

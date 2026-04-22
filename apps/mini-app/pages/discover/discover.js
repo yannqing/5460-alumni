@@ -42,7 +42,6 @@ Page({
   },
 
   onLoad() {
-    this.loadDiscoverData()
     // 获取当前位置信息
     this.initMyLocation()
   },
@@ -75,6 +74,10 @@ Page({
         myLocation: currentLocation,
         mapCenter: currentLocation,
       })
+
+      // 已有位置信息，直接加载数据
+      this.loadDiscoverData()
+
       // 如果当前是地图模式，更新标记
       if (this.data.viewMode === 'map') {
         this.updateMapMarkers()
@@ -735,38 +738,44 @@ Page({
   },
 
   getLocation() {
-    // 暂时注释：等待微信公众平台权限申请通过后恢复
-    // wx.showLoading({ title: '定位中...' })
-    // wx.getLocation({
-    //   type: 'gcj02',
-    //   success: res => {
-    //     wx.hideLoading()
-    //     const myLocation = {
-    //       latitude: res.latitude,
-    //       longitude: res.longitude,
-    //     }
-    //     this.setData({
-    //       mapCenter: myLocation,
-    //       myLocation: myLocation,
-    //     })
-    //     this.updateMapMarkers()
-    //     wx.showToast({
-    //       title: '定位成功',
-    //       icon: 'success',
-    //     })
-    //   },
-    //   fail: () => {
-    //     wx.hideLoading()
-    //     wx.showToast({
-    //       title: '定位失败，请重试',
-    //       icon: 'none',
-    //     })
-    //   },
-    // })
-    console.log('[Discover] wx.getLocation 已暂时禁用')
-    wx.showToast({
-      title: '定位功能暂时不可用',
-      icon: 'none',
+    wx.showLoading({ title: '定位中...' })
+    wx.getLocation({
+      type: 'gcj02',
+      success: res => {
+        wx.hideLoading()
+        const myLocation = {
+          latitude: res.latitude,
+          longitude: res.longitude,
+        }
+
+        // 同步到全局数据
+        const app = getApp()
+        app.globalData.location = myLocation
+
+        this.setData({
+          mapCenter: myLocation,
+          myLocation: myLocation,
+        })
+
+        // 定位成功后，重新加载数据
+        this.loadDiscoverData()
+
+        if (this.data.viewMode === 'map') {
+          this.updateMapMarkers()
+        }
+
+        wx.showToast({
+          title: '定位成功',
+          icon: 'success',
+        })
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({
+          title: '定位失败，请重试',
+          icon: 'none',
+        })
+      },
     })
   },
 
@@ -1100,6 +1109,16 @@ Page({
     }
     wx.navigateTo({
       url: `/pages/shop/shop-detail/shop-detail?id=${id}`,
+    })
+  },
+
+  // 跳转到优惠券详情页
+  handleCouponTap(e) {
+    const { couponId, shopId } = e.currentTarget.dataset
+    if (!couponId) return
+
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${couponId}&shopId=${shopId}`,
     })
   },
 
