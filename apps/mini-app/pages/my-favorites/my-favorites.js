@@ -1,83 +1,105 @@
 // pages/my-favorites/my-favorites.js
 const config = require('../../utils/config.js')
+const { favoriteApi } = require('../../api/api.js')
 
 Page({
   data: {
-    favoriteShops: []
+    favoriteShops: [],
+    loading: false,
+    loadingMore: false,
+    current: 1,
+    pageSize: 10,
+    hasMore: true,
   },
 
   onLoad() {
-    this.loadFavoriteShops()
+    this.resetAndLoad()
   },
 
   onShow() {
     // 每次显示页面时刷新列表
-    this.loadFavoriteShops()
+    this.resetAndLoad()
   },
 
-  loadFavoriteShops() {
-    // 模拟收藏的店铺数据
-    const mockShops = [
-      {
-        id: 1,
-        name: '星巴克咖啡',
-        cover: config.defaultAvatar,
-        description: '高品质咖啡，舒适环境，适合商务洽谈',
-        rating: 4.8,
-        distance: 520,
-        avgPrice: 45,
-        isCertified: true,
-        tags: ['咖啡', '休闲', '商务']
-      },
-      {
-        id: 2,
-        name: '海底捞火锅',
-        cover: config.defaultAvatar,
-        description: '正宗川味火锅，服务周到，校友专享优惠',
-        rating: 4.9,
-        distance: 1280,
-        avgPrice: 120,
-        isCertified: true,
-        tags: ['火锅', '聚餐', '校友优惠']
-      },
-      {
-        id: 4,
-        name: '华影国际影城',
-        cover: config.defaultAvatar,
-        description: 'IMAX影厅，舒适座椅，校友观影优惠',
-        rating: 4.6,
-        distance: 760,
-        avgPrice: 60,
-        isCertified: false,
-        tags: ['电影', '娱乐']
-      },
-      {
-        id: 5,
-        name: '肯德基',
-        cover: config.defaultAvatar,
-        description: '快餐美食，方便快捷，适合工作餐',
-        rating: 4.5,
-        distance: 890,
-        avgPrice: 35,
-        isCertified: false,
-        tags: ['快餐', '便捷']
-      },
-      {
-        id: 6,
-        name: '必胜客',
-        cover: config.defaultAvatar,
-        description: '意式披萨，家庭聚餐好选择',
-        rating: 4.6,
-        distance: 1500,
-        avgPrice: 80,
-        isCertified: false,
-        tags: ['披萨', '西餐']
-      }
-    ]
-
+  resetAndLoad() {
     this.setData({
-      favoriteShops: mockShops
+      favoriteShops: [],
+      current: 1,
+      hasMore: true,
     })
+    this.loadFavoriteShops(false)
+  },
+
+  async loadFavoriteShops(loadMore = false) {
+    const { loading, loadingMore, hasMore, current, pageSize, favoriteShops } = this.data
+    if (loadMore && (!hasMore || loadingMore || loading)) {
+      return
+    }
+    if (!loadMore && loading) {
+      return
+    }
+
+    const app = getApp()
+    const wxId =
+      app?.globalData?.userData?.wxId ||
+      app?.globalData?.userInfo?.wxId ||
+      wx.getStorageSync('userId') ||
+      ''
+
+    if (!wxId) {
+      this.setData({ favoriteShops: [] })
+      return
+    }
+
+    this.setData(loadMore ? { loadingMore: true } : { loading: true })
+    try {
+      const requestCurrent = loadMore ? current + 1 : 1
+      const res = await favoriteApi.getMerchantFavoriteList({
+        wxId: String(wxId),
+        current: requestCurrent,
+        pageSize,
+      })
+      if (res?.data?.code === 200) {
+        const pageData = res.data.data || {}
+        const list = Array.isArray(pageData.records) ? pageData.records : []
+        const mapped = list.map(item => ({
+          id: item.merchantId || '',
+          favoriteId: item.favoriteId || '',
+          name: item.merchantName || '未命名商户',
+          cover: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar,
+          isCertified: Number(item.merchantType) === 1,
+          businessCategoryText: `经营类目:${item.businessCategory || '--'}`,
+          contactPhoneText: `联系电话:${item.contactPhone || '--'}`,
+        }))
+        const mergedList = loadMore ? [...favoriteShops, ...mapped] : mapped
+        const hasNext =
+          typeof pageData.hasNext === 'boolean'
+            ? pageData.hasNext
+            : (pageData.pages || 0) > (pageData.current || requestCurrent)
+        this.setData({
+          favoriteShops: mergedList,
+          current: requestCurrent,
+          hasMore: !!hasNext,
+        })
+      } else {
+        wx.showToast({
+          title: res?.data?.msg || '加载失败',
+          icon: 'none',
+        })
+      }
+    } catch (err) {
+      console.error('[MyFavorites] 加载收藏列表失败:', err)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none',
+      })
+    } finally {
+      this.setData(loadMore ? { loadingMore: false } : { loading: false })
+    }
+  },
+
+  onScrollToLower() {
+    this.loadFavoriteShops(true)
   },
 
   viewShopDetail(e) {
@@ -89,21 +111,50 @@ Page({
 
   unfavoriteShop(e) {
     const { id } = e.currentTarget.dataset
+    const app = getApp()
+    const wxId =
+      app?.globalData?.userData?.wxId ||
+      app?.globalData?.userInfo?.wxId ||
+      wx.getStorageSync('userId') ||
+      ''
+
     wx.showModal({
       title: '提示',
       content: '确定取消收藏吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          // 从列表中移除
-          const { favoriteShops } = this.data
-          const newList = favoriteShops.filter(shop => shop.id !== id)
-          this.setData({
-            favoriteShops: newList
-          })
-          wx.showToast({
-            title: '已取消收藏',
-            icon: 'success'
-          })
+          if (!wxId || !id) {
+            wx.showToast({ title: '参数缺失', icon: 'none' })
+            return
+          }
+          try {
+            const ret = await favoriteApi.toggleMerchantFavorite({
+              wxId: String(wxId),
+              merchantId: String(id),
+            })
+            if (ret?.data?.code === 200) {
+              const { favoriteShops } = this.data
+              const newList = favoriteShops.filter(shop => String(shop.id) !== String(id))
+              this.setData({
+                favoriteShops: newList
+              })
+              wx.showToast({
+                title: '已取消收藏',
+                icon: 'success'
+              })
+            } else {
+              wx.showToast({
+                title: ret?.data?.msg || '操作失败',
+                icon: 'none'
+              })
+            }
+          } catch (err) {
+            console.error('[MyFavorites] 取消收藏失败:', err)
+            wx.showToast({
+              title: '操作失败',
+              icon: 'none'
+            })
+          }
         }
       }
     })

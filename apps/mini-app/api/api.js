@@ -451,6 +451,14 @@ const followApi = {
   getCurrentUserStats: () => get('/follow/statistics/current'),
 }
 
+// ==================== 收藏相关接口 ====================
+const favoriteApi = {
+  // 切换商户收藏状态（收藏/取消收藏）
+  toggleMerchantFavorite: data => post('/favorite/merchant/toggle', data),
+  // 查询用户收藏的商户列表
+  getMerchantFavoriteList: params => get('/favorite/merchant/list', params),
+}
+
 // ==================== 认证相关接口 ====================
 const authApi = {
   // 认证登录（静默登录）
@@ -902,6 +910,7 @@ module.exports = {
   userApi,
   searchApi,
   followApi,
+  favoriteApi,
   authApi,
   fileApi,
   chatApi,
