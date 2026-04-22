@@ -79,21 +79,20 @@
   min-width: 0;
 }
 
-.coupon-type-icon {
-  width: 44rpx;
-  height: 44rpx;
+.coupon-type-tag {
+  padding: 4rpx 12rpx;
   border-radius: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #fff;
   flex-shrink: 0;
 }
 
-.coupon-type-icon.type-1 { background-color: #ff8a00; }
-.coupon-type-icon.type-2 { background-color: #ff4d4f; }
-.coupon-type-icon.type-3 { background-color: #52c41a; }
+.coupon-type-tag.type-1 { background-color: #ff8a00; }
+.coupon-type-tag.type-2 { background-color: #ff4d4f; }
+.coupon-type-tag.type-3 { background-color: #52c41a; }
 
 .coupon-name {
   font-size: 36rpx;

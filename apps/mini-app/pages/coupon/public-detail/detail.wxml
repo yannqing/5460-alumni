@@ -23,8 +23,8 @@
           <view class="coupon-header">
             <view class="coupon-name-row">
               <view class="coupon-name-left">
-                <view class="coupon-type-icon {{'type-' + couponDetail.couponType}}">
-                  {{couponDetail.couponType === 1 ? '折' : couponDetail.couponType === 2 ? '减' : '礼'}}
+                <view class="coupon-type-tag {{'type-' + couponDetail.couponType}}">
+                  {{couponDetail.couponTypeLabel}}
                 </view>
                 <text class="coupon-name">{{couponDetail.couponName}}</text>
               </view>

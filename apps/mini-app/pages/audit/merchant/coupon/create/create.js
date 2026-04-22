@@ -160,18 +160,6 @@ Page({
     })
   },
 
-  onDiscountTypeRadio(e) {
-    const v = Number(e.currentTarget.dataset.value)
-    if (v !== 1 && v !== 2) {
-      return
-    }
-    const dtIdx = this.data.discountTypeValues.indexOf(v)
-    this.setData({
-      'formData.discountType': v,
-      discountTypeIndex: dtIdx >= 0 ? dtIdx : 0,
-    })
-  },
-
   onShopChange(e) {
     const idx = Number(e.detail.value)
     this.setData({ shopIndex: idx })
@@ -295,7 +283,7 @@ Page({
         return null
       }
       maxDiscountParsed = md
-      const dv = parseOptNumber(formData.discountValue, '优惠值')
+      const dv = parseRequiredNumber(formData.discountValue, '请填写折扣比例')
       if (dv === undefined) {
         return null
       }

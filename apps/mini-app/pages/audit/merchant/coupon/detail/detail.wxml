@@ -24,9 +24,9 @@
     </view>
 
     <view class="detail-section-title">基础信息</view>
-    <view class="detail-item">
+    <view class="detail-item" wx:if="{{couponDetail.couponDesc}}">
       <text class="label">优惠描述</text>
-      <text class="value">{{couponDetail.couponDesc || '—'}}</text>
+      <text class="value">{{couponDetail.couponDesc}}</text>
     </view>
     <view class="detail-item">
       <text class="label">折扣类型</text>
@@ -51,12 +51,16 @@
 
     <view class="detail-section-title">投放与数据</view>
     <view class="detail-item">
-      <text class="label">有效期</text>
-      <text class="value">{{couponDetail.validStartText}} ~ {{couponDetail.validEndText}}</text>
+      <text class="label">开始时间</text>
+      <text class="value">{{couponDetail.validStartText}}</text>
     </view>
     <view class="detail-item">
+      <text class="label">结束时间</text>
+      <text class="value">{{couponDetail.validEndText}}</text>
+    </view>
+    <view class="detail-item" wx:if="{{couponDetail.useTimeLimit}}">
       <text class="label">使用时段</text>
-      <text class="value">{{couponDetail.useTimeLimit || '—'}}</text>
+      <text class="value">{{couponDetail.useTimeLimit}}</text>
     </view>
     <view class="detail-item">
       <text class="label">发布方式</text>

@@ -65,6 +65,10 @@ Page({
             coupon.discountDisplay = coupon.discountValue
           }
 
+          // 添加优惠券类别展示文本
+          const couponTypeLabels = { 1: '折扣券', 2: '满减券', 3: '礼品券' }
+          coupon.couponTypeLabel = couponTypeLabels[coupon.couponType] || '优惠券'
+
           // 如果是校友专属券，获取商家关联的校友会信息
           if (coupon.isAlumniOnly === 1 && coupon.merchantId) {
             try {

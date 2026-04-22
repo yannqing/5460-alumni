@@ -22,11 +22,7 @@
           <view class="coupon-card">
             <text class="coupon-status-tag status-{{item.rawStatus}}" wx:if="{{item.statusText}}">{{item.statusText}}</text>
             <view class="coupon-left-section">
-              <view class="coupon-discount-big">
-                <text wx:if="{{item.discountPrice > 0}}">¥{{item.discountPrice}}</text>
-                <text wx:else>{{item.discount || '优惠券'}}</text>
-              </view>
-              <view class="coupon-label-text">优惠券</view>
+              <view class="coupon-type-text">{{item.couponType === 1 ? '折扣券' : item.couponType === 2 ? '满减券' : '礼品券'}}</view>
             </view>
             <view class="coupon-divider-vertical"></view>
             <view class="coupon-right-section">

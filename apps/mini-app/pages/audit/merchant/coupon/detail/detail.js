@@ -40,7 +40,7 @@ function mapCouponDetail(data) {
     alumniOnlyLabel: Number(data.isAlumniOnly) === 1 ? '是' : '否',
     validStartText: formatDateTime(data.validStartTime) || '—',
     validEndText: formatDateTime(data.validEndTime) || '—',
-    publishTimeText: formatDateTime(data.publishTime) || '—',
+    publishTimeText: formatDateTime(data.publishTime || data.createTime) || '—',
     createTimeText: formatDateTime(data.createTime) || '—',
     updateTimeText: formatDateTime(data.updateTime) || '—',
     discountDisplay,
