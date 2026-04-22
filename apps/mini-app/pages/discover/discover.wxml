@@ -82,6 +82,7 @@
     class="list-view"
     wx:if="{{viewMode === 'list'}}"
     scroll-y="true"
+    show-scrollbar="{{false}}"
     refresher-enabled="true"
     refresher-triggered="{{refreshing}}"
     bindrefresherrefresh="onPullDownRefresh"

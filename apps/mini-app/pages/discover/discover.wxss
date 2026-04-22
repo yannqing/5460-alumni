@@ -239,6 +239,14 @@
   overflow-y: auto;
 }
 
+/* 隐藏列表滚动条，与 my-merchant 页面一致 */
+.list-view ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+  display: none;
+}
+
 .sort-item {
   font-size: 26rpx;
   color: #999;
