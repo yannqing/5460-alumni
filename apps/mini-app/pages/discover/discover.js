@@ -41,6 +41,9 @@ Page({
     imageCache: {}, // 图片URL缓存，避免重复处理
   },
 
+  // 地图 marker 与业务数据的映射（仅内存使用）
+  markerDataMap: {},
+
   onLoad() {
     // 获取当前位置信息
     this.initMyLocation()
@@ -159,7 +162,7 @@ Page({
 
       // 从全局数据获取位置信息
       const app = getApp()
-      const location = app.globalData.location
+      const location = app.globalData.location || this.data.myLocation
 
       // 如果全局数据中没有位置信息，显示失败
       if (!location) {
@@ -757,12 +760,8 @@ Page({
           myLocation: myLocation,
         })
 
-        // 定位成功后，重新加载数据
+        // 定位成功后，重新加载数据（地图标记在数据加载后统一刷新）
         this.loadDiscoverData()
-
-        if (this.data.viewMode === 'map') {
-          this.updateMapMarkers()
-        }
 
         wx.showToast({
           title: '定位成功',
@@ -771,9 +770,34 @@ Page({
       },
       fail: () => {
         wx.hideLoading()
-        wx.showToast({
-          title: '定位失败，请重试',
-          icon: 'none',
+        wx.getSetting({
+          success: settingRes => {
+            const hasLocationAuth = settingRes.authSetting && settingRes.authSetting['scope.userLocation']
+            if (hasLocationAuth === false) {
+              wx.showModal({
+                title: '需要位置权限',
+                content: '开启位置权限后，才能按你的位置搜索附近优惠店铺',
+                confirmText: '去开启',
+                success: modalRes => {
+                  if (modalRes.confirm) {
+                    wx.openSetting({})
+                  }
+                },
+              })
+              return
+            }
+
+            wx.showToast({
+              title: '定位失败，请重试',
+              icon: 'none',
+            })
+          },
+          fail: () => {
+            wx.showToast({
+              title: '定位失败，请重试',
+              icon: 'none',
+            })
+          },
         })
       },
     })
@@ -836,10 +860,8 @@ Page({
     })
 
     if (mode === 'map') {
-      // 获取当前位置后再更新标记，避免重复更新
+      // 获取当前位置后重新拉取“附近”数据，标记将在拉取完成后刷新
       this.getLocation()
-      // 直接更新标记，不再使用固定延迟
-      this.updateMapMarkers()
     }
   },
 
@@ -925,6 +947,7 @@ Page({
   async updateMapMarkers() {
     const markers = []
     let markerId = 1 // 从1开始，确保id是数字
+    this.markerDataMap = {}
 
     console.log('[Discover] 更新地图标记，当前标签:', this.data.selectedTab)
     console.log('[Discover] 优惠列表数量:', this.data.couponList.length)
@@ -992,6 +1015,8 @@ Page({
 
       return {
         id: markerId++,
+        sourceId: item.id,
+        sourceType: listType,
         latitude: latitude,
         longitude: longitude,
         iconPath: iconPath,
@@ -1072,7 +1097,11 @@ Page({
     if (markerPromises.length > 0) {
       const createdMarkers = await Promise.all(markerPromises)
       // 过滤掉null值
-      markers.push(...createdMarkers.filter(marker => marker !== null))
+      const validMarkers = createdMarkers.filter(marker => marker !== null)
+      markers.push(...validMarkers)
+      validMarkers.forEach(marker => {
+        this.markerDataMap[marker.id] = marker
+      })
     }
 
     console.log('[Discover] 最终标记数量:', markers.length)
@@ -1091,7 +1120,27 @@ Page({
   // 地图标记点击
   onMarkerTap(e) {
     const { markerId } = e.detail
-    // TODO: 处理标记点击事件
+    // markerId 为 0 代表“我的位置”
+    if (markerId === 0) {
+      this.locateToMyPosition()
+      return
+    }
+
+    const marker = this.markerDataMap[markerId]
+    if (!marker) {
+      return
+    }
+
+    // 附近优惠：点击 marker 直接进入店铺详情
+    if (this.data.selectedTab === 'coupon') {
+      const matchedShop = this.data.couponList.find(item => String(item.id) === String(marker.sourceId))
+
+      if (matchedShop && matchedShop.id) {
+        wx.navigateTo({
+          url: `/pages/shop/shop-detail/shop-detail?id=${matchedShop.id}`,
+        })
+      }
+    }
   },
 
   // 地图点击
