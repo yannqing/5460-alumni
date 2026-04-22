@@ -84,7 +84,7 @@ Page({
         city: shop.city || '',
         district: shop.district || '',
         address: shop.address || '',
-        locationName: shop.locationName || '',
+        locationName: shop.locationName || shop.address || '',
         latitude: shop.latitude != null ? String(shop.latitude) : '',
         longitude: shop.longitude != null ? String(shop.longitude) : '',
         phone: shop.phone || '',
@@ -123,6 +123,7 @@ Page({
         this.setData({
           [`formData.latitude`]: res.latitude,
           [`formData.longitude`]: res.longitude,
+          [`formData.locationName`]: res.name || res.address,
           // 如果用户还没填详细地址，自动填入地图选中的地址
           [`formData.address`]: this.data.formData.address || res.address,
         })
