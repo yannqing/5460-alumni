@@ -15,7 +15,10 @@ Page({
   onLoad(options) {
     this.applyId = options.id
     this.merchantId = options.merchantId
-    this.setData({ canAudit: !!options.id }) // 只有从审核列表进入的才显示审核按钮
+    this.setData({ 
+      canAudit: !!options.id,
+      fromSuperAdmin: !options.id && !!options.merchantId 
+    }) // 只有从审核列表进入的才显示审核按钮
     this.loadApplyDetail()
   },
 
@@ -52,7 +55,11 @@ Page({
             status = 'pending'
             break
           case 1:
-            statusText = '已通过'
+            statusText = '已发布'
+            status = 'approved'
+            break
+          case 4:
+            statusText = '待发布'
             status = 'approved'
             break
           case 2:
@@ -96,7 +103,8 @@ Page({
           logoUrl: config.getImageUrl(applyInfo.logo || ''),
           backgroundImageUrl: normalizeBgImage(applyInfo.backgroundImage),
           submitTime: formatTime(applyInfo.createTime),
-          contactPhone: applyInfo.applicantPhone || '',
+          phone: applyInfo.phone || '',
+          contactPhone: applyInfo.contactPhone || '',
           businessLicenseUrl: config.getImageUrl(applyInfo.businessLicense || ''),
           businessLicenseCode: applyInfo.unifiedSocialCreditCode || '',
           legalRepresentative: applyInfo.legalPerson || '',

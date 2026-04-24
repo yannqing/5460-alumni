@@ -70,6 +70,12 @@ public class Merchant implements Serializable {
     private String contactPhone;
 
     /**
+     * 法人个人联系电话
+     */
+    @TableField(value = "phone")
+    private String phone;
+
+    /**
      * 联系邮箱
      */
     @TableField(value = "contact_email")
@@ -100,7 +106,7 @@ public class Merchant implements Serializable {
     private String backgroundImage;
 
     /**
-     * 审核状态：0-待审核 1-审核通过 2-审核失败
+     * 审核状态：0-待审核 1-审核通过 2-审核失败 3-已撤销 4-待发布
      */
     @TableField(value = "review_status")
     private Integer reviewStatus;

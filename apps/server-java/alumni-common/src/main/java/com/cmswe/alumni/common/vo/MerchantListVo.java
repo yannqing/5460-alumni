@@ -64,6 +64,12 @@ public class MerchantListVo implements Serializable {
     private String contactPhone;
 
     /**
+     * 法人个人联系电话
+     */
+    @Schema(description = "法人个人联系电话")
+    private String phone;
+
+    /**
      * 联系邮箱
      */
     @Schema(description = "联系邮箱")
@@ -170,6 +176,12 @@ public class MerchantListVo implements Serializable {
      */
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
+
+    /**
+     * 审核状态：0-待审核 1-审核通过 2-审核失败 3-已撤销 4-待发布
+     */
+    @Schema(description = "审核状态：0-待审核 1-审核通过 2-审核失败 3-已撤销 4-待发布")
+    private Integer reviewStatus;
 
     @Serial
     private static final long serialVersionUID = 1L;

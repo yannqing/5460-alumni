@@ -49,6 +49,10 @@ public class UpdateMerchantDto implements Serializable {
     @Schema(description = "联系电话")
     private String contactPhone;
 
+    @Size(max = 20, message = "法人个人联系电话长度不能超过20个字符")
+    @Schema(description = "法人个人联系电话")
+    private String phone;
+
     @Schema(description = "联系邮箱（非空时须为合法邮箱格式，由服务端校验）")
     private String contactEmail;
 

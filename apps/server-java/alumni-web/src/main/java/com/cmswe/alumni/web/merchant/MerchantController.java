@@ -5,6 +5,7 @@ import com.cmswe.alumni.api.system.MerchantService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.dto.ApplyMerchantDto;
 import com.cmswe.alumni.common.dto.QueryMerchantListDto;
+import com.cmswe.alumni.common.dto.UpdateMerchantDto;
 import com.cmswe.alumni.common.dto.AddMerchantMemberDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantMemberRoleDto;
 import com.cmswe.alumni.common.dto.DeleteMerchantMemberDto;
@@ -50,6 +51,24 @@ public class MerchantController {
 
     @Resource
     private ShopService shopService;
+
+    /**
+     * 完善信息并发布上线商户
+     *
+     * @param securityUser 当前登录用户
+     * @param updateDto    更新信息
+     * @return 更新后的商户详情
+     */
+    @PutMapping("/publish")
+    @Operation(summary = "完善信息并发布上线商户")
+    public BaseResponse<MerchantDetailVo> publishMerchant(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody UpdateMerchantDto updateDto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("完善信息并发布商户 - 用户ID: {}, 商户ID: {}", wxId, updateDto.getMerchantId());
+        MerchantDetailVo merchantDetail = merchantService.publishMerchant(wxId, updateDto);
+        return ResultUtils.success(Code.SUCCESS, merchantDetail, "发布成功");
+    }
 
     /**
      * 分页查询商户列表

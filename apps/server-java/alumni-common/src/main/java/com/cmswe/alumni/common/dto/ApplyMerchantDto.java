@@ -3,7 +3,6 @@ package com.cmswe.alumni.common.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,15 +31,13 @@ public class ApplyMerchantDto implements Serializable {
     /**
      * 商户类型：1-校友商铺 2-普通商铺
      */
-    @NotNull(message = "商户类型不能为空")
-    @Schema(description = "商户类型：1-校友商铺 2-普通商铺", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "商户类型：1-校友商铺 2-普通商铺", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer merchantType;
 
     /**
      * 营业执照URL
      */
-    @NotBlank(message = "营业执照不能为空")
-    @Schema(description = "营业执照URL", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "营业执照URL", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String businessLicense;
 
     /**
@@ -62,18 +59,16 @@ public class ApplyMerchantDto implements Serializable {
     /**
      * 法人身份证号
      */
-    @NotBlank(message = "法人身份证号不能为空")
-    @Size(max = 18, message = "法人身份证号长度不能超过18个字符")
-    @Schema(description = "法人身份证号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "法人身份证号", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String legalPersonId;
 
     /**
-     * 联系电话
+     * 法人个人联系电话
      */
     @NotBlank(message = "联系电话不能为空")
     @Size(max = 20, message = "联系电话长度不能超过20个字符")
-    @Schema(description = "联系电话", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String contactPhone;
+    @Schema(description = "法人个人联系电话", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String phone;
 
     /**
      * 联系邮箱
@@ -93,6 +88,18 @@ public class ApplyMerchantDto implements Serializable {
      */
     @Schema(description = "经营类目", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String businessCategory;
+
+    /**
+     * 一级经营类目ID
+     */
+    @Schema(description = "一级经营类目ID（level=1）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long businessCategoryId;
+
+    /**
+     * 二级服务ID
+     */
+    @Schema(description = "二级服务ID（level=2，且 parentId=businessCategoryId）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long businessServiceId;
 
     /**
      * 商家logo

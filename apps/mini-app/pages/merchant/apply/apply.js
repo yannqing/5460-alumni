@@ -8,22 +8,14 @@ Page({
     form: {
       merchantName: '',
       merchantType: 2,
-      businessLicense: '',
-      logo: '',
-      backgroundImageList: [],
       unifiedSocialCreditCode: '',
       legalPerson: '',
-      legalPersonId: '',
-      contactPhone: '',
-      contactEmail: '',
-      businessScope: '',
-      businessCategory: ''
+      phone: ''
     },
     submitting: false,
-    uploadType: 'license',
     merchantStatus: 'none', // none, pending, approved, rejected
     /** 编辑待审核申请时存在（与 onLoad options.merchantId 一致） */
-    merchantId: '',
+    merchantId: ''
   },
 
   onLoad(options) {
@@ -46,16 +38,9 @@ Page({
     const formData = {
       merchantName: '',
       merchantType: 2,
-      businessLicense: '',
-      logo: '',
-      backgroundImageList: [],
       unifiedSocialCreditCode: '',
       legalPerson: userInfo.nickName || userData.nickName || userData.name || '',
-      legalPersonId: '',
-      contactPhone: userInfo.mobile || userData.mobile || userData.phone || '',
-      contactEmail: userInfo.email || userData.email || '',
-      businessScope: '',
-      businessCategory: ''
+      phone: userInfo.mobile || userData.mobile || userData.phone || ''
     }
     
     this.setData({ form: formData })
@@ -83,16 +68,9 @@ Page({
           form: {
             merchantName: data.merchantName || '',
             merchantType: data.merchantType || 2,
-            businessLicense: data.businessLicense || '',
-            logo: data.logo || '',
-            backgroundImageList: this.parseBackgroundImage(data.backgroundImage),
             unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
             legalPerson: data.legalPerson || '',
-            legalPersonId: '', // 敏感信息不返回
-            contactPhone: data.contactPhone || '',
-            contactEmail: data.contactEmail || '',
-            businessScope: data.businessScope || '',
-            businessCategory: data.businessCategory || ''
+            phone: data.phone || ''
           },
           merchantStatus: this.getMerchantStatusText(data.reviewStatus) // 设置审核状态
         })
@@ -133,138 +111,8 @@ Page({
     })
   },
 
-  chooseImage() {
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      success: (res) => {
-        const tempFilePath = res.tempFiles?.[0]?.tempFilePath
-        if (tempFilePath) {
-          const field = this.data.uploadType === 'logo' ? 'logo' : 'businessLicense'
-          this.setData({
-            [`form.${field}`]: tempFilePath
-          })
-          // TODO: 上传图片到服务器
-          this.uploadImage(tempFilePath, field)
-        }
-      }
-    })
-  },
-
-  chooseBusinessLicense() {
-    this.setData({ uploadType: 'license' })
-    this.chooseImage()
-  },
-
-  chooseLogo() {
-    this.setData({ uploadType: 'logo' })
-    this.chooseImage()
-  },
-
-  chooseBackgroundImage() {
-    wx.chooseMedia({
-      count: 9,
-      mediaType: ['image'],
-      success: (res) => {
-        const files = res.tempFiles || []
-        if (!files.length) {return}
-        const uploadTasks = files.map(file => this.uploadImage(file.tempFilePath, 'backgroundImageList', false))
-        Promise.all(uploadTasks).then(urls => {
-          const validUrls = urls.filter(Boolean)
-          if (!validUrls.length) {return}
-          this.setData({
-            'form.backgroundImageList': [...(this.data.form.backgroundImageList || []), ...validUrls]
-          })
-          wx.showToast({
-            title: '上传成功',
-            icon: 'success'
-          })
-        })
-      }
-    })
-  },
-
-  uploadImage(filePath, field, showLoading = true) {
-    if (showLoading) {
-      wx.showLoading({ title: '上传中...' })
-    }
-    return fileApi.uploadImage(filePath).then((res) => {
-      if (showLoading) {
-        wx.hideLoading()
-      }
-      
-      if (res.code === 200 && res.data && res.data.fileUrl) {
-        if (field !== 'backgroundImageList') {
-          this.setData({
-            [`form.${field}`]: res.data.fileUrl
-          })
-          wx.showToast({
-            title: '上传成功',
-            icon: 'success'
-          })
-        }
-        return res.data.fileUrl
-      } else {
-        wx.showToast({
-          title: res.msg || '上传失败',
-          icon: 'none'
-        })
-        if (field !== 'backgroundImageList') {
-          this.setData({
-            [`form.${field}`]: ''
-          })
-        }
-        return ''
-      }
-    }).catch((err) => {
-      if (showLoading) {
-        wx.hideLoading()
-      }
-      wx.showToast({
-        title: err.msg || '上传失败，请稍后重试',
-        icon: 'none'
-      })
-      if (field !== 'backgroundImageList') {
-        this.setData({
-          [`form.${field}`]: ''
-        })
-      }
-      return ''
-    })
-  },
-
-  removeImage(e) {
-    const { field } = e.currentTarget.dataset
-    this.setData({
-      [`form.${field}`]: ''
-    })
-  },
-
-  removeBackgroundImage(e) {
-    const { index } = e.currentTarget.dataset
-    const list = [...(this.data.form.backgroundImageList || [])]
-    list.splice(index, 1)
-    this.setData({
-      'form.backgroundImageList': list
-    })
-  },
-
-  parseBackgroundImage(backgroundImage) {
-    if (!backgroundImage) {return []}
-    if (Array.isArray(backgroundImage)) {return backgroundImage}
-    if (typeof backgroundImage === 'string') {
-      try {
-        const parsed = JSON.parse(backgroundImage)
-        return Array.isArray(parsed) ? parsed : []
-      } catch (e) {
-        return []
-      }
-    }
-    return []
-  },
-
   validateForm() {
-    const { merchantName, merchantType, businessLicense, unifiedSocialCreditCode, legalPerson, legalPersonId, contactPhone, contactEmail } = this.data.form
+    const { merchantName, unifiedSocialCreditCode, legalPerson, phone } = this.data.form
     
     if (!merchantName || !merchantName.trim()) {
       wx.showToast({ title: '请输入商户名称', icon: 'none' })
@@ -273,16 +121,6 @@ Page({
     
     if (merchantName.length > 100) {
       wx.showToast({ title: '商户名称不能超过100个字符', icon: 'none' })
-      return false
-    }
-    
-    if (!merchantType || ![1, 2].includes(merchantType)) {
-      wx.showToast({ title: '请选择正确的商户类型', icon: 'none' })
-      return false
-    }
-    
-    if (!businessLicense) {
-      wx.showToast({ title: '请上传营业执照', icon: 'none' })
       return false
     }
     
@@ -311,33 +149,13 @@ Page({
       return false
     }
     
-    if (!legalPersonId || !legalPersonId.trim()) {
-      wx.showToast({ title: '请输入法人身份证号', icon: 'none' })
-      return false
-    }
-    
-    const normalizedLegalPersonId = String(legalPersonId).trim()
-    if (normalizedLegalPersonId.length !== 18) {
-      wx.showToast({ title: '法人身份证号须为18位', icon: 'none' })
-      return false
-    }
-    if (!/^\d{17}[\dXx]$/.test(normalizedLegalPersonId)) {
-      wx.showToast({ title: '法人身份证号格式不正确', icon: 'none' })
-      return false
-    }
-    
-    if (!contactPhone || !contactPhone.trim()) {
+    if (!phone || !phone.trim()) {
       wx.showToast({ title: '请输入联系电话', icon: 'none' })
       return false
     }
     
-    if (!/^\d{11}$/.test(String(contactPhone).trim())) {
+    if (!/^\d{11}$/.test(String(phone).trim())) {
       wx.showToast({ title: '联系电话须为11位数字', icon: 'none' })
-      return false
-    }
-    
-    if (contactEmail && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(contactEmail)) {
-      wx.showToast({ title: '邮箱格式不正确', icon: 'none' })
       return false
     }
     
@@ -359,23 +177,14 @@ Page({
     
     const { form } = this.data
     const normalizedCreditCode = String(form.unifiedSocialCreditCode || '').trim().toUpperCase()
-    const normalizedLegalPersonId = String(form.legalPersonId || '').trim().toUpperCase()
 
     const applyPayload = {
       merchantName: form.merchantName,
       merchantType: form.merchantType,
-      businessLicense: form.businessLicense,
-      logo: form.logo || undefined,
-      backgroundImage: (form.backgroundImageList && form.backgroundImageList.length)
-        ? JSON.stringify(form.backgroundImageList)
-        : undefined,
       unifiedSocialCreditCode: normalizedCreditCode,
       legalPerson: form.legalPerson,
-      legalPersonId: normalizedLegalPersonId,
-      contactPhone: form.contactPhone,
-      contactEmail: form.contactEmail,
-      businessScope: form.businessScope,
-      businessCategory: form.businessCategory,
+      phone: form.phone,
+      businessCategory: '',
       alumniAssociationId: 0
     }
 

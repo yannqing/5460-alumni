@@ -76,13 +76,13 @@
           <view class="merchant-basic-info">
             
             
-            <view class="info-row">
-              <view class="info-label">经营范围</view>
-              <view class="info-value">{{shopInfo.merchantInfo.businessScope}}</view>
-            </view>
-            <view class="info-row">
+            <view class="info-row" wx:if="{{shopInfo.merchantInfo.businessCategory && shopInfo.merchantInfo.businessCategory !== 'null' && shopInfo.merchantInfo.businessCategory !== 'undefined'}}">
               <view class="info-label">经营类目</view>
               <view class="info-value">{{shopInfo.merchantInfo.businessCategory}}</view>
+            </view>
+            <view class="info-row" wx:if="{{shopInfo.merchantInfo.businessScope && shopInfo.merchantInfo.businessScope !== 'null' && shopInfo.merchantInfo.businessScope !== 'undefined'}}">
+              <view class="info-label">经营范围</view>
+              <view class="info-value">{{shopInfo.merchantInfo.businessScope}}</view>
             </view>
           </view>
           

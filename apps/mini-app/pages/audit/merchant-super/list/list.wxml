@@ -46,8 +46,8 @@
             <!-- 商户名称和状态 -->
             <view class="box_9">
               <text lines="1" class="text_24">{{item.merchantName}}</text>
-              <view class="text-wrapper_12 {{item.reviewStatus === 0 ? 'pending' : item.reviewStatus === 1 ? 'approved' : item.reviewStatus === 2 ? 'rejected' : 'cancelled'}}">
-                <text lines="1" class="text_25">{{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '已通过' : item.reviewStatus === 2 ? '已拒绝' : '已撤销'}}</text>
+              <view class="text-wrapper_12 {{item.reviewStatus === 0 ? 'pending' : (item.reviewStatus === 1 || item.reviewStatus === 4) ? 'approved' : item.reviewStatus === 2 ? 'rejected' : 'cancelled'}}">
+                <text lines="1" class="text_25">{{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '已通过' : item.reviewStatus === 4 ? '待发布' : item.reviewStatus === 2 ? '已拒绝' : '已撤销'}}</text>
               </view>
             </view>
             <!-- 申请信息 -->

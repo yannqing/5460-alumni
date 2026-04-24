@@ -53,6 +53,12 @@ public class MerchantAssociationJoinApplyVo implements Serializable {
     @Schema(description = "申请人电话")
     private String applicantPhone;
 
+    @Schema(description = "法人个人联系电话")
+    private String phone;
+
+    @Schema(description = "联系电话（商户联系方式）")
+    private String contactPhone;
+
     @Schema(description = "审核状态（0-待审核, 1-已通过, 2-已拒绝, 3-已撤销）")
     private Integer status;
 

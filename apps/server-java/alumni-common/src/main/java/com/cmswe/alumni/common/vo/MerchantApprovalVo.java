@@ -35,7 +35,7 @@ public class MerchantApprovalVo implements Serializable {
     @Schema(description = "商户类型：1-校友商铺 2-普通商铺")
     private Integer merchantType;
 
-    @Schema(description = "审核状态：0-待审核 1-审核通过 2-审核失败")
+    @Schema(description = "审核状态：0-待审核 1-审核通过 2-审核失败 3-已撤销 4-待发布")
     private Integer reviewStatus;
 
     @Schema(description = "审核原因")
@@ -50,8 +50,11 @@ public class MerchantApprovalVo implements Serializable {
     @Schema(description = "申请时间")
     private LocalDateTime createTime;
 
-    @Schema(description = "联系电话")
+    @Schema(description = "联系电话（商户联系方式）")
     private String contactPhone;
+
+    @Schema(description = "法人个人联系电话")
+    private String phone;
 
     @Schema(description = "法人姓名")
     private String legalPerson;

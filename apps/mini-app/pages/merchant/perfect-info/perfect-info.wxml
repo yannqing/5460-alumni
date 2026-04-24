@@ -1,39 +1,19 @@
-<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="编辑商家信息">
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="完善商户信息并发布">
   <view class="loading-wrap" wx:if="{{detailLoading}}">
     <text>加载中...</text>
   </view>
   <view class="page" wx:else>
-    <view class="form-card">
-      <form bindsubmit="submitForm">
+    <view class="group_7">
+      <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
+        <form bindsubmit="submitForm">
         <view class="form-item">
           <text class="form-label">商家名称 <text class="required">*</text></text>
           <input class="form-input" placeholder="请输入商家名称" value="{{formData.merchantName}}" bindinput="onInputChange" data-field="merchantName" />
         </view>
 
         <view class="form-item">
-          <text class="form-label">商家类型</text>
-          <view class="merchant-readonly">{{formData.merchantType === 1 ? '校友商铺' : '普通商铺'}}</view>
-          <text class="form-hint">类型不可修改</text>
-        </view>
-
-        <view class="form-item">
-          <text class="form-label">关联校友会 <text class="required">*</text></text>
-          <view class="association-card" wx:if="{{formData.alumniAssociationId}}">
-            <image wx:if="{{associationLogoUrl}}" class="association-avatar" src="{{associationLogoUrl}}" mode="aspectFill" />
-            <view wx:else class="association-avatar association-avatar-ph">
-              <text>{{associationNameFirstChar}}</text>
-            </view>
-            <view class="association-meta">
-              <text class="association-name">{{associationDisplayName || '校友会'}}</text>
-            </view>
-          </view>
-          <view class="merchant-readonly" wx:else>未关联校友会</view>
-          <text class="form-hint">与入驻资质绑定，暂不支持在此修改</text>
-        </view>
-
-        <view class="form-item">
           <text class="form-label">统一社会信用代码 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入18位数字" value="{{formData.unifiedSocialCreditCode}}" bindinput="onInputChange" data-field="unifiedSocialCreditCode" maxlength="18" />
+          <input class="form-input" placeholder="请输入18位信用代码" value="{{formData.unifiedSocialCreditCode}}" bindinput="onInputChange" data-field="unifiedSocialCreditCode" maxlength="18" />
         </view>
 
         <view class="form-item">
@@ -55,8 +35,13 @@
         </view>
 
         <view class="form-item">
-          <text class="form-label">联系电话 <text class="required">*</text></text>
+          <text class="form-label">商家联系电话 <text class="required">*</text></text>
           <input class="form-input" type="number" placeholder="请输入11位手机号" value="{{formData.contactPhone}}" bindinput="onInputChange" data-field="contactPhone" maxlength="11" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">法人个人联系电话 <text class="required">*</text></text>
+          <input class="form-input" type="number" placeholder="请输入11位手机号" value="{{formData.phone}}" bindinput="onInputChange" data-field="phone" maxlength="11" />
         </view>
 
         <view class="form-item">
@@ -65,13 +50,34 @@
         </view>
 
         <view class="form-item">
-          <text class="form-label">经营范围</text>
-          <textarea class="form-textarea" placeholder="请输入经营范围" value="{{formData.businessScope}}" bindinput="onInputChange" data-field="businessScope" maxlength="2000" auto-height />
+          <text class="form-label">经营类目</text>
+          <picker
+            mode="selector"
+            range="{{categoryOptions}}"
+            range-key="name"
+            value="{{categoryIndex}}"
+            bindchange="onCategoryChange"
+          >
+            <view class="form-picker {{categoryIndex < 0 ? 'picker-placeholder' : ''}}">
+              {{categoryIndex >= 0 ? categoryOptions[categoryIndex].name : '请选择经营类目'}}
+            </view>
+          </picker>
         </view>
 
         <view class="form-item">
-          <text class="form-label">经营类目</text>
-          <input class="form-input" placeholder="如：餐饮、零售" value="{{formData.businessCategory}}" bindinput="onInputChange" data-field="businessCategory" />
+          <text class="form-label">经营范围</text>
+          <picker
+            mode="selector"
+            range="{{serviceOptions}}"
+            range-key="name"
+            value="{{serviceIndex}}"
+            bindchange="onServiceChange"
+            disabled="{{!formData.businessCategoryId}}"
+          >
+            <view class="form-picker {{serviceIndex < 0 ? 'picker-placeholder' : ''}}">
+              {{serviceIndex >= 0 ? serviceOptions[serviceIndex].name : (formData.businessCategoryId ? '请选择经营范围' : '请先选择经营类目')}}
+            </view>
+          </picker>
         </view>
 
         <view class="form-item">
@@ -118,8 +124,9 @@
           </view>
         </view>
 
-        <button class="submit-btn" form-type="submit" loading="{{submitting}}" disabled="{{submitting}}">保存信息</button>
-      </form>
+        <button class="submit-btn" form-type="submit" loading="{{submitting}}" disabled="{{submitting}}">完善信息并发布</button>
+        </form>
+      </scroll-view>
     </view>
   </view>
 </custom-nav-bar>

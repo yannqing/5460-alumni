@@ -43,6 +43,14 @@ Page({
     })
   },
 
+  goToPerfectInfo(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/merchant/perfect-info/perfect-info?merchantId=${id}`
+    })
+  },
+
   goToApplyMerchant() {
     wx.navigateTo({
       url: '/pages/merchant/apply/apply'

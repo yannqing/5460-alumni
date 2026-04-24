@@ -168,7 +168,8 @@
         "detail/detail",
         "my-merchant/my-merchant",
         "join-association/join-association",
-        "edit-apply/edit-apply"
+        "edit-apply/edit-apply",
+        "perfect-info/perfect-info"
       ]
     },
     {

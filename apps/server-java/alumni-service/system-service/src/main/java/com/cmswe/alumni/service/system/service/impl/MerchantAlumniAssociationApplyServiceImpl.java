@@ -274,6 +274,8 @@ public class MerchantAlumniAssociationApplyServiceImpl
                 vo.setBusinessLicense(merchantApprovalVo.getBusinessLicense());
                 vo.setUnifiedSocialCreditCode(merchantApprovalVo.getUnifiedSocialCreditCode());
                 vo.setLegalPerson(merchantApprovalVo.getLegalPerson());
+                vo.setPhone(merchantApprovalVo.getPhone());
+                vo.setContactPhone(merchantApprovalVo.getContactPhone());
                 vo.setBusinessScope(merchantApprovalVo.getBusinessScope());
                 vo.setBackgroundImage(merchantApprovalVo.getBackgroundImage());
                 vo.setApplicantName(merchantApprovalVo.getApplicantName());
