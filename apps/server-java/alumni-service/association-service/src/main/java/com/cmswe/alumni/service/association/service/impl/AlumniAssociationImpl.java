@@ -147,10 +147,12 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
 
         // 2.获取参数
         String associationName = alumniAssociationListDto.getAssociationName();
-        String presidentUsername = alumniAssociationListDto.getAssociationName();
+        String presidentUsername = alumniAssociationListDto.getPresidentUsername();
         String contactInfo = alumniAssociationListDto.getContactInfo();
         String location = alumniAssociationListDto.getLocation();
         Integer myFollow = alumniAssociationListDto.getMyFollow();
+        Integer recommend = alumniAssociationListDto.getRecommend();
+        Integer certificationFlag = alumniAssociationListDto.getCertificationFlag();
         int current = alumniAssociationListDto.getCurrent();
         int pageSize = alumniAssociationListDto.getPageSize();
         String sortField = alumniAssociationListDto.getSortField();
@@ -159,6 +161,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         // 设置默认排序字段
         if (sortField == null) {
             sortField = "createTime";
+        }
+        if (StringUtils.isBlank(sortOrder)) {
+            sortOrder = CommonConstant.SORT_ORDER_DESC;
         }
 
         // 2.5 处理"我的关注"筛选：查询用户关注的校友会 ID 列表
@@ -174,24 +179,46 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             }
         }
 
+        boolean isNameSort = "associationName".equals(sortField);
+        boolean isAsc = CommonConstant.SORT_ORDER_ASC.equals(sortOrder);
+
         // 3.构建查询条件
         LambdaQueryWrapper<AlumniAssociation> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .like(StringUtils.isNotBlank(associationName), AlumniAssociation::getAssociationName, associationName)
+                .like(StringUtils.isNotBlank(presidentUsername), AlumniAssociation::getChargeName, presidentUsername)
                 .like(StringUtils.isNotBlank(contactInfo), AlumniAssociation::getContactInfo, contactInfo)
                 .like(StringUtils.isNotBlank(location), AlumniAssociation::getLocation, location)
-                // 排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
-                .orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
-                        AlumniAssociation.getSortMethod(sortField))
-                .orderByDesc(AlumniAssociation::getAlumniAssociationId);
+                .eq(certificationFlag != null, AlumniAssociation::getCertificationFlag, certificationFlag);
+
+        if (isNameSort) {
+            // 名称排序使用 GBK 拼音规则，避免中文按 Unicode 编码排序导致顺序异常（如“云南”在“北京”前）
+            queryWrapper.last("ORDER BY CONVERT(association_name USING gbk) " + (isAsc ? "ASC" : "DESC")
+                    + ", alumni_association_id DESC");
+        } else {
+            // 排序：先按指定字段排序，再按主键排序（确保排序稳定，避免分页重复）
+            queryWrapper.orderBy(StringUtils.isNotBlank(sortField), isAsc, AlumniAssociation.getSortMethod(sortField))
+                    .orderByDesc(AlumniAssociation::getAlumniAssociationId);
+        }
 
         // 3.5 应用我的关注筛选
         if (followedAssociationIds != null) {
             queryWrapper.in(AlumniAssociation::getAlumniAssociationId, followedAssociationIds);
         }
 
-        // 4.执行分页查询
-        Page<AlumniAssociation> alumniAssociationPage = this.page(new Page<>(current, pageSize), queryWrapper);
+        // 4.执行查询（推荐模式：随机展示20个）
+        Page<AlumniAssociation> alumniAssociationPage;
+        if (recommend != null && recommend == 1) {
+            List<AlumniAssociation> randomAssociations = this.list(queryWrapper);
+            Collections.shuffle(randomAssociations);
+            List<AlumniAssociation> recommendList = randomAssociations.stream()
+                    .limit(20)
+                    .toList();
+            alumniAssociationPage = new Page<>(1, 20, recommendList.size());
+            alumniAssociationPage.setRecords(recommendList);
+        } else {
+            alumniAssociationPage = this.page(new Page<>(current, pageSize), queryWrapper);
+        }
 
         // 5. 如果查询结果不为空，批量查询学校信息
         Map<Long, SchoolListVo> schoolMap = new HashMap<>();
@@ -282,7 +309,9 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         log.info("分页查询校友会列表，当前用户ID：{}，总记录数：{}", currentUserId, alumniAssociationPage.getTotal());
 
         // 8.转换结果并返回
-        Page<AlumniAssociationListVo> resultPage = new Page<AlumniAssociationListVo>(current, pageSize,
+        long resultCurrent = (recommend != null && recommend == 1) ? 1 : current;
+        long resultPageSize = (recommend != null && recommend == 1) ? 20 : pageSize;
+        Page<AlumniAssociationListVo> resultPage = new Page<AlumniAssociationListVo>(resultCurrent, resultPageSize,
                 alumniAssociationPage.getTotal()).setRecords(list);
         return PageVo.of(resultPage);
     }
