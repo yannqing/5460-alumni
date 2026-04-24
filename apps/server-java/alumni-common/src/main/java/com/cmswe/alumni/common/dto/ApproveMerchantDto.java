@@ -26,7 +26,7 @@ public class ApproveMerchantDto implements Serializable {
     private Long merchantId;
 
     @NotNull(message = "审核状态不能为空")
-    @Schema(description = "审核状态：1-审核通过，2-审核失败", example = "1")
+    @Schema(description = "审核状态：1-审核通过，2-审核失败（注：审核通过后实际存储为状态4-待发布）", example = "1")
     private Integer reviewStatus;
 
     @Schema(description = "审核原因（审核失败时必填）", example = "营业执照信息不清晰")

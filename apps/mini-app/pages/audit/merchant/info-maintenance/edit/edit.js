@@ -91,14 +91,6 @@ Page({
         return
       }
       const data = body.data
-      if (data.merchantType !== 1) {
-        wx.showToast({
-          title: '仅校友商铺可在此编辑',
-          icon: 'none',
-        })
-        setTimeout(() => wx.navigateBack(), 1500)
-        return
-      }
       const assoc = data.alumniAssociation
       let alumniIdStr = ''
       if (assoc && assoc.alumniAssociationId != null) {
@@ -131,7 +123,7 @@ Page({
       this.setData({
         formData: {
           merchantName: data.merchantName || '',
-          merchantType: 1,
+          merchantType: data.merchantType || 1,
           businessLicense: data.businessLicense || '',
           unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
           legalPerson: data.legalPerson || '',
@@ -356,7 +348,7 @@ Page({
     const payload = {
       merchantId: merchantIdStr,
       merchantName: name,
-      merchantType: 1,
+      merchantType: formData.merchantType,
       unifiedSocialCreditCode: normalizedCreditCode,
       legalPerson,
       legalPersonId: normalizedLegalPersonId,

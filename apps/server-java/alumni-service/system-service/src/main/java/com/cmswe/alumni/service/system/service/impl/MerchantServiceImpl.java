@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.api.search.ShopService;
+import com.cmswe.alumni.api.system.MerchantBusinessCategoryService;
 import com.cmswe.alumni.api.system.MerchantService;
 import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.api.user.RoleService;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.Merchant;
+import com.cmswe.alumni.common.entity.MerchantBusinessCategory;
 import com.cmswe.alumni.common.entity.MerchantMember;
 import com.cmswe.alumni.common.entity.OrganizeArchiRole;
 import com.cmswe.alumni.common.entity.Role;
@@ -91,6 +93,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     @Resource
     private WxUserInfoService wxUserInfoService;
 
+    @Resource
+    private MerchantBusinessCategoryService merchantBusinessCategoryService;
+
     private List<Long> parseAssociationIds(String associationIdStr) {
         if (StringUtils.isBlank(associationIdStr)) {
             return new ArrayList<>();
@@ -111,6 +116,41 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             log.warn("校友会ID字段格式非数字且非数组: {}", trimmed);
         }
         return new ArrayList<>();
+    }
+
+    /**
+     * 解析并校验「一级类目 + 二级服务」，并写回 merchant 的名称字段：
+     * - 一级类目名称 -> businessCategory
+     * - 二级服务名称 -> businessScope
+     */
+    private void fillBusinessCategoryAndService(Merchant merchant, ApplyMerchantDto applyDto) {
+        Long categoryId = applyDto.getBusinessCategoryId();
+        Long serviceId = applyDto.getBusinessServiceId();
+
+        // 兼容历史调用：未传ID时，继续沿用前端传入的文本字段
+        if (categoryId == null && serviceId == null) {
+            return;
+        }
+        if (categoryId == null || serviceId == null) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "请选择完整的经营类目和服务");
+        }
+
+        MerchantBusinessCategory category = merchantBusinessCategoryService.getById(categoryId);
+        if (category == null || !Integer.valueOf(1).equals(category.getStatus()) || !Integer.valueOf(1).equals(category.getLevel())) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "所选经营类目不存在或不可用");
+        }
+
+        MerchantBusinessCategory service = merchantBusinessCategoryService.getById(serviceId);
+        if (service == null || !Integer.valueOf(1).equals(service.getStatus()) || !Integer.valueOf(2).equals(service.getLevel())) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "所选服务不存在或不可用");
+        }
+
+        if (!categoryId.equals(service.getParentId())) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "所选服务不属于当前经营类目");
+        }
+
+        merchant.setBusinessCategory(category.getName());
+        merchant.setBusinessScope(service.getName());
     }
 
     /**
@@ -150,7 +190,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 .eq(merchantType != null, Merchant::getMerchantType, merchantType)
                 .eq(memberTier != null, Merchant::getMemberTier, memberTier)
                 .like(StringUtils.isNotBlank(businessCategory), Merchant::getBusinessCategory, businessCategory)
-                .like(StringUtils.isNotBlank(contactPhone), Merchant::getContactPhone, contactPhone)
+                .and(StringUtils.isNotBlank(contactPhone), w -> w.like(Merchant::getContactPhone, contactPhone).or().like(Merchant::getPhone, contactPhone))
                 .like(StringUtils.isNotBlank(legalPerson), Merchant::getLegalPerson, legalPerson)
                 .eq(isAlumniCertified != null, Merchant::getIsAlumniCertified, isAlumniCertified);
 
@@ -264,11 +304,18 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         BeanUtils.copyProperties(applyDto, merchant);
         merchant.setMerchantId(merchantId);
         merchant.setUserId(wxId);
+        fillBusinessCategoryAndService(merchant, applyDto);
+        
+        // 确保商户类型有默认值（2-普通商铺）
+        if (merchant.getMerchantType() == null) {
+            merchant.setMerchantType(2);
+        }
+        
         merchant.setReviewStatus(0);
         merchant.setReviewerId(null);
         merchant.setReviewReason(null);
         merchant.setReviewTime(null);
-        merchant.setIsAlumniCertified(applyDto.getMerchantType() != null && applyDto.getMerchantType() == 1 ? 1 : 0);
+        merchant.setIsAlumniCertified(merchant.getMerchantType() == 1 ? 1 : 0);
         merchant.setUpdateTime(LocalDateTime.now());
         
         // 处理关联校友会 ID (转换为 JSON 数组)
@@ -343,6 +390,13 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         // 3. 构建商户实体
         Merchant merchant = new Merchant();
         BeanUtils.copyProperties(applyDto, merchant);
+        fillBusinessCategoryAndService(merchant, applyDto);
+        
+        // 确保商户类型有默认值（2-普通商铺）
+        if (merchant.getMerchantType() == null) {
+            merchant.setMerchantType(2);
+        }
+        
         merchant.setUserId(wxId);
         merchant.setReviewStatus(0); // 0-待审核
         merchant.setStatus(0); // 0-禁用（待审核通过后启用）
@@ -351,7 +405,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         merchant.setTotalCouponIssued(0L);
         merchant.setTotalCouponVerified(0L);
         merchant.setRatingCount(0);
-        merchant.setIsAlumniCertified(applyDto.getMerchantType() == 1 ? 1 : 0);
+        merchant.setIsAlumniCertified(merchant.getMerchantType() == 1 ? 1 : 0);
         
         // 处理关联校友会 ID (转换为 JSON 数组)
         if (applyDto.getAlumniAssociationId() != null) {
@@ -410,15 +464,20 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         }
 
         // 4. 更新商户审核信息
-        merchant.setReviewStatus(reviewStatus);
+        Integer finalReviewStatus = reviewStatus;
+        if (reviewStatus == 1) {
+            finalReviewStatus = 4; // 通过之后是将状态改为 待发布 = 4
+        }
+        merchant.setReviewStatus(finalReviewStatus);
         merchant.setReviewReason(reviewReason);
         merchant.setReviewerId(reviewerId);
         merchant.setReviewTime(LocalDateTime.now());
 
-        // 审核通过时，启用商户
+        // 审核通过时，设置认证时间，但保持商户状态为禁用（0），待用户完善信息后发布
         if (reviewStatus == 1) {
-            merchant.setStatus(1); // 1-启用
             merchant.setCertifiedTime(LocalDateTime.now());
+            // 确保状态为禁用
+            merchant.setStatus(0);
         }
 
         boolean updateResult = this.updateById(merchant);
@@ -426,15 +485,15 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             throw new BusinessException(ErrorType.OPERATION_ERROR, "审核操作失败");
         }
 
-        log.info("商户审核完成 - 商户ID: {}, 审核结果: {}", merchantId, reviewStatus == 1 ? "通过" : "失败");
+        log.info("商户审核完成 - 商户ID: {}, 审核结果: {}", merchantId, finalReviewStatus == 4 ? "待发布" : "失败");
 
-        // 5. 审核通过时，为申请人分配商户管理员角色
-        if (reviewStatus == 1) {
-            assignMerchantAdminRole(merchant.getUserId(), merchantId);
-        }
+        // 5. 审核通过时，不再自动分配商户管理员角色，待完善信息发布后再分配
+        // if (reviewStatus == 1) {
+        //    assignMerchantAdminRole(merchant.getUserId(), merchantId);
+        // }
 
         // 6. 发送审核结果通知给用户
-        sendApprovalNotification(merchant.getUserId(), merchantId, merchant.getMerchantName(), reviewStatus,
+        sendApprovalNotification(merchant.getUserId(), merchantId, merchant.getMerchantName(), finalReviewStatus,
                 reviewReason);
 
         return true;
@@ -687,10 +746,10 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             String title;
             String content;
 
-            if (reviewStatus == 1) {
-                // 审核通过
+            if (reviewStatus == 4 || reviewStatus == 1) {
+                // 审核通过（待发布）
                 title = "商户入驻申请已通过";
-                content = "恭喜，您的【" + merchantName + "】商户入驻申请已经审核通过！您现在可以开始管理您的商户和门店了";
+                content = "申请的【" + merchantName + "】商户已经审核通过，完善商户信息即可发布上线商户";
             } else {
                 // 审核失败
                 title = "商户入驻申请未通过";
@@ -711,7 +770,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
             if (success) {
                 log.info("商户审核通知发送成功 - 用户ID: {}, 商户ID: {}, 商户名称: {}, 审核结果: {}", wxId, merchantId, merchantName,
-                        reviewStatus == 1 ? "通过" : "失败");
+                        (reviewStatus == 4 || reviewStatus == 1) ? "通过" : "失败");
             } else {
                 log.warn("商户审核通知发送失败 - 用户ID: {}, 商户ID: {}, 商户名称: {}", wxId, merchantId, merchantName);
             }
@@ -740,9 +799,17 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .like(StringUtils.isNotBlank(merchantName), Merchant::getMerchantName, merchantName)
-                .eq(reviewStatus != null, Merchant::getReviewStatus, reviewStatus)
                 .eq(merchantType != null, Merchant::getMerchantType, merchantType)
                 .ne(Merchant::getReviewStatus, 3); // 3-已撤销，审批列表不展示
+
+        if (reviewStatus != null) {
+            if (reviewStatus == 1) {
+                // 特殊处理审核通过状态：如果查询已通过（1），则同时返回已通过（1）和待发布（4）的商户
+                queryWrapper.in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4));
+            } else {
+                queryWrapper.eq(Merchant::getReviewStatus, reviewStatus);
+            }
+        }
 
         if (alumniAssociationId != null) {
             queryWrapper.apply("(alumni_association_id = CAST({0} AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST({0} AS CHAR)))", alumniAssociationId);
@@ -797,9 +864,17 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .like(StringUtils.isNotBlank(merchantName), Merchant::getMerchantName, merchantName)
-                .eq(reviewStatus != null, Merchant::getReviewStatus, reviewStatus)
                 .eq(merchantType != null, Merchant::getMerchantType, merchantType)
                 .ne(Merchant::getReviewStatus, 3); // 3-已撤销，审批列表不展示
+
+        if (reviewStatus != null) {
+            if (reviewStatus == 1) {
+                // 特殊处理审核通过状态：如果查询已通过（1），则同时返回已通过（1）和待发布（4）的商户
+                queryWrapper.in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4));
+            } else {
+                queryWrapper.eq(Merchant::getReviewStatus, reviewStatus);
+            }
+        }
 
         // 4.添加排序
         if (StringUtils.isNotBlank(sortField)) {
@@ -904,16 +979,20 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         log.info("查询商户详情 - 商户ID: {}", merchantId);
 
-        // 2. 查询商户（只查询启用状态的商户）
+        // 2. 查询商户（允许查询已通过 1 或 待发布 4 的商户）
         Merchant merchant = this.getOne(
                 new LambdaQueryWrapper<Merchant>()
                         .eq(Merchant::getMerchantId, merchantId)
-                        .eq(Merchant::getStatus, 1) // 1-启用
-                        .eq(Merchant::getReviewStatus, 1) // 1-审核通过
+                        .in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4))
         );
 
         if (merchant == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在或未启用");
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在或状态异常");
+        }
+
+        // 只有状态为 1 的才强制要求 status=1，状态为 4 的商户 status 本就是 0
+        if (Integer.valueOf(1).equals(merchant.getReviewStatus()) && !Integer.valueOf(1).equals(merchant.getStatus())) {
+             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户未启用");
         }
 
         // 3. 转换为 VO
@@ -982,8 +1061,8 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
             Page<Merchant> page = new Page<>(current, size);
             Page<Merchant> merchantPage = this.lambdaQuery()
-                    // 仅返回审核通过的商户，避免未审核商户出现在管理列表
-                    .eq(Merchant::getReviewStatus, 1)
+                    // 返回审核通过（1）或待发布（4）的商户
+                    .in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4))
                     .orderByDesc(Merchant::getCreateTime)
                     .page(page);
 
@@ -1037,16 +1116,23 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 .distinct()
                 .collect(Collectors.toList());
 
-        log.info("查询用户负责的商户列表 - 用户ID: {}, 商户数量: {}", wxId, merchantIds.size());
+        log.info("查询用户负责的商户列表 - 用户ID: {}, 已有角色商户数量: {}", wxId, merchantIds.size());
 
-        // 6. 分页查询商户列表
+        // 6. 分页查询商户列表 (包含已通过的商户 和 自己申请且待发布的商户)
         Page<Merchant> page = new Page<>(current, size);
-        Page<Merchant> merchantPage = this.lambdaQuery()
-                .in(Merchant::getMerchantId, merchantIds)
-                // 仅返回审核通过的商户，避免未审核商户出现在管理列表
-                .eq(Merchant::getReviewStatus, 1)
-                .orderByDesc(Merchant::getCreateTime)
-                .page(page);
+        LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.and(w -> {
+            // 情况1：已经是管理员的商户（且已审核通过或待发布）
+            if (!merchantIds.isEmpty()) {
+                w.in(Merchant::getMerchantId, merchantIds)
+                 .in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4));
+            }
+            // 情况2：自己是申请人，且状态为待发布（4）
+            w.or(o -> o.eq(Merchant::getUserId, wxId).eq(Merchant::getReviewStatus, 4));
+        });
+        queryWrapper.orderByDesc(Merchant::getCreateTime);
+
+        Page<Merchant> merchantPage = this.page(page, queryWrapper);
 
         // 7. 转换为 VO
         List<MerchantListVo> merchantListVos = merchantPage.getRecords().stream()
@@ -1075,7 +1161,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MerchantDetailVo updateMerchantInfo(Long wxId, UpdateMerchantDto dto) {
+    public MerchantDetailVo publishMerchant(Long wxId, UpdateMerchantDto dto) {
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
         }
@@ -1088,27 +1174,38 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         if (merchant == null) {
             throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
         }
-        if (merchant.getReviewStatus() == null || merchant.getReviewStatus() != 1) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "仅审核通过的商户可修改资料");
-        }
-        if (merchant.getStatus() != null && merchant.getStatus() == 2) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "已注销商户不可修改资料");
-        }
-        if (merchant.getStatus() == null || merchant.getStatus() != 1) {
-            throw new BusinessException(ErrorType.OPERATION_ERROR, "商户未启用，暂不可修改资料");
+
+        // 必须是待发布（4）状态才能调用发布接口
+        if (!Integer.valueOf(4).equals(merchant.getReviewStatus())) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "只有「待发布」状态的商户才能执行发布操作");
         }
 
-        if (!hasAnyUpdatableFieldInDto(dto)) {
-            throw new BusinessException(ErrorType.ARGS_ERROR, "请至少填写一项需要修改的字段");
+        // 1. 更新基本信息 (复用 updateMerchantInfo 的部分逻辑，但去掉状态限制)
+        updateMerchantFields(merchant, dto);
+
+        // 2. 修改状态为已发布/已启用
+        merchant.setReviewStatus(1); // 审核通过/已发布
+        merchant.setStatus(1); // 启用
+        merchant.setUpdateTime(LocalDateTime.now());
+
+        boolean ok = this.updateById(merchant);
+        if (!ok) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "发布失败");
         }
 
-        if (dto.getContactEmail() != null && StringUtils.isNotBlank(dto.getContactEmail())) {
-            String em = dto.getContactEmail().trim();
-            if (!em.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-                throw new BusinessException(ErrorType.ARGS_ERROR, "邮箱格式不正确");
-            }
-        }
+        // 3. 正式分配管理员权限
+        assignMerchantAdminRole(merchant.getUserId(), merchantId);
 
+        log.info("商户完善信息并发布上线成功 - operatorWxId: {}, merchantId: {}, ownerId: {}", 
+                wxId, merchantId, merchant.getUserId());
+        
+        return getMerchantDetailById(merchantId);
+    }
+
+    /**
+     * 将 DTO 中的字段更新到 Merchant 实体中（内部共用逻辑）
+     */
+    private void updateMerchantFields(Merchant merchant, UpdateMerchantDto dto) {
         if (dto.getMerchantName() != null) {
             if (StringUtils.isBlank(dto.getMerchantName())) {
                 throw new BusinessException(ErrorType.ARGS_ERROR, "商户名称不能为空");
@@ -1139,8 +1236,15 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         if (dto.getContactPhone() != null) {
             merchant.setContactPhone(StringUtils.isBlank(dto.getContactPhone()) ? null : dto.getContactPhone().trim());
         }
-        if (dto.getContactEmail() != null) {
-            merchant.setContactEmail(StringUtils.isBlank(dto.getContactEmail()) ? null : dto.getContactEmail().trim());
+        if (dto.getPhone() != null) {
+            merchant.setPhone(StringUtils.isBlank(dto.getPhone()) ? null : dto.getPhone().trim());
+        }
+        if (dto.getContactEmail() != null && StringUtils.isNotBlank(dto.getContactEmail())) {
+            String em = dto.getContactEmail().trim();
+            if (!em.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "邮箱格式不正确");
+            }
+            merchant.setContactEmail(em);
         }
         if (dto.getBusinessScope() != null) {
             merchant.setBusinessScope(dto.getBusinessScope());
@@ -1162,9 +1266,10 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             merchant.setAlumniAssociationId(null);
         }
 
+        // 校验校友商铺必填项
         int effectiveType = merchant.getMerchantType() != null ? merchant.getMerchantType() : 0;
-        String associationIdStr = merchant.getAlumniAssociationId();
         if (effectiveType == 1) {
+            String associationIdStr = merchant.getAlumniAssociationId();
             if (StringUtils.isBlank(associationIdStr)) {
                 throw new BusinessException(ErrorType.ARGS_ERROR, "校友商铺必须关联有效校友会");
             }
@@ -1177,6 +1282,41 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校友会不存在");
             }
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MerchantDetailVo updateMerchantInfo(Long wxId, UpdateMerchantDto dto) {
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+        Optional.ofNullable(dto).orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
+
+        Long merchantId = dto.getMerchantId();
+        assertUserCanManageMerchant(wxId, merchantId);
+
+        Merchant merchant = this.getById(merchantId);
+        if (merchant == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
+        }
+        // 允许审核通过 (1) 或 待发布 (4) 的商户修改资料
+        Integer reviewStatus = merchant.getReviewStatus();
+        if (reviewStatus == null || (reviewStatus != 1 && reviewStatus != 4)) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "当前商户状态不可修改资料");
+        }
+        if (merchant.getStatus() != null && merchant.getStatus() == 2) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "已注销商户不可修改资料");
+        }
+        if (merchant.getStatus() == null || merchant.getStatus() != 1) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "商户未启用，暂不可修改资料");
+        }
+
+        if (!hasAnyUpdatableFieldInDto(dto)) {
+            throw new BusinessException(ErrorType.ARGS_ERROR, "请至少填写一项需要修改的字段");
+        }
+
+        // 统一调用字段更新逻辑
+        updateMerchantFields(merchant, dto);
 
         merchant.setUpdateTime(LocalDateTime.now());
         boolean ok = this.updateById(merchant);
@@ -1195,6 +1335,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 || dto.getLegalPerson() != null
                 || dto.getLegalPersonId() != null
                 || dto.getContactPhone() != null
+                || dto.getPhone() != null
                 || dto.getContactEmail() != null
                 || dto.getBusinessScope() != null
                 || dto.getBusinessCategory() != null
@@ -1210,25 +1351,41 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         if (merchantId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "商户ID不能为空");
         }
+
+        // 1. 获取商户信息
+        Merchant merchant = this.getById(merchantId);
+        if (merchant == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
+        }
+
+        // 2. 情况1：如果是系统超级管理员，放行
         List<Role> userRoles = roleService.getRolesByUserId(wxId);
         boolean isSystemSuperAdmin = userRoles.stream()
                 .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
         if (isSystemSuperAdmin) {
             return;
         }
+
+        // 3. 情况2：如果是商户的所有者（申请人），且商户状态为待发布（4），放行（允许完善信息）
+        if (wxId.equals(merchant.getUserId()) && Integer.valueOf(4).equals(merchant.getReviewStatus())) {
+            return;
+        }
+
+        // 4. 情况3：如果是已分配角色的商户管理员，放行
         Role role = roleService.getRoleByCodeInner("ORGANIZE_MERCHANT_ADMIN");
-        if (role == null) {
-            throw new BusinessException(ErrorType.NO_AUTH_ERROR, "无权限操作该商户");
+        if (role != null) {
+            long cnt = roleUserService.lambdaQuery()
+                    .eq(RoleUser::getWxId, wxId)
+                    .eq(RoleUser::getRoleId, role.getRoleId())
+                    .eq(RoleUser::getType, 3)
+                    .eq(RoleUser::getOrganizeId, merchantId)
+                    .count();
+            if (cnt > 0) {
+                return;
+            }
         }
-        long cnt = roleUserService.lambdaQuery()
-                .eq(RoleUser::getWxId, wxId)
-                .eq(RoleUser::getRoleId, role.getRoleId())
-                .eq(RoleUser::getType, 3)
-                .eq(RoleUser::getOrganizeId, merchantId)
-                .count();
-        if (cnt == 0) {
-            throw new BusinessException(ErrorType.NO_AUTH_ERROR, "无权限操作该商户");
-        }
+
+        throw new BusinessException(ErrorType.NO_AUTH_ERROR, "无权限操作该商户");
     }
 
     @Override

@@ -118,6 +118,15 @@ public interface MerchantService extends IService<Merchant> {
     MerchantDetailVo updateMerchantInfo(Long wxId, UpdateMerchantDto dto);
 
     /**
+     * 完善商户信息并发布上线（review_status从4变为1，status变为1，并分配管理员权限）
+     *
+     * @param wxId 当前用户微信ID
+     * @param dto  更新内容（须含 merchantId）
+     * @return 更新后的商户详情
+     */
+    MerchantDetailVo publishMerchant(Long wxId, UpdateMerchantDto dto);
+
+    /**
      * 查询商户成员列表
      *
      * @param merchantId 商户ID

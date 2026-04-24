@@ -241,6 +241,8 @@ const merchantApi = {
   getMyMerchants: params => get('/merchant-management/my-merchants', params),
   // 商户管理员更新商户基本信息（部分字段更新）
   updateMerchantInfo: data => put('/merchant-management/merchant/info', data),
+  // 完善信息并发布上线商户
+  publishMerchant: data => put('/merchant/publish', data),
   // 超级管理员查看商户申请列表
   getSuperAdminApprovalRecords: params => get('/merchant-management/super-admin/approval/records', params),
   // 申请加入校友会
@@ -253,6 +255,10 @@ const merchantApi = {
   getMerchantJoinApplyDetail: params => get('/merchant/association-apply/detail', params),
   // 获取商户审批详情（包含基本信息）
   getMerchantApprovalDetail: merchantId => get(`/merchant-management/approval/record`, { merchantId }),
+  // 获取经营类目树
+  getCategoryTree: () => get('/merchant/category/tree'),
+  // 按一级类目获取经营范围（二级服务）
+  getCategoryServices: parentId => get('/merchant/category/services', { parentId }),
 }
 
 // ==================== 商铺相关接口 ====================

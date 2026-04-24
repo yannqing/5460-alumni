@@ -77,6 +77,12 @@ public class MerchantDetailVo implements Serializable {
     private String contactPhone;
 
     /**
+     * 法人个人联系电话
+     */
+    @Schema(description = "法人个人联系电话")
+    private String phone;
+
+    /**
      * 联系邮箱
      */
     @Schema(description = "联系邮箱")

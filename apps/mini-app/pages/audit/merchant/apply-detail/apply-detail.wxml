@@ -38,10 +38,6 @@
         <text class="detail-value">{{applyInfo.applicantName || '-'}}</text>
       </view>
       <view class="detail-item">
-        <text class="detail-label">联系电话：</text>
-        <text class="detail-value">{{applyInfo.contactPhone}}</text>
-      </view>
-      <view class="detail-item">
         <text class="detail-label">申请时间：</text>
         <text class="detail-value">{{applyInfo.submitTime}}</text>
       </view>
@@ -87,7 +83,7 @@
 
     <!-- 营业执照信息 -->
     <view class="detail-section">
-      <view class="section-title">营业执照信息</view>
+      <view class="section-title">营业信息</view>
       <view class="license-photo-block" wx:if="{{applyInfo.businessLicenseUrl}}">
         <text class="detail-label license-photo-label">营业执照照片：</text>
         <image
@@ -105,11 +101,19 @@
         <text class="detail-label">法定代表人：</text>
         <text class="detail-value">{{applyInfo.legalRepresentative}}</text>
       </view>
+      <view class="detail-item" wx:if="{{applyInfo.phone}}">
+        <text class="detail-label">法人联系电话：</text>
+        <text class="detail-value">{{applyInfo.phone}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{applyInfo.contactPhone}}">
+        <text class="detail-label">商户联系电话：</text>
+        <text class="detail-value">{{applyInfo.contactPhone}}</text>
+      </view>
       <view class="detail-item" wx:if="{{applyInfo.businessAddress}}">
         <text class="detail-label">经营地址：</text>
         <text class="detail-value">{{applyInfo.businessAddress}}</text>
       </view>
-      <view class="detail-item">
+      <view class="detail-item" wx:if="{{!fromSuperAdmin}}">
         <text class="detail-label">经营范围：</text>
         <text class="detail-value">{{applyInfo.businessScope}}</text>
       </view>

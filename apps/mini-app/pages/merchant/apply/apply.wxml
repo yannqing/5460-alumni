@@ -28,9 +28,8 @@
       <view class="tip-title">📋 申请说明</view>
       <view class="tip-list">
         <text>1. 请确保填写的信息真实有效</text>
-        <text>2. 需要上传清晰的营业执照照片</text>
-        <text>3. 审核通常需要1-3个工作日</text>
-        <text>4. 通过后可发布优惠券、管理店铺等</text>
+        <text>2. 审核通常需要1-3个工作日</text>
+        <text>3. 通过后可发布优惠券、管理店铺等</text>
       </view>
     </view>
 
@@ -47,16 +46,6 @@
         <view class="label">统一社会信用代码 <text class="required">*</text></view>
         <input class="input" maxlength="18" placeholder="请输入统一社会信用代码" value="{{form.unifiedSocialCreditCode}}" data-field="unifiedSocialCreditCode" bindinput="handleInput" />
       </view>
-      
-      <view class="form-item">
-        <view class="label">经营范围</view>
-        <input class="input" placeholder="请输入经营范围" value="{{form.businessScope}}" data-field="businessScope" bindinput="handleInput" />
-      </view>
-      
-      <view class="form-item">
-        <view class="label">经营类目</view>
-        <input class="input" placeholder="请输入经营类目" value="{{form.businessCategory}}" data-field="businessCategory" bindinput="handleInput" />
-      </view>
     </view>
 
     <!-- 法人信息 -->
@@ -67,79 +56,10 @@
         <view class="label">法人姓名 <text class="required">*</text></view>
         <input class="input" placeholder="请输入法人姓名" value="{{form.legalPerson}}" data-field="legalPerson" bindinput="handleInput" />
       </view>
-      
+
       <view class="form-item">
-        <view class="label">法人身份证号 <text class="required">*</text></view>
-        <input class="input" maxlength="18" placeholder="请输入法人身份证号" value="{{form.legalPersonId}}" data-field="legalPersonId" bindinput="handleInput" />
-      </view>
-    </view>
-
-    <!-- 联系信息 -->
-    <view class="section-card card">
-      <view class="section-title">联系信息</view>
-      
-      <view class="form-item">
-        <view class="label">联系电话 <text class="required">*</text></view>
-        <input class="input" placeholder="请输入联系电话" value="{{form.contactPhone}}" data-field="contactPhone" bindinput="handleInput" />
-      </view>
-      
-      <view class="form-item">
-        <view class="label">联系邮箱</view>
-        <input class="input" placeholder="请输入联系邮箱" value="{{form.contactEmail}}" data-field="contactEmail" bindinput="handleInput" />
-      </view>
-    </view>
-
-    <!-- 资质证明 -->
-    <view class="section-card card">
-      <view class="section-title">资质证明</view>
-      
-      <!-- 营业执照 -->
-      <view class="upload-section">
-        <view class="upload-label">
-          <text class="label-text">营业执照</text>
-          <text class="required">*</text>
-        </view>
-        <view class="upload-hint">请上传清晰的营业执照照片，确保信息完整可见</view>
-        <view class="upload-area" wx:if="{{!form.businessLicense}}" bindtap="chooseBusinessLicense">
-          <view class="upload-icon">📷</view>
-          <view class="upload-text">点击上传营业执照</view>
-        </view>
-        <view class="image-preview" wx:else>
-          <image class="preview-image" src="{{form.businessLicense}}" mode="aspectFit" />
-          <view class="remove-btn" bindtap="removeImage" data-field="businessLicense">✕</view>
-        </view>
-      </view>
-
-      <!-- 商家 Logo -->
-      <view class="upload-section">
-        <view class="upload-label">
-          <text class="label-text">商家Logo</text>
-        </view>
-        <view class="upload-hint">建议上传 1:1 图片，用于商家头像展示</view>
-        <view class="upload-area" wx:if="{{!form.logo}}" bindtap="chooseLogo">
-          <view class="upload-icon">🖼️</view>
-          <view class="upload-text">点击上传商家Logo</view>
-        </view>
-        <view class="image-preview" wx:else>
-          <image class="preview-image" src="{{form.logo}}" mode="aspectFit" />
-          <view class="remove-btn" bindtap="removeImage" data-field="logo">✕</view>
-        </view>
-      </view>
-
-      <!-- 商家背景图 -->
-      <view class="upload-section">
-        <view class="upload-label">
-          <text class="label-text">商家背景图</text>
-        </view>
-        <view class="upload-hint">可上传多张图片，用于商家详情轮播</view>
-        <view class="upload-area" bindtap="chooseBackgroundImage">
-          <view class="upload-icon">🖼️</view>
-          <view class="upload-text">点击上传背景图</view>
-        </view>
-        <view class="image-preview" wx:for="{{form.backgroundImageList}}" wx:key="index">
-          <image class="preview-image" src="{{item}}" mode="aspectFit" />
-          <view class="remove-btn" bindtap="removeBackgroundImage" data-index="{{index}}">✕</view>
-        </view>
+        <view class="label">法人联系电话 <text class="required">*</text></view>
+        <input class="input" placeholder="请输入联系电话" value="{{form.phone}}" data-field="phone" bindinput="handleInput" />
       </view>
     </view>
 
@@ -154,6 +74,3 @@
   </view>
 </view>
 </custom-nav-bar>
-
-
-

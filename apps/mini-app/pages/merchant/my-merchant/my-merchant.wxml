@@ -23,11 +23,11 @@
           bindtap="viewDetail"
           data-id="{{item.merchantId}}"
         >
-          <view class="certification-badge" wx:if="{{item.isAlumniCertified === 1}}">
-            <text>已认证</text>
+          <view class="certification-badge" wx:if="{{item.reviewStatus === 1}}">
+            <text>已发布</text>
           </view>
-          <view class="certification-badge uncertified" wx:elif="{{item.isAlumniCertified === 0}}">
-            <text>未认证</text>
+          <view class="certification-badge pending" wx:elif="{{item.reviewStatus === 4}}">
+            <text>待发布</text>
           </view>
           <view class="merchant-info">
             <view class="merchant-name">{{item.merchantName}}</view>
@@ -37,9 +37,14 @@
             <view class="merchant-contact">
               <text class="contact-item">联系电话：{{item.contactPhone}}</text>
             </view>
-            <view class="merchant-scope">
-              <text class="scope-label">经营范围：</text>
-              <text class="scope-content">{{item.businessScope}}</text>
+            <view class="merchant-scope-row">
+              <view class="merchant-scope">
+                <text class="scope-label">经营类目：</text>
+                <text class="scope-content">{{item.businessCategory || '-'}}</text>
+              </view>
+              <view class="perfect-info-btn" wx:if="{{item.reviewStatus === 4}}" catchtap="goToPerfectInfo" data-id="{{item.merchantId}}">
+                完善基本信息并发布
+              </view>
             </view>
           </view>
         </view>

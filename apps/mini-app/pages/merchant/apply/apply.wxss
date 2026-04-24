@@ -32,6 +32,14 @@
   z-index: 0;
 }
 
+/* 隐藏滚动条 */
+.scroll-list ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+  display: none;
+}
+
 .card {
   background: #F9F9F9;
   border-radius: 16rpx;
@@ -126,12 +134,13 @@
 }
 
 .label {
-  width: 160rpx;
+  width: 240rpx;
   font-size: 28rpx;
   color: #666;
   flex-shrink: 0;
   font-weight: 500;
   line-height: 1.5;
+  white-space: nowrap;
 }
 
 .textarea-item .label {

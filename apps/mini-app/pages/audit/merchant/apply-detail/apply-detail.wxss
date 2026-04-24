@@ -183,8 +183,10 @@
 
 .detail-label {
   color: #999;
-  width: 180rpx;
+  width: 240rpx;
   padding-top: 8rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .detail-label-single-line {
