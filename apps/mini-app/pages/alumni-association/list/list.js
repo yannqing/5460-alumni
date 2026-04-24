@@ -27,25 +27,16 @@ Page({
     certThirdImg:
       'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/association_third_certification.png',
     keyword: '',
-    filters: [
-      { label: '城市', options: ['全部城市'], selected: 0 },
-      {
-        label: '条件筛选',
-        options: ['注册会员人数-升序', '注册会员人数-降序', '注册时间-升序', '注册时间-降序'],
-        selected: -1,
-      },
-      { label: '关注', options: ['我的关注'], selected: 0 },
-    ],
-    // 关注筛选下拉选择器
-    followFilterOptions: ['全部', '我的关注'],
-    followFilterIndex: 0,
-    myFollow: 0, // 0-全部，1-仅我关注的
+    conditionDisplayText: '条件筛选',
     // 条件筛选多列选择器数据
     conditionData: [
-      ['注册会员人数', '注册时间'],
-      ['升序', '降序'],
+      ['全部', '关注', '推荐', '认证等级'],
+      [''],
     ],
     conditionIndex: [0, 0],
+    sortFilterOptions: ['升序', '降序'],
+    sortFilterIndex: -1,
+    sortDisplayText: '名称排序',
     associationList: [],
     current: 1,
     pageSize: 50, // 增大每页大小，一次加载更多数据
@@ -779,26 +770,9 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const { keyword, filters, current, pageSize } = this.data
-      const [cityFilter, conditionFilter, followFilter] = filters
-
-      // 准备请求参数
-      let sortField = undefined
-      let sortOrder = undefined
-
-      // 确定排序字段和顺序
-      if (conditionFilter.selected >= 0) {
-        const selectedOption = conditionFilter.options[conditionFilter.selected]
-        if (selectedOption) {
-          if (selectedOption.includes('会员人数')) {
-            sortField = 'memberCount'
-            sortOrder = selectedOption.includes('升序') ? 'ascend' : 'descend'
-          } else if (selectedOption.includes('注册时间')) {
-            sortField = 'createTime'
-            sortOrder = selectedOption.includes('升序') ? 'ascend' : 'descend'
-          }
-        }
-      }
+      const { keyword } = this.data
+      const { myFollow, recommend, certificationFlag } = this.getConditionFilterParams()
+      const { sortField, sortOrder } = this.getSortFilterParams()
 
       const params = {
         current: refresh ? 1 : this.data.current,
@@ -810,16 +784,11 @@ Page({
           this.data.selectedCity && this.data.selectedCity !== '全部'
             ? this.data.location
             : undefined,
-        // 会长名称（暂不使用）
-        presidentUsername: undefined,
-        // 联系信息（暂不使用）
-        contactInfo: undefined,
-        // 排序字段：根据选择
-        sortField: sortField,
-        // 排序顺序：根据筛选选择
-        sortOrder: sortOrder,
-        // 关注筛选：0-全部，1-仅我关注的
-        myFollow: this.data.myFollow,
+        myFollow,
+        recommend,
+        certificationFlag,
+        sortField,
+        sortOrder,
       }
 
       // 移除 undefined 参数
@@ -982,9 +951,16 @@ Page({
     const newConditionIndex = [...conditionIndex]
     newConditionIndex[column] = value
 
-    // 当切换左侧的会员人数和注册时间时，重置右侧的升序和降序为升序
     if (column === 0) {
+      const selectedMainOption = conditionData[0][value]
+      const certLevelOptions = ['全部', '1级认证', '2级认证', '3级认证', '未认证']
+      const secondColumnOptions = selectedMainOption === '认证等级' ? certLevelOptions : ['']
       newConditionIndex[1] = 0
+      this.setData({
+        conditionData: [conditionData[0], secondColumnOptions],
+        conditionIndex: newConditionIndex,
+      })
+      return
     }
 
     this.setData({
@@ -994,38 +970,76 @@ Page({
 
   // 条件筛选变更
   onConditionChange(e) {
-    const index = e.detail.value // [条件类型索引, 排序方式索引]
-    const { conditionData, filters } = this.data
-
-    const conditionType = conditionData[0][index[0]]
-    const sortType = conditionData[1][index[1]]
-    const selectedOption = `${conditionType}-${sortType}`
-
-    // 查找对应的选项索引
-    let optionIndex = 0
-    const options = filters[1].options
-    for (let i = 0; i < options.length; i++) {
-      if (options[i] === selectedOption) {
-        optionIndex = i
-        break
-      }
-    }
+    const index = e.detail.value // [条件类型索引, 子类型索引]
+    const { conditionData } = this.data
+    const mainOption = conditionData[0][index[0]] || '全部'
+    const subOption = conditionData[1][index[1]] || ''
+    const conditionDisplayText =
+      mainOption === '认证等级' ? `认证等级-${subOption}` : mainOption === '全部' ? '条件筛选' : mainOption
 
     this.setData({
-      filters: [filters[0], { ...filters[1], selected: optionIndex }, filters[2]],
       conditionIndex: index,
+      conditionDisplayText,
       current: 1,
     })
 
     this.loadAssociationList(true)
   },
 
-  // 关注筛选变更（下拉选择器）
-  onFollowFilterChange(e) {
-    const index = parseInt(e.detail.value)
+  getConditionFilterParams() {
+    const { conditionData, conditionIndex } = this.data
+    const mainOption = conditionData[0][conditionIndex[0]] || '全部'
+    const subOption = conditionData[1][conditionIndex[1]] || ''
+
+    const params = {
+      myFollow: 0,
+      recommend: 0,
+      certificationFlag: undefined,
+    }
+
+    if (mainOption === '关注') {
+      params.myFollow = 1
+    } else if (mainOption === '推荐') {
+      params.recommend = 1
+    } else if (mainOption === '认证等级') {
+      const certificationMap = {
+        未认证: 0,
+        '1级认证': 1,
+        '2级认证': 2,
+        '3级认证': 3,
+      }
+      params.certificationFlag = certificationMap[subOption]
+    }
+
+    return params
+  },
+
+  getSortFilterParams() {
+    const { sortFilterIndex } = this.data
+    if (sortFilterIndex === 0) {
+      return {
+        sortField: 'associationName',
+        sortOrder: 'ascend',
+      }
+    }
+    if (sortFilterIndex === 1) {
+      return {
+        sortField: 'associationName',
+        sortOrder: 'descend',
+      }
+    }
+    return {
+      sortField: undefined,
+      sortOrder: undefined,
+    }
+  },
+
+  onSortFilterChange(e) {
+    const index = parseInt(e.detail.value, 10)
+    const sortDisplayText = this.data.sortFilterOptions[index] || '名称排序'
     this.setData({
-      followFilterIndex: index,
-      myFollow: index, // 0-全部，1-仅我关注的
+      sortFilterIndex: index,
+      sortDisplayText,
       current: 1,
     })
     this.loadAssociationList(true)

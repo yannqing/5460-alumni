@@ -49,7 +49,7 @@ public class QueryAlumniAssociationListDto extends PageRequest implements Serial
     /**
      * 排序字段
      */
-    @Schema(description = "排序字段: 根据校友会数量排序（memberCount）；根据时间排序（createTime）")
+    @Schema(description = "排序字段: 根据校友会数量排序（memberCount）；根据时间排序（createTime）；根据名称排序（associationName）")
     private String sortField;
 
     /**
@@ -57,6 +57,18 @@ public class QueryAlumniAssociationListDto extends PageRequest implements Serial
      */
     @Schema(description = "我的关注：0-全部 1-仅我关注的", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer myFollow;
+
+    /**
+     * 推荐：0-否 1-是（随机展示20条）
+     */
+    @Schema(description = "推荐：0-否 1-是（随机展示20条）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer recommend;
+
+    /**
+     * 认证等级：0-未认证，1-一级认证，2-二级认证，3-三级认证
+     */
+    @Schema(description = "认证等级：0-未认证，1-一级认证，2-二级认证，3-三级认证", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer certificationFlag;
 
     @Serial
     private static final long serialVersionUID = 1L;

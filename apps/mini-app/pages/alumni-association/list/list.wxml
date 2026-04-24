@@ -42,6 +42,13 @@
 
         <!-- 筛选区域 -->
         <view class="filter-section">
+          <!-- 条件筛选 -->
+          <view class="filter-item">
+            <picker mode="multiSelector" range="{{conditionData}}" value="{{conditionIndex}}" bindchange="onConditionChange" bindcolumnchange="onConditionColumnChange">
+              <text>{{conditionDisplayText || '条件筛选'}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
+          </view>
           <!-- 城市筛选 -->
           <view class="filter-item">
             <picker mode="multiSelector" range="{{regionData}}" value="{{regionIndex}}" bindchange="onRegionChange" bindcolumnchange="onRegionColumnChange">
@@ -49,17 +56,10 @@
             </picker>
             <text class="filter-arrow">▾</text>
           </view>
-          <!-- 条件筛选 -->
+          <!-- 排序筛选 -->
           <view class="filter-item">
-            <picker mode="multiSelector" range="{{conditionData}}" value="{{conditionIndex}}" bindchange="onConditionChange" bindcolumnchange="onConditionColumnChange">
-              <text>{{filters[1].selected === -1 ? '条件筛选' : filters[1].options[filters[1].selected]}}</text>
-            </picker>
-            <text class="filter-arrow">▾</text>
-          </view>
-          <!-- 关注筛选 -->
-          <view class="filter-item">
-            <picker bindchange="onFollowFilterChange" range="{{followFilterOptions}}" value="{{followFilterIndex}}">
-              <text>{{followFilterOptions[followFilterIndex] || '全部'}}</text>
+            <picker bindchange="onSortFilterChange" range="{{sortFilterOptions}}" value="{{sortFilterIndex}}">
+              <text>{{sortDisplayText || '名称排序'}}</text>
             </picker>
             <text class="filter-arrow">▾</text>
           </view>

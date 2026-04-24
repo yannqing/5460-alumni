@@ -199,6 +199,9 @@ public class AlumniAssociation implements Serializable {
             case "createTime" -> {
                 return AlumniAssociation::getCreateTime;
             }
+            case "associationName" -> {
+                return AlumniAssociation::getAssociationName;
+            }
         }
         return AlumniAssociation::getCreateTime;
     }
