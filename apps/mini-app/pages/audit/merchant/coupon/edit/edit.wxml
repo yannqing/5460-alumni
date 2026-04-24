@@ -125,7 +125,7 @@
       <input class="form-input" type="number" placeholder="默认 1，0 表示不限" value="{{formData.perUserLimit}}" bindinput="onInputChange" data-field="perUserLimit" />
     </view>
 
-    <view class="form-item row-between">
+    <view class="form-item row-between" wx:if="{{merchantType === 1}}">
       <text class="label_text">仅校友可领</text>
       <switch checked="{{formData.isAlumniOnly === 1}}" bindchange="onAlumniSwitch" color="#1890ff" />
     </view>

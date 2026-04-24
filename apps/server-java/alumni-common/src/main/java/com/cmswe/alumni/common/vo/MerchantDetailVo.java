@@ -178,6 +178,9 @@ public class MerchantDetailVo implements Serializable {
     @Schema(description = "关联校友会信息")
     private AlumniAssociationListVo alumniAssociation;
 
+    @Schema(description = "已加入的校友会列表")
+    private java.util.List<AlumniAssociationListVo> joinedAssociations;
+
     /**
      * 创建时间
      */

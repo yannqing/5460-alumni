@@ -47,9 +47,9 @@ Page({
         const qrCodeImage = data.base64CodeImg || ''
         
         // 格式化时间，去掉T
-        const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ') : ''
-        const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ') : ''
-        const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ') : ''
+        const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ').split('.')[0] : ''
+        const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ').split('.')[0] : ''
+        const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ').split('.')[0] : ''
         
         // 从 coupon 对象中提取 couponDesc 到顶层（如果存在）
         if (data.coupon && data.coupon.couponDesc) {
@@ -103,9 +103,9 @@ Page({
         const qrCodeImage = data.base64CodeImg || ''
         
         // 格式化时间，去掉T
-        const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ') : ''
-        const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ') : ''
-        const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ') : ''
+        const formattedValidStartTime = data.validStartTime ? data.validStartTime.replace('T', ' ').split('.')[0] : ''
+        const formattedValidEndTime = data.validEndTime ? data.validEndTime.replace('T', ' ').split('.')[0] : ''
+        const formattedVerificationExpireTime = data.verificationExpireTime ? data.verificationExpireTime.replace('T', ' ').split('.')[0] : ''
         
         // 从 coupon 对象中提取 couponDesc 到顶层（如果存在）
         if (data.coupon && data.coupon.couponDesc) {

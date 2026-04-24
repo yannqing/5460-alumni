@@ -57,6 +57,7 @@ Page({
     submitting: false,
     selectedMerchantId: '',
     selectedMerchantName: '',
+    merchantType: '',
 
     shopList: [],
     shopPickerRange: ['全部门店（不限制）'],
@@ -108,6 +109,7 @@ Page({
       couponId: String(couponId),
       selectedMerchantId: options.merchantId ? decodeURIComponent(options.merchantId) : '',
       selectedMerchantName: decodeURIComponent(options.merchantName || ''),
+      merchantType: options.merchantType ? Number(options.merchantType) : '',
     })
     this.loadCouponDetail()
   },

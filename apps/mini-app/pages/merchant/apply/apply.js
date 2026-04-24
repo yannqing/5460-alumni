@@ -7,7 +7,7 @@ Page({
   data: {
     form: {
       merchantName: '',
-      merchantType: 1,
+      merchantType: 2,
       businessLicense: '',
       logo: '',
       backgroundImageList: [],
@@ -17,24 +17,11 @@ Page({
       contactPhone: '',
       contactEmail: '',
       businessScope: '',
-      businessCategory: '',
-      alumniAssociationId: '',
-      selectedAlumniAssociation: null
+      businessCategory: ''
     },
     submitting: false,
-    merchantTypeOptions: [
-      { label: '校友商铺', value: 1 }
-    ],
-    merchantTypeIndex: 0,
     uploadType: 'license',
     merchantStatus: 'none', // none, pending, approved, rejected
-    // 校友会搜索相关
-    showAssociationSearch: false,
-    associationSearchText: '',
-    associationList: [],
-    associationPage: 1,
-    associationTotal: 0,
-    associationLoading: false,
     /** 编辑待审核申请时存在（与 onLoad options.merchantId 一致） */
     merchantId: '',
   },
@@ -58,7 +45,7 @@ Page({
     
     const formData = {
       merchantName: '',
-      merchantType: 1,
+      merchantType: 2,
       businessLicense: '',
       logo: '',
       backgroundImageList: [],
@@ -68,9 +55,7 @@ Page({
       contactPhone: userInfo.mobile || userData.mobile || userData.phone || '',
       contactEmail: userInfo.email || userData.email || '',
       businessScope: '',
-      businessCategory: '',
-      alumniAssociationId: '',
-      selectedAlumniAssociation: null
+      businessCategory: ''
     }
     
     this.setData({ form: formData })
@@ -97,7 +82,7 @@ Page({
         this.setData({
           form: {
             merchantName: data.merchantName || '',
-            merchantType: data.merchantType || 1,
+            merchantType: data.merchantType || 2,
             businessLicense: data.businessLicense || '',
             logo: data.logo || '',
             backgroundImageList: this.parseBackgroundImage(data.backgroundImage),
@@ -107,18 +92,10 @@ Page({
             contactPhone: data.contactPhone || '',
             contactEmail: data.contactEmail || '',
             businessScope: data.businessScope || '',
-            businessCategory: data.businessCategory || '',
-            alumniAssociationId: data.alumniAssociationId || '',
-            selectedAlumniAssociation: null // 需要重新关联校友会
+            businessCategory: data.businessCategory || ''
           },
-          merchantTypeIndex: data.merchantType === 1 ? 0 : 0,
           merchantStatus: this.getMerchantStatusText(data.reviewStatus) // 设置审核状态
         })
-        
-        // 如果有关联校友会，加载校友会信息
-        if (data.alumniAssociationId) {
-          this.loadAssociationDetail(data.alumniAssociationId)
-        }
       } else {
         wx.showToast({
           title: msg || '加载失败，请稍后重试',
@@ -149,134 +126,10 @@ Page({
     }
   },
 
-  // 加载校友会详情
-  loadAssociationDetail(alumniAssociationId) {
-    associationApi.getAssociationDetail(alumniAssociationId).then((res) => {
-      const { code, data, msg } = res.data || {}
-      
-      if (code === 200 && data) {
-        // 设置选中的校友会
-        this.setData({
-          'form.selectedAlumniAssociation': {
-            alumniAssociationId: data.alumniAssociationId,
-            associationName: data.associationName,
-            schoolId: data.schoolId,
-            platformId: data.platformId,
-            contactInfo: data.contactInfo,
-            location: data.location,
-            memberCount: data.memberCount,
-            logo: data.logo
-          },
-          'form.alumniAssociationId': data.alumniAssociationId
-        })
-      }
-    }).catch((err) => {
-      console.error('加载校友会详情失败:', err)
-    })
-  },
-
   handleInput(e) {
     const { field } = e.currentTarget.dataset
     this.setData({
       [`form.${field}`]: e.detail.value
-    })
-  },
-
-  handleMerchantTypeChange(e) {
-    const index = Number(e.detail.value)
-    this.setData({
-      merchantTypeIndex: index,
-      'form.merchantType': this.data.merchantTypeOptions[index].value,
-      'form.alumniAssociationId': '',
-      'form.selectedAlumniAssociation': null
-    })
-  },
-  
-  // 校友会搜索相关方法
-  showAssociationSearch() {
-    this.setData({
-      showAssociationSearch: true,
-      associationSearchText: '',
-      associationList: [],
-      associationPage: 1,
-      associationTotal: 0
-    })
-  },
-  
-  hideAssociationSearch() {
-    this.setData({
-      showAssociationSearch: false
-    })
-  },
-  
-  onAssociationSearchInput(e) {
-    this.setData({
-      associationSearchText: e.detail.value
-    })
-  },
-  
-  searchAssociations() {
-    const { associationSearchText } = this.data
-    
-    this.setData({
-      associationLoading: true,
-      associationPage: 1
-    })
-    
-    associationApi.getAssociationList({
-      current: 1,
-      pageSize: 10,
-      associationName: associationSearchText
-    }).then((res) => {
-      const { code, data, msg } = res.data || {}
-      
-      if (code === 200 && data) {
-        const list = data.records || data.list || []
-        
-        // 数据映射，与list.js保持一致
-        const mappedList = list.map(item => ({
-          // 与后端VO完全一致的字段
-          alumniAssociationId: item.alumniAssociationId,   // 校友会ID
-          associationName: item.associationName,           // 校友会名称
-          schoolId: item.schoolId,                         // 所属母校ID
-          platformId: item.platformId,                     // 所属校促会ID
-          contactInfo: item.contactInfo,                   // 联系信息
-          location: item.location,                         // 常驻地点
-          memberCount: item.memberCount,                   // 会员数量
-          logo: item.logo                                  // 校友会logo
-        }))
-        
-        this.setData({
-          associationList: mappedList,
-          associationTotal: data.total || 0,
-          associationPage: 1
-        })
-      } else {
-        wx.showToast({
-          title: msg || '搜索失败，请稍后重试',
-          icon: 'none'
-        })
-      }
-    }).catch((err) => {
-      console.error('搜索校友会失败:', err)
-      wx.showToast({
-        title: '网络错误，请稍后重试',
-        icon: 'none'
-      })
-    }).finally(() => {
-      this.setData({
-        associationLoading: false
-      })
-    })
-  },
-  
-  selectAssociation(e) {
-    const selectedItem = e.currentTarget.dataset.item
-    
-    this.setData({
-      'form.selectedAlumniAssociation': selectedItem,
-      'form.alumniAssociationId': selectedItem.alumniAssociationId,
-      showAssociationSearch: false
     })
   },
 
@@ -411,7 +264,7 @@ Page({
   },
 
   validateForm() {
-    const { merchantName, merchantType, businessLicense, unifiedSocialCreditCode, legalPerson, legalPersonId, contactPhone, contactEmail, alumniAssociationId, selectedAlumniAssociation } = this.data.form
+    const { merchantName, merchantType, businessLicense, unifiedSocialCreditCode, legalPerson, legalPersonId, contactPhone, contactEmail } = this.data.form
     
     if (!merchantName || !merchantName.trim()) {
       wx.showToast({ title: '请输入商户名称', icon: 'none' })
@@ -488,11 +341,6 @@ Page({
       return false
     }
     
-    if (merchantType === 1 && !selectedAlumniAssociation) {
-      wx.showToast({ title: '校友商铺请搜索并选择关联校友会', icon: 'none' })
-      return false
-    }
-    
     return true
   },
 
@@ -528,7 +376,7 @@ Page({
       contactEmail: form.contactEmail,
       businessScope: form.businessScope,
       businessCategory: form.businessCategory,
-      alumniAssociationId: form.selectedAlumniAssociation ? form.selectedAlumniAssociation.alumniAssociationId : 0
+      alumniAssociationId: 0
     }
 
     const mid = this.data.merchantId
@@ -542,8 +390,9 @@ Page({
       
       if (code === 200 && data) {
         wx.showToast({
-          title: msg || '提交成功，等待审核',
-          icon: 'success'
+          title: msg || '申请提交成功，请等待审核',
+          icon: 'success',
+          duration: 2000
         })
         this.setData({
           submitting: false,

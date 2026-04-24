@@ -40,6 +40,15 @@ Page({
     this.loadShopDetail()
   },
 
+  // 跳转到优惠券详情页
+  goCouponDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${id}&shopId=${this.data.shopId}`
+    })
+  },
+
   async loadShopDetail() {
     try {
       wx.showLoading({ title: '加载中...' })
@@ -109,10 +118,40 @@ Page({
         shopData.phone = normalizeDisplayText(shopData.phone)
 
         if (shopData.coupons && Array.isArray(shopData.coupons)) {
-          shopData.coupons = shopData.coupons.map(c => ({
-            ...c,
-            validEndTime: formatCouponValidTime(c.validEndTime),
-          }))
+          shopData.coupons = shopData.coupons.map(c => {
+            // 确保驼峰命名
+            const couponType = parseInt(c.couponType || c.coupon_type || 0)
+            const discountValue = parseFloat(c.discountValue || c.discount_value || 0)
+            const minSpend = parseFloat(c.minSpend || c.min_spend || 0)
+            
+            let discountText = ''
+            if (couponType === 1) {
+              // 折扣券：处理 0.85 或 8.5 的情况
+              let val = discountValue
+              if (val > 0 && val < 1) {
+                val = Math.round(val * 100) / 10 // 0.85 -> 8.5
+              }
+              discountText = (val || discountValue || '??') + '折'
+            } else if (couponType === 2) {
+              // 满减券：左侧显示减免金额
+              discountText = '¥' + (discountValue || '??')
+            } else if (couponType === 3) {
+              // 礼品券
+              discountText = '礼品'
+            } else {
+              // 默认显示优惠或金额
+              discountText = discountValue ? '¥' + discountValue : '优惠'
+            }
+
+            return {
+              ...c,
+              couponType,    // 显式赋值，确保 template 中可用
+              discountValue, // 显式赋值，确保 template 中可用
+              minSpend,      // 显式赋值，确保 template 中可用
+              discountText,
+              validEndTime: formatCouponValidTime(c.validEndTime),
+            }
+          })
         }
 
         this.setData({

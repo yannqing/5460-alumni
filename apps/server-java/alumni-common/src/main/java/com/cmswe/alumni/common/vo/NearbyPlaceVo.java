@@ -115,6 +115,12 @@ public class NearbyPlaceVo implements Serializable {
     private String images;
 
     /**
+     * 场所/企业 logo（图片 URL）
+     */
+    @Schema(description = "场所/企业 logo（图片 URL）")
+    private String logo;
+
+    /**
      * 简介
      */
     @Schema(description = "简介")

@@ -1,5 +1,9 @@
 package com.cmswe.alumni.search.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.search.ShopService;
@@ -32,6 +36,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +69,27 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
     @Resource
     private com.cmswe.alumni.api.system.ActivityService activityService;
 
+    private List<Long> parseAssociationIds(String associationIdStr) {
+        if (StringUtils.isBlank(associationIdStr)) {
+            return new ArrayList<>();
+        }
+        String trimmed = associationIdStr.trim();
+        if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+            try {
+                return JSON.parseArray(trimmed, Long.class);
+            } catch (Exception e) {
+                log.error("解析校友会ID数组失败: {}", trimmed, e);
+            }
+        }
+        try {
+            Long id = Long.parseLong(trimmed);
+            return new ArrayList<>(Collections.singletonList(id));
+        } catch (NumberFormatException e) {
+            log.warn("校友会ID字段格式非数字且非数组: {}", trimmed);
+        }
+        return new ArrayList<>();
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createShop(Long wxId, CreateShopDto createShopDto) {
@@ -93,7 +120,8 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         shop.setCreateTime(now);
         shop.setUpdateTime(now);
         shop.setStatus(1); // 默认营业中
-        shop.setReviewStatus(0); // 默认待审核
+        shop.setReviewStatus(1); // 直接审核通过
+        shop.setReviewTime(now); // 自动通过时间
         shop.setIsRecommended(0); // 默认不推荐
         shop.setViewCount(0L);
         shop.setClickCount(0L);
@@ -102,7 +130,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         shop.setIsDelete(0);
 
         // 4. 保存
-        return this.save(shop);
+        boolean saved = this.save(shop);
+        if (saved) {
+            // 5. 自动通过后，刷新商户统计信息（门店数量+1）
+            refreshMerchantStatistics(shop.getMerchantId());
+        }
+        return saved;
     }
 
     @Override
@@ -278,9 +311,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                     if (merchant.getUserId() != null) {
                         merchantListVo.setUserId(String.valueOf(merchant.getUserId()));
                     }
-                    if (merchant.getAlumniAssociationId() != null) {
-                        merchantListVo.setAlumniAssociationId(String.valueOf(merchant.getAlumniAssociationId()));
-                    }
+        if (merchant.getAlumniAssociationId() != null) {
+            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            if (!associationIds.isEmpty()) {
+                merchantListVo.setAlumniAssociationId(String.valueOf(associationIds.get(0)));
+            }
+        }
                     shopDetail.setMerchant(merchantListVo);
                 }
             }
@@ -377,7 +413,10 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                     mvo.setUserId(String.valueOf(m.getUserId()));
                 }
                 if (m.getAlumniAssociationId() != null) {
-                    mvo.setAlumniAssociationId(String.valueOf(m.getAlumniAssociationId()));
+                    List<Long> associationIds = parseAssociationIds(m.getAlumniAssociationId());
+                    if (!associationIds.isEmpty()) {
+                        mvo.setAlumniAssociationId(String.valueOf(associationIds.get(0)));
+                    }
                 }
                 vo.setMerchant(mvo);
             }
@@ -515,7 +554,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         if (alumniAssociationId != null) {
             scopedMerchantIds = merchantService.lambdaQuery()
                     .select(Merchant::getMerchantId)
-                    .eq(Merchant::getAlumniAssociationId, alumniAssociationId)
+                    .apply("(alumni_association_id = CAST({0} AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST({0} AS CHAR)))", alumniAssociationId)
                     .eq(merchantId != null, Merchant::getMerchantId, merchantId)
                     .list()
                     .stream()

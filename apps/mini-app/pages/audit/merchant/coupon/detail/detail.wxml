@@ -24,9 +24,9 @@
     </view>
 
     <view class="detail-section-title">基础信息</view>
-    <view class="detail-item">
+    <view class="detail-item" wx:if="{{couponDetail.couponDesc}}">
       <text class="label">优惠描述</text>
-      <text class="value">{{couponDetail.couponDesc || '—'}}</text>
+      <text class="value">{{couponDetail.couponDesc}}</text>
     </view>
     <view class="detail-item">
       <text class="label">折扣类型</text>
@@ -51,12 +51,16 @@
 
     <view class="detail-section-title">投放与数据</view>
     <view class="detail-item">
-      <text class="label">有效期</text>
-      <text class="value">{{couponDetail.validStartText}} ~ {{couponDetail.validEndText}}</text>
+      <text class="label">开始时间</text>
+      <text class="value">{{couponDetail.validStartText}}</text>
     </view>
     <view class="detail-item">
+      <text class="label">结束时间</text>
+      <text class="value">{{couponDetail.validEndText}}</text>
+    </view>
+    <view class="detail-item" wx:if="{{couponDetail.useTimeLimit}}">
       <text class="label">使用时段</text>
-      <text class="value">{{couponDetail.useTimeLimit || '—'}}</text>
+      <text class="value">{{couponDetail.useTimeLimit}}</text>
     </view>
     <view class="detail-item">
       <text class="label">发布方式</text>
@@ -69,6 +73,39 @@
     <view class="detail-item">
       <text class="label">领取/使用/浏览</text>
       <text class="value">{{couponDetail.receivedCount || 0}} / {{couponDetail.usedCount || 0}} / {{couponDetail.viewCount || 0}}</text>
+    </view>
+
+    <view class="detail-section-title" wx:if="{{couponDetail.isAlumniOnly === 1}}">限定校友会</view>
+    <view class="association-list" wx:if="{{couponDetail.isAlumniOnly === 1}}">
+      <view class="shop-empty" wx:if="{{!merchantInfo || ((!merchantInfo.joinedAssociations || merchantInfo.joinedAssociations.length === 0) && !merchantInfo.alumniAssociation)}}">
+        <text class="shop-empty-text">未关联校友会信息</text>
+      </view>
+      <block wx:else>
+        <!-- 优先展示已加入的校友会列表 -->
+        <block wx:if="{{merchantInfo.joinedAssociations && merchantInfo.joinedAssociations.length > 0}}">
+          <view class="shop-item" wx:for="{{merchantInfo.joinedAssociations}}" wx:key="alumniAssociationId">
+            <view class="assoc-header">
+              <image class="assoc-logo" src="{{item.logoUrl}}" mode="aspectFill"></image>
+              <view class="shop-name">{{item.associationName}}</view>
+            </view>
+            <view class="shop-meta">
+              <text class="shop-meta-text">校友会成员可领</text>
+            </view>
+          </view>
+        </block>
+        <!-- 兜底展示主校友会 -->
+        <block wx:elif="{{merchantInfo.alumniAssociation}}">
+          <view class="shop-item">
+            <view class="assoc-header">
+              <image class="assoc-logo" src="{{merchantInfo.alumniAssociation.logoUrl}}" mode="aspectFill"></image>
+              <view class="shop-name">{{merchantInfo.alumniAssociation.associationName}}</view>
+            </view>
+            <view class="shop-meta">
+              <text class="shop-meta-text">校友会成员可领</text>
+            </view>
+          </view>
+        </block>
+      </block>
     </view>
 
     <view class="detail-section-title">可使用店铺</view>

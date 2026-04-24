@@ -1,5 +1,6 @@
 package com.cmswe.alumni.service.system.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,15 +12,12 @@ import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.RoleUserService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
-import com.cmswe.alumni.common.dto.AddMerchantMemberDto;
-import com.cmswe.alumni.common.dto.UpdateMerchantMemberRoleDto;
-import com.cmswe.alumni.common.dto.DeleteMerchantMemberDto;
 import com.cmswe.alumni.common.constant.CommonConstant;
-import com.cmswe.alumni.common.dto.ApproveMerchantDto;
-import com.cmswe.alumni.common.dto.ApplyMerchantDto;
-import com.cmswe.alumni.common.dto.QueryMerchantListDto;
-import com.cmswe.alumni.common.dto.UpdateMerchantDto;
-import com.cmswe.alumni.common.dto.QueryMerchantApprovalDto;
+import com.cmswe.alumni.common.dto.*;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.entity.MerchantMember;
@@ -34,6 +32,7 @@ import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
+import com.cmswe.alumni.common.vo.SuperAdminMerchantApprovalVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopListVo;
 import com.cmswe.alumni.common.vo.MerchantMemberVo;
@@ -92,6 +91,28 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     @Resource
     private WxUserInfoService wxUserInfoService;
 
+    private List<Long> parseAssociationIds(String associationIdStr) {
+        if (StringUtils.isBlank(associationIdStr)) {
+            return new ArrayList<>();
+        }
+        String trimmed = associationIdStr.trim();
+        if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+            try {
+                return JSON.parseArray(trimmed, Long.class);
+            } catch (Exception e) {
+                log.error("解析校友会ID数组失败: {}", trimmed, e);
+            }
+        }
+        // 尝试作为单个 ID 处理
+        try {
+            Long id = Long.parseLong(trimmed);
+            return new ArrayList<>(Collections.singletonList(id));
+        } catch (NumberFormatException e) {
+            log.warn("校友会ID字段格式非数字且非数组: {}", trimmed);
+        }
+        return new ArrayList<>();
+    }
+
     /**
      * 分页查询商户列表
      *
@@ -131,8 +152,11 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 .like(StringUtils.isNotBlank(businessCategory), Merchant::getBusinessCategory, businessCategory)
                 .like(StringUtils.isNotBlank(contactPhone), Merchant::getContactPhone, contactPhone)
                 .like(StringUtils.isNotBlank(legalPerson), Merchant::getLegalPerson, legalPerson)
-                .eq(isAlumniCertified != null, Merchant::getIsAlumniCertified, isAlumniCertified)
-                .eq(alumniAssociationId != null, Merchant::getAlumniAssociationId, alumniAssociationId);
+                .eq(isAlumniCertified != null, Merchant::getIsAlumniCertified, isAlumniCertified);
+
+        if (alumniAssociationId != null) {
+            queryWrapper.apply("(alumni_association_id = CAST({0} AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST({0} AS CHAR)))", alumniAssociationId);
+        }
 
         // 4.添加排序
         if (StringUtils.isNotBlank(sortField)) {
@@ -245,6 +269,14 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         merchant.setReviewReason(null);
         merchant.setReviewTime(null);
         merchant.setIsAlumniCertified(applyDto.getMerchantType() != null && applyDto.getMerchantType() == 1 ? 1 : 0);
+        merchant.setUpdateTime(LocalDateTime.now());
+        
+        // 处理关联校友会 ID (转换为 JSON 数组)
+        if (applyDto.getAlumniAssociationId() != null) {
+            merchant.setAlumniAssociationId(JSON.toJSONString(Collections.singletonList(applyDto.getAlumniAssociationId())));
+        } else {
+            merchant.setAlumniAssociationId(null);
+        }
 
         log.info("用户更新待审核商户申请 - 用户ID: {}, 商户ID: {}, 商户名称: {}", wxId, merchantId, merchant.getMerchantName());
         boolean ok = this.updateById(merchant);
@@ -320,6 +352,11 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         merchant.setTotalCouponVerified(0L);
         merchant.setRatingCount(0);
         merchant.setIsAlumniCertified(applyDto.getMerchantType() == 1 ? 1 : 0);
+        
+        // 处理关联校友会 ID (转换为 JSON 数组)
+        if (applyDto.getAlumniAssociationId() != null) {
+            merchant.setAlumniAssociationId(JSON.toJSONString(Collections.singletonList(applyDto.getAlumniAssociationId())));
+        }
 
         // 4. 保存到数据库
         boolean saveResult = this.save(merchant);
@@ -391,10 +428,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         log.info("商户审核完成 - 商户ID: {}, 审核结果: {}", merchantId, reviewStatus == 1 ? "通过" : "失败");
 
-        // 5. 审核通过时，为申请人分配商户管理员角色和添加商户成员
+        // 5. 审核通过时，为申请人分配商户管理员角色
         if (reviewStatus == 1) {
             assignMerchantAdminRole(merchant.getUserId(), merchantId);
-            addMerchantMember(merchant.getUserId(), merchantId);
         }
 
         // 6. 发送审核结果通知给用户
@@ -608,84 +644,6 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     }
 
     /**
-     * 添加商户成员（给申请人添加普通成员角色）
-     *
-     * @param wxId       申请人用户ID
-     * @param merchantId 商户ID
-     */
-    private void addMerchantMember(Long wxId, Long merchantId) {
-        try {
-            log.info("开始添加商户成员 - 用户ID: {}, 商户ID: {}", wxId, merchantId);
-
-            // 1. 查询商户的普通成员组织架构角色
-            OrganizeArchiRole memberRole = organizeArchiRoleService.getOne(
-                    new LambdaQueryWrapper<OrganizeArchiRole>()
-                            .eq(OrganizeArchiRole::getOrganizeId, merchantId)
-                            .eq(OrganizeArchiRole::getOrganizeType, 3) // 3-商户
-                            .eq(OrganizeArchiRole::getRoleOrCode, "MERCHANT_MEMBER") // 假设普通成员的角色代码
-                            .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
-            );
-
-            // 如果没有找到，尝试使用角色名称查询
-            if (memberRole == null) {
-                memberRole = organizeArchiRoleService.getOne(
-                        new LambdaQueryWrapper<OrganizeArchiRole>()
-                                .eq(OrganizeArchiRole::getOrganizeId, merchantId)
-                                .eq(OrganizeArchiRole::getOrganizeType, 3) // 3-商户
-                                .eq(OrganizeArchiRole::getRoleOrName, "普通成员")
-                                .eq(OrganizeArchiRole::getStatus, 1) // 1-启用
-                );
-            }
-
-            if (memberRole == null) {
-                log.warn("未找到商户的普通成员组织架构角色 - 商户ID: {}，跳过添加商户成员", merchantId);
-                // 不抛出异常，只记录警告，因为这不是致命错误
-                return;
-            }
-
-            // 2. 检查用户是否已是该商户的成员
-            MerchantMember existingMember = merchantMemberMapper.selectOne(
-                    new LambdaQueryWrapper<MerchantMember>()
-                            .eq(MerchantMember::getWxId, wxId)
-                            .eq(MerchantMember::getMerchantId, merchantId)
-                            .eq(MerchantMember::getStatus, 1) // 1-正常
-            );
-
-            if (existingMember != null) {
-                log.info("用户已是该商户的成员 - 用户ID: {}, 商户ID: {}", wxId, merchantId);
-                return;
-            }
-
-            // 3. 创建商户成员记录
-            MerchantMember merchantMember = new MerchantMember();
-            merchantMember.setWxId(wxId);
-            merchantMember.setMerchantId(merchantId);
-            merchantMember.setShopId(null); // 店铺ID暂时为空
-            merchantMember.setRoleOrId(memberRole.getRoleOrId());
-            merchantMember.setPosition("商户负责人");
-            merchantMember.setJoinTime(LocalDateTime.now());
-            merchantMember.setStatus(1); // 1-正常
-            merchantMember.setCreateTime(LocalDateTime.now());
-            merchantMember.setUpdateTime(LocalDateTime.now());
-
-            int insertResult = merchantMemberMapper.insert(merchantMember);
-            if (insertResult <= 0) {
-                log.error("添加商户成员失败 - 用户ID: {}, 商户ID: {}", wxId, merchantId);
-                throw new BusinessException(ErrorType.OPERATION_ERROR, "添加商户成员失败");
-            }
-
-            log.info("成功添加商户成员 - 用户ID: {}, 商户ID: {}, 架构角色ID: {}",
-                    wxId, merchantId, memberRole.getRoleOrId());
-        } catch (BusinessException e) {
-            // 业务异常直接抛出，让事务回滚
-            throw e;
-        } catch (Exception e) {
-            log.error("添加商户成员时发生异常 - 用户ID: {}, 商户ID: {}", wxId, merchantId, e);
-            throw new BusinessException(ErrorType.SYSTEM_ERROR, "添加商户成员时发生系统错误");
-        }
-    }
-
-    /**
      * 发送商户申请提交通知
      *
      * @param wxId         用户ID
@@ -694,7 +652,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     private void sendApplicationNotification(Long wxId, String merchantName) {
         try {
             String title = "商户入驻申请已提交";
-            String content = "您的【" + merchantName + "】商户入驻申请已经成功提交，预计1-2个工作日内完成审核，请耐心等待";
+            String content = "您的【" + merchantName + "】商户入驻申请已经成功提交，请等待审核";
 
             boolean success = unifiedMessageApiService.sendSystemNotification(
                     wxId,
@@ -784,8 +742,11 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 .like(StringUtils.isNotBlank(merchantName), Merchant::getMerchantName, merchantName)
                 .eq(reviewStatus != null, Merchant::getReviewStatus, reviewStatus)
                 .eq(merchantType != null, Merchant::getMerchantType, merchantType)
-                .eq(alumniAssociationId != null, Merchant::getAlumniAssociationId, alumniAssociationId)
                 .ne(Merchant::getReviewStatus, 3); // 3-已撤销，审批列表不展示
+
+        if (alumniAssociationId != null) {
+            queryWrapper.apply("(alumni_association_id = CAST({0} AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST({0} AS CHAR)))", alumniAssociationId);
+        }
 
         // 4.添加排序
         if (StringUtils.isNotBlank(sortField)) {
@@ -818,6 +779,64 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     }
 
     @Override
+    public PageVo<SuperAdminMerchantApprovalVo> selectAllApprovalRecordsByPage(QueryMerchantApprovalDto queryDto) {
+        // 1.参数校验
+        Optional.ofNullable(queryDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.SYSTEM_ERROR));
+
+        // 2.获取参数
+        String merchantName = queryDto.getMerchantName();
+        Integer reviewStatus = queryDto.getReviewStatus();
+        Integer merchantType = queryDto.getMerchantType();
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+        String sortField = queryDto.getSortField();
+        String sortOrder = queryDto.getSortOrder();
+
+        // 3.构建查询条件 (超级管理员查看所有，不按校友会过滤)
+        LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .like(StringUtils.isNotBlank(merchantName), Merchant::getMerchantName, merchantName)
+                .eq(reviewStatus != null, Merchant::getReviewStatus, reviewStatus)
+                .eq(merchantType != null, Merchant::getMerchantType, merchantType)
+                .ne(Merchant::getReviewStatus, 3); // 3-已撤销，审批列表不展示
+
+        // 4.添加排序
+        if (StringUtils.isNotBlank(sortField)) {
+            boolean isAsc = CommonConstant.SORT_ORDER_ASC.equals(sortOrder);
+            if ("createTime".equals(sortField)) {
+                queryWrapper.orderBy(true, isAsc, Merchant::getCreateTime);
+            } else if ("reviewTime".equals(sortField)) {
+                queryWrapper.orderBy(true, isAsc, Merchant::getReviewTime);
+            } else {
+                queryWrapper.orderByDesc(Merchant::getCreateTime);
+            }
+        } else {
+            queryWrapper.orderByDesc(Merchant::getCreateTime);
+        }
+
+        // 5.执行分页查询
+        Page<Merchant> merchantPage = this.page(new Page<>(current, pageSize), queryWrapper);
+
+        // 6.转换为VO (并填充申请人/审核人显示名)
+        List<SuperAdminMerchantApprovalVo> list = merchantPage.getRecords().stream()
+                .map(merchant -> {
+                    SuperAdminMerchantApprovalVo vo = SuperAdminMerchantApprovalVo.objToVo(merchant);
+                    vo.setApplicantName(resolveUserDisplayName(merchant.getUserId()));
+                    vo.setReviewerName(resolveUserDisplayName(merchant.getReviewerId()));
+                    return vo;
+                })
+                .toList();
+
+        log.info("超级管理员分页查询所有商户审批记录，当前页：{}，每页数量：{}，总记录数：{}", current, pageSize, merchantPage.getTotal());
+
+        // 7.转换结果并返回
+        Page<SuperAdminMerchantApprovalVo> resultPage = new Page<SuperAdminMerchantApprovalVo>(current, pageSize, merchantPage.getTotal())
+                .setRecords(list);
+        return PageVo.of(resultPage);
+    }
+
+    @Override
     public MerchantApprovalVo getApprovalRecordByMerchantId(Long merchantId) {
         if (merchantId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "商户ID不能为空");
@@ -832,10 +851,23 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         vo.setApplicantName(resolveUserDisplayName(merchant.getUserId()));
         vo.setReviewerName(resolveUserDisplayName(merchant.getReviewerId()));
 
-        if (merchant.getAlumniAssociationId() != null && merchant.getAlumniAssociationId() > 0) {
-            AlumniAssociation alumniAssociation = alumniAssociationService.getById(merchant.getAlumniAssociationId());
-            if (alumniAssociation != null) {
-                vo.setAlumniAssociation(AlumniAssociationListVo.objToVo(alumniAssociation));
+        if (StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
+            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            if (!associationIds.isEmpty()) {
+                // 设置已加入的列表
+                List<AlumniAssociationListVo> joinedList = new ArrayList<>();
+                for (Long assocId : associationIds) {
+                    AlumniAssociation association = alumniAssociationService.getById(assocId);
+                    if (association != null) {
+                        joinedList.add(AlumniAssociationListVo.objToVo(association));
+                    }
+                }
+                vo.setJoinedAssociations(joinedList);
+                
+                // 设置第一个为主展示
+                if (!joinedList.isEmpty()) {
+                    vo.setAlumniAssociation(joinedList.get(0));
+                }
             }
         }
 
@@ -888,11 +920,22 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         MerchantDetailVo merchantDetailVo = MerchantDetailVo.objToVo(merchant);
 
         // 4. 如果有关联的校友会，查询校友会信息
-        if (merchant.getAlumniAssociationId() != null) {
-            AlumniAssociation alumniAssociation = alumniAssociationService.getById(merchant.getAlumniAssociationId());
-            if (alumniAssociation != null) {
-                AlumniAssociationListVo alumniAssociationVo = AlumniAssociationListVo.objToVo(alumniAssociation);
-                merchantDetailVo.setAlumniAssociation(alumniAssociationVo);
+        if (StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
+            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            if (!associationIds.isEmpty()) {
+                List<AlumniAssociationListVo> joinedList = new ArrayList<>();
+                for (Long assocId : associationIds) {
+                    AlumniAssociation association = alumniAssociationService.getById(assocId);
+                    if (association != null) {
+                        joinedList.add(AlumniAssociationListVo.objToVo(association));
+                    }
+                }
+                merchantDetailVo.setJoinedAssociations(joinedList);
+                
+                // 取第一个作为主展示
+                if (!joinedList.isEmpty()) {
+                    merchantDetailVo.setAlumniAssociation(joinedList.get(0));
+                }
             }
         }
 
@@ -1113,19 +1156,23 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             merchant.setBackgroundImage(dto.getBackgroundImage());
         }
         if (dto.getAlumniAssociationId() != null) {
-            merchant.setAlumniAssociationId(dto.getAlumniAssociationId());
+            merchant.setAlumniAssociationId(JSON.toJSONString(Collections.singletonList(dto.getAlumniAssociationId())));
         }
         if (merchant.getMerchantType() != null && merchant.getMerchantType() == 2) {
             merchant.setAlumniAssociationId(null);
         }
 
         int effectiveType = merchant.getMerchantType() != null ? merchant.getMerchantType() : 0;
-        Long effectiveAlumniId = merchant.getAlumniAssociationId();
+        String associationIdStr = merchant.getAlumniAssociationId();
         if (effectiveType == 1) {
-            if (effectiveAlumniId == null || effectiveAlumniId <= 0) {
+            if (StringUtils.isBlank(associationIdStr)) {
                 throw new BusinessException(ErrorType.ARGS_ERROR, "校友商铺必须关联有效校友会");
             }
-            AlumniAssociation assoc = alumniAssociationService.getById(effectiveAlumniId);
+            List<Long> associationIds = parseAssociationIds(associationIdStr);
+            if (associationIds.isEmpty()) {
+                throw new BusinessException(ErrorType.ARGS_ERROR, "校友商铺必须关联有效校友会");
+            }
+            AlumniAssociation assoc = alumniAssociationService.getById(associationIds.get(0));
             if (assoc == null) {
                 throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校友会不存在");
             }

@@ -1,0 +1,127 @@
+<!-- pages/audit/merchant-super/list/list.wxml -->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="商户审核">
+<view class="merchant-super-list-page">
+  <!-- 筛选区域 -->
+  <view class="filter-section">
+    <view class="filter-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">全部</view>
+    <view class="filter-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">待审核</view>
+    <view class="filter-item {{currentTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">已通过</view>
+    <view class="filter-item {{currentTab === 3 ? 'active' : ''}}" bindtap="switchTab" data-index="3">已拒绝</view>
+  </view>
+
+  <!-- 可滚动列表区域 -->
+  <scroll-view
+    class="scroll-list"
+    scroll-y
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100"
+    enable-back-to-top
+    show-scrollbar="{{false}}"
+  >
+    <!-- 骨架屏加载状态 -->
+    <view class="application-list" wx:if="{{loading && applyList.length === 0}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+        <view class="skeleton-content">
+          <view class="skeleton-header">
+            <view class="skeleton-title skeleton-animate"></view>
+            <view class="skeleton-tag skeleton-animate"></view>
+          </view>
+          <view class="skeleton-info skeleton-animate"></view>
+          <view class="skeleton-info skeleton-animate"></view>
+          <view class="skeleton-actions">
+            <view class="skeleton-btn skeleton-animate"></view>
+            <view class="skeleton-btn skeleton-animate"></view>
+          </view>
+        </view>
+        <view class="skeleton-image skeleton-animate"></view>
+      </view>
+    </view>
+
+    <!-- 商户申请列表 -->
+    <view class="application-list" wx:if="{{!loading || applyList.length > 0}}">
+      <block wx:for="{{applyList}}" wx:key="merchantId">
+        <!-- 申请卡片 -->
+        <view class="block_9" bindtap="viewDetail" data-id="{{item.merchantId}}">
+          <view class="section_7">
+            <!-- 商户名称和状态 -->
+            <view class="box_9">
+              <text lines="1" class="text_24">{{item.merchantName}}</text>
+              <view class="text-wrapper_12 {{item.reviewStatus === 0 ? 'pending' : item.reviewStatus === 1 ? 'approved' : item.reviewStatus === 2 ? 'rejected' : 'cancelled'}}">
+                <text lines="1" class="text_25">{{item.reviewStatus === 0 ? '待审核' : item.reviewStatus === 1 ? '已通过' : item.reviewStatus === 2 ? '已拒绝' : '已撤销'}}</text>
+              </view>
+            </view>
+            <!-- 申请信息 -->
+            <view class="text-wrapper_16" wx:if="{{item.applicantName}}">
+              <text lines="1" class="text_26">申请人：</text>
+              <text lines="1" class="text_27">{{item.applicantName}}</text>
+            </view>
+            <view class="text-wrapper_16" wx:if="{{item.contactPhone}}">
+              <text lines="1" class="text_26">联系电话：</text>
+              <text lines="1" class="text_27">{{item.contactPhone}}</text>
+            </view>
+            <view class="text-wrapper_16" wx:if="{{item.merchantType}}">
+              <text lines="1" class="text_26">商户类型：</text>
+              <text lines="1" class="text_27">{{item.merchantType === 1 ? '校友商铺' : '普通商铺'}}</text>
+            </view>
+            <view class="text-wrapper_16" wx:if="{{item.createTime}}">
+              <text lines="1" class="text_26">申请时间：</text>
+              <text lines="1" class="text_27">{{item.createTime}}</text>
+            </view>
+            <!-- 审核按钮 -->
+            <view class="edit-action" wx:if="{{item.reviewStatus === 0}}" catchtap="preventBubble">
+              <view class="approve-btn-wrapper" catchtap="handleApprove" data-id="{{item.merchantId}}">
+                <text lines="1" class="approve-btn-text">通过</text>
+              </view>
+              <view class="reject-btn-wrapper" catchtap="handleReject" data-id="{{item.merchantId}}">
+                <text lines="1" class="reject-btn-text">拒绝</text>
+              </view>
+            </view>
+          </view>
+          <image class="image_7" src="{{item.displayLogo}}" mode="aspectFill" />
+        </view>
+      </block>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{!loading && applyList.length === 0}}">
+        <text class="empty-text">暂无数据</text>
+      </view>
+
+      <!-- 加载更多中 -->
+      <view class="loading-more" wx:if="{{loading && applyList.length > 0}}">
+        <text>加载中...</text>
+      </view>
+
+      <!-- 没有更多数据 -->
+      <view class="no-more" wx:if="{{!loading && !hasMore && applyList.length > 0}}">
+        <text>没有更多数据了</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 审核拒绝理由弹框 -->
+  <view class="modal-overlay" wx:if="{{showRejectModal}}" bindtap="closeRejectModal"></view>
+  <view class="edit-modal" wx:if="{{showRejectModal}}">
+    <view class="modal-header">
+      <text class="modal-title">审核拒绝</text>
+      <text class="modal-close" bindtap="closeRejectModal">×</text>
+    </view>
+    <view class="modal-content">
+      <view class="form-item">
+        <text class="form-label">拒绝理由（必填）</text>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入拒绝理由..."
+          value="{{rejectComment}}"
+          bindinput="onRejectCommentInput"
+          maxlength="200"
+        ></textarea>
+        <view class="char-count">{{rejectComment.length}}/200</view>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="closeRejectModal">取消</button>
+      <button class="modal-btn confirm-btn reject-confirm-btn" bindtap="confirmReject">确认拒绝</button>
+    </view>
+  </view>
+</view>
+</custom-nav-bar>

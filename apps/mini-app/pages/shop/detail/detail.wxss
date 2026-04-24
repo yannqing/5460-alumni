@@ -89,10 +89,13 @@
 .icon-text {
   font-size: 36rpx;
   line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 0 4rpx rgba(0, 0, 0, 0.35);
 }
 
 .icon-text.favorited {
-  color: #40B2E6;
+  color: #FFD54F;
+  text-shadow: 0 0 4rpx rgba(0, 0, 0, 0.2);
 }
 
 .shop-header {

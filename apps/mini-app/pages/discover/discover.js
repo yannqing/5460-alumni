@@ -41,8 +41,10 @@ Page({
     imageCache: {}, // 图片URL缓存，避免重复处理
   },
 
+  // 地图 marker 与业务数据的映射（仅内存使用）
+  markerDataMap: {},
+
   onLoad() {
-    this.loadDiscoverData()
     // 获取当前位置信息
     this.initMyLocation()
   },
@@ -75,6 +77,10 @@ Page({
         myLocation: currentLocation,
         mapCenter: currentLocation,
       })
+
+      // 已有位置信息，直接加载数据
+      this.loadDiscoverData()
+
       // 如果当前是地图模式，更新标记
       if (this.data.viewMode === 'map') {
         this.updateMapMarkers()
@@ -156,7 +162,7 @@ Page({
 
       // 从全局数据获取位置信息
       const app = getApp()
-      const location = app.globalData.location
+      const location = app.globalData.location || this.data.myLocation
 
       // 如果全局数据中没有位置信息，显示失败
       if (!location) {
@@ -253,8 +259,13 @@ Page({
           // 商铺类型
           const couponList = records.map(shop => {
             // 优化图片处理逻辑，使用缓存避免重复处理
-            let image = config.defaultAvatar
-            if (shop.shopImages) {
+            let image = ''
+            const shopLogo = (shop.logo && String(shop.logo) !== 'null' && String(shop.logo) !== 'undefined') ? shop.logo : ''
+
+            // 优先使用门店 logo
+            if (shopLogo) {
+              image = config.getImageUrl(shopLogo)
+            } else if (shop.shopImages) {
               // 生成缓存键
               const cacheKey = `shop_${shop.shopId || shop.id}_image`
 
@@ -299,6 +310,11 @@ Page({
                 }
               }
             }
+
+            // // 如果最终没有图片，则设为默认头像
+            // if (!image) {
+            //   image = config.defaultAvatar
+            // }
 
             // 处理距离
             let distanceText = '0m'
@@ -375,6 +391,7 @@ Page({
               name: shop.shopName || shop.name || '',
               distance: distanceText,
               image: image,
+              logo: shopLogo, // 保存经过验证的 logo 路径供地图使用
               associations: associations,
               coupons: coupons,
               latitude: shop.latitude,
@@ -413,8 +430,13 @@ Page({
           // 企业/场所类型
           const venueList = records.map(venue => {
             // 处理图片
-            let image = config.defaultAvatar
-            if (venue.images) {
+            let image = ''
+            const venueLogo = (venue.logo && String(venue.logo) !== 'null' && String(venue.logo) !== 'undefined') ? venue.logo : ''
+
+            // 优先使用场所 logo
+            if (venueLogo) {
+              image = config.getImageUrl(venueLogo)
+            } else if (venue.images) {
               if (Array.isArray(venue.images) && venue.images.length > 0) {
                 image = config.getImageUrl(venue.images[0])
               } else if (typeof venue.images === 'string') {
@@ -424,6 +446,11 @@ Page({
                   image = config.getImageUrl(imageList[0].trim())
                 }
               }
+            }
+
+            // 如果最终没有图片，则设为默认头像
+            if (!image) {
+              image = config.defaultAvatar
             }
 
             // 处理距离
@@ -481,6 +508,7 @@ Page({
               name: venue.placeName || venue.venueName || venue.name || '未知场所',
               distance: distanceText,
               image: image,
+              logo: venueLogo, // 保存经过验证的 logo 路径供地图使用
               typeLabel: typeLabel,
               address: address,
               contactPhone: venue.contactPhone || '',
@@ -735,38 +763,65 @@ Page({
   },
 
   getLocation() {
-    // 暂时注释：等待微信公众平台权限申请通过后恢复
-    // wx.showLoading({ title: '定位中...' })
-    // wx.getLocation({
-    //   type: 'gcj02',
-    //   success: res => {
-    //     wx.hideLoading()
-    //     const myLocation = {
-    //       latitude: res.latitude,
-    //       longitude: res.longitude,
-    //     }
-    //     this.setData({
-    //       mapCenter: myLocation,
-    //       myLocation: myLocation,
-    //     })
-    //     this.updateMapMarkers()
-    //     wx.showToast({
-    //       title: '定位成功',
-    //       icon: 'success',
-    //     })
-    //   },
-    //   fail: () => {
-    //     wx.hideLoading()
-    //     wx.showToast({
-    //       title: '定位失败，请重试',
-    //       icon: 'none',
-    //     })
-    //   },
-    // })
-    console.log('[Discover] wx.getLocation 已暂时禁用')
-    wx.showToast({
-      title: '定位功能暂时不可用',
-      icon: 'none',
+    wx.showLoading({ title: '定位中...' })
+    wx.getLocation({
+      type: 'gcj02',
+      success: res => {
+        wx.hideLoading()
+        const myLocation = {
+          latitude: res.latitude,
+          longitude: res.longitude,
+        }
+
+        // 同步到全局数据
+        const app = getApp()
+        app.globalData.location = myLocation
+
+        this.setData({
+          mapCenter: myLocation,
+          myLocation: myLocation,
+        })
+
+        // 定位成功后，重新加载数据（地图标记在数据加载后统一刷新）
+        this.loadDiscoverData()
+
+        wx.showToast({
+          title: '定位成功',
+          icon: 'success',
+        })
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.getSetting({
+          success: settingRes => {
+            const hasLocationAuth = settingRes.authSetting && settingRes.authSetting['scope.userLocation']
+            if (hasLocationAuth === false) {
+              wx.showModal({
+                title: '需要位置权限',
+                content: '开启位置权限后，才能按你的位置搜索附近优惠店铺',
+                confirmText: '去开启',
+                success: modalRes => {
+                  if (modalRes.confirm) {
+                    wx.openSetting({})
+                  }
+                },
+              })
+              return
+            }
+
+            wx.showToast({
+              title: '定位失败，请重试',
+              icon: 'none',
+            })
+          },
+          fail: () => {
+            wx.showToast({
+              title: '定位失败，请重试',
+              icon: 'none',
+            })
+          },
+        })
+      },
     })
   },
 
@@ -827,10 +882,8 @@ Page({
     })
 
     if (mode === 'map') {
-      // 获取当前位置后再更新标记，避免重复更新
+      // 获取当前位置后重新拉取“附近”数据，标记将在拉取完成后刷新
       this.getLocation()
-      // 直接更新标记，不再使用固定延迟
-      this.updateMapMarkers()
     }
   },
 
@@ -839,9 +892,21 @@ Page({
 
   // 创建圆形头像（使用 Canvas）
   createRoundAvatar(imageUrl, size = 50) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      const fallbackAvatar = config.defaultAvatar || '/assets/avatar/avatar.jpg'
+      
+      // 处理图片路径，确保本地路径正确
+      const normalizePath = (path) => {
+        if (!path) return ''
+        let p = String(path).trim()
+        if (p === 'null' || p === 'undefined') return ''
+        return p
+      }
+
+      let targetUrl = normalizePath(imageUrl) || normalizePath(fallbackAvatar)
+
       // 检查缓存
-      const cacheKey = `${imageUrl}_${size}`
+      const cacheKey = `${targetUrl}_${size}`
       if (this.avatarCache[cacheKey]) {
         resolve(this.avatarCache[cacheKey])
         return
@@ -850,65 +915,81 @@ Page({
       const canvasId = 'roundAvatarCanvas'
       const ctx = wx.createCanvasContext(canvasId, this)
       const radius = size / 2
-      const borderWidth = 2 // 边框宽度
-      const borderColor = '#007AFF' // 边框颜色，使用蓝色边框区分商家
+      // 移除边框，所有标记展示为纯圆形
+      const borderWidth = 0
 
-      // 绘制背景白色圆形
-      ctx.beginPath()
-      ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
-      ctx.setFillStyle('#ffffff')
-      ctx.fill()
+      // 内部绘制函数
+      const drawCanvas = (imagePath) => {
+        // 清除画布
+        ctx.clearRect(0, 0, size, size)
 
-      // 绘制边框
-      ctx.beginPath()
-      ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
-      ctx.setStrokeStyle(borderColor)
-      ctx.setLineWidth(borderWidth)
-      ctx.stroke()
+        // 绘制白色背景圆（作为底色，提升 Logo 的视觉对比度）
+        ctx.beginPath()
+        ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
+        ctx.setFillStyle('#ffffff')
+        ctx.fill()
 
-      // 绘制圆形头像
-      ctx.save()
-      ctx.beginPath()
-      ctx.arc(radius, radius, radius - borderWidth, 0, 2 * Math.PI)
-      ctx.clip()
+        // 绘制圆形图片
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
+        ctx.clip()
 
-      // 加载并绘制图片
-      wx.getImageInfo({
-        src: imageUrl,
-        success: res => {
-          // 调整图片绘制区域，考虑边框宽度
-          const imageSize = size - 2 * borderWidth
-          ctx.drawImage(res.path, borderWidth, borderWidth, imageSize, imageSize)
-          ctx.restore()
+        // 绘制图片
+        if (imagePath) {
+          ctx.drawImage(imagePath, 0, 0, size, size)
+        }
+        ctx.restore()
 
-          ctx.draw(false, () => {
-            // 导出为临时文件
-            wx.canvasToTempFilePath(
-              {
-                canvasId: canvasId,
-                width: size,
-                height: size,
-                destWidth: size,
-                destHeight: size,
-                success: result => {
-                  // 缓存结果
-                  this.avatarCache[cacheKey] = result.tempFilePath
-                  resolve(result.tempFilePath)
-                },
-                fail: err => {
-                  console.warn('[Discover] 创建圆形头像失败，使用原图:', err)
-                  resolve(imageUrl) // 失败时返回原图
-                },
+        // draw 的第二个参数回调在真机上可能过快触发，增加 setTimeout 确保渲染完成
+        ctx.draw(false, () => {
+          setTimeout(() => {
+            wx.canvasToTempFilePath({
+              canvasId: canvasId,
+              width: size,
+              height: size,
+              destWidth: size * 2, // 提升清晰度
+              destHeight: size * 2,
+              success: result => {
+                this.avatarCache[cacheKey] = result.tempFilePath
+                resolve(result.tempFilePath)
               },
-              this
-            )
-          })
-        },
-        fail: err => {
-          console.warn('[Discover] 加载图片失败，使用原图:', err)
-          resolve(imageUrl) // 失败时返回原图
-        },
+              fail: err => {
+                console.warn('[Discover] 导出Canvas失败:', err)
+                resolve(imagePath)
+              }
+            }, this)
+          }, 50) // 延迟 50ms 确保 GPU 渲染完成
+        })
+      }
+
+    // 无论是本地还是远程资源，getImageInfo 都能返回设备最兼容的路径
+    const getImage = (src) => {
+      return new Promise((resolve) => {
+        // 处理协议自适应路径
+        let processedSrc = src
+        if (typeof src === 'string' && src.startsWith('//')) {
+          processedSrc = 'https:' + src
+        }
+
+        wx.getImageInfo({
+          src: processedSrc,
+          success: (res) => resolve(res.path),
+          fail: (err) => {
+            console.warn(`[Discover] getImageInfo 失败: ${processedSrc}`, err)
+            resolve(processedSrc)
+          }
+        })
       })
+    }
+
+    // 获取图片信息并开始绘制
+    const loadImageAndDraw = async (src, isFallback = false) => {
+      const path = await getImage(src)
+      drawCanvas(path)
+    }
+
+      loadImageAndDraw(targetUrl)
     })
   },
 
@@ -916,6 +997,8 @@ Page({
   async updateMapMarkers() {
     const markers = []
     let markerId = 1 // 从1开始，确保id是数字
+    this.markerDataMap = {}
+    const markerFallbackIcon = '/assets/home/home_page_shop.png'
 
     console.log('[Discover] 更新地图标记，当前标签:', this.data.selectedTab)
     console.log('[Discover] 优惠列表数量:', this.data.couponList.length)
@@ -951,9 +1034,38 @@ Page({
       }
     }
 
+    const normalizeImagePath = value => {
+      const text = value == null ? '' : String(value).trim()
+      if (!text || text === 'null' || text === 'undefined') {
+        return ''
+      }
+      return text
+    }
+
     // 通用的标记创建函数
     const createMarker = async (item, listType) => {
-      const originalIconPath = item.image || item.avatar || config.defaultAvatar
+      const imagePath = normalizeImagePath(item.image)
+      const avatarPath = normalizeImagePath(item.avatar)
+      const defaultAvatarPath = normalizeImagePath(config.defaultAvatar)
+      
+      // 1. 门店原始 Logo
+      const normalizedLogo = normalizeImagePath(item.logo)
+      
+      if (normalizedLogo) {
+        targetIconPath = config.getImageUrl(normalizedLogo)
+      } else if (imagePath && imagePath !== defaultAvatarPath) {
+        targetIconPath = imagePath
+      } else if (avatarPath && avatarPath !== defaultAvatarPath) {
+        targetIconPath = avatarPath
+      } else {
+        // 彻底没有自定义图片时的默认图标
+        if (listType === 'coupon' || listType === 'venue') {
+          targetIconPath = '/assets/home/home_page_shop.png'
+        } else {
+          targetIconPath = defaultAvatarPath || markerFallbackIcon
+        }
+      }
+
       const latitude = Number(item.latitude)
       const longitude = Number(item.longitude)
 
@@ -962,13 +1074,13 @@ Page({
         return null
       }
 
-      // 创建圆形头像
-      let iconPath = originalIconPath
+      // 无论是什么图标，都统一尝试创建圆形标记
+      let iconPath = targetIconPath
       try {
-        iconPath = await this.createRoundAvatar(originalIconPath, 50)
+        iconPath = await this.createRoundAvatar(targetIconPath, 50)
       } catch (error) {
-        console.warn('[Discover] 创建圆形头像失败，使用原图:', error)
-        iconPath = originalIconPath
+        console.warn(`[Discover] 为 ${item.name || '标记'} 创建圆形标记失败:`, error)
+        iconPath = targetIconPath
       }
 
       // 确定标记内容
@@ -983,6 +1095,8 @@ Page({
 
       return {
         id: markerId++,
+        sourceId: item.id,
+        sourceType: listType,
         latitude: latitude,
         longitude: longitude,
         iconPath: iconPath,
@@ -1001,9 +1115,6 @@ Page({
       }
     }
 
-    // 并行处理标记创建
-    let markerPromises = []
-
     // 附近优惠标记（只标记带有优惠券的店铺）
     if (this.data.selectedTab === 'coupon' && this.data.couponList.length > 0) {
       const validShops = this.data.couponList.filter(
@@ -1015,24 +1126,41 @@ Page({
           item.coupons.length > 0
       )
 
-      // 并行创建标记
-      markerPromises = validShops.map(item => createMarker(item, 'coupon'))
+      // 使用 Promise.all 并行处理所有标记，显著提升速度
+      const markerPromises = validShops.map(item => createMarker(item, 'coupon'))
+      const results = await Promise.all(markerPromises)
+      results.forEach(marker => {
+        if (marker) {
+          markers.push(marker)
+          this.markerDataMap[marker.id] = marker
+        }
+      })
     }
 
     // 附近场所标记
     if (this.data.selectedTab === 'venue' && this.data.venueList.length > 0) {
       const validVenues = this.data.venueList.filter(item => item.latitude && item.longitude)
-
-      // 并行创建标记
-      markerPromises = validVenues.map(item => createMarker(item, 'venue'))
+      const markerPromises = validVenues.map(item => createMarker(item, 'venue'))
+      const results = await Promise.all(markerPromises)
+      results.forEach(marker => {
+        if (marker) {
+          markers.push(marker)
+          this.markerDataMap[marker.id] = marker
+        }
+      })
     }
 
     // 附近校友标记
     if (this.data.selectedTab === 'alumni' && this.data.alumniList.length > 0) {
       const validAlumni = this.data.alumniList.filter(item => item.latitude && item.longitude)
-
-      // 并行创建标记
-      markerPromises = validAlumni.map(item => createMarker(item, 'alumni'))
+      const markerPromises = validAlumni.map(item => createMarker(item, 'alumni'))
+      const results = await Promise.all(markerPromises)
+      results.forEach(marker => {
+        if (marker) {
+          markers.push(marker)
+          this.markerDataMap[marker.id] = marker
+        }
+      })
     }
 
     // 附近活动标记（无需头像处理，直接添加）
@@ -1059,13 +1187,6 @@ Page({
       })
     }
 
-    // 等待所有标记创建完成
-    if (markerPromises.length > 0) {
-      const createdMarkers = await Promise.all(markerPromises)
-      // 过滤掉null值
-      markers.push(...createdMarkers.filter(marker => marker !== null))
-    }
-
     console.log('[Discover] 最终标记数量:', markers.length)
     console.log('[Discover] 标记数据:', markers)
 
@@ -1082,7 +1203,27 @@ Page({
   // 地图标记点击
   onMarkerTap(e) {
     const { markerId } = e.detail
-    // TODO: 处理标记点击事件
+    // markerId 为 0 代表“我的位置”
+    if (markerId === 0) {
+      this.locateToMyPosition()
+      return
+    }
+
+    const marker = this.markerDataMap[markerId]
+    if (!marker) {
+      return
+    }
+
+    // 附近优惠：点击 marker 直接进入店铺详情
+    if (this.data.selectedTab === 'coupon') {
+      const matchedShop = this.data.couponList.find(item => String(item.id) === String(marker.sourceId))
+
+      if (matchedShop && matchedShop.id) {
+        wx.navigateTo({
+          url: `/pages/shop/shop-detail/shop-detail?id=${matchedShop.id}`,
+        })
+      }
+    }
   },
 
   // 地图点击
@@ -1100,6 +1241,16 @@ Page({
     }
     wx.navigateTo({
       url: `/pages/shop/shop-detail/shop-detail?id=${id}`,
+    })
+  },
+
+  // 跳转到优惠券详情页
+  handleCouponTap(e) {
+    const { couponId, shopId } = e.currentTarget.dataset
+    if (!couponId) return
+
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${couponId}&shopId=${shopId}`,
     })
   },
 
@@ -1146,8 +1297,12 @@ Page({
 
         this.setData({ couponList: updatedCouponList })
       } else {
+        const rawMsg = res.data?.msg || '领取失败'
+        const displayMsg = rawMsg.includes('校友专享') && rawMsg.includes('商户所属校友会成员可领')
+          ? '该优惠为校友专享,商户所属校友会成员可领'
+          : rawMsg
         wx.showToast({
-          title: res.data?.msg || '领取失败',
+          title: displayMsg,
           icon: 'none',
         })
       }

@@ -10,8 +10,8 @@ const RECORD_TYPE_TEXT_MAP = {
   ALUMNI_ASSOCIATION_CREATE: '创建校友会',
   ALUMNI_ASSOCIATION_JOIN: '加入校友会',
   ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM: '校友会加入校促会',
-  MERCHANT_APPLICATION: '商户入驻',
-  SHOP_APPLICATION: '门店申请',
+  MERCHANT_APPLICATION: '商家创建申请的记录',
+  MERCHANT_ASSOCIATION_JOIN: '校友商户',
 }
 
 const EDITABLE_RECORD_TYPE = {
@@ -208,7 +208,7 @@ Page({
       t === RECORD_TYPE_CREATE ||
       t === 'ALUMNI_ASSOCIATION_JOIN' ||
       t === 'MERCHANT_APPLICATION' ||
-      t === 'SHOP_APPLICATION'
+      t === 'MERCHANT_ASSOCIATION_JOIN'
     )
   },
 
@@ -258,7 +258,7 @@ Page({
         return
       }
       wx.navigateTo({
-        url: `/pages/merchant/apply/apply?merchantId=${encodeURIComponent(String(merchantId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
+        url: `/pages/merchant/edit-apply/edit-apply?merchantId=${encodeURIComponent(String(merchantId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
       })
       return
     }
@@ -682,6 +682,9 @@ Page({
     if (recordType === 'SHOP_APPLICATION') {
       return this.buildShopApplicationRows(detailWrapper, detail)
     }
+    if (recordType === 'MERCHANT_ASSOCIATION_JOIN') {
+      return this.buildMerchantAssociationJoinRows(detailWrapper, detail)
+    }
 
     const basicRows = []
     const contentRows = []
@@ -790,6 +793,38 @@ Page({
       },
       shopMerchantUi: this.buildShopMerchantUi(detail),
       merchantAssocUi: null,
+    }
+  },
+
+  buildMerchantAssociationJoinRows(detailWrapper, detail) {
+    const basicRows = []
+    const contentRows = []
+    const auditRows = []
+    const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
+    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(basicRows, '申请时间', fmtTime(firstNonEmpty(detail.createTime)))
+    this.addRow(basicRows, '审核时间', reviewTime)
+    
+    this.addRow(contentRows, '商户名称', detail.merchantName)
+    const assName = detail.alumniAssociation?.associationName
+    this.addRow(contentRows, '申请加入校友会', assName)
+    this.addRow(contentRows, '申请人', detail.applicantName)
+    this.addRow(contentRows, '联系电话', detail.applicantPhone)
+    
+    this.addRow(auditRows, '审核意见', detail.reviewComment, true)
+    this.addRow(auditRows, '审核时间', reviewTime)
+    
+    return {
+      basicRows,
+      contentRows,
+      auditRows,
+      createUi: null,
+      merchantApplyUi: {
+        header: this.buildMerchantApplicationHeader(detail),
+      },
+      shopApplyUi: null,
+      shopMerchantUi: null,
+      merchantAssocUi: this.buildMerchantAssocUi(detail),
     }
   },
 

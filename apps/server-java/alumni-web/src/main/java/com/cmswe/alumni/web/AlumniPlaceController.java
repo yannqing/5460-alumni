@@ -42,7 +42,7 @@ public class AlumniPlaceController {
             @Valid @RequestBody ApplyAlumniPlaceDto applyDto) {
         Long wxId = securityUser.getWxUser().getWxId();
         boolean result = alumniPlaceApplicationService.applyAlumniPlace(wxId, applyDto);
-        return ResultUtils.success(Code.SUCCESS, result, "申请提交成功，等待审核");
+        return ResultUtils.success(Code.SUCCESS, result, "申请提交成功，请等待审核");
     }
 
     @GetMapping("/{id}")

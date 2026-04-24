@@ -19,6 +19,7 @@
     "pages/alumni/detail/detail",
     "pages/coupon/list/list",
     "pages/coupon/detail/detail",
+    "pages/coupon/public-detail/detail",
     "pages/coupon/rush/rush",
     "pages/circle/list/list",
     "pages/circle/detail/detail",
@@ -99,6 +100,7 @@
         "headquarters/detail/detail",
         "alumni-association/list/list",
         "alumni-association/detail/detail",
+        "merchant-super/list/list",
         "info-maintenance/index/index",
         "info-maintenance/edit/edit",
         "alumni-association-certification/list/list",
@@ -164,7 +166,9 @@
         "apply/apply",
         "list/list",
         "detail/detail",
-        "my-merchant/my-merchant"
+        "my-merchant/my-merchant",
+        "join-association/join-association",
+        "edit-apply/edit-apply"
       ]
     },
     {
@@ -227,7 +231,16 @@
     "request": 10000,
     "downloadFile": 10000
   },
-  "qqmapKey": "JKGBZ-RNQCZ-4JDXO-ZWSSP-QKTCH-LKBR4",
+  "qqmapKey": "5JSBZ-LPGKV-VEHPE-5VUIJ-UEGJ7-K6BZU",
   "debug": true,
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于查找附近优惠和完善门店信息"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation",
+    "chooseLocation"
+  ]
 }

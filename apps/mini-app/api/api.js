@@ -241,6 +241,18 @@ const merchantApi = {
   getMyMerchants: params => get('/merchant-management/my-merchants', params),
   // 商户管理员更新商户基本信息（部分字段更新）
   updateMerchantInfo: data => put('/merchant-management/merchant/info', data),
+  // 超级管理员查看商户申请列表
+  getSuperAdminApprovalRecords: params => get('/merchant-management/super-admin/approval/records', params),
+  // 申请加入校友会
+  applyJoinAssociation: data => post('/merchant/association-apply/submit', data),
+  // 校友会管理员查询商户加入申请列表
+  getMerchantJoinApplyPage: params => post('/merchant/association-apply/list', params),
+  // 审核商户加入校友会申请
+  reviewMerchantJoinApply: data => post('/merchant/association-apply/review', data),
+  // 获取商户加入校友会申请详情
+  getMerchantJoinApplyDetail: params => get('/merchant/association-apply/detail', params),
+  // 获取商户审批详情（包含基本信息）
+  getMerchantApprovalDetail: merchantId => get(`/merchant-management/approval/record`, { merchantId }),
 }
 
 // ==================== 商铺相关接口 ====================
@@ -437,6 +449,14 @@ const followApi = {
   getFollowStats: () => get('/follow/stats'),
   // 获取当前用户的关注统计
   getCurrentUserStats: () => get('/follow/statistics/current'),
+}
+
+// ==================== 收藏相关接口 ====================
+const favoriteApi = {
+  // 切换商户收藏状态（收藏/取消收藏）
+  toggleMerchantFavorite: data => post('/favorite/merchant/toggle', data),
+  // 查询用户收藏的商户列表
+  getMerchantFavoriteList: params => get('/favorite/merchant/list', params),
 }
 
 // ==================== 认证相关接口 ====================
@@ -890,6 +910,7 @@ module.exports = {
   userApi,
   searchApi,
   followApi,
+  favoriteApi,
   authApi,
   fileApi,
   chatApi,

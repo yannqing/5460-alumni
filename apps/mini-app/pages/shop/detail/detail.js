@@ -1,5 +1,5 @@
 // pages/shop/detail/detail.js
-const { nearbyApi, merchantApi } = require('../../../api/api.js')
+const { nearbyApi, merchantApi, favoriteApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
 // 无商户 logo 时与 pages/merchant/list 一致
@@ -77,6 +77,7 @@ Page({
     shopId: '',
     shopInfo: null,
     loading: true,
+    favoriteLoading: false,
     defaultAvatar: DEFAULT_MERCHANT_LOGO,
     iconLocation: config.getIconUrl('position.png')
   },
@@ -350,36 +351,60 @@ Page({
     })
   },
 
-  // 收藏/取消收藏
-  toggleFavorite() {
-    const { shopInfo } = this.data
-    const newFavorited = !shopInfo.isFavorited
+  // 收藏/取消收藏（商户维度）
+  async toggleFavorite() {
+    const { shopInfo, favoriteLoading } = this.data
+    if (!shopInfo || favoriteLoading) {
+      return
+    }
 
-    // TODO: 对接后端接口
-    // shopApi.followShop(this.data.shopId).then(() => {
-    //   this.setData({
-    //     'shopInfo.isFavorited': newFavorited
-    //   })
-    //   wx.showToast({
-    //     title: newFavorited ? '收藏成功' : '取消收藏',
-    //     icon: 'success'
-    //   })
-    // }).catch(err => {
-    //   console.error('操作失败', err)
-    //   wx.showToast({
-    //     title: '操作失败',
-    //     icon: 'none'
-    //   })
-    // })
+    const app = getApp()
+    const wxId =
+      app?.globalData?.userData?.wxId ||
+      app?.globalData?.userInfo?.wxId ||
+      wx.getStorageSync('userId') ||
+      ''
+    const merchantId = this.data.shopId || shopInfo.id
 
-    // 模拟操作
-    this.setData({
-      'shopInfo.isFavorited': newFavorited
-    })
-    wx.showToast({
-      title: newFavorited ? '收藏成功' : '取消收藏',
-      icon: 'success'
-    })
+    if (!wxId || !merchantId) {
+      wx.showToast({
+        title: '用户或商户信息缺失',
+        icon: 'none',
+      })
+      return
+    }
+
+    this.setData({ favoriteLoading: true })
+    try {
+      const res = await favoriteApi.toggleMerchantFavorite({
+        wxId: String(wxId),
+        merchantId: String(merchantId),
+      })
+
+      if (res?.data?.code === 200 && res?.data?.data) {
+        const favorited = !!res.data.data.favorited
+        this.setData({
+          'shopInfo.isFavorited': favorited,
+        })
+        wx.showToast({
+          title: favorited ? '收藏成功' : '取消收藏成功',
+          icon: 'success',
+        })
+      } else {
+        wx.showToast({
+          title: res?.data?.msg || '操作失败',
+          icon: 'none',
+        })
+      }
+    } catch (err) {
+      console.error('[ShopDetail] 切换收藏失败:', err)
+      wx.showToast({
+        title: '操作失败',
+        icon: 'none',
+      })
+    } finally {
+      this.setData({ favoriteLoading: false })
+    }
   },
 
   // 跳转到私信页面

@@ -44,6 +44,14 @@ Page({
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/alumni-association/list/list'
+      },
+      {
+        id: 7,
+        name: '商户审核',
+        code: 'HOME_MERCHANT_REVIEW',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/audit/merchant-super/list/list'
       }
     ],
     // 校促会功能列表 (源数据)
@@ -118,6 +126,7 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/apply/apply'
       },
+      /*
       {
         id: 4,
         name: '店铺审核',
@@ -126,6 +135,7 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/shop-audit/shop-audit'
       },
+      */
       {
         id: 6,
         name: '活动管理',
@@ -382,6 +392,8 @@ Page({
         return this.hasPermission('SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT')
       } else if (item.name === '校友会审核') {
         return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_APPLICATION')
+      } else if (item.name === '商户审核') {
+        return this.hasPermission('HOME_MERCHANT_REVIEW')
       }
       return false
     })
@@ -412,7 +424,7 @@ Page({
           const alumniModule = this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')
           if (item.name === '架构管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
           if (item.name === '成员管理') return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT')
-          if (item.name === '商户审核') return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT')
+          if (item.name === '商户审核') return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT') || this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_AUDIT')
           if (item.name === '店铺审核') return this.hasPermission('ALUMNI_ASSOCIATION_SHOP_REVIEW')
           if (item.name === '加入审核') return this.hasPermission('ALUMNI_ASSOCIATION_JOIN_REVIEW')
           if (item.name === '活动管理') return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT')

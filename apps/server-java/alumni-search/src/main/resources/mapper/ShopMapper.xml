@@ -117,7 +117,10 @@
           AND s.status = 1
           AND EXISTS (
               SELECT 1 FROM coupon c
-              WHERE c.shop_id = s.shop_id
+              WHERE (
+                    c.shop_id = s.shop_id
+                    OR (c.shop_id IS NULL AND c.merchant_id = s.merchant_id)
+                  )
                 AND c.is_delete = 0
                 AND c.status = 1
                 AND c.valid_end_time > NOW()
@@ -151,7 +154,10 @@
               AND s.status = 1
               AND EXISTS (
                   SELECT 1 FROM coupon c
-                  WHERE c.shop_id = s.shop_id
+                  WHERE (
+                        c.shop_id = s.shop_id
+                        OR (c.shop_id IS NULL AND c.merchant_id = s.merchant_id)
+                      )
                     AND c.is_delete = 0
                     AND c.status = 1
                     AND c.valid_end_time > NOW()

@@ -141,25 +141,22 @@ App({
    * 获取用户位置信息（小程序启动时调用）
    */
   getUserLocation() {
-    // 暂时注释：等待微信公众平台权限申请通过后恢复
-    // wx.getLocation({
-    //   type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
-    //   altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
-    //   success: (res) => {
-    //     console.log('[App] 获取到用户位置:', res.latitude, res.longitude)
-    //     this.globalData.location = {
-    //       latitude: res.latitude,
-    //       longitude: res.longitude
-    //     }
-    //   },
-    //   fail: (err) => {
-    //     console.error('[App] 获取位置失败:', err)
-    //     // 获取位置失败，不设置默认值
-    //     this.globalData.location = null
-    //   }
-    // })
-    console.log('[App] wx.getLocation 已暂时禁用')
-    this.globalData.location = null
+    wx.getLocation({
+      type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
+      altitude: false, // 传入 true 会返回高度信息，由于获取高度需要较高精度，会减慢接口返回速度
+      success: res => {
+        console.log('[App] 获取到用户位置:', res.latitude, res.longitude)
+        this.globalData.location = {
+          latitude: res.latitude,
+          longitude: res.longitude,
+        }
+      },
+      fail: err => {
+        console.error('[App] 获取位置失败:', err)
+        // 获取位置失败，不设置默认值
+        this.globalData.location = null
+      },
+    })
   },
 
   /**

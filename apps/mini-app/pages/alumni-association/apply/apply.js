@@ -738,7 +738,7 @@ Page({
 
       if (res.data && res.data.code === 200) {
         wx.showToast({
-          title: isEditingApplication ? '修改提交成功' : '申请提交成功',
+          title: isEditingApplication ? '修改提交成功' : '申请提交成功，请等待审核',
           icon: 'success',
           duration: 2000,
         })

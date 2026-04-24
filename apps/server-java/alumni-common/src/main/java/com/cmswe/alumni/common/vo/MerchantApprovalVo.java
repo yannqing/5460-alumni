@@ -89,6 +89,9 @@ public class MerchantApprovalVo implements Serializable {
     @Schema(description = "关联校友会基础信息（校友商铺等存在 alumni_association_id 时返回）")
     private AlumniAssociationListVo alumniAssociation;
 
+    @Schema(description = "已加入的校友会列表")
+    private java.util.List<AlumniAssociationListVo> joinedAssociations;
+
     /**
      * 对象转VO
      *

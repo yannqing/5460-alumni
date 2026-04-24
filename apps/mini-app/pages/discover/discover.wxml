@@ -82,6 +82,7 @@
     class="list-view"
     wx:if="{{viewMode === 'list'}}"
     scroll-y="true"
+    show-scrollbar="{{false}}"
     refresher-enabled="true"
     refresher-triggered="{{refreshing}}"
     bindrefresherrefresh="onPullDownRefresh"
@@ -102,13 +103,18 @@
               <view class="recommend-tag" wx:if="{{item.isRecommended === 1}}">推荐</view>
             </view>
             <view class="shop-meta">
-              <text class="shop-distance">{{item.distance}}</text>
-              <view class="shop-rating" wx:if="{{item.ratingScore > 0}}">
-                <text class="rating-star">⭐</text>
-                <text class="rating-score">{{item.ratingScore}}分</text>
-                <text class="rating-count">({{item.ratingCount}})</text>
-              </view>
+              <text class="shop-distance">距离: {{item.distance}}</text>
               <text class="shop-view-count" wx:if="{{item.viewCount > 0}}">{{item.viewCount}}人浏览</text>
+            </view>
+            <view class="shop-contact-info" wx:if="{{item.phone || item.businessHours}}">
+              <view class="shop-contact" wx:if="{{item.phone}}">
+                <text class="contact-prefix">联系方式:</text>
+                <text class="contact-text">{{item.phone}}</text>
+              </view>
+              <view class="shop-hours" wx:if="{{item.businessHours}}">
+                <text class="hours-prefix">营业时间:</text>
+                <text class="hours-text">{{item.businessHours}}</text>
+              </view>
             </view>
             <view class="shop-tags" wx:if="{{item.associations && item.associations.length > 0}}">
               <text class="tag" wx:for="{{item.associations}}" wx:key="*this" wx:for-item="assoc">{{assoc}}</text>
@@ -116,24 +122,11 @@
           </view>
         </view>
 
-        <!-- 商铺详情信息 -->
-        <view class="shop-details" wx:if="{{item.phone || item.businessHours}}">
-          <view class="shop-contact" wx:if="{{item.phone}}">
-            <text class="contact-icon">📞</text>
-            <text class="contact-text">{{item.phone}}</text>
-          </view>
-          <view class="shop-hours" wx:if="{{item.businessHours}}">
-            <text class="hours-icon">⏰</text>
-            <text class="hours-text">{{item.businessHours}}</text>
-          </view>
-        </view>
-
         <!-- 优惠券列表 -->
         <view class="coupons" wx:if="{{item.coupons && item.coupons.length > 0}}">
-          <view class="coupon" wx:for="{{item.coupons}}" wx:key="couponId" wx:for-item="coupon">
+          <view class="coupon" wx:for="{{item.coupons}}" wx:key="couponId" wx:for-item="coupon" catchtap="handleCouponTap" data-coupon-id="{{coupon.couponId}}" data-shop-id="{{item.id}}">
             <!-- 优惠券左侧 -->
             <view class="coupon-left">
-              <text class="coupon-value">{{coupon.discount}}</text>
               <text class="coupon-type">{{coupon.type}}</text>
               <view class="coupon-alumni-tag" wx:if="{{coupon.isAlumniOnly === 1}}">校友专享</view>
             </view>

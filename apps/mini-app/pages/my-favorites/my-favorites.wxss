@@ -32,6 +32,14 @@
   z-index: 0;
 }
 
+/* 隐藏滚动条（与 my-merchant 页面一致） */
+.scroll-list ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+  display: none;
+}
+
 .shop-list {
   display: flex;
   flex-direction: column;
@@ -53,10 +61,11 @@
 }
 
 .shop-cover {
-  width: 200rpx;
-  height: 200rpx;
+  width: 160rpx;
+  height: 160rpx;
   flex-shrink: 0;
   background-color: #f0f0f0;
+  border-radius: 20rpx;
 }
 
 .shop-content {

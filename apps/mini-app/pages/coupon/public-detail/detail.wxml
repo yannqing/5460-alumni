@@ -1,0 +1,143 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="优惠券详情">
+  <view class="shop-detail-page">
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-wrap">
+      <view class="loading">加载中...</view>
+    </view>
+
+    <!-- 正常详情内容 -->
+    <view wx:elif="{{couponDetail}}">
+      <!-- 顶部图片区域 (参考门店详情) -->
+      <view class="header-image-wrap">
+        <image 
+          class="header-image" 
+          src="{{couponDetail.couponImage || couponDetail.coupon_image || defaultCover}}" 
+          mode="aspectFill"
+        ></image>
+      </view>
+
+      <!-- 内容区域 -->
+      <view class="white-background-content">
+        <!-- 基础信息卡片 (参考门店详情) -->
+        <view class="card basic-info-card focus-card">
+          <view class="coupon-header">
+            <view class="coupon-name-row">
+              <view class="coupon-name-left">
+                <view class="coupon-type-tag {{'type-' + couponDetail.couponType}}">
+                  {{couponDetail.couponTypeLabel}}
+                </view>
+                <text class="coupon-name">{{couponDetail.couponName}}</text>
+              </view>
+              <view class="coupon-tags">
+                <text class="alumni-only-tag" wx:if="{{couponDetail.isAlumniOnly === 1}}">校友专享</text>
+                <text class="coupon-status-tag">{{couponDetail.status === 1 ? '进行中' : '已结束'}}</text>
+              </view>
+            </view>
+
+            <view class="coupon-value-row">
+              <block wx:if="{{couponDetail.couponType === 1}}">
+                <text class="value-num">{{couponDetail.discountDisplay}}</text><text class="value-unit">折</text>
+              </block>
+              <block wx:elif="{{couponDetail.couponType === 2}}">
+                <text class="value-unit">¥</text><text class="value-num">{{couponDetail.discountValue}}</text>
+              </block>
+              <block wx:else>
+                <text class="value-num">礼品券</text>
+              </block>
+              <text class="min-spend-tip" wx:if="{{couponDetail.minSpend > 0}}">满{{couponDetail.minSpend}}元可用</text>
+              <text class="min-spend-tip" wx:else>无门槛</text>
+            </view>
+          </view>
+
+          <view class="info-section">
+            <view class="info-item">
+              <view class="info-main">
+                <text class="info-label-col">有效期</text>
+                <text class="info-value-col">{{couponDetail.validStartTime || '长期'}} 至 {{couponDetail.validEndTime || '长期'}}</text>
+              </view>
+            </view>
+            <view class="info-item" wx:if="{{couponDetail.perUserLimit}}">
+              <view class="info-main">
+                <text class="info-label-col">领取限制</text>
+                <text class="info-value-col">每人限领 {{couponDetail.perUserLimit}} 张</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 使用规则卡片 -->
+        <view class="card rule-info-card">
+          <view class="section-title">使用说明</view>
+          <view class="rule-content">{{couponDetail.couponDesc || '暂无详细描述'}}</view>
+        </view>
+
+        <!-- 校友专享卡片 (移至适用门店前) -->
+        <view class="card alumni-exclusive-card" wx:if="{{couponDetail.isAlumniOnly === 1}}">
+          <view class="section-title">领取门槛</view>
+          <view class="exclusive-content" wx:if="{{merchantInfo && (merchantInfo.joinedAssociations.length > 0 || merchantInfo.alumniAssociation)}}">
+            <view class="exclusive-tip">本券仅限以下校友会认证成员领取：</view>
+            <view class="association-list-new">
+              <block wx:if="{{merchantInfo.joinedAssociations && merchantInfo.joinedAssociations.length > 0}}">
+                <view class="association-item" wx:for="{{merchantInfo.joinedAssociations}}" wx:key="alumniAssociationId">
+                  <image class="assoc-logo" src="{{item.logoUrl}}" mode="aspectFill"></image>
+                  <view class="assoc-info">
+                    <view class="assoc-name">{{item.associationName}}</view>
+                  </view>
+                </view>
+              </block>
+              <block wx:elif="{{merchantInfo.alumniAssociation}}">
+                <view class="association-item">
+                  <image class="assoc-logo" src="{{merchantInfo.alumniAssociation.logoUrl}}" mode="aspectFill"></image>
+                  <view class="assoc-info">
+                    <view class="assoc-name">{{merchantInfo.alumniAssociation.associationName}}</view>
+                  </view>
+                </view>
+              </block>
+            </view>
+          </view>
+          <view class="exclusive-content" wx:else>
+            <view class="exclusive-tip">本券仅限认证校友领取，请先完成校友身份认证。</view>
+          </view>
+        </view>
+
+        <!-- 适用门店卡片 -->
+        <view class="card shops-info-card" wx:if="{{availableShops && availableShops.length > 0}}">
+          <view class="section-title">适用门店 ({{availableShops.length}})</view>
+          <view class="shop-list">
+          <view 
+            class="shop-item" 
+            wx:for="{{availableShops}}" 
+            wx:key="shopId" 
+            bindtap="goShopDetail" 
+            data-id="{{item.shopId}}"
+          >
+            <image class="shop-item-logo" src="{{item.logoUrl}}" mode="aspectFill"></image>
+            <view class="shop-item-info">
+              <view class="shop-name">{{item.shopName}}</view>
+              <view class="shop-addr">{{item.address || (item.province + item.city + item.district)}}</view>
+            </view>
+            <text class="arrow-icon">></text>
+          </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 底部悬浮按钮 -->
+      <view class="bottom-action">
+        <view 
+          class="claim-btn {{couponDetail.remainQuantity <= 0 ? 'disabled' : ''}}" 
+          bindtap="handleClaim"
+        >
+          {{couponDetail.remainQuantity <= 0 ? '已抢光' : '立即领取'}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 错误/空状态 -->
+    <view wx:else class="empty-state">
+      <icon type="warn" size="64" color="#ccc" />
+      <view class="empty-text">未找到优惠券或已被下架</view>
+      <button class="back-btn" bindtap="goBack">返回上一页</button>
+    </view>
+  </view>
+</custom-nav-bar>

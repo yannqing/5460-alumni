@@ -184,10 +184,10 @@ public class Merchant implements Serializable {
     private Integer isAlumniCertified;
 
     /**
-     * 关联校友会ID
+     * 关联校友会ID（JSON数组）
      */
     @TableField(value = "alumni_association_id")
-    private Long alumniAssociationId;
+    private String alumniAssociationId;
 
     /**
      * 认证通过时间

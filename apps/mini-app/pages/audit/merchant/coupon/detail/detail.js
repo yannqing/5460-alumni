@@ -1,4 +1,5 @@
-const { couponApi } = require('../../../../../api/api.js')
+const { couponApi, merchantApi } = require('../../../../../api/api.js')
+const config = require('../../../../../utils/config.js')
 
 const COUPON_TYPE_LABEL = { 1: '折扣券', 2: '满减券', 3: '礼品券' }
 const DISCOUNT_TYPE_LABEL = { 1: '固定金额', 2: '折扣比例' }
@@ -39,7 +40,7 @@ function mapCouponDetail(data) {
     alumniOnlyLabel: Number(data.isAlumniOnly) === 1 ? '是' : '否',
     validStartText: formatDateTime(data.validStartTime) || '—',
     validEndText: formatDateTime(data.validEndTime) || '—',
-    publishTimeText: formatDateTime(data.publishTime) || '—',
+    publishTimeText: formatDateTime(data.publishTime || data.createTime) || '—',
     createTimeText: formatDateTime(data.createTime) || '—',
     updateTimeText: formatDateTime(data.updateTime) || '—',
     discountDisplay,
@@ -52,6 +53,7 @@ Page({
     loading: true,
     couponDetail: null,
     availableShops: [],
+    merchantInfo: null,
   },
 
   onLoad(options) {
@@ -74,9 +76,34 @@ Page({
       if (res.data && res.data.code === 200 && res.data.data) {
         const detailData = res.data.data || {}
         const couponData = detailData.coupon || null
+        
+        let mInfo = null
+        // 如果是校友专属券，获取商家关联的校友会信息
+        if (couponData && Number(couponData.isAlumniOnly) === 1 && couponData.merchantId) {
+          try {
+            const merchantRes = await merchantApi.getMerchantInfo(couponData.merchantId)
+            if (merchantRes.data && merchantRes.data.code === 200 && merchantRes.data.data) {
+              mInfo = merchantRes.data.data
+              // 处理校友会 logo
+              if (mInfo.joinedAssociations) {
+                mInfo.joinedAssociations = mInfo.joinedAssociations.map(assoc => ({
+                  ...assoc,
+                  logoUrl: assoc.logo ? config.getImageUrl(assoc.logo) : config.defaultAvatar
+                }))
+              }
+              if (mInfo.alumniAssociation) {
+                mInfo.alumniAssociation.logoUrl = mInfo.alumniAssociation.logo ? config.getImageUrl(mInfo.alumniAssociation.logo) : config.defaultAvatar
+              }
+            }
+          } catch (e) {
+            console.error('获取商家信息失败:', e)
+          }
+        }
+
         this.setData({
           couponDetail: couponData ? mapCouponDetail(couponData) : null,
           availableShops: Array.isArray(detailData.availableShops) ? detailData.availableShops : [],
+          merchantInfo: mInfo,
           loading: false,
         })
       } else {
@@ -84,12 +111,12 @@ Page({
           title: (res.data && res.data.msg) || '加载失败',
           icon: 'none',
         })
-        this.setData({ loading: false, couponDetail: null, availableShops: [] })
+        this.setData({ loading: false, couponDetail: null, availableShops: [], merchantInfo: null })
       }
     } catch (error) {
       console.error('加载优惠券详情失败:', error)
       wx.showToast({ title: '加载优惠券详情失败', icon: 'none' })
-      this.setData({ loading: false, couponDetail: null, availableShops: [] })
+      this.setData({ loading: false, couponDetail: null, availableShops: [], merchantInfo: null })
     }
   },
 })

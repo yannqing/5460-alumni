@@ -1,7 +1,7 @@
 // pages/audit/merchant/apply/apply.js
 const app = getApp()
 const request = require('../../../../utils/request.js')
-const { userApi } = require('../../../../api/api.js')
+const { userApi, merchantApi } = require('../../../../api/api.js')
 
 Page({
   data: {
@@ -164,69 +164,66 @@ Page({
     
     try {
       // 映射标签页到审核状态
-      let reviewStatus = ''
+      let status = null
       if (this.data.currentTab === 1) {
-        reviewStatus = 0 // 待审核
+        status = 0 // 待审核
       } else if (this.data.currentTab === 2) {
-        reviewStatus = 1 // 已通过
+        status = 1 // 已通过
       } else if (this.data.currentTab === 3) {
-        reviewStatus = 2 // 已拒绝
+        status = 2 // 已拒绝
       }
 
       // 构建请求参数
       const params = {
         current: this.data.pageNum,
-        pageSize: this.data.pageSize
-      }
-
-      if (this.data.selectedAlumniAssociationId) {
-        params.alumniAssociationId = this.data.selectedAlumniAssociationId
+        pageSize: this.data.pageSize,
+        alumniAssociationId: this.data.selectedAlumniAssociationId
       }
       
-      if (reviewStatus !== '') {
-        params.reviewStatus = reviewStatus
+      if (status !== null) {
+        params.status = status
       }
 
-      // 调用真实API
-      const res = await request.get('/merchant-management/approval/records', params)
+      // 调用新写的商户加入校友会申请列表接口
+      const res = await merchantApi.getMerchantJoinApplyPage(params)
       
       if (res.data && res.data.code === 200 && res.data.data) {
         const records = res.data.data.records || []
         
-        // 转换数据格式
+        // 转换数据格式以适配页面展示
         const formattedList = records.map(item => {
           let statusText = ''
-          let status = ''
-          switch (item.reviewStatus) {
+          let statusTag = ''
+          switch (item.status) {
             case 0:
               statusText = '待审核'
-              status = 'pending'
+              statusTag = 'pending'
               break
             case 1:
               statusText = '已通过'
-              status = 'approved'
+              statusTag = 'approved'
               break
             case 2:
               statusText = '已拒绝'
-              status = 'rejected'
+              statusTag = 'rejected'
               break
             default:
               statusText = '未知状态'
-              status = 'unknown'
+              statusTag = 'unknown'
           }
           
           return {
-            id: item.merchantId,
+            id: item.id, // 申请记录ID
             merchantId: item.merchantId,
             merchantName: item.merchantName,
-            contactPhone: item.contactPhone,
-            applicantName: item.legalPerson,
-            status: status,
+            logo: item.logo,
+            contactPhone: item.applicantPhone,
+            applicantName: item.applicantName,
+            status: statusTag,
             statusText: statusText,
             submitTime: this.formatDisplayTime(item.createTime),
-            reviewStatus: item.reviewStatus,
-            merchantType: item.merchantType === 1 ? '校友商铺' : '普通商铺',
-            reviewReason: item.reviewReason
+            reviewStatus: item.status,
+            reviewReason: item.reviewComment
           }
         })
         
@@ -247,7 +244,7 @@ Page({
         this.setData({ loading: false })
       }
     } catch (error) {
-      console.error('加载商户申请列表失败:', error)
+      console.error('加载商户加入申请列表失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none'
@@ -296,15 +293,15 @@ Page({
       // 映射状态值：approved->1, rejected->2
       const reviewStatus = status === 'approved' ? 1 : 2
 
-      let reviewReason = ''
+      let reviewComment = ''
       if (reviewStatus === 2) {
-        reviewReason = String(reason || '').trim()
+        reviewComment = String(reason || '').trim()
       }
       
-      const res = await request.post('/merchant-management/approve', {
-        merchantId: id,
-        reviewStatus: reviewStatus,
-        reviewReason: reviewReason
+      const res = await merchantApi.reviewMerchantJoinApply({
+        id: id,
+        status: reviewStatus,
+        reviewComment: reviewComment
       })
       
       if (res.data && res.data.code === 200) {

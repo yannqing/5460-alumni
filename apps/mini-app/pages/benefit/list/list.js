@@ -109,31 +109,34 @@ Page({
   },
 
   getLocation() {
-    // 暂时注释：等待微信公众平台权限申请通过后恢复
-    // wx.getLocation({
-    //   type: 'gcj02',
-    //   success: () => {
-    //     this.setData({
-    //       location: {
-    //         name: '深圳 · 后海',
-    //         distance: '1.2km'
-    //       }
-    //     })
-    //   },
-    //   fail: () => {
-    //     this.setData({
-    //       location: {
-    //         name: '定位失败，点击重试',
-    //         distance: '--'
-    //       }
-    //     })
-    //   }
-    // })
-    console.log('[Benefit] wx.getLocation 已暂时禁用')
-    this.setData({
-      location: {
-        name: '定位功能暂时不可用',
-        distance: '--',
+    wx.getLocation({
+      type: 'gcj02',
+      success: res => {
+        const myLocation = {
+          latitude: res.latitude,
+          longitude: res.longitude,
+        }
+
+        // 同步到全局数据
+        const app = getApp()
+        app.globalData.location = myLocation
+
+        this.setData({
+          location: {
+            name: '定位成功',
+            distance: '--',
+            latitude: res.latitude,
+            longitude: res.longitude,
+          },
+        })
+      },
+      fail: () => {
+        this.setData({
+          location: {
+            name: '定位失败，点击重试',
+            distance: '--',
+          },
+        })
       },
     })
   },

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmswe.alumni.service.system.mapper.MerchantAlumniAssociationApplyMapper">
+
+    <resultMap id="JoinApplyVoMap" type="com.cmswe.alumni.common.vo.MerchantAssociationJoinApplyVo">
+        <id property="id" column="id"/>
+        <result property="merchantId" column="merchantId"/>
+        <result property="merchantName" column="merchantName"/>
+        <result property="logo" column="logo"/>
+        <result property="merchantType" column="merchantType"/>
+        <result property="businessLicense" column="businessLicense"/>
+        <result property="unifiedSocialCreditCode" column="unifiedSocialCreditCode"/>
+        <result property="legalPerson" column="legalPerson"/>
+        <result property="businessScope" column="businessScope"/>
+        <result property="backgroundImage" column="backgroundImage"/>
+        <result property="applicantName" column="applicantName"/>
+        <result property="applicantPhone" column="applicantPhone"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="createTime"/>
+        <result property="reviewTime" column="reviewTime"/>
+        <result property="reviewComment" column="reviewComment"/>
+        <association property="alumniAssociation" javaType="com.cmswe.alumni.common.vo.AlumniAssociationListVo">
+            <id property="alumniAssociationId" column="asoc_id"/>
+            <result property="associationName" column="asoc_name"/>
+            <result property="logo" column="asoc_logo"/>
+        </association>
+    </resultMap>
+
+    <select id="selectJoinApplyPage" resultMap="JoinApplyVoMap">
+        SELECT
+            a.id,
+            a.merchant_id as merchantId,
+            m.merchant_name as merchantName,
+            m.logo,
+            m.merchant_type as merchantType,
+            m.business_license as businessLicense,
+            m.unified_social_credit_code as unifiedSocialCreditCode,
+            m.legal_person as legalPerson,
+            m.business_scope as businessScope,
+            m.background_image as backgroundImage,
+            u.name as applicantName,
+            u.phone as applicantPhone,
+            a.status,
+            a.create_time as createTime,
+            a.review_time as reviewTime,
+            a.review_comment as reviewComment,
+            asoc.alumni_association_id as asoc_id,
+            asoc.association_name as asoc_name,
+            asoc.logo as asoc_logo
+        FROM merchant_alumni_association_apply a
+        JOIN merchant m ON a.merchant_id = m.merchant_id
+        JOIN wx_user_info u ON a.applicant_wx_id = u.wx_id
+        LEFT JOIN alumni_association asoc ON a.alumni_association_id = asoc.alumni_association_id
+        WHERE a.status != 3
+          AND a.is_delete = 0
+          AND m.is_delete = 0
+          AND u.is_delete = 0
+        <if test="alumniAssociationId != null">
+            AND a.alumni_association_id = #{alumniAssociationId}
+        </if>
+        <if test="merchantId != null">
+            AND a.merchant_id = #{merchantId}
+        </if>
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="selectJoinApplyDetail" resultMap="JoinApplyVoMap">
+        SELECT
+            a.id,
+            a.merchant_id as merchantId,
+            m.merchant_name as merchantName,
+            m.logo,
+            m.merchant_type as merchantType,
+            m.business_license as businessLicense,
+            m.unified_social_credit_code as unifiedSocialCreditCode,
+            m.legal_person as legalPerson,
+            m.business_scope as businessScope,
+            m.background_image as backgroundImage,
+            u.name as applicantName,
+            u.phone as applicantPhone,
+            a.status,
+            a.create_time as createTime,
+            a.review_time as reviewTime,
+            a.review_comment as reviewComment,
+            asoc.alumni_association_id as asoc_id,
+            asoc.association_name as asoc_name,
+            asoc.logo as asoc_logo
+        FROM merchant_alumni_association_apply a
+        JOIN merchant m ON a.merchant_id = m.merchant_id
+        JOIN wx_user_info u ON a.applicant_wx_id = u.wx_id
+        LEFT JOIN alumni_association asoc ON a.alumni_association_id = asoc.alumni_association_id
+        WHERE a.id = #{id}
+          AND a.is_delete = 0
+    </select>
+
+    <select id="selectLatestJoinApplyDetailByMerchantId" resultMap="JoinApplyVoMap">
+        SELECT
+            a.id,
+            a.merchant_id as merchantId,
+            m.merchant_name as merchantName,
+            m.logo,
+            m.merchant_type as merchantType,
+            m.business_license as businessLicense,
+            m.unified_social_credit_code as unifiedSocialCreditCode,
+            m.legal_person as legalPerson,
+            m.business_scope as businessScope,
+            m.background_image as backgroundImage,
+            u.name as applicantName,
+            u.phone as applicantPhone,
+            a.status,
+            a.create_time as createTime,
+            a.review_time as reviewTime,
+            a.review_comment as reviewComment,
+            asoc.alumni_association_id as asoc_id,
+            asoc.association_name as asoc_name,
+            asoc.logo as asoc_logo
+        FROM merchant_alumni_association_apply a
+        JOIN merchant m ON a.merchant_id = m.merchant_id
+        JOIN wx_user_info u ON a.applicant_wx_id = u.wx_id
+        LEFT JOIN alumni_association asoc ON a.alumni_association_id = asoc.alumni_association_id
+        WHERE a.merchant_id = #{merchantId}
+          AND a.is_delete = 0
+        ORDER BY a.create_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>

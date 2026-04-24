@@ -20,15 +20,12 @@
       <view class="white-background-content">
         <!-- 基础信息卡片 -->
         <view class="card basic-info-card">
-          <!-- 右上角操作图标（暂时注销） -->
-          <!-- <view class="card-action-icons">
-            <view class="action-icon-item" bindtap="goToChat">
-              <text class="icon-text">💬</text>
-            </view>
+          <!-- 右上角操作图标 -->
+          <view class="card-action-icons">
             <view class="action-icon-item" bindtap="toggleFavorite">
-              <text class="icon-text {{shopInfo.isFavorited ? 'favorited' : ''}}">{{shopInfo.isFavorited ? '❤️' : '🤍'}}</text>
+              <text class="icon-text {{shopInfo.isFavorited ? 'favorited' : ''}}">★</text>
             </view>
-          </view> -->
+          </view>
           <view class="shop-header">
             <view class="shop-avatar-row">
               <image class="shop-avatar" src="{{shopInfo.avatar}}" mode="aspectFill"></image>

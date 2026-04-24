@@ -1,5 +1,11 @@
 package com.cmswe.alumni.search.service.impl;
 
+import com.cmswe.alumni.common.entity.AlumniAssociationMember;
+import com.cmswe.alumni.common.entity.Merchant;
+import com.cmswe.alumni.search.mapper.SearchAlumniAssociationMemberMapper;
+import com.cmswe.alumni.search.mapper.MerchantMapper;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -49,6 +55,12 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
 
     @Resource
     private CouponMapper couponMapper;
+
+    @Resource
+    private MerchantMapper merchantMapper;
+
+    @Resource
+    private SearchAlumniAssociationMemberMapper searchAlumniAssociationMemberMapper;
 
     @Resource
     private UserCouponMapper userCouponMapper;
@@ -105,14 +117,66 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
             }
         }
 
-        // 6. 校验是否仅限校友
+        // 6. 校验是否仅限校友（修改为根据商户关联的校友会进行校验）
         if (coupon.getIsAlumniOnly() != null && coupon.getIsAlumniOnly() == 1) {
-            WxUser wxUser = wxUserMapper.selectById(wxId);
-            if (wxUser == null) {
-                throw new BusinessException("用户不存在");
+            Merchant merchant = merchantMapper.selectById(coupon.getMerchantId());
+            if (merchant == null) {
+                throw new BusinessException("商户不存在");
             }
-            if (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
-                throw new BusinessException("该优惠券仅限认证校友领取");
+
+            String associationIdsStr = merchant.getAlumniAssociationId();
+            if (StringUtils.isBlank(associationIdsStr)) {
+                // 如果商户没有关联任何校友会，则退回到基本的校友认证检查
+                WxUser wxUser = wxUserMapper.selectById(wxId);
+                if (wxUser == null) {
+                    throw new BusinessException("用户不存在");
+                }
+                if (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
+                    throw new BusinessException("该优惠券仅限认证校友领取");
+                }
+            } else {
+                // 解析商户关联的校友会ID列表
+                List<Long> associationIds = new ArrayList<>();
+                try {
+                    if (associationIdsStr.startsWith("[") && associationIdsStr.endsWith("]")) {
+                        associationIds = JSON.parseArray(associationIdsStr, Long.class);
+                    } else if (StringUtils.isNotBlank(associationIdsStr)) {
+                        // 兼容非 JSON 数组格式（如逗号分隔或单个 ID）
+                        String[] parts = associationIdsStr.split(",");
+                        for (String part : parts) {
+                            if (StringUtils.isNotBlank(part)) {
+                                try {
+                                    associationIds.add(Long.parseLong(part.trim()));
+                                } catch (NumberFormatException nfe) {
+                                    log.warn("跳过无效的校友会ID: {}", part);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("解析商户关联校友会ID失败: {}", associationIdsStr, e);
+                    // 解析失败时，为了安全起见，依然需要校验校友身份，但给出一个明确的错误提示
+                    throw new BusinessException("该优惠券为校友专享，仅限校友会成员领取");
+                }
+
+                if (associationIds == null || associationIds.isEmpty()) {
+                    // 如果列表为空，执行基础校友认证校验
+                    WxUser wxUser = wxUserMapper.selectById(wxId);
+                    if (wxUser == null || wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
+                        throw new BusinessException("该优惠券为校友专享，请先通过校友认证");
+                    }
+                } else {
+                    // 核心逻辑：检查用户是否属于商户关联的任一校友会
+                    Long count = searchAlumniAssociationMemberMapper.selectCount(
+                            new LambdaQueryWrapper<AlumniAssociationMember>()
+                                    .eq(AlumniAssociationMember::getWxId, wxId)
+                                    .in(AlumniAssociationMember::getAlumniAssociationId, associationIds)
+                                    .eq(AlumniAssociationMember::getStatus, 1) // 1-正常（有效成员）
+                    );
+                    if (count == null || count == 0) {
+                        throw new BusinessException("该优惠券为校友专享，仅限该商家所属校友会的成员领取");
+                    }
+                }
             }
         }
 

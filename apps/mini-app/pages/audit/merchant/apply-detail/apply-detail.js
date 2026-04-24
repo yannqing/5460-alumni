@@ -1,17 +1,21 @@
 // pages/audit/merchant/apply-detail/apply-detail.js
 const request = require('../../../../utils/request.js')
 const config = require('../../../../utils/config.js')
+const { merchantApi } = require('../../../../api/api.js')
 
 Page({
   data: {
     applyInfo: {},
     loading: true,
     defaultLogo: config.defaultAvatar,
+    defaultAlumniLogo: config.defaultAvatar,
     defaultBackground: config.defaultCover
   },
 
   onLoad(options) {
     this.applyId = options.id
+    this.merchantId = options.merchantId
+    this.setData({ canAudit: !!options.id }) // 只有从审核列表进入的才显示审核按钮
     this.loadApplyDetail()
   },
 
@@ -19,10 +23,19 @@ Page({
     this.setData({ loading: true })
     
     try {
-      const res = await request.get(`/merchant-management/approval/record?merchantId=${this.applyId}`)
+      const params = {}
+      if (this.applyId) {
+        params.id = this.applyId
+      }
+      if (this.merchantId) {
+        params.merchantId = this.merchantId
+      }
+      
+      const res = await merchantApi.getMerchantJoinApplyDetail(params)
       
       if (res.data && res.data.code === 200) {
         let applyInfo = res.data.data || {}
+        this.applyId = applyInfo.id
 
         const formatTime = (t) => {
           if (!t) { return '' }
@@ -30,13 +43,10 @@ Page({
           return s.length > 19 ? s.slice(0, 19) : s
         }
 
-        // 接口可能返回字符串或数字，统一成数字再分支
-        const rs = Number(applyInfo.reviewStatus)
-
         // 格式化状态文本
         let statusText = ''
         let status = ''
-        switch (rs) {
+        switch (applyInfo.status) {
           case 0:
             statusText = '待审核'
             status = 'pending'
@@ -54,21 +64,9 @@ Page({
             status = 'unknown'
         }
 
-        const mt = applyInfo.merchantType
         let merchantTypeText = ''
-        if (mt === 1 || mt === '1') { merchantTypeText = '校友商铺' }
-        else if (mt === 2 || mt === '2') { merchantTypeText = '普通商铺' }
-        else { merchantTypeText = mt != null ? String(mt) : '' }
-
-        let alumniAssociation = applyInfo.alumniAssociation
-        if (alumniAssociation && typeof alumniAssociation === 'object') {
-          alumniAssociation = {
-            ...alumniAssociation,
-            logoUrl: config.getImageUrl(alumniAssociation.logo || '')
-          }
-        } else {
-          alumniAssociation = null
-        }
+        if (applyInfo.merchantType === 1) { merchantTypeText = '校友商铺' }
+        else if (applyInfo.merchantType === 2) { merchantTypeText = '普通商铺' }
 
         const normalizeBgImage = (rawBg) => {
           if (!rawBg || typeof rawBg !== 'string') {
@@ -92,20 +90,34 @@ Page({
         // 格式化数据
         applyInfo = {
           ...applyInfo,
-          alumniAssociation,
           status: status,
           statusText: statusText,
           merchantTypeText,
           logoUrl: config.getImageUrl(applyInfo.logo || ''),
           backgroundImageUrl: normalizeBgImage(applyInfo.backgroundImage),
           submitTime: formatTime(applyInfo.createTime),
+          contactPhone: applyInfo.applicantPhone || '',
           businessLicenseUrl: config.getImageUrl(applyInfo.businessLicense || ''),
-          // 调整字段名称以匹配页面模板
           businessLicenseCode: applyInfo.unifiedSocialCreditCode || '',
           legalRepresentative: applyInfo.legalPerson || '',
-          businessAddress: applyInfo.merchantAddress || '',
           businessScope: applyInfo.businessScope || '',
-          registrationDate: applyInfo.establishmentDate || ''
+          reviewReason: applyInfo.reviewComment
+        }
+
+        // 格式化校友会信息
+        if (applyInfo.alumniAssociation) {
+          applyInfo.alumniAssociation = {
+            ...applyInfo.alumniAssociation,
+            logoUrl: applyInfo.alumniAssociation.logo ? config.getImageUrl(applyInfo.alumniAssociation.logo) : config.defaultAvatar
+          }
+        }
+
+        // 格式化已加入的校友会列表
+        if (applyInfo.joinedAssociations && Array.isArray(applyInfo.joinedAssociations)) {
+          applyInfo.joinedAssociations = applyInfo.joinedAssociations.map(item => ({
+            ...item,
+            logoUrl: item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar
+          }))
         }
         
         this.setData({
@@ -130,27 +142,39 @@ Page({
   },
 
   handleApprove() {
-    this.submitAudit('approved')
+    wx.showModal({
+      title: '确认审核',
+      content: '确定通过该商户的加入申请吗？',
+      success: (res) => {
+        if (res.confirm) {
+          this.submitAudit('approved')
+        }
+      }
+    })
   },
 
   handleReject() {
-    this.submitAudit('rejected')
+    // 这里简单弹窗输入拒绝原因
+    wx.showModal({
+      title: '拒绝申请',
+      editable: true,
+      placeholderText: '请输入拒绝原因',
+      success: (res) => {
+        if (res.confirm) {
+          this.submitAudit('rejected', res.content)
+        }
+      }
+    })
   },
 
-  async submitAudit(status) {
+  async submitAudit(status, reason = '') {
     try {
-      // 映射状态值：approved->1, rejected->2
       const reviewStatus = status === 'approved' ? 1 : 2
-      // 后端拒绝时要求非空原因；页面无备注输入时使用默认文案
-      let reviewReason = ''
-      if (reviewStatus === 2) {
-        reviewReason = '审核未通过'
-      }
       
-      const res = await request.post('/merchant-management/approve', {
-        merchantId: this.applyId,
-        reviewStatus: reviewStatus,
-        reviewReason: reviewReason
+      const res = await merchantApi.reviewMerchantJoinApply({
+        id: this.applyId,
+        status: reviewStatus,
+        reviewComment: reason || (reviewStatus === 2 ? '审核未通过' : '')
       })
       
       if (res.data && res.data.code === 200) {
@@ -166,8 +190,8 @@ Page({
             success: () => {
               const pages = getCurrentPages()
               const prevPage = pages[pages.length - 2]
-              if (prevPage && prevPage.loadApplyList) {
-                prevPage.loadApplyList()
+              if (prevPage && prevPage.reloadApplyList) {
+                prevPage.reloadApplyList()
               }
             }
           })

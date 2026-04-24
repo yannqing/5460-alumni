@@ -17,6 +17,7 @@ Page({
       city: '',
       district: '',
       address: '',
+      locationName: '',
       latitude: '',
       longitude: '',
       phone: '',
@@ -106,6 +107,40 @@ Page({
     const { field, value } = e.currentTarget.dataset
     this.setData({
       [`formData.${field}`]: parseInt(value, 10),
+    })
+  },
+
+  /** 选择店铺地理位置 */
+  selectLocation() {
+    wx.chooseLocation({
+      success: res => {
+        console.log('选择位置成功:', res)
+        this.setData({
+          [`formData.latitude`]: res.latitude,
+          [`formData.longitude`]: res.longitude,
+          [`formData.locationName`]: res.name || res.address,
+          // 如果用户还没填详细地址，自动填入地图选中的地址
+          [`formData.address`]: this.data.formData.address || res.address,
+        })
+        wx.showToast({
+          title: '位置已选择',
+          icon: 'success',
+        })
+      },
+      fail: err => {
+        console.error('选择位置失败:', err)
+        if (err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
+          wx.showModal({
+            title: '授权提示',
+            content: '需要位置权限才能选择店铺位置',
+            success: res => {
+              if (res.confirm) {
+                wx.openSetting()
+              }
+            },
+          })
+        }
+      },
     })
   },
 
@@ -237,11 +272,19 @@ Page({
         wx.showToast({ title: '请输入详细地址', icon: 'none' })
         return
       }
+      if (!formData.latitude || !formData.longitude) {
+        wx.showToast({ title: '请选择店铺位置', icon: 'none' })
+        return
+      }
+      if (formData.phone && !/^\d{11}$/.test(formData.phone)) {
+        wx.showToast({ title: '店铺电话须为11位数字', icon: 'none' })
+        return
+      }
 
       this.setData({ submitting: true })
       const shopImages = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : undefined
       const { post } = require('../../../../../utils/request.js')
-      await post('/shop/create', {
+      const res = await post('/shop/create', {
         merchantId: formData.merchantId,
         shopName: formData.shopName,
         shopType: formData.shopType,
@@ -258,19 +301,18 @@ Page({
         description: formData.description || undefined,
       })
 
-      wx.showToast({
-        title: '创建成功',
-        icon: 'success',
-      })
-      setTimeout(() => {
-        wx.navigateBack()
-      }, 500)
+      if (res && res.data && res.data.code === 200) {
+        wx.showToast({
+          title: '创建成功',
+          icon: 'success',
+          duration: 1500,
+        })
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      }
     } catch (error) {
       console.error('创建店铺失败:', error)
-      wx.showToast({
-        title: '创建失败，请重试',
-        icon: 'none',
-      })
     } finally {
       this.setData({ submitting: false })
     }
