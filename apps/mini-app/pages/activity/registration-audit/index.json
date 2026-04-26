@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "报名审核",
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}

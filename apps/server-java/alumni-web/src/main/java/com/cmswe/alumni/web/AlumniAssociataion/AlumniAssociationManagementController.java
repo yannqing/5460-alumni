@@ -2,6 +2,7 @@ package com.cmswe.alumni.web.AlumniAssociataion;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
+import com.cmswe.alumni.api.system.ActivityRegistrationService;
 import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
@@ -21,6 +22,8 @@ import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.AlumniAssociationDetailVo;
 import com.cmswe.alumni.common.vo.ActivityListVo;
 import com.cmswe.alumni.common.vo.ActivityDetailVo;
+import com.cmswe.alumni.common.vo.ActivityRegistrationListVo;
+import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.OrganizeArchiRoleVo;
 import com.cmswe.alumni.common.vo.OrganizationMemberResponse;
 import com.cmswe.alumni.common.vo.UserListResponse;
@@ -53,6 +56,9 @@ public class AlumniAssociationManagementController {
 
         @Resource
         private ActivityMapper activityMapper;
+
+        @Resource
+        private ActivityRegistrationService activityRegistrationService;
 
         /**
          * 管理员根据校友会 id 获取校友会详情（不做权限校验）
@@ -204,6 +210,54 @@ public class AlumniAssociationManagementController {
                         log.error("删除活动失败，活动 ID: {}", activityId);
                         throw new BusinessException("删除活动失败");
                 }
+        }
+
+        /**
+         * 管理员分页查询活动报名列表
+         *
+         * @param securityUser 当前登录用户
+         * @param queryDto     查询请求
+         * @return 分页报名列表
+         */
+        @PostMapping("/activity/registration/page")
+        @Operation(summary = "管理员分页查询活动报名列表")
+        public BaseResponse<PageVo<ActivityRegistrationListVo>> queryActivityRegistrationPage(
+                @AuthenticationPrincipal SecurityUser securityUser,
+                @Valid @RequestBody com.cmswe.alumni.common.dto.QueryActivityRegistrationListDto queryDto) {
+                Long wxId = securityUser.getWxUser().getWxId();
+                log.info("管理员查询活动报名列表 - 用户 ID: {}, 活动 ID: {}, 状态: {}",
+                        wxId, queryDto.getActivityId(), queryDto.getRegistrationStatus());
+
+                PageVo<ActivityRegistrationListVo> result =
+                        activityRegistrationService.queryPage(wxId, queryDto);
+
+                log.info("管理员查询活动报名列表成功 - 活动 ID: {}, 共{}条记录",
+                        queryDto.getActivityId(), result.getTotal());
+                return ResultUtils.success(Code.SUCCESS, result, "查询成功");
+        }
+
+        /**
+         * 管理员审核活动报名
+         *
+         * @param securityUser 当前登录用户（审核人）
+         * @param reviewDto    审核请求
+         * @return 是否成功
+         */
+        @PostMapping("/activity/registration/review")
+        @Operation(summary = "管理员审核活动报名")
+        public BaseResponse<Boolean> reviewActivityRegistration(
+                @AuthenticationPrincipal SecurityUser securityUser,
+                @Valid @RequestBody com.cmswe.alumni.common.dto.ReviewActivityRegistrationDto reviewDto) {
+                Long auditorId = securityUser.getWxUser().getWxId();
+                log.info("管理员审核活动报名 - 审核人 ID: {}, 报名 ID: {}, 结果: {}",
+                        auditorId, reviewDto.getRegistrationId(), reviewDto.getReviewResult());
+
+                boolean result = activityRegistrationService.review(auditorId, reviewDto);
+
+                String message = reviewDto.getReviewResult() != null && reviewDto.getReviewResult() == 1
+                        ? "通过成功"
+                        : "拒绝成功";
+                return ResultUtils.success(Code.SUCCESS, result, message);
         }
 
         /**

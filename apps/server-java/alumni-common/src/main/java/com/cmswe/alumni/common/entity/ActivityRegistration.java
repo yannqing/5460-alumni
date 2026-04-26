@@ -69,6 +69,12 @@ public class ActivityRegistration implements Serializable {
     private String auditReason;
 
     /**
+     * 审核人ID（wxId）
+     */
+    @TableField(value = "auditor_id")
+    private Long auditorId;
+
+    /**
      * 备注
      */
     @TableField(value = "remark")

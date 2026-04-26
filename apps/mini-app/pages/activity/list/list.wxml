@@ -51,6 +51,13 @@
             <text class="time">🕐 {{item.startTime}}</text>
           </view>
           <view class="activity-actions">
+            <view
+              wx:if="{{item.isSignup === 1}}"
+              class="audit-btn"
+              catchtap="goToRegistrationAudit"
+              data-id="{{item.id}}"
+              data-title="{{item.title}}"
+            >报名审核</view>
             <view class="edit-btn" catchtap="editActivity" data-id="{{item.id}}">编辑</view>
             <view class="delete-btn" catchtap="deleteActivity" data-id="{{item.id}}">删除</view>
           </view>

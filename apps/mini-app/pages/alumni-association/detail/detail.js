@@ -192,10 +192,22 @@ Page({
           zhSocialAffiliation: item.zhSocialAffiliation || '',
         }
 
-        const formattedActivityList = (item.activityList || []).map(activity => ({
-          ...activity,
-          startTime: this.formatTime(activity.startTime),
-        }))
+        const formattedActivityList = (item.activityList || []).map(activity => {
+          // 拼接地址：跳过空值/null，避免出现 "null" 字样
+          const locationText = [
+            activity.province,
+            activity.city,
+            activity.district,
+            activity.address,
+          ]
+            .filter(part => part && part !== 'null')
+            .join('')
+          return {
+            ...activity,
+            startTime: this.formatTime(activity.startTime),
+            locationText,
+          }
+        })
 
         // 处理并格式化文章列表 (资讯部分)
         const formattedArticleList = (item.articleList || []).map(article => {

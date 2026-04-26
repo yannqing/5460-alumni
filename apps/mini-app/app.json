@@ -137,7 +137,8 @@
         "detail/detail",
         "detail-new/detail-new",
         "publish/publish",
-        "edit/edit"
+        "edit/edit",
+        "registration-audit/index"
       ]
     },
     {

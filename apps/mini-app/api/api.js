@@ -244,7 +244,8 @@ const merchantApi = {
   // 完善信息并发布上线商户
   publishMerchant: data => put('/merchant/publish', data),
   // 超级管理员查看商户申请列表
-  getSuperAdminApprovalRecords: params => get('/merchant-management/super-admin/approval/records', params),
+  getSuperAdminApprovalRecords: params =>
+    get('/merchant-management/super-admin/approval/records', params),
   // 申请加入校友会
   applyJoinAssociation: data => post('/merchant/association-apply/submit', data),
   // 校友会管理员查询商户加入申请列表
@@ -254,7 +255,8 @@ const merchantApi = {
   // 获取商户加入校友会申请详情
   getMerchantJoinApplyDetail: params => get('/merchant/association-apply/detail', params),
   // 获取商户审批详情（包含基本信息）
-  getMerchantApprovalDetail: merchantId => get(`/merchant-management/approval/record`, { merchantId }),
+  getMerchantApprovalDetail: merchantId =>
+    get(`/merchant-management/approval/record`, { merchantId }),
   // 获取经营类目树
   getCategoryTree: () => get('/merchant/category/tree'),
   // 按一级类目获取经营范围（二级服务）
@@ -294,6 +296,19 @@ const activityApi = {
   joinActivity: (id, data) => post(`/activities/${id}/join`, data),
   // 取消报名
   cancelActivity: id => post(`/activities/${id}/cancel`),
+}
+
+// ==================== 活动报名相关接口（用户侧） ====================
+const activityRegistrationApi = {
+  // 用户报名活动
+  apply: data => post('/activityRegistration/apply', data),
+  // 用户取消自己的报名
+  cancel: registrationId => post(`/activityRegistration/cancel/${registrationId}`),
+  // 查询当前用户在某活动的报名状态
+  getMyStatus: activityId => get(`/activityRegistration/myStatus/${activityId}`),
+  // 详情页参与者列表（隐私过滤后）
+  getParticipants: (activityId, limit) =>
+    get(`/activityRegistration/participants/${activityId}`, limit ? { limit } : {}),
 }
 
 // ==================== 用户相关接口 ====================
@@ -398,7 +413,11 @@ const fileApi = {
       const filesVo = await cosUploadUtil.uploadDocumentToCos(filePath, originalName, fileSize)
       return { code: 200, data: filesVo }
     }
-    return fileUploadUtil.uploadDocument(filePath, FILE_API_PATHS.UPLOAD_DOCUMENT, originalName || '')
+    return fileUploadUtil.uploadDocument(
+      filePath,
+      FILE_API_PATHS.UPLOAD_DOCUMENT,
+      originalName || ''
+    )
   },
 
   // 上传视频（接口路径在 FILE_API_PATHS.UPLOAD_VIDEO 中配置）
@@ -866,6 +885,12 @@ const alumniAssociationManagementApi = {
   // 获取校友会活动列表
   getActivities: alumniAssociationId =>
     get(`/alumniAssociationManagement/activities/${alumniAssociationId}`),
+  // 分页查询活动报名列表
+  getActivityRegistrationPage: data =>
+    post('/alumniAssociationManagement/activity/registration/page', data),
+  // 审核活动报名（reviewResult: 1-通过 2-拒绝）
+  reviewActivityRegistration: data =>
+    post('/alumniAssociationManagement/activity/registration/review', data),
 }
 
 // ==================== 校友会加入申请相关接口 ====================
@@ -911,6 +936,7 @@ module.exports = {
   shopApi,
   nearbyApi,
   activityApi,
+  activityRegistrationApi,
   alumniAssociationManagementApi,
   joinApplicationApi,
   userApi,

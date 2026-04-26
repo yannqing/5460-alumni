@@ -1,0 +1,122 @@
+<!--pages/activity/registration-audit/index.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="报名审核">
+<view class="page">
+  <!-- 活动标题卡片 -->
+  <view class="group_5">
+    <text class="text_14">报名审核</text>
+    <text class="label_text">所属活动</text>
+    <view class="text-wrapper_8">
+      <text class="text_15">{{activityTitle || '当前活动'}}</text>
+    </view>
+  </view>
+
+  <!-- 报名审核列表卡片 -->
+  <view class="group_7">
+    <view class="join-audit-header">
+      <text class="text_20">报名列表（{{total}}）</text>
+    </view>
+
+    <view class="filter-tabs-wrap">
+      <view
+        class="filter-tab {{registrationStatus === item.value ? 'active' : ''}}"
+        wx:for="{{statusList}}"
+        wx:key="value"
+        data-status="{{item.value}}"
+        bindtap="selectStatus"
+      >
+        {{item.label}}
+      </view>
+    </view>
+
+    <view class="search-bar">
+      <input
+        class="search-input"
+        placeholder="按姓名/手机号搜索"
+        value="{{keyword}}"
+        bindinput="onKeywordInput"
+        bindconfirm="onKeywordConfirm"
+        confirm-type="search"
+      />
+    </view>
+
+    <scroll-view
+      class="scroll-list"
+      scroll-y
+      enable-back-to-top
+      enhanced
+      show-scrollbar="{{false}}"
+      bindscrolltolower="loadMore"
+    >
+      <view wx:if="{{listLoading && registrationList.length === 0}}" class="loading-state">
+        <text>加载中...</text>
+      </view>
+      <view wx:elif="{{!listLoading && registrationList.length === 0}}" class="empty-block">
+        <text class="empty-text">暂无报名数据</text>
+      </view>
+      <view wx:else class="application-list">
+        <view
+          wx:for="{{registrationList}}"
+          wx:key="registrationId"
+          class="application-item"
+        >
+          <view class="application-header">
+            <view class="applicant-info">
+              <image class="avatar" src="{{item.userAvatar || defaultUserAvatarUrl}}"></image>
+              <view class="info-text">
+                <text class="nickname">{{item.userName || item.userNickname || '未知用户'}}</text>
+                <text class="apply-time">报名时间：{{item.registrationTime}}</text>
+              </view>
+            </view>
+            <view
+              class="status-tag"
+              style="background-color: {{item.registrationStatus === 0 ? '#ffd591' : item.registrationStatus === 1 ? '#b7eb8f' : item.registrationStatus === 2 ? '#ffccc7' : '#d9d9d9'}}"
+            >
+              {{item.registrationStatus === 0 ? '待审核' : item.registrationStatus === 1 ? '已通过' : item.registrationStatus === 2 ? '已拒绝' : '已取消'}}
+            </view>
+          </view>
+          <view class="application-body">
+            <view class="application-item-row">
+              <text class="label">联系电话：</text>
+              <text class="value">{{item.userPhone || '无'}}</text>
+            </view>
+            <view class="application-item-row" wx:if="{{item.userNickname}}">
+              <text class="label">微信昵称：</text>
+              <text class="value">{{item.userNickname}}</text>
+            </view>
+            <view class="application-item-row">
+              <text class="label">备注：</text>
+              <text class="value">{{item.remark || '无'}}</text>
+            </view>
+            <view class="application-item-row" wx:if="{{item.registrationStatus === 2 && item.auditReason}}">
+              <text class="label">驳回理由：</text>
+              <text class="value">{{item.auditReason}}</text>
+            </view>
+          </view>
+          <view class="application-footer" wx:if="{{item.registrationStatus === 0}}">
+            <button
+              class="review-btn pass-btn"
+              data-id="{{item.registrationId}}"
+              catchtap="passRegistration"
+              loading="{{reviewing}}"
+              disabled="{{reviewing}}"
+            >通过</button>
+            <button
+              class="review-btn reject-btn"
+              data-id="{{item.registrationId}}"
+              catchtap="rejectRegistration"
+              loading="{{reviewing}}"
+              disabled="{{reviewing}}"
+            >拒绝</button>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{listLoading && registrationList.length > 0}}" class="loading-more">
+        <text>加载更多...</text>
+      </view>
+      <view wx:if="{{!listLoading && !hasMore && registrationList.length > 0}}" class="no-more">
+        <text>没有更多数据了</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+</custom-nav-bar>

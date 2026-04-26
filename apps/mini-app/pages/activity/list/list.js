@@ -11,13 +11,13 @@ Page({
       { id: 'all', label: '全部' },
       { id: 'upcoming', label: '即将开始' },
       { id: 'ongoing', label: '进行中' },
-      { id: 'finished', label: '已结束' }
+      { id: 'finished', label: '已结束' },
     ],
     activityList: [],
     displayList: [],
     stats: {
       total: 0,
-      upcoming: 0
+      upcoming: 0,
     },
     // 校友会选择相关
     alumniAssociationList: [],
@@ -81,7 +81,7 @@ Page({
 
         // 设置是否有校友会管理员身份
         this.setData({
-          hasAlumniAdminPermission: organizationList.length > 0
+          hasAlumniAdminPermission: organizationList.length > 0,
         })
 
         if (organizationList.length > 0) {
@@ -100,13 +100,13 @@ Page({
               organizeId: org.id,
               logo: logo,
               location: org.location || '',
-              type: org.type
+              type: org.type,
             }
           })
 
           // 设置校友会列表
           this.setData({
-            alumniAssociationList: alumniAssociationList
+            alumniAssociationList: alumniAssociationList,
           })
           console.log('[Debug] 最终校友会列表:', alumniAssociationList)
 
@@ -117,14 +117,14 @@ Page({
           console.warn('[Debug] 用户没有管理的校友会')
           this.setData({
             alumniAssociationList: [],
-            hasAlumniAdminPermission: false
+            hasAlumniAdminPermission: false,
           })
         }
       } else {
         console.error('[Debug] 获取校友会列表接口调用失败:', res)
         this.setData({
           alumniAssociationList: [],
-          hasAlumniAdminPermission: false
+          hasAlumniAdminPermission: false,
         })
       }
     } catch (error) {
@@ -132,7 +132,7 @@ Page({
       // 发生错误时，设置为空数组
       this.setData({
         alumniAssociationList: [],
-        hasAlumniAdminPermission: false
+        hasAlumniAdminPermission: false,
       })
     }
   },
@@ -146,7 +146,7 @@ Page({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
         selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
         selectedOrganizeId: singleAlumni.alumniAssociationId,
-        hasSingleAlumniAssociation: true
+        hasSingleAlumniAssociation: true,
       })
       console.log('[Debug] 只有一个校友会权限，自动选择:', singleAlumni)
       // 加载该校友会的活动列表
@@ -154,13 +154,13 @@ Page({
     } else if (alumniAssociationList.length > 1) {
       // 多个校友会权限，正常显示选择器
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 有多个校友会权限，正常显示选择器')
     } else {
       // 没有校友会权限
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 没有校友会权限')
       // 清空活动列表
@@ -169,8 +169,8 @@ Page({
         displayList: [],
         stats: {
           total: 0,
-          upcoming: 0
-        }
+          upcoming: 0,
+        },
       })
     }
   },
@@ -189,19 +189,24 @@ Page({
     console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
 
     // 获取对应的校友会对象
-    const selectedAlumni = this.data.alumniAssociationList.find(item => item.alumniAssociationId === alumniAssociationId)
+    const selectedAlumni = this.data.alumniAssociationList.find(
+      item => item.alumniAssociationId === alumniAssociationId
+    )
     console.log('[Debug] 找到的校友会对象:', selectedAlumni)
 
     this.setData({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
       showAlumniAssociationPicker: false,
-      selectedOrganizeId: alumniAssociationId // 确保使用校友会ID
+      selectedOrganizeId: alumniAssociationId, // 确保使用校友会ID
     })
 
     try {
       // 调用 /AlumniAssociation/{id} 接口，入参为 alumniAssociationId
-      console.log('[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:', alumniAssociationId)
+      console.log(
+        '[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:',
+        alumniAssociationId
+      )
 
       const res = await this.getAlumniAssociationDetail(alumniAssociationId)
 
@@ -215,11 +220,11 @@ Page({
     } catch (apiError) {
       console.error('[Debug] 调用 /AlumniAssociation/{id} 接口失败:', apiError)
     }
-    
+
     // 加载该校友会的活动列表
     await this.loadActivityList()
   },
-  
+
   // 调用校友会详情接口
   getAlumniAssociationDetail(alumniAssociationId) {
     return associationApi.getAssociationDetail(alumniAssociationId)
@@ -233,7 +238,7 @@ Page({
   // 加载活动列表
   async loadActivityList() {
     const { selectedAlumniAssociationId } = this.data
-    
+
     // 如果没有选择校友会，清空数据
     if (!selectedAlumniAssociationId) {
       this.setData({
@@ -241,55 +246,61 @@ Page({
         displayList: [],
         stats: {
           total: 0,
-          upcoming: 0
-        }
+          upcoming: 0,
+        },
       })
       return
     }
-    
+
     try {
       const res = await this.getActivityList(selectedAlumniAssociationId)
-      
+
       if (res.data && res.data.code === 200 && res.data.data) {
+        // 过滤掉 null / undefined / 字面量字符串 "null"
+        const cleanText = v => (v == null || v === 'null' ? '' : v)
         const activityList = res.data.data.map(item => {
-          const safeProvince = item.province || ''
-          const safeCity = item.city || ''
-          const safeDistrict = item.district || ''
-          const safeAddress = item.address || ''
+          const location = [item.province, item.city, item.district, item.address]
+            .map(cleanText)
+            .join('')
+          const category = cleanText(item.activityCategory)
           return {
             id: item.activityId,
             title: item.activityTitle,
             organizer: item.organizerName,
             cover: item.organizerAvatar,
             participantCount: item.currentParticipants,
-            location: `${safeProvince}${safeCity}${safeDistrict}${safeAddress}`,
+            location,
             startTime: this.formatDateTime(item.startTime),
             endTime: this.formatDateTime(item.endTime),
             status: this.getActivityStatus(item.status),
             originalStatus: item.status,
-            tags: [item.activityCategory],
-            distance: 0 // 暂时设置为0，后续可以根据实际位置计算
+            isSignup: item.isSignup,
+            tags: category ? [category] : [],
+            distance: 0, // 暂时设置为0，后续可以根据实际位置计算
           }
         })
-        
-        this.setData({
-          activityList,
-          stats: {
-            total: activityList.length,
-            upcoming: activityList.filter(item => item.status === 'upcoming').length
+
+        this.setData(
+          {
+            activityList,
+            stats: {
+              total: activityList.length,
+              upcoming: activityList.filter(item => item.status === 'upcoming').length,
+            },
+          },
+          () => {
+            this.applyFilter()
           }
-        }, () => {
-          this.applyFilter()
-        })
+        )
       } else {
-        console.error('获取活动列表失败:', res.data && res.data.msg || '接口调用失败')
+        console.error('获取活动列表失败:', (res.data && res.data.msg) || '接口调用失败')
         this.setData({
           activityList: [],
           displayList: [],
           stats: {
             total: 0,
-            upcoming: 0
-          }
+            upcoming: 0,
+          },
         })
       }
     } catch (error) {
@@ -299,20 +310,22 @@ Page({
         displayList: [],
         stats: {
           total: 0,
-          upcoming: 0
-        }
+          upcoming: 0,
+        },
       })
     }
   },
-  
+
   // 调用活动列表接口
   getActivityList(alumniAssociationId) {
     return alumniAssociationManagementApi.getActivities(alumniAssociationId)
   },
-  
+
   // 格式化日期时间
   formatDateTime(dateTimeString) {
-    if (!dateTimeString) {return ''}
+    if (!dateTimeString) {
+      return ''
+    }
     const date = new Date(dateTimeString)
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -321,7 +334,7 @@ Page({
     const minutes = String(date.getMinutes()).padStart(2, '0')
     return `${year}-${month}-${day} ${hours}:${minutes}`
   },
-  
+
   // 获取活动状态
   getActivityStatus(status) {
     switch (status) {
@@ -369,7 +382,9 @@ Page({
 
   handleFilterChange(e) {
     const { id } = e.currentTarget.dataset
-    if (id === this.data.filterStatus) {return}
+    if (id === this.data.filterStatus) {
+      return
+    }
     this.setData({ filterStatus: id }, () => {
       this.applyFilter()
     })
@@ -378,7 +393,7 @@ Page({
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
     wx.navigateTo({
-      url: `/pages/activity/detail-new/detail-new?id=${id}`
+      url: `/pages/activity/detail-new/detail-new?id=${id}`,
     })
   },
 
@@ -388,7 +403,7 @@ Page({
       return
     }
     wx.navigateTo({
-      url: '/pages/activity/publish/publish'
+      url: '/pages/activity/publish/publish',
     })
   },
 
@@ -399,16 +414,26 @@ Page({
     try {
       wx.navigateTo({
         url: `/pages/activity/edit/edit?id=${id}`,
-        success: function(res) {
+        success: function (res) {
           console.log('跳转成功:', res)
         },
-        fail: function(err) {
+        fail: function (err) {
           console.log('跳转失败:', err)
-        }
+        },
       })
     } catch (error) {
       console.log('跳转异常:', error)
     }
+  },
+
+  // 跳转到该活动的报名审核页
+  goToRegistrationAudit(e) {
+    const { id, title } = e.currentTarget.dataset
+    if (!id) return
+    const titleParam = title ? `&activityTitle=${encodeURIComponent(title)}` : ''
+    wx.navigateTo({
+      url: `/pages/activity/registration-audit/index?activityId=${id}${titleParam}`,
+    })
   },
 
   // 删除活动
@@ -420,7 +445,7 @@ Page({
     wx.showModal({
       title: '确认删除',
       content: '确定要删除此活动吗？删除后不可恢复。',
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           console.log('用户确认删除')
           try {
@@ -441,26 +466,27 @@ Page({
         } else if (res.cancel) {
           console.log('用户取消删除')
         }
-      }
+      },
     })
   },
 
   // 调用删除活动接口
   deleteActivityById(activityId) {
     return new Promise((resolve, reject) => {
-      alumniAssociationManagementApi.deleteActivity(activityId)
-        .then((res) => {
+      alumniAssociationManagementApi
+        .deleteActivity(activityId)
+        .then(res => {
           console.log('删除活动接口返回:', res)
           if (res.data && res.data.code === 200 && res.data.data === true) {
             resolve({ success: true, message: '删除成功' })
           } else {
-            resolve({ success: false, message: res.data && res.data.msg || '删除失败' })
+            resolve({ success: false, message: (res.data && res.data.msg) || '删除失败' })
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.error('删除活动接口调用失败:', err)
           reject(err)
         })
     })
-  }
+  },
 })
