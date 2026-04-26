@@ -15,7 +15,7 @@
               <view class="coupon-card">
                 <view class="coupon-left-section">
                   <view class="coupon-discount-big">
-                    <text wx:if="{{couponInfo.discountValue}}">{{couponInfo.discountValue}}</text>
+                    <text wx:if="{{couponInfo.discountValue}}">{{couponInfo.couponType === 1 ? (couponInfo.discountValue + '折') : couponInfo.discountValue}}</text>
                     <text wx:else>优惠券</text>
                   </view>
                   <view class="coupon-label-text">券详情</view>
@@ -37,12 +37,7 @@
               </view>
             </view>
 
-            <view wx:if="{{couponInfo.status === 2}}" class="qr-code-card">
-              <view class="consumed-tip">
-                <text class="consumed-text">已消费</text>
-              </view>
-            </view>
-            <view wx:else class="qr-code-card">
+            <view wx:if="{{couponInfo.status !== 2}}" class="qr-code-card">
               <view class="qr-code-wrapper">
                 <image
                   wx:if="{{qrCodeImage}}"
@@ -91,8 +86,8 @@
               <text class="info-value">{{couponInfo.couponType === 1 ? '折扣券' : couponInfo.couponType === 2 ? '满减券' : couponInfo.couponType === 3 ? '礼品券' : '未知'}}</text>
             </view>
             <view class="info-row" wx:if="{{couponInfo.discountValue}}">
-              <text class="info-label">优惠值：</text>
-              <text class="info-value">{{couponInfo.discountValue}}</text>
+              <text class="info-label">{{couponInfo.couponType === 1 ? '折扣值：' : '优惠值：'}}</text>
+              <text class="info-value">{{couponInfo.couponType === 1 ? (couponInfo.discountValue + '折') : couponInfo.discountValue}}</text>
             </view>
             <view class="info-row" wx:if="{{couponInfo.minSpend}}">
               <text class="info-label">最低消费：</text>

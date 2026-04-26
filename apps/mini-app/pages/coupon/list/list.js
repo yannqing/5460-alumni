@@ -1,5 +1,6 @@
 // pages/coupon/list/list.js
 const { couponApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 
 function formatCouponTime(t) {
   if (t == null || t === '') {
@@ -15,10 +16,17 @@ Page({
     tabs: ['全部', '折扣券', '满减券', '礼品券'],
     allCoupons: [],
     couponList: [],
-    loading: false
+    loading: false,
+    couponCardBgUrl:
+      config.cloud.cosBaseUrl + '/cni-alumni/images/assets/coupon/coupon_1.png'
   },
 
   onLoad(options) {
+    this.loadCouponList()
+  },
+
+  onShow() {
+    // 从详情页返回后刷新，确保“已使用”等状态立刻更新
     this.loadCouponList()
   },
 
