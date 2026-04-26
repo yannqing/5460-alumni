@@ -1,6 +1,6 @@
 <!-- pages/audit/merchant/coupon/create/create.wxml -->
-<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="新建优惠券">
-<scroll-view class="page-scroll" scroll-y enable-back-to-top>
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="新建优惠券" auditPageScroll="{{true}}">
+<view class="page-scroll">
   <view class="loading-tip" wx:if="{{loading}}">
     <text>加载中...</text>
   </view>
@@ -181,5 +181,5 @@
   <view class="submit-bar">
     <button class="submit-btn" bindtap="submitForm" hover-class="submit-btn-hover">提交创建</button>
   </view>
-</scroll-view>
+</view>
 </custom-nav-bar>

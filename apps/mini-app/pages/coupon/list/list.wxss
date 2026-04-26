@@ -92,6 +92,9 @@
   display: flex;
   align-items: center;
   background: linear-gradient(135deg, #40B2E6, #6BC5ED);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
   border-radius: 16rpx;
   overflow: hidden;
   box-shadow: 0 4rpx 16rpx rgba(255, 107, 157, 0.3);
@@ -129,13 +132,16 @@
 .coupon-right-section {
   flex: 1;
   padding: 30rpx 24rpx;
-  color: #fff;
+  color: #000;
   min-width: 0;
 }
 
 .coupon-title-main {
-  font-size: 30rpx;
+  font-size: 28rpx;
+  font-family: PingFangSC-Semibold;
   font-weight: 600;
+  color: #000;
+  margin-left: 40rpx;
   margin-bottom: 12rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -143,56 +149,75 @@
 }
 
 .coupon-merchant-name {
-  font-size: 24rpx;
-  opacity: 0.9;
+  font-size: 19rpx;
+  color: rgba(0, 0, 0, 0.85);
   margin-bottom: 16rpx;
 }
 
 .coupon-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  margin-bottom: 12rpx;
-  font-size: 22rpx;
-  opacity: 0.9;
+  margin-bottom: 6rpx;
+  font-size: 17rpx;
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .coupon-time-text {
   flex: 1;
+  margin-left: 40rpx;
+  text-align: left;
+  font-size: 20rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+}
+
+.coupon-stock-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 12rpx;
+  padding-right: 10rpx;
 }
 
 .coupon-stock-text {
   white-space: nowrap;
-  margin-left: 16rpx;
+  margin-left: 0;
+  font-size: 17rpx;
+  font-family: PingFangSC-Heavy;
+  font-weight: 800;
 }
 
 /* 状态标签：优惠券卡片右上角 */
 .coupon-status-tag {
   position: absolute;
-  right: 20rpx;
+  right: 30rpx;
   top: 20rpx;
   padding: 6rpx 16rpx;
   color: #ffffff;
-  font-size: 22rpx;
-  border-radius: 20rpx;
+  font-size: 19rpx;
+  font-family: PingFangSC-Semibold;
+  font-weight: 600;
+  border-radius: 999rpx;
+  background-color: #6386F2;
   z-index: 10;
 }
 
 /* 不同状态不同颜色：1-未使用 2-已使用 3-已过期 4-已作废 */
 .coupon-status-tag.status-1 {
-  background-color: #19be6b;
+  background-color: #6386F2;
 }
 
 .coupon-status-tag.status-2 {
-  background-color: #999999;
+  background-color: #6386F2;
 }
 
 .coupon-status-tag.status-3 {
-  background-color: #ff694a;
+  background-color: #6386F2;
 }
 
 .coupon-status-tag.status-4 {
-  background-color: #c0c0c0;
+  background-color: #6386F2;
 }
 
 .coupon-stock-bar {
