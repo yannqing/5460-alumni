@@ -1,12 +1,13 @@
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="完善商户信息并发布">
-  <view class="loading-wrap" wx:if="{{detailLoading}}">
-    <text>加载中...</text>
-  </view>
-  <view class="page" wx:else>
-    <view class="group_7">
-      <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
-        <form bindsubmit="submitForm">
-        <view class="form-item">
+<view class="page">
+  <view class="group_7">
+    <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}">
+      <!-- 加载中状态 -->
+      <view class="loading-state" wx:if="{{detailLoading}}">
+        <text>加载中...</text>
+      </view>
+      <form wx:else bindsubmit="submitForm">
+      <view class="form-item">
           <text class="form-label">商家名称 <text class="required">*</text></text>
           <input class="form-input" placeholder="请输入商家名称" value="{{formData.merchantName}}" bindinput="onInputChange" data-field="merchantName" />
         </view>

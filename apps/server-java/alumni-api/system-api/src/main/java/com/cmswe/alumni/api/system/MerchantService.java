@@ -99,14 +99,15 @@ public interface MerchantService extends IService<Merchant> {
     MerchantDetailVo getMerchantDetailById(Long merchantId);
 
     /**
-     * 查询用户负责的商户列表（根据角色）
+     * 查询本人负责/申请的商户列表
      *
      * @param wxId    用户微信ID
      * @param current 当前页
      * @param size    每页大小
+     * @param onlySelf 是否仅查本人申请
      * @return 商户列表分页数据
      */
-    PageVo<MerchantListVo> getMyManagedMerchants(Long wxId, Long current, Long size);
+    PageVo<MerchantListVo> getMyManagedMerchants(Long wxId, Long current, Long size, Boolean onlySelf);
 
     /**
      * 商户管理员更新商户基本信息（部分字段更新，未传的字段不变）

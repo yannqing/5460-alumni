@@ -127,12 +127,13 @@ public class MerchantManagementController {
     public BaseResponse<PageVo<MerchantListVo>> getMyManagedMerchants(
             @AuthenticationPrincipal SecurityUser securityUser,
             @RequestParam(defaultValue = "1") Long current,
-            @RequestParam(defaultValue = "10") Long size) {
+            @RequestParam(defaultValue = "10") Long size,
+            @RequestParam(required = false) Boolean onlySelf) {
         Long wxId = securityUser.getWxUser().getWxId();
-        log.info("查询本人负责的商户列表 - 用户ID: {}, 当前页: {}, 每页大小: {}",
-                wxId, current, size);
+        log.info("查询本人负责的商户列表 - 用户ID: {}, 当前页: {}, 每页大小: {}, 仅本人申请: {}",
+                wxId, current, size, onlySelf);
 
-        PageVo<MerchantListVo> pageVo = merchantService.getMyManagedMerchants(wxId, current, size);
+        PageVo<MerchantListVo> pageVo = merchantService.getMyManagedMerchants(wxId, current, size, onlySelf);
 
         log.info("查询本人负责的商户列表成功 - 用户ID: {}, 总记录数: {}",
                 wxId, pageVo.getTotal());

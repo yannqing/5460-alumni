@@ -1040,7 +1040,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     }
 
     @Override
-    public PageVo<MerchantListVo> getMyManagedMerchants(Long wxId, Long current, Long size) {
+    public PageVo<MerchantListVo> getMyManagedMerchants(Long wxId, Long current, Long size, Boolean onlySelf) {
         // 1. 参数校验
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL);
@@ -1052,89 +1052,93 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             size = 10L;
         }
 
-        // 2. 判断是否是系统超级管理员：超级管理员可查看所有商户
-        List<Role> userRoles = roleService.getRolesByUserId(wxId);
-        boolean isSystemSuperAdmin = userRoles.stream()
-                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
-        if (isSystemSuperAdmin) {
-            log.info("系统超级管理员查询商户列表 - 用户ID: {}, 当前页: {}, 每页大小: {}", wxId, current, size);
+        // 2. 如果不是仅查本人，且是系统超级管理员：超级管理员可查看所有商户
+        if (!Boolean.TRUE.equals(onlySelf)) {
+            List<Role> userRoles = roleService.getRolesByUserId(wxId);
+            boolean isSystemSuperAdmin = userRoles.stream()
+                    .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
+            if (isSystemSuperAdmin) {
+                log.info("系统超级管理员查询商户列表 - 用户ID: {}, 当前页: {}, 每页大小: {}", wxId, current, size);
 
-            Page<Merchant> page = new Page<>(current, size);
-            Page<Merchant> merchantPage = this.lambdaQuery()
-                    // 返回审核通过（1）或待发布（4）的商户
-                    .in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4))
-                    .orderByDesc(Merchant::getCreateTime)
-                    .page(page);
+                Page<Merchant> page = new Page<>(current, size);
+                Page<Merchant> merchantPage = this.lambdaQuery()
+                        // 只返回已发布（1）的商户
+                        .eq(Merchant::getReviewStatus, 1)
+                        .orderByDesc(Merchant::getCreateTime)
+                        .page(page);
 
-            List<MerchantListVo> merchantListVos = merchantPage.getRecords().stream()
-                    .map(merchant -> {
-                        MerchantListVo vo = MerchantListVo.objToVo(merchant);
-                        vo.setMerchantId(String.valueOf(merchant.getMerchantId()));
-                        if (merchant.getUserId() != null) {
-                            vo.setUserId(String.valueOf(merchant.getUserId()));
-                        }
-                        if (merchant.getAlumniAssociationId() != null) {
-                            vo.setAlumniAssociationId(String.valueOf(merchant.getAlumniAssociationId()));
-                        }
-                        return vo;
-                    })
-                    .collect(Collectors.toList());
+                List<MerchantListVo> merchantListVos = merchantPage.getRecords().stream()
+                        .map(merchant -> {
+                            MerchantListVo vo = MerchantListVo.objToVo(merchant);
+                            vo.setMerchantId(String.valueOf(merchant.getMerchantId()));
+                            if (merchant.getUserId() != null) {
+                                vo.setUserId(String.valueOf(merchant.getUserId()));
+                            }
+                            if (merchant.getAlumniAssociationId() != null) {
+                                vo.setAlumniAssociationId(String.valueOf(merchant.getAlumniAssociationId()));
+                            }
+                            return vo;
+                        })
+                        .collect(Collectors.toList());
 
-            Page<MerchantListVo> voPage = new Page<>(current, size, merchantPage.getTotal());
-            voPage.setRecords(merchantListVos);
+                Page<MerchantListVo> voPage = new Page<>(current, size, merchantPage.getTotal());
+                voPage.setRecords(merchantListVos);
 
-            log.info("系统超级管理员查询商户列表成功 - 用户ID: {}, 找到{}个商户", wxId, merchantPage.getTotal());
-            return PageVo.of(voPage);
+                log.info("系统超级管理员查询商户列表成功 - 用户ID: {}, 找到{}个商户", wxId, merchantPage.getTotal());
+                return PageVo.of(voPage);
+            }
         }
 
-        // 3. 根据角色代码查询角色ID
-        Role role = roleService.getRoleByCodeInner("ORGANIZE_MERCHANT_ADMIN");
-        if (role == null) {
-            log.warn("商户管理员角色不存在，roleCode: ORGANIZE_MERCHANT_ADMIN");
-            // 返回空列表
-            Page<MerchantListVo> emptyPage = new Page<>(current, size, 0);
-            return PageVo.of(emptyPage);
-        }
-
-        // 4. 查询用户拥有该角色的所有组织ID（商户ID）
-        List<RoleUser> roleUsers = roleUserService.lambdaQuery()
-                .eq(RoleUser::getWxId, wxId)
-                .eq(RoleUser::getRoleId, role.getRoleId())
-                .eq(RoleUser::getType, 3) // 类型3代表商户
-                .list();
-
-        if (roleUsers.isEmpty()) {
-            log.info("用户没有负责的商户 - 用户ID: {}", wxId);
-            // 返回空列表
-            Page<MerchantListVo> emptyPage = new Page<>(current, size, 0);
-            return PageVo.of(emptyPage);
-        }
-
-        // 5. 提取商户ID列表
-        List<Long> merchantIds = roleUsers.stream()
-                .map(RoleUser::getOrganizeId)
-                .distinct()
-                .collect(Collectors.toList());
-
-        log.info("查询用户负责的商户列表 - 用户ID: {}, 已有角色商户数量: {}", wxId, merchantIds.size());
-
-        // 6. 分页查询商户列表 (包含已通过的商户 和 自己申请且待发布的商户)
+        // 3. 构建查询条件
         Page<Merchant> page = new Page<>(current, size);
         LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.and(w -> {
-            // 情况1：已经是管理员的商户（且已审核通过或待发布）
-            if (!merchantIds.isEmpty()) {
-                w.in(Merchant::getMerchantId, merchantIds)
-                 .in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4));
+
+        if (Boolean.TRUE.equals(onlySelf)) {
+            // 核心修改：仅查询本人申请的商户，包含待审核(0)、已发布(1)、待发布(4)
+            queryWrapper.eq(Merchant::getUserId, wxId)
+                    .in(Merchant::getReviewStatus, java.util.Arrays.asList(0, 1, 4));
+        } else {
+            // 原有逻辑：根据角色代码查询
+            Role role = roleService.getRoleByCodeInner("ORGANIZE_MERCHANT_ADMIN");
+            if (role == null) {
+                log.warn("商户管理员角色不存在，roleCode: ORGANIZE_MERCHANT_ADMIN");
+                // 返回空列表
+                Page<MerchantListVo> emptyPage = new Page<>(current, size, 0);
+                return PageVo.of(emptyPage);
             }
-            // 情况2：自己是申请人，且状态为待发布（4）
-            w.or(o -> o.eq(Merchant::getUserId, wxId).eq(Merchant::getReviewStatus, 4));
-        });
+
+            // 查询用户拥有该角色的所有组织ID（商户ID）
+            List<RoleUser> roleUsers = roleUserService.lambdaQuery()
+                    .eq(RoleUser::getWxId, wxId)
+                    .eq(RoleUser::getRoleId, role.getRoleId())
+                    .eq(RoleUser::getType, 3) // 类型3代表商户
+                    .list();
+
+            if (roleUsers.isEmpty()) {
+                log.info("用户没有负责的商户 - 用户ID: {}", wxId);
+                // 没有管理角色，且不是查询本人，则不展示（不再展示待发布的）
+                queryWrapper.eq(Merchant::getMerchantId, -1L);
+            } else {
+                List<Long> merchantIds = roleUsers.stream()
+                        .map(RoleUser::getOrganizeId)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                queryWrapper.and(w -> {
+                    // 仅展示已发布的商户（已分配管理角色）
+                    if (!merchantIds.isEmpty()) {
+                        w.in(Merchant::getMerchantId, merchantIds)
+                         .eq(Merchant::getReviewStatus, 1);
+                    }
+                });
+            }
+        }
+
         queryWrapper.orderByDesc(Merchant::getCreateTime);
 
         Page<Merchant> merchantPage = this.page(page, queryWrapper);
 
-        // 7. 转换为 VO
+        // 4. 转换为 VO
         List<MerchantListVo> merchantListVos = merchantPage.getRecords().stream()
                 .map(merchant -> {
                     MerchantListVo vo = MerchantListVo.objToVo(merchant);
@@ -1150,11 +1154,11 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 })
                 .collect(Collectors.toList());
 
-        // 8. 构建分页结果
+        // 5. 构建分页结果
         Page<MerchantListVo> voPage = new Page<>(current, size, merchantPage.getTotal());
         voPage.setRecords(merchantListVos);
 
-        log.info("查询用户负责的商户列表成功 - 用户ID: {}, 找到{}个商户", wxId, merchantPage.getTotal());
+        log.info("查询本人商户列表成功 - 用户ID: {}, 找到{}个商户", wxId, merchantPage.getTotal());
 
         return PageVo.of(voPage);
     }
