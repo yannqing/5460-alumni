@@ -115,6 +115,9 @@
               bindtap="gotoActivityDetail"
               data-item="{{item}}"
             >
+              <!-- 状态标签 -->
+              <image class="status-tag" src="{{item.status_icon}}" mode="aspectFit" />
+              
               <!-- 左侧：活动封面 -->
               <view class="activity-cover-wrapper">
                 <image
@@ -137,20 +140,25 @@
                   <image class="organizer-avatar" src="{{item.organizerAvatar}}" mode="aspectFill" />
                   <text class="organizer-name">{{item.organizerName}}</text>
                   <text class="organizer-type" wx:if="{{item.organizerType === 1}}">校友会</text>
-                  <text class="organizer-type" wx:elif="{{item.organizerType === 2}}">校促会</text>
+                  <text class="organizer-type" wx:elif="{{item.organizerType === 2}}">校处会</text>
                   <text class="organizer-type" wx:elif="{{item.organizerType === 3}}">商户</text>
                   <text class="organizer-type" wx:elif="{{item.organizerType === 4}}">母校</text>
                   <text class="organizer-type" wx:elif="{{item.organizerType === 5}}">门店</text>
                   <text class="organizer-type" wx:elif="{{item.organizerType === 6}}">校友总会</text>
                 </view>
                 <view class="activity-time">
-                  <text class="info-icon">📅</text>
+                  <image class="info-icon" src="{{timeIconUrl}}" mode="aspectFit" />
                   <text class="info-text">{{item.startTime || item.activity_starttime}}</text>
                 </view>
                 <view class="activity-address" wx:if="{{item.address || item.activity_address}}">
-                  <text class="info-icon">📍</text>
+                  <image class="info-icon" src="{{locationIconUrl}}" mode="aspectFit" />
                   <text class="info-text">{{item.province}}{{item.city}}{{item.district}}{{item.address || item.activity_address}}</text>
                 </view>
+              </view>
+
+              <!-- 价格标签 -->
+              <view class="activity-price-tag">
+                <text wx:if="{{item.activity_fees !== '0.00'}}" class="price-text">{{item.activity_fees}}/人</text>
               </view>
             </view>
           </view>
@@ -211,7 +219,7 @@
                   <text class="desc-text">{{item.shop_desc}}</text>
                 </view>
                 <view class="shop-address" wx:if="{{item.shop_address}}">
-                  <text class="info-icon">📍</text>
+                  <image class="info-icon" src="{{locationIconUrl}}" mode="aspectFit" />
                   <text class="info-text">{{item.shop_address}}</text>
                 </view>
               </view>

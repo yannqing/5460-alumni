@@ -77,4 +77,9 @@ public interface ActivityService extends IService<Activity> {
      * @return 活动列表分页数据
      */
     PageVo<ActivityListVo> getHomepageActivities(QueryPublicActivityDto queryDto);
+
+    /**
+     * 定时更新活动状态
+     */
+    void updateActivityStatus();
 }

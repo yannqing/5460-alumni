@@ -11,6 +11,8 @@ Page({
     current: 1,
     pageSize: 10,
     total: 0,
+    timeIconUrl: '',
+    locationIconUrl: '',
     // 活动状态主题配置
     activityThemes: {
       1: { name: '报名中', theme: 'upcoming' },
@@ -21,6 +23,11 @@ Page({
   },
 
   onLoad(options) {
+    this.setData({
+      timeIconUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/icon/time.png`,
+      locationIconUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/icon/location.png`,
+      statusIconBaseUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/status/`
+    });
     this.getActivityList();
   },
 
@@ -131,6 +138,7 @@ Page({
         preview_url: posterUrl
       },
       activity_status: item.status || 1,
+      status_icon: this.getStatusIcon(item.status || 1),
       activity_starttime: startTime,
       activity_address: item.address || item.activityAddress || '',
       activity_fees: item.fees || item.activityFees || '0.00',
@@ -179,5 +187,19 @@ Page({
         url: `/pages/activity/detail/detail?id=${item.activity_uuid}`
       });
     }
+  },
+
+  /**
+   * 获取状态对应的图标URL
+   */
+  getStatusIcon(status) {
+    const iconMap = {
+      1: 'registration_in_progress.png',
+      2: 'registration_ends.png',
+      3: 'in_progress.png',
+      4: 'ended.png'
+    };
+    const fileName = iconMap[status] || 'ended.png';
+    return `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/status/${fileName}`;
   }
 });
