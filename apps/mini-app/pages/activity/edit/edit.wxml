@@ -102,8 +102,44 @@
         </view>
         
         <view class="form-card">
+          <view class="form-title">报名设置</view>
+
+          <view class="form-item">
+            <text class="label">是否需要报名</text>
+            <switch
+              checked="{{formData.isSignup === 1}}"
+              bindchange="onSignupSwitchChange"
+              color="#1890ff"
+            />
+          </view>
+
+          <block wx:if="{{formData.isSignup === 1}}">
+            <view class="form-item">
+              <text class="label">是否需要审核</text>
+              <switch
+                checked="{{formData.isNeedReview === 1}}"
+                bindchange="onNeedReviewSwitchChange"
+                color="#1890ff"
+              />
+            </view>
+
+            <view class="form-item">
+              <text class="label">最大报名人数（不填代表不限）</text>
+              <input
+                class="input"
+                type="number"
+                placeholder="例如：50"
+                data-field="maxParticipants"
+                bindinput="onNumberChange"
+                value="{{formData.maxParticipants}}"
+              />
+            </view>
+          </block>
+        </view>
+
+        <view class="form-card">
           <view class="form-title">时间信息</view>
-          
+
           <view class="form-item">
             <text class="label">活动开始时间 <text class="required">*</text></text>
             <picker-view 

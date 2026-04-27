@@ -310,6 +310,15 @@
   border: 1rpx solid #ffccc7;
 }
 
+.audit-btn {
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #fa8c16;
+  background: #fff7e6;
+  border: 1rpx solid #ffd591;
+}
+
 /* 校友会选择器弹窗 */
 .alumni-association-picker {
   position: fixed;

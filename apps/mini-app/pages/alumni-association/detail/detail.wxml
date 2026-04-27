@@ -178,9 +178,9 @@
                     <view class="activity-time">{{item.startTime}}</view>
                   </view>
                   <view class="activity-footer">
-                    <view class="item-desc location-row">
+                    <view wx:if="{{item.locationText}}" class="item-desc location-row">
                       <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
-                      <text>{{item.province}}{{item.city}}{{item.district}}{{item.address}}</text>
+                      <text>{{item.locationText}}</text>
                     </view>
                     <view wx:if="{{item.maxParticipants !== null}}" class="activity-participants">
                       <image class="participants-icon" src="/assets/icons/people.png" mode="aspectFit" />

@@ -929,13 +929,13 @@ Page({
   },
 
   /**
-   * 获取热门活动列表
+   * 获取首页展示的活动列表（仅 show_on_homepage=1）
    */
   async getActivityList() {
     this.setData({ activityLoading: true })
 
     try {
-      const res = await activityApi.getPublicActivityList({
+      const res = await activityApi.getHomepageActivityList({
         current: 1,
         pageSize: 2,
       })

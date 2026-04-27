@@ -56,6 +56,22 @@
           AND is_delete = 0
     </update>
 
+    <update id="tryIncrementParticipants">
+        UPDATE activity
+        SET current_participants = current_participants + 1
+        WHERE activity_id = #{activityId}
+          AND is_delete = 0
+          AND (max_participants IS NULL OR current_participants &lt; max_participants)
+    </update>
+
+    <update id="decrementParticipants">
+        UPDATE activity
+        SET current_participants = current_participants - 1
+        WHERE activity_id = #{activityId}
+          AND is_delete = 0
+          AND current_participants &gt; 0
+    </update>
+
     <sql id="Base_Column_List">
         activity_id, activity_title, organizer_type, organizer_id, organizer_name, organizer_avatar,
         cover_image, activity_images, description, activity_category,

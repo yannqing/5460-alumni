@@ -86,6 +86,37 @@
       </view>
     </view>
 
+    <!-- 已报名校友（仅 isSignup=1 且有数据时显示） -->
+    <view class="card participants-card" wx:if="{{activityInfo.isSignup === 1 && participants.length > 0}}">
+      <view class="participants-header">
+        <view class="section-title">已报名校友</view>
+        <text class="participants-count">{{participantsTotal}} 人已报名</text>
+      </view>
+      <scroll-view class="participants-scroll" scroll-x show-scrollbar="{{false}}">
+        <view class="participants-list">
+          <view
+            class="participant-item"
+            wx:for="{{participants}}"
+            wx:key="userId"
+            data-user-id="{{item.userId}}"
+            bindtap="goToParticipantDetail"
+          >
+            <image class="participant-avatar" src="{{item.avatarUrl || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+            <text class="participant-name">{{item.nickname || '匿名校友'}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 被拒绝时展示理由 -->
+    <view class="card reject-reason-card" wx:if="{{myRegistration.registrationStatus === 2 && myRegistration.auditReason}}">
+      <text class="reject-reason-label">驳回理由：</text>
+      <text class="reject-reason-value">{{myRegistration.auditReason}}</text>
+    </view>
+
+    <!-- 底部占位，避免最后一项被悬浮按钮挡住 -->
+    <view wx:if="{{signupBtn.visible}}" class="signup-placeholder"></view>
+
   </view>
 
     <view wx:else class="empty-state">
@@ -93,4 +124,16 @@
       <button class="retry-btn" bindtap="onLoad">重新加载</button>
     </view>
   </view>
+
+  <!-- 悬浮报名按钮 -->
+  <view class="signup-btn-wrap" wx:if="{{!loading && signupBtn.visible}}">
+    <button
+      class="signup-btn {{signupBtn.disabled ? 'signup-btn-disabled' : ''}}"
+      disabled="{{signupBtn.disabled}}"
+      bindtap="onSignupBtnTap"
+    >
+      {{signupBtn.text}}
+    </button>
+  </view>
+
 </custom-nav-bar>

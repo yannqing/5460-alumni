@@ -245,6 +245,18 @@ Page({
     })
   },
 
+  onSignupSwitchChange(e) {
+    this.setData({
+      'formData.isSignup': e.detail.value ? 1 : 0,
+    })
+  },
+
+  onNeedReviewSwitchChange(e) {
+    this.setData({
+      'formData.isNeedReview': e.detail.value ? 1 : 0,
+    })
+  },
+
   // 初始化时间选择器的列数据
   initTimePickerData() {
     // 生成年列表（2020-2030）
@@ -324,85 +336,64 @@ Page({
     return `${year}-${month}-${day} ${hours}:${minutes}`
   },
 
-  // 开始时间滑动选择事件
-  onStartTimePickerChange(e) {
-    const val = e.detail.value
-    this.setData({ startTimePickerValue: val })
-
-    // 解析选择的时间
+  // 解析 picker 的 5 列索引值，夹取 day 防止出现非法日期（如 4-31）
+  // 返回 { val, displayStr, isoStr }
+  buildTimeFromPickerVal(val) {
     const year = 2020 + val[0]
     const month = val[1] + 1
-    const day = val[2] + 1
+    // new Date(year, month, 0) 取该月最后一天
+    const maxDay = new Date(year, month, 0).getDate()
+    let dayIdx = val[2]
+    if (dayIdx >= maxDay) {
+      dayIdx = maxDay - 1
+      val = [val[0], val[1], dayIdx, val[3], val[4]]
+    }
+    const day = dayIdx + 1
     const hour = val[3]
     const minute = val[4]
+    const m2 = n => n.toString().padStart(2, '0')
+    const displayStr = `${year}-${m2(month)}-${m2(day)} ${m2(hour)}:${m2(minute)}`
+    const isoStr = `${year}-${m2(month)}-${m2(day)}T${m2(hour)}:${m2(minute)}:00`
+    return { val, displayStr, isoStr }
+  },
 
-    // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-    // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
-    this.setData({ 'formData.startTime': isoTimeStr, startTimeDisplay: displayTimeStr })
+  // 开始时间滑动选择事件
+  onStartTimePickerChange(e) {
+    const r = this.buildTimeFromPickerVal(e.detail.value)
+    this.setData({
+      startTimePickerValue: r.val,
+      'formData.startTime': r.isoStr,
+      startTimeDisplay: r.displayStr,
+    })
   },
 
   // 结束时间滑动选择事件
   onEndTimePickerChange(e) {
-    const val = e.detail.value
-    this.setData({ endTimePickerValue: val })
-
-    // 解析选择的时间
-    const year = 2020 + val[0]
-    const month = val[1] + 1
-    const day = val[2] + 1
-    const hour = val[3]
-    const minute = val[4]
-
-    // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-    // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
-    this.setData({ 'formData.endTime': isoTimeStr, endTimeDisplay: displayTimeStr })
+    const r = this.buildTimeFromPickerVal(e.detail.value)
+    this.setData({
+      endTimePickerValue: r.val,
+      'formData.endTime': r.isoStr,
+      endTimeDisplay: r.displayStr,
+    })
   },
 
   // 报名开始时间滑动选择事件
   onRegistrationStartTimePickerChange(e) {
-    const val = e.detail.value
-    this.setData({ registrationStartTimePickerValue: val })
-
-    // 解析选择的时间
-    const year = 2020 + val[0]
-    const month = val[1] + 1
-    const day = val[2] + 1
-    const hour = val[3]
-    const minute = val[4]
-
-    // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-    // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
+    const r = this.buildTimeFromPickerVal(e.detail.value)
     this.setData({
-      'formData.registrationStartTime': isoTimeStr,
-      registrationStartTimeDisplay: displayTimeStr,
+      registrationStartTimePickerValue: r.val,
+      'formData.registrationStartTime': r.isoStr,
+      registrationStartTimeDisplay: r.displayStr,
     })
   },
 
   // 报名截止时间滑动选择事件
   onRegistrationEndTimePickerChange(e) {
-    const val = e.detail.value
-    this.setData({ registrationEndTimePickerValue: val })
-
-    // 解析选择的时间
-    const year = 2020 + val[0]
-    const month = val[1] + 1
-    const day = val[2] + 1
-    const hour = val[3]
-    const minute = val[4]
-
-    // 格式化时间字符串（用于前端展示）
-    const displayTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-    // 格式化时间字符串（ISO格式，用于后端提交）
-    const isoTimeStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`
+    const r = this.buildTimeFromPickerVal(e.detail.value)
     this.setData({
-      'formData.registrationEndTime': isoTimeStr,
-      registrationEndTimeDisplay: displayTimeStr,
+      registrationEndTimePickerValue: r.val,
+      'formData.registrationEndTime': r.isoStr,
+      registrationEndTimeDisplay: r.displayStr,
     })
   },
 
@@ -437,6 +428,26 @@ Page({
     if (!formData.endTime || formData.endTime.trim() === '') {
       wx.showToast({ title: '请选择活动结束时间', icon: 'none' })
       return
+    }
+
+    // 报名相关字段联动校验
+    if (formData.isSignup === 1) {
+      if (!formData.registrationStartTime || formData.registrationStartTime.trim() === '') {
+        wx.showToast({ title: '请选择报名开始时间', icon: 'none' })
+        return
+      }
+      if (!formData.registrationEndTime || formData.registrationEndTime.trim() === '') {
+        wx.showToast({ title: '请选择报名截止时间', icon: 'none' })
+        return
+      }
+      if (formData.registrationStartTime >= formData.registrationEndTime) {
+        wx.showToast({ title: '报名开始时间需早于截止时间', icon: 'none' })
+        return
+      }
+      if (formData.registrationEndTime > formData.startTime) {
+        wx.showToast({ title: '报名截止时间需早于活动开始时间', icon: 'none' })
+        return
+      }
     }
 
     this.setData({ submitting: true })
