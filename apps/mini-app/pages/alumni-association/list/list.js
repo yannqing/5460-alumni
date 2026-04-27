@@ -27,16 +27,19 @@ Page({
     certThirdImg:
       'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/certification/association_third_certification.png',
     keyword: '',
-    conditionDisplayText: '条件筛选',
+    conditionDisplayText: '推荐',
     // 条件筛选多列选择器数据
     conditionData: [
-      ['全部', '关注', '推荐', '认证等级'],
+      ['推荐', '关注', '认证等级', '全部'],
       [''],
     ],
-    conditionIndex: [0, 0],
-    sortFilterOptions: ['升序', '降序'],
-    sortFilterIndex: -1,
-    sortDisplayText: '名称排序',
+    conditionIndex: [0, 0], // 默认指向 '推荐'
+    sortFilterOptions: [
+      ['名称排序', '成员数目'],
+      ['升序', '降序'],
+    ],
+    sortFilterIndex: [0, 0],
+    sortDisplayText: '排序方式',
     associationList: [],
     current: 1,
     pageSize: 50, // 增大每页大小，一次加载更多数据
@@ -772,8 +775,9 @@ Page({
     try {
       const { keyword } = this.data
       const { myFollow, recommend, certificationFlag } = this.getConditionFilterParams()
-      const { sortField, sortOrder } = this.getSortFilterParams()
 
+      // 根据用户要求，右侧排序在前端本地进行，不再向后端传递排序参数，
+      // 以保持数据集合（如“推荐”列表）的成员稳定性
       const params = {
         current: refresh ? 1 : this.data.current,
         pageSize: this.data.pageSize,
@@ -787,8 +791,7 @@ Page({
         myFollow,
         recommend,
         certificationFlag,
-        sortField,
-        sortOrder,
+        // 不再传递 sortField, sortOrder 给后端，让后端始终返回特定条件下的默认数据集
       }
 
       // 移除 undefined 参数
@@ -874,7 +877,24 @@ Page({
         }
 
         // 更新列表数据
-        const updatedList = refresh ? finalList : [...this.data.associationList, ...finalList]
+        let updatedList = refresh ? finalList : [...this.data.associationList, ...finalList]
+
+        // 如果是加载更多，建议进行去重，防止因排序变化导致分页数据重叠
+        if (!refresh) {
+          const idSet = new Set()
+          updatedList = updatedList.filter(item => {
+            if (idSet.has(item.id)) return false
+            idSet.add(item.id)
+            return true
+          })
+        }
+
+        // 应用前端排序，确保即使是加载更多后的全量数据也符合当前排序
+        updatedList = this.sortAssociationList(
+          updatedList,
+          this.data.sortFilterIndex[0],
+          this.data.sortFilterIndex[1]
+        )
 
         // 更新数据
         if (refresh) {
@@ -975,7 +995,7 @@ Page({
     const mainOption = conditionData[0][index[0]] || '全部'
     const subOption = conditionData[1][index[1]] || ''
     const conditionDisplayText =
-      mainOption === '认证等级' ? `认证等级-${subOption}` : mainOption === '全部' ? '条件筛选' : mainOption
+      mainOption === '认证等级' ? `认证等级-${subOption}` : mainOption
 
     this.setData({
       conditionIndex: index,
@@ -1015,34 +1035,77 @@ Page({
   },
 
   getSortFilterParams() {
-    const { sortFilterIndex } = this.data
-    if (sortFilterIndex === 0) {
+    const { sortFilterIndex, sortDisplayText } = this.data
+    // 如果还是初始的“排序方式”，不传排序参数，使用后端默认排序
+    if (sortDisplayText === '排序方式') {
       return {
-        sortField: 'associationName',
-        sortOrder: 'ascend',
+        sortField: undefined,
+        sortOrder: undefined,
       }
     }
-    if (sortFilterIndex === 1) {
-      return {
-        sortField: 'associationName',
-        sortOrder: 'descend',
-      }
-    }
+
+    const fieldIdx = sortFilterIndex[0]
+    const orderIdx = sortFilterIndex[1]
+
+    // 第一列：0-名称排序, 1-成员数目
+    const sortField = fieldIdx === 0 ? 'associationName' : 'memberCount'
+    // 第二列：0-升序, 1-降序
+    const sortOrder = orderIdx === 0 ? 'ascend' : 'descend'
+
     return {
-      sortField: undefined,
-      sortOrder: undefined,
+      sortField,
+      sortOrder,
     }
   },
 
+  // 对列表进行排序
+  sortAssociationList(list, fieldIdx, orderIdx) {
+    if (!list || list.length === 0) return []
+
+    const { sortDisplayText } = this.data
+    // 如果是初始状态“排序方式”，保持原样
+    if (sortDisplayText === '排序方式') return list
+
+    // 第一列：0-名称排序, 1-成员数目
+    const sortField = fieldIdx === 0 ? 'name' : 'memberCount'
+    // 第二列：0-升序, 1-降序
+    const isAscend = orderIdx === 0
+
+    return [...list].sort((a, b) => {
+      let valA = a[sortField]
+      let valB = b[sortField]
+
+      if (sortField === 'name') {
+        valA = valA || ''
+        valB = valB || ''
+        // 使用 localeCompare 进行中文拼音排序
+        return isAscend ? valA.localeCompare(valB, 'zh') : valB.localeCompare(valA, 'zh')
+      } else {
+        valA = Number(valA) || 0
+        valB = Number(valB) || 0
+        return isAscend ? valA - valB : valB - valA
+      }
+    })
+  },
+
   onSortFilterChange(e) {
-    const index = parseInt(e.detail.value, 10)
-    const sortDisplayText = this.data.sortFilterOptions[index] || '名称排序'
+    const index = e.detail.value // [fieldIdx, orderIdx]
+    const { sortFilterOptions, associationList } = this.data
+    const fieldText = sortFilterOptions[0][index[0]]
+    const orderText = sortFilterOptions[1][index[1]]
+
     this.setData({
       sortFilterIndex: index,
-      sortDisplayText,
-      current: 1,
+      sortDisplayText: `${fieldText}-${orderText}`,
     })
-    this.loadAssociationList(true)
+
+    // 对现有数据进行排序，不再重新从后端加载
+    if (associationList && associationList.length > 0) {
+      const sortedList = this.sortAssociationList(associationList, index[0], index[1])
+      this.setData({
+        associationList: sortedList,
+      })
+    }
   },
 
   // 地区选择器列改变（联动选择）- 与母校列表页完全一致

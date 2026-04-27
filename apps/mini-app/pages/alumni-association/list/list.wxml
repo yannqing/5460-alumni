@@ -35,7 +35,7 @@
         <view class="search-bar">
           <view class="search-input-wrap">
             <image class="search-left-icon" src="{{iconSearch}}" mode="aspectFit" />
-            <input class="search-input" type="text" placeholder="搜索校友会名称" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+            <input class="search-input" type="text" placeholder="输入关键字" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
             <view class="search-button" bindtap="onSearch">搜索</view>
           </view>
         </view>
@@ -45,7 +45,7 @@
           <!-- 条件筛选 -->
           <view class="filter-item">
             <picker mode="multiSelector" range="{{conditionData}}" value="{{conditionIndex}}" bindchange="onConditionChange" bindcolumnchange="onConditionColumnChange">
-              <text>{{conditionDisplayText || '条件筛选'}}</text>
+              <text>{{conditionDisplayText || '推荐'}}</text>
             </picker>
             <text class="filter-arrow">▾</text>
           </view>
@@ -58,8 +58,8 @@
           </view>
           <!-- 排序筛选 -->
           <view class="filter-item">
-            <picker bindchange="onSortFilterChange" range="{{sortFilterOptions}}" value="{{sortFilterIndex}}">
-              <text>{{sortDisplayText || '名称排序'}}</text>
+            <picker mode="multiSelector" bindchange="onSortFilterChange" range="{{sortFilterOptions}}" value="{{sortFilterIndex}}">
+              <text>{{sortDisplayText || '成员数目'}}</text>
             </picker>
             <text class="filter-arrow">▾</text>
           </view>
