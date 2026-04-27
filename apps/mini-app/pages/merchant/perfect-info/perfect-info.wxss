@@ -8,11 +8,11 @@
   overflow: hidden;
 }
 
-.loading-wrap {
-  padding: 120rpx 40rpx;
+.loading-state {
+  padding: 80rpx 0;
   text-align: center;
-  font-size: 28rpx;
   color: #999;
+  font-size: 28rpx;
 }
 
 .group_7 {
@@ -20,6 +20,8 @@
   flex: 1;
   background-color: #ffffff;
   border-radius: 28.99rpx;
+  display: flex;
+  flex-direction: column;
   margin: 34rpx 0 20rpx 18rpx;
   padding: 30rpx;
   box-sizing: border-box;

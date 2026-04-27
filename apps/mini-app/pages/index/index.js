@@ -43,6 +43,9 @@ Page({
     shopList: [],
     shopLoading: false,
 
+    timeIconUrl: '',
+    locationIconUrl: '',
+
     // 预留字段，防止报错
     recommendedPeople: [],
 
@@ -108,6 +111,8 @@ Page({
       // 所以滚动距离阈值 = -stickyGroupTop
       scrollThreshold: -stickyGroupTop,
       rpxRatio: rpxRatio,
+      timeIconUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/icon/time.png`,
+      locationIconUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/icon/location.png`,
     })
 
     this.getBannerList()
@@ -997,6 +1002,7 @@ Page({
             organizerId: item.organizerId || '',
             organizerName: item.organizerName || '',
             organizerAvatar: organizerAvatar,
+            status_icon: this.getStatusIcon(item.status || 1),
             // 新接口字段（兼容）
             activityTitle: item.activityTitle || item.title || '',
             startTime: startTime,
@@ -1060,6 +1066,20 @@ Page({
         })
       },
     })
+  },
+
+  /**
+   * 获取状态对应的图标URL
+   */
+  getStatusIcon(status) {
+    const iconMap = {
+      1: 'registration_in_progress.png',
+      2: 'registration_ends.png',
+      3: 'in_progress.png',
+      4: 'ended.png'
+    };
+    const fileName = iconMap[status] || 'ended.png';
+    return `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/status/${fileName}`;
   },
 
   /**

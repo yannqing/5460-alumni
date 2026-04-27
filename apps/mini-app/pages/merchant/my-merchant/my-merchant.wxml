@@ -26,6 +26,9 @@
           <view class="certification-badge" wx:if="{{item.reviewStatus === 1}}">
             <text>已发布</text>
           </view>
+          <view class="certification-badge review" wx:elif="{{item.reviewStatus === 0}}">
+            <text>待审核</text>
+          </view>
           <view class="certification-badge pending" wx:elif="{{item.reviewStatus === 4}}">
             <text>待发布</text>
           </view>

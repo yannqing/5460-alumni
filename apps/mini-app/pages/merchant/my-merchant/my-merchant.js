@@ -20,7 +20,8 @@ Page({
     
     merchantApi.getMyMerchants({
       current: 1,
-      size: 100
+      size: 100,
+      onlySelf: true
     }).then(res => {
       if (res && res.data && res.data.code === 200) {
         const merchantList = res.data.data?.records || []

@@ -206,12 +206,21 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             queryWrapper.in(AlumniAssociation::getAlumniAssociationId, followedAssociationIds);
         }
 
-        // 4.执行查询（推荐模式：随机展示20个）
+        // 4.执行查询（推荐模式：随机展示20个；若指定排序则按排序展示前20个）
         Page<AlumniAssociation> alumniAssociationPage;
         if (recommend != null && recommend == 1) {
-            List<AlumniAssociation> randomAssociations = this.list(queryWrapper);
-            Collections.shuffle(randomAssociations);
-            List<AlumniAssociation> recommendList = randomAssociations.stream()
+            // 获取所有符合条件的校友会
+            List<AlumniAssociation> associationList = this.list(queryWrapper);
+            
+            // 只有在用户没有主动选择排序字段（即 DTO 中的 sortField 为空）时，才进行随机洗牌
+            // 注意：selectByPage 内部会将 null 的 sortField 默认设为 "createTime"，
+            // 所以我们要检查原始 DTO 中的值
+            if (StringUtils.isBlank(alumniAssociationListDto.getSortField())) {
+                Collections.shuffle(associationList);
+            }
+            
+            // 取前20条（已经是排好序的或洗牌后的）
+            List<AlumniAssociation> recommendList = associationList.stream()
                     .limit(20)
                     .toList();
             alumniAssociationPage = new Page<>(1, 20, recommendList.size());

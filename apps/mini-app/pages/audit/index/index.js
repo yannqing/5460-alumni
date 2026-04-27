@@ -379,92 +379,75 @@ Page({
       }
     }
 
-    // 过滤系统管理功能（auditFunctions）
-    const filteredAuditFunctions = this.data._allAuditFunctions.filter(item => {
-      // 根据功能名称检查对应权限
-      if (item.name === '文章审核') {
-        return this.hasPermission('HOME_PAGE_ARTICLE_REVIEW')
-      } else if (item.name === '资讯管理') {
-        return this.hasPermission('HOME_PAGE_ARTICLE_MANAGEMENT')
-      } else if (item.name === '轮播图管理') {
-        return this.hasPermission('HOME_PAGE_BANNER_MANAGEMENT')
-      } else if (item.name === '审核校友总会') {
-        return this.hasPermission('SYSTEM_GENERAL_ALUMNI_ASSOCIATION_AUDIT')
-      } else if (item.name === '校友会审核') {
-        return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_APPLICATION')
-      } else if (item.name === '商户审核') {
-        return this.hasPermission('HOME_MERCHANT_REVIEW')
-      }
-      return false
-    })
+    // 1. 系统管理功能 (auditFunctions)：仅超级管理员可见
+    const filteredAuditFunctions = hasSuperAdmin
+      ? this.data._allAuditFunctions.filter(item => true)
+      : []
 
-    // 城市 / 校友会下列表：仅以 storage 中 roles 的权限码为准（含 SYSTEM_SUPER_ADMIN 角色下 LOCAL_PLATFORM_CONFIG、ALUMNI_ASSOCIATION_CONFIG 及子权限）
-    // 与是否 ORGANIZE_* 组织管理员无关；待办数量与数据范围仍由后端 role_user 收口
-    // localFromApi：缓存未更新时接口兜底，展示全部子项（子页再校验）
-    const filteredSchoolOfficeFunctions = localFromApi
-      ? this.data._allSchoolOfficeFunctions
-      : this.data._allSchoolOfficeFunctions.filter(item => {
-          // 校友会认证、信息维护挂在「城市」下；库中曾只授给校促会角色，超管无叶子码时用 LOCAL_PLATFORM_CONFIG 兜底
-          const cityModule = this.hasPermission('LOCAL_PLATFORM_CONFIG')
-          if (item.name === '成员管理') return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT')
-          if (item.name === '架构管理') return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT')
-          if (item.name === '资讯管理') return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT')
-          if (item.name === '校友会认证') {
-            return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION') || cityModule
-          }
-          if (item.name === '信息维护') {
-            return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_MAINTENANCE') || cityModule
-          }
-          return false
-        })
+    // 2. 城市功能 (schoolOfficeFunctions)：仅城市管理员可见
+    let filteredSchoolOfficeFunctions = []
+    if (hasLocalAdmin || localFromApi) {
+      filteredSchoolOfficeFunctions = this.data._allSchoolOfficeFunctions.filter(item => {
+        const cityModule = this.hasPermission('LOCAL_PLATFORM_CONFIG')
+        if (item.name === '成员管理') return this.hasPermission('LOCAL_PLATFORM_MEMBER_MANAGEMENT') || hasLocalAdmin
+        if (item.name === '架构管理') return this.hasPermission('LOCAL_PLATFORM_ARCHIVE_MANAGEMENT') || hasLocalAdmin
+        if (item.name === '资讯管理') return this.hasPermission('LOCAL_PLATFORM_ARTICLE_MANAGEMENT') || hasLocalAdmin
+        if (item.name === '校友会认证') return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_CERTIFICATION') || cityModule || hasLocalAdmin
+        if (item.name === '信息维护') return this.hasPermission('SYSTEM_ALUMNI_ASSOCIATION_MAINTENANCE') || cityModule || hasLocalAdmin
+        return false
+      })
+    }
 
-    const filteredAlumniFunctions = alumniFromApi
-      ? this.data._allAlumniFunctions
-      : this.data._allAlumniFunctions.filter(item => {
-          const alumniModule = this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')
-          if (item.name === '架构管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT')
-          if (item.name === '成员管理') return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT')
-          if (item.name === '商户审核') return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT') || this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_AUDIT')
-          if (item.name === '店铺审核') return this.hasPermission('ALUMNI_ASSOCIATION_SHOP_REVIEW')
-          if (item.name === '加入审核') return this.hasPermission('ALUMNI_ASSOCIATION_JOIN_REVIEW')
-          if (item.name === '活动管理') return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT')
-          if (item.name === '企业管理') return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT')
-          if (item.name === '信息维护') {
-            return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION') || alumniModule
-          }
-          if (item.name === '资讯管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARTICLE_MANAGEMENT')
-          return false
-        })
+    // 3. 校友会功能 (alumniFunctions)：仅校友会管理员可见
+    let filteredAlumniFunctions = []
+    if (hasAlumniAdmin || alumniFromApi) {
+      filteredAlumniFunctions = this.data._allAlumniFunctions.filter(item => {
+        const alumniModule = this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')
+        if (item.name === '架构管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARCHIVE_MANAGEMENT') || hasAlumniAdmin
+        if (item.name === '成员管理') return this.hasPermission('ALUMNI_ASSOCIATION_MEMBER_MANAGEMENT') || hasAlumniAdmin
+        if (item.name === '商户审核') return this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT') || this.hasPermission('ALUMNI_ASSOCIATION_MERCHANT_AUDIT') || hasAlumniAdmin
+        if (item.name === '店铺审核') return this.hasPermission('ALUMNI_ASSOCIATION_SHOP_REVIEW') || hasAlumniAdmin
+        if (item.name === '加入审核') return this.hasPermission('ALUMNI_ASSOCIATION_JOIN_REVIEW') || hasAlumniAdmin
+        if (item.name === '活动管理') return this.hasPermission('ALUMNI_ASSOCIATION_ACTIVITY_MANAGEMENT') || hasAlumniAdmin
+        if (item.name === '企业管理') return this.hasPermission('ALUMNI_ASSOCIATION_ENTERPRISE_MANAGEMENT') || hasAlumniAdmin
+        if (item.name === '信息维护') return this.hasPermission('ALUMNI_ASSOCIATION_INFORMATION') || alumniModule || hasAlumniAdmin
+        if (item.name === '资讯管理') return this.hasPermission('ALUMNI_ASSOCIATION_ARTICLE_MANAGEMENT') || hasAlumniAdmin
+        return false
+      })
+    }
 
-    // 商家管理（店铺/成员/架构/优惠券等）：超管、商户管理员、门店管理员，或接口兜底识别到商户组织时展示；子页再做细粒度校验
-    const filteredMerchantFunctions =
-      hasSuperAdmin || hasMerchantAdmin || hasShopAdmin || merchantFromApi
-        ? this.data._allMerchantFunctions.filter(item => {
-            if (item.name === '店铺管理') return this.hasPermission('MERCHANT_SHOP_MANAGEMENT')
-            if (item.name === '成员管理') return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT')
-            if (item.name === '优惠券管理') return this.hasPermission('MERCHANT_COUPON_MANAGEMENT')
-            if (item.name === '核销优惠券') return this.hasPermission('MERCHANT_DEAL_COUPON')
-            if (item.name === '话题管理') return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT')
-            if (item.name === '信息维护') return this.hasPermission('MERCHANT_ASSOCIATION_INFORMATION')
-            return false
-          })
-        : []
+    // 4. 商家功能 (merchantFunctions)：商户管理员可见全部，门店管理员仅见核销
+    let filteredMerchantFunctions = []
+    if (hasMerchantAdmin || hasShopAdmin || merchantFromApi) {
+      filteredMerchantFunctions = this.data._allMerchantFunctions.filter(item => {
+        // 如果是商户管理员，按具体权限码过滤
+        if (hasMerchantAdmin || merchantFromApi) {
+          if (item.name === '店铺管理') return this.hasPermission('MERCHANT_SHOP_MANAGEMENT') || hasMerchantAdmin
+          if (item.name === '成员管理') return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT') || hasMerchantAdmin
+          if (item.name === '优惠券管理') return this.hasPermission('MERCHANT_COUPON_MANAGEMENT') || hasMerchantAdmin
+          if (item.name === '核销优惠券') return this.hasPermission('MERCHANT_DEAL_COUPON') || hasMerchantAdmin || hasShopAdmin
+          if (item.name === '话题管理') return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT') || hasMerchantAdmin
+          if (item.name === '信息维护') return this.hasPermission('MERCHANT_ASSOCIATION_INFORMATION') || hasMerchantAdmin
+        } 
+        // 如果只是门店管理员，只能看到“核销优惠券”
+        else if (hasShopAdmin) {
+          return item.name === '核销优惠券'
+        }
+        return false
+      })
+    }
+
+    // 更新显示标志
+    showSchoolOfficeFunctions = filteredSchoolOfficeFunctions.length > 0
+    showAlumniFunctions = filteredAlumniFunctions.length > 0
     showMerchantFunctions = filteredMerchantFunctions.length > 0
 
-    // 展示「城市」「校友会」整块：系统超级管理员或具备对应模块配置权限（与是否担任校促会/校友会组织管理员无关）
-    if (hasSuperAdmin || hasLocalAdmin || this.hasPermission('LOCAL_PLATFORM_CONFIG')) {
-      showSchoolOfficeFunctions = true
-    }
-    if (hasSuperAdmin || hasLocalAdmin || hasAlumniAdmin || this.hasPermission('ALUMNI_ASSOCIATION_CONFIG')) {
-      showAlumniFunctions = true
-    }
-
-    // 更新数据，根据权限过滤功能列表
+    // 更新数据
     this.setData({
       auditFunctions: filteredAuditFunctions,
-      schoolOfficeFunctions: showSchoolOfficeFunctions ? filteredSchoolOfficeFunctions : [],
-      alumniFunctions: showAlumniFunctions ? filteredAlumniFunctions : [],
-      merchantFunctions: showMerchantFunctions ? filteredMerchantFunctions : []
+      schoolOfficeFunctions: filteredSchoolOfficeFunctions,
+      alumniFunctions: filteredAlumniFunctions,
+      merchantFunctions: filteredMerchantFunctions
     })
   },
 

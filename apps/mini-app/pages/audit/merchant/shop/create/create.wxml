@@ -12,7 +12,7 @@
 
         <view class="form-item">
           <text class="form-label">店铺名称 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入店铺名称" value="{{formData.shopName}}" bindinput="onInputChange" data-field="shopName" />
+          <input class="form-input" placeholder="请输入店铺名称" placeholder-class="form-input-placeholder" value="{{formData.shopName}}" bindinput="onInputChange" data-field="shopName" adjust-position="{{false}}" />
         </view>
 
         <view class="form-item">
@@ -29,22 +29,22 @@
 
         <view class="form-item">
           <text class="form-label">省份 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入省份" value="{{formData.province}}" bindinput="onInputChange" data-field="province" />
+          <input class="form-input" placeholder="请输入省份" placeholder-class="form-input-placeholder" value="{{formData.province}}" bindinput="onInputChange" data-field="province" adjust-position="{{false}}" />
         </view>
 
         <view class="form-item">
           <text class="form-label">城市 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入城市" value="{{formData.city}}" bindinput="onInputChange" data-field="city" />
+          <input class="form-input" placeholder="请输入城市" placeholder-class="form-input-placeholder" value="{{formData.city}}" bindinput="onInputChange" data-field="city" adjust-position="{{false}}" />
         </view>
 
         <view class="form-item">
           <text class="form-label">区县 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入区县" value="{{formData.district}}" bindinput="onInputChange" data-field="district" />
+          <input class="form-input" placeholder="请输入区县" placeholder-class="form-input-placeholder" value="{{formData.district}}" bindinput="onInputChange" data-field="district" adjust-position="{{false}}" />
         </view>
 
         <view class="form-item">
           <text class="form-label">详细地址 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入详细地址" value="{{formData.address}}" bindinput="onInputChange" data-field="address" />
+          <input class="form-input" placeholder="请输入详细地址" placeholder-class="form-input-placeholder" value="{{formData.address}}" bindinput="onInputChange" data-field="address" adjust-position="{{false}}" />
         </view>
 
         <view class="form-item">
@@ -60,12 +60,12 @@
 
         <view class="form-item">
           <text class="form-label">店铺电话</text>
-          <input class="form-input" type="number" maxlength="11" placeholder="请输入11位店铺电话" value="{{formData.phone}}" bindinput="onInputChange" data-field="phone" />
+          <input class="form-input" type="number" maxlength="11" placeholder="请输入11位店铺电话" placeholder-class="form-input-placeholder" value="{{formData.phone}}" bindinput="onInputChange" data-field="phone" adjust-position="{{false}}" />
         </view>
 
         <view class="form-item">
           <text class="form-label">营业时间</text>
-          <input class="form-input" placeholder="请输入营业时间" value="{{formData.businessHours}}" bindinput="onInputChange" data-field="businessHours" />
+          <input class="form-input" placeholder="请输入营业时间" placeholder-class="form-input-placeholder" value="{{formData.businessHours}}" bindinput="onInputChange" data-field="businessHours" adjust-position="{{false}}" />
         </view>
 
         <view class="form-item">
@@ -96,7 +96,8 @@
 
         <view class="form-item">
           <text class="form-label">店铺简介</text>
-          <textarea class="form-textarea" placeholder="请输入店铺简介" value="{{formData.description}}" bindinput="onInputChange" data-field="description" />
+          <textarea class="form-textarea" placeholder="请输入店铺简介" placeholder-class="form-textarea-placeholder" value="{{formData.description}}" bindinput="onInputChange" data-field="description" adjust-position="{{true}}" cursor-spacing="100" maxlength="1000" />
+          <view class="textarea-count">{{formData.description.length || 0}}/1000</view>
         </view>
 
         <view class="form-actions">

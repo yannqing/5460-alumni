@@ -1,6 +1,7 @@
 package com.cmswe.alumni.service.system.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.system.ActivityService;
@@ -346,6 +347,48 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
 
         log.info("查询首页活动列表成功 - 共{}条记录", activityPage.getTotal());
         return PageVo.of(resultPage);
+    }
+
+    /**
+     * 定时更新活动状态
+     * 状态流转逻辑：
+     * 1. [报名中(1)] -> [报名结束(2)]: 报名截止时间已过，且还未到活动开始时间
+     * 2. [报名中(1)/报名结束(2)] -> [进行中(3)]: 活动开始时间已过，且还未到活动结束时间
+     * 3. [报名中(1)/报名结束(2)/进行中(3)] -> [已结束(4)]: 活动结束时间已过
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateActivityStatus() {
+        LocalDateTime now = LocalDateTime.now();
+        log.info("开始执行活动状态定时更新任务, 当前时间: {}", now);
+
+        // 1. [进行中] -> [已结束] (3 -> 4)
+        int count1 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 4)
+                .set(Activity::getUpdateTime, now)
+                .eq(Activity::getStatus, 3)
+                .le(Activity::getEndTime, now));
+
+        // 2. [报名中/报名结束] -> [进行中] (1/2 -> 3)
+        int count2 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 3)
+                .set(Activity::getUpdateTime, now)
+                .in(Activity::getStatus, 1, 2)
+                .le(Activity::getStartTime, now)
+                .gt(Activity::getEndTime, now));
+
+        // 3. [报名中] -> [报名结束] (1 -> 2)
+        int count3 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 2)
+                .set(Activity::getUpdateTime, now)
+                .eq(Activity::getStatus, 1)
+                .eq(Activity::getIsSignup, 1)
+                .le(Activity::getRegistrationEndTime, now)
+                .gt(Activity::getStartTime, now));
+
+        if (count1 > 0 || count2 > 0 || count3 > 0) {
+            log.info("活动状态更新完成: [已结束]{}条, [进行中]{}条, [报名结束]{}条", count1, count2, count3);
+        }
     }
 
     /**

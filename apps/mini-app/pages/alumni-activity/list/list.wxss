@@ -29,6 +29,17 @@
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
+/* 右上角状态标签 */
+.status-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 104rpx;
+  height: 104rpx;
+  transform: translateY(-40rpx);
+  z-index: 10;
+}
+
 /* 封面容器 */
 .activity-cover-wrapper {
   position: relative;
@@ -86,14 +97,21 @@
   position: absolute;
   bottom: 12rpx;
   left: 12rpx;
-  padding: 4rpx 12rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 83rpx;
+  height: 33rpx;
+  background: #4A64C7;
+  border-radius: 11rpx;
 }
 
 .type-text {
   font-size: 20rpx;
   color: #fff;
+  line-height: 1;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 600;
 }
 
 /* 活动信息 */
@@ -103,6 +121,7 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 8rpx 0;
+  transform: translateY(3rpx);
   overflow: hidden;
 }
 
@@ -116,6 +135,7 @@
   -webkit-line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-right: 56rpx; /* 增加右侧间距，使每行少展示约2个字 */
 }
 
 /* 主办方信息 */
@@ -137,7 +157,7 @@
 .organizer-name {
   font-size: 22rpx;
   color: #666;
-  max-width: 150rpx;
+  max-width: 350rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -146,7 +166,7 @@
 .organizer-type {
   font-size: 18rpx;
   color: #fff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #6F8BE6;
   padding: 2rpx 10rpx;
   border-radius: 6rpx;
   flex-shrink: 0;

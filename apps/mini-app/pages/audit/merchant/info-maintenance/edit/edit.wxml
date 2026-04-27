@@ -65,13 +65,34 @@
         </view>
 
         <view class="form-item">
-          <text class="form-label">经营范围</text>
-          <textarea class="form-textarea" placeholder="请输入经营范围" value="{{formData.businessScope}}" bindinput="onInputChange" data-field="businessScope" maxlength="2000" auto-height />
+          <text class="form-label">经营类目</text>
+          <picker
+            mode="selector"
+            range="{{categoryOptions}}"
+            range-key="name"
+            value="{{categoryIndex}}"
+            bindchange="onCategoryChange"
+          >
+            <view class="form-picker {{categoryIndex < 0 ? 'picker-placeholder' : ''}}">
+              {{categoryIndex >= 0 ? categoryOptions[categoryIndex].name : '请选择经营类目'}}
+            </view>
+          </picker>
         </view>
 
         <view class="form-item">
-          <text class="form-label">经营类目</text>
-          <input class="form-input" placeholder="如：餐饮、零售" value="{{formData.businessCategory}}" bindinput="onInputChange" data-field="businessCategory" />
+          <text class="form-label">经营范围</text>
+          <picker
+            mode="selector"
+            range="{{serviceOptions}}"
+            range-key="name"
+            value="{{serviceIndex}}"
+            bindchange="onServiceChange"
+            disabled="{{!formData.businessCategoryId}}"
+          >
+            <view class="form-picker {{serviceIndex < 0 ? 'picker-placeholder' : ''}}">
+              {{serviceIndex >= 0 ? serviceOptions[serviceIndex].name : (formData.businessCategoryId ? '请选择经营范围' : '请先选择经营类目')}}
+            </view>
+          </picker>
         </view>
 
         <view class="form-item">

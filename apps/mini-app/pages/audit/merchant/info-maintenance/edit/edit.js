@@ -18,6 +18,10 @@ Page({
     backgroundImageList: [],
     /** 背景图预览完整地址（含 getImageUrl） */
     backgroundImagePreviewUrls: [],
+    categoryOptions: [],
+    serviceOptions: [],
+    categoryIndex: -1,
+    serviceIndex: -1,
     formData: {
       merchantName: '',
       merchantType: 1,
@@ -29,6 +33,8 @@ Page({
       contactEmail: '',
       businessScope: '',
       businessCategory: '',
+      businessCategoryId: '',
+      businessServiceId: '',
       logo: '',
       alumniAssociationId: '',
     },
@@ -42,7 +48,71 @@ Page({
       return
     }
     this.setData({ merchantIdStr })
-    this.loadMerchantDetail(merchantIdStr)
+    this.loadCategoryOptions().finally(() => {
+      this.loadMerchantDetail(merchantIdStr)
+    })
+  },
+
+  async loadCategoryOptions() {
+    try {
+      const res = await merchantApi.getCategoryTree()
+      const body = res.data || {}
+      if (body.code !== 200 || !Array.isArray(body.data)) {
+        return
+      }
+      const options = body.data.map(item => ({
+        id: item.id != null ? String(item.id) : '',
+        name: item.name || ''
+      })).filter(item => item.id && item.name)
+      this.setData({ categoryOptions: options })
+    } catch (e) {
+      console.warn('加载经营类目失败', e)
+    }
+  },
+
+  async loadServiceOptionsByCategoryId(categoryId, selectedServiceName = '') {
+    if (!categoryId) {
+      this.setData({
+        serviceOptions: [],
+        serviceIndex: -1,
+        'formData.businessServiceId': '',
+        'formData.businessScope': ''
+      })
+      return
+    }
+    try {
+      const res = await merchantApi.getCategoryServices(categoryId)
+      const body = res.data || {}
+      if (body.code !== 200 || !Array.isArray(body.data)) {
+        this.setData({ serviceOptions: [], serviceIndex: -1, 'formData.businessServiceId': '' })
+        return
+      }
+      const serviceOptions = body.data.map(item => ({
+        id: item.id != null ? String(item.id) : '',
+        name: item.name || ''
+      })).filter(item => item.id && item.name)
+
+      let serviceIndex = -1
+      let businessServiceId = ''
+      let businessScope = ''
+      if (selectedServiceName) {
+        const idx = serviceOptions.findIndex(item => item.name === selectedServiceName)
+        if (idx >= 0) {
+          serviceIndex = idx
+          businessServiceId = serviceOptions[idx].id
+          businessScope = serviceOptions[idx].name
+        }
+      }
+      this.setData({
+        serviceOptions,
+        serviceIndex,
+        'formData.businessServiceId': businessServiceId,
+        'formData.businessScope': businessScope || (selectedServiceName || '')
+      })
+    } catch (e) {
+      console.warn('加载经营范围失败', e)
+      this.setData({ serviceOptions: [], serviceIndex: -1, 'formData.businessServiceId': '' })
+    }
   },
 
   parseBackgroundImage(raw) {
@@ -135,6 +205,8 @@ Page({
           contactEmail: data.contactEmail || '',
           businessScope: data.businessScope || '',
           businessCategory: data.businessCategory || '',
+          businessCategoryId: '',
+          businessServiceId: '',
           logo: data.logo ? String(data.logo).trim() : '',
           alumniAssociationId: alumniIdStr,
         },
@@ -144,6 +216,19 @@ Page({
         associationNameFirstChar,
         detailLoading: false,
       })
+      const categoryOptions = this.data.categoryOptions || []
+      const categoryName = (data.businessCategory || '').trim()
+      const serviceName = (data.businessScope || '').trim()
+      const categoryIndex = categoryOptions.findIndex(item => item.name === categoryName)
+      if (categoryIndex >= 0) {
+        const category = categoryOptions[categoryIndex]
+        this.setData({
+          categoryIndex,
+          'formData.businessCategoryId': category.id,
+          'formData.businessCategory': category.name
+        })
+        await this.loadServiceOptionsByCategoryId(category.id, serviceName)
+      }
       this.updateImagePreviews()
       this.syncBackgroundImagePreviews()
     } catch (e) {
@@ -161,6 +246,32 @@ Page({
       if (field === 'logo' || field === 'businessLicense') {
         this.updateImagePreviews()
       }
+    })
+  },
+
+  onCategoryChange(e) {
+    const index = Number(e.detail.value)
+    const option = this.data.categoryOptions[index]
+    if (!option) return
+    this.setData({
+      categoryIndex: index,
+      serviceIndex: -1,
+      'formData.businessCategoryId': option.id,
+      'formData.businessCategory': option.name,
+      'formData.businessServiceId': '',
+      'formData.businessScope': ''
+    })
+    this.loadServiceOptionsByCategoryId(option.id)
+  },
+
+  onServiceChange(e) {
+    const index = Number(e.detail.value)
+    const option = this.data.serviceOptions[index]
+    if (!option) return
+    this.setData({
+      serviceIndex: index,
+      'formData.businessServiceId': option.id,
+      'formData.businessScope': option.name
     })
   },
 

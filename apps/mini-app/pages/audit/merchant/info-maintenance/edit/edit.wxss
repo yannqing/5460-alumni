@@ -52,6 +52,23 @@
   background-color: #fafafa;
 }
 
+.form-picker {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  background-color: #fafafa;
+  color: #333;
+  line-height: 80rpx;
+}
+
+.picker-placeholder {
+  color: #999;
+}
+
 .form-textarea {
   width: 100%;
   min-height: 160rpx;

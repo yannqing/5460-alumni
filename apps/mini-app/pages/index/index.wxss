@@ -447,7 +447,7 @@
 
 /* ========== 热门活动组件样式 ========== */
 .hot-activity-section {
-  padding: 0 15rpx;
+  padding: 0;
   margin-bottom: 20rpx;
   margin-top: 20rpx;
 }
@@ -493,7 +493,7 @@
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  padding: 20rpx 24rpx 24rpx;
+  padding: 20rpx;
   margin-top: -70rpx;
   background: #fff;
   border-radius: 0 0 20rpx 20rpx;
@@ -504,9 +504,10 @@
   position: relative;
   display: flex;
   gap: 20rpx;
-  padding: 16rpx;
-  background: transparent;
+  padding: 20rpx;
+  background: #fff;
   border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
 .activity-card:active {
@@ -514,11 +515,22 @@
   transform: scale(0.99);
 }
 
+/* 右上角状态标签 */
+.status-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 104rpx;
+  height: 104rpx;
+  transform: translateY(-40rpx);
+  z-index: 10;
+}
+
 /* 活动封面 */
 .activity-cover-wrapper {
   position: relative;
-  width: 240rpx;
-  height: 170rpx;
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 12rpx;
   overflow: hidden;
   flex-shrink: 0;
@@ -530,71 +542,26 @@
   object-fit: cover;
 }
 
-/* 状态标签 */
-.activity-status {
-  position: absolute;
-  top: 12rpx;
-  left: 12rpx;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 6rpx 16rpx 6rpx 12rpx;
-  border-radius: 8rpx;
-  background: linear-gradient(270deg, #999999 0%, #CCCCCC 100%);
-}
-
-.activity-status.draft {
-  background: linear-gradient(270deg, #999999 0%, #BBBBBB 100%);
-}
-
-.activity-status.signup {
-  background: linear-gradient(270deg, #E02E22 0%, #F66359 55%, #F4675E 100%);
-}
-
-.activity-status.signup-end {
-  background: linear-gradient(270deg, #FF9500 0%, #FFB340 100%);
-}
-
-.activity-status.ing {
-  background: linear-gradient(270deg, #0FCB36 0%, #0DB230 55%, #07AD2A 100%);
-}
-
-.activity-status.end {
-  background: linear-gradient(270deg, #999999 0%, #AAAAAA 55%, #BBBBBB 100%);
-}
-
-.activity-status.cancelled {
-  background: linear-gradient(270deg, #666666 0%, #888888 100%);
-}
-
-.status-dot {
-  width: 10rpx;
-  height: 10rpx;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  box-shadow: 0 0 4rpx rgba(255, 255, 255, 0.5);
-}
-
-.status-text {
-  font-size: 20rpx;
-  color: #fff;
-  font-weight: 500;
-}
-
 /* 活动类型标签 */
 .activity-type-tag {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 12rpx 0 12rpx 0;
-  padding: 6rpx 14rpx;
+  bottom: 12rpx;
+  left: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 83rpx;
+  height: 33rpx;
+  background: #4A64C7;
+  border-radius: 11rpx;
 }
 
 .type-text {
   font-size: 20rpx;
-  color: #23B850;
-  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 600;
 }
 
 /* 活动信息 */
@@ -602,20 +569,23 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10rpx;
+  justify-content: space-between;
+  padding: 8rpx 0;
+  transform: translateY(3rpx);
   overflow: hidden;
-  padding-top: 4rpx;
 }
 
 .activity-title {
   font-size: 28rpx;
-  font-weight: 500;
-  color: #131315;
+  font-weight: 600;
+  color: #333;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 56rpx;
 }
 
 /* 主办方信息 */
@@ -623,6 +593,7 @@
   display: flex;
   align-items: center;
   gap: 8rpx;
+  margin-top: 8rpx;
 }
 
 .organizer-avatar {
@@ -636,7 +607,7 @@
 .organizer-name {
   font-size: 22rpx;
   color: #666;
-  max-width: 150rpx;
+  max-width: 350rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -645,7 +616,7 @@
 .organizer-type {
   font-size: 18rpx;
   color: #fff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #6F8BE6;
   padding: 2rpx 10rpx;
   border-radius: 6rpx;
   flex-shrink: 0;
@@ -656,16 +627,18 @@
   display: flex;
   align-items: center;
   gap: 8rpx;
+  margin-top: 12rpx;
 }
 
 .info-icon {
-  font-size: 22rpx;
+  width: 28rpx;
+  height: 28rpx;
   flex-shrink: 0;
 }
 
 .info-text {
-  font-size: 22rpx;
-  color: #7c7c7c;
+  font-size: 24rpx;
+  color: #666;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -674,21 +647,18 @@
 /* 价格标签 */
 .activity-price-tag {
   position: absolute;
-  right: 16rpx;
-  bottom: 16rpx;
-  background-color: rgba(239, 239, 239, 0.8);
-  border-radius: 16rpx;
-  padding: 6rpx 16rpx;
+  right: 20rpx;
+  bottom: 20rpx;
 }
 
 .price-text {
-  font-size: 22rpx;
-  font-weight: 500;
-  color: #963145;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #ff4d4f;
 }
 
 .price-text.free {
-  color: #23B850;
+  color: #52c41a;
 }
 
 /* 空状态 */
@@ -758,7 +728,7 @@
 
 /* ========== 热门商铺组件样式 ========== */
 .hot-shop-section {
-  padding: 0 15rpx;
+  padding: 0;
   margin-bottom: 20rpx;
 }
 
@@ -773,7 +743,7 @@
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  padding: 20rpx 24rpx 24rpx;
+  padding: 20rpx;
   margin-top: -70rpx;
   background: #fff;
   border-radius: 0 0 20rpx 20rpx;

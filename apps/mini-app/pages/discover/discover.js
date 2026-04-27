@@ -893,7 +893,15 @@ Page({
   // 创建圆形头像（使用 Canvas）
   createRoundAvatar(imageUrl, size = 50) {
     return new Promise((resolve) => {
+      // 与 pages/alumni-association/list 列表默认头一致使用 config.defaultAvatar（本地 /assets/...）
       const fallbackAvatar = config.defaultAvatar || '/assets/avatar/avatar.jpg'
+      // 勿对 /assets/ 下包内资源调用 getImageUrl，否则会拼成 baseUrl+/assets/... 导致 404
+      const fallbackForRemote =
+        !fallbackAvatar.startsWith('/assets/')
+          ? config.getImageUrl(fallbackAvatar)
+          : ''
+      const fallbackImages = [fallbackAvatar, fallbackForRemote, config.defaultAlumniAvatar, '/assets/home/home_page_shop.png']
+        .filter(Boolean)
       
       // 处理图片路径，确保本地路径正确
       const normalizePath = (path) => {
@@ -915,27 +923,16 @@ Page({
       const canvasId = 'roundAvatarCanvas'
       const ctx = wx.createCanvasContext(canvasId, this)
       const radius = size / 2
-      // 移除边框，所有标记展示为纯圆形
-      const borderWidth = 0
 
-      // 内部绘制函数
+      // 内部绘制函数（不画白色底圆；有 logo 时仍用圆形容器裁切）
       const drawCanvas = (imagePath) => {
-        // 清除画布
         ctx.clearRect(0, 0, size, size)
 
-        // 绘制白色背景圆（作为底色，提升 Logo 的视觉对比度）
-        ctx.beginPath()
-        ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
-        ctx.setFillStyle('#ffffff')
-        ctx.fill()
-
-        // 绘制圆形图片
         ctx.save()
         ctx.beginPath()
         ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
         ctx.clip()
 
-        // 绘制图片
         if (imagePath) {
           ctx.drawImage(imagePath, 0, 0, size, size)
         }
@@ -977,19 +974,30 @@ Page({
           success: (res) => resolve(res.path),
           fail: (err) => {
             console.warn(`[Discover] getImageInfo 失败: ${processedSrc}`, err)
-            resolve(processedSrc)
+            resolve('')
           }
         })
       })
     }
 
-    // 获取图片信息并开始绘制
-    const loadImageAndDraw = async (src, isFallback = false) => {
+    // 获取图片信息并开始绘制；所有候选图都失败时，直接使用最后一个可用默认图，避免导出白圆。
+    const loadImageAndDraw = async (sources, index = 0) => {
+      const src = sources[index]
+      if (!src) {
+        resolve('/assets/home/home_page_shop.png')
+        return
+      }
+
       const path = await getImage(src)
+      if (!path) {
+        loadImageAndDraw(sources, index + 1)
+        return
+      }
+
       drawCanvas(path)
     }
 
-      loadImageAndDraw(targetUrl)
+      loadImageAndDraw([targetUrl, ...fallbackImages])
     })
   },
 
@@ -999,6 +1007,7 @@ Page({
     let markerId = 1 // 从1开始，确保id是数字
     this.markerDataMap = {}
     const markerFallbackIcon = '/assets/home/home_page_shop.png'
+    const defaultAvatarRoundIcon = '/assets/avatar/avatar_round.png'
 
     console.log('[Discover] 更新地图标记，当前标签:', this.data.selectedTab)
     console.log('[Discover] 优惠列表数量:', this.data.couponList.length)
@@ -1047,11 +1056,14 @@ Page({
       const imagePath = normalizeImagePath(item.image)
       const avatarPath = normalizeImagePath(item.avatar)
       const defaultAvatarPath = normalizeImagePath(config.defaultAvatar)
+      let targetIconPath = ''
       
       // 1. 门店原始 Logo
       const normalizedLogo = normalizeImagePath(item.logo)
       
-      if (normalizedLogo) {
+      if (listType === 'coupon') {
+        targetIconPath = normalizedLogo ? config.getImageUrl(normalizedLogo) : (config.defaultAvatar || markerFallbackIcon)
+      } else if (normalizedLogo) {
         targetIconPath = config.getImageUrl(normalizedLogo)
       } else if (imagePath && imagePath !== defaultAvatarPath) {
         targetIconPath = imagePath
@@ -1074,13 +1086,18 @@ Page({
         return null
       }
 
-      // 无论是什么图标，都统一尝试创建圆形标记
       let iconPath = targetIconPath
-      try {
-        iconPath = await this.createRoundAvatar(targetIconPath, 50)
-      } catch (error) {
-        console.warn(`[Discover] 为 ${item.name || '标记'} 创建圆形标记失败:`, error)
-        iconPath = targetIconPath
+      const isCouponDefaultIcon = listType === 'coupon' && !normalizedLogo
+
+      if (isCouponDefaultIcon) {
+        iconPath = defaultAvatarRoundIcon
+      } else {
+        try {
+          iconPath = await this.createRoundAvatar(targetIconPath, 50)
+        } catch (error) {
+          console.warn(`[Discover] 为 ${item.name || '标记'} 创建圆形标记失败:`, error)
+          iconPath = targetIconPath
+        }
       }
 
       // 确定标记内容

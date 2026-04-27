@@ -87,6 +87,10 @@
   background-color: #fa8c16;
 }
 
+.certification-badge.review {
+  background-color: #1890ff;
+}
+
 .merchant-item:hover {
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
