@@ -352,7 +352,9 @@ Page({
       if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
         const rawImageUrl = uploadRes.data.fileUrl || ''
         if (rawImageUrl) {
-          this.setData({ 'formData.businessLicense': rawImageUrl }, () => this.updateImagePreviews())
+          this.setData({ 'formData.businessLicense': rawImageUrl }, () =>
+            this.updateImagePreviews()
+          )
           wx.showToast({ title: '上传成功', icon: 'success' })
         }
       } else {
@@ -389,7 +391,11 @@ Page({
       const next = [...this.data.backgroundImageList]
 
       for (const file of tempFiles) {
-        const uploadRes = await fileApi.uploadImage(file.tempFilePath, file.name || 'bg.jpg', file.size)
+        const uploadRes = await fileApi.uploadImage(
+          file.tempFilePath,
+          file.name || 'bg.jpg',
+          file.size
+        )
         if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
           const rawUrl = uploadRes.data.fileUrl || ''
           if (rawUrl) {
@@ -416,20 +422,50 @@ Page({
     this.setData({ backgroundImageList: list }, () => this.syncBackgroundImagePreviews())
   },
 
-  chooseDetailImage() {
+  async chooseDetailImage() {
     const remain = 9 - this.data.detailImageList.length
     if (remain <= 0) return
-    wx.chooseImage({
-      count: remain,
-      success: async res => {
-        const next = [...this.data.detailImageList]
-        for (const p of res.tempFilePaths) {
-          const url = await this.uploadFile(p)
-          next.push(url)
+
+    try {
+      const chooseRes = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: remain,
+          mediaType: ['image'],
+          sizeType: ['compressed'],
+          success: resolve,
+          fail: reject,
+        })
+      })
+
+      const tempFiles = chooseRes.tempFiles
+      if (!tempFiles || tempFiles.length === 0) return
+
+      wx.showLoading({ title: '上传中...', mask: true })
+      const next = [...this.data.detailImageList]
+
+      for (const file of tempFiles) {
+        const uploadRes = await fileApi.uploadImage(
+          file.tempFilePath,
+          file.name || 'detail.jpg',
+          file.size
+        )
+        if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+          const rawUrl = uploadRes.data.fileUrl || ''
+          if (rawUrl) {
+            next.push(rawUrl)
+          }
         }
-        this.setData({ detailImageList: next }, () => this.syncDetailImagePreviews())
-      },
-    })
+      }
+
+      this.setData({ detailImageList: next }, () => this.syncDetailImagePreviews())
+      wx.showToast({ title: '上传成功', icon: 'success' })
+    } catch (error) {
+      if (error?.errMsg !== 'chooseMedia:fail cancel') {
+        wx.showToast({ title: '上传失败', icon: 'none' })
+      }
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   removeDetailImage(e) {
