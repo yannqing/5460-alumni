@@ -571,12 +571,6 @@ Page({
 
   // 查看门店详情
   viewShopDetail(e) {
-    const id = e.detail?.id || e.currentTarget?.dataset?.id
-    if (!id) {
-      return
-    }
-    wx.navigateTo({
-      url: `/pages/shop/shop-detail/shop-detail?id=${id}`,
-    })
+    // 不跳转
   },
 })
