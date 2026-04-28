@@ -18,6 +18,10 @@ Page({
     backgroundImageList: [],
     /** 背景图预览完整地址（含 getImageUrl） */
     backgroundImagePreviewUrls: [],
+    /** 详情图片 URL 列表（相对路径或完整 URL，提交时 JSON.stringify） */
+    detailImageList: [],
+    /** 详情图片预览完整地址（含 getImageUrl） */
+    detailImagePreviewUrls: [],
     categoryOptions: [],
     serviceOptions: [],
     categoryIndex: -1,
