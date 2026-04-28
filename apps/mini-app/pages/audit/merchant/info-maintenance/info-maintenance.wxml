@@ -95,6 +95,20 @@
           <text class="detail-label license-label">营业执照</text>
           <image class="license-image" src="{{currentMerchantDetail.businessLicenseUrl}}" mode="widthFix"></image>
         </view>
+        <view class="detail-images-block" wx:if="{{currentMerchantDetail.detailImageUrls && currentMerchantDetail.detailImageUrls.length}}">
+          <text class="detail-label">商户详情图片</text>
+          <view class="detail-images-list">
+            <image
+              class="detail-img-item"
+              wx:for="{{currentMerchantDetail.detailImageUrls}}"
+              wx:key="*this"
+              src="{{item}}"
+              mode="widthFix"
+              bindtap="previewDetailImage"
+              data-index="{{index}}"
+            />
+          </view>
+        </view>
         <view class="detail-section-title" wx:if="{{currentMerchantDetail.shops && currentMerchantDetail.shops.length}}">门店列表</view>
         <view class="shop-row" wx:for="{{currentMerchantDetail.shops}}" wx:key="shopId">
           <text class="shop-name">{{item.shopName || '门店'}}</text>

@@ -3,7 +3,8 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification",
-    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar",
+    "shop-store-card": "/components/shop-store-card/shop-store-card",
+    "coupon-card": "/components/coupon-card/coupon-card"
   }
 }
-

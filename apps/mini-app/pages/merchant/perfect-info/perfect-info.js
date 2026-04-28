@@ -13,6 +13,8 @@ Page({
     licensePreview: '',
     backgroundImageList: [],
     backgroundImagePreviewUrls: [],
+    detailImageList: [],
+    detailImagePreviewUrls: [],
     categoryOptions: [],
     serviceOptions: [],
     categoryIndex: -1,
@@ -56,10 +58,12 @@ Page({
       if (body.code !== 200 || !Array.isArray(body.data)) {
         return
       }
-      const options = body.data.map(item => ({
-        id: item.id != null ? String(item.id) : '',
-        name: item.name || ''
-      })).filter(item => item.id && item.name)
+      const options = body.data
+        .map(item => ({
+          id: item.id != null ? String(item.id) : '',
+          name: item.name || '',
+        }))
+        .filter(item => item.id && item.name)
       this.setData({ categoryOptions: options })
     } catch (e) {
       console.warn('加载经营类目失败', e)
@@ -72,7 +76,7 @@ Page({
         serviceOptions: [],
         serviceIndex: -1,
         'formData.businessServiceId': '',
-        'formData.businessScope': ''
+        'formData.businessScope': '',
       })
       return
     }
@@ -83,10 +87,12 @@ Page({
         this.setData({ serviceOptions: [], serviceIndex: -1, 'formData.businessServiceId': '' })
         return
       }
-      const serviceOptions = body.data.map(item => ({
-        id: item.id != null ? String(item.id) : '',
-        name: item.name || ''
-      })).filter(item => item.id && item.name)
+      const serviceOptions = body.data
+        .map(item => ({
+          id: item.id != null ? String(item.id) : '',
+          name: item.name || '',
+        }))
+        .filter(item => item.id && item.name)
 
       let serviceIndex = -1
       let businessServiceId = ''
@@ -103,7 +109,7 @@ Page({
         serviceOptions,
         serviceIndex,
         'formData.businessServiceId': businessServiceId,
-        'formData.businessScope': businessScope || (selectedServiceName || '')
+        'formData.businessScope': businessScope || selectedServiceName || '',
       })
     } catch (e) {
       console.warn('加载经营范围失败', e)
@@ -135,6 +141,16 @@ Page({
     this.setData({ backgroundImagePreviewUrls: urls })
   },
 
+  syncDetailImagePreviews() {
+    const list = this.data.detailImageList || []
+    const urls = list.map(u => {
+      const s = String(u).trim()
+      if (!s) return ''
+      return /^https?:\/\//i.test(s) ? s : config.getImageUrl(s)
+    })
+    this.setData({ detailImagePreviewUrls: urls })
+  },
+
   updateImagePreviews() {
     const f = this.data.formData
     this.setData({
@@ -154,7 +170,7 @@ Page({
         return
       }
       const data = body.data
-      
+
       const assoc = data.alumniAssociation
       let alumniIdStr = ''
       if (assoc && assoc.alumniAssociationId != null) {
@@ -173,7 +189,9 @@ Page({
             if (!assocName) assocName = inner.associationName || ''
             if (!logoRaw) logoRaw = inner.logo || ''
           }
-        } catch (e) { console.warn(e) }
+        } catch (e) {
+          console.warn(e)
+        }
       }
 
       const nameTrim = (assocName || '').trim()
@@ -199,6 +217,7 @@ Page({
           alumniAssociationId: alumniIdStr,
         },
         backgroundImageList: this.parseBackgroundImage(data.backgroundImage),
+        detailImageList: data.detailImages || [],
         associationDisplayName: nameTrim,
         associationLogoUrl,
         associationNameFirstChar,
@@ -213,12 +232,13 @@ Page({
         this.setData({
           categoryIndex,
           'formData.businessCategoryId': category.id,
-          'formData.businessCategory': category.name
+          'formData.businessCategory': category.name,
         })
         await this.loadServiceOptionsByCategoryId(category.id, serviceName)
       }
       this.updateImagePreviews()
       this.syncBackgroundImagePreviews()
+      this.syncDetailImagePreviews()
     } catch (e) {
       wx.showToast({ title: '加载失败', icon: 'none' })
       this.setData({ detailLoading: false })
@@ -246,7 +266,7 @@ Page({
       'formData.businessCategoryId': option.id,
       'formData.businessCategory': option.name,
       'formData.businessServiceId': '',
-      'formData.businessScope': ''
+      'formData.businessScope': '',
     })
     this.loadServiceOptionsByCategoryId(option.id)
   },
@@ -258,12 +278,16 @@ Page({
     this.setData({
       serviceIndex: index,
       'formData.businessServiceId': option.id,
-      'formData.businessScope': option.name
+      'formData.businessScope': option.name,
     })
   },
 
-  clearLogo() { this.setData({ 'formData.logo': '' }, () => this.updateImagePreviews()) },
-  clearLicense() { this.setData({ 'formData.businessLicense': '' }, () => this.updateImagePreviews()) },
+  clearLogo() {
+    this.setData({ 'formData.logo': '' }, () => this.updateImagePreviews())
+  },
+  clearLicense() {
+    this.setData({ 'formData.businessLicense': '' }, () => this.updateImagePreviews())
+  },
 
   async chooseLogo() {
     try {
@@ -346,7 +370,7 @@ Page({
   async chooseBackgroundImage() {
     const remain = 9 - this.data.backgroundImageList.length
     if (remain <= 0) return
-    
+
     try {
       const chooseRes = await new Promise((resolve, reject) => {
         wx.chooseMedia({
@@ -363,7 +387,7 @@ Page({
 
       wx.showLoading({ title: '上传中...', mask: true })
       const next = [...this.data.backgroundImageList]
-      
+
       for (const file of tempFiles) {
         const uploadRes = await fileApi.uploadImage(file.tempFilePath, file.name || 'bg.jpg', file.size)
         if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
@@ -373,7 +397,7 @@ Page({
           }
         }
       }
-      
+
       this.setData({ backgroundImageList: next }, () => this.syncBackgroundImagePreviews())
       wx.showToast({ title: '上传完成', icon: 'success' })
     } catch (error) {
@@ -392,34 +416,68 @@ Page({
     this.setData({ backgroundImageList: list }, () => this.syncBackgroundImagePreviews())
   },
 
+  chooseDetailImage() {
+    const remain = 9 - this.data.detailImageList.length
+    if (remain <= 0) return
+    wx.chooseImage({
+      count: remain,
+      success: async res => {
+        const next = [...this.data.detailImageList]
+        for (const p of res.tempFilePaths) {
+          const url = await this.uploadFile(p)
+          next.push(url)
+        }
+        this.setData({ detailImageList: next }, () => this.syncDetailImagePreviews())
+      },
+    })
+  },
+
+  removeDetailImage(e) {
+    const { index } = e.currentTarget.dataset
+    const list = [...this.data.detailImageList]
+    list.splice(index, 1)
+    this.setData({ detailImageList: list }, () => this.syncDetailImagePreviews())
+  },
+
   async submitForm() {
     const { merchantIdStr, formData } = this.data
-    const normalizedCreditCode = String(formData.unifiedSocialCreditCode || '').trim().toUpperCase()
+    const normalizedCreditCode = String(formData.unifiedSocialCreditCode || '')
+      .trim()
+      .toUpperCase()
     const legalPersonId = (formData.legalPersonId || '').trim()
     const contactPhone = (formData.contactPhone || '').trim()
     const legalPhone = (formData.phone || '').trim()
     const idCardReg = /^\d{17}[\dXx]$/
     const mobileReg = /^1[3-9]\d{9}$/
     // 基础校验
-    if (!formData.merchantName.trim()) return wx.showToast({ title: '请输入商家名称', icon: 'none' })
-    if (!normalizedCreditCode) return wx.showToast({ title: '请输入统一社会信用代码', icon: 'none' })
-    if (normalizedCreditCode.length !== 18) return wx.showToast({ title: '统一社会信用代码须为18位', icon: 'none' })
-    if (!/^[0-9A-Z]{18}$/.test(normalizedCreditCode)) return wx.showToast({ title: '统一社会信用代码格式不正确', icon: 'none' })
+    if (!formData.merchantName.trim())
+      return wx.showToast({ title: '请输入商家名称', icon: 'none' })
+    if (!normalizedCreditCode)
+      return wx.showToast({ title: '请输入统一社会信用代码', icon: 'none' })
+    if (normalizedCreditCode.length !== 18)
+      return wx.showToast({ title: '统一社会信用代码须为18位', icon: 'none' })
+    if (!/^[0-9A-Z]{18}$/.test(normalizedCreditCode))
+      return wx.showToast({ title: '统一社会信用代码格式不正确', icon: 'none' })
     if (!formData.legalPerson.trim()) return wx.showToast({ title: '请输入法人姓名', icon: 'none' })
     if (!legalPersonId) return wx.showToast({ title: '请输入法人身份证号', icon: 'none' })
-    if (legalPersonId.length !== 18) return wx.showToast({ title: '法人身份证号须为18位', icon: 'none' })
-    if (!idCardReg.test(legalPersonId)) return wx.showToast({ title: '法人身份证号格式不正确', icon: 'none' })
+    if (legalPersonId.length !== 18)
+      return wx.showToast({ title: '法人身份证号须为18位', icon: 'none' })
+    if (!idCardReg.test(legalPersonId))
+      return wx.showToast({ title: '法人身份证号格式不正确', icon: 'none' })
     if (!contactPhone) return wx.showToast({ title: '请输入商家联系电话', icon: 'none' })
-    if (!mobileReg.test(contactPhone)) return wx.showToast({ title: '商家联系电话格式不正确', icon: 'none' })
+    if (!mobileReg.test(contactPhone))
+      return wx.showToast({ title: '商家联系电话格式不正确', icon: 'none' })
     if (!legalPhone) return wx.showToast({ title: '请输入法人个人联系电话', icon: 'none' })
-    if (!mobileReg.test(legalPhone)) return wx.showToast({ title: '法人联系电话格式不正确', icon: 'none' })
+    if (!mobileReg.test(legalPhone))
+      return wx.showToast({ title: '法人联系电话格式不正确', icon: 'none' })
     if (formData.contactEmail && formData.contactEmail.trim()) {
       const email = formData.contactEmail.trim()
       if (!/^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(email)) {
         return wx.showToast({ title: '联系邮箱格式不正确', icon: 'none' })
       }
     }
-    if (!formData.businessLicense.trim()) return wx.showToast({ title: '请上传营业执照', icon: 'none' })
+    if (!formData.businessLicense.trim())
+      return wx.showToast({ title: '请上传营业执照', icon: 'none' })
 
     const payload = {
       merchantId: merchantIdStr,
@@ -436,7 +494,8 @@ Page({
       businessCategory: formData.businessCategory.trim(),
       logo: formData.logo.trim(),
       alumniAssociationId: formData.alumniAssociationId,
-      backgroundImage: JSON.stringify(this.data.backgroundImageList)
+      backgroundImage: JSON.stringify(this.data.backgroundImageList),
+      detailImages: JSON.stringify(this.data.detailImageList),
     }
 
     this.setData({ submitting: true })
@@ -454,5 +513,5 @@ Page({
     } finally {
       this.setData({ submitting: false })
     }
-  }
+  },
 })

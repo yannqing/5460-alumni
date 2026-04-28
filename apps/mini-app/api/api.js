@@ -196,6 +196,12 @@ const couponApi = {
   // couponId 为雪花 ID，必须按字符串透传，避免 Number 精度丢失
   deleteManagementCoupon: couponId =>
     del(`/coupon/management/${encodeURIComponent(String(couponId))}`),
+  // 用户侧：获取商户推荐优惠券列表（最多 5 个）
+  getMerchantRecommendedCoupons: merchantId =>
+    get(`/coupon/merchant/${encodeURIComponent(String(merchantId))}/recommend`),
+  // 用户侧：分页查询商户公开优惠券列表
+  getMerchantCouponPage: (merchantId, params = {}) =>
+    get(`/coupon/merchant/${encodeURIComponent(String(merchantId))}/page`, params),
 }
 
 // ==================== 圈子相关接口 ====================

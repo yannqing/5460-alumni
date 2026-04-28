@@ -179,7 +179,8 @@
       "pages": [
         "list/list",
         "detail/detail",
-        "shop-detail/shop-detail"
+        "shop-detail/shop-detail",
+        "coupon-list/list"
       ]
     }
   ],

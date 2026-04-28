@@ -1,0 +1,21 @@
+<view wx:if="{{coupon}}" class="coupon-card" style="background-image: url('{{couponBgUrl}}');" bindtap="handleTap">
+  <text class="coupon-status-tag status-{{coupon.rawStatus || coupon.status}}" wx:if="{{coupon.statusText}}">{{coupon.statusText}}</text>
+  <view class="coupon-left-section">
+    <view class="coupon-type-text">{{typeLabelMap[coupon.couponType] || '优惠券'}}</view>
+  </view>
+  <view class="coupon-divider-vertical"></view>
+  <view class="coupon-right-section">
+    <view class="coupon-title-main">{{coupon.title || coupon.couponName}}</view>
+    <view class="coupon-merchant-name" wx:if="{{coupon.merchant}}">{{coupon.merchant}}</view>
+    <view class="coupon-meta">
+      <text class="coupon-time-text" wx:if="{{coupon.endTime || coupon.validEndTime}}">有效期至 {{coupon.endTime || formatCouponDate(coupon.validEndTime)}}</text>
+    </view>
+    <view class="coupon-stock-row" wx:if="{{coupon.stock !== undefined || coupon.remainQuantity !== undefined}}">
+      <view class="coupon-stock-bar">
+        <view class="stock-progress-bar" style="width: {{getStockPercent()}}%"></view>
+      </view>
+      <text class="coupon-stock-text" wx:if="{{coupon.stock !== undefined}}">剩余{{coupon.stock}}/{{coupon.totalStock}}</text>
+    </view>
+  </view>
+  <view wx:if="{{showAction}}" class="coupon-action-btn" bindtap="handleAction">领取</view>
+</view>

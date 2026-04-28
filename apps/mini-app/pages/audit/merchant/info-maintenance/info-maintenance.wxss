@@ -332,6 +332,30 @@
   background-color: #f5f5f5;
 }
 
+.detail-images-block {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.detail-images-block .detail-label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.detail-images-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.detail-img-item {
+  width: 100%;
+  border-radius: 12rpx;
+  background-color: #f5f5f5;
+}
+
 .shop-row {
   padding: 16rpx 0;
   border-bottom: 1rpx solid #f0f0f0;

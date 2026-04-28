@@ -7,19 +7,19 @@ Page({
     // 图标路径
     iconSearch: config.getIconUrl('sslss.png'),
     iconCategory: config.getIconUrl('xx.png'),
-    topImageUrl: 'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/list/merchant.png',
+    topImageUrl:
+      'https://7072-prod-2gtjr12j6ab77902-1373505745.tcb.qcloud.la/cni-alumni/images/assets/list/merchant.png',
     keyword: '',
     filters: [
       { label: '商铺类型', options: ['全部类型', '校友商铺', '普通商铺'], selected: 0 },
-      { label: '会员等级', options: ['全部等级', '普通会员', '银卡会员', '金卡会员', '钻石会员'], selected: 0 },
       { label: '业务类别', options: ['全部类别', '餐饮', '零售', '服务', '娱乐'], selected: 0 },
-      { label: '关注', options: ['我的关注'], selected: 0 }
+      { label: '关注', options: ['我的关注'], selected: 0 },
     ],
     merchantList: [],
     current: 1,
     pageSize: 9999,
     hasMore: true,
-    loading: false
+    loading: false,
   },
 
   onLoad() {
@@ -37,20 +37,24 @@ Page({
   },
 
   async loadMerchantList(reset = false) {
-    if (this.data.loading) { return }
-    if (!reset && !this.data.hasMore) { return }
+    if (this.data.loading) {
+      return
+    }
+    if (!reset && !this.data.hasMore) {
+      return
+    }
 
     this.setData({ loading: true })
 
     const { keyword, filters, current, pageSize } = this.data
-    const [typeFilter, tierFilter, categoryFilter, certFilter] = filters
+    const [typeFilter, categoryFilter, certFilter] = filters
 
     // 构建请求参数
     const params = {
       current: reset ? 1 : current,
       pageSize: pageSize,
       sortField: 'createTime',
-      sortOrder: 'descend'
+      sortOrder: 'descend',
     }
 
     // 商铺名称搜索
@@ -63,11 +67,6 @@ Page({
       params.merchantType = 1 // 校友商铺
     } else if (Number(typeFilter.selected) === 2) {
       params.merchantType = 2 // 普通商铺
-    }
-
-    // 会员等级筛选
-    if (tierFilter.selected > 0) {
-      params.memberTier = tierFilter.selected // 1-普通, 2-银卡, 3-金卡, 4-钻石
     }
 
     // 业务类别筛选
@@ -95,7 +94,7 @@ Page({
           merchantList: finalList,
           current: reset ? 2 : current + 1,
           hasMore: data.hasNext || false,
-          loading: false
+          loading: false,
         })
 
         if (reset) {
@@ -105,7 +104,7 @@ Page({
         this.setData({ loading: false })
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
         if (reset) {
           wx.stopPullDownRefresh()
@@ -116,7 +115,7 @@ Page({
       this.setData({ loading: false })
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
       if (reset) {
         wx.stopPullDownRefresh()
@@ -125,17 +124,15 @@ Page({
   },
 
   resolveLogoUrl(logo) {
-    if (!logo) { return '' }
+    if (!logo) {
+      return ''
+    }
     const s = String(logo).trim().replace(/[`\s]/g, '')
     return s ? config.getImageUrl(s) : ''
   },
 
   // 数据映射：将后端数据映射为前端所需格式
   mapMerchantItem(item) {
-    // 会员等级名称映射
-    const tierNames = ['', '普通会员', '银卡会员', '金卡会员', '钻石会员']
-    const tierName = tierNames[item.memberTier] || ''
-
     return {
       merchantId: item.merchantId,
       merchantName: item.merchantName || '未命名商户',
@@ -143,8 +140,6 @@ Page({
       businessCategory: item.businessCategory || '',
       // 与 pages/alumni-association/list/list 一致：无 logo 时用 config.defaultAvatar
       logoUrl: this.resolveLogoUrl(item.logo) || config.defaultAvatar,
-      memberTier: item.memberTier || 0,
-      tierName: tierName,
       shopCount: item.shopCount || 0,
       totalCouponIssued: item.totalCouponIssued || 0,
       isAlumniCertified: item.isAlumniCertified || 0,
@@ -152,7 +147,7 @@ Page({
       legalPerson: item.legalPerson || '',
       contactPhone: item.contactPhone || '',
       createTime: item.createTime || '',
-      updateTime: item.updateTime || ''
+      updateTime: item.updateTime || '',
     }
   },
 
@@ -174,18 +169,10 @@ Page({
     this.loadMerchantList(true)
   },
 
-  // 会员等级筛选
-  onTierChange(e) {
-    const filters = this.data.filters
-    filters[1].selected = e.detail.value
-    this.setData({ filters })
-    this.loadMerchantList(true)
-  },
-
   // 业务类别筛选
   onCategoryChange(e) {
     const filters = this.data.filters
-    filters[2].selected = e.detail.value
+    filters[1].selected = e.detail.value
     this.setData({ filters })
     this.loadMerchantList(true)
   },
@@ -193,13 +180,13 @@ Page({
   // 关注筛选
   onFollowChange(e) {
     wx.navigateTo({
-      url: '/pages/my-follow/my-follow?type=merchant'
+      url: '/pages/my-follow/my-follow?type=merchant',
     })
   },
 
   viewDetail(e) {
     wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${e.currentTarget.dataset.id}`
+      url: `/pages/shop/detail/detail?id=${e.currentTarget.dataset.id}`,
     })
-  }
+  },
 })

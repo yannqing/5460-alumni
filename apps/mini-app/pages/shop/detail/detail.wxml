@@ -9,21 +9,15 @@
   </view>
 
     <view wx:elif="{{shopInfo}}">
-      <!-- 多图轮播 -->
-      <swiper class="shop-swiper" indicator-dots="{{shopInfo.gallery.length > 1}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
-        <swiper-item wx:for="{{shopInfo.gallery}}" wx:key="*this">
-          <image class="swiper-image" src="{{item}}" mode="aspectFill"></image>
-        </swiper-item>
-      </swiper>
-
       <!-- 白色内容区域 -->
       <view class="white-background-content">
-        <!-- 基础信息卡片 -->
-        <view class="card basic-info-card">
+        <!-- 基础信息 -->
+        <view class="basic-info-card">
           <!-- 右上角操作图标 -->
           <view class="card-action-icons">
-            <view class="action-icon-item" bindtap="toggleFavorite">
-              <text class="icon-text {{shopInfo.isFavorited ? 'favorited' : ''}}">★</text>
+            <view class="favorite-action {{shopInfo.isFavorited ? 'is-favorited' : ''}}" bindtap="toggleFavorite">
+              <text class="favorite-action__icon">★</text>
+              <text class="favorite-action__text">{{shopInfo.isFavorited ? '已收藏' : '收藏'}}</text>
             </view>
           </view>
           <view class="shop-header">
@@ -37,8 +31,8 @@
                   </view>
                 </view>
                 <view class="shop-rating-row">
-                  <text class="rating-text">⭐ {{shopInfo.rating}}</text>
-                  <text class="rating-desc">评分</text>
+                  <text class="rating-text">{{shopInfo.favoriteCount || 0}}</text>
+                  <text class="rating-desc">人收藏</text>
                   <text class="divider">·</text>
                   <text class="category-text">{{shopInfo.category}}</text>
                 </view>
@@ -68,100 +62,67 @@
           </view>
         </view>
 
-        <!-- 商家详情信息 -->
-        <view class="card merchant-info-card">
-          <view class="section-title">商家详情</view>
-          
-          <!-- 基本信息 -->
-          <view class="merchant-basic-info">
-            
-            
-            <view class="info-row" wx:if="{{shopInfo.merchantInfo.businessCategory && shopInfo.merchantInfo.businessCategory !== 'null' && shopInfo.merchantInfo.businessCategory !== 'undefined'}}">
-              <view class="info-label">经营类目</view>
-              <view class="info-value">{{shopInfo.merchantInfo.businessCategory}}</view>
-            </view>
-            <view class="info-row" wx:if="{{shopInfo.merchantInfo.businessScope && shopInfo.merchantInfo.businessScope !== 'null' && shopInfo.merchantInfo.businessScope !== 'undefined'}}">
-              <view class="info-label">经营范围</view>
-              <view class="info-value">{{shopInfo.merchantInfo.businessScope}}</view>
-            </view>
+        <!-- 推荐优惠券 -->
+        <view class="recommended-coupon-section" wx:if="{{recommendedCoupons && recommendedCoupons.length}}">
+          <view class="section-title-container">
+            <view class="section-title">推荐优惠券</view>
+            <view class="section-more" bindtap="viewMoreCoupons">查看更多</view>
           </view>
-          
-          <!-- 会员信息 -->
-          <view class="merchant-member-info" wx:if="{{shopInfo.merchantInfo.memberTier}}">
-            <view class="info-row">
-              <view class="info-label">会员等级</view>
-              <view class="info-value">
-                <view class="member-tier-tag tier-{{shopInfo.merchantInfo.memberTier}}">
-                  等级 {{shopInfo.merchantInfo.memberTier}}
-                </view>
-              </view>
-            </view>
-            <view class="info-row" wx:if="{{shopInfo.merchantInfo.tierExpireTime}}">
-              <view class="info-label">等级到期时间</view>
-              <view class="info-value">{{shopInfo.merchantInfo.tierExpireTime}}</view>
-            </view>
+          <view class="recommended-coupon-list">
+            <coupon-card
+              wx:for="{{recommendedCoupons}}"
+              wx:key="couponId"
+              coupon="{{item}}"
+              couponBgUrl="{{couponCardBgUrl}}"
+              showAction="{{false}}"
+              bind:cardtap="viewPublicCouponDetail"
+            />
           </view>
-          
-          <!-- 审核信息 -->
-          <view class="merchant-review-info">
-            <view class="info-row">
-              <view class="info-label">审核状态</view>
-              <view class="info-value">
-                <view class="review-status-tag status-{{shopInfo.merchantInfo.reviewStatus}}">
-                  {{shopInfo.merchantInfo.reviewStatus === 0 ? '待审核' : shopInfo.merchantInfo.reviewStatus === 1 ? '审核通过' : '审核失败'}}
-                </view>
-              </view>
-            </view>
-            <view class="info-row" wx:if="{{shopInfo.merchantInfo.reviewReason}}">
-              <view class="info-label">审核原因</view>
-              <view class="info-value">{{shopInfo.merchantInfo.reviewReason}}</view>
-            </view>
-            
-          </view>
-          
-          <!-- 状态信息 -->
-          <view class="merchant-status-info">
-            <view class="info-row">
-              <view class="info-label">商家状态</view>
-              <view class="info-value">
-                <view class="status-tag status-{{shopInfo.merchantInfo.status}}">
-                  {{shopInfo.merchantInfo.status === 0 ? '停业' : shopInfo.merchantInfo.status === 1 ? '营业中' : '装修中'}}
-                </view>
-              </view>
-            </view>
-            <view class="info-row">
-              <view class="info-label">校友认证</view>
-              <view class="info-value">
-                <view class="certification-tag {{shopInfo.merchantInfo.isAlumniCertified ? 'certified' : 'not-certified'}}">
-                  {{shopInfo.merchantInfo.isAlumniCertified ? '已认证' : '未认证'}}
-                </view>
-              </view>
-            </view>
-            
+        </view>
+
+        <!-- 商家图片轮播 -->
+        <view class="merchant-gallery" wx:if="{{shopInfo.gallery && shopInfo.gallery.length}}">
+          <swiper class="merchant-gallery-swiper" indicator-dots="{{shopInfo.gallery.length > 1}}" autoplay="{{shopInfo.gallery.length > 1}}" interval="{{3000}}" duration="{{500}}" circular="{{shopInfo.gallery.length > 1}}">
+            <swiper-item wx:for="{{shopInfo.gallery}}" wx:key="*this">
+              <image class="merchant-gallery-image" src="{{item}}" mode="aspectFill"></image>
+            </swiper-item>
+          </swiper>
+        </view>
+
+        <!-- 商户详情图片（单列瀑布流） -->
+        <view class="merchant-detail-images" wx:if="{{shopInfo.detailImages && shopInfo.detailImages.length}}">
+          <view class="section-title">详情</view>
+          <view class="detail-images-waterfall">
+            <image
+              wx:for="{{shopInfo.detailImages}}"
+              wx:key="*this"
+              class="detail-image-item"
+              src="{{item}}"
+              mode="widthFix"
+              lazy-load="{{true}}"
+            />
           </view>
         </view>
 
         <!-- 门店列表 -->
-        <view class="card shops-list-card" wx:if="{{shopInfo.merchantInfo.shops && shopInfo.merchantInfo.shops.length}}">
+        <view class="shops-list-card" wx:if="{{shopInfo.merchantInfo.shops && shopInfo.merchantInfo.shops.length}}">
           <view class="section-title-container">
             <view class="section-title">门店列表</view>
             <view class="shop-count-tag">{{shopInfo.merchantInfo.shopCount || 0}}家门店</view>
           </view>
           <view class="shops-list">
-            <view class="shop-item" wx:for="{{shopInfo.merchantInfo.shops}}" wx:key="shopId" bindtap="viewShopDetail" data-id="{{item.shopId}}">
-              <view class="shop-item-header">
-                <text class="shop-item-name">{{item.shopName}}</text>
-              </view>
-              <view class="shop-item-address">
-                <image class="info-icon-small" src="{{iconLocation}}" mode="aspectFit"></image>
-                <text>{{item.address || [item.province, item.city, item.district].filter(Boolean).join('')}}</text>
-              </view>
-            </view>
+            <shop-store-card
+              wx:for="{{shopInfo.merchantInfo.shops}}"
+              wx:key="shopId"
+              shop="{{item}}"
+              iconLocation="{{iconLocation}}"
+              bind:cardtap="viewShopDetail"
+            />
           </view>
         </view>
 
         <!-- 店铺动态/话题 -->
-        <view class="card shop-dynamics" wx:if="{{shopInfo.dynamics && shopInfo.dynamics.length}}">
+        <view class="shop-dynamics" wx:if="{{shopInfo.dynamics && shopInfo.dynamics.length}}">
           <view class="section-title">店铺动态</view>
           <view class="dynamics-list">
             <view class="dynamic-item" wx:for="{{shopInfo.dynamics}}" wx:key="id" bindtap="viewDynamicDetail" data-id="{{item.id}}">
@@ -179,21 +140,21 @@
         </view>
 
         <!-- 校友足迹 -->
-        <view class="card alumni-footprint" wx:if="{{shopInfo.recentAlumni && shopInfo.recentAlumni.length}}">
+        <view class="alumni-footprint" wx:if="{{shopInfo.recentAlumni && shopInfo.recentAlumni.length}}">
           <view class="section-title">校友足迹</view>
           <view class="footprint-desc">最近来过的校友</view>
           <view class="alumni-avatar-wall">
-            <view 
-              class="alumni-avatar-item" 
-              wx:for="{{shopInfo.recentAlumni}}" 
+            <view
+              class="alumni-avatar-item"
+              wx:for="{{shopInfo.recentAlumni}}"
               wx:key="id"
               bindtap="viewAlumniDetail"
               data-id="{{item.id}}"
               data-privacy="{{item.privacy}}"
             >
-              <image 
-                class="avatar-img {{item.privacy === 'private' ? 'blur' : ''}}" 
-                src="{{item.privacy === 'private' ? defaultAvatar : item.avatar}}" 
+              <image
+                class="avatar-img {{item.privacy === 'private' ? 'blur' : ''}}"
+                src="{{item.privacy === 'private' ? defaultAvatar : item.avatar}}"
                 mode="aspectFill"
               ></image>
               <view class="avatar-info" wx:if="{{item.privacy === 'private'}}">

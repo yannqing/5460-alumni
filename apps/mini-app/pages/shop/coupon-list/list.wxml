@@ -1,0 +1,38 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="优惠券">
+  <message-notification />
+
+  <view class="coupon-page">
+    <view class="coupon-header">
+      <view class="coupon-header-title">商户优惠券</view>
+      <view class="coupon-header-subtitle" wx:if="{{merchantName}}">{{merchantName}}</view>
+    </view>
+
+    <scroll-view
+      class="coupon-scroll"
+      scroll-y
+      refresher-enabled
+      refresher-triggered="{{refreshing}}"
+      bindrefresherrefresh="refreshList"
+      bindscrolltolower="loadMore"
+      lower-threshold="120"
+      show-scrollbar="{{false}}"
+    >
+      <view class="coupon-list">
+        <coupon-card
+          wx:for="{{coupons}}"
+          wx:key="couponId"
+          coupon="{{item}}"
+          couponBgUrl="{{couponCardBgUrl}}"
+          showAction="{{true}}"
+          bind:cardtap="viewCouponDetail"
+        />
+
+        <view class="loading-state" wx:if="{{loading && coupons.length > 0}}">加载中...</view>
+        <view class="loading-state" wx:elif="{{!hasNext && coupons.length > 0}}">没有更多了</view>
+        <view class="empty-state" wx:if="{{!loading && coupons.length === 0}}">
+          <text>暂无优惠券</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</custom-nav-bar>

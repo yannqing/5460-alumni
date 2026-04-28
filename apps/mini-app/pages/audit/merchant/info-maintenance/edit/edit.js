@@ -18,10 +18,18 @@ Page({
     backgroundImageList: [],
     /** 背景图预览完整地址（含 getImageUrl） */
     backgroundImagePreviewUrls: [],
+    /** 详情图片 URL 列表（相对路径或完整 URL，提交时 JSON.stringify） */
+    detailImageList: [],
+    /** 详情图片预览完整地址（含 getImageUrl） */
+    detailImagePreviewUrls: [],
     categoryOptions: [],
     serviceOptions: [],
     categoryIndex: -1,
     serviceIndex: -1,
+    /** 详情图片 URL 列表（相对路径或完整 URL，提交时 JSON.stringify） */
+    detailImageList: [],
+    /** 详情图片预览完整地址（含 getImageUrl） */
+    detailImagePreviewUrls: [],
     formData: {
       merchantName: '',
       merchantType: 1,
@@ -139,6 +147,16 @@ Page({
     this.setData({ backgroundImagePreviewUrls: urls })
   },
 
+  syncDetailImagePreviews() {
+    const list = this.data.detailImageList || []
+    const urls = list.map(u => {
+      const s = String(u).trim()
+      if (!s) return ''
+      return /^https?:\/\//i.test(s) ? s : config.getImageUrl(s)
+    })
+    this.setData({ detailImagePreviewUrls: urls })
+  },
+
   updateImagePreviews() {
     const f = this.data.formData
     this.setData({
@@ -189,6 +207,7 @@ Page({
       const associationNameFirstChar = nameTrim ? nameTrim.slice(0, 1) : '校'
 
       const bgList = this.parseBackgroundImage(data.backgroundImage)
+      const detailList = this.parseBackgroundImage(data.detailImages)
 
       this.setData({
         formData: {
@@ -211,6 +230,7 @@ Page({
           alumniAssociationId: alumniIdStr,
         },
         backgroundImageList: bgList,
+        detailImageList: detailList,
         associationDisplayName: nameTrim,
         associationLogoUrl,
         associationNameFirstChar,
@@ -231,6 +251,7 @@ Page({
       }
       this.updateImagePreviews()
       this.syncBackgroundImagePreviews()
+      this.syncDetailImagePreviews()
     } catch (e) {
       console.error(e)
       wx.showToast({ title: '加载失败', icon: 'none' })
@@ -295,7 +316,9 @@ Page({
           wx.showLoading({ title: '上传中...', mask: true })
           const uploadRes = await uploadImage(paths[0], '/file/upload/images', 'image')
           if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
-            this.setData({ 'formData.logo': uploadRes.data.fileUrl }, () => this.updateImagePreviews())
+            this.setData({ 'formData.logo': uploadRes.data.fileUrl }, () =>
+              this.updateImagePreviews()
+            )
             wx.showToast({ title: '上传成功', icon: 'success' })
           } else {
             throw new Error(uploadRes.msg || '上传失败')
@@ -322,7 +345,9 @@ Page({
           wx.showLoading({ title: '上传中...', mask: true })
           const uploadRes = await uploadImage(paths[0], '/file/upload/images', 'image')
           if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
-            this.setData({ 'formData.businessLicense': uploadRes.data.fileUrl }, () => this.updateImagePreviews())
+            this.setData({ 'formData.businessLicense': uploadRes.data.fileUrl }, () =>
+              this.updateImagePreviews()
+            )
             wx.showToast({ title: '上传成功', icon: 'success' })
           } else {
             throw new Error(uploadRes.msg || '上传失败')
@@ -382,6 +407,51 @@ Page({
     this.setData({ backgroundImageList: list }, () => this.syncBackgroundImagePreviews())
   },
 
+  chooseDetailImage() {
+    const remain = 9 - (this.data.detailImageList || []).length
+    if (remain <= 0) {
+      wx.showToast({ title: '最多上传9张详情图', icon: 'none' })
+      return
+    }
+    wx.chooseImage({
+      count: remain,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: async res => {
+        const paths = res.tempFilePaths || []
+        if (!paths.length) return
+        try {
+          wx.showLoading({ title: '上传中...', mask: true })
+          const next = [...(this.data.detailImageList || [])]
+          for (const p of paths) {
+            const uploadRes = await uploadImage(p, '/file/upload/images', 'image')
+            if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
+              next.push(uploadRes.data.fileUrl)
+            } else {
+              throw new Error(uploadRes.msg || '上传失败')
+            }
+          }
+          this.setData({ detailImageList: next }, () => this.syncDetailImagePreviews())
+          wx.showToast({ title: '上传成功', icon: 'success' })
+        } catch (err) {
+          console.error(err)
+          wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
+        } finally {
+          wx.hideLoading()
+        }
+      },
+    })
+  },
+
+  removeDetailImage(e) {
+    const { index } = e.currentTarget.dataset
+    const i = parseInt(index, 10)
+    if (Number.isNaN(i)) return
+    const list = [...(this.data.detailImageList || [])]
+    list.splice(i, 1)
+    this.setData({ detailImageList: list }, () => this.syncDetailImagePreviews())
+  },
+
   async submitForm() {
     const { merchantIdStr, formData } = this.data
     const name = (formData.merchantName || '').trim()
@@ -391,11 +461,7 @@ Page({
     }
 
     const aidStr = String(formData.alumniAssociationId || '').trim()
-    if (!aidStr) {
-      wx.showToast({ title: '请填写关联校友会ID', icon: 'none' })
-      return
-    }
-    if (!/^\d+$/.test(aidStr)) {
+    if (aidStr && !/^\d+$/.test(aidStr)) {
       wx.showToast({ title: '校友会ID须为数字', icon: 'none' })
       return
     }
@@ -479,9 +545,11 @@ Page({
     addStr('businessCategory', formData.businessCategory)
     addStr('logo', formData.logo)
     payload.backgroundImage = JSON.stringify(this.data.backgroundImageList || [])
+    payload.detailImages = JSON.stringify(this.data.detailImageList || [])
 
-    // 雪花 ID 超过 JS 安全整数，必须用字符串提交，避免 parseInt/Number 丢精度
-    payload.alumniAssociationId = aidStr
+    if (aidStr) {
+      payload.alumniAssociationId = aidStr
+    }
 
     this.setData({ submitting: true })
     try {

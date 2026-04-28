@@ -180,9 +180,14 @@ public class MerchantController {
      */
     @GetMapping("/{merchantId}")
     @Operation(summary = "根据商户ID查询商户详情")
-    public BaseResponse<MerchantDetailVo> getMerchantById(@PathVariable Long merchantId) {
+    public BaseResponse<MerchantDetailVo> getMerchantById(
+            @PathVariable Long merchantId,
+            @AuthenticationPrincipal SecurityUser securityUser) {
         log.info("查询商户详情 - 商户ID: {}", merchantId);
-        MerchantDetailVo merchantDetail = merchantService.getMerchantDetailById(merchantId);
+        Long wxId = (securityUser != null && securityUser.getWxUser() != null)
+                ? securityUser.getWxUser().getWxId()
+                : null;
+        MerchantDetailVo merchantDetail = merchantService.getMerchantDetailById(merchantId, wxId);
         return ResultUtils.success(Code.SUCCESS, merchantDetail, "查询成功");
     }
 
