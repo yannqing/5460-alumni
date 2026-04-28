@@ -1,0 +1,47 @@
+.store-card {
+  padding: 24rpx;
+  background-color: #fff;
+  border: 1rpx solid #f0f0f0;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.store-card:active {
+  background-color: #f8f8f8;
+}
+
+.store-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.store-card__name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.35;
+}
+
+.store-card__address {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.store-card__icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+.store-card__address-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.45;
+  word-break: break-all;
+}

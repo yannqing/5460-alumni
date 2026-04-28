@@ -17,7 +17,7 @@
         </view>
 
         <view class="form-item">
-          <text class="form-label">关联校友会 <text class="required">*</text></text>
+          <text class="form-label">关联校友会</text>
           <view class="association-card" wx:if="{{formData.alumniAssociationId}}">
             <image wx:if="{{associationLogoUrl}}" class="association-avatar" src="{{associationLogoUrl}}" mode="aspectFill" />
             <view wx:else class="association-avatar association-avatar-ph">
@@ -136,6 +136,24 @@
               </view>
             </view>
             <button class="upload-btn" bindtap="chooseBackgroundImage" hover-class="upload-btn-hover">添加背景图</button>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">商户详情图片（可选）</text>
+          <text class="form-hint">可上传多张，用于商家详情页展示，最多 9 张</text>
+          <view class="image-upload-container">
+            <view class="uploaded-images bg-images">
+              <view
+                class="uploaded-image bg-thumb"
+                wx:for="{{detailImagePreviewUrls}}"
+                wx:key="index"
+              >
+                <image src="{{item}}" mode="aspectFill" class="image-preview" />
+                <view class="image-delete" bindtap="removeDetailImage" data-index="{{index}}">×</view>
+              </view>
+            </view>
+            <button class="upload-btn" bindtap="chooseDetailImage" hover-class="upload-btn-hover">添加详情图</button>
           </view>
         </view>
 

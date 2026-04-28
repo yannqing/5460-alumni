@@ -115,6 +115,12 @@ public class ApplyMerchantDto implements Serializable {
     private String backgroundImage;
 
     /**
+     * 商户详情图片（JSON数组）
+     */
+    @Schema(description = "商户详情图片（JSON数组）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String detailImages;
+
+    /**
      * 关联校友会ID（校友商铺时必填）
      */
     @Schema(description = "关联校友会ID（校友商铺时必填）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

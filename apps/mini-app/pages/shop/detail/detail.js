@@ -1,5 +1,5 @@
 // pages/shop/detail/detail.js
-const { nearbyApi, merchantApi, favoriteApi } = require('../../../api/api.js')
+const { nearbyApi, merchantApi, favoriteApi, couponApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 
 // 无商户 logo 时与 pages/merchant/list 一致
@@ -18,14 +18,14 @@ function resolveLogoUrl(logo) {
 function parseBackgroundImageList(backgroundImage) {
   if (!backgroundImage) return []
   if (Array.isArray(backgroundImage)) {
-    return backgroundImage.map((x) => String(x).trim()).filter(Boolean)
+    return backgroundImage.map(x => String(x).trim()).filter(Boolean)
   }
   if (typeof backgroundImage === 'string') {
     const s = backgroundImage.trim()
     if (!s) return []
     try {
       const parsed = JSON.parse(s)
-      return Array.isArray(parsed) ? parsed.map((x) => String(x).trim()).filter(Boolean) : []
+      return Array.isArray(parsed) ? parsed.map(x => String(x).trim()).filter(Boolean) : []
     } catch (e) {
       return []
     }
@@ -54,6 +54,37 @@ function normalizeDisplayText(value) {
   return text
 }
 
+function formatCouponDate(time) {
+  if (!time) return ''
+  return String(time).replace('T', ' ').slice(0, 10)
+}
+
+function normalizeCoupon(coupon) {
+  const typeLabelMap = {
+    1: '折扣券',
+    2: '满减券',
+    3: '礼品券',
+  }
+  const couponType = Number(coupon.couponType || 0)
+
+  return {
+    ...coupon,
+    couponId: String(coupon.couponId || ''),
+    title: coupon.couponName || '',
+    merchant: coupon.merchantName || '',
+    endTime: formatCouponDate(coupon.validEndTime),
+    stock:
+      coupon.remainQuantity !== undefined && coupon.remainQuantity !== null
+        ? coupon.remainQuantity
+        : 0,
+    totalStock:
+      coupon.totalQuantity !== undefined && coupon.totalQuantity !== null
+        ? coupon.totalQuantity
+        : 1,
+    couponType: couponType,
+  }
+}
+
 /** 从第一家门店取门店图（完整 URL） */
 function collectShopGalleryImages(merchantData) {
   const gallery = []
@@ -61,7 +92,7 @@ function collectShopGalleryImages(merchantData) {
   const firstShop = merchantData.shops[0]
   if (!firstShop.shopImages) return gallery
   if (Array.isArray(firstShop.shopImages) && firstShop.shopImages.length > 0) {
-    firstShop.shopImages.forEach((img) => {
+    firstShop.shopImages.forEach(img => {
       const u = config.getImageUrl(String(img).trim())
       if (u) gallery.push(u)
     })
@@ -78,8 +109,10 @@ Page({
     shopInfo: null,
     loading: true,
     favoriteLoading: false,
+    recommendedCoupons: [],
     defaultAvatar: DEFAULT_MERCHANT_LOGO,
-    iconLocation: config.getIconUrl('position.png')
+    iconLocation: config.getIconUrl('position.png'),
+    couponCardBgUrl: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/coupon/coupon_1.png',
   },
 
   onLoad(options) {
@@ -103,7 +136,7 @@ Page({
         const shopGallery = collectShopGalleryImages(merchantData)
         const bgList = parseBackgroundImageList(merchantData.backgroundImage)
         let gallery = dedupeImageUrls(
-          bgList.map((p) => config.getImageUrl(String(p).trim())).filter(Boolean)
+          bgList.map(p => config.getImageUrl(String(p).trim())).filter(Boolean)
         )
         if (gallery.length === 0) {
           gallery = dedupeImageUrls([...shopGallery])
@@ -128,13 +161,14 @@ Page({
             location = address
           } else if (firstShop.province || firstShop.city || firstShop.district) {
             location = [firstShop.province, firstShop.city, firstShop.district]
-              .map((item) => normalizeDisplayText(item))
+              .map(item => normalizeDisplayText(item))
               .filter(Boolean)
               .join('')
           }
           latitude = firstShop.latitude
           longitude = firstShop.longitude
-          phone = normalizeDisplayText(firstShop.phone) || normalizeDisplayText(merchantData.contactPhone)
+          phone =
+            normalizeDisplayText(firstShop.phone) || normalizeDisplayText(merchantData.contactPhone)
           businessHours = firstShop.businessHours || ''
         }
 
@@ -154,13 +188,17 @@ Page({
           wechat: '', // 新接口未提供微信信息
           businessHours: businessHours,
           description: merchantData.businessScope || '',
-          isFavorited: false, // 新接口未提供关注状态
-          certifiedAssociation: merchantData.alumniAssociation ? {
-            id: merchantData.alumniAssociation.alumniAssociationId,
-            name: merchantData.alumniAssociation.associationName
-          } : null,
+          isFavorited: !!merchantData.isFavorited,
+          favoriteCount: merchantData.favoriteCount || 0,
+          certifiedAssociation: merchantData.alumniAssociation
+            ? {
+                id: merchantData.alumniAssociation.alumniAssociationId,
+                name: merchantData.alumniAssociation.associationName,
+              }
+            : null,
           ownerId: merchantData.merchantId,
           gallery: gallery,
+          detailImages: merchantData.detailImages || [],
           coupons: [], // 新接口未提供优惠券信息
           recentAlumni: [], // 新接口未提供校友足迹
           dynamics: [], // 新接口未提供店铺动态
@@ -179,20 +217,21 @@ Page({
             shops: merchantData.shops || [],
             ratingCount: merchantData.ratingCount,
             isAlumniCertified: merchantData.isAlumniCertified,
-            alumniAssociation: merchantData.alumniAssociation
-          }
+            alumniAssociation: merchantData.alumniAssociation,
+          },
         }
 
         this.setData({
           shopInfo: shopInfo,
-          loading: false
+          loading: false,
         })
+        this.loadRecommendedCoupons()
       } else {
         console.error('[ShopDetail] 接口返回错误:', res.data?.code, res.data?.msg)
         this.setData({ loading: false })
         wx.showToast({
           title: res.data?.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
@@ -201,8 +240,27 @@ Page({
       this.setData({ loading: false })
       wx.showToast({
         title: '加载失败',
-        icon: 'none'
+        icon: 'none',
       })
+    }
+  },
+
+  async loadRecommendedCoupons() {
+    const merchantId = this.data.shopId
+    if (!merchantId) {
+      return
+    }
+    try {
+      const res = await couponApi.getMerchantRecommendedCoupons(merchantId)
+      if (res.data && res.data.code === 200) {
+        const list = (res.data.data || []).map(normalizeCoupon).slice(0, 2)
+        this.setData({ recommendedCoupons: list })
+      } else {
+        this.setData({ recommendedCoupons: [] })
+      }
+    } catch (error) {
+      console.error('[ShopDetail] 获取推荐优惠券失败:', error)
+      this.setData({ recommendedCoupons: [] })
     }
   },
 
@@ -213,7 +271,7 @@ Page({
     if (!shopInfo || !shopInfo.certifiedAssociation) {
       wx.showToast({
         title: '暂无校友会信息',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -222,7 +280,7 @@ Page({
     if (!certifiedAssociation.id) {
       wx.showToast({
         title: '校友会ID不存在',
-        icon: 'none'
+        icon: 'none',
       })
       console.error('certifiedAssociation:', certifiedAssociation)
       return
@@ -233,13 +291,13 @@ Page({
     console.log('跳转URL:', url)
     wx.navigateTo({
       url: url,
-      fail: (err) => {
+      fail: err => {
         console.error('跳转失败:', err)
         wx.showToast({
           title: '跳转失败',
-          icon: 'none'
+          icon: 'none',
         })
-      }
+      },
     })
   },
 
@@ -248,7 +306,7 @@ Page({
     const { phone } = e.currentTarget.dataset
     if (phone) {
       wx.makePhoneCall({
-        phoneNumber: phone
+        phoneNumber: phone,
       })
     }
   },
@@ -256,7 +314,7 @@ Page({
   // 处理优惠券
   handleCoupon(e) {
     const { id, status } = e.currentTarget.dataset
-    
+
     if (status === 'alumni-only') {
       wx.showModal({
         title: '提示',
@@ -264,23 +322,21 @@ Page({
         showCancel: true,
         cancelText: '取消',
         confirmText: '去认证',
-        success: (res) => {
+        success: res => {
           if (res.confirm) {
             // 跳转到认证页面
             wx.navigateTo({
-              url: '/pages/profile/edit/edit?tab=certification'
+              url: '/pages/profile/edit/edit?tab=certification',
             })
           }
-        }
+        },
       })
       return
     }
 
     if (status === 'claimed') {
       wx.navigateTo({
-        url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(
-          String(id)
-        )}`,
+        url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(String(id))}`,
       })
       return
     }
@@ -289,12 +345,12 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认领取该优惠券吗？',
-      success: (res) => {
+      success: res => {
         if (res.confirm) {
           // TODO: 调用领取接口
           wx.showToast({
             title: '领取成功',
-            icon: 'success'
+            icon: 'success',
           })
           // 更新状态
           const coupons = this.data.shopInfo.coupons.map(coupon => {
@@ -304,27 +360,27 @@ Page({
             return coupon
           })
           this.setData({
-            'shopInfo.coupons': coupons
+            'shopInfo.coupons': coupons,
           })
         }
-      }
+      },
     })
   },
 
   // 查看校友详情
   viewAlumniDetail(e) {
     const { id, privacy } = e.currentTarget.dataset
-    
+
     if (privacy === 'private') {
       wx.showToast({
         title: '该校友设置了隐私保护',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
 
     wx.navigateTo({
-      url: `/pages/alumni/detail/detail?id=${id}`
+      url: `/pages/alumni/detail/detail?id=${id}`,
     })
   },
 
@@ -335,19 +391,35 @@ Page({
       return
     }
     wx.navigateTo({
-      url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(
-        String(id)
-      )}`,
+      url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(String(id))}`,
+    })
+  },
+
+  viewMoreCoupons() {
+    const { shopInfo, shopId } = this.data
+    const merchantName = shopInfo && shopInfo.name ? encodeURIComponent(shopInfo.name) : ''
+    wx.navigateTo({
+      url: `/pages/shop/coupon-list/list?merchantId=${encodeURIComponent(String(shopId))}&merchantName=${merchantName}`,
+    })
+  },
+
+  viewPublicCouponDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(id))}`,
     })
   },
 
   // 查看动态详情
   viewDynamicDetail(e) {
     const { id } = e.currentTarget.dataset
-    if (!id) {return}
+    if (!id) {
+      return
+    }
     // 跳转到动态详情页（可以复用活动详情页或创建新的动态详情页）
     wx.navigateTo({
-      url: `/pages/activity/detail/detail?id=${id}`
+      url: `/pages/activity/detail/detail?id=${id}`,
     })
   },
 
@@ -383,8 +455,15 @@ Page({
 
       if (res?.data?.code === 200 && res?.data?.data) {
         const favorited = !!res.data.data.favorited
+        const wasFavorited = !!shopInfo.isFavorited
+        const currentFavoriteCount = Number(shopInfo.favoriteCount || 0)
+        const nextFavoriteCount =
+          favorited === wasFavorited
+            ? currentFavoriteCount
+            : Math.max(0, currentFavoriteCount + (favorited ? 1 : -1))
         this.setData({
           'shopInfo.isFavorited': favorited,
+          'shopInfo.favoriteCount': nextFavoriteCount,
         })
         wx.showToast({
           title: favorited ? '收藏成功' : '取消收藏成功',
@@ -410,15 +489,17 @@ Page({
   // 跳转到私信页面
   goToChat() {
     const { shopInfo } = this.data
-    if (!shopInfo) {return}
+    if (!shopInfo) {
+      return
+    }
 
     // 如果有ownerId，跳转到聊天页
     if (shopInfo.ownerId) {
       const name = encodeURIComponent(shopInfo.name) // 使用店铺名或店主名
       const avatar = encodeURIComponent(shopInfo.logo) // 使用店铺Logo
-      
+
       wx.navigateTo({
-        url: `/pages/chat/detail/detail?id=${shopInfo.ownerId}&name=${name}&avatar=${avatar}&type=chat`
+        url: `/pages/chat/detail/detail?id=${shopInfo.ownerId}&name=${name}&avatar=${avatar}&type=chat`,
       })
     } else {
       // 降级处理：如果没有ownerId，还是使用原来的联系方式弹窗
@@ -429,21 +510,23 @@ Page({
   // 联系店铺
   contactShop() {
     const { shopInfo } = this.data
-    if (!shopInfo) {return}
+    if (!shopInfo) {
+      return
+    }
 
     wx.showActionSheet({
       itemList: shopInfo.wechat ? ['拨打电话', '复制微信号', '复制地址'] : ['拨打电话', '复制地址'],
-      success: (res) => {
+      success: res => {
         if (res.tapIndex === 0) {
           // 拨打电话
           if (shopInfo.phone) {
             wx.makePhoneCall({
-              phoneNumber: shopInfo.phone
+              phoneNumber: shopInfo.phone,
             })
           } else {
             wx.showToast({
               title: '暂无联系电话',
-              icon: 'none'
+              icon: 'none',
             })
           }
         } else if (res.tapIndex === 1) {
@@ -454,9 +537,9 @@ Page({
               success: () => {
                 wx.showToast({
                   title: '微信号已复制',
-                  icon: 'success'
+                  icon: 'success',
                 })
-              }
+              },
             })
           } else {
             // 复制地址
@@ -465,9 +548,9 @@ Page({
               success: () => {
                 wx.showToast({
                   title: '地址已复制',
-                  icon: 'success'
+                  icon: 'success',
                 })
-              }
+              },
             })
           }
         } else if (res.tapIndex === 2) {
@@ -477,21 +560,23 @@ Page({
             success: () => {
               wx.showToast({
                 title: '地址已复制',
-                icon: 'success'
+                icon: 'success',
               })
-            }
+            },
           })
         }
-      }
+      },
     })
   },
 
   // 查看门店详情
   viewShopDetail(e) {
-    const { id } = e.currentTarget.dataset
-    if (!id) {return}
+    const id = e.detail?.id || e.currentTarget?.dataset?.id
+    if (!id) {
+      return
+    }
     wx.navigateTo({
-      url: `/pages/shop/shop-detail/shop-detail?id=${id}`
+      url: `/pages/shop/shop-detail/shop-detail?id=${id}`,
     })
-  }
+  },
 })

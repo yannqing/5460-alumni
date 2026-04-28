@@ -686,6 +686,60 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
     }
 
     @Override
+    public PageVo<CouponVo> queryPublicMerchantCoupons(QueryMerchantCouponDto queryDto) {
+        Optional.ofNullable(queryDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
+        Optional.ofNullable(queryDto.getMerchantId())
+                .orElseThrow(() -> new BusinessException("商户ID不能为空"));
+
+        int current = queryDto.getCurrent() < 1 ? 1 : queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize() < 1 ? 10 : Math.min(queryDto.getPageSize(), 50);
+
+        LambdaQueryWrapper<Coupon> queryWrapper = buildPublicMerchantCouponQuery(queryDto.getMerchantId(), queryDto.getShopId());
+
+        Page<Coupon> couponPage = this.page(new Page<>(current, pageSize), queryWrapper);
+        List<CouponVo> couponVos = couponPage.getRecords().stream()
+                .map(CouponVo::objToVo)
+                .toList();
+
+        Page<CouponVo> voPage = new Page<>(current, pageSize, couponPage.getTotal());
+        voPage.setRecords(couponVos);
+        return PageVo.of(voPage);
+    }
+
+    @Override
+    public List<CouponVo> listRecommendedMerchantCoupons(Long merchantId) {
+        Optional.ofNullable(merchantId)
+                .orElseThrow(() -> new BusinessException("商户ID不能为空"));
+
+        List<Coupon> coupons = this.list(
+                buildPublicMerchantCouponQuery(merchantId, null)
+                        .last("LIMIT 5")
+        );
+        return coupons.stream()
+                .map(CouponVo::objToVo)
+                .toList();
+    }
+
+    private LambdaQueryWrapper<Coupon> buildPublicMerchantCouponQuery(Long merchantId, Long shopId) {
+        LocalDateTime now = LocalDateTime.now();
+        return new LambdaQueryWrapper<Coupon>()
+                .eq(Coupon::getMerchantId, merchantId)
+                .eq(shopId != null, Coupon::getShopId, shopId)
+                .eq(Coupon::getStatus, 1)
+                .eq(Coupon::getReviewStatus, 1)
+                .and(wrapper -> wrapper
+                        .isNull(Coupon::getValidStartTime)
+                        .or()
+                        .le(Coupon::getValidStartTime, now))
+                .and(wrapper -> wrapper
+                        .isNull(Coupon::getValidEndTime)
+                        .or()
+                        .ge(Coupon::getValidEndTime, now))
+                .orderByDesc(Coupon::getCreateTime);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateCoupon(UpdateCouponDto updateDto) {
         // 1. 参数校验

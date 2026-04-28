@@ -5,6 +5,7 @@ import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.common.dto.ClaimCouponDto;
 import com.cmswe.alumni.common.dto.CreateCouponDto;
+import com.cmswe.alumni.common.dto.QueryMerchantCouponDto;
 import com.cmswe.alumni.common.dto.QueryUserCouponDto;
 import com.cmswe.alumni.common.dto.VerifyCouponDto;
 import com.cmswe.alumni.common.utils.BaseResponse;
@@ -19,6 +20,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 优惠券管理 Controller
@@ -99,6 +102,39 @@ public class CouponController {
 
                 PageVo<UserCouponVo> pageVo = couponService.queryUserCoupons(wxId, queryDto);
 
+                return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
+        }
+
+        /**
+         * 获取商户推荐优惠券列表（用户侧，最多 5 个）
+         *
+         * @param merchantId 商户ID
+         * @return 推荐优惠券列表
+         */
+        @GetMapping("/merchant/{merchantId}/recommend")
+        @Operation(summary = "获取商户推荐优惠券列表")
+        public BaseResponse<List<CouponVo>> listRecommendedMerchantCoupons(@PathVariable Long merchantId) {
+                log.info("查询商户推荐优惠券列表 - 商户ID: {}", merchantId);
+                List<CouponVo> coupons = couponService.listRecommendedMerchantCoupons(merchantId);
+                return ResultUtils.success(Code.SUCCESS, coupons, "查询成功");
+        }
+
+        /**
+         * 分页查询商户公开优惠券列表（用户侧）
+         *
+         * @param merchantId 商户ID
+         * @param queryDto 查询参数
+         * @return 优惠券分页列表
+         */
+        @GetMapping("/merchant/{merchantId}/page")
+        @Operation(summary = "分页查询商户公开优惠券列表")
+        public BaseResponse<PageVo<CouponVo>> pageMerchantCoupons(
+                        @PathVariable Long merchantId,
+                        QueryMerchantCouponDto queryDto) {
+                queryDto.setMerchantId(merchantId);
+                log.info("分页查询商户公开优惠券列表 - 商户ID: {}, 当前页: {}, 每页大小: {}",
+                                merchantId, queryDto.getCurrent(), queryDto.getPageSize());
+                PageVo<CouponVo> pageVo = couponService.queryPublicMerchantCoupons(queryDto);
                 return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
         }
 

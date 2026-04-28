@@ -87,6 +87,22 @@ public interface CouponService {
     PageVo<CouponVo> queryMerchantCoupons(QueryMerchantCouponDto queryDto);
 
     /**
+     * 分页查询商户公开优惠券列表（用户侧）
+     *
+     * @param queryDto 查询参数
+     * @return 分页结果
+     */
+    PageVo<CouponVo> queryPublicMerchantCoupons(QueryMerchantCouponDto queryDto);
+
+    /**
+     * 查询商户推荐优惠券列表（用户侧）
+     *
+     * @param merchantId 商户ID
+     * @return 推荐优惠券列表
+     */
+    java.util.List<CouponVo> listRecommendedMerchantCoupons(Long merchantId);
+
+    /**
      * 更新优惠券（仅未发布的优惠券可以编辑）
      *
      * @param updateDto 更新请求

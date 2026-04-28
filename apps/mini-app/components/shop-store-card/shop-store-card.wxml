@@ -1,0 +1,9 @@
+<view wx:if="{{shop}}" class="store-card" bindtap="handleTap">
+  <view class="store-card__header">
+    <text class="store-card__name">{{displayName}}</text>
+  </view>
+  <view class="store-card__address">
+    <image wx:if="{{iconLocation}}" class="store-card__icon" src="{{iconLocation}}" mode="aspectFit"></image>
+    <text class="store-card__address-text">{{displayAddress}}</text>
+  </view>
+</view>

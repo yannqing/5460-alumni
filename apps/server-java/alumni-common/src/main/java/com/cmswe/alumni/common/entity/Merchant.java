@@ -106,6 +106,12 @@ public class Merchant implements Serializable {
     private String backgroundImage;
 
     /**
+     * 商户详情图片（JSON数组）
+     */
+    @TableField(value = "detail_images")
+    private String detailImages;
+
+    /**
      * 审核状态：0-待审核 1-审核通过 2-审核失败 3-已撤销 4-待发布
      */
     @TableField(value = "review_status")

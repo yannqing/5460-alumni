@@ -113,6 +113,12 @@ public class MerchantDetailVo implements Serializable {
     private String backgroundImage;
 
     /**
+     * 商户详情图片（JSON数组）
+     */
+    @Schema(description = "商户详情图片（JSON数组）")
+    private List<String> detailImages;
+
+    /**
      * 审核状态：0-待审核 1-审核通过 2-审核失败
      */
     @Schema(description = "审核状态")
@@ -173,6 +179,18 @@ public class MerchantDetailVo implements Serializable {
     private Integer ratingCount;
 
     /**
+     * 收藏人数
+     */
+    @Schema(description = "收藏人数")
+    private Long favoriteCount;
+
+    /**
+     * 当前用户是否收藏（登录后查询）
+     */
+    @Schema(description = "当前用户是否收藏")
+    private Boolean isFavorited;
+
+    /**
      * 是否校友认证：0-否 1-是
      */
     @Schema(description = "是否校友认证")
@@ -206,6 +224,16 @@ public class MerchantDetailVo implements Serializable {
         // 将 Long 转换为 String，避免前端精度丢失
         vo.setMerchantId(String.valueOf(merchant.getMerchantId()));
         vo.setUserId(String.valueOf(merchant.getUserId()));
+
+        // 将 detail_images（JSON字符串）先置空，再单独解析为 List<String>
+        vo.setDetailImages(null);
+        if (merchant.getDetailImages() != null && !merchant.getDetailImages().isEmpty()) {
+            try {
+                vo.setDetailImages(com.alibaba.fastjson.JSON.parseArray(merchant.getDetailImages(), String.class));
+            } catch (Exception e) {
+                vo.setDetailImages(null);
+            }
+        }
 
         // 注意：alumniAssociation 需要在 Service 层单独设置
 

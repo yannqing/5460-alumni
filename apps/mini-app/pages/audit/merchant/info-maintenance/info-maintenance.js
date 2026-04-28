@@ -41,7 +41,8 @@ Page({
       try {
         const parsed = JSON.parse(d.backgroundImage)
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const first = typeof parsed[0] === 'string' ? parsed[0] : parsed[0].url || parsed[0].fileUrl || ''
+          const first =
+            typeof parsed[0] === 'string' ? parsed[0] : parsed[0].url || parsed[0].fileUrl || ''
           bgPreview = first ? config.getImageUrl(String(first).trim()) : ''
         }
       } catch (e) {
@@ -50,16 +51,46 @@ Page({
     }
     d.backgroundPreviewUrl = bgPreview
 
+    if (d.detailImages) {
+      try {
+        let parsed = d.detailImages
+        if (typeof d.detailImages === 'string') {
+          parsed = JSON.parse(d.detailImages)
+        }
+        d.detailImageUrls = Array.isArray(parsed)
+          ? parsed
+              .map(img => {
+                const s = typeof img === 'string' ? img : img.url || img.fileUrl || ''
+                return s ? config.getImageUrl(String(s).trim()) : ''
+              })
+              .filter(Boolean)
+          : []
+      } catch (e) {
+        d.detailImageUrls = []
+      }
+    } else {
+      d.detailImageUrls = []
+    }
+
     const mt = d.merchantType
     d.merchantTypeText =
       mt === 1 ? '校友商铺' : mt === 2 ? '普通商铺' : mt != null ? String(mt) : '—'
 
     const rs = d.reviewStatus
     d.reviewStatusText =
-      rs === 0 ? '待审核' : rs === 1 ? '审核通过' : rs === 2 ? '审核未通过' : rs != null ? String(rs) : '—'
+      rs === 0
+        ? '待审核'
+        : rs === 1
+          ? '审核通过'
+          : rs === 2
+            ? '审核未通过'
+            : rs != null
+              ? String(rs)
+              : '—'
 
     const st = d.status
-    d.statusText = st === 0 ? '禁用' : st === 1 ? '启用' : st === 2 ? '已注销' : st != null ? String(st) : '—'
+    d.statusText =
+      st === 0 ? '禁用' : st === 1 ? '启用' : st === 2 ? '已注销' : st != null ? String(st) : '—'
 
     const tier = d.memberTier
     const tierMap = { 1: '基础版', 2: '标准版', 3: '专业版', 4: '旗舰版' }
@@ -211,5 +242,16 @@ Page({
     wx.navigateTo({
       url: `/pages/audit/merchant/info-maintenance/edit/edit?merchantId=${merchantId}`,
     })
+  },
+
+  previewDetailImage(e) {
+    const { index } = e.currentTarget.dataset
+    const urls = this.data.currentMerchantDetail?.detailImageUrls || []
+    if (urls.length > 0) {
+      wx.previewImage({
+        current: urls[index],
+        urls: urls,
+      })
+    }
   },
 })

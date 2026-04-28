@@ -13,6 +13,7 @@ import com.cmswe.alumni.api.user.OrganizeArchiRoleService;
 import com.cmswe.alumni.api.user.RoleService;
 import com.cmswe.alumni.api.user.RoleUserService;
 import com.cmswe.alumni.api.user.UnifiedMessageApiService;
+import com.cmswe.alumni.api.user.UserFavoriteService;
 import com.cmswe.alumni.common.constant.CommonConstant;
 import com.cmswe.alumni.common.dto.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -27,6 +28,7 @@ import com.cmswe.alumni.common.entity.OrganizeArchiRole;
 import com.cmswe.alumni.common.entity.Role;
 import com.cmswe.alumni.common.entity.RoleUser;
 import com.cmswe.alumni.common.entity.Shop;
+import com.cmswe.alumni.common.entity.UserFavorite;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
@@ -95,6 +97,10 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
     @Resource
     private MerchantBusinessCategoryService merchantBusinessCategoryService;
+
+    @Lazy
+    @Resource
+    private UserFavoriteService userFavoriteService;
 
     private List<Long> parseAssociationIds(String associationIdStr) {
         if (StringUtils.isBlank(associationIdStr)) {
@@ -972,12 +978,17 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
     @Override
     public MerchantDetailVo getMerchantDetailById(Long merchantId) {
+        return getMerchantDetailById(merchantId, null);
+    }
+
+    @Override
+    public MerchantDetailVo getMerchantDetailById(Long merchantId, Long wxId) {
         // 1. 参数校验
         if (merchantId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "商户ID不能为空");
         }
 
-        log.info("查询商户详情 - 商户ID: {}", merchantId);
+        log.info("查询商户详情 - 商户ID: {}, 当前用户ID: {}", merchantId, wxId);
 
         // 2. 查询商户（允许查询已通过 1 或 待发布 4 的商户）
         Merchant merchant = this.getOne(
@@ -997,6 +1008,25 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         // 3. 转换为 VO
         MerchantDetailVo merchantDetailVo = MerchantDetailVo.objToVo(merchant);
+        Long favoriteCount = userFavoriteService.count(
+                new LambdaQueryWrapper<UserFavorite>()
+                        .eq(UserFavorite::getTargetType, 1)
+                        .eq(UserFavorite::getTargetId, merchantId)
+                        .eq(UserFavorite::getIsDeleted, 0)
+        );
+        merchantDetailVo.setFavoriteCount(favoriteCount);
+
+        // 3.5 如果传入了 wxId，查询当前用户是否收藏
+        if (wxId != null) {
+            Long existCount = userFavoriteService.count(
+                    new LambdaQueryWrapper<UserFavorite>()
+                            .eq(UserFavorite::getTargetType, 1)
+                            .eq(UserFavorite::getTargetId, merchantId)
+                            .eq(UserFavorite::getWxId, wxId)
+                            .eq(UserFavorite::getIsDeleted, 0)
+            );
+            merchantDetailVo.setIsFavorited(existCount > 0);
+        }
 
         // 4. 如果有关联的校友会，查询校友会信息
         if (StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
@@ -1010,7 +1040,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     }
                 }
                 merchantDetailVo.setJoinedAssociations(joinedList);
-                
+
                 // 取第一个作为主展示
                 if (!joinedList.isEmpty()) {
                     merchantDetailVo.setAlumniAssociation(joinedList.get(0));
@@ -1263,6 +1293,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         if (dto.getBackgroundImage() != null) {
             merchant.setBackgroundImage(dto.getBackgroundImage());
         }
+        if (dto.getDetailImages() != null) {
+            merchant.setDetailImages(dto.getDetailImages());
+        }
         if (dto.getAlumniAssociationId() != null) {
             merchant.setAlumniAssociationId(JSON.toJSONString(Collections.singletonList(dto.getAlumniAssociationId())));
         }
@@ -1345,6 +1378,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 || dto.getBusinessCategory() != null
                 || dto.getLogo() != null
                 || dto.getBackgroundImage() != null
+                || dto.getDetailImages() != null
                 || dto.getAlumniAssociationId() != null;
     }
 

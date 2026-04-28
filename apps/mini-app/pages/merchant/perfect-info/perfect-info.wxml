@@ -125,6 +125,24 @@
           </view>
         </view>
 
+        <view class="form-item">
+          <text class="form-label">商户详情图片（可选）</text>
+          <text class="form-hint">可上传多张，用于商家详情页展示，最多 9 张</text>
+          <view class="image-upload-container">
+            <view class="uploaded-images bg-images">
+              <view
+                class="uploaded-image bg-thumb"
+                wx:for="{{detailImagePreviewUrls}}"
+                wx:key="index"
+              >
+                <image src="{{item}}" mode="aspectFill" class="image-preview" />
+                <view class="image-delete" bindtap="removeDetailImage" data-index="{{index}}">×</view>
+              </view>
+            </view>
+            <button class="upload-btn" bindtap="chooseDetailImage" hover-class="upload-btn-hover">添加详情图</button>
+          </view>
+        </view>
+
         <button class="submit-btn" form-type="submit" loading="{{submitting}}" disabled="{{submitting}}">完善信息并发布</button>
         </form>
       </scroll-view>
