@@ -70,7 +70,28 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         // 固定字段
         activity.setOrganizerType(5); // 主办方类型固定为5（门店）
         activity.setActivityCategory("话题"); // 活动分类固定为"话题"
-        activity.setStatus(3); // 状态固定为3（进行中）
+        
+        // 计算初始状态
+        Integer status;
+        if (publishTopicDto.getIsSignup() == 1) {
+            if (now.isBefore(publishTopicDto.getRegistrationEndTime())) {
+                status = 1; // 报名中
+            } else if (now.isBefore(publishTopicDto.getStartTime())) {
+                status = 2; // 报名结束
+            } else if (now.isBefore(publishTopicDto.getEndTime())) {
+                status = 3; // 进行中
+            } else {
+                status = 4; // 已结束
+            }
+        } else {
+            if (now.isBefore(publishTopicDto.getEndTime())) {
+                status = 3; // 进行中
+            } else {
+                status = 4; // 已结束
+            }
+        }
+        activity.setStatus(status);
+        
         activity.setReviewStatus(1); // 审核状态固定为1（审核通过）
         activity.setIsRecommended(0); // 是否推荐固定为0
         activity.setIsPublic(1); // 默认公开
@@ -362,23 +383,37 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         LocalDateTime now = LocalDateTime.now();
         log.info("开始执行活动状态定时更新任务, 当前时间: {}", now);
 
-        // 1. [进行中] -> [已结束] (3 -> 4)
+        // 1. 处理所有已结束的活动 (无论是否报名，只要过结束时间就设为 4)
         int count1 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
                 .set(Activity::getStatus, 4)
                 .set(Activity::getUpdateTime, now)
-                .eq(Activity::getStatus, 3)
+                .ne(Activity::getStatus, 4) // 非已结束
+                .ne(Activity::getStatus, 0) // 非草稿
+                .ne(Activity::getStatus, 5) // 非已取消
                 .le(Activity::getEndTime, now));
 
-        // 2. [报名中/报名结束] -> [进行中] (1/2 -> 3)
+        // 2. 处理不需要报名 (isSignup = 0) 的活动状态修正
+        // 如果不需要报名且未结束，统一设为 进行中(3)
         int count2 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
                 .set(Activity::getStatus, 3)
                 .set(Activity::getUpdateTime, now)
+                .eq(Activity::getIsSignup, 0)
+                .in(Activity::getStatus, 1, 2) // 如果由于逻辑残留处于报名状态，修正为进行中
+                .gt(Activity::getEndTime, now));
+
+        // 3. 处理需要报名 (isSignup = 1) 的活动状态流转
+        
+        // 3a. [报名中/报名结束] -> [进行中] (1/2 -> 3)
+        int count3 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 3)
+                .set(Activity::getUpdateTime, now)
+                .eq(Activity::getIsSignup, 1)
                 .in(Activity::getStatus, 1, 2)
                 .le(Activity::getStartTime, now)
                 .gt(Activity::getEndTime, now));
 
-        // 3. [报名中] -> [报名结束] (1 -> 2)
-        int count3 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+        // 3b. [报名中] -> [报名结束] (1 -> 2)
+        int count4 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
                 .set(Activity::getStatus, 2)
                 .set(Activity::getUpdateTime, now)
                 .eq(Activity::getStatus, 1)
@@ -386,8 +421,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 .le(Activity::getRegistrationEndTime, now)
                 .gt(Activity::getStartTime, now));
 
-        if (count1 > 0 || count2 > 0 || count3 > 0) {
-            log.info("活动状态更新完成: [已结束]{}条, [进行中]{}条, [报名结束]{}条", count1, count2, count3);
+        if (count1 > 0 || count2 > 0 || count3 > 0 || count4 > 0) {
+            log.info("活动状态更新完成: [已结束]{}条, [非报名修正为进行中]{}条, [进入进行中]{}条, [进入报名结束]{}条", 
+                    count1, count2, count3, count4);
         }
     }
 

@@ -1805,7 +1805,42 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         activity.setContactPerson(publishDto.getContactPerson());
         activity.setContactPhone(publishDto.getContactPhone());
         activity.setContactEmail(publishDto.getContactEmail());
-        activity.setStatus(1); // 状态：1-报名中
+        // 2. 校验报名时间逻辑
+        if (publishDto.getIsSignup() == 1) {
+            if (publishDto.getRegistrationStartTime() == null || publishDto.getRegistrationEndTime() == null) {
+                throw new BusinessException("开启报名时，报名开始时间和截止时间不能为空");
+            }
+            if (publishDto.getRegistrationStartTime().isAfter(publishDto.getRegistrationEndTime())) {
+                throw new BusinessException("报名开始时间不能晚于截止时间");
+            }
+            if (publishDto.getRegistrationEndTime().isAfter(publishDto.getStartTime())) {
+                throw new BusinessException("报名截止时间不能晚于活动开始时间");
+            }
+        }
+
+        // 3. 计算初始状态
+        LocalDateTime now = LocalDateTime.now();
+        Integer status;
+        if (publishDto.getIsSignup() == 1) {
+            // 需要报名的情况
+            if (now.isBefore(publishDto.getRegistrationEndTime())) {
+                status = 1; // 报名中
+            } else if (now.isBefore(publishDto.getStartTime())) {
+                status = 2; // 报名结束
+            } else if (now.isBefore(publishDto.getEndTime())) {
+                status = 3; // 进行中
+            } else {
+                status = 4; // 已结束
+            }
+        } else {
+            // 不需要报名的情况
+            if (now.isBefore(publishDto.getEndTime())) {
+                status = 3; // 进行中
+            } else {
+                status = 4; // 已结束
+            }
+        }
+        activity.setStatus(status);
         activity.setReviewStatus(1); // 管理员发布，默认审核通过
         activity.setIsPublic(publishDto.getIsPublic() != null ? publishDto.getIsPublic() : 1);
         activity.setShowOnHomepage(publishDto.getShowOnHomepage() != null ? publishDto.getShowOnHomepage() : 0);

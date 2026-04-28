@@ -379,6 +379,14 @@ Page({
         alumniAssociationId,
       }
 
+      // 如果不需要报名，移除报名相关的时间入参，避免后端接收到空字符串或冗余数据
+      if (formData.isSignup === 0) {
+        delete submitData.registrationStartTime
+        delete submitData.registrationEndTime
+        delete submitData.maxParticipants
+        delete submitData.isNeedReview
+      }
+
       const res = await this.publishActivity(submitData)
 
       if (res.data && res.data.code === 200) {
