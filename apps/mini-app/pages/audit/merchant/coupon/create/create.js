@@ -1,6 +1,5 @@
 // pages/audit/merchant/coupon/create/create.js
 const { couponApi } = require('../../../../../api/api.js')
-const { uploadImage } = require('../../../../../utils/fileUpload.js')
 const { get } = require('../../../../../utils/request.js')
 
 function pad2(n) {
@@ -57,7 +56,6 @@ Page({
     formData: {
       couponName: '',
       couponDesc: '',
-      couponImage: '',
       couponType: 1,
       discountType: 2,
       discountValue: '',
@@ -197,39 +195,6 @@ Page({
     this.setData({ 'formData.publishTime': e.detail.value })
   },
 
-  clearCouponImage() {
-    this.setData({ 'formData.couponImage': '' })
-  },
-
-  chooseCouponImage() {
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: async res => {
-        const paths = res.tempFilePaths || []
-        if (!paths.length) {
-          return
-        }
-        try {
-          wx.showLoading({ title: '上传中...', mask: true })
-          const uploadRes = await uploadImage(paths[0], '/file/upload/images', 'image')
-          if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
-            this.setData({ 'formData.couponImage': uploadRes.data.fileUrl })
-            wx.showToast({ title: '上传成功', icon: 'success' })
-          } else {
-            throw new Error(uploadRes.msg || '上传失败')
-          }
-        } catch (err) {
-          console.error(err)
-          wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
-        } finally {
-          wx.hideLoading()
-        }
-      },
-    })
-  },
-
   validate() {
     const { formData, selectedMerchantId, shopIndex, shopList } = this.data
     if (!selectedMerchantId) {
@@ -275,10 +240,7 @@ Page({
     let maxDiscountParsed = null
 
     if (couponType === 1) {
-      const md = parseRequiredNumber(
-        formData.maxDiscount,
-        '请填写最高优惠金额（限制折扣上限）'
-      )
+      const md = parseRequiredNumber(formData.maxDiscount, '请填写最高优惠金额（限制折扣上限）')
       if (md === undefined) {
         return null
       }
@@ -364,10 +326,6 @@ Page({
     const desc = (formData.couponDesc || '').trim()
     if (desc) {
       payload.couponDesc = desc
-    }
-    const img = (formData.couponImage || '').trim()
-    if (img) {
-      payload.couponImage = img
     }
 
     let perUserLimit = 1

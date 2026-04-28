@@ -1,7 +1,6 @@
 // pages/audit/merchant/info-maintenance/edit/edit.js
-const { merchantApi, associationApi } = require('../../../../../api/api.js')
+const { merchantApi, associationApi, fileApi } = require('../../../../../api/api.js')
 const config = require('../../../../../utils/config.js')
-const { uploadImage } = require('../../../../../utils/fileUpload.js')
 
 Page({
   data: {
@@ -68,10 +67,12 @@ Page({
       if (body.code !== 200 || !Array.isArray(body.data)) {
         return
       }
-      const options = body.data.map(item => ({
-        id: item.id != null ? String(item.id) : '',
-        name: item.name || ''
-      })).filter(item => item.id && item.name)
+      const options = body.data
+        .map(item => ({
+          id: item.id != null ? String(item.id) : '',
+          name: item.name || '',
+        }))
+        .filter(item => item.id && item.name)
       this.setData({ categoryOptions: options })
     } catch (e) {
       console.warn('加载经营类目失败', e)
@@ -84,7 +85,7 @@ Page({
         serviceOptions: [],
         serviceIndex: -1,
         'formData.businessServiceId': '',
-        'formData.businessScope': ''
+        'formData.businessScope': '',
       })
       return
     }
@@ -95,10 +96,12 @@ Page({
         this.setData({ serviceOptions: [], serviceIndex: -1, 'formData.businessServiceId': '' })
         return
       }
-      const serviceOptions = body.data.map(item => ({
-        id: item.id != null ? String(item.id) : '',
-        name: item.name || ''
-      })).filter(item => item.id && item.name)
+      const serviceOptions = body.data
+        .map(item => ({
+          id: item.id != null ? String(item.id) : '',
+          name: item.name || '',
+        }))
+        .filter(item => item.id && item.name)
 
       let serviceIndex = -1
       let businessServiceId = ''
@@ -115,7 +118,7 @@ Page({
         serviceOptions,
         serviceIndex,
         'formData.businessServiceId': businessServiceId,
-        'formData.businessScope': businessScope || (selectedServiceName || '')
+        'formData.businessScope': businessScope || selectedServiceName || '',
       })
     } catch (e) {
       console.warn('加载经营范围失败', e)
@@ -245,7 +248,7 @@ Page({
         this.setData({
           categoryIndex,
           'formData.businessCategoryId': category.id,
-          'formData.businessCategory': category.name
+          'formData.businessCategory': category.name,
         })
         await this.loadServiceOptionsByCategoryId(category.id, serviceName)
       }
@@ -280,7 +283,7 @@ Page({
       'formData.businessCategoryId': option.id,
       'formData.businessCategory': option.name,
       'formData.businessServiceId': '',
-      'formData.businessScope': ''
+      'formData.businessScope': '',
     })
     this.loadServiceOptionsByCategoryId(option.id)
   },
@@ -292,7 +295,7 @@ Page({
     this.setData({
       serviceIndex: index,
       'formData.businessServiceId': option.id,
-      'formData.businessScope': option.name
+      'formData.businessScope': option.name,
     })
   },
 
@@ -304,98 +307,120 @@ Page({
     this.setData({ 'formData.businessLicense': '' }, () => this.updateImagePreviews())
   },
 
-  chooseLogo() {
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: async res => {
-        const paths = res.tempFilePaths || []
-        if (!paths.length) return
-        try {
-          wx.showLoading({ title: '上传中...', mask: true })
-          const uploadRes = await uploadImage(paths[0], '/file/upload/images', 'image')
-          if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
-            this.setData({ 'formData.logo': uploadRes.data.fileUrl }, () =>
-              this.updateImagePreviews()
-            )
-            wx.showToast({ title: '上传成功', icon: 'success' })
-          } else {
-            throw new Error(uploadRes.msg || '上传失败')
-          }
-        } catch (err) {
-          console.error(err)
-          wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
-        } finally {
-          wx.hideLoading()
+  async chooseLogo() {
+    try {
+      const chooseRes = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: 1,
+          mediaType: ['image'],
+          success: resolve,
+          fail: reject,
+        })
+      })
+      const tempFilePath = chooseRes.tempFiles?.[0]?.tempFilePath
+      if (!tempFilePath) return
+
+      const fileSize = chooseRes.tempFiles?.[0]?.size || 0
+      const originalName = chooseRes.tempFiles?.[0]?.name || 'logo.jpg'
+
+      wx.showLoading({ title: '上传中...', mask: true })
+      const uploadRes = await fileApi.uploadImage(tempFilePath, originalName, fileSize)
+
+      if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+        const rawImageUrl = uploadRes.data.fileUrl || ''
+        if (rawImageUrl) {
+          this.setData({ 'formData.logo': rawImageUrl }, () => this.updateImagePreviews())
+          wx.showToast({ title: '上传成功', icon: 'success' })
         }
-      },
-    })
+      } else {
+        wx.showToast({ title: uploadRes?.msg || '上传失败', icon: 'none' })
+      }
+    } catch (error) {
+      if (error?.errMsg !== 'chooseMedia:fail cancel') {
+        wx.showToast({ title: '上传失败', icon: 'none' })
+      }
+    } finally {
+      wx.hideLoading()
+    }
   },
 
-  chooseLicense() {
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: async res => {
-        const paths = res.tempFilePaths || []
-        if (!paths.length) return
-        try {
-          wx.showLoading({ title: '上传中...', mask: true })
-          const uploadRes = await uploadImage(paths[0], '/file/upload/images', 'image')
-          if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
-            this.setData({ 'formData.businessLicense': uploadRes.data.fileUrl }, () =>
-              this.updateImagePreviews()
-            )
-            wx.showToast({ title: '上传成功', icon: 'success' })
-          } else {
-            throw new Error(uploadRes.msg || '上传失败')
-          }
-        } catch (err) {
-          console.error(err)
-          wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
-        } finally {
-          wx.hideLoading()
+  async chooseLicense() {
+    try {
+      const chooseRes = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: 1,
+          mediaType: ['image'],
+          success: resolve,
+          fail: reject,
+        })
+      })
+      const tempFilePath = chooseRes.tempFiles?.[0]?.tempFilePath
+      if (!tempFilePath) return
+
+      const fileSize = chooseRes.tempFiles?.[0]?.size || 0
+      const originalName = chooseRes.tempFiles?.[0]?.name || 'license.jpg'
+
+      wx.showLoading({ title: '上传中...', mask: true })
+      const uploadRes = await fileApi.uploadImage(tempFilePath, originalName, fileSize)
+
+      if (uploadRes && uploadRes.code === 200 && uploadRes.data) {
+        const rawImageUrl = uploadRes.data.fileUrl || ''
+        if (rawImageUrl) {
+          this.setData({ 'formData.businessLicense': rawImageUrl }, () =>
+            this.updateImagePreviews()
+          )
+          wx.showToast({ title: '上传成功', icon: 'success' })
         }
-      },
-    })
+      } else {
+        wx.showToast({ title: uploadRes?.msg || '上传失败', icon: 'none' })
+      }
+    } catch (error) {
+      if (error?.errMsg !== 'chooseMedia:fail cancel') {
+        wx.showToast({ title: '上传失败', icon: 'none' })
+      }
+    } finally {
+      wx.hideLoading()
+    }
   },
 
-  chooseBackgroundImage() {
+  async chooseBackgroundImage() {
     const remain = 9 - (this.data.backgroundImageList || []).length
     if (remain <= 0) {
       wx.showToast({ title: '最多上传9张背景图', icon: 'none' })
       return
     }
-    wx.chooseImage({
-      count: remain,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: async res => {
-        const paths = res.tempFilePaths || []
-        if (!paths.length) return
-        try {
-          wx.showLoading({ title: '上传中...', mask: true })
-          const next = [...(this.data.backgroundImageList || [])]
-          for (const p of paths) {
-            const uploadRes = await uploadImage(p, '/file/upload/images', 'image')
-            if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
-              next.push(uploadRes.data.fileUrl)
-            } else {
-              throw new Error(uploadRes.msg || '上传失败')
-            }
-          }
-          this.setData({ backgroundImageList: next }, () => this.syncBackgroundImagePreviews())
-          wx.showToast({ title: '上传成功', icon: 'success' })
-        } catch (err) {
-          console.error(err)
-          wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
-        } finally {
-          wx.hideLoading()
+    try {
+      const chooseRes = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: remain,
+          mediaType: ['image'],
+          success: resolve,
+          fail: reject,
+        })
+      })
+      const tempFiles = chooseRes.tempFiles
+      if (!tempFiles || tempFiles.length === 0) return
+      wx.showLoading({ title: '上传中...', mask: true })
+      const next = [...(this.data.backgroundImageList || [])]
+      for (const file of tempFiles) {
+        const fileSize = file.size || 0
+        const originalName = file.name || 'background.jpg'
+        const uploadRes = await fileApi.uploadImage(file.tempFilePath, originalName, fileSize)
+        if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
+          next.push(uploadRes.data.fileUrl)
+        } else {
+          throw new Error(uploadRes.msg || '上传失败')
         }
-      },
-    })
+      }
+      this.setData({ backgroundImageList: next }, () => this.syncBackgroundImagePreviews())
+      wx.showToast({ title: '上传成功', icon: 'success' })
+    } catch (err) {
+      if (err?.errMsg !== 'chooseMedia:fail cancel') {
+        wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
+      }
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   removeBackgroundImage(e) {
@@ -407,40 +432,44 @@ Page({
     this.setData({ backgroundImageList: list }, () => this.syncBackgroundImagePreviews())
   },
 
-  chooseDetailImage() {
+  async chooseDetailImage() {
     const remain = 9 - (this.data.detailImageList || []).length
     if (remain <= 0) {
       wx.showToast({ title: '最多上传9张详情图', icon: 'none' })
       return
     }
-    wx.chooseImage({
-      count: remain,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: async res => {
-        const paths = res.tempFilePaths || []
-        if (!paths.length) return
-        try {
-          wx.showLoading({ title: '上传中...', mask: true })
-          const next = [...(this.data.detailImageList || [])]
-          for (const p of paths) {
-            const uploadRes = await uploadImage(p, '/file/upload/images', 'image')
-            if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
-              next.push(uploadRes.data.fileUrl)
-            } else {
-              throw new Error(uploadRes.msg || '上传失败')
-            }
-          }
-          this.setData({ detailImageList: next }, () => this.syncDetailImagePreviews())
-          wx.showToast({ title: '上传成功', icon: 'success' })
-        } catch (err) {
-          console.error(err)
-          wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
-        } finally {
-          wx.hideLoading()
+    try {
+      const chooseRes = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: remain,
+          mediaType: ['image'],
+          success: resolve,
+          fail: reject,
+        })
+      })
+      const tempFiles = chooseRes.tempFiles
+      if (!tempFiles || tempFiles.length === 0) return
+      wx.showLoading({ title: '上传中...', mask: true })
+      const next = [...(this.data.detailImageList || [])]
+      for (const file of tempFiles) {
+        const fileSize = file.size || 0
+        const originalName = file.name || 'detail.jpg'
+        const uploadRes = await fileApi.uploadImage(file.tempFilePath, originalName, fileSize)
+        if (uploadRes.code === 200 && uploadRes.data && uploadRes.data.fileUrl) {
+          next.push(uploadRes.data.fileUrl)
+        } else {
+          throw new Error(uploadRes.msg || '上传失败')
         }
-      },
-    })
+      }
+      this.setData({ detailImageList: next }, () => this.syncDetailImagePreviews())
+      wx.showToast({ title: '上传成功', icon: 'success' })
+    } catch (err) {
+      if (err?.errMsg !== 'chooseMedia:fail cancel') {
+        wx.showToast({ title: (err && err.message) || '上传失败', icon: 'none' })
+      }
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   removeDetailImage(e) {

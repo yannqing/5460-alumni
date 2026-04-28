@@ -41,17 +41,6 @@
       <text class="label_text">优惠券描述</text>
       <textarea class="form-textarea" placeholder="选填" value="{{formData.couponDesc}}" maxlength="500" bindinput="onInputChange" data-field="couponDesc" />
     </view>
-
-    <view class="form-item">
-      <text class="label_text">优惠券图片</text>
-      <view class="image-row">
-        <view class="img-preview" wx:if="{{formData.couponImage}}">
-          <image src="{{formData.couponImage}}" mode="aspectFill" class="img-cover" />
-          <view class="img-del" bindtap="clearCouponImage">×</view>
-        </view>
-        <view class="upload-btn" bindtap="chooseCouponImage">上传</view>
-      </view>
-    </view>
   </view>
 
   <view class="group_7">
