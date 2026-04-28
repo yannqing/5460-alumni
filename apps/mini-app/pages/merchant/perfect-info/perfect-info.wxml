@@ -46,6 +46,11 @@
         </view>
 
         <view class="form-item">
+          <text class="form-label">所在城市 <text class="required">*</text></text>
+          <input class="form-input" placeholder="请输入所在城市" value="{{formData.city}}" bindinput="onInputChange" data-field="city" />
+        </view>
+
+        <view class="form-item">
           <text class="form-label">联系邮箱</text>
           <input class="form-input" placeholder="请输入联系邮箱" value="{{formData.contactEmail}}" bindinput="onInputChange" data-field="contactEmail" />
         </view>

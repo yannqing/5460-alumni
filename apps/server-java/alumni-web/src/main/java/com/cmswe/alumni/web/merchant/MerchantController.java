@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.*;
 
 
 
+import com.cmswe.alumni.common.vo.MerchantApplicationVo;
+
 /**
  * 商户管理 Controller
  *
@@ -114,20 +116,27 @@ public class MerchantController {
             @Valid @RequestBody ApplyMerchantDto applyDto) {
         Long wxId = securityUser.getWxUser().getWxId();
 
-        WxUser wxUser = wxUserMapper.selectById(wxId);
-        if (wxUser == null) {
-            log.error("用户不存在 - 用户ID: {}", wxId);
-            throw new BusinessException("用户不存在");
-        }
-        if (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
-            throw new BusinessException("只有认证校友才能申请商户入驻");
-        }
-
         boolean result = merchantService.updatePendingMerchantApplication(wxId, merchantId, applyDto);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, true, "保存成功，请等待审核");
         }
         return ResultUtils.failure(Code.FAILURE, false, "更新失败");
+    }
+
+    /**
+     * 查询本人申请的商户列表（聚合待审核、已发布、待发布）
+     *
+     * @param securityUser 当前登录用户
+     * @return 商户列表
+     */
+    @GetMapping("/my-apply-list")
+    @Operation(summary = "查询本人申请的商户列表")
+    public BaseResponse<List<MerchantApplicationVo>> getMyApplyList(
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("查询本人申请的商户列表 - 用户ID: {}", wxId);
+        List<MerchantApplicationVo> list = merchantService.getMyApplyList(wxId);
+        return ResultUtils.success(Code.SUCCESS, list, "查询成功");
     }
 
     /**
@@ -144,22 +153,7 @@ public class MerchantController {
             @Valid @RequestBody ApplyMerchantDto applyDto) {
         Long wxId = securityUser.getWxUser().getWxId();
 
-        // 从数据库查询实时的用户信息
-        WxUser wxUser = wxUserMapper.selectById(wxId);
-        if (wxUser == null) {
-            log.error("用户不存在 - 用户ID: {}", wxId);
-            throw new BusinessException("用户不存在");
-        }
-
-        Integer certificationFlag = wxUser.getCertificationFlag();
-
-        log.info("用户提交商户入驻申请 - 用户ID: {}, 商户名称: {}, 认证标识: {}", wxId, applyDto.getMerchantName(), certificationFlag);
-
-        // 校验用户是否已认证（校友）
-        if (certificationFlag == null || certificationFlag == 0) {
-            log.warn("未认证用户尝试提交商户入驻申请 - 用户ID: {}, certificationFlag: {}", wxId, certificationFlag);
-            throw new BusinessException("只有认证校友才能申请商户入驻");
-        }
+        log.info("用户提交商户入驻申请 - 用户ID: {}, 商户名称: {}", wxId, applyDto.getMerchantName());
 
         boolean result = merchantService.applyMerchant(wxId, applyDto);
 

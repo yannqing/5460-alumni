@@ -41,6 +41,22 @@
         <view class="label">商户名称 <text class="required">*</text></view>
         <input class="input" placeholder="请输入商户名称" value="{{form.merchantName}}" data-field="merchantName" bindinput="handleInput" />
       </view>
+
+      <view class="form-item">
+        <view class="label">所在城市 <text class="required">*</text></view>
+        <picker
+          mode="multiSelector"
+          range="{{regionData}}"
+          value="{{regionIndex}}"
+          bindchange="handleRegionChange"
+          bindcolumnchange="handleRegionColumnChange"
+          class="picker-wrapper"
+        >
+          <view class="picker-value {{!form.city ? 'placeholder' : ''}}">
+            {{form.city || '请选择商户所在城市'}}
+          </view>
+        </picker>
+      </view>
       
       <view class="form-item">
         <view class="label">统一社会信用代码 <text class="required">*</text></view>

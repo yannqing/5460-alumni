@@ -19,9 +19,9 @@
         <view 
           class="merchant-item" 
           wx:for="{{merchantList}}" 
-          wx:key="merchantId"
+          wx:key="applicationId"
           bindtap="viewDetail"
-          data-id="{{item.merchantId}}"
+          data-id="{{item.applicationId}}"
         >
           <view class="certification-badge" wx:if="{{item.reviewStatus === 1}}">
             <text>已发布</text>
@@ -35,18 +35,15 @@
           <view class="merchant-info">
             <view class="merchant-name">{{item.merchantName}}</view>
             <view class="merchant-details">
-              <text class="shop-count">门店数量：{{item.shopCount}}</text>
+              <text class="detail-item">法人姓名：{{item.legalPerson || '-'}}</text>
             </view>
             <view class="merchant-contact">
-              <text class="contact-item">联系电话：{{item.contactPhone}}</text>
-            </view>
-            <view class="merchant-scope-row">
-              <view class="merchant-scope">
-                <text class="scope-label">经营类目：</text>
-                <text class="scope-content">{{item.businessCategory || '-'}}</text>
-              </view>
-              <view class="perfect-info-btn" wx:if="{{item.reviewStatus === 4}}" catchtap="goToPerfectInfo" data-id="{{item.merchantId}}">
-                完善基本信息并发布
+              <view class="contact-item">法人电话：{{item.phone || '-'}}</view>
+              <view class="contact-item city-row">
+                <text>所在城市：{{item.city || '-'}}</text>
+                <view class="perfect-info-btn" wx:if="{{item.reviewStatus === 4}}" catchtap="goToPerfectInfo" data-id="{{item.applicationId}}">
+                  完善基本信息并发布
+                </view>
               </view>
             </view>
           </view>

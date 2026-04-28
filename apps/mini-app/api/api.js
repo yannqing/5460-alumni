@@ -244,7 +244,7 @@ const merchantApi = {
   // 商户主账号编辑用（含待审核；已通过时与 getShopDetail 一致）
   getShopDetailForEdit: shopId => get(`/merchant/shop/${shopId}/for-edit`),
   // 获取我的商户列表
-  getMyMerchants: params => get('/merchant-management/my-merchants', params),
+  getMyMerchants: params => get('/merchant/my-apply-list', params),
   // 商户管理员更新商户基本信息（部分字段更新）
   updateMerchantInfo: data => put('/merchant-management/merchant/info', data),
   // 完善信息并发布上线商户

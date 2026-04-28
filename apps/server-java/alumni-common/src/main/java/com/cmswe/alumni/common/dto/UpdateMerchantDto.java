@@ -69,6 +69,9 @@ public class UpdateMerchantDto implements Serializable {
     @Schema(description = "商家背景图（JSON字符串）")
     private String backgroundImage;
 
+    @Schema(description = "所在城市")
+    private String city;
+
     @Schema(description = "商户详情图片（JSON数组）")
     private String detailImages;
 

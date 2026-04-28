@@ -108,7 +108,7 @@ public interface MerchantService extends IService<Merchant> {
      MerchantDetailVo getMerchantDetailById(Long merchantId, Long wxId);
 
      /**
-      * 查询用户负责的商户列表（根据角色）
+      * 查询本人负责的商户列表（根据角色）
       *
       * @param wxId     用户微信ID
       * @param current  当前页
@@ -117,6 +117,14 @@ public interface MerchantService extends IService<Merchant> {
       * @return 商户列表分页数据
       */
      PageVo<MerchantListVo> getMyManagedMerchants(Long wxId, Long current, Long size, Boolean onlySelf);
+
+     /**
+     * 查询本人申请的商户列表（聚合待审核、已通过/已发布、待发布）
+     *
+     * @param wxId    用户微信ID
+     * @return 商户列表
+     */
+    java.util.List<com.cmswe.alumni.common.vo.MerchantApplicationVo> getMyApplyList(Long wxId);
 
      /**
       * 商户管理员更新商户基本信息（部分字段更新，未传的字段不变）

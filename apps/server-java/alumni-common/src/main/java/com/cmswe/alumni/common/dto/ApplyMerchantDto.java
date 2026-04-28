@@ -29,12 +29,6 @@ public class ApplyMerchantDto implements Serializable {
     private String merchantName;
 
     /**
-     * 商户类型：1-校友商铺 2-普通商铺
-     */
-    @Schema(description = "商户类型：1-校友商铺 2-普通商铺", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer merchantType;
-
-    /**
      * 营业执照URL
      */
     @Schema(description = "营业执照URL", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
@@ -121,10 +115,10 @@ public class ApplyMerchantDto implements Serializable {
     private String detailImages;
 
     /**
-     * 关联校友会ID（校友商铺时必填）
+     * 所在城市
      */
-    @Schema(description = "关联校友会ID（校友商铺时必填）", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Long alumniAssociationId;
+    @Schema(description = "所在城市", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String city;
 
     @Serial
     private static final long serialVersionUID = 1L;

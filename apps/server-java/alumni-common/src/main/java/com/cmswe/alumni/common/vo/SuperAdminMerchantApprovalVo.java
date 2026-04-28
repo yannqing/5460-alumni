@@ -62,6 +62,9 @@ public class SuperAdminMerchantApprovalVo implements Serializable {
     @Schema(description = "统一社会信用代码")
     private String unifiedSocialCreditCode;
 
+    @Schema(description = "所在城市")
+    private String city;
+
     @Schema(description = "联系邮箱")
     private String contactEmail;
 
