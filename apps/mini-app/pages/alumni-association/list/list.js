@@ -150,88 +150,10 @@ Page({
     // 完整的省市级数据（所有34个省级行政区及其所有城市）
     // 直辖市包含所有区级市
     const provinceCityMap = {
-      北京: [
-        '东城区',
-        '西城区',
-        '朝阳区',
-        '丰台区',
-        '石景山区',
-        '海淀区',
-        '门头沟区',
-        '房山区',
-        '通州区',
-        '顺义区',
-        '昌平区',
-        '大兴区',
-        '怀柔区',
-        '平谷区',
-        '密云区',
-        '延庆区',
-      ],
-      上海: [
-        '黄浦区',
-        '徐汇区',
-        '长宁区',
-        '静安区',
-        '普陀区',
-        '虹口区',
-        '杨浦区',
-        '闵行区',
-        '宝山区',
-        '嘉定区',
-        '浦东新区',
-        '金山区',
-        '松江区',
-        '青浦区',
-        '奉贤区',
-        '崇明区',
-      ],
-      天津: [
-        '和平区',
-        '河东区',
-        '河西区',
-        '南开区',
-        '河北区',
-        '红桥区',
-        '东丽区',
-        '西青区',
-        '津南区',
-        '北辰区',
-        '武清区',
-        '宝坻区',
-        '滨海新区',
-        '宁河区',
-        '静海区',
-        '蓟州区',
-      ],
-      重庆: [
-        '万州区',
-        '涪陵区',
-        '渝中区',
-        '大渡口区',
-        '江北区',
-        '沙坪坝区',
-        '九龙坡区',
-        '南岸区',
-        '北碚区',
-        '綦江区',
-        '大足区',
-        '渝北区',
-        '巴南区',
-        '黔江区',
-        '长寿区',
-        '江津区',
-        '合川区',
-        '永川区',
-        '南川区',
-        '璧山区',
-        '铜梁区',
-        '潼南区',
-        '荣昌区',
-        '开州区',
-        '梁平区',
-        '武隆区',
-      ],
+      北京: ['北京市'],
+      上海: ['上海市'],
+      天津: ['天津市'],
+      重庆: ['重庆市'],
       河北: [
         '石家庄市',
         '唐山市',
@@ -645,9 +567,8 @@ Page({
     const provinceKeys = Object.keys(provinceCityMap)
     const provinceList = ['全部', ...provinceKeys.map(key => provinceSuffixMap[key] || key)]
 
-    // 初始化：第一列是省份（包含"全部"），第二列是"全部"或第一个省份的城市
-    // 当选择"全部"省份时，城市列表也显示"全部"
-    const firstProvinceCities = ['全部', ...(provinceCityMap[provinceKeys[0]] || [])]
+    // 初始化：第一列是省份（包含"全部"），第二列是"全部"
+    const firstProvinceCities = ['全部']
 
     this.setData({
       provinceCityMap: provinceCityMap,
@@ -1130,15 +1051,19 @@ Page({
         })
       } else {
         // 选择具体省份，城市列表显示"全部" + 该省的所有城市
+        // 直辖市只显示自己本身，不显示"全部"和区级
         // 需要将带单位的省份名称转换为不带单位的key
         const selectedProvinceWithSuffix = provinceList[value]
         const selectedProvinceKey =
           provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
         const provinceCities = provinceCityMap[selectedProvinceKey] || []
-        const cityList = ['全部', ...provinceCities]
+
+        // 判断是否为直辖市
+        const isMunicipality = ['北京', '上海', '天津', '重庆'].includes(selectedProvinceKey)
+        const cityList = isMunicipality ? provinceCities : ['全部', ...provinceCities]
 
         const newRegionData = [provinceList, cityList]
-        const newRegionIndex = [value, 0] // 重置城市索引为0（选中"全部"）
+        const newRegionIndex = [value, 0] // 重置城市索引为0
 
         this.setData({
           regionData: newRegionData,
@@ -1202,7 +1127,12 @@ Page({
       } else {
         // 选择了具体城市
         region.push(selectedCity)
-        regionDisplayText = `${selectedProvinceWithSuffix}${selectedCity}` // 显示时使用带单位的省份名称，不添加空格避免换行
+        // 如果省市名称相同（如直辖市），只显示一个
+        if (selectedProvinceWithSuffix === selectedCity) {
+          regionDisplayText = selectedProvinceWithSuffix
+        } else {
+          regionDisplayText = `${selectedProvinceWithSuffix}${selectedCity}` // 显示时使用带单位的省份名称，不添加空格避免换行
+        }
         // location 只传城市名称，移除"市"字
         // 不传省份名称，因为数据库中可能只存储城市名称
         location = selectedCity.replace('市', '')
