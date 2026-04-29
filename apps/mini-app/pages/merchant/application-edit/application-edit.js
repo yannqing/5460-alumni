@@ -28,9 +28,10 @@ Page({
 
   onLoad(options) {
     if (options.recordId) {
-      this.setData({ recordId: options.recordId })
+      const recordIdStr = decodeURIComponent(String(options.recordId))
+      this.setData({ recordId: recordIdStr })
       this.initRegionData()
-      this.loadDetail(options.recordId)
+      this.loadDetail(recordIdStr)
     } else {
       wx.showToast({
         title: '参数错误',
@@ -41,9 +42,14 @@ Page({
   },
 
   loadDetail(recordId) {
+    const recordIdStr = recordId != null ? String(recordId) : ''
+    if (!recordIdStr) {
+      wx.showToast({ title: '缺少申请ID', icon: 'none' })
+      return
+    }
     wx.showLoading({ title: '加载中...' })
     // 使用已有的获取详情接口
-    merchantApi.getPendingMerchantDetail(recordId).then(res => {
+    merchantApi.getPendingMerchantDetail(recordIdStr).then(res => {
       wx.hideLoading()
       const { code, data, msg } = res.data || {}
       if (code === 200 && data) {

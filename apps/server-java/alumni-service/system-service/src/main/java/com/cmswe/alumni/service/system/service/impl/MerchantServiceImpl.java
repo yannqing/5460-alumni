@@ -44,6 +44,7 @@ import com.cmswe.alumni.common.vo.SuperAdminMerchantApprovalVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopListVo;
 import com.cmswe.alumni.common.vo.MerchantMemberVo;
+import com.cmswe.alumni.common.vo.MerchantInfoVo;
 import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.api.user.UserService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
@@ -322,30 +323,49 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     }
 
     @Override
-    public MerchantDetailVo getPendingMerchantByIdAndUserId(Long applicationId, Long wxId) {
+    public MerchantDetailVo getPendingMerchantByIdAndUserId(Long applicationIdOrMerchantId, Long wxId) {
         // 1. 参数校验
-        if (applicationId == null) {
+        if (applicationIdOrMerchantId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "申请ID不能为空");
         }
         if (wxId == null) {
             throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
         }
 
-        log.info("查询本人待审核/审核失败商户申请 - 申请ID: {}, 用户ID: {}", applicationId, wxId);
+        log.info("查询本人可编辑商户申请 - 入参ID: {}, 用户ID: {}", applicationIdOrMerchantId, wxId);
 
-        // 2. 查询申请（0-待审核 2-审核失败，均可回填后修改/重新提交）
+        // 2. 先按申请ID查询（0-待审核 2-审核失败 4-待发布，均可回填编辑）
         MerchantApplication application = merchantApplicationService.getOne(
                 new LambdaQueryWrapper<MerchantApplication>()
-                        .eq(MerchantApplication::getApplicationId, applicationId)
+                        .eq(MerchantApplication::getApplicationId, applicationIdOrMerchantId)
                         .eq(MerchantApplication::getUserId, wxId)
-                        .in(MerchantApplication::getReviewStatus, java.util.Arrays.asList(0, 2))
+                        .in(MerchantApplication::getReviewStatus, java.util.Arrays.asList(0, 2, 4))
         );
 
+        // 3. 兼容按商户ID访问：通过 merchant.applicationId 回查申请
         if (application == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "未找到待审核或审核失败的商户申请");
+            Merchant merchant = this.getOne(
+                    new LambdaQueryWrapper<Merchant>()
+                            .eq(Merchant::getMerchantId, applicationIdOrMerchantId)
+                            .eq(Merchant::getUserId, wxId)
+                            .in(Merchant::getReviewStatus, java.util.Arrays.asList(1, 4))
+            );
+            if (merchant != null && merchant.getApplicationId() != null) {
+                application = merchantApplicationService.getOne(
+                        new LambdaQueryWrapper<MerchantApplication>()
+                                .eq(MerchantApplication::getApplicationId, merchant.getApplicationId())
+                                .eq(MerchantApplication::getUserId, wxId)
+                                .in(MerchantApplication::getReviewStatus, java.util.Arrays.asList(0, 2, 4))
+                );
+            }
         }
 
-        log.info("查询本人商户申请成功 - 申请ID: {}, 商户名称: {}", applicationId, application.getMerchantName());
+        if (application == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "未找到待审核、审核失败或待发布的商户申请");
+        }
+
+        log.info("查询本人商户申请成功 - 申请ID: {}, 商户名称: {}",
+                application.getApplicationId(), application.getMerchantName());
 
         // 3. 转换为 VO
         MerchantDetailVo vo = new MerchantDetailVo();
@@ -603,10 +623,10 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     merchant.getMerchantId(), merchant.getApplicationId(), merchant.getMerchantName());
             
             // 发送审核通过通知
-            sendApprovalNotification(application.getUserId(), merchant.getMerchantId(), application.getMerchantName(), 1, reviewReason);
+            sendApprovalNotification(application.getUserId(), application.getApplicationId(), application.getMerchantName(), 1, reviewReason);
         } else {
             // 审核失败通知
-            sendApprovalNotification(application.getUserId(), null, application.getMerchantName(), 2, reviewReason);
+            sendApprovalNotification(application.getUserId(), application.getApplicationId(), application.getMerchantName(), 2, reviewReason);
         }
 
         return true;
@@ -853,7 +873,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
      * @param reviewStatus 审核状态（1-通过，2-失败）
      * @param reviewReason 审核原因
      */
-    private void sendApprovalNotification(Long wxId, Long merchantId, String merchantName, Integer reviewStatus,
+    private void sendApprovalNotification(Long wxId, Long applicationId, String merchantName, Integer reviewStatus,
             String reviewReason) {
         try {
             String title;
@@ -878,17 +898,17 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     NotificationType.SYSTEM_ANNOUNCEMENT,
                     title,
                     content,
-                    merchantId,
+                    applicationId,
                     "MERCHANT_APPROVAL");
 
             if (success) {
-                log.info("商户审核通知发送成功 - 用户ID: {}, 商户ID: {}, 商户名称: {}, 审核结果: {}", wxId, merchantId, merchantName,
+                log.info("商户审核通知发送成功 - 用户ID: {}, 申请ID: {}, 商户名称: {}, 审核结果: {}", wxId, applicationId, merchantName,
                         (reviewStatus == 4 || reviewStatus == 1) ? "通过" : "失败");
             } else {
-                log.warn("商户审核通知发送失败 - 用户ID: {}, 商户ID: {}, 商户名称: {}", wxId, merchantId, merchantName);
+                log.warn("商户审核通知发送失败 - 用户ID: {}, 申请ID: {}, 商户名称: {}", wxId, applicationId, merchantName);
             }
         } catch (Exception e) {
-            log.error("发送商户审核通知时发生异常 - 用户ID: {}, 商户ID: {}, 商户名称: {}", wxId, merchantId, merchantName, e);
+            log.error("发送商户审核通知时发生异常 - 用户ID: {}, 申请ID: {}, 商户名称: {}", wxId, applicationId, merchantName, e);
         }
     }
 
@@ -1106,6 +1126,10 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         // 3. 转换为 VO
         MerchantDetailVo merchantDetailVo = MerchantDetailVo.objToVo(merchant);
+        // 显式补齐关键字段，避免后续映射调整导致字段遗漏
+        merchantDetailVo.setCity(merchant.getCity());
+        merchantDetailVo.setPhone(merchant.getPhone());
+
         Long favoriteCount = userFavoriteService.count(
                 new LambdaQueryWrapper<UserFavorite>()
                         .eq(UserFavorite::getTargetType, 1)
@@ -1173,21 +1197,64 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             throw new BusinessException(ErrorType.ARGS_NOT_NULL);
         }
 
-        // 仅查询 merchant_application 表，过滤 0-待审核、1-已发布、4-待发布
+        // 修改为查询 merchant 表，筛选已发布且启用的商户
+        List<Merchant> merchants = this.lambdaQuery()
+                .eq(Merchant::getUserId, wxId)
+                .eq(Merchant::getReviewStatus, 1) // 1-已发布
+                .eq(Merchant::getStatus, 1) // 1-启用
+                .orderByDesc(Merchant::getCreateTime)
+                .list();
+
+        return merchants.stream().map(merchant -> {
+            MerchantApplicationVo vo = new MerchantApplicationVo();
+            // 将 Merchant 字段映射到 MerchantApplicationVo
+            // 这里根据用户确认，直接将 merchantId 映射到 applicationId，因为前端页面逻辑需要这个字段作为ID
+            vo.setApplicationId(String.valueOf(merchant.getMerchantId()));
+            vo.setUserId(String.valueOf(merchant.getUserId()));
+            vo.setMerchantName(merchant.getMerchantName());
+            vo.setLogo(merchant.getLogo());
+            vo.setReviewStatus(merchant.getReviewStatus());
+            // 其他可能需要的字段可以根据 Merchant 表进行映射
+            vo.setLegalPerson(merchant.getLegalPerson());
+            vo.setPhone(merchant.getPhone());
+            vo.setUnifiedSocialCreditCode(merchant.getUnifiedSocialCreditCode());
+            vo.setCity(merchant.getCity());
+            vo.setCreateTime(merchant.getCreateTime());
+            vo.setUpdateTime(merchant.getUpdateTime());
+            // 注意：MerchantApplicationVo 中的 reviewerId, reviewReason, reviewTime
+            // 在这里可能无法直接从 Merchant 表获取，根据实际需求决定是否设置默认值或忽略。
+            // 对于此“选择商户”场景，这些字段可能不是必需的。
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MerchantApplicationVo> getMyApplicationList(Long wxId) {
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL);
+        }
+
         List<MerchantApplication> applications = merchantApplicationService.lambdaQuery()
                 .eq(MerchantApplication::getUserId, wxId)
-                .in(MerchantApplication::getReviewStatus, java.util.Arrays.asList(0, 1, 4))
                 .orderByDesc(MerchantApplication::getCreateTime)
                 .list();
 
-        return applications.stream().map(app -> {
+        return applications.stream().map(application -> {
             MerchantApplicationVo vo = new MerchantApplicationVo();
-            BeanUtils.copyProperties(app, vo);
-            vo.setApplicationId(String.valueOf(app.getApplicationId()));
-            vo.setUserId(String.valueOf(app.getUserId()));
-            if (app.getReviewerId() != null) {
-                vo.setReviewerId(String.valueOf(app.getReviewerId()));
-            }
+            vo.setApplicationId(application.getApplicationId() == null ? null : String.valueOf(application.getApplicationId()));
+            vo.setUserId(application.getUserId() == null ? null : String.valueOf(application.getUserId()));
+            vo.setMerchantName(application.getMerchantName());
+            vo.setLegalPerson(application.getLegalPerson());
+            vo.setPhone(application.getPhone());
+            vo.setUnifiedSocialCreditCode(application.getUnifiedSocialCreditCode());
+            vo.setCity(application.getCity());
+            vo.setReviewStatus(application.getReviewStatus());
+            vo.setReviewReason(application.getReviewReason());
+            vo.setReviewerId(application.getReviewerId() == null ? null : String.valueOf(application.getReviewerId()));
+            vo.setReviewTime(application.getReviewTime());
+            vo.setCreateTime(application.getCreateTime());
+            vo.setUpdateTime(application.getUpdateTime());
+            vo.setIsDelete(application.getIsDelete());
             return vo;
         }).collect(Collectors.toList());
     }
@@ -1247,9 +1314,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
 
         if (Boolean.TRUE.equals(onlySelf)) {
-            // 核心修改：仅查询本人申请的商户，包含待审核(0)、已发布(1)、待发布(4)
+            // 仅查询本人已发布商户
             queryWrapper.eq(Merchant::getUserId, wxId)
-                    .in(Merchant::getReviewStatus, java.util.Arrays.asList(0, 1, 4));
+                    .eq(Merchant::getReviewStatus, 1);
         } else {
             // 原有逻辑：根据角色代码查询
             Role role = roleService.getRoleByCodeInner("ORGANIZE_MERCHANT_ADMIN");
@@ -1324,10 +1391,8 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         }
         Optional.ofNullable(dto).orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
 
+        // 入参可能是 merchant_id，也可能是 application_id；先定位真实商户记录
         Long id = dto.getMerchantId();
-        assertUserCanManageMerchant(wxId, id);
-
-        // 获取商户（支持通过 merchant_id 或 application_id）
         Merchant merchant = this.getOne(new LambdaQueryWrapper<Merchant>()
                 .eq(Merchant::getMerchantId, id)
                 .or()
@@ -1338,6 +1403,8 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         }
 
         Long merchantId = merchant.getMerchantId();
+        // 权限校验统一使用真实 merchant_id
+        assertUserCanManageMerchant(wxId, merchantId);
 
         // 必须是待发布（4）状态才能调用发布接口
         if (!Integer.valueOf(4).equals(merchant.getReviewStatus())) {
@@ -1926,4 +1993,32 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
 
         return true;
     }
+
+    /**
+     * 根据商户ID查询商户基本信息
+     *
+     * @param merchantId 商户ID
+     * @return 商户基本信息
+     */
+    @Override
+    public MerchantInfoVo getMerchantInfoById(Long merchantId) {
+        if (merchantId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "商户ID不能为空");
+        }
+
+        // 兼容前端传入申请ID(applicationId)的场景，优先按 merchant_id 查询
+        Merchant merchant = this.getOne(new LambdaQueryWrapper<Merchant>()
+                .eq(Merchant::getMerchantId, merchantId)
+                .or()
+                .eq(Merchant::getApplicationId, merchantId)
+                .last("LIMIT 1"));
+        if (merchant == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
+        }
+
+        MerchantInfoVo merchantInfoVo = new MerchantInfoVo();
+        BeanUtils.copyProperties(merchant, merchantInfoVo);
+        return merchantInfoVo;
+    }
+
 }

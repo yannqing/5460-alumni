@@ -2,5 +2,5 @@
   "usingComponents": {
     "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
   },
-  "navigationBarTitleText": "修改商户申请"
+  "navigationStyle": "custom"
 }

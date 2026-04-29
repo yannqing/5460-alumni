@@ -21,7 +21,7 @@ Page({
     serviceIndex: -1,
     formData: {
       merchantName: '',
-      merchantType: 1,
+      merchantType: 2,
       businessLicense: '',
       unifiedSocialCreditCode: '',
       legalPerson: '',
@@ -202,7 +202,7 @@ Page({
       this.setData({
         formData: {
           merchantName: data.merchantName || '',
-          merchantType: data.merchantType || 1,
+          merchantType: data.merchantType === 1 || data.merchantType === 2 ? data.merchantType : 2,
           businessLicense: data.businessLicense || '',
           unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
           legalPerson: data.legalPerson || '',
@@ -520,7 +520,7 @@ Page({
     const payload = {
       merchantId: merchantIdStr,
       merchantName: formData.merchantName.trim(),
-      merchantType: formData.merchantType,
+      merchantType: 2,
       unifiedSocialCreditCode: normalizedCreditCode,
       legalPerson: formData.legalPerson.trim(),
       legalPersonId: legalPersonId.toUpperCase(),
@@ -532,7 +532,7 @@ Page({
       businessCategory: formData.businessCategory.trim(),
       city: formData.city.trim(),
       logo: formData.logo.trim(),
-      alumniAssociationId: formData.alumniAssociationId,
+      alumniAssociationId: '',
       backgroundImage: JSON.stringify(this.data.backgroundImageList),
       detailImages: JSON.stringify(this.data.detailImageList),
     }

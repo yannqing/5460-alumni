@@ -34,10 +34,11 @@ Page({
     
     // 如果有merchantId参数，获取待审核商家详情
     if (options.merchantId) {
+      const merchantId = decodeURIComponent(String(options.merchantId))
       this.setData({
-        merchantId: options.merchantId
+        merchantId
       })
-      this.loadPendingMerchantDetail(options.merchantId)
+      this.loadPendingMerchantDetail(merchantId)
     }
   },
 
@@ -605,9 +606,17 @@ Page({
 
   // 加载待审核商家详情
   loadPendingMerchantDetail(merchantId) {
+    const merchantIdStr = merchantId != null ? String(merchantId) : ''
+    if (!merchantIdStr) {
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
+      })
+      return
+    }
     wx.showLoading({ title: '加载中...' })
     
-    merchantApi.getPendingMerchantDetail(merchantId).then((res) => {
+    merchantApi.getPendingMerchantDetail(merchantIdStr).then((res) => {
       wx.hideLoading()
       
       const { code, data, msg } = res.data || {}

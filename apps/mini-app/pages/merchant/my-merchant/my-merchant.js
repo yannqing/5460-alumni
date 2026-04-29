@@ -18,7 +18,7 @@ Page({
   loadMerchants() {
     this.setData({ loading: true })
     
-    merchantApi.getMyMerchants().then(res => {
+    merchantApi.getMyMerchantApplications().then(res => {
       if (res && res.data && res.data.code === 200) {
         const merchantList = res.data.data || []
         this.setData({

@@ -412,7 +412,8 @@ Page({
         const selectedProvinceKey = provinceNameMap[selectedProvinceWithSuffix] || selectedProvinceWithSuffix
         const provinceCities = provinceCityMap[selectedProvinceKey] || []
         const isMunicipality = ['北京市', '上海市', '天津市', '重庆市'].includes(selectedProvinceWithSuffix)
-        const cityList = isMunicipality ? provinceCities : ['全部', ...provinceCities]
+        // multiSelector 需要两列；直辖市第二列使用空占位，避免出现“北京市 北京市”
+        const cityList = isMunicipality ? [''] : ['全部', ...provinceCities]
         this.setData({
           regionData: [provinceList, cityList],
           regionIndex: [value, 0],
@@ -430,7 +431,9 @@ Page({
     const provinceList = regionData[0]
     const cityList = regionData[1]
     const selectedProvinceWithSuffix = provinceList[index[0]] || '全部'
-    const selectedCity = cityList[index[1]] || '全部'
+    const rawSelectedCity = cityList[index[1]] || '全部'
+    const isMunicipality = ['北京市', '上海市', '天津市', '重庆市'].includes(selectedProvinceWithSuffix)
+    const selectedCity = isMunicipality ? '全部' : rawSelectedCity
 
     let regionDisplayText = '全部城市'
     if (selectedProvinceWithSuffix !== '全部') {

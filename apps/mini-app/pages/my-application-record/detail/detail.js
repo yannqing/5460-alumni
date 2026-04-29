@@ -254,7 +254,8 @@ Page({
       return
     }
     if (recordType === 'MERCHANT_APPLICATION') {
-      const applicationId = firstNonEmpty(detail?.applicationId, recordId)
+      // 优先使用路由透传的 recordId（字符串），避免接口返回的雪花ID被 Number 精度截断
+      const applicationId = firstNonEmpty(recordId, detail?.applicationId)
       if (!applicationId) {
         wx.showToast({ title: '缺少申请信息', icon: 'none' })
         return

@@ -13,8 +13,8 @@ Page({
   },
 
   onLoad(options) {
-    this.applyId = options.id
-    this.merchantId = options.merchantId
+    this.applyId = options.id ? decodeURIComponent(String(options.id)) : ''
+    this.merchantId = options.merchantId ? decodeURIComponent(String(options.merchantId)) : ''
     this.setData({ 
       canAudit: !!options.id,
       fromSuperAdmin: !options.id && !!options.merchantId 
@@ -28,17 +28,17 @@ Page({
     try {
       const params = {}
       if (this.applyId) {
-        params.id = this.applyId
+        params.id = String(this.applyId)
       }
       if (this.merchantId) {
-        params.merchantId = this.merchantId
+        params.merchantId = String(this.merchantId)
       }
       
       const res = await merchantApi.getMerchantJoinApplyDetail(params)
       
       if (res.data && res.data.code === 200) {
         let applyInfo = res.data.data || {}
-        this.applyId = applyInfo.id
+        this.applyId = applyInfo.id != null ? String(applyInfo.id) : this.applyId
 
         const formatTime = (t) => {
           if (!t) { return '' }
@@ -180,7 +180,7 @@ Page({
       const reviewStatus = status === 'approved' ? 1 : 2
       
       const res = await merchantApi.reviewMerchantJoinApply({
-        id: this.applyId,
+        id: String(this.applyId),
         status: reviewStatus,
         reviewComment: reason || (reviewStatus === 2 ? '审核未通过' : '')
       })

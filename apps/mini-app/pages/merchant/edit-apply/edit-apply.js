@@ -5,7 +5,7 @@ Page({
   data: {
     form: {
       merchantName: '',
-      merchantType: 1,
+      merchantType: 2,
       unifiedSocialCreditCode: '',
       legalPerson: '',
       phone: ''
@@ -37,7 +37,7 @@ Page({
         this.setData({
           form: {
             merchantName: data.merchantName || '',
-            merchantType: data.merchantType || 1,
+            merchantType: data.merchantType === 1 || data.merchantType === 2 ? data.merchantType : 2,
             unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
             legalPerson: data.legalPerson || '',
             phone: data.phone || data.contactPhone || ''
@@ -82,7 +82,7 @@ Page({
     const { form, merchantId } = this.data
     const payload = {
       merchantName: (form.merchantName || '').trim(),
-      merchantType: form.merchantType,
+      merchantType: 2,
       unifiedSocialCreditCode: (form.unifiedSocialCreditCode || '').trim().toUpperCase(),
       legalPerson: (form.legalPerson || '').trim(),
       phone: (form.phone || '').trim()

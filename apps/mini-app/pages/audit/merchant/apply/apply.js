@@ -213,8 +213,9 @@ Page({
           }
           
           return {
-            id: item.id, // 申请记录ID
-            merchantId: item.merchantId,
+            // 雪花ID统一按字符串处理，避免 JS Number 精度丢失
+            id: item.id != null ? String(item.id) : '', // 申请记录ID
+            merchantId: item.merchantId != null ? String(item.merchantId) : '',
             merchantName: item.merchantName,
             logo: item.logo,
             contactPhone: item.applicantPhone,
@@ -260,18 +261,34 @@ Page({
 
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
+    const idStr = id != null ? String(id) : ''
+    if (!idStr) {
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
+      })
+      return
+    }
     wx.navigateTo({
-      url: `/pages/audit/merchant/apply-detail/apply-detail?id=${id}`
+      url: `/pages/audit/merchant/apply-detail/apply-detail?id=${encodeURIComponent(idStr)}`
     })
   },
 
   async handleAudit(e) {
     const { id, status } = e.currentTarget.dataset
+    const idStr = id != null ? String(id) : ''
+    if (!idStr) {
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
+      })
+      return
+    }
 
     if (status === 'rejected') {
       this.setData({
         isRejectModalVisible: true,
-        currentRejectId: id,
+        currentRejectId: idStr,
         rejectReason: ''
       })
       return
@@ -282,7 +299,7 @@ Page({
       content: '确定通过该商户申请吗？',
       success: async (res) => {
         if (res.confirm) {
-          await this.submitAudit(id, status)
+          await this.submitAudit(idStr, status)
         }
       }
     })

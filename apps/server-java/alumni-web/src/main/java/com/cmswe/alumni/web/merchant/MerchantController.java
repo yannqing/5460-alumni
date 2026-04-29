@@ -20,6 +20,7 @@ import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopDetailVo;
 import com.cmswe.alumni.common.vo.MerchantMemberVo;
+import com.cmswe.alumni.common.vo.MerchantInfoVo;
 
 import java.util.List;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
@@ -142,6 +143,19 @@ public class MerchantController {
         Long wxId = securityUser.getWxUser().getWxId();
         log.info("查询本人申请的商户列表 - 用户ID: {}", wxId);
         List<MerchantApplicationVo> list = merchantService.getMyApplyList(wxId);
+        return ResultUtils.success(Code.SUCCESS, list, "查询成功");
+    }
+
+    /**
+     * 查询本人商户申请记录列表（merchant_application）
+     */
+    @GetMapping("/my-application-list")
+    @Operation(summary = "查询本人商户申请记录列表")
+    public BaseResponse<List<MerchantApplicationVo>> getMyApplicationList(
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("查询本人商户申请记录列表 - 用户ID: {}", wxId);
+        List<MerchantApplicationVo> list = merchantService.getMyApplicationList(wxId);
         return ResultUtils.success(Code.SUCCESS, list, "查询成功");
     }
 
@@ -284,6 +298,21 @@ public class MerchantController {
                 updateDto.getMerchantId(), updateDto.getWxId(), updateDto.getRoleOrId());
         boolean result = merchantService.updateMerchantMemberRole(updateDto);
         return ResultUtils.success(Code.SUCCESS, result, "更新成功");
+    }
+
+    /**
+     * 根据商户ID查询商户基本信息
+     *
+     * @param merchantId 商户ID
+     * @return 商户基本信息
+     */
+    @GetMapping("/info/{merchantId}")
+    @Operation(summary = "根据商户ID查询商户基本信息")
+    public BaseResponse<MerchantInfoVo> getMerchantInfoById(
+            @PathVariable Long merchantId) {
+        log.info("查询商户基本信息 - 商户ID: {}", merchantId);
+        MerchantInfoVo merchantInfo = merchantService.getMerchantInfoById(merchantId);
+        return ResultUtils.success(Code.SUCCESS, merchantInfo, "查询成功");
     }
 
     /**

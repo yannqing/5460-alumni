@@ -12,52 +12,29 @@
     </view>
 
     <!-- 步骤2：展示商户详情 -->
-    <block wx:if="{{selectedMerchantId && applyInfo.merchantId}}">
-      <view class="merchant-detail-card">
-        <view class="header-bg-container">
-          <image class="header-bg" src="{{applyInfo.backgroundImageUrl || defaultBackground}}" mode="aspectFill" />
-          <view class="header-content">
-            <image class="merchant-logo" src="{{applyInfo.logoUrl || defaultLogo}}" mode="aspectFill" />
-            <view class="merchant-basic">
-              <text class="merchant-name">{{applyInfo.merchantName}}</text>
-              <text class="merchant-type">{{applyInfo.merchantTypeText}}</text>
-            </view>
-          </view>
-        </view>
-
+    <block wx:if="{{selectedMerchantId}}">
+      <view class="section">
+        <view class="section-title section-title--assoc">商户信息</view>
         <view class="info-list">
           <view class="info-item">
-            <text class="label">法人代表：</text>
-            <text class="value">{{applyInfo.legalRepresentative || '-'}}</text>
+            <text class="label">商户名称：</text>
+            <text class="value">{{applyInfo.merchantName || '-'}}</text>
           </view>
           <view class="info-item">
-            <text class="label label-nowrap">统一社会信用代码：</text>
-            <text class="value value-nowrap">{{applyInfo.businessLicenseCode || '-'}}</text>
+            <text class="label">信用代码：</text>
+            <text class="value">{{applyInfo.unifiedSocialCreditCode || '-'}}</text>
           </view>
           <view class="info-item">
-            <text class="label">联系电话：</text>
-            <text class="value">{{applyInfo.contactPhone || '-'}}</text>
+            <text class="label">法人姓名：</text>
+            <text class="value">{{applyInfo.legalPerson || '-'}}</text>
           </view>
           <view class="info-item">
-            <text class="label">经营范围：</text>
-            <text class="value">{{applyInfo.businessScope || '-'}}</text>
+            <text class="label">法人联系方式：</text>
+            <text class="value">{{applyInfo.phone || applyInfo.contactPhone || '-'}}</text>
           </view>
-        </view>
-
-        <!-- 营业执照展示区块 -->
-        <view class="license-section" wx:if="{{applyInfo.businessLicenseUrl}}">
-          <view class="license-title">营业执照信息</view>
-          <view class="license-photo-wrapper">
-            <image 
-              class="license-image" 
-              src="{{applyInfo.businessLicenseUrl}}" 
-              mode="aspectFit" 
-              show-menu-by-longpress="{{true}}" 
-            />
-          </view>
-          <view class="license-details">
-            <view class="license-row">
-            </view>
+          <view class="info-item">
+            <text class="label">城市：</text>
+            <text class="value">{{applyInfo.city || '-'}}</text>
           </view>
         </view>
       </view>

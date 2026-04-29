@@ -52,6 +52,14 @@
           <text class="detail-value">{{currentMerchantDetail.contactPhone || '—'}}</text>
         </view>
         <view class="detail-item">
+          <text class="detail-label">法人联系电话</text>
+          <text class="detail-value">{{currentMerchantDetail.phone || '—'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">所在城市</text>
+          <text class="detail-value">{{currentMerchantDetail.city || '—'}}</text>
+        </view>
+        <view class="detail-item">
           <text class="detail-label">联系邮箱</text>
           <text class="detail-value">{{currentMerchantDetail.contactEmail || '—'}}</text>
         </view>

@@ -26,6 +26,9 @@ public class MerchantApplicationVo implements Serializable {
     @Schema(description = "商户名称")
     private String merchantName;
 
+    @Schema(description = "商户Logo")
+    private String logo;
+
     @Schema(description = "法人姓名")
     private String legalPerson;
 

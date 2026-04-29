@@ -8,6 +8,8 @@ import com.cmswe.alumni.common.vo.SuperAdminMerchantApprovalVo;
 import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.PageVo;
+import com.cmswe.alumni.common.vo.ShopListVo;
+import com.cmswe.alumni.common.vo.MerchantInfoVo;
 
 /**
  * 商户 Service 接口
@@ -135,6 +137,14 @@ public interface MerchantService extends IService<Merchant> {
      */
     java.util.List<com.cmswe.alumni.common.vo.MerchantApplicationVo> getMyApplyList(Long wxId);
 
+    /**
+     * 查询本人提交的商户申请记录列表（来自 merchant_application）
+     *
+     * @param wxId 用户微信ID
+     * @return 商户申请记录列表
+     */
+    java.util.List<com.cmswe.alumni.common.vo.MerchantApplicationVo> getMyApplicationList(Long wxId);
+
      /**
       * 商户管理员更新商户基本信息（部分字段更新，未传的字段不变）
       *
@@ -184,4 +194,13 @@ public interface MerchantService extends IService<Merchant> {
       * @return 是否成功
       */
      boolean deleteMerchantMember(DeleteMerchantMemberDto deleteDto);
+
+     /**
+      * 根据商户ID查询商户基本信息
+      *
+      * @param merchantId 商户ID
+      * @return 商户基本信息
+      */
+     MerchantInfoVo getMerchantInfoById(Long merchantId);
+
 }

@@ -30,10 +30,6 @@
         <text class="detail-value">{{applyInfo.merchantName}}</text>
       </view>
       <view class="detail-item">
-        <text class="detail-label">商户类型：</text>
-        <text class="detail-value">{{applyInfo.merchantTypeText}}</text>
-      </view>
-      <view class="detail-item">
         <text class="detail-label">申请人：</text>
         <text class="detail-value">{{applyInfo.applicantName || '-'}}</text>
       </view>

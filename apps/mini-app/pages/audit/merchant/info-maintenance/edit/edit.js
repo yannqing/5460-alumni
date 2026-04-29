@@ -37,6 +37,8 @@ Page({
       legalPerson: '',
       legalPersonId: '',
       contactPhone: '',
+      phone: '',
+      city: '',
       contactEmail: '',
       businessScope: '',
       businessCategory: '',
@@ -171,7 +173,7 @@ Page({
   async loadMerchantDetail(merchantIdStr) {
     this.setData({ detailLoading: true })
     try {
-      const res = await merchantApi.getMerchantInfo(merchantIdStr)
+      const res = await merchantApi.getMerchantDetailById(merchantIdStr)
       const body = res.data || {}
       if (body.code !== 200 || !body.data) {
         wx.showToast({
@@ -224,6 +226,8 @@ Page({
               ? String(data.legalPersonId).trim()
               : '',
           contactPhone: data.contactPhone || '',
+          phone: data.phone || '',
+          city: data.city || '',
           contactEmail: data.contactEmail || '',
           businessScope: data.businessScope || '',
           businessCategory: data.businessCategory || '',
