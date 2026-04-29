@@ -6,6 +6,7 @@ import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.dto.ApplyMerchantDto;
 import com.cmswe.alumni.common.dto.QueryMerchantListDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantDto;
+import com.cmswe.alumni.common.dto.UpdateMerchantApplicationDto;
 import com.cmswe.alumni.common.dto.AddMerchantMemberDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantMemberRoleDto;
 import com.cmswe.alumni.common.dto.DeleteMerchantMemberDto;
@@ -163,6 +164,30 @@ public class MerchantController {
         } else {
             log.error("商户入驻申请提交失败 - 用户ID: {}, 商户名称: {}", wxId, applyDto.getMerchantName());
             return ResultUtils.failure(Code.FAILURE, false, "申请提交失败");
+        }
+    }
+
+    /**
+     * 用户修改自己的商户申请记录
+     *
+     * @param securityUser 当前登录用户
+     * @param updateDto    修改信息
+     * @return 修改结果
+     */
+    @PostMapping("/application/update")
+    @Operation(summary = "用户修改自己的商户申请记录")
+    public BaseResponse<Boolean> updateMerchantApplication(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody UpdateMerchantApplicationDto updateDto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("用户修改商户申请记录 - 用户ID: {}, 申请ID: {}", wxId, updateDto.getApplicationId());
+
+        boolean result = merchantService.updateMerchantApplication(wxId, updateDto);
+
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, true, "修改成功");
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "修改失败");
         }
     }
 

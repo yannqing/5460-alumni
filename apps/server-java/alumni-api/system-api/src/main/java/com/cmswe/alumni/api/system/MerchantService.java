@@ -52,6 +52,15 @@ public interface MerchantService extends IService<Merchant> {
      boolean updatePendingMerchantApplication(Long wxId, Long merchantId, ApplyMerchantDto applyDto);
 
      /**
+      * 用户修改本人的商户申请记录
+      *
+      * @param wxId      当前用户微信ID
+      * @param updateDto 修改信息
+      * @return 是否成功
+      */
+     boolean updateMerchantApplication(Long wxId, UpdateMerchantApplicationDto updateDto);
+
+     /**
       * 撤销本人「待审核」的商户入驻申请（审核状态置为 3-已撤销）
       */
      boolean cancelPendingMerchantApplication(Long wxId, Long merchantId);

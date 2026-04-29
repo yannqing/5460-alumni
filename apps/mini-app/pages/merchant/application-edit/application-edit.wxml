@@ -1,0 +1,70 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="修改商户申请">
+  <view class="page">
+    <view class="scroll-list">
+      <!-- 顶部样式参考 detail 页面 -->
+      <view class="create-assoc-header" wx:if="{{header}}">
+        <image class="create-assoc-header-bg" src="{{header.bgUrl}}" mode="aspectFill" />
+        <view class="create-assoc-header-mask"></view>
+        <view class="create-assoc-header-inner">
+          <view class="create-assoc-logo-wrap">
+            <image class="create-assoc-logo" src="{{header.logoUrl}}" mode="aspectFill" />
+          </view>
+          <text class="create-assoc-title">{{header.name}}</text>
+        </view>
+      </view>
+
+      <view class="content-container">
+        <!-- 商户信息 -->
+        <view class="section-card card">
+          <view class="section-title">商户信息</view>
+          
+          <view class="form-item">
+            <view class="label">商户名称 <text class="required">*</text></view>
+            <input class="input" placeholder="请输入商户名称" value="{{form.merchantName}}" data-field="merchantName" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">所在城市 <text class="required">*</text></view>
+            <picker
+              mode="multiSelector"
+              range="{{regionData}}"
+              value="{{regionIndex}}"
+              bindchange="handleRegionChange"
+              bindcolumnchange="handleRegionColumnChange"
+              class="picker-wrapper"
+            >
+              <view class="picker-value {{!form.city ? 'placeholder' : ''}}">
+                {{form.city || '请选择商户所在城市'}}
+              </view>
+            </picker>
+          </view>
+          
+          <view class="form-item">
+            <view class="label">统一社会信用代码 <text class="required">*</text></view>
+            <input class="input" maxlength="18" placeholder="请输入统一社会信用代码" value="{{form.unifiedSocialCreditCode}}" data-field="unifiedSocialCreditCode" bindinput="handleInput" />
+          </view>
+        </view>
+
+        <!-- 法人信息 -->
+        <view class="section-card card">
+          <view class="section-title">法人信息</view>
+          
+          <view class="form-item">
+            <view class="label">法人姓名 <text class="required">*</text></view>
+            <input class="input" placeholder="请输入法人姓名" value="{{form.legalPerson}}" data-field="legalPerson" bindinput="handleInput" />
+          </view>
+
+          <view class="form-item">
+            <view class="label">法人联系电话 <text class="required">*</text></view>
+            <input class="input" placeholder="请输入联系电话" value="{{form.phone}}" data-field="phone" bindinput="handleInput" />
+          </view>
+        </view>
+
+        <!-- 提交按钮 -->
+        <view class="bottom-action">
+          <button class="btn-submit" loading="{{submitting}}" bindtap="submitEdit">保存修改</button>
+        </view>
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>

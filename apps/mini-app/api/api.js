@@ -256,6 +256,8 @@ const merchantApi = {
   applyJoinAssociation: data => post('/merchant/association-apply/submit', data),
   // 校友会管理员查询商户加入申请列表
   getMerchantJoinApplyPage: params => post('/merchant/association-apply/list', params),
+  // 用户修改自己的商户申请记录
+  updateMerchantApplication: data => post('/merchant/application/update', data),
   // 审核商户加入校友会申请
   reviewMerchantJoinApply: data => post('/merchant/association-apply/review', data),
   // 获取商户加入校友会申请详情

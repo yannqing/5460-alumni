@@ -360,6 +360,49 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     }
 
     @Override
+    public boolean updateMerchantApplication(Long wxId, UpdateMerchantApplicationDto updateDto) {
+        if (wxId == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "用户ID不能为空");
+        }
+        if (updateDto == null || updateDto.getApplicationId() == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL, "申请ID不能为空");
+        }
+
+        MerchantApplication application = merchantApplicationService.getById(updateDto.getApplicationId());
+        if (application == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户申请不存在");
+        }
+        if (!wxId.equals(application.getUserId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权修改该申请");
+        }
+        // 只有待审核(0)状态下才允许修改
+        if (application.getReviewStatus() == null || application.getReviewStatus() != 0) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "仅待审核的申请可修改");
+        }
+
+        // 更新字段
+        application.setMerchantName(updateDto.getMerchantName());
+        application.setLegalPerson(updateDto.getLegalPerson());
+        application.setPhone(updateDto.getPhone());
+        application.setUnifiedSocialCreditCode(updateDto.getUnifiedSocialCreditCode());
+        application.setCity(updateDto.getCity());
+
+        // 重置审核状态为待审核
+        application.setReviewStatus(0);
+        application.setReviewerId(null);
+        application.setReviewReason(null);
+        application.setReviewTime(null);
+        application.setUpdateTime(LocalDateTime.now());
+
+        log.info("用户修改商户申请记录 - 用户ID: {}, 申请ID: {}, 商户名称: {}", wxId, updateDto.getApplicationId(), application.getMerchantName());
+        boolean ok = merchantApplicationService.updateById(application);
+        if (!ok) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "修改申请失败");
+        }
+        return true;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean cancelPendingMerchantApplication(Long wxId, Long applicationId) {
         if (wxId == null) {

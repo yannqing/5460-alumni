@@ -10,7 +10,7 @@
     </view>
 
     <view wx:else class="content">
-      <view wx:if="{{isCreateAssociation && createUi && createUi.header}}" class="create-assoc-header">
+      <view wx:if="{{(isCreateAssociation || isMerchantApplication) && createUi && createUi.header}}" class="create-assoc-header">
         <image class="create-assoc-header-bg" src="{{createUi.header.bgUrl}}" mode="aspectFill" />
         <view class="create-assoc-header-mask"></view>
         <view class="create-assoc-header-inner">
