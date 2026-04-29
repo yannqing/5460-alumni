@@ -22,7 +22,7 @@ public interface MerchantService extends IService<Merchant> {
       * @param queryMerchantListDto 查询条件
       * @return 分页结果
       */
-     PageVo<MerchantListVo> selectByPage(QueryMerchantListDto queryMerchantListDto);
+     PageVo<MerchantListVo> selectByPage(QueryMerchantListDto queryMerchantListDto, Long wxId);
 
      /**
       * 超级管理员分页查询所有商户审批记录

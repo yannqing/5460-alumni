@@ -179,7 +179,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
      * @return 分页结果
      */
     @Override
-    public PageVo<MerchantListVo> selectByPage(QueryMerchantListDto queryMerchantListDto) {
+    public PageVo<MerchantListVo> selectByPage(QueryMerchantListDto queryMerchantListDto, Long wxId) {
         // 1.参数校验
         Optional.ofNullable(queryMerchantListDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.SYSTEM_ERROR));
@@ -193,6 +193,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         String legalPerson = queryMerchantListDto.getLegalPerson();
         Integer isAlumniCertified = queryMerchantListDto.getIsAlumniCertified();
         Long alumniAssociationId = queryMerchantListDto.getAlumniAssociationId();
+        Integer recommend = queryMerchantListDto.getRecommend();
+        Integer favoriteOnly = queryMerchantListDto.getFavoriteOnly();
+        String city = queryMerchantListDto.getCity();
         int current = queryMerchantListDto.getCurrent();
         int pageSize = queryMerchantListDto.getPageSize();
         String sortField = queryMerchantListDto.getSortField();
@@ -211,10 +214,42 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                 .like(StringUtils.isNotBlank(businessCategory), Merchant::getBusinessCategory, businessCategory)
                 .and(StringUtils.isNotBlank(contactPhone), w -> w.like(Merchant::getContactPhone, contactPhone).or().like(Merchant::getPhone, contactPhone))
                 .like(StringUtils.isNotBlank(legalPerson), Merchant::getLegalPerson, legalPerson)
+                .like(StringUtils.isNotBlank(city), Merchant::getCity, city)
                 .eq(isAlumniCertified != null, Merchant::getIsAlumniCertified, isAlumniCertified);
 
         if (alumniAssociationId != null) {
             queryWrapper.apply("(alumni_association_id = CAST({0} AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST({0} AS CHAR)))", alumniAssociationId);
+        }
+
+        // 收藏筛选：仅返回当前用户收藏的商户
+        if (favoriteOnly != null && favoriteOnly == 1) {
+            if (wxId == null) {
+                throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "请先登录后查看收藏商户");
+            }
+            List<Long> favoriteMerchantIds = userFavoriteService.list(
+                            new LambdaQueryWrapper<UserFavorite>()
+                                    .eq(UserFavorite::getWxId, wxId)
+                                    .eq(UserFavorite::getTargetType, 1)
+                                    .eq(UserFavorite::getIsDeleted, 0)
+                    ).stream()
+                    .map(UserFavorite::getTargetId)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            if (favoriteMerchantIds.isEmpty()) {
+                return PageVo.of(new Page<MerchantListVo>(1, Math.max(1, pageSize), 0));
+            }
+            queryWrapper.in(Merchant::getMerchantId, favoriteMerchantIds);
+        }
+
+        // 推荐筛选：随机推荐 20 个商户
+        if (recommend != null && recommend == 1) {
+            queryWrapper.last("ORDER BY RAND() LIMIT 20");
+            List<Merchant> recommendMerchants = this.list(queryWrapper);
+            List<MerchantListVo> recommendList = toMerchantListVoList(recommendMerchants);
+            Page<MerchantListVo> resultPage = new Page<MerchantListVo>(1, 20, recommendList.size())
+                    .setRecords(recommendList);
+            return PageVo.of(resultPage);
         }
 
         // 4.添加排序
@@ -246,9 +281,19 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         Page<Merchant> merchantPage = this.page(new Page<>(current, pageSize), queryWrapper);
 
         // 6.转换为VO（处理Long类型精度丢失问题）
-        List<MerchantListVo> list = merchantPage.getRecords().stream().map(merchant -> {
+        List<MerchantListVo> list = toMerchantListVoList(merchantPage.getRecords());
+
+        log.info("分页查询商户列表，当前页：{}，每页数量：{}，总记录数：{}", current, pageSize, merchantPage.getTotal());
+
+        // 7.转换结果并返回
+        Page<MerchantListVo> resultPage = new Page<MerchantListVo>(current, pageSize, merchantPage.getTotal())
+                .setRecords(list);
+        return PageVo.of(resultPage);
+    }
+
+    private List<MerchantListVo> toMerchantListVoList(List<Merchant> merchants) {
+        return merchants.stream().map(merchant -> {
             MerchantListVo merchantListVo = MerchantListVo.objToVo(merchant);
-            // 将Long转换为String，避免前端精度丢失
             merchantListVo.setMerchantId(String.valueOf(merchant.getMerchantId()));
             if (merchant.getUserId() != null) {
                 merchantListVo.setUserId(String.valueOf(merchant.getUserId()));
@@ -273,14 +318,7 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             merchantListVo.setCoupons(coupons);
 
             return merchantListVo;
-        }).toList();
-
-        log.info("分页查询商户列表，当前页：{}，每页数量：{}，总记录数：{}", current, pageSize, merchantPage.getTotal());
-
-        // 7.转换结果并返回
-        Page<MerchantListVo> resultPage = new Page<MerchantListVo>(current, pageSize, merchantPage.getTotal())
-                .setRecords(list);
-        return PageVo.of(resultPage);
+        }).collect(Collectors.toList());
     }
 
     @Override

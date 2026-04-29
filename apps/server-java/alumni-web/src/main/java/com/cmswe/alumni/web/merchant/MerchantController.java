@@ -81,9 +81,14 @@ public class MerchantController {
      */
     @PostMapping("/page")
     @Operation(summary = "分页查询商户列表")
-    public BaseResponse<PageVo<MerchantListVo>> selectPage(@RequestBody QueryMerchantListDto queryMerchantListDto) {
+    public BaseResponse<PageVo<MerchantListVo>> selectPage(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @RequestBody QueryMerchantListDto queryMerchantListDto) {
         log.info("分页查询商户列表，查询条件：{}", queryMerchantListDto);
-        PageVo<MerchantListVo> pageVo = merchantService.selectByPage(queryMerchantListDto);
+        Long wxId = (securityUser != null && securityUser.getWxUser() != null)
+                ? securityUser.getWxUser().getWxId()
+                : null;
+        PageVo<MerchantListVo> pageVo = merchantService.selectByPage(queryMerchantListDto, wxId);
         return ResultUtils.success(Code.SUCCESS, pageVo, "分页查询成功");
     }
 
