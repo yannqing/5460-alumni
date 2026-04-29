@@ -76,6 +76,12 @@ public class Activity implements Serializable {
     private String activityCategory;
 
     /**
+     * 活动类型：1-优惠活动 2-话题活动（商户发布时使用）
+     */
+    @TableField(value = "activity_type")
+    private Integer activityType;
+
+    /**
      * 活动开始时间
      */
     @TableField(value = "start_time")

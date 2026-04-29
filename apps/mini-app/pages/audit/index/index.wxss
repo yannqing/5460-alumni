@@ -128,22 +128,18 @@
   justify-content: center;
 }
 
-/* Section 8 (Merchants) - 单行按钮时卡片宽高 677.54×246.38 */
+/* Section 8 (Merchants) */
 .section_8 {
   background-color: rgba(255,255,255,1.000000);
   border-radius: 29rpx;
   width: 677.54rpx;
-  height: 246.38rpx;
+  height: auto;
   min-height: 246.38rpx;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   margin: 0 36rpx 36rpx 36rpx;
   padding-bottom: 29rpx;
-}
-.section_8.section_8_multi-row {
-  height: auto;
-  min-height: 240rpx;
 }
 .text_18 {
   width: 100%;

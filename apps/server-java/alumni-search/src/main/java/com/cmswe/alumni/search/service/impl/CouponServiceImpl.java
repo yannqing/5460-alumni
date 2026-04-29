@@ -709,6 +709,11 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
 
     @Override
     public List<CouponVo> listRecommendedMerchantCoupons(Long merchantId) {
+        return listRecommendedMerchantCoupons(merchantId, null);
+    }
+
+    @Override
+    public List<CouponVo> listRecommendedMerchantCoupons(Long merchantId, Long wxId) {
         Optional.ofNullable(merchantId)
                 .orElseThrow(() -> new BusinessException("商户ID不能为空"));
 
@@ -716,9 +721,39 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
                 buildPublicMerchantCouponQuery(merchantId, null)
                         .last("LIMIT 5")
         );
-        return coupons.stream()
-                .map(CouponVo::objToVo)
-                .toList();
+
+        return coupons.stream().map(coupon -> {
+            CouponVo vo = CouponVo.objToVo(coupon);
+
+            // 查询当前用户已领取该优惠券的数量
+            Long userClaimedCount = 0L;
+            if (wxId != null) {
+                userClaimedCount = userCouponMapper.selectCount(
+                        new LambdaQueryWrapper<UserCoupon>()
+                                .eq(UserCoupon::getCouponId, coupon.getCouponId())
+                                .eq(UserCoupon::getUserId, wxId)
+                );
+            }
+            vo.setUserClaimedCount(userClaimedCount.intValue());
+
+            // 判断是否可领取
+            boolean isClaimable = true;
+            // 检查库存
+            if (coupon.getTotalQuantity() != null && coupon.getTotalQuantity() != -1) {
+                if (coupon.getRemainQuantity() == null || coupon.getRemainQuantity() <= 0) {
+                    isClaimable = false;
+                }
+            }
+            // 检查每人限领数量
+            if (isClaimable && coupon.getPerUserLimit() != null && coupon.getPerUserLimit() > 0) {
+                if (userClaimedCount >= coupon.getPerUserLimit()) {
+                    isClaimable = false;
+                }
+            }
+            vo.setIsClaimable(isClaimable);
+
+            return vo;
+        }).toList();
     }
 
     private LambdaQueryWrapper<Coupon> buildPublicMerchantCouponQuery(Long merchantId, Long shopId) {

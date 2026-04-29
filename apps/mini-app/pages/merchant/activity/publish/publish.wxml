@@ -1,0 +1,173 @@
+<!--pages/merchant/activity/publish/publish.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="发布活动">
+  <message-notification />
+  <view class="page">
+    <view class="form-section">
+      <!-- 活动类型 -->
+      <view class="form-group">
+        <view class="form-label">活动类型 <text class="required">*</text></view>
+        <picker range="{{activityTypeOptions}}" range-key="name" value="{{formData.activityType - 1}}" bindchange="onActivityTypeChange">
+          <view class="picker-value">
+            {{formData.activityType === 1 ? '优惠活动' : '话题活动'}}
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 活动标题 -->
+      <view class="form-group">
+        <view class="form-label">活动标题 <text class="required">*</text></view>
+        <input class="form-input" placeholder="请输入活动标题" value="{{formData.activityTitle}}" bindinput="onTitleInput" maxlength="200" />
+      </view>
+
+      <!-- 封面图 -->
+      <view class="form-group">
+        <view class="form-label">封面图 <text class="required">*</text></view>
+        <view class="cover-upload" bindtap="chooseCoverImage">
+          <image wx:if="{{formData.coverImage}}" class="cover-preview" src="{{formData.coverImage}}" mode="aspectFill" />
+          <view wx:else class="cover-placeholder">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">上传封面</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 活动描述 -->
+      <view class="form-group">
+        <view class="form-label">活动描述 <text class="required">*</text></view>
+        <textarea class="form-textarea" placeholder="请输入活动描述" value="{{formData.description}}" bindinput="onDescriptionInput" maxlength="2000" />
+      </view>
+
+      <!-- 活动时间 -->
+      <view class="form-group">
+        <view class="form-label">活动时间 <text class="required">*</text></view>
+        <view class="time-row">
+          <picker mode="date" value="{{formData.startTime}}" bindchange="onStartTimeChange">
+            <view class="time-picker {{startTimeDisplay ? '' : 'placeholder'}}">
+              {{startTimeDisplay || '开始时间'}}
+            </view>
+          </picker>
+          <text class="time-sep">至</text>
+          <picker mode="date" value="{{formData.endTime}}" bindchange="onEndTimeChange">
+            <view class="time-picker {{endTimeDisplay ? '' : 'placeholder'}}">
+              {{endTimeDisplay || '结束时间'}}
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 话题活动专属：是否需要报名 -->
+      <block wx:if="{{formData.activityType === 2}}">
+        <view class="form-group">
+          <view class="form-label">是否需要报名</view>
+          <picker range="{{isSignupOptions}}" range-key="name" value="{{formData.isSignup}}" bindchange="onIsSignupChange">
+            <view class="picker-value">
+              {{formData.isSignup === 1 ? '是' : '否'}}
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 报名相关字段 -->
+        <block wx:if="{{formData.isSignup === 1}}">
+          <view class="form-group">
+            <view class="form-label">报名时间 <text class="required">*</text></view>
+            <view class="time-row">
+              <picker mode="date" value="{{formData.registrationStartTime}}" bindchange="onRegistrationStartTimeChange">
+                <view class="time-picker {{registrationStartTimeDisplay ? '' : 'placeholder'}}">
+                  {{registrationStartTimeDisplay || '开始时间'}}
+                </view>
+              </picker>
+              <text class="time-sep">至</text>
+              <picker mode="date" value="{{formData.registrationEndTime}}" bindchange="onRegistrationEndTimeChange">
+                <view class="time-picker {{registrationEndTimeDisplay ? '' : 'placeholder'}}">
+                  {{registrationEndTimeDisplay || '截止时间'}}
+                </view>
+              </picker>
+            </view>
+          </view>
+
+          <view class="form-group">
+            <view class="form-label">是否需要审核</view>
+            <picker range="{{isNeedReviewOptions}}" range-key="name" value="{{formData.isNeedReview}}" bindchange="onIsNeedReviewChange">
+              <view class="picker-value">
+                {{formData.isNeedReview === 1 ? '需要审核' : '无需审核'}}
+                <text class="picker-arrow">▼</text>
+              </view>
+            </picker>
+          </view>
+
+          <view class="form-group">
+            <view class="form-label">最大参与人数</view>
+            <input class="form-input" type="number" placeholder="不填表示不限" value="{{formData.maxParticipants}}" bindinput="onMaxParticipantsInput" />
+          </view>
+        </block>
+      </block>
+
+      <!-- 适用门店 -->
+      <view class="form-group" wx:if="{{shopList.length > 0}}">
+        <view class="form-label">适用门店</view>
+        <view class="shop-select-all" bindtap="toggleSelectAllShops">
+          <view class="checkbox {{selectAllShops ? 'checked' : ''}}"></view>
+          <text>所有门店</text>
+        </view>
+        <view class="shop-list" wx:if="{{!selectAllShops}}">
+          <view
+            class="shop-item"
+            wx:for="{{shopList}}"
+            wx:key="shopId"
+            bindtap="toggleShopSelection"
+            data-id="{{item.shopId}}"
+          >
+            <view class="checkbox {{selectedShopIds.indexOf(item.shopId) > -1 ? 'checked' : ''}}"></view>
+            <text>{{item.shopName}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 地址 -->
+      <view class="form-group">
+        <view class="form-label">活动地址</view>
+        <input class="form-input" placeholder="请输入活动地址" value="{{formData.address}}" bindinput="onAddressInput" />
+      </view>
+
+      <!-- 联系信息 -->
+      <view class="form-group">
+        <view class="form-label">联系人</view>
+        <input class="form-input" placeholder="请输入联系人" value="{{formData.contactPerson}}" bindinput="onContactPersonInput" />
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">联系电话</view>
+        <input class="form-input" type="number" placeholder="请输入联系电话" value="{{formData.contactPhone}}" bindinput="onContactPhoneInput" />
+      </view>
+
+      <!-- 活动图片 -->
+      <view class="form-group">
+        <view class="form-label">活动图片（最多9张）</view>
+        <view class="image-list">
+          <view class="image-item" wx:for="{{activityImagesList}}" wx:key="*this">
+            <image class="image-preview" src="{{item}}" mode="aspectFill" />
+            <view class="image-remove" catchtap="removeActivityImage" data-index="{{index}}">×</view>
+          </view>
+          <view class="image-add" wx:if="{{activityImagesList.length < 9}}" bindtap="chooseActivityImages">
+            <text class="add-icon">+</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 备注 -->
+      <view class="form-group">
+        <view class="form-label">备注</view>
+        <textarea class="form-textarea" placeholder="请输入备注" value="{{formData.remark}}" bindinput="onRemarkInput" maxlength="500" />
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-bar">
+      <view class="submit-btn {{submitting ? 'disabled' : ''}}" bindtap="handleSubmit">
+        {{submitting ? '发布中...' : '发布活动'}}
+      </view>
+    </view>
+  </view>
+</custom-nav-bar>

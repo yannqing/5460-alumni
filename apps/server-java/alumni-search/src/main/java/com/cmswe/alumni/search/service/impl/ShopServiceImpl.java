@@ -20,6 +20,7 @@ import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.entity.Activity;
 import com.cmswe.alumni.common.vo.ActivityListVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
+import com.cmswe.alumni.common.vo.NearbyMerchantVo;
 import com.cmswe.alumni.common.vo.NearbyShopVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopApprovalVo;
@@ -68,6 +69,9 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
     @Lazy
     @Resource
     private com.cmswe.alumni.api.system.ActivityService activityService;
+
+    @Resource
+    private com.cmswe.alumni.api.user.UserFavoriteService userFavoriteService;
 
     private List<Long> parseAssociationIds(String associationIdStr) {
         if (StringUtils.isBlank(associationIdStr)) {
@@ -273,6 +277,134 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         // 6. 构建分页结果
         Page<NearbyShopVo> page = new Page<>(current, pageSize, total);
         page.setRecords(shopList);
+
+        return PageVo.of(page);
+    }
+
+    @Override
+    public PageVo<NearbyMerchantVo> getNearbyMerchants(QueryNearbyShopDto queryDto) {
+        // 1. 参数校验
+        Optional.ofNullable(queryDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
+
+        if (queryDto.getLatitude() == null || queryDto.getLongitude() == null) {
+            throw new BusinessException("经纬度不能为空");
+        }
+
+        // 2. 获取查询参数
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+        int offset = (current - 1) * pageSize;
+        Integer radius = queryDto.getRadius();
+        String merchantName = queryDto.getShopName(); // 复用 shopName 字段作为商户名搜索
+        Integer isRecommended = queryDto.getIsRecommended();
+
+        // 3. 执行分页查询（按商户维度，只查询有有效专属优惠券的商户）
+        List<NearbyMerchantVo> merchantList = this.baseMapper.selectNearbyMerchantsWithPage(
+                queryDto.getLatitude(),
+                queryDto.getLongitude(),
+                radius,
+                merchantName,
+                isRecommended,
+                offset,
+                pageSize);
+
+        // 4. 为每个商户加载优惠券列表和收藏数量
+        merchantList.forEach(merchant -> {
+            try {
+                Long merchantId = Long.parseLong(merchant.getMerchantId());
+                List<ShopCouponVo> coupons = this.baseMapper.selectCouponsByMerchantId(merchantId);
+                merchant.setCoupons(coupons);
+                log.debug("商户 {} 加载了 {} 个专属优惠券", merchantId, coupons.size());
+
+                // 查询商户收藏数量
+                Long favoriteCount = userFavoriteService.count(
+                        new LambdaQueryWrapper<com.cmswe.alumni.common.entity.UserFavorite>()
+                                .eq(com.cmswe.alumni.common.entity.UserFavorite::getTargetType, 1)
+                                .eq(com.cmswe.alumni.common.entity.UserFavorite::getTargetId, merchantId)
+                                .eq(com.cmswe.alumni.common.entity.UserFavorite::getIsDeleted, 0));
+                merchant.setFavoriteCount(favoriteCount);
+            } catch (Exception e) {
+                log.error("加载商户 {} 的优惠券或收藏数失败", merchant.getMerchantId(), e);
+                merchant.setCoupons(List.of());
+                merchant.setFavoriteCount(0L);
+            }
+        });
+
+        // 5. 查询总数
+        Long total = this.baseMapper.countNearbyMerchants(
+                queryDto.getLatitude(),
+                queryDto.getLongitude(),
+                radius,
+                merchantName,
+                isRecommended);
+
+        log.info("查询附近{}km商户，位置：[{}, {}]，找到{}个结果（有专属优惠券的商户）",
+                radius, queryDto.getLatitude(), queryDto.getLongitude(), total);
+
+        // 6. 构建分页结果
+        Page<NearbyMerchantVo> page = new Page<>(current, pageSize, total);
+        page.setRecords(merchantList);
+
+        return PageVo.of(page);
+    }
+
+    @Override
+    public PageVo<NearbyMerchantVo> getNearbyActivities(QueryNearbyShopDto queryDto) {
+        Optional.ofNullable(queryDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
+
+        if (queryDto.getLatitude() == null || queryDto.getLongitude() == null) {
+            throw new BusinessException("经纬度不能为空");
+        }
+
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+        int offset = (current - 1) * pageSize;
+        Integer radius = queryDto.getRadius();
+        String merchantName = queryDto.getShopName();
+
+        List<NearbyMerchantVo> merchantList = this.baseMapper.selectNearbyActivitiesWithPage(
+                queryDto.getLatitude(),
+                queryDto.getLongitude(),
+                radius,
+                merchantName,
+                offset,
+                pageSize);
+
+        merchantList.forEach(merchant -> {
+            try {
+                Long merchantId = Long.parseLong(merchant.getMerchantId());
+                List<NearbyMerchantVo.ActivityItem> activities =
+                        this.baseMapper.selectActivitiesByMerchantId(merchantId);
+                merchant.setActivities(activities);
+
+                Long favoriteCount = userFavoriteService.count(
+                        new LambdaQueryWrapper<com.cmswe.alumni.common.entity.UserFavorite>()
+                                .eq(com.cmswe.alumni.common.entity.UserFavorite::getTargetType, 1)
+                                .eq(com.cmswe.alumni.common.entity.UserFavorite::getTargetId, merchantId)
+                                .eq(com.cmswe.alumni.common.entity.UserFavorite::getIsDeleted, 0));
+                merchant.setFavoriteCount(favoriteCount);
+            } catch (Exception e) {
+                log.error("加载商户 {} 的活动或收藏数失败", merchant.getMerchantId(), e);
+                merchant.setActivities(List.of());
+                merchant.setFavoriteCount(0L);
+            }
+        });
+
+        Long total = Optional.ofNullable(
+                this.baseMapper.countNearbyActivities(
+                        queryDto.getLatitude(),
+                        queryDto.getLongitude(),
+                        radius,
+                        merchantName))
+                .orElse(0L);
+
+        log.info("查询附近{}km活动，位置：[{}, {}]，找到{}个结果",
+                radius, queryDto.getLatitude(), queryDto.getLongitude(), total);
+
+        Page<NearbyMerchantVo> page = new Page<>(current, pageSize, total);
+        page.setRecords(merchantList);
 
         return PageVo.of(page);
     }

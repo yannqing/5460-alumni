@@ -1,4 +1,4 @@
-<view wx:if="{{coupon}}" class="coupon-card" style="background-image: url('{{couponBgUrl}}');" bindtap="handleTap">
+<view wx:if="{{coupon}}" class="coupon-card {{!coupon.isClaimable ? 'coupon-card--disabled' : ''}}" style="background-image: url('{{couponBgUrl}}');" bindtap="handleTap">
   <text class="coupon-status-tag status-{{coupon.rawStatus || coupon.status}}" wx:if="{{coupon.statusText}}">{{coupon.statusText}}</text>
   <view class="coupon-left-section">
     <view class="coupon-type-text">{{typeLabelMap[coupon.couponType] || '优惠券'}}</view>
@@ -16,6 +16,11 @@
       </view>
       <text class="coupon-stock-text" wx:if="{{coupon.stock !== undefined}}">剩余{{coupon.stock}}/{{coupon.totalStock}}</text>
     </view>
+    <view class="coupon-claim-info" wx:if="{{coupon.userClaimedCount > 0}}">
+      <text class="claim-count-text">已领{{coupon.userClaimedCount}}张</text>
+    </view>
   </view>
-  <view wx:if="{{showAction}}" class="coupon-action-btn" bindtap="handleAction">领取</view>
+  <view wx:if="{{showAction}}" class="coupon-action-btn {{!coupon.isClaimable ? 'coupon-action-btn--disabled' : ''}}" catchtap="handleAction">
+    {{coupon.isClaimable ? '领取' : '已领完'}}
+  </view>
 </view>

@@ -7,6 +7,7 @@ import com.cmswe.alumni.common.dto.QueryNearbyShopDto;
 import com.cmswe.alumni.common.dto.QueryShopApprovalDto;
 import com.cmswe.alumni.common.dto.UpdateShopDto;
 import com.cmswe.alumni.common.entity.Shop;
+import com.cmswe.alumni.common.vo.NearbyMerchantVo;
 import com.cmswe.alumni.common.vo.NearbyShopVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopApprovalVo;
@@ -62,6 +63,19 @@ public interface ShopService extends IService<Shop> {
      * @return 附近店铺分页列表
      */
     PageVo<NearbyShopVo> getNearbyShops(QueryNearbyShopDto queryDto);
+
+    /**
+     * 按商户维度分页查询附近商户（用于发现页附近优惠）
+     *
+     * @param queryDto 查询参数（包含经纬度、半径、分页等）
+     * @return 附近商户分页列表
+     */
+    PageVo<NearbyMerchantVo> getNearbyMerchants(QueryNearbyShopDto queryDto);
+
+    /**
+     * 分页查询附近有活动的商户
+     */
+    PageVo<NearbyMerchantVo> getNearbyActivities(QueryNearbyShopDto queryDto);
 
     /**
      * 根据店铺ID查询商铺详情

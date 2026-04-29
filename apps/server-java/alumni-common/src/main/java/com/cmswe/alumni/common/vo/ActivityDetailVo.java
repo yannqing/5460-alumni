@@ -84,6 +84,12 @@ public class ActivityDetailVo implements Serializable {
     private String activityCategory;
 
     /**
+     * 活动类型：1-优惠活动 2-话题活动
+     */
+    @Schema(description = "活动类型：1-优惠活动 2-话题活动")
+    private Integer activityType;
+
+    /**
      * 活动开始时间
      */
     @Schema(description = "活动开始时间")

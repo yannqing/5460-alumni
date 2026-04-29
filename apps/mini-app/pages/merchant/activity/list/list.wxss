@@ -1,0 +1,243 @@
+/* pages/merchant/activity/list/list.wxss */
+.page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 商户选择器 */
+.merchant-selector {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.selector-label {
+  font-size: 28rpx;
+  color: #333;
+  flex-shrink: 0;
+}
+
+.picker-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 28rpx;
+  color: #333;
+  padding: 0 16rpx;
+}
+
+.picker-arrow {
+  font-size: 20rpx;
+  color: #999;
+  margin-left: 8rpx;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  display: flex;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  gap: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.filter-item {
+  font-size: 28rpx;
+  color: #666;
+  padding: 8rpx 24rpx;
+  border-radius: 32rpx;
+  background: #f5f5f5;
+}
+
+.filter-item.active {
+  color: #fff;
+  background: #40B2E6;
+}
+
+/* 发布按钮 */
+.publish-bar {
+  padding: 20rpx 30rpx;
+}
+
+.publish-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  height: 80rpx;
+  background: linear-gradient(90deg, #40B2E6, #6BC5ED);
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.publish-icon {
+  font-size: 36rpx;
+}
+
+/* 活动列表 */
+.activity-list {
+  padding: 0 30rpx;
+}
+
+.activity-card {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  padding: 24rpx;
+  gap: 20rpx;
+}
+
+.card-cover {
+  width: 160rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.status-tag {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.status-draft {
+  color: #999;
+  background: #f5f5f5;
+}
+
+.status-open {
+  color: #52c41a;
+  background: #f6ffed;
+}
+
+.status-closed {
+  color: #faad14;
+  background: #fffbe6;
+}
+
+.status-ongoing {
+  color: #40B2E6;
+  background: #e6f7ff;
+}
+
+.status-ended {
+  color: #999;
+  background: #f5f5f5;
+}
+
+.status-cancelled {
+  color: #ff4d4f;
+  background: #fff2f0;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.type-tag {
+  font-size: 22rpx;
+  color: #40B2E6;
+  background: #e6f7ff;
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.card-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.card-address {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.card-stats {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 操作按钮 */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 24rpx 20rpx;
+  gap: 20rpx;
+}
+
+.action-btn {
+  font-size: 24rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 8rpx;
+}
+
+.action-btn.delete {
+  color: #ff4d4f;
+  background: #fff2f0;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.no-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+  color: #ccc;
+  font-size: 24rpx;
+}

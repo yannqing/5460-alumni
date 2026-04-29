@@ -170,7 +170,9 @@
         "my-merchant/my-merchant",
         "join-association/join-association",
         "edit-apply/edit-apply",
-        "perfect-info/perfect-info"
+        "perfect-info/perfect-info",
+        "activity/list/list",
+        "activity/publish/publish"
       ]
     },
     {

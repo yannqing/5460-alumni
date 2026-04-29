@@ -1,7 +1,9 @@
 package com.cmswe.alumni.api.system;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cmswe.alumni.common.dto.PublishMerchantActivityDto;
 import com.cmswe.alumni.common.dto.PublishTopicDto;
+import com.cmswe.alumni.common.dto.QueryMerchantActivityDto;
 import com.cmswe.alumni.common.dto.QueryPublicActivityDto;
 import com.cmswe.alumni.common.dto.QueryShopActivityDto;
 import com.cmswe.alumni.common.dto.UpdateActivityDto;
@@ -26,6 +28,24 @@ public interface ActivityService extends IService<Activity> {
      * @return 是否成功
      */
     boolean publishTopic(Long wxId, PublishTopicDto publishTopicDto);
+
+    /**
+     * 商户发布活动（优惠活动或话题活动）
+     *
+     * @param wxId                    操作人微信ID
+     * @param publishMerchantActivityDto 发布活动请求参数
+     * @return 是否成功
+     */
+    boolean publishMerchantActivity(Long wxId, PublishMerchantActivityDto publishMerchantActivityDto);
+
+    /**
+     * 商户查询活动列表（按商户维度，支持按活动类型筛选）
+     *
+     * @param wxId     操作人微信ID
+     * @param queryDto 查询参数
+     * @return 活动列表分页数据
+     */
+    PageVo<ActivityListVo> getMerchantActivities(Long wxId, QueryMerchantActivityDto queryDto);
 
     /**
      * 根据ID查询活动详情（普通用户使用，仅返回审核通过且非草稿的活动）

@@ -1,0 +1,85 @@
+<!--pages/merchant/activity/list/list.wxml-->
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="活动管理">
+  <message-notification />
+  <view class="page">
+    <!-- 商户选择器 -->
+    <view class="merchant-selector" wx:if="{{showMerchantSelector}}">
+      <text class="selector-label">当前商户：</text>
+      <picker range="{{merchantList}}" range-key="merchantName" bindchange="onMerchantChange">
+        <view class="picker-value">
+          {{selectedMerchantName || '请选择商户'}}
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 筛选栏 -->
+    <view class="filter-bar">
+      <view
+        class="filter-item {{activityTypeFilter === item.id ? 'active' : ''}}"
+        wx:for="{{filterOptions}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onFilterChange"
+      >
+        {{item.name}}
+      </view>
+    </view>
+
+    <!-- 发布按钮 -->
+    <view class="publish-bar">
+      <view class="publish-btn" bindtap="goToPublish">
+        <text class="publish-icon">+</text>
+        <text>发布活动</text>
+      </view>
+    </view>
+
+    <!-- 活动列表 -->
+    <view class="activity-list" wx:if="{{activityList.length > 0}}">
+      <view
+        class="activity-card"
+        wx:for="{{activityList}}"
+        wx:key="activityId"
+        bindtap="viewDetail"
+        data-id="{{item.activityId}}"
+      >
+        <view class="card-header">
+          <image class="card-cover" src="{{item.coverImage}}" mode="aspectFill" wx:if="{{item.coverImage}}" />
+          <view class="card-info">
+            <view class="card-title-row">
+              <text class="card-title">{{item.activityTitle}}</text>
+              <view class="status-tag {{item.statusClass}}">{{item.statusText}}</view>
+            </view>
+            <view class="card-meta">
+              <text class="type-tag">{{item.typeLabel}}</text>
+              <text class="card-time">{{item.startTime}} ~ {{item.endTime}}</text>
+            </view>
+            <view class="card-address" wx:if="{{item.address}}">
+              <text>{{item.address}}</text>
+            </view>
+            <view class="card-stats" wx:if="{{item.isSignup === 1}}">
+              <text>报名人数：{{item.currentParticipants || 0}}</text>
+              <text wx:if="{{item.maxParticipants}}"> / {{item.maxParticipants}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="card-actions">
+          <view class="action-btn delete" catchtap="deleteActivity" data-id="{{item.activityId}}">删除</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && activityList.length === 0}}">
+      <text>暂无活动</text>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && activityList.length > 0 && !loading}}">
+      <text>没有更多了</text>
+    </view>
+  </view>
+</custom-nav-bar>

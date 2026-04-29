@@ -11,6 +11,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 商户列表返回VO
@@ -182,6 +183,18 @@ public class MerchantListVo implements Serializable {
      */
     @Schema(description = "审核状态：0-待审核 1-审核通过 2-审核失败 3-已撤销 4-待发布")
     private Integer reviewStatus;
+
+    /**
+     * 收藏数量
+     */
+    @Schema(description = "收藏数量")
+    private Long favoriteCount;
+
+    /**
+     * 推荐优惠券列表（最多2个）
+     */
+    @Schema(description = "推荐优惠券列表")
+    private List<CouponVo> coupons;
 
     @Serial
     private static final long serialVersionUID = 1L;

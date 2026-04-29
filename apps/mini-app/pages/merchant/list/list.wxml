@@ -11,7 +11,7 @@
   <view class="top-image-container">
     <image class="top-image" src="{{topImageUrl}}" mode="aspectFit" />
   </view>
-  
+
   <!-- 搜索栏和筛选条件容器 -->
   <view class="header-container">
     <!-- 搜索栏 -->
@@ -22,7 +22,7 @@
         <view class="search-button" bindtap="onSearch">搜索</view>
       </view>
     </view>
-    
+
     <!-- 筛选栏 -->
     <view class="filter-bar">
       <!-- 商铺类型筛选 -->
@@ -41,35 +41,22 @@
       </view>
       <!-- 关注筛选 -->
       <view class="filter-item" bindtap="onFollowChange">
-        <text>{{filters[3].options[0]}}</text>
+        <text>{{filters[2].options[0]}}</text>
         <text class="filter-arrow">▾</text>
       </view>
     </view>
   </view>
 
-  <!-- 商铺列表 -->
+  <!-- 商户列表 -->
   <view class="merchant-list">
-    <view class="merchant-card" wx:for="{{merchantList}}" wx:key="merchantId" bindtap="viewDetail" data-id="{{item.merchantId}}">
-      <view class="card-header">
-        <image class="card-logo" src="{{item.logoUrl}}" mode="aspectFill" />
-        <view class="card-info">
-          <view class="card-title-row">
-            <text class="card-title">{{item.merchantName}}</text>
-            <view class="badges-row">
-              <view wx:if="{{item.isAlumniCertified === 1}}" class="cert-badge">✓ 校友认证</view>
-            </view>
-          </view>
-          <view class="card-subtitle" wx:if="{{item.businessCategory}}">
-            <image class="subtitle-icon" src="{{iconCategory}}" mode="aspectFit" />
-            <text>{{item.businessCategory}}</text>
-          </view>
-          <view class="card-meta-line">
-            <text class="meta-label">门店：</text>
-            <text class="meta-value">{{item.shopCount}}家</text>
-          </view>
-        </view>
-      </view>
-    </view>
+    <merchant-card
+      wx:for="{{merchantList}}"
+      wx:key="merchantId"
+      item="{{item}}"
+      iconCategory="{{iconCategory}}"
+      bind:tap="onMerchantTap"
+      bind:coupontap="onCouponTap"
+    />
 
     <!-- 加载状态 -->
     <view wx:if="{{loading}}" class="loading-text">加载中...</view>

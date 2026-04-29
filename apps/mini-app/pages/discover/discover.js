@@ -123,6 +123,7 @@ Page({
       coupon: 1, // 商铺
       venue: 2, // 企业/场所
       alumni: 3, // 校友
+      activity: 4, // 活动
     }
     const queryType = tabToQueryType[this.data.selectedTab]
     if (queryType) {
@@ -138,6 +139,7 @@ Page({
       coupon: 1, // 商铺
       venue: 2, // 企业/场所
       alumni: 3, // 校友
+      activity: 4, // 活动
     }
 
     const queryType = tabToQueryType[this.data.selectedTab]
@@ -145,9 +147,6 @@ Page({
       // 如果有搜索关键词，传递关键词；否则传递空字符串
       const keyword = this.data.searchKeyword || ''
       await this.loadNearbyData(queryType, true, keyword)
-    } else {
-      // 活动tab使用模拟数据
-      this.loadMockData()
     }
   },
 
@@ -167,7 +166,13 @@ Page({
       // 如果全局数据中没有位置信息，显示失败
       if (!location) {
         const emptyList =
-          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
+          queryType === 1
+            ? 'couponList'
+            : queryType === 2
+              ? 'venueList'
+              : queryType === 3
+                ? 'alumniList'
+                : 'activityList'
         this.setData({
           [emptyList]: [],
           loading: false,
@@ -204,7 +209,13 @@ Page({
       if (!res || !res.data) {
         console.error('[Discover] 响应数据格式错误:', res)
         const emptyList =
-          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
+          queryType === 1
+            ? 'couponList'
+            : queryType === 2
+              ? 'venueList'
+              : queryType === 3
+                ? 'alumniList'
+                : 'activityList'
         this.setData({
           [emptyList]: reset ? [] : this.data[emptyList],
           loading: false,
@@ -221,7 +232,13 @@ Page({
       if (res.data.code !== 200) {
         console.error('[Discover] 接口返回错误:', res.data.code, res.data.msg)
         const emptyList =
-          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
+          queryType === 1
+            ? 'couponList'
+            : queryType === 2
+              ? 'venueList'
+              : queryType === 3
+                ? 'alumniList'
+                : 'activityList'
         this.setData({
           [emptyList]: reset ? [] : this.data[emptyList],
           loading: false,
@@ -245,7 +262,13 @@ Page({
         // 如果没有数据
         if (records.length === 0) {
           const emptyList =
-            queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
+            queryType === 1
+              ? 'couponList'
+              : queryType === 2
+                ? 'venueList'
+                : queryType === 3
+                  ? 'alumniList'
+                  : 'activityList'
           this.setData({
             [emptyList]: reset ? [] : this.data[emptyList],
             loading: false,
@@ -256,157 +279,61 @@ Page({
 
         // 根据 queryType 处理不同类型的数据
         if (queryType === 1) {
-          // 商铺类型
-          const couponList = records.map(shop => {
-            // 优化图片处理逻辑，使用缓存避免重复处理
-            let image = ''
-            const shopLogo = (shop.logo && String(shop.logo) !== 'null' && String(shop.logo) !== 'undefined') ? shop.logo : ''
+          // 商户类型 - 使用 merchant-card 组件兼容的数据格式
+          const couponList = records.map(merchant => {
+            // 商户头像是 merchant.logo
+            const merchantLogo =
+              merchant.logo &&
+              String(merchant.logo) !== 'null' &&
+              String(merchant.logo) !== 'undefined'
+                ? merchant.logo
+                : ''
 
-            // 优先使用门店 logo
-            if (shopLogo) {
-              image = config.getImageUrl(shopLogo)
-            } else if (shop.shopImages) {
-              // 生成缓存键
-              const cacheKey = `shop_${shop.shopId || shop.id}_image`
-
-              // 检查缓存
-              if (this.data.imageCache[cacheKey]) {
-                image = this.data.imageCache[cacheKey]
-              } else {
-                let imageUrl = ''
-                if (Array.isArray(shop.shopImages) && shop.shopImages.length > 0) {
-                  imageUrl = shop.shopImages[0]
-                } else if (typeof shop.shopImages === 'string') {
-                  // 简化字符串处理，直接使用第一个有效图片
-                  const imageStr = shop.shopImages.trim()
-                  if (imageStr) {
-                    // 快速检查是否为 JSON 数组，避免 try-catch 开销
-                    if (imageStr.startsWith('[') && imageStr.endsWith(']')) {
-                      // 直接提取第一个图片 URL，不使用 JSON.parse
-                      const firstImage = imageStr.slice(1, -1).split(',')[0].trim()
-                      if (
-                        firstImage &&
-                        (firstImage.startsWith('"') || firstImage.startsWith('`'))
-                      ) {
-                        // 移除引号或反引号
-                        const cleanUrl = firstImage.replace(/^["`]|["`]$/g, '')
-                        if (cleanUrl) {
-                          imageUrl = cleanUrl
-                        }
-                      } else if (firstImage && firstImage.includes('http')) {
-                        imageUrl = firstImage
-                      }
-                    } else {
-                      // 不是数组，直接作为单个图片 URL
-                      imageUrl = imageStr
-                    }
-                  }
-                }
-
-                if (imageUrl) {
-                  image = config.getImageUrl(imageUrl)
-                  // 缓存结果
-                  this.data.imageCache[cacheKey] = image
-                }
-              }
-            }
-
-            // // 如果最终没有图片，则设为默认头像
-            // if (!image) {
-            //   image = config.defaultAvatar
-            // }
+            const logoUrl = merchantLogo ? config.getImageUrl(merchantLogo) : config.defaultAvatar
 
             // 处理距离
-            let distanceText = '0m'
-            if (shop.distance !== undefined && shop.distance !== null) {
-              if (shop.distance < 1) {
-                distanceText = Math.round(shop.distance * 1000) + 'm'
+            let distanceText = ''
+            if (merchant.distance !== undefined && merchant.distance !== null) {
+              if (merchant.distance < 1) {
+                distanceText = Math.round(merchant.distance * 1000) + 'm'
               } else {
-                const kmValue = shop.distance.toFixed(1)
+                const kmValue = merchant.distance.toFixed(1)
                 if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(shop.distance) + 'km'
+                  distanceText = Math.round(merchant.distance) + 'km'
                 } else {
                   distanceText = kmValue + 'km'
                 }
               }
             }
 
-            // 简化优惠券处理逻辑，减少重复计算
+            // 处理优惠券 - 使用 merchant-card 兼容的格式
             let coupons = []
-            if (shop.coupons && Array.isArray(shop.coupons) && shop.coupons.length > 0) {
-              coupons = shop.coupons.map(coupon => {
-                // 预计算优惠券折扣和类型
-                const discountValue = coupon.discountValue || 0
-                const couponType = coupon.couponType || 0
-
-                // 简化折扣计算
-                let discount = '优惠'
-                if (discountValue) {
-                  if (couponType === 1) {
-                    discount = Math.round(discountValue * 10) + '折'
-                  } else if (couponType === 2) {
-                    discount = '满' + (coupon.minSpend || 0) + '减' + discountValue
-                  } else {
-                    discount = '礼品券'
-                  }
-                }
-
-                // 简化类型判断
-                let type = '优惠券'
-                if (couponType === 1) {
-                  type = '折扣券'
-                } else if (couponType === 2) {
-                  type = '满减券'
-                } else if (couponType === 3) {
-                  type = '礼品券'
-                }
-
-                // 简化标题和有效期处理
-                const title = coupon.couponName || discount || ''
-                let expireDate = '有效期至长期有效'
-                if (coupon.validEndTime) {
-                  // 简化日期处理
-                  expireDate =
-                    '有效期至' +
-                    (coupon.validEndTime.split('T')[0] || coupon.validEndTime.split(' ')[0])
-                }
-
-                return {
-                  discount: discount,
-                  type: type,
-                  title: title,
-                  expireDate: expireDate,
-                  couponId: coupon.couponId,
-                  remainQuantity: coupon.remainQuantity || 0,
-                  minSpend: coupon.minSpend || 0,
-                  isAlumniOnly: coupon.isAlumniOnly || 0,
-                }
-              })
+            if (
+              merchant.coupons &&
+              Array.isArray(merchant.coupons) &&
+              merchant.coupons.length > 0
+            ) {
+              coupons = merchant.coupons.slice(0, 2).map(coupon => ({
+                couponId: coupon.couponId,
+                couponName: coupon.couponName || '',
+                couponType: coupon.couponType || 1,
+                discountType: coupon.couponType === 1 ? 2 : 1, // 1-折扣券对应折扣比例，其他对应固定金额
+                discountValue: coupon.discountValue || 0,
+                minSpend: coupon.minSpend || 0,
+              }))
             }
 
-            const associations = shop.associations || []
-
             return {
-              id: shop.shopId || shop.id,
-              name: shop.shopName || shop.name || '',
+              merchantId: merchant.merchantId || merchant.id,
+              merchantName: merchant.merchantName || merchant.name || '',
+              merchantType: merchant.merchantType || 0,
+              businessCategory: merchant.businessCategory || '',
+              logoUrl: logoUrl,
+              shopCount: merchant.shopCount || 0,
+              favoriteCount: merchant.favoriteCount || 0,
+              isAlumniCertified: merchant.isAlumniCertified || 0,
               distance: distanceText,
-              image: image,
-              logo: shopLogo, // 保存经过验证的 logo 路径供地图使用
-              associations: associations,
               coupons: coupons,
-              latitude: shop.latitude,
-              longitude: shop.longitude,
-              ratingScore: parseFloat(shop.ratingScore) || 0,
-              ratingCount: parseInt(shop.ratingCount) || 0,
-              viewCount: parseInt(shop.viewCount) || 0,
-              clickCount: parseInt(shop.clickCount) || 0,
-              couponReceivedCount: parseInt(shop.couponReceivedCount) || 0,
-              couponVerifiedCount: parseInt(shop.couponVerifiedCount) || 0,
-              isRecommended: parseInt(shop.isRecommended) || 0,
-              status: shop.status || 1,
-              phone: shop.phone || '',
-              businessHours: shop.businessHours || '',
-              description: shop.description || '',
             }
           })
 
@@ -431,7 +358,10 @@ Page({
           const venueList = records.map(venue => {
             // 处理图片
             let image = ''
-            const venueLogo = (venue.logo && String(venue.logo) !== 'null' && String(venue.logo) !== 'undefined') ? venue.logo : ''
+            const venueLogo =
+              venue.logo && String(venue.logo) !== 'null' && String(venue.logo) !== 'undefined'
+                ? venue.logo
+                : ''
 
             // 优先使用场所 logo
             if (venueLogo) {
@@ -601,10 +531,80 @@ Page({
               }
             }
           )
+        } else if (queryType === 4) {
+          // 活动类型 - 使用 merchant-card 组件兼容的数据格式
+          const activityList = records.map(merchant => {
+            const merchantLogo =
+              merchant.logo &&
+              String(merchant.logo) !== 'null' &&
+              String(merchant.logo) !== 'undefined'
+                ? merchant.logo
+                : ''
+
+            const logoUrl = merchantLogo ? config.getImageUrl(merchantLogo) : config.defaultAvatar
+
+            // 处理距离
+            let distanceText = ''
+            if (merchant.distance !== undefined && merchant.distance !== null) {
+              if (merchant.distance < 1) {
+                distanceText = Math.round(merchant.distance * 1000) + 'm'
+              } else {
+                const kmValue = merchant.distance.toFixed(1)
+                if (kmValue.endsWith('.0')) {
+                  distanceText = Math.round(merchant.distance) + 'km'
+                } else {
+                  distanceText = kmValue + 'km'
+                }
+              }
+            }
+
+            // 处理活动列表
+            let activities = []
+            if (
+              merchant.activities &&
+              Array.isArray(merchant.activities) &&
+              merchant.activities.length > 0
+            ) {
+              activities = merchant.activities.map(a => ({
+                activityId: a.activityId,
+                activityTitle: a.activityTitle || '',
+                activityType: a.activityType || 0,
+              }))
+            }
+
+            return {
+              merchantId: merchant.merchantId || merchant.id,
+              merchantName: merchant.merchantName || merchant.name || '',
+              merchantType: merchant.merchantType || 0,
+              businessCategory: merchant.businessCategory || '',
+              logoUrl: logoUrl,
+              shopCount: merchant.shopCount || 0,
+              favoriteCount: merchant.favoriteCount || 0,
+              isAlumniCertified: merchant.isAlumniCertified || 0,
+              distance: distanceText,
+              activities: activities,
+            }
+          })
+
+          const currentList = reset ? activityList : this.data.activityList.concat(activityList)
+          const hasMore = currentList.length < total && records.length > 0
+
+          this.setData({
+            activityList: currentList,
+            currentPage: currentPage,
+            hasMore: hasMore,
+            loading: false,
+          })
         }
       } else {
         const emptyList =
-          queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
+          queryType === 1
+            ? 'couponList'
+            : queryType === 2
+              ? 'venueList'
+              : queryType === 3
+                ? 'alumniList'
+                : 'activityList'
         this.setData({
           [emptyList]: reset ? [] : this.data[emptyList],
           loading: false,
@@ -614,7 +614,13 @@ Page({
     } catch (error) {
       console.error('[Discover] 加载附近数据失败:', error)
       const emptyList =
-        queryType === 1 ? 'couponList' : queryType === 2 ? 'venueList' : 'alumniList'
+        queryType === 1
+          ? 'couponList'
+          : queryType === 2
+            ? 'venueList'
+            : queryType === 3
+              ? 'alumniList'
+              : 'activityList'
       this.setData({
         [emptyList]: reset ? [] : this.data[emptyList],
         loading: false,
@@ -666,41 +672,6 @@ Page({
     })
   },
 
-  loadMockData() {
-    // 只保留活动列表的模拟数据（附近优惠、附近场所、附近校友已使用真实数据）
-    setTimeout(() => {
-      // 模拟活动列表数据
-      const mockActivityList = [
-        {
-          id: 1,
-          title: '洛杉矶苏超观影会',
-          dateRange: '2025.10.4 - 2026.5.3',
-          association: '江南大学无锡校友会',
-          participantCount: 24,
-          participantAvatars: [
-            config.defaultAvatar,
-            config.defaultAvatar,
-            config.defaultAvatar,
-            config.defaultAvatar,
-            config.defaultAvatar,
-          ],
-          location: '北京市朝阳区',
-          signedUp: true,
-          signedCount: 22,
-        },
-      ]
-
-      this.setData({
-        couponList: [],
-        venueList: [],
-        alumniList: [],
-        activityList: mockActivityList,
-        loading: false,
-      })
-      this.updateMapMarkers()
-    }, 500)
-  },
-
   handleSearchInput(e) {
     this.setData({
       searchValue: e.detail.value,
@@ -720,19 +691,13 @@ Page({
       coupon: 1, // 商铺
       venue: 2, // 企业/场所
       alumni: 3, // 校友
+      activity: 4, // 活动
     }
     const queryType = tabToQueryType[selectedTab]
 
     if (queryType) {
       // 直接在当前页面加载搜索结果，传递 queryType 和 keyword
       this.loadNearbyData(queryType, true, searchValue.trim())
-    } else {
-      // 活动tab跳转到搜索页面
-      if (searchValue.trim()) {
-        wx.navigateTo({
-          url: `/pages/search/search?keyword=${searchValue}`,
-        })
-      }
     }
   },
 
@@ -794,7 +759,8 @@ Page({
         wx.hideLoading()
         wx.getSetting({
           success: settingRes => {
-            const hasLocationAuth = settingRes.authSetting && settingRes.authSetting['scope.userLocation']
+            const hasLocationAuth =
+              settingRes.authSetting && settingRes.authSetting['scope.userLocation']
             if (hasLocationAuth === false) {
               wx.showModal({
                 title: '需要位置权限',
@@ -892,19 +858,22 @@ Page({
 
   // 创建圆形头像（使用 Canvas）
   createRoundAvatar(imageUrl, size = 50) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       // 与 pages/alumni-association/list 列表默认头一致使用 config.defaultAvatar（本地 /assets/...）
       const fallbackAvatar = config.defaultAvatar || '/assets/avatar/avatar.jpg'
       // 勿对 /assets/ 下包内资源调用 getImageUrl，否则会拼成 baseUrl+/assets/... 导致 404
-      const fallbackForRemote =
-        !fallbackAvatar.startsWith('/assets/')
-          ? config.getImageUrl(fallbackAvatar)
-          : ''
-      const fallbackImages = [fallbackAvatar, fallbackForRemote, config.defaultAlumniAvatar, '/assets/home/home_page_shop.png']
-        .filter(Boolean)
-      
+      const fallbackForRemote = !fallbackAvatar.startsWith('/assets/')
+        ? config.getImageUrl(fallbackAvatar)
+        : ''
+      const fallbackImages = [
+        fallbackAvatar,
+        fallbackForRemote,
+        config.defaultAlumniAvatar,
+        '/assets/home/home_page_shop.png',
+      ].filter(Boolean)
+
       // 处理图片路径，确保本地路径正确
-      const normalizePath = (path) => {
+      const normalizePath = path => {
         if (!path) return ''
         let p = String(path).trim()
         if (p === 'null' || p === 'undefined') return ''
@@ -925,7 +894,7 @@ Page({
       const radius = size / 2
 
       // 内部绘制函数（不画白色底圆；有 logo 时仍用圆形容器裁切）
-      const drawCanvas = (imagePath) => {
+      const drawCanvas = imagePath => {
         ctx.clearRect(0, 0, size, size)
 
         ctx.save()
@@ -941,61 +910,64 @@ Page({
         // draw 的第二个参数回调在真机上可能过快触发，增加 setTimeout 确保渲染完成
         ctx.draw(false, () => {
           setTimeout(() => {
-            wx.canvasToTempFilePath({
-              canvasId: canvasId,
-              width: size,
-              height: size,
-              destWidth: size * 2, // 提升清晰度
-              destHeight: size * 2,
-              success: result => {
-                this.avatarCache[cacheKey] = result.tempFilePath
-                resolve(result.tempFilePath)
+            wx.canvasToTempFilePath(
+              {
+                canvasId: canvasId,
+                width: size,
+                height: size,
+                destWidth: size * 2, // 提升清晰度
+                destHeight: size * 2,
+                success: result => {
+                  this.avatarCache[cacheKey] = result.tempFilePath
+                  resolve(result.tempFilePath)
+                },
+                fail: err => {
+                  console.warn('[Discover] 导出Canvas失败:', err)
+                  resolve(imagePath)
+                },
               },
-              fail: err => {
-                console.warn('[Discover] 导出Canvas失败:', err)
-                resolve(imagePath)
-              }
-            }, this)
+              this
+            )
           }, 50) // 延迟 50ms 确保 GPU 渲染完成
         })
       }
 
-    // 无论是本地还是远程资源，getImageInfo 都能返回设备最兼容的路径
-    const getImage = (src) => {
-      return new Promise((resolve) => {
-        // 处理协议自适应路径
-        let processedSrc = src
-        if (typeof src === 'string' && src.startsWith('//')) {
-          processedSrc = 'https:' + src
+      // 无论是本地还是远程资源，getImageInfo 都能返回设备最兼容的路径
+      const getImage = src => {
+        return new Promise(resolve => {
+          // 处理协议自适应路径
+          let processedSrc = src
+          if (typeof src === 'string' && src.startsWith('//')) {
+            processedSrc = 'https:' + src
+          }
+
+          wx.getImageInfo({
+            src: processedSrc,
+            success: res => resolve(res.path),
+            fail: err => {
+              console.warn(`[Discover] getImageInfo 失败: ${processedSrc}`, err)
+              resolve('')
+            },
+          })
+        })
+      }
+
+      // 获取图片信息并开始绘制；所有候选图都失败时，直接使用最后一个可用默认图，避免导出白圆。
+      const loadImageAndDraw = async (sources, index = 0) => {
+        const src = sources[index]
+        if (!src) {
+          resolve('/assets/home/home_page_shop.png')
+          return
         }
 
-        wx.getImageInfo({
-          src: processedSrc,
-          success: (res) => resolve(res.path),
-          fail: (err) => {
-            console.warn(`[Discover] getImageInfo 失败: ${processedSrc}`, err)
-            resolve('')
-          }
-        })
-      })
-    }
+        const path = await getImage(src)
+        if (!path) {
+          loadImageAndDraw(sources, index + 1)
+          return
+        }
 
-    // 获取图片信息并开始绘制；所有候选图都失败时，直接使用最后一个可用默认图，避免导出白圆。
-    const loadImageAndDraw = async (sources, index = 0) => {
-      const src = sources[index]
-      if (!src) {
-        resolve('/assets/home/home_page_shop.png')
-        return
+        drawCanvas(path)
       }
-
-      const path = await getImage(src)
-      if (!path) {
-        loadImageAndDraw(sources, index + 1)
-        return
-      }
-
-      drawCanvas(path)
-    }
 
       loadImageAndDraw([targetUrl, ...fallbackImages])
     })
@@ -1057,12 +1029,14 @@ Page({
       const avatarPath = normalizeImagePath(item.avatar)
       const defaultAvatarPath = normalizeImagePath(config.defaultAvatar)
       let targetIconPath = ''
-      
+
       // 1. 门店原始 Logo
       const normalizedLogo = normalizeImagePath(item.logo)
-      
+
       if (listType === 'coupon') {
-        targetIconPath = normalizedLogo ? config.getImageUrl(normalizedLogo) : (config.defaultAvatar || markerFallbackIcon)
+        targetIconPath = normalizedLogo
+          ? config.getImageUrl(normalizedLogo)
+          : config.defaultAvatar || markerFallbackIcon
       } else if (normalizedLogo) {
         targetIconPath = config.getImageUrl(normalizedLogo)
       } else if (imagePath && imagePath !== defaultAvatarPath) {
@@ -1231,13 +1205,15 @@ Page({
       return
     }
 
-    // 附近优惠：点击 marker 直接进入店铺详情
+    // 附近优惠：点击 marker 进入商户详情
     if (this.data.selectedTab === 'coupon') {
-      const matchedShop = this.data.couponList.find(item => String(item.id) === String(marker.sourceId))
+      const matchedMerchant = this.data.couponList.find(
+        item => String(item.id) === String(marker.sourceId)
+      )
 
-      if (matchedShop && matchedShop.id) {
+      if (matchedMerchant && matchedMerchant.id) {
         wx.navigateTo({
-          url: `/pages/shop/shop-detail/shop-detail?id=${matchedShop.id}`,
+          url: `/pages/shop/detail/detail?id=${matchedMerchant.id}`,
         })
       }
     }
@@ -1248,26 +1224,35 @@ Page({
     // TODO: 处理地图点击事件
   },
 
-  // 展开更多
-  // 点击商铺卡片，跳转到商铺详情页
+  // 点击商户卡片，跳转到商户详情页
   handleShopTap(e) {
-    const { id } = e.currentTarget.dataset
-    if (!id) {
-      console.error('[Discover] 商铺ID不存在')
+    const { merchantId } = e.detail
+    if (!merchantId) {
+      console.error('[Discover] 商户ID不存在')
       return
     }
     wx.navigateTo({
-      url: `/pages/shop/shop-detail/shop-detail?id=${id}`,
+      url: `/pages/shop/detail/detail?id=${merchantId}`,
     })
   },
 
   // 跳转到优惠券详情页
   handleCouponTap(e) {
-    const { couponId, shopId } = e.currentTarget.dataset
+    const { couponId } = e.detail
     if (!couponId) return
 
     wx.navigateTo({
-      url: `/pages/coupon/public-detail/detail?id=${couponId}&shopId=${shopId}`,
+      url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(couponId))}`,
+    })
+  },
+
+  // 跳转到活动详情页
+  handleActivityTap(e) {
+    const { activityId } = e.detail
+    if (!activityId) return
+
+    wx.navigateTo({
+      url: `/pages/activity/detail/detail?id=${activityId}`,
     })
   },
 
@@ -1315,9 +1300,10 @@ Page({
         this.setData({ couponList: updatedCouponList })
       } else {
         const rawMsg = res.data?.msg || '领取失败'
-        const displayMsg = rawMsg.includes('校友专享') && rawMsg.includes('商户所属校友会成员可领')
-          ? '该优惠为校友专享,商户所属校友会成员可领'
-          : rawMsg
+        const displayMsg =
+          rawMsg.includes('校友专享') && rawMsg.includes('商户所属校友会成员可领')
+            ? '该优惠为校友专享,商户所属校友会成员可领'
+            : rawMsg
         wx.showToast({
           title: displayMsg,
           icon: 'none',

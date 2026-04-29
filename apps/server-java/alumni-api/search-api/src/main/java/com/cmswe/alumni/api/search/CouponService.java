@@ -103,6 +103,15 @@ public interface CouponService {
     java.util.List<CouponVo> listRecommendedMerchantCoupons(Long merchantId);
 
     /**
+     * 查询商户推荐优惠券列表（用户侧，包含领取状态）
+     *
+     * @param merchantId 商户ID
+     * @param wxId 用户ID
+     * @return 推荐优惠券列表
+     */
+    java.util.List<CouponVo> listRecommendedMerchantCoupons(Long merchantId, Long wxId);
+
+    /**
      * 更新优惠券（仅未发布的优惠券可以编辑）
      *
      * @param updateDto 更新请求

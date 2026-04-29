@@ -211,6 +211,13 @@ Page({
         iconType: 'image',
         url: '/pages/audit/merchant/info-maintenance/info-maintenance',
       },
+      {
+        id: 8,
+        name: '活动管理',
+        icon: config.getIconUrl('xyhsh@3x.png'),
+        iconType: 'image',
+        url: '/pages/merchant/activity/list/list',
+      },
     ],
     // 实际渲染用的数据
     auditFunctions: [],
@@ -495,6 +502,7 @@ Page({
             return this.hasPermission('MERCHANT_DEAL_COUPON') || hasMerchantAdmin || hasShopAdmin
           if (item.name === '话题管理')
             return this.hasPermission('MERCHANT_TOPIC_MANAGEMENT') || hasMerchantAdmin
+          if (item.name === '活动管理') return hasDevelopmentManager
           if (item.name === '信息维护')
             return this.hasPermission('MERCHANT_ASSOCIATION_INFORMATION') || hasMerchantAdmin
         }
@@ -532,8 +540,14 @@ Page({
   // 点击功能按钮
   onFunctionTap(e) {
     const { url } = e.currentTarget.dataset
+    console.log('[AuditIndex] onFunctionTap url:', url)
     if (url) {
-      wx.navigateTo({ url })
+      wx.navigateTo({
+        url,
+        fail(err) {
+          console.error('[AuditIndex] navigateTo 失败:', err)
+        },
+      })
     }
   },
 

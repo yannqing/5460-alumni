@@ -302,6 +302,18 @@ const activityApi = {
   joinActivity: (id, data) => post(`/activities/${id}/join`, data),
   // 取消报名
   cancelActivity: id => post(`/activities/${id}/cancel`),
+  // 商户发布活动（优惠活动或话题活动）
+  publishMerchantActivity: data => post('/activity/merchant/publish', data),
+  // 商户查询活动列表
+  getMerchantActivityList: params => post('/activity/merchant/list', params),
+  // 商家发布话题（旧接口，保留兼容）
+  publishTopic: data => post('/activity/publishTopic', data),
+  // 商家根据门店ID查询活动列表
+  getShopActivityList: params => post('/activity/shop/list', params),
+  // 商家编辑活动
+  updateActivity: data => post('/activity/update', data),
+  // 商家删除活动
+  deleteActivity: id => del(`/activity/${id}`),
 }
 
 // ==================== 活动报名相关接口（用户侧） ====================

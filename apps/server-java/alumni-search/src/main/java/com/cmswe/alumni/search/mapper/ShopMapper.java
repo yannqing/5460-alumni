@@ -131,6 +131,54 @@ public interface ShopMapper extends BaseMapper<Shop> {
     );
 
     /**
+     * 按商户维度分页查询附近商户（距离取最近门店）
+     *
+     * @param latitude      纬度
+     * @param longitude     经度
+     * @param radius        半径（公里）
+     * @param merchantName  商户名称（可选）
+     * @param isRecommended 是否推荐（可选）
+     * @param offset        分页偏移量
+     * @param pageSize      每页数量
+     * @return 商户列表
+     */
+    List<com.cmswe.alumni.common.vo.NearbyMerchantVo> selectNearbyMerchantsWithPage(
+            @Param("latitude") BigDecimal latitude,
+            @Param("longitude") BigDecimal longitude,
+            @Param("radius") Integer radius,
+            @Param("merchantName") String merchantName,
+            @Param("isRecommended") Integer isRecommended,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
+    );
+
+    /**
+     * 统计附近商户总数（用于分页）
+     *
+     * @param latitude      纬度
+     * @param longitude     经度
+     * @param radius        半径（公里）
+     * @param merchantName  商户名称（可选）
+     * @param isRecommended 是否推荐（可选）
+     * @return 总数
+     */
+    Long countNearbyMerchants(
+            @Param("latitude") BigDecimal latitude,
+            @Param("longitude") BigDecimal longitude,
+            @Param("radius") Integer radius,
+            @Param("merchantName") String merchantName,
+            @Param("isRecommended") Integer isRecommended
+    );
+
+    /**
+     * 查询商户专属的有效优惠券列表（shop_id IS NULL 的券）
+     *
+     * @param merchantId 商户ID
+     * @return 优惠券列表
+     */
+    List<com.cmswe.alumni.common.vo.ShopCouponVo> selectCouponsByMerchantId(@Param("merchantId") Long merchantId);
+
+    /**
      * 查询店铺可用的有效优惠券列表（包含商家通用券）
      *
      * @param shopId 店铺ID
@@ -147,4 +195,32 @@ public interface ShopMapper extends BaseMapper<Shop> {
      * @return 商铺详情
      */
     com.cmswe.alumni.common.vo.ShopDetailVo selectShopDetailById(@Param("shopId") Long shopId);
+
+    /**
+     * 按商户维度分页查询附近有活动的商户（距离取最近门店）
+     */
+    List<com.cmswe.alumni.common.vo.NearbyMerchantVo> selectNearbyActivitiesWithPage(
+            @Param("latitude") BigDecimal latitude,
+            @Param("longitude") BigDecimal longitude,
+            @Param("radius") Integer radius,
+            @Param("merchantName") String merchantName,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
+    );
+
+    /**
+     * 统计附近有活动的商户总数（用于分页）
+     */
+    Long countNearbyActivities(
+            @Param("latitude") BigDecimal latitude,
+            @Param("longitude") BigDecimal longitude,
+            @Param("radius") Integer radius,
+            @Param("merchantName") String merchantName
+    );
+
+    /**
+     * 查询商户下的活动列表
+     */
+    List<com.cmswe.alumni.common.vo.NearbyMerchantVo.ActivityItem> selectActivitiesByMerchantId(
+            @Param("merchantId") Long merchantId);
 }
