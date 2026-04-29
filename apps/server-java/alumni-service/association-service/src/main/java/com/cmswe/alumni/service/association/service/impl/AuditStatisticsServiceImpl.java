@@ -2,6 +2,8 @@ package com.cmswe.alumni.service.association.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cmswe.alumni.api.association.AuditStatisticsService;
+import com.cmswe.alumni.api.system.MerchantAlumniAssociationApplyService;
+import com.cmswe.alumni.api.system.MerchantApplicationService;
 import com.cmswe.alumni.api.user.PermissionService;
 import com.cmswe.alumni.api.user.UserService;
 import com.cmswe.alumni.api.user.RoleService;
@@ -9,13 +11,13 @@ import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApplication;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
 import com.cmswe.alumni.common.entity.AlumniHeadquarters;
+import com.cmswe.alumni.common.entity.MerchantAlumniAssociationApply;
+import com.cmswe.alumni.common.entity.MerchantApplication;
 import com.cmswe.alumni.common.vo.AuditStatisticsVo;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplicationMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniAssociationJoinApplyMapper;
 import com.cmswe.alumni.service.association.mapper.AlumniHeadquartersMapper;
-import com.cmswe.alumni.api.system.MerchantService;
-import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.entity.Role;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +59,10 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
     private PermissionService permissionService;
 
     @Resource
-    private MerchantService merchantService;
+    private MerchantApplicationService merchantApplicationService;
+
+    @Resource
+    private MerchantAlumniAssociationApplyService merchantAlumniAssociationApplyService;
 
     @Override
     public AuditStatisticsVo getAuditTodoStatistics(Long wxId) {
@@ -124,12 +129,27 @@ public class AuditStatisticsServiceImpl implements AuditStatisticsService {
             counts.put("ALUMNI_ASSOCIATION_JOIN_REVIEW", 0);
         }
 
-        // 2.6 商户审核 (HOME_MERCHANT_REVIEW)
-        // 仅拥有商户审核权限的用户统计待办数量
-        if (isSystemAdmin || permissionService.hasPermission(wxId, "HOME_MERCHANT_REVIEW")) {
-            LambdaQueryWrapper<Merchant> merchantWrapper = new LambdaQueryWrapper<>();
-            merchantWrapper.eq(Merchant::getReviewStatus, 0); // 0-待审核
-            counts.put("HOME_MERCHANT_REVIEW", Math.toIntExact(merchantService.count(merchantWrapper)));
+        // 2.6 校友会商户审核 (ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT)
+        // 仅对应校友会管理员可见：需要有权限且仅统计其被角色分配管理的校友会
+        if (permissionService.hasPermission(wxId, "ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT") && !alumniIdsByRole.isEmpty()) {
+            LambdaQueryWrapper<MerchantAlumniAssociationApply> alumniMerchantApplyWrapper = new LambdaQueryWrapper<>();
+            alumniMerchantApplyWrapper.eq(MerchantAlumniAssociationApply::getStatus, 0) // 0-待审核
+                    .in(MerchantAlumniAssociationApply::getAlumniAssociationId, alumniIdsByRole);
+            int alumniMerchantTodo = Math.toIntExact(merchantAlumniAssociationApplyService.count(alumniMerchantApplyWrapper));
+            counts.put("ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT", alumniMerchantTodo);
+            // 兼容前端入口 code
+            counts.put("ALUMNI_ASSOCIATION_MERCHANT_AUDIT", alumniMerchantTodo);
+        } else {
+            counts.put("ALUMNI_ASSOCIATION_MERCHANT_MANAGEMENT", 0);
+            counts.put("ALUMNI_ASSOCIATION_MERCHANT_AUDIT", 0);
+        }
+
+        // 2.7 商户审核 (HOME_MERCHANT_REVIEW)
+        // 仅系统管理员可见（统计口径：merchant_application.review_status=0）
+        if (isSystemAdmin) {
+            LambdaQueryWrapper<MerchantApplication> merchantApplyWrapper = new LambdaQueryWrapper<>();
+            merchantApplyWrapper.eq(MerchantApplication::getReviewStatus, 0); // 0-待审核
+            counts.put("HOME_MERCHANT_REVIEW", Math.toIntExact(merchantApplicationService.count(merchantApplyWrapper)));
         } else {
             counts.put("HOME_MERCHANT_REVIEW", 0);
         }
