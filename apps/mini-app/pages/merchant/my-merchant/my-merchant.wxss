@@ -138,7 +138,6 @@
   border-radius: 30rpx;
   font-weight: 500;
   flex-shrink: 0;
-  margin-left: 20rpx;
 }
 
 .perfect-info-btn:active {
@@ -154,6 +153,12 @@
 
 .contact-item {
   display: block;
+}
+
+.city-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .merchant-scope-row {

@@ -6,6 +6,7 @@ import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.dto.ApplyMerchantDto;
 import com.cmswe.alumni.common.dto.QueryMerchantListDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantDto;
+import com.cmswe.alumni.common.dto.UpdateMerchantApplicationDto;
 import com.cmswe.alumni.common.dto.AddMerchantMemberDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantMemberRoleDto;
 import com.cmswe.alumni.common.dto.DeleteMerchantMemberDto;
@@ -19,6 +20,7 @@ import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopDetailVo;
 import com.cmswe.alumni.common.vo.MerchantMemberVo;
+import com.cmswe.alumni.common.vo.MerchantInfoVo;
 
 import java.util.List;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
@@ -31,6 +33,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
+
+import com.cmswe.alumni.common.vo.MerchantApplicationVo;
 
 /**
  * 商户管理 Controller
@@ -78,9 +82,14 @@ public class MerchantController {
      */
     @PostMapping("/page")
     @Operation(summary = "分页查询商户列表")
-    public BaseResponse<PageVo<MerchantListVo>> selectPage(@RequestBody QueryMerchantListDto queryMerchantListDto) {
+    public BaseResponse<PageVo<MerchantListVo>> selectPage(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @RequestBody QueryMerchantListDto queryMerchantListDto) {
         log.info("分页查询商户列表，查询条件：{}", queryMerchantListDto);
-        PageVo<MerchantListVo> pageVo = merchantService.selectByPage(queryMerchantListDto);
+        Long wxId = (securityUser != null && securityUser.getWxUser() != null)
+                ? securityUser.getWxUser().getWxId()
+                : null;
+        PageVo<MerchantListVo> pageVo = merchantService.selectByPage(queryMerchantListDto, wxId);
         return ResultUtils.success(Code.SUCCESS, pageVo, "分页查询成功");
     }
 
@@ -114,20 +123,40 @@ public class MerchantController {
             @Valid @RequestBody ApplyMerchantDto applyDto) {
         Long wxId = securityUser.getWxUser().getWxId();
 
-        WxUser wxUser = wxUserMapper.selectById(wxId);
-        if (wxUser == null) {
-            log.error("用户不存在 - 用户ID: {}", wxId);
-            throw new BusinessException("用户不存在");
-        }
-        if (wxUser.getCertificationFlag() == null || wxUser.getCertificationFlag() == 0) {
-            throw new BusinessException("只有认证校友才能申请商户入驻");
-        }
-
         boolean result = merchantService.updatePendingMerchantApplication(wxId, merchantId, applyDto);
         if (result) {
             return ResultUtils.success(Code.SUCCESS, true, "保存成功，请等待审核");
         }
         return ResultUtils.failure(Code.FAILURE, false, "更新失败");
+    }
+
+    /**
+     * 查询本人申请的商户列表（聚合待审核、已发布、待发布）
+     *
+     * @param securityUser 当前登录用户
+     * @return 商户列表
+     */
+    @GetMapping("/my-apply-list")
+    @Operation(summary = "查询本人申请的商户列表")
+    public BaseResponse<List<MerchantApplicationVo>> getMyApplyList(
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("查询本人申请的商户列表 - 用户ID: {}", wxId);
+        List<MerchantApplicationVo> list = merchantService.getMyApplyList(wxId);
+        return ResultUtils.success(Code.SUCCESS, list, "查询成功");
+    }
+
+    /**
+     * 查询本人商户申请记录列表（merchant_application）
+     */
+    @GetMapping("/my-application-list")
+    @Operation(summary = "查询本人商户申请记录列表")
+    public BaseResponse<List<MerchantApplicationVo>> getMyApplicationList(
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("查询本人商户申请记录列表 - 用户ID: {}", wxId);
+        List<MerchantApplicationVo> list = merchantService.getMyApplicationList(wxId);
+        return ResultUtils.success(Code.SUCCESS, list, "查询成功");
     }
 
     /**
@@ -144,22 +173,7 @@ public class MerchantController {
             @Valid @RequestBody ApplyMerchantDto applyDto) {
         Long wxId = securityUser.getWxUser().getWxId();
 
-        // 从数据库查询实时的用户信息
-        WxUser wxUser = wxUserMapper.selectById(wxId);
-        if (wxUser == null) {
-            log.error("用户不存在 - 用户ID: {}", wxId);
-            throw new BusinessException("用户不存在");
-        }
-
-        Integer certificationFlag = wxUser.getCertificationFlag();
-
-        log.info("用户提交商户入驻申请 - 用户ID: {}, 商户名称: {}, 认证标识: {}", wxId, applyDto.getMerchantName(), certificationFlag);
-
-        // 校验用户是否已认证（校友）
-        if (certificationFlag == null || certificationFlag == 0) {
-            log.warn("未认证用户尝试提交商户入驻申请 - 用户ID: {}, certificationFlag: {}", wxId, certificationFlag);
-            throw new BusinessException("只有认证校友才能申请商户入驻");
-        }
+        log.info("用户提交商户入驻申请 - 用户ID: {}, 商户名称: {}", wxId, applyDto.getMerchantName());
 
         boolean result = merchantService.applyMerchant(wxId, applyDto);
 
@@ -169,6 +183,30 @@ public class MerchantController {
         } else {
             log.error("商户入驻申请提交失败 - 用户ID: {}, 商户名称: {}", wxId, applyDto.getMerchantName());
             return ResultUtils.failure(Code.FAILURE, false, "申请提交失败");
+        }
+    }
+
+    /**
+     * 用户修改自己的商户申请记录
+     *
+     * @param securityUser 当前登录用户
+     * @param updateDto    修改信息
+     * @return 修改结果
+     */
+    @PostMapping("/application/update")
+    @Operation(summary = "用户修改自己的商户申请记录")
+    public BaseResponse<Boolean> updateMerchantApplication(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody UpdateMerchantApplicationDto updateDto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        log.info("用户修改商户申请记录 - 用户ID: {}, 申请ID: {}", wxId, updateDto.getApplicationId());
+
+        boolean result = merchantService.updateMerchantApplication(wxId, updateDto);
+
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, true, "修改成功");
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "修改失败");
         }
     }
 
@@ -260,6 +298,21 @@ public class MerchantController {
                 updateDto.getMerchantId(), updateDto.getWxId(), updateDto.getRoleOrId());
         boolean result = merchantService.updateMerchantMemberRole(updateDto);
         return ResultUtils.success(Code.SUCCESS, result, "更新成功");
+    }
+
+    /**
+     * 根据商户ID查询商户基本信息
+     *
+     * @param merchantId 商户ID
+     * @return 商户基本信息
+     */
+    @GetMapping("/info/{merchantId}")
+    @Operation(summary = "根据商户ID查询商户基本信息")
+    public BaseResponse<MerchantInfoVo> getMerchantInfoById(
+            @PathVariable Long merchantId) {
+        log.info("查询商户基本信息 - 商户ID: {}", merchantId);
+        MerchantInfoVo merchantInfo = merchantService.getMerchantInfoById(merchantId);
+        return ResultUtils.success(Code.SUCCESS, merchantInfo, "查询成功");
     }
 
     /**

@@ -1,5 +1,4 @@
 const { merchantApi, associationApi } = require('../../../api/api.js')
-const config = require('../../../utils/config.js')
 
 Page({
   data: {
@@ -13,9 +12,7 @@ Page({
     associationIndex: -1,
     selectedAssociationId: '',
     showMerchantPicker: false,
-    showAssociationPicker: false,
-    defaultLogo: config.defaultAvatar,
-    defaultBackground: config.defaultCover
+    showAssociationPicker: false
   },
 
   onLoad() {
@@ -31,7 +28,7 @@ Page({
       size: 100
     }).then(res => {
       if (res.data && res.data.code === 200) {
-        const records = res.data.data?.records || []
+        const records = res.data.data || []
         // 取消强制 reviewStatus === 1 的筛选，直接展示所有商户
         this.setData({
           myMerchants: records
@@ -84,16 +81,20 @@ Page({
     const index = e.currentTarget.dataset.index
     const merchant = this.data.myMerchants[index]
     if (!merchant) return
+    const selectedMerchantId = merchant.merchantId || merchant.applicationId || ''
 
     this.setData({
       merchantIndex: index,
-      selectedMerchantId: merchant.merchantId,
+      selectedMerchantId,
       associationIndex: -1, // 重置校友会选择
       selectedAssociationId: '',
-      showMerchantPicker: false
+      showMerchantPicker: false,
+      applyInfo: {}
     })
 
-    this.loadMerchantDetail(merchant.merchantId)
+    if (selectedMerchantId) {
+      this.loadMerchantDetail(selectedMerchantId)
+    }
   },
 
   // 校友会选择
@@ -113,39 +114,9 @@ Page({
   async loadMerchantDetail(merchantId) {
     wx.showLoading({ title: '加载商户信息...' })
     try {
-      const res = await merchantApi.getMerchantApprovalDetail(merchantId)
+      const res = await merchantApi.getMerchantInfo(merchantId)
       if (res.data && res.data.code === 200) {
-        let applyInfo = res.data.data || {}
-        
-        // 格式化数据逻辑参考 apply-detail.js
-        const mt = applyInfo.merchantType
-        let merchantTypeText = ''
-        if (mt === 1 || mt === '1') { merchantTypeText = '校友商铺' }
-        else if (mt === 2 || mt === '2') { merchantTypeText = '普通商铺' }
-
-        const normalizeBgImage = (rawBg) => {
-          if (!rawBg || typeof rawBg !== 'string') return ''
-          try {
-            const parsed = JSON.parse(rawBg)
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              return config.getImageUrl(parsed[0] || '')
-            }
-          } catch (e) {}
-          return config.getImageUrl(rawBg)
-        }
-
-        applyInfo = {
-          ...applyInfo,
-          merchantTypeText,
-          logoUrl: config.getImageUrl(applyInfo.logo || ''),
-          backgroundImageUrl: normalizeBgImage(applyInfo.backgroundImage),
-          businessLicenseUrl: config.getImageUrl(applyInfo.businessLicense || ''),
-          businessLicenseCode: applyInfo.unifiedSocialCreditCode || '',
-          legalRepresentative: applyInfo.legalPerson || '',
-          businessAddress: applyInfo.merchantAddress || applyInfo.address || '',
-        }
-
-        this.setData({ applyInfo })
+        this.setData({ applyInfo: res.data.data || {} })
       }
     } catch (err) {
       console.error('获取详情失败:', err)

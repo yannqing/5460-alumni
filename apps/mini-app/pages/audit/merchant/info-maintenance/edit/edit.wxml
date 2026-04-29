@@ -7,7 +7,7 @@
       <form bindsubmit="submitForm">
         <view class="form-item">
           <text class="form-label">商家名称 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入商家名称" value="{{formData.merchantName}}" bindinput="onInputChange" data-field="merchantName" />
+          <input class="form-input" placeholder="请输入商家名称" value="{{formData.merchantName}}" bindinput="onInputChange" data-field="merchantName" disabled="{{true}}" />
         </view>
 
         <view class="form-item">
@@ -33,12 +33,12 @@
 
         <view class="form-item">
           <text class="form-label">统一社会信用代码 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入18位数字" value="{{formData.unifiedSocialCreditCode}}" bindinput="onInputChange" data-field="unifiedSocialCreditCode" maxlength="18" />
+          <input class="form-input" placeholder="请输入18位数字" value="{{formData.unifiedSocialCreditCode}}" bindinput="onInputChange" data-field="unifiedSocialCreditCode" maxlength="18" disabled="{{true}}" />
         </view>
 
         <view class="form-item">
           <text class="form-label">法人姓名 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入法人姓名" value="{{formData.legalPerson}}" bindinput="onInputChange" data-field="legalPerson" />
+          <input class="form-input" placeholder="请输入法人姓名" value="{{formData.legalPerson}}" bindinput="onInputChange" data-field="legalPerson" disabled="{{true}}" />
         </view>
 
         <view class="form-item">
@@ -57,6 +57,16 @@
         <view class="form-item">
           <text class="form-label">联系电话 <text class="required">*</text></text>
           <input class="form-input" type="number" placeholder="请输入11位手机号" value="{{formData.contactPhone}}" bindinput="onInputChange" data-field="contactPhone" maxlength="11" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">法人联系电话</text>
+          <view class="merchant-readonly">{{formData.phone || '—'}}</view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">所在城市</text>
+          <view class="merchant-readonly">{{formData.city || '—'}}</view>
         </view>
 
         <view class="form-item">

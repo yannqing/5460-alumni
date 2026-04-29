@@ -52,6 +52,12 @@ public class Merchant implements Serializable {
     private String unifiedSocialCreditCode;
 
     /**
+     * 所在城市
+     */
+    @TableField(value = "city")
+    private String city;
+
+    /**
      * 法人姓名
      */
     @TableField(value = "legal_person")
@@ -218,6 +224,12 @@ public class Merchant implements Serializable {
      */
     @TableField(value = "update_time")
     private LocalDateTime updateTime;
+
+    /**
+     * 申请记录id
+     */
+    @TableField(value = "application_id")
+    private Long applicationId;
 
     /**
      * 逻辑删除（0-未删除 1-已删除）

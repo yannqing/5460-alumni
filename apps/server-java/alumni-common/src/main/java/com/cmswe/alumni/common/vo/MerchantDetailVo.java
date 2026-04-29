@@ -59,6 +59,12 @@ public class MerchantDetailVo implements Serializable {
     private String unifiedSocialCreditCode;
 
     /**
+     * 所在城市
+     */
+    @Schema(description = "所在城市")
+    private String city;
+
+    /**
      * 法人姓名
      */
     @Schema(description = "法人姓名")

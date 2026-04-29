@@ -76,6 +76,25 @@ public class QueryMerchantListDto extends PageRequest implements Serializable {
     @Schema(description = "排序字段: 根据评分排序（ratingScore）；根据创建时间排序（createTime）；根据门店数量排序（shopCount）")
     private String sortField;
 
+    /**
+     * 推荐筛选：1-推荐（随机20条）
+     */
+    @Schema(description = "推荐筛选：1-推荐（随机20条）", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer recommend;
+
+    /**
+     * 收藏筛选：1-仅看我的收藏
+     */
+    @Schema(description = "收藏筛选：1-仅看我的收藏", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer favoriteOnly;
+
+    /**
+     * 城市筛选（支持模糊匹配，如：北京市、大连市）
+     */
+    @Schema(description = "城市筛选（支持模糊匹配）", example = "北京市", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Size(max = 100, message = "城市长度不能超过100个字符")
+    private String city;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

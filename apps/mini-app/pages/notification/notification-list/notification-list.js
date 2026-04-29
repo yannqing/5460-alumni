@@ -109,7 +109,8 @@ Page({
           fromUsername: item.fromUsername || '系统',
           title: item.title || '',
           content: item.content || '',
-          relatedId: item.relatedId,
+          // 关联业务ID可能是雪花ID，统一转字符串避免后续跳转链路精度问题
+          relatedId: item.relatedId != null ? String(item.relatedId) : '',
           relatedType: item.relatedType,
           readStatus: item.readStatus,
           readTime: item.readTime,
@@ -242,7 +243,7 @@ Page({
     // 如果是用户类型（如关注通知），跳转到用户主页
     if (relatedType === 'USER' && relatedId) {
       wx.navigateTo({
-        url: `/pages/alumni/detail/detail?id=${relatedId}`,
+        url: `/pages/alumni/detail/detail?id=${encodeURIComponent(String(relatedId))}`,
         fail: (err) => {
           console.error('[Notification] 跳转用户主页失败:', err)
           // 跳转失败时显示详情
@@ -269,7 +270,7 @@ Page({
           if (res.confirm) {
             // 跳转到商家申请页面，并携带merchantId参数
             wx.navigateTo({
-              url: `/pages/merchant/apply/apply?merchantId=${relatedId}`,
+              url: `/pages/merchant/apply/apply?merchantId=${encodeURIComponent(String(relatedId))}`,
               fail: (err) => {
                 console.error('[Notification] 跳转商家申请页面失败:', err)
                 wx.showToast({

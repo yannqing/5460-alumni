@@ -2,6 +2,7 @@ package com.cmswe.alumni.service.association.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.cmswe.alumni.common.dto.UpdateMerchantApplicationDto;
 import com.cmswe.alumni.api.association.AlumniAssociationApplicationService;
 import com.cmswe.alumni.api.association.AlumniAssociationJoinApplyService;
 import com.cmswe.alumni.api.association.AlumniAssociationJoinApplicationService;
@@ -11,8 +12,10 @@ import com.cmswe.alumni.api.association.MyApplicationRecordService;
 import com.cmswe.alumni.api.association.SchoolService;
 import com.cmswe.alumni.api.search.ShopService;
 import com.cmswe.alumni.api.system.MerchantAlumniAssociationApplyService;
+import com.cmswe.alumni.api.system.MerchantApplicationService;
 import com.cmswe.alumni.api.system.MerchantService;
 import com.cmswe.alumni.common.constant.MyApplicationRecordType;
+import com.cmswe.alumni.common.dto.ApplyMerchantDto;
 import com.cmswe.alumni.common.dto.CancelMyApplicationRecordDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordDetailDto;
 import com.cmswe.alumni.common.dto.QueryMyApplicationRecordListDto;
@@ -21,11 +24,11 @@ import com.cmswe.alumni.common.dto.UpdateMyJoinPlatformApplicationDto;
 import com.cmswe.alumni.common.dto.UpdateMyApplicationRecordDto;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationApplication;
-import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApply;
 import com.cmswe.alumni.common.entity.AlumniAssociationJoinApplication;
 import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.entity.MerchantAlumniAssociationApply;
+import com.cmswe.alumni.common.entity.MerchantApplication;
 import com.cmswe.alumni.common.entity.School;
 import com.cmswe.alumni.common.entity.Shop;
 import com.cmswe.alumni.common.enums.ErrorType;
@@ -89,6 +92,9 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
 
     @Resource
     private MerchantService merchantService;
+
+    @Resource
+    private MerchantApplicationService merchantApplicationService;
 
     @Resource
     private MerchantAlumniAssociationApplyService merchantAlumniAssociationApplyService;
@@ -221,6 +227,12 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             apply.setPlatformId(updateDto.getPlatformId());
             return alumniAssociationJoinApplyService.updateById(apply);
         }
+        if (MyApplicationRecordType.MERCHANT_APPLICATION.equals(type)) {
+            UpdateMerchantApplicationDto updateDto =
+                    objectMapper.convertValue(dto.getPayload(), UpdateMerchantApplicationDto.class);
+            updateDto.setApplicationId(recordId);
+            return merchantService.updateMerchantApplication(wxId, updateDto);
+        }
         throw new BusinessException(ErrorType.ARGS_ERROR, "当前类型暂不支持编辑: " + type);
     }
 
@@ -340,35 +352,49 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
     }
 
     private MyApplicationRecordDetailVo buildMerchantDetail(Long wxId, Long recordId) {
-        Merchant merchant = merchantService.getById(recordId);
-        if (merchant == null) {
-            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户不存在");
+        MerchantApplication application = merchantApplicationService.getById(recordId);
+        if (application == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "商户申请不存在");
         }
-        if (!wxId.equals(merchant.getUserId())) {
+        if (!wxId.equals(application.getUserId())) {
             throw new BusinessException(ErrorType.FORBIDDEN_ERROR, "无权查看该申请详情");
         }
-        MerchantDetailVo detail = MerchantDetailVo.objToVo(merchant);
-        if (StringUtils.isNotBlank(merchant.getAlumniAssociationId())) {
-            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
-            if (!associationIds.isEmpty()) {
-                AlumniAssociation alumniAssociation = alumniAssociationService.getById(associationIds.get(0));
-                if (alumniAssociation != null) {
-                    detail.setAlumniAssociation(AlumniAssociationListVo.objToVo(alumniAssociation));
-                }
-            }
-        }
+
         MyApplicationRecordDetailVo vo = new MyApplicationRecordDetailVo();
         vo.setRecordType(MyApplicationRecordType.MERCHANT_APPLICATION);
         vo.setRecordId(String.valueOf(recordId));
-        vo.setApplicationStatus(merchant.getReviewStatus());
-        vo.setApplicationStatusText(threeStateText(merchant.getReviewStatus()));
-        vo.setStatusGroup(threeStateGroup(merchant.getReviewStatus()));
-        boolean merchantPending = merchant.getReviewStatus() != null && merchant.getReviewStatus() == 0;
-        vo.setCanEdit(merchantPending);
-        vo.setCanCancel(merchantPending);
-        vo.setDetail(detail);
-        vo.setMaterialImages(collectMerchantMaterialImages(detail));
+        vo.setApplicationStatus(application.getReviewStatus());
+        vo.setApplicationStatusText(merchantApplicationStatusText(application.getReviewStatus()));
+        vo.setStatusGroup(merchantApplicationStatusGroup(application.getReviewStatus()));
+        boolean pending = application.getReviewStatus() != null && application.getReviewStatus() == 0;
+        vo.setCanEdit(pending);
+        vo.setCanCancel(pending);
+        vo.setDetail(application);
         return vo;
+    }
+
+    private static String merchantApplicationStatusText(Integer status) {
+        if (status == null) return "未知";
+        return switch (status) {
+            case 0 -> "待审核";
+            case 1 -> "已通过";
+            case 2 -> "已拒绝";
+            case 3 -> "已撤销";
+            case 4 -> "待发布";
+            default -> "未知";
+        };
+    }
+
+    private static String merchantApplicationStatusGroup(Integer status) {
+        if (status == null) return "UNKNOWN";
+        return switch (status) {
+            case 0 -> "PENDING";
+            case 1 -> "APPROVED";
+            case 2 -> "REJECTED";
+            case 3 -> "CANCELLED";
+            case 4 -> "PENDING_PUBLISH"; // 这里也可以根据前端需求映射为 APPROVED 或者自定义
+            default -> "UNKNOWN";
+        };
     }
 
     private MyApplicationRecordDetailVo buildMerchantAssociationJoinDetail(Long wxId, Long recordId) {
@@ -624,15 +650,15 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
     }
 
     private List<MergedRow> loadMerchantRows(Long wxId, String statusGroup) {
-        LambdaQueryWrapper<Merchant> w = new LambdaQueryWrapper<>();
-        w.eq(Merchant::getUserId, wxId);
-        applyThreeStateFilter(w, statusGroup, Merchant::getReviewStatus);
-        w.orderByDesc(Merchant::getCreateTime);
-        List<Merchant> list = merchantService.list(w);
+        LambdaQueryWrapper<MerchantApplication> w = new LambdaQueryWrapper<>();
+        w.eq(MerchantApplication::getUserId, wxId);
+        applyFourStateFilter(w, statusGroup, MerchantApplication::getReviewStatus);
+        w.orderByDesc(MerchantApplication::getCreateTime);
+        List<MerchantApplication> list = merchantApplicationService.list(w);
         List<MergedRow> rows = new ArrayList<>();
-        for (Merchant e : list) {
+        for (MerchantApplication e : list) {
             LocalDateTime t = e.getCreateTime() != null ? e.getCreateTime() : e.getUpdateTime();
-            rows.add(new MergedRow(MyApplicationRecordType.MERCHANT_APPLICATION, e.getMerchantId(), t, e));
+            rows.add(new MergedRow(MyApplicationRecordType.MERCHANT_APPLICATION, e.getApplicationId(), t, e));
         }
         return rows;
     }
@@ -702,7 +728,7 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_CREATE -> toCreateVo((AlumniAssociationApplication) row.payload);
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN -> toJoinVo((AlumniAssociationJoinApplication) row.payload);
             case MyApplicationRecordType.ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM -> toJoinPlatformVo((AlumniAssociationJoinApply) row.payload);
-            case MyApplicationRecordType.MERCHANT_APPLICATION -> toMerchantVo((Merchant) row.payload);
+            case MyApplicationRecordType.MERCHANT_APPLICATION -> toMerchantVo((MerchantApplication) row.payload);
             case MyApplicationRecordType.MERCHANT_ASSOCIATION_JOIN -> toMerchantAssociationJoinVo((MerchantAlumniAssociationApply) row.payload);
             case MyApplicationRecordType.SHOP_APPLICATION -> toShopVo((Shop) row.payload);
             default -> throw new BusinessException(ErrorType.SYSTEM_ERROR, "未知记录类型");
@@ -783,23 +809,23 @@ public class MyApplicationRecordServiceImpl implements MyApplicationRecordServic
         return vo;
     }
 
-    private MyApplicationRecordListVo toMerchantVo(Merchant e) {
+    private MyApplicationRecordListVo toMerchantVo(MerchantApplication e) {
         MyApplicationRecordListVo vo = new MyApplicationRecordListVo();
         vo.setRecordType(MyApplicationRecordType.MERCHANT_APPLICATION);
-        vo.setRecordId(String.valueOf(e.getMerchantId()));
+        vo.setRecordId(String.valueOf(e.getApplicationId()));
         vo.setTitle(StringUtils.defaultIfBlank(e.getMerchantName(), "商户入驻申请"));
-        vo.setSubtitle(StringUtils.defaultIfBlank(e.getBusinessCategory(), e.getBusinessScope()));
-        vo.setAssociationLogo(e.getLogo());
+        vo.setSubtitle(e.getCity());
+        vo.setAssociationLogo(null);
         vo.setPlatformLogo(null);
         vo.setAlumniAssociationId(null);
         vo.setPlatformId(null);
         vo.setApplicationStatus(e.getReviewStatus());
-        vo.setApplicationStatusText(threeStateText(e.getReviewStatus()));
-        vo.setStatusGroup(threeStateGroup(e.getReviewStatus()));
+        vo.setApplicationStatusText(merchantApplicationStatusText(e.getReviewStatus()));
+        vo.setStatusGroup(merchantApplicationStatusGroup(e.getReviewStatus()));
         vo.setApplyTime(e.getCreateTime());
-        boolean merchantListPending = e.getReviewStatus() != null && e.getReviewStatus() == 0;
-        vo.setCanEdit(merchantListPending);
-        vo.setCanCancel(merchantListPending);
+        boolean pending = e.getReviewStatus() != null && e.getReviewStatus() == 0;
+        vo.setCanEdit(pending);
+        vo.setCanCancel(pending);
         return vo;
     }
 

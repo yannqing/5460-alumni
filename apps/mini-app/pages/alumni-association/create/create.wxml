@@ -53,13 +53,15 @@
     <view class="form-item required">
       <text class="label">校友会办公地点</text>
       <picker
-        mode="region"
-        value="{{regionValue}}"
+        mode="multiSelector"
+        range="{{regionData}}"
+        value="{{regionIndex}}"
         bindchange="handleRegionChange"
+        bindcolumnchange="handleRegionColumnChange"
         class="input"
       >
         <view class="picker-content">
-          {{formData.location || '请选择省/市/区'}}
+          {{formData.location || '请选择省/市'}}
         </view>
       </picker>
     </view>

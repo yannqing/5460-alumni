@@ -123,7 +123,7 @@ Page({
     }
     this.setData({ detailLoading: true })
     try {
-      const res = await merchantApi.getMerchantInfo(merchantId)
+      const res = await merchantApi.getMerchantDetailById(merchantId)
       if (res.data && res.data.code === 200 && res.data.data) {
         const processed = this.normalizeMerchantDetail(res.data.data)
         this.setData({ currentMerchantDetail: processed })

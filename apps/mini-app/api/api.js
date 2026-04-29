@@ -228,10 +228,15 @@ const merchantApi = {
   getMerchantList: params => get('/merchants', params),
   // 获取商家详情
   getMerchantDetail: id => get(`/merchants/${id}`),
+  // 新版商户详情接口（返回更多字段）
+  getMerchantDetailById: id => get(`/merchant/${id}`),
   // 新商家详情接口
-  getMerchantInfo: id => get(`/merchant/${id}`),
+  // 新商家详情接口
+  getMerchantInfo: id => get(`/merchant/info/${id}`),
   // 获取待审核/审核失败商家详情（回填）
-  getPendingMerchantDetail: merchantId => get(`/merchant/pending/${merchantId}`),
+  // merchantId 为雪花 ID，必须按字符串透传，避免 Number 精度丢失
+  getPendingMerchantDetail: merchantId =>
+    get(`/merchant/pending/${encodeURIComponent(String(merchantId))}`),
   // 更新待审核的商户入驻申请
   updatePendingMerchantApplication: (merchantId, data) =>
     put(`/merchant/pending-application/${merchantId}`, data),
@@ -244,7 +249,9 @@ const merchantApi = {
   // 商户主账号编辑用（含待审核；已通过时与 getShopDetail 一致）
   getShopDetailForEdit: shopId => get(`/merchant/shop/${shopId}/for-edit`),
   // 获取我的商户列表
-  getMyMerchants: params => get('/merchant-management/my-merchants', params),
+  getMyMerchants: params => get('/merchant/my-apply-list', params),
+  // 获取我的商户申请记录列表（merchant_application）
+  getMyMerchantApplications: params => get('/merchant/my-application-list', params),
   // 商户管理员更新商户基本信息（部分字段更新）
   updateMerchantInfo: data => put('/merchant-management/merchant/info', data),
   // 完善信息并发布上线商户
@@ -256,6 +263,8 @@ const merchantApi = {
   applyJoinAssociation: data => post('/merchant/association-apply/submit', data),
   // 校友会管理员查询商户加入申请列表
   getMerchantJoinApplyPage: params => post('/merchant/association-apply/list', params),
+  // 用户修改自己的商户申请记录
+  updateMerchantApplication: data => post('/merchant/application/update', data),
   // 审核商户加入校友会申请
   reviewMerchantJoinApply: data => post('/merchant/association-apply/review', data),
   // 获取商户加入校友会申请详情

@@ -180,6 +180,14 @@
   text-align: right;
 }
 
+.picker-value.placeholder {
+  color: #999;
+}
+
+.picker-wrapper {
+  flex: 1;
+}
+
 .textarea {
   width: 100%;
   min-height: 180rpx;

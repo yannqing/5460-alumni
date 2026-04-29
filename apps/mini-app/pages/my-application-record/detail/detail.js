@@ -10,13 +10,14 @@ const RECORD_TYPE_TEXT_MAP = {
   ALUMNI_ASSOCIATION_CREATE: '创建校友会',
   ALUMNI_ASSOCIATION_JOIN: '加入校友会',
   ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM: '校友会加入校促会',
-  MERCHANT_APPLICATION: '商家创建申请的记录',
+  MERCHANT_APPLICATION: '商家创建申请',
   MERCHANT_ASSOCIATION_JOIN: '校友商户',
 }
 
 const EDITABLE_RECORD_TYPE = {
   ALUMNI_ASSOCIATION_JOIN: true,
   ALUMNI_ASSOCIATION_JOIN_LOCAL_PLATFORM: true,
+  MERCHANT_APPLICATION: true,
 }
 
 function fmtTime(t) {
@@ -162,7 +163,8 @@ Page({
         materialImageUrls,
         canEditCurrent: this.isRecordEditable(detailWrapper),
         canCancelCurrent: this.isRecordCancelable(detailWrapper),
-        isCreateAssociation: !!createUi,
+        isCreateAssociation: !!createUi && detailWrapper.recordType === RECORD_TYPE_CREATE,
+        isMerchantApplication: detailWrapper.recordType === 'MERCHANT_APPLICATION',
         createUi: createUi || null,
         isJoinAssociation: !!joinAssociationUi,
         joinAssociationUi: joinAssociationUi || null,
@@ -252,13 +254,14 @@ Page({
       return
     }
     if (recordType === 'MERCHANT_APPLICATION') {
-      const merchantId = firstNonEmpty(detail?.merchantId, recordId)
-      if (!merchantId) {
-        wx.showToast({ title: '缺少商户信息', icon: 'none' })
+      // 优先使用路由透传的 recordId（字符串），避免接口返回的雪花ID被 Number 精度截断
+      const applicationId = firstNonEmpty(recordId, detail?.applicationId)
+      if (!applicationId) {
+        wx.showToast({ title: '缺少申请信息', icon: 'none' })
         return
       }
       wx.navigateTo({
-        url: `/pages/merchant/edit-apply/edit-apply?merchantId=${encodeURIComponent(String(merchantId))}&fromMyRecord=1&recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}`,
+        url: `/pages/merchant/application-edit/application-edit?recordId=${encodeURIComponent(String(applicationId))}`,
       })
       return
     }
@@ -740,26 +743,23 @@ Page({
     this.addRow(basicRows, '申请时间', fmtTime(firstNonEmpty(detail.createTime)))
     this.addRow(basicRows, '审核时间', reviewTime)
     this.addRow(contentRows, '商户名称', detail.merchantName)
-    this.addRow(contentRows, '商户类型', detail.merchantType === 1 ? '校友商铺' : detail.merchantType === 2 ? '普通商铺' : detail.merchantType)
-    this.addRow(contentRows, '经营类目', detail.businessCategory)
-    this.addRow(contentRows, '经营范围', detail.businessScope, false, true)
-    this.addRow(contentRows, '联系电话', detail.contactPhone)
-    this.addRow(contentRows, '联系邮箱', detail.contactEmail)
+    this.addRow(contentRows, '所在城市', detail.city)
+    this.addRow(contentRows, '法人姓名', detail.legalPerson)
+    this.addRow(contentRows, '联系电话', detail.phone)
     this.addRow(contentRows, '统一社会信用代码', detail.unifiedSocialCreditCode)
-    this.addRow(contentRows, '法人', detail.legalPerson)
     this.addRow(auditRows, '审核意见', detail.reviewReason, true)
     this.addRow(auditRows, '审核时间', reviewTime)
     return {
       basicRows,
       contentRows,
       auditRows,
-      createUi: null,
-      merchantApplyUi: {
+      createUi: {
         header: this.buildMerchantApplicationHeader(detail),
       },
+      merchantApplyUi: null,
       shopApplyUi: null,
       shopMerchantUi: null,
-      merchantAssocUi: this.buildMerchantAssocUi(detail),
+      merchantAssocUi: null,
     }
   },
 
@@ -853,7 +853,7 @@ Page({
   getStatusClass(detailWrapper) {
     const group = detailWrapper?.statusGroup || 'UNKNOWN'
     if (group === 'PENDING') return 'pending'
-    if (group === 'APPROVED') return 'approved'
+    if (group === 'APPROVED' || group === 'PENDING_PUBLISH') return 'approved'
     if (group === 'REJECTED') return 'rejected'
     if (group === 'CANCELLED') return 'cancelled'
     return 'unknown'
