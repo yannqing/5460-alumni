@@ -1280,9 +1280,21 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             throw new BusinessException(ErrorType.ARGS_NOT_NULL);
         }
 
-        // 修改为查询 merchant 表，筛选已发布且启用的商户
+        // 通过 role_user 表查询用户关联的商户ID（type=3 表示商户角色）
+        List<Long> merchantIds = roleUserService.list(
+                new LambdaQueryWrapper<RoleUser>()
+                        .eq(RoleUser::getWxId, wxId)
+                        .eq(RoleUser::getType, 3)
+                        .eq(RoleUser::getIsDelete, 0)
+        ).stream().map(RoleUser::getOrganizeId).distinct().collect(Collectors.toList());
+
+        if (merchantIds.isEmpty()) {
+            return List.of();
+        }
+
+        // 查询已发布且启用的商户
         List<Merchant> merchants = this.lambdaQuery()
-                .eq(Merchant::getUserId, wxId)
+                .in(Merchant::getMerchantId, merchantIds)
                 .eq(Merchant::getReviewStatus, 1) // 1-已发布
                 .eq(Merchant::getStatus, 1) // 1-启用
                 .orderByDesc(Merchant::getCreateTime)

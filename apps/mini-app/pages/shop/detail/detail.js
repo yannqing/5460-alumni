@@ -159,7 +159,7 @@ Page({
     try {
       wx.showLoading({ title: '加载中...' })
       // 使用原来的商家详情接口获取商家信息，包含门店列表
-      const res = await merchantApi.getMerchantInfo(this.data.shopId)
+      const res = await merchantApi.getMerchantDetailById(this.data.shopId)
       wx.hideLoading()
 
       console.log('[ShopDetail] 商家详情响应:', res)
