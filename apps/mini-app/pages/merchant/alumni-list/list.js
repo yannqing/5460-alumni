@@ -106,7 +106,7 @@ Page({
       associationLogoUrl: this.resolveAssociationLogo(item.alumniAssociation),
       latestCoupon,
       couponTypeText: this.getCouponTypeText(latestCoupon && latestCoupon.couponType),
-      couponNameShort: couponName.slice(0, 2),
+      couponNameShort: couponName,
     }
   },
 
