@@ -61,7 +61,7 @@ page {
   position: sticky;
   top: 180rpx;
   z-index: 15;
-  background: #3F61CA;
+  background: #F5F5F5;
   border-bottom: none;
   bottom: 0;
 }
@@ -138,9 +138,6 @@ page {
   padding: 0 30rpx 20rpx;
   margin-bottom: 0;
   background: #F5F5F5;
-  border-top-left-radius: 30rpx;
-  border-top-right-radius: 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
   border-bottom: none !important;
   border-top: none !important;
   position: relative;
@@ -294,151 +291,22 @@ view, text, picker, input, button, image, navigator {
   font-weight: 600;
 }
 
-/* 商铺列表 */
+/* 加载状态 */
+.loading-text {
+  text-align: center;
+  padding: 40rpx 30rpx;
+  color: #999999;
+  font-size: 24rpx;
+}
+
+/* 商户列表容器 */
 .merchant-list {
-  padding: 30rpx 30rpx 20rpx;
-  background-color: #F5F5F5;
+  padding: 0;
+  background-color: #ffffff;
   min-height: 100vh;
   margin-top: 0;
   position: relative;
   z-index: 0;
-}
-
-.merchant-card {
-  position: relative;
-  background-color: #ffffff;
-  border-radius: 16rpx;
-  padding: 0;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-}
-
-/* 卡片头部：logo + 文案 */
-.card-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 20rpx;
-  padding: 30rpx;
-}
-
-.card-logo {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 12rpx;
-  flex-shrink: 0;
-  background: #f5f5f5;
-}
-
-.card-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.card-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  margin-bottom: 12rpx;
-  width: 100%;
-  overflow: hidden;
-}
-
-.card-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  min-width: 0;
-}
-
-.badges-row {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  flex-shrink: 0;
-}
-
-/* 会员等级徽章 */
-.tier-badge {
-  padding: 4rpx 12rpx;
-  color: #ffffff;
-  font-size: 20rpx;
-  border-radius: 6rpx;
-  flex-shrink: 0;
-}
-
-.tier-badge.tier-1 {
-  background-color: #999999;
-}
-
-.tier-badge.tier-2 {
-  background: linear-gradient(135deg, #c0c0c0 0%, #d9d9d9 100%);
-}
-
-.tier-badge.tier-3 {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-}
-
-.tier-badge.tier-4 {
-  background: linear-gradient(135deg, #40B2E6 0%, #6BC5ED 100%);
-}
-
-/* 校友认证徽章 */
-.cert-badge {
-  padding: 4rpx 12rpx;
-  background-color: rgb(226, 175, 22);
-  color: #ffffff;
-  font-size: 20rpx;
-  border-radius: 6rpx;
-  flex-shrink: 0;
-}
-
-/* 副标题 */
-.card-subtitle {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  font-size: 26rpx;
-  color: #666666;
-  margin-bottom: 12rpx;
-}
-
-.subtitle-icon {
-  width: 24rpx;
-  height: 24rpx;
-  flex-shrink: 0;
-}
-
-/* 门店：与 card-info 内文案左对齐 */
-.card-meta-line {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  font-size: 24rpx;
-  line-height: 1.4;
-  margin-top: 4rpx;
-}
-
-.meta-label {
-  color: #999999;
-  flex-shrink: 0;
-}
-
-.meta-value {
-  color: #333333;
-  font-weight: 500;
-}
-
-/* 加载状态 */
-.loading-text {
-  text-align: center;
-  padding: 40rpx 0;
-  color: #999999;
-  font-size: 24rpx;
 }
 
 /* 空状态 */
@@ -447,7 +315,7 @@ view, text, picker, input, button, image, navigator {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 100rpx 0;
+  padding: 100rpx 30rpx;
 }
 
 .empty-state image {

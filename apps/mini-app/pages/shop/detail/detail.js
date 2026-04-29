@@ -311,57 +311,66 @@ Page({
     }
   },
 
-  // 处理优惠券
+  // 处理优惠券点击（查看详情）
   handleCoupon(e) {
-    const { id, status } = e.currentTarget.dataset
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(id))}`,
+    })
+  },
 
-    if (status === 'alumni-only') {
-      wx.showModal({
-        title: '提示',
-        content: '此优惠券仅限认证校友使用，请先完成校友认证。',
-        showCancel: true,
-        cancelText: '取消',
-        confirmText: '去认证',
-        success: res => {
-          if (res.confirm) {
-            // 跳转到认证页面
-            wx.navigateTo({
-              url: '/pages/profile/edit/edit?tab=certification',
-            })
-          }
-        },
+  // 领取推荐优惠券
+  async handleClaimCoupon(e) {
+    const { id, coupon } = e.detail
+    if (!id) return
+
+    // 检查是否可领取
+    if (coupon && coupon.isClaimable === false) {
+      wx.showToast({
+        title: '该优惠券已领完或已达上限',
+        icon: 'none',
       })
       return
     }
 
-    if (status === 'claimed') {
-      wx.navigateTo({
-        url: `/pages/coupon/detail/detail?userCouponId=${encodeURIComponent(String(id))}`,
-      })
-      return
-    }
-
-    // 领取优惠券
     wx.showModal({
       title: '提示',
       content: '确认领取该优惠券吗？',
-      success: res => {
+      success: async res => {
         if (res.confirm) {
-          // TODO: 调用领取接口
-          wx.showToast({
-            title: '领取成功',
-            icon: 'success',
-          })
-          // 更新状态
-          const coupons = this.data.shopInfo.coupons.map(coupon => {
-            if (coupon.id === id) {
-              return { ...coupon, status: 'claimed' }
+          wx.showLoading({ title: '领取中...' })
+          try {
+            const claimRes = await couponApi.claimCoupon({
+              couponId: String(id),
+              receiveChannel: 'merchant_detail',
+              receiveSource: 'merchant_id_' + String(this.data.shopId),
+            })
+
+            wx.hideLoading()
+
+            if (claimRes.data && claimRes.data.code === 200) {
+              wx.showToast({
+                title: '领取成功',
+                icon: 'success',
+              })
+              // 重新加载推荐优惠券
+              this.loadRecommendedCoupons()
+            } else {
+              const rawMsg = claimRes.data?.msg || '领取失败'
+              wx.showToast({
+                title: rawMsg,
+                icon: 'none',
+              })
             }
-            return coupon
-          })
-          this.setData({
-            'shopInfo.coupons': coupons,
-          })
+          } catch (error) {
+            wx.hideLoading()
+            console.error('[ShopDetail] 领取优惠券失败:', error)
+            wx.showToast({
+              title: '领取失败，请稍后重试',
+              icon: 'none',
+            })
+          }
         }
       },
     })
@@ -404,7 +413,7 @@ Page({
   },
 
   viewPublicCouponDetail(e) {
-    const { id } = e.currentTarget.dataset
+    const { id } = e.detail
     if (!id) return
     wx.navigateTo({
       url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(id))}`,

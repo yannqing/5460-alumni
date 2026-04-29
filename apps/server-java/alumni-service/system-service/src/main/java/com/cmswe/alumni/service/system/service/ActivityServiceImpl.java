@@ -5,17 +5,21 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.system.ActivityService;
+import com.cmswe.alumni.common.dto.PublishMerchantActivityDto;
 import com.cmswe.alumni.common.dto.PublishTopicDto;
+import com.cmswe.alumni.common.dto.QueryMerchantActivityDto;
 import com.cmswe.alumni.common.dto.QueryPublicActivityDto;
 import com.cmswe.alumni.common.dto.QueryShopActivityDto;
 import com.cmswe.alumni.common.dto.UpdateActivityDto;
 import com.cmswe.alumni.common.entity.Activity;
+import com.cmswe.alumni.common.entity.ActivityShop;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.ActivityDetailVo;
 import com.cmswe.alumni.common.vo.ActivityListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.service.system.mapper.ActivityMapper;
+import com.cmswe.alumni.service.system.mapper.ActivityShopMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,6 +42,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> implements ActivityService {
+
+    @jakarta.annotation.Resource
+    private ActivityShopMapper activityShopMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -116,6 +125,145 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         }
 
         return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean publishMerchantActivity(Long wxId, PublishMerchantActivityDto dto) {
+        // 1. 参数校验
+        if (wxId == null || dto == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL);
+        }
+
+        // 校验活动类型
+        if (dto.getActivityType() != 1 && dto.getActivityType() != 2) {
+            throw new BusinessException("活动类型只能为1（优惠活动）或2（话题活动）");
+        }
+
+        // 2. 校验报名时间（话题活动且需要报名时）
+        if (dto.getActivityType() == 2 && dto.getIsSignup() == 1) {
+            if (dto.getRegistrationStartTime() == null || dto.getRegistrationEndTime() == null) {
+                throw new BusinessException("需要报名时，报名开始时间和截止时间不能为空");
+            }
+            if (dto.getRegistrationStartTime().isAfter(dto.getRegistrationEndTime())) {
+                throw new BusinessException("报名开始时间不能晚于截止时间");
+            }
+        }
+
+        // 优惠活动强制不需要报名
+        if (dto.getActivityType() == 1) {
+            dto.setIsSignup(0);
+        }
+
+        // 3. 校验活动时间
+        if (dto.getStartTime().isAfter(dto.getEndTime())) {
+            throw new BusinessException("活动开始时间不能晚于结束时间");
+        }
+
+        // 4. 创建活动实体
+        Activity activity = new Activity();
+        BeanUtils.copyProperties(dto, activity);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 固定字段
+        activity.setOrganizerType(3); // 主办方类型为3（商户）
+        activity.setOrganizerId(dto.getMerchantId());
+        activity.setActivityCategory(dto.getActivityType() == 1 ? "优惠活动" : "话题");
+        activity.setActivityType(dto.getActivityType());
+
+        // 计算初始状态
+        Integer status;
+        if (dto.getIsSignup() == 1) {
+            if (now.isBefore(dto.getRegistrationEndTime())) {
+                status = 1; // 报名中
+            } else if (now.isBefore(dto.getStartTime())) {
+                status = 2; // 报名结束
+            } else if (now.isBefore(dto.getEndTime())) {
+                status = 3; // 进行中
+            } else {
+                status = 4; // 已结束
+            }
+        } else {
+            if (now.isBefore(dto.getEndTime())) {
+                status = 3; // 进行中
+            } else {
+                status = 4; // 已结束
+            }
+        }
+        activity.setStatus(status);
+        activity.setReviewStatus(1); // 审核通过
+        activity.setIsRecommended(0);
+        activity.setIsPublic(1);
+        activity.setCurrentParticipants(0);
+        activity.setViewCount(0L);
+        activity.setCreatedBy(wxId);
+        activity.setCreateTime(now);
+        activity.setUpdateTime(now);
+        activity.setIsDelete(0);
+
+        // 5. 保存活动
+        boolean result = this.save(activity);
+
+        // 6. 保存活动-门店关联
+        if (result && dto.getShopIds() != null && !dto.getShopIds().isEmpty()) {
+            for (Long shopId : dto.getShopIds()) {
+                ActivityShop as = new ActivityShop();
+                as.setActivityId(activity.getActivityId());
+                as.setShopId(shopId);
+                as.setCreateTime(now);
+                activityShopMapper.insert(as);
+            }
+        }
+
+        if (result) {
+            log.info("商户发布活动成功 - 用户ID: {}, 商户ID: {}, 活动类型: {}, 标题: {}",
+                    wxId, dto.getMerchantId(), dto.getActivityType(), dto.getActivityTitle());
+        }
+
+        return result;
+    }
+
+    @Override
+    public PageVo<ActivityListVo> getMerchantActivities(Long wxId, QueryMerchantActivityDto queryDto) {
+        // 1. 参数校验
+        if (wxId == null || queryDto == null || queryDto.getMerchantId() == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL);
+        }
+
+        // 2. 构建查询条件：商户维度的活动（organizer_type=3）
+        LambdaQueryWrapper<Activity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Activity::getOrganizerType, 3)
+               .eq(Activity::getOrganizerId, queryDto.getMerchantId());
+
+        // 可选筛选条件
+        if (queryDto.getActivityType() != null) {
+            wrapper.eq(Activity::getActivityType, queryDto.getActivityType());
+        }
+        if (queryDto.getReviewStatus() != null) {
+            wrapper.eq(Activity::getReviewStatus, queryDto.getReviewStatus());
+        }
+        if (queryDto.getStatus() != null) {
+            wrapper.eq(Activity::getStatus, queryDto.getStatus());
+        }
+
+        wrapper.orderByDesc(Activity::getCreateTime);
+
+        // 3. 分页查询
+        Page<Activity> page = new Page<>(queryDto.getCurrent(), queryDto.getPageSize());
+        Page<Activity> activityPage = this.page(page, wrapper);
+
+        // 4. 转换为 VO
+        List<ActivityListVo> voList = activityPage.getRecords().stream()
+                .map(ActivityListVo::objToVo)
+                .collect(Collectors.toList());
+
+        log.info("商户查询活动列表 - 用户ID: {}, 商户ID: {}, 共{}条记录",
+                wxId, queryDto.getMerchantId(), activityPage.getTotal());
+
+        Page<ActivityListVo> voPage = new Page<>(queryDto.getCurrent(), queryDto.getPageSize(), activityPage.getTotal());
+        voPage.setRecords(voList);
+        return PageVo.of(voPage);
     }
 
     @Override

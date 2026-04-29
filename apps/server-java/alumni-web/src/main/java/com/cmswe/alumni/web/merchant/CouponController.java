@@ -109,13 +109,19 @@ public class CouponController {
          * 获取商户推荐优惠券列表（用户侧，最多 5 个）
          *
          * @param merchantId 商户ID
+         * @param securityUser 当前登录用户（可选）
          * @return 推荐优惠券列表
          */
         @GetMapping("/merchant/{merchantId}/recommend")
         @Operation(summary = "获取商户推荐优惠券列表")
-        public BaseResponse<List<CouponVo>> listRecommendedMerchantCoupons(@PathVariable Long merchantId) {
+        public BaseResponse<List<CouponVo>> listRecommendedMerchantCoupons(
+                        @PathVariable Long merchantId,
+                        @AuthenticationPrincipal SecurityUser securityUser) {
                 log.info("查询商户推荐优惠券列表 - 商户ID: {}", merchantId);
-                List<CouponVo> coupons = couponService.listRecommendedMerchantCoupons(merchantId);
+                Long wxId = (securityUser != null && securityUser.getWxUser() != null)
+                                ? securityUser.getWxUser().getWxId()
+                                : null;
+                List<CouponVo> coupons = couponService.listRecommendedMerchantCoupons(merchantId, wxId);
                 return ResultUtils.success(Code.SUCCESS, coupons, "查询成功");
         }
 

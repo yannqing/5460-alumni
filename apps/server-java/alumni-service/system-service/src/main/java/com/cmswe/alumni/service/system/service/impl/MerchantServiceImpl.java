@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
+import com.cmswe.alumni.api.search.CouponService;
 import com.cmswe.alumni.api.search.ShopService;
 import com.cmswe.alumni.api.system.MerchantBusinessCategoryService;
 import com.cmswe.alumni.api.system.MerchantService;
@@ -33,6 +34,7 @@ import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
+import com.cmswe.alumni.common.vo.CouponVo;
 import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
@@ -101,6 +103,10 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     @Lazy
     @Resource
     private UserFavoriteService userFavoriteService;
+
+    @Lazy
+    @Resource
+    private CouponService couponService;
 
     private List<Long> parseAssociationIds(String associationIdStr) {
         if (StringUtils.isBlank(associationIdStr)) {
@@ -243,6 +249,22 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
             if (merchant.getAlumniAssociationId() != null) {
                 merchantListVo.setAlumniAssociationId(String.valueOf(merchant.getAlumniAssociationId()));
             }
+            // 查询商户收藏数量
+            Long favoriteCount = userFavoriteService.count(
+                    new LambdaQueryWrapper<UserFavorite>()
+                            .eq(UserFavorite::getTargetType, 1)
+                            .eq(UserFavorite::getTargetId, merchant.getMerchantId())
+                            .eq(UserFavorite::getIsDeleted, 0)
+            );
+            merchantListVo.setFavoriteCount(favoriteCount);
+
+            // 查询商户推荐优惠券（最多2个）
+            List<CouponVo> coupons = couponService.listRecommendedMerchantCoupons(merchant.getMerchantId());
+            if (coupons != null && coupons.size() > 2) {
+                coupons = coupons.subList(0, 2);
+            }
+            merchantListVo.setCoupons(coupons);
+
             return merchantListVo;
         }).toList();
 

@@ -200,6 +200,18 @@ public class CouponVo implements Serializable {
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
+    /**
+     * 当前用户已领取数量
+     */
+    @Schema(description = "当前用户已领取数量")
+    private Integer userClaimedCount;
+
+    /**
+     * 是否可领取：true-可领取 false-不可领取（已达上限或无库存）
+     */
+    @Schema(description = "是否可领取")
+    private Boolean isClaimable;
+
     @Serial
     private static final long serialVersionUID = 1L;
 

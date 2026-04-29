@@ -13,6 +13,7 @@ import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.common.utils.BaseResponse;
 import com.cmswe.alumni.common.utils.ResultUtils;
 import com.cmswe.alumni.common.vo.NearbyAlumniVo;
+import com.cmswe.alumni.common.vo.NearbyMerchantVo;
 import com.cmswe.alumni.common.vo.NearbyPlaceVo;
 import com.cmswe.alumni.common.vo.NearbyShopVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -115,7 +116,7 @@ public class NearbyBenefitsController {
 
         switch (queryType) {
             case 1:
-                // 查询附近商铺（必须有优惠券）
+                // 查询附近商户（必须有专属优惠券）
                 QueryNearbyShopDto shopQueryDto = new QueryNearbyShopDto();
                 shopQueryDto.setLatitude(queryDto.getLatitude());
                 shopQueryDto.setLongitude(queryDto.getLongitude());
@@ -125,8 +126,8 @@ public class NearbyBenefitsController {
                 shopQueryDto.setCurrent(queryDto.getCurrent());
                 shopQueryDto.setPageSize(queryDto.getPageSize());
 
-                PageVo<NearbyShopVo> shopPageVo = shopService.getNearbyShops(shopQueryDto);
-                return ResultUtils.success(Code.SUCCESS, shopPageVo, "查询成功");
+                PageVo<NearbyMerchantVo> merchantPageVo = shopService.getNearbyMerchants(shopQueryDto);
+                return ResultUtils.success(Code.SUCCESS, merchantPageVo, "查询成功");
 
             case 2:
                 // 查询附近校友企业/场所（正常运营即可）
@@ -138,8 +139,21 @@ public class NearbyBenefitsController {
                 PageVo<NearbyAlumniVo> alumniPageVo = wxUserInfoService.getNearbyAlumni(queryDto, currentUserId);
                 return ResultUtils.success(Code.SUCCESS, alumniPageVo, "查询成功");
 
+            case 4:
+                // 查询附近活动（基于商户门店距离）
+                QueryNearbyShopDto activityQueryDto = new QueryNearbyShopDto();
+                activityQueryDto.setLatitude(queryDto.getLatitude());
+                activityQueryDto.setLongitude(queryDto.getLongitude());
+                activityQueryDto.setRadius(queryDto.getRadius());
+                activityQueryDto.setShopName(queryDto.getName());
+                activityQueryDto.setCurrent(queryDto.getCurrent());
+                activityQueryDto.setPageSize(queryDto.getPageSize());
+
+                PageVo<NearbyMerchantVo> activityPageVo = shopService.getNearbyActivities(activityQueryDto);
+                return ResultUtils.success(Code.SUCCESS, activityPageVo, "查询成功");
+
             default:
-                return ResultUtils.failure("不支持的查询类型，queryType只能为1、2或3");
+                return ResultUtils.failure("不支持的查询类型，queryType只能为1、2、3或4");
         }
     }
 }

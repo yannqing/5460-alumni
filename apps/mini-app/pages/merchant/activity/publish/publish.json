@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "发布活动",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar",
+    "message-notification": "/components/message-notification/message-notification"
+  }
+}

@@ -131,6 +131,19 @@ Page({
     return s ? config.getImageUrl(s) : ''
   },
 
+  // 优惠券数据映射
+  mapCoupons(coupons) {
+    if (!coupons || !Array.isArray(coupons)) return []
+    return coupons.map(coupon => ({
+      couponId: coupon.couponId,
+      couponName: coupon.couponName || '',
+      couponType: coupon.couponType || 1,
+      discountType: coupon.discountType || 1,
+      discountValue: coupon.discountValue || 0,
+      minSpend: coupon.minSpend || 0,
+    }))
+  },
+
   // 数据映射：将后端数据映射为前端所需格式
   mapMerchantItem(item) {
     return {
@@ -143,6 +156,8 @@ Page({
       shopCount: item.shopCount || 0,
       totalCouponIssued: item.totalCouponIssued || 0,
       isAlumniCertified: item.isAlumniCertified || 0,
+      favoriteCount: item.favoriteCount || 0,
+      coupons: this.mapCoupons(item.coupons),
       alumniAssociationId: item.alumniAssociationId || '',
       legalPerson: item.legalPerson || '',
       contactPhone: item.contactPhone || '',
@@ -184,9 +199,20 @@ Page({
     })
   },
 
-  viewDetail(e) {
+  // 商户卡片点击事件
+  onMerchantTap(e) {
+    const { merchantId } = e.detail
+    if (!merchantId) return
     wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${e.currentTarget.dataset.id}`,
+      url: `/pages/shop/detail/detail?id=${merchantId}`,
+    })
+  },
+
+  onCouponTap(e) {
+    const { couponId } = e.detail
+    if (!couponId) return
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(couponId))}`,
     })
   },
 })

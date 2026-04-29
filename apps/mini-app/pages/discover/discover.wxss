@@ -262,9 +262,14 @@
 .content-list {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
-  padding: 20rpx 30rpx;
   min-height: 200rpx;
+  background-color: #ffffff;
+}
+
+/* 商户列表容器 - 与商户列表页样式一致 */
+.merchant-list-container {
+  padding: 0;
+  background-color: #ffffff;
 }
 
 /* 空列表提示 */

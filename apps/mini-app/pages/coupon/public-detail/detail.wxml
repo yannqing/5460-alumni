@@ -7,15 +7,6 @@
 
     <!-- 正常详情内容 -->
     <view wx:elif="{{couponDetail}}">
-      <!-- 顶部图片区域 (参考门店详情) -->
-      <view class="header-image-wrap">
-        <image 
-          class="header-image" 
-          src="{{couponDetail.couponImage || couponDetail.coupon_image || defaultCover}}" 
-          mode="aspectFill"
-        ></image>
-      </view>
-
       <!-- 内容区域 -->
       <view class="white-background-content">
         <!-- 基础信息卡片 (参考门店详情) -->
@@ -104,19 +95,15 @@
         <view class="card shops-info-card" wx:if="{{availableShops && availableShops.length > 0}}">
           <view class="section-title">适用门店 ({{availableShops.length}})</view>
           <view class="shop-list">
-          <view 
-            class="shop-item" 
-            wx:for="{{availableShops}}" 
-            wx:key="shopId" 
-            bindtap="goShopDetail" 
-            data-id="{{item.shopId}}"
+          <view
+            class="shop-item"
+            wx:for="{{availableShops}}"
+            wx:key="shopId"
           >
-            <image class="shop-item-logo" src="{{item.logoUrl}}" mode="aspectFill"></image>
             <view class="shop-item-info">
               <view class="shop-name">{{item.shopName}}</view>
               <view class="shop-addr">{{item.address || (item.province + item.city + item.district)}}</view>
             </view>
-            <text class="arrow-icon">></text>
           </view>
           </view>
         </view>

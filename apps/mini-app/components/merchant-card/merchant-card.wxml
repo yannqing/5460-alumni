@@ -1,0 +1,40 @@
+<!--components/merchant-card/merchant-card.wxml-->
+<view class="merchant-card" bindtap="handleTap">
+  <view class="card-header">
+    <image class="card-logo" src="{{logoUrl}}" mode="aspectFill" />
+    <view class="card-info">
+      <view class="card-title-row">
+        <text class="card-title">{{merchantName}}</text>
+        <view class="card-category-tag" wx:if="{{businessCategory}}">
+          <image class="subtitle-icon" src="{{iconCategory}}" mode="aspectFit" />
+          <text>{{businessCategory}}</text>
+        </view>
+        <view class="badges-row">
+          <view wx:if="{{isAlumniCertified === 1}}" class="cert-badge">✓ 校友认证</view>
+        </view>
+        <text class="card-distance" wx:if="{{distance}}">{{distance}}</text>
+      </view>
+      <view class="card-meta-line">
+        <block wx:if="{{favoriteCount > 0}}">
+          <text class="meta-highlight">{{favoriteCount}}</text>
+          <text class="meta-label">人收藏</text>
+        </block>
+      </view>
+    </view>
+  </view>
+  <!-- 优惠券列表 -->
+  <view class="coupon-list" wx:if="{{coupons.length > 0}}">
+    <view class="coupon-item" wx:for="{{coupons}}" wx:key="couponId" catchtap="handleCouponTap" data-coupon-id="{{item.couponId}}">
+      <view class="coupon-tag">券</view>
+      <text class="coupon-discount">{{item.discountText}}</text>
+      <text class="coupon-name">{{item.couponName}}</text>
+    </view>
+  </view>
+  <!-- 活动列表 -->
+  <view class="activity-list" wx:if="{{activities.length > 0}}">
+    <view class="activity-item" wx:for="{{activities}}" wx:key="activityId" catchtap="handleActivityTap" data-activity-id="{{item.activityId}}">
+      <view class="activity-tag">活</view>
+      <text class="activity-title">{{item.activityTitle}}</text>
+    </view>
+  </view>
+</view>

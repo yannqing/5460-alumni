@@ -3,7 +3,9 @@ package com.cmswe.alumni.web;
 import com.cmswe.alumni.api.system.ActivityService;
 import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
+import com.cmswe.alumni.common.dto.PublishMerchantActivityDto;
 import com.cmswe.alumni.common.dto.PublishTopicDto;
+import com.cmswe.alumni.common.dto.QueryMerchantActivityDto;
 import com.cmswe.alumni.common.dto.QueryPublicActivityDto;
 import com.cmswe.alumni.common.dto.QueryShopActivityDto;
 import com.cmswe.alumni.common.dto.UpdateActivityDto;
@@ -61,6 +63,44 @@ public class ActivityController {
                     wxId, publishTopicDto.getOrganizerId(), publishTopicDto.getActivityTitle());
             return ResultUtils.failure(Code.FAILURE, false, "发布失败");
         }
+    }
+
+    /**
+     * 商户发布活动（优惠活动或话题活动）
+     *
+     * @param securityUser              当前登录用户
+     * @param publishMerchantActivityDto 发布活动请求参数
+     * @return 是否成功
+     */
+    @PostMapping("/merchant/publish")
+    @Operation(summary = "商户发布活动", description = "商户发布优惠活动或话题活动，可选择适用门店")
+    public BaseResponse<Boolean> publishMerchantActivity(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody PublishMerchantActivityDto publishMerchantActivityDto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        boolean result = activityService.publishMerchantActivity(wxId, publishMerchantActivityDto);
+        if (result) {
+            return ResultUtils.success(Code.SUCCESS, true, "发布成功");
+        } else {
+            return ResultUtils.failure(Code.FAILURE, false, "发布失败");
+        }
+    }
+
+    /**
+     * 商户查询活动列表（按商户维度）
+     *
+     * @param securityUser 当前登录用户
+     * @param queryDto     查询参数
+     * @return 活动列表分页数据
+     */
+    @PostMapping("/merchant/list")
+    @Operation(summary = "商户查询活动列表", description = "商户按维度查询自己的活动列表，支持按活动类型筛选")
+    public BaseResponse<PageVo<ActivityListVo>> getMerchantActivities(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody QueryMerchantActivityDto queryDto) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        PageVo<ActivityListVo> result = activityService.getMerchantActivities(wxId, queryDto);
+        return ResultUtils.success(Code.SUCCESS, result, "查询成功");
     }
 
     /**
