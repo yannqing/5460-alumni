@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { homeArticleApi, associationApi, bannerApi, activityApi } = require('../../api/api')
+const { homeArticleApi, associationApi, bannerApi, activityApi, merchantApi } = require('../../api/api')
 const config = require('../../utils/config.js')
 const auth = require('../../utils/auth.js')
 const featureFlags = require('../../utils/feature-flags.js')
@@ -1090,22 +1090,23 @@ Page({
     this.setData({ shopLoading: true })
 
     try {
-      // TODO: 替换为真实接口
-      // const res = await shopApi.getHotList();
-      // if (res.data && res.data.code === 200) {
-      //   this.setData({
-      //     shopList: res.data.data || [],
-      //     shopLoading: false
-      //   });
-      // }
-
-      // 暂时模拟示例数据（清空显示空状态）
-      setTimeout(() => {
-        this.setData({
-          shopList: [],
-          shopLoading: false,
-        })
-      }, 1000)
+      const res = await merchantApi.getAlumniMerchantPage({
+        current: 1,
+        pageSize: 2,
+        sortField: 'createTime',
+        sortOrder: 'descend',
+      })
+      const body = res.data || {}
+      if (body.code !== 200) {
+        throw new Error(body.msg || '加载失败')
+      }
+      const pageData = body.data || {}
+      const records = Array.isArray(pageData.records) ? pageData.records : []
+      const shopList = records.map(item => this.mapShopItem(item))
+      this.setData({
+        shopList,
+        shopLoading: false,
+      })
     } catch (err) {
       console.error('[Index] 获取商铺列表失败:', err)
       this.setData({
@@ -1115,29 +1116,48 @@ Page({
     }
   },
 
-  /**
-   * 跳转到商铺列表页
-   */
-  gotoShopList() {
-    wx.navigateTo({
-      url: '/pages/merchant/list/list',
-      fail: () => {
-        wx.showToast({
-          title: '功能开发中',
-          icon: 'none',
-        })
-      },
-    })
+  resolveLogoUrl(logo) {
+    if (!logo) return config.defaultAvatar
+    const normalized = String(logo).trim().replace(/[`\s]/g, '')
+    return normalized ? config.getImageUrl(normalized) : config.defaultAvatar
   },
 
-  /**
-   * 商铺建设中提示
-   */
-  showShopBuilding() {
-    wx.showToast({
-      title: '建设中，请稍后',
-      icon: 'none',
-    })
+  resolveAssociationLogo(alumniAssociation) {
+    if (!alumniAssociation || typeof alumniAssociation !== 'object') {
+      return config.defaultAvatar
+    }
+    const rawLogo = alumniAssociation.logo || alumniAssociation.icon || alumniAssociation.avatar || ''
+    if (!rawLogo) return config.defaultAvatar
+    const normalized = String(rawLogo).trim().replace(/[`\s]/g, '')
+    return normalized ? config.getImageUrl(normalized) : config.defaultAvatar
+  },
+
+  mapShopItem(item) {
+    const latestCoupon = item.latestCoupon || null
+    const couponName = latestCoupon && latestCoupon.couponName ? String(latestCoupon.couponName) : ''
+    return {
+      merchantId: item.merchantId ? String(item.merchantId) : '',
+      merchantName: item.merchantName || '未命名商户',
+      logoUrl: this.resolveLogoUrl(item.logo),
+      address: item.address || '',
+      associationName:
+        item.alumniAssociation && item.alumniAssociation.associationName
+          ? item.alumniAssociation.associationName
+          : '',
+      associationLogoUrl: this.resolveAssociationLogo(item.alumniAssociation),
+      latestCoupon,
+      couponTypeText: this.getCouponTypeText(latestCoupon && latestCoupon.couponType),
+      couponNameShort: couponName.slice(0, 2),
+    }
+  },
+
+  getCouponTypeText(couponType) {
+    const typeMap = {
+      1: '折扣券',
+      2: '满减券',
+      3: '礼品券',
+    }
+    return typeMap[couponType] || '优惠券'
   },
 
   /**
@@ -1145,7 +1165,7 @@ Page({
    */
   gotoShopDetail(e) {
     const { item } = e.currentTarget.dataset
-    if (!item || !item.shop_id) {
+    if (!item || !item.merchantId) {
       wx.showToast({
         title: '商铺信息错误',
         icon: 'none',
@@ -1154,7 +1174,21 @@ Page({
     }
 
     wx.navigateTo({
-      url: `/pages/merchant/detail/detail?id=${item.shop_id}`,
+      url: `/pages/shop/detail/detail?id=${encodeURIComponent(String(item.merchantId))}`,
+      fail: () => {
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none',
+        })
+      },
+    })
+  },
+  /**
+   * 跳转到商铺列表页
+   */
+  gotoShopList() {
+    wx.navigateTo({
+      url: '/pages/merchant/alumni-list/list',
       fail: () => {
         wx.showToast({
           title: '功能开发中',

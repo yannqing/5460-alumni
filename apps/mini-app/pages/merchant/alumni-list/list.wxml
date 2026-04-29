@@ -1,0 +1,32 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="校友商户">
+  <view class="activity-list-page">
+    <scroll-view class="activity-scroll" scroll-y enhanced show-scrollbar="{{false}}" bindscrolltolower="loadMore">
+      <view class="activity-list" wx:if="{{merchantList.length > 0}}">
+        <view wx:for="{{merchantList}}" wx:key="merchantId" class="activity-card" bindtap="onMerchantTap" data-id="{{item.merchantId}}">
+          <view class="activity-cover-wrapper">
+            <image class="activity-cover" src="{{item.logoUrl}}" mode="aspectFill" />
+          </view>
+          <view class="activity-info">
+            <text class="activity-title">{{item.merchantName}}</text>
+            <view class="association-row">
+              <image class="association-avatar" src="{{item.associationLogoUrl}}" mode="aspectFill" />
+              <text class="association-name">{{item.associationName || '暂无所属校友会'}}</text>
+            </view>
+            <view class="coupon-row" wx:if="{{item.latestCoupon}}">
+              <text class="coupon-type">{{item.couponTypeText}}</text>
+              <text class="coupon-name">{{item.couponNameShort}}</text>
+            </view>
+            <view class="activity-time">
+              <image class="info-icon" src="{{locationIconUrl}}" mode="aspectFit" />
+              <text class="info-text">{{item.address || '暂无城市信息'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{loading && merchantList.length > 0}}" class="loading-more">加载中...</view>
+      <view wx:if="{{!loading && merchantList.length === 0}}" class="empty-state">暂无校友商户</view>
+      <view wx:if="{{!loading && merchantList.length > 0 && !hasMore}}" class="no-more">没有更多了</view>
+    </scroll-view>
+  </view>
+</custom-nav-bar>

@@ -224,6 +224,8 @@ const circleApi = {
 const merchantApi = {
   // 分页查询商铺列表（使用 POST 请求，参数在 body 中）
   getMerchantPage: params => post('/merchant/page', params),
+  // 分页查询校友商户列表（仅校友商户）
+  getAlumniMerchantPage: params => post('/merchant/alumni/page', params),
   // 获取商家列表
   getMerchantList: params => get('/merchants', params),
   // 获取商家详情

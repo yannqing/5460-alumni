@@ -10,6 +10,7 @@ import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopListVo;
 import com.cmswe.alumni.common.vo.MerchantInfoVo;
+import com.cmswe.alumni.common.vo.AlumniMerchantListVo;
 
 /**
  * 商户 Service 接口
@@ -25,6 +26,14 @@ public interface MerchantService extends IService<Merchant> {
       * @return 分页结果
       */
      PageVo<MerchantListVo> selectByPage(QueryMerchantListDto queryMerchantListDto, Long wxId);
+
+     /**
+      * 分页查询校友商户列表（仅 merchant_type=1）
+      *
+      * @param queryDto 查询条件
+      * @return 分页结果
+      */
+     PageVo<AlumniMerchantListVo> selectAlumniMerchantByPage(QueryAlumniMerchantListDto queryDto);
 
      /**
       * 超级管理员分页查询所有商户审批记录

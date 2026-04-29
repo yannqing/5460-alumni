@@ -186,47 +186,44 @@
           <view class="hot-shop-banner">
             <image class="banner-img" src="/assets/home/home_page_shop.png" mode="widthFix"></image>
             <image class="banner-title" src="/assets/home/home_page_shop_title.png" mode="heightFix"></image>
-            <text class="banner-more" catchtap="showShopBuilding" bindtap="gotoShopList">查看更多</text>
+            <text class="banner-more" bindtap="gotoShopList">查看更多</text>
           </view>
 
           <!-- 商铺列表 -->
           <view class="hot-shop-list" wx:if="{{shopList.length > 0}}">
             <view
-              class="shop-card"
+              class="alumni-merchant-card"
               wx:for="{{shopList}}"
-              wx:key="shop_id"
+              wx:key="merchantId"
               bindtap="gotoShopDetail"
               data-item="{{item}}"
             >
-              <!-- 左侧：商铺封面 -->
-              <view class="shop-cover-wrapper">
+              <view class="alumni-merchant-cover-wrapper">
                 <image
-                  class="shop-cover"
-                  src="{{item.shop_logo}}"
+                  class="alumni-merchant-cover"
+                  src="{{item.logoUrl}}"
                   mode="aspectFill"
                   lazy-load
                 ></image>
-                <!-- 商铺类型标签 -->
-                <view class="shop-type-tag" wx:if="{{item.shop_type_name}}">
-                  <text class="type-text">{{item.shop_type_name}}</text>
-                </view>
               </view>
 
-              <!-- 右侧：商铺信息 -->
-              <view class="shop-info">
-                <text class="shop-name">{{item.shop_name}}</text>
-                <view class="shop-desc" wx:if="{{item.shop_desc}}">
-                  <text class="desc-text">{{item.shop_desc}}</text>
+              <view class="alumni-merchant-info">
+                <text class="alumni-merchant-title">{{item.merchantName}}</text>
+                <view class="alumni-merchant-association-row">
+                  <image class="alumni-merchant-association-avatar" src="{{item.associationLogoUrl}}" mode="aspectFill" />
+                  <text class="alumni-merchant-association-name">{{item.associationName || '暂无所属校友会'}}</text>
                 </view>
-                <view class="shop-address" wx:if="{{item.shop_address}}">
+                <view
+                  class="alumni-merchant-coupon-row"
+                  wx:if="{{item.latestCoupon}}"
+                >
+                  <text class="alumni-merchant-coupon-type">{{item.couponTypeText}}</text>
+                  <text class="alumni-merchant-coupon-name">{{item.couponNameShort}}</text>
+                </view>
+                <view class="alumni-merchant-time">
                   <image class="info-icon" src="{{locationIconUrl}}" mode="aspectFit" />
-                  <text class="info-text">{{item.shop_address}}</text>
+                  <text class="info-text">{{item.address || '暂无城市信息'}}</text>
                 </view>
-              </view>
-
-              <!-- 优惠标签 -->
-              <view class="shop-discount-tag" wx:if="{{item.discount_info}}">
-                <text class="discount-text">{{item.discount_info}}</text>
               </view>
             </view>
           </view>
