@@ -425,7 +425,8 @@
         SELECT DISTINCT
             CAST(a.activity_id AS CHAR) AS activityId,
             a.activity_title AS activityTitle,
-            a.activity_type AS activityType
+            a.activity_type AS activityType,
+            a.start_time AS startTime
         FROM activity a
         INNER JOIN activity_shop aso ON aso.activity_id = a.activity_id
         INNER JOIN shop s ON s.shop_id = aso.shop_id

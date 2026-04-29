@@ -372,11 +372,15 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                 offset,
                 pageSize);
 
+        log.info("selectNearbyActivitiesWithPage 返回 {} 个商户", merchantList.size());
+
         merchantList.forEach(merchant -> {
             try {
                 Long merchantId = Long.parseLong(merchant.getMerchantId());
+                log.info("加载商户 {} 的活动，merchantId={}", merchant.getMerchantName(), merchantId);
                 List<NearbyMerchantVo.ActivityItem> activities =
                         this.baseMapper.selectActivitiesByMerchantId(merchantId);
+                log.info("商户 {} 找到 {} 个活动", merchant.getMerchantName(), activities.size());
                 merchant.setActivities(activities);
 
                 Long favoriteCount = userFavoriteService.count(

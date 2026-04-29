@@ -212,6 +212,12 @@ public class MerchantDetailVo implements Serializable {
     private java.util.List<AlumniAssociationListVo> joinedAssociations;
 
     /**
+     * 活动列表（该商户门店关联的活动）
+     */
+    @Schema(description = "活动列表")
+    private List<ActivityListVo> activities;
+
+    /**
      * 创建时间
      */
     @Schema(description = "创建时间")

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cmswe.alumni.api.system.ActivityService;
+import com.cmswe.alumni.api.system.MerchantService;
 import com.cmswe.alumni.common.dto.PublishMerchantActivityDto;
 import com.cmswe.alumni.common.dto.PublishTopicDto;
 import com.cmswe.alumni.common.dto.QueryMerchantActivityDto;
@@ -45,6 +46,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
 
     @jakarta.annotation.Resource
     private ActivityShopMapper activityShopMapper;
+
+    @jakarta.annotation.Resource
+    private MerchantService merchantService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -169,6 +173,18 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         // 固定字段
         activity.setOrganizerType(3); // 主办方类型为3（商户）
         activity.setOrganizerId(dto.getMerchantId());
+
+        // 设置主办方名称和头像（从商户信息获取）
+        try {
+            var merchant = merchantService.getById(dto.getMerchantId());
+            if (merchant != null) {
+                activity.setOrganizerName(merchant.getMerchantName());
+                activity.setOrganizerAvatar(merchant.getLogo());
+            }
+        } catch (Exception e) {
+            log.warn("获取商户信息失败，merchantId={}", dto.getMerchantId(), e);
+        }
+
         activity.setActivityCategory(dto.getActivityType() == 1 ? "优惠活动" : "话题");
         activity.setActivityType(dto.getActivityType());
 
@@ -206,13 +222,20 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         boolean result = this.save(activity);
 
         // 6. 保存活动-门店关联
-        if (result && dto.getShopIds() != null && !dto.getShopIds().isEmpty()) {
-            for (Long shopId : dto.getShopIds()) {
-                ActivityShop as = new ActivityShop();
-                as.setActivityId(activity.getActivityId());
-                as.setShopId(shopId);
-                as.setCreateTime(now);
-                activityShopMapper.insert(as);
+        if (result) {
+            List<Long> shopIds = dto.getShopIds();
+            // 如果未指定门店，则关联该商户所有审核通过且启用的门店
+            if (shopIds == null || shopIds.isEmpty()) {
+                shopIds = activityShopMapper.selectShopIdsByMerchantId(dto.getMerchantId());
+            }
+            if (shopIds != null) {
+                for (Long shopId : shopIds) {
+                    ActivityShop as = new ActivityShop();
+                    as.setActivityId(activity.getActivityId());
+                    as.setShopId(shopId);
+                    as.setCreateTime(now);
+                    activityShopMapper.insert(as);
+                }
             }
         }
 
@@ -297,6 +320,19 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         }
 
         ActivityDetailVo activityDetail = ActivityDetailVo.objToVo(latest);
+
+        // 兜底：如果主办方名称为空且是商户活动，从商户表查询
+        if (activityDetail.getOrganizerName() == null && latest.getOrganizerType() != null && latest.getOrganizerType() == 3) {
+            try {
+                var merchant = merchantService.getById(latest.getOrganizerId());
+                if (merchant != null) {
+                    activityDetail.setOrganizerName(merchant.getMerchantName());
+                    activityDetail.setOrganizerAvatar(merchant.getLogo());
+                }
+            } catch (Exception e) {
+                log.warn("获取商户主办方信息失败，merchantId={}", latest.getOrganizerId(), e);
+            }
+        }
 
         log.info("查询活动详情 - 活动ID: {}, 标题: {}", activityId, latest.getActivityTitle());
 

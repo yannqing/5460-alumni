@@ -1,4 +1,5 @@
 {
+  "navigationStyle": "custom",
   "navigationBarTitleText": "活动管理",
   "usingComponents": {
     "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar",

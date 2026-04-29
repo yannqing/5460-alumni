@@ -111,19 +111,16 @@ Page({
           }
         }
 
-        // 处理时间显示，移除 'T'
-        if (activityData.startTime) {
-          activityData.startTime = activityData.startTime.replace('T', ' ')
+        // 处理时间显示，移除 'T'，00:00:00 只展示日期
+        const formatTime = t => {
+          if (!t) return ''
+          const s = t.replace('T', ' ')
+          return s.replace(/ 00:00:00$/, '') || s
         }
-        if (activityData.endTime) {
-          activityData.endTime = activityData.endTime.replace('T', ' ')
-        }
-        if (activityData.registrationStartTime) {
-          activityData.registrationStartTime = activityData.registrationStartTime.replace('T', ' ')
-        }
-        if (activityData.registrationEndTime) {
-          activityData.registrationEndTime = activityData.registrationEndTime.replace('T', ' ')
-        }
+        activityData.startTime = formatTime(activityData.startTime)
+        activityData.endTime = formatTime(activityData.endTime)
+        activityData.registrationStartTime = formatTime(activityData.registrationStartTime)
+        activityData.registrationEndTime = formatTime(activityData.registrationEndTime)
 
         this.setData({
           activityInfo: activityData,

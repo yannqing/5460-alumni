@@ -65,6 +65,11 @@ Page({
     dayList: [], // 日列表
     hourList: [], // 时列表
     minuteList: [], // 分列表
+    // 时间选择器弹窗
+    showTimePicker: false,
+    currentPickerType: '', // startTime | endTime | registrationStartTime | registrationEndTime
+    tempPickerValue: [],
+    timePickerTitle: '',
   },
 
   onLoad(options) {
@@ -394,6 +399,48 @@ Page({
       registrationEndTimePickerValue: r.val,
       'formData.registrationEndTime': r.isoStr,
       registrationEndTimeDisplay: r.displayStr,
+    })
+  },
+
+  // 打开时间选择器弹窗
+  openTimePicker(e) {
+    const type = e.currentTarget.dataset.type
+    const titleMap = {
+      startTime: '选择活动开始时间',
+      endTime: '选择活动结束时间',
+      registrationStartTime: '选择报名开始时间',
+      registrationEndTime: '选择报名截止时间',
+    }
+    const pickerValueKey = type + 'PickerValue'
+    this.setData({
+      showTimePicker: true,
+      currentPickerType: type,
+      timePickerTitle: titleMap[type] || '选择时间',
+      tempPickerValue: this.data[pickerValueKey] || [0, 0, 0, 0, 0],
+    })
+  },
+
+  // 关闭时间选择器弹窗
+  closeTimePicker() {
+    this.setData({ showTimePicker: false })
+  },
+
+  // 弹窗内 picker 滚动事件
+  onTempPickerChange(e) {
+    this.setData({ tempPickerValue: e.detail.value })
+  },
+
+  // 确认选择时间
+  confirmTimePicker() {
+    const { currentPickerType, tempPickerValue } = this.data
+    const r = this.buildTimeFromPickerVal(tempPickerValue)
+    const pickerValueKey = currentPickerType + 'PickerValue'
+    const displayKey = currentPickerType + 'Display'
+    this.setData({
+      showTimePicker: false,
+      [pickerValueKey]: r.val,
+      [`formData.${currentPickerType}`]: r.isoStr,
+      [displayKey]: r.displayStr,
     })
   },
 

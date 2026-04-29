@@ -70,20 +70,24 @@ Page({
   async loadMerchantList() {
     try {
       const res = await merchantApi.getMyMerchants()
-      const pageData = res?.data?.data || {}
-      const merchantList = Array.isArray(pageData.records) ? pageData.records : []
-      const showMerchantSelector = merchantList.length > 1
+      console.log('[MerchantActivityList] 商户列表响应:', JSON.stringify(res?.data))
+      const rawData = res?.data?.data
+      const merchantList = Array.isArray(rawData) ? rawData : rawData?.records || []
+      console.log('[MerchantActivityList] 解析后商户列表:', merchantList.length, merchantList)
+      const showMerchantSelector = merchantList.length > 0
 
       this.setData({ merchantList, showMerchantSelector })
 
       if (merchantList.length > 0) {
         const first = merchantList[0]
-        const merchantIdStr = String(first.merchantId)
+        const merchantIdStr = String(first.applicationId || first.merchantId || '')
         this.setData({
           selectedMerchantId: merchantIdStr,
           selectedMerchantName: first.merchantName || '',
         })
-        this.loadActivities(true)
+        if (merchantIdStr && merchantIdStr !== 'undefined') {
+          this.loadActivities(true)
+        }
       }
     } catch (e) {
       console.error('[MerchantActivityList] 加载商户列表失败:', e)
@@ -95,7 +99,7 @@ Page({
     const merchant = this.data.merchantList[idx]
     if (!merchant) return
     this.setData({
-      selectedMerchantId: String(merchant.merchantId),
+      selectedMerchantId: String(merchant.applicationId || merchant.merchantId || ''),
       selectedMerchantName: merchant.merchantName || '',
       activityList: [],
       current: 1,
@@ -120,7 +124,7 @@ Page({
 
     try {
       const params = {
-        merchantId: Number(selectedMerchantId),
+        merchantId: selectedMerchantId,
         current: page,
         pageSize,
       }
