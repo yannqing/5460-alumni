@@ -35,6 +35,7 @@ import com.cmswe.alumni.common.entity.UserFavorite;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.vo.ActivityListVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.CouponVo;
 import com.cmswe.alumni.common.vo.AlumniMerchantListVo;
@@ -50,6 +51,7 @@ import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.api.user.UserService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.entity.WxUserInfo;
+import com.cmswe.alumni.service.system.mapper.ActivityShopMapper;
 import com.cmswe.alumni.service.system.mapper.MerchantMemberMapper;
 import com.cmswe.alumni.service.system.mapper.SystemMerchantMapper;
 import jakarta.annotation.Resource;
@@ -116,6 +118,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
     @Lazy
     @Resource
     private CouponService couponService;
+
+    @Resource
+    private ActivityShopMapper activityShopMapper;
 
     private List<Long> parseAssociationIds(String associationIdStr) {
         if (StringUtils.isBlank(associationIdStr)) {
@@ -1252,6 +1257,15 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
                     .map(ShopListVo::objToVo)
                     .collect(Collectors.toList());
             merchantDetailVo.setShops(shopListVos);
+        }
+
+        // 6. 查询该商户关联的活动列表（通过 activity_shop 关联，按创建时间倒序，最多10条）
+        try {
+            List<ActivityListVo> activities = activityShopMapper.selectActivitiesByMerchantId(merchantId);
+            merchantDetailVo.setActivities(activities);
+        } catch (Exception e) {
+            log.error("加载商户 {} 的活动列表失败", merchantId, e);
+            merchantDetailVo.setActivities(List.of());
         }
 
         log.info("查询商户详情成功 - 商户ID: {}, 商户名称: {}, 门店数量: {}",

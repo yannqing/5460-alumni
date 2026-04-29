@@ -15,9 +15,17 @@
         <view class="basic-info-card">
           <!-- 右上角操作图标 -->
           <view class="card-action-icons">
-            <view class="favorite-action {{shopInfo.isFavorited ? 'is-favorited' : ''}}" bindtap="toggleFavorite">
-              <text class="favorite-action__icon">★</text>
-              <text class="favorite-action__text">{{shopInfo.isFavorited ? '已收藏' : '收藏'}}</text>
+            <view class="icon-action" bindtap="toggleFavorite">
+              <view class="icon-action__circle">
+                <text class="icon-action__icon {{shopInfo.isFavorited ? 'icon-action__icon--active' : ''}}">{{shopInfo.isFavorited ? '★' : '☆'}}</text>
+              </view>
+              <text class="icon-action__label">收藏</text>
+            </view>
+            <view class="icon-action" wx:if="{{shopInfo.phone && shopInfo.phone !== 'null' && shopInfo.phone !== 'undefined'}}" bindtap="makeCall" data-phone="{{shopInfo.phone}}">
+              <view class="icon-action__circle">
+                <text class="icon-action__icon">📞</text>
+              </view>
+              <text class="icon-action__label">电话</text>
             </view>
           </view>
           <view class="shop-header">
@@ -40,19 +48,45 @@
             </view>
           </view>
 
+          <!-- 活动走马灯 -->
+          <view class="activity-marquee" wx:if="{{shopInfo.activities && shopInfo.activities.length > 1}}">
+            <view class="activity-marquee-inner" style="transform: translateY(-{{marqueeIndex * 40}}rpx); transition: {{marqueeTransition}};">
+              <view
+                class="activity-marquee-item"
+                wx:for="{{shopInfo.activities}}"
+                wx:key="activityId"
+                bindtap="viewActivityDetail"
+                data-id="{{item.activityId}}"
+              >
+                <text class="activity-marquee-type {{item.activityType === 1 ? 'marquee-type-coupon' : 'marquee-type-topic'}}">{{item.activityType === 1 ? '惠' : '话'}}</text>
+                <text class="activity-marquee-title">{{item.activityTitle}}</text>
+              </view>
+              <!-- 无缝滚动：复制一份 -->
+              <view
+                class="activity-marquee-item"
+                wx:for="{{shopInfo.activities}}"
+                wx:key="activityId"
+                wx:for-item="dup"
+                bindtap="viewActivityDetail"
+                data-id="{{dup.activityId}}"
+              >
+                <text class="activity-marquee-type {{dup.activityType === 1 ? 'marquee-type-coupon' : 'marquee-type-topic'}}">{{dup.activityType === 1 ? '惠' : '话'}}</text>
+                <text class="activity-marquee-title">{{dup.activityTitle}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 单条活动直接显示 -->
+          <view
+            wx:if="{{shopInfo.activities && shopInfo.activities.length === 1}}"
+            class="activity-marquee-single"
+            catchtap="viewActivityDetail"
+            data-id="{{shopInfo.activities[0].activityId}}"
+          >
+            <text class="activity-marquee-type {{shopInfo.activities[0].activityType === 1 ? 'marquee-type-coupon' : 'marquee-type-topic'}}">{{shopInfo.activities[0].activityType === 1 ? '惠' : '话'}}</text>
+            <text class="activity-marquee-title">{{shopInfo.activities[0].activityTitle}}</text>
+          </view>
+
           <view class="info-section">
-            <view class="info-item" wx:if="{{shopInfo.location && shopInfo.location !== 'null' && shopInfo.location !== 'undefined'}}">
-              <view class="info-main">
-                <text class="info-label-col">地址</text>
-                <text class="info-value-col">{{shopInfo.location}}</text>
-              </view>
-            </view>
-            <view class="info-item" wx:if="{{shopInfo.phone && shopInfo.phone !== 'null' && shopInfo.phone !== 'undefined'}}" bindtap="makeCall" data-phone="{{shopInfo.phone}}">
-              <view class="info-main">
-                <text class="info-label-col">电话</text>
-                <text class="info-value-col info-value--phone">{{shopInfo.phone}}</text>
-              </view>
-            </view>
             <view class="info-item" wx:if="{{shopInfo.businessHours}}">
               <view class="info-main">
                 <text class="info-label-col">营业时间</text>

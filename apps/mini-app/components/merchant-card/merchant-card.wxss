@@ -178,7 +178,6 @@
 .activity-tag {
   width: 36rpx;
   height: 36rpx;
-  background-color: #4a90e2;
   color: #ffffff;
   font-size: 20rpx;
   display: flex;
@@ -186,6 +185,14 @@
   justify-content: center;
   border-radius: 4rpx;
   flex-shrink: 0;
+}
+
+.activity-tag.tag-coupon {
+  background-color: #FF8C00;
+}
+
+.activity-tag.tag-topic {
+  background-color: #4a90e2;
 }
 
 .activity-title {

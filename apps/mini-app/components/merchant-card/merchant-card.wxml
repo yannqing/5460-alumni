@@ -33,7 +33,7 @@
   <!-- 活动列表 -->
   <view class="activity-list" wx:if="{{activities.length > 0}}">
     <view class="activity-item" wx:for="{{activities}}" wx:key="activityId" catchtap="handleActivityTap" data-activity-id="{{item.activityId}}">
-      <view class="activity-tag">活</view>
+      <view class="activity-tag {{item.activityType === 1 ? 'tag-coupon' : 'tag-topic'}}">{{item.activityType === 1 ? '惠' : '话'}}</view>
       <text class="activity-title">{{item.activityTitle}}</text>
     </view>
   </view>

@@ -82,7 +82,8 @@ Page({
   },
 
   onActivityTypeChange(e) {
-    const activityType = Number(e.detail.value)
+    const idx = Number(e.detail.value)
+    const activityType = this.data.activityTypeOptions[idx].id
     this.setData({
       'formData.activityType': activityType,
       'formData.isSignup': activityType === 1 ? 0 : this.data.formData.isSignup,
@@ -278,7 +279,7 @@ Page({
 
     try {
       const submitData = {
-        ...(merchantId ? { merchantId: Number(merchantId) } : {}),
+        ...(merchantId ? { merchantId: merchantId } : {}),
         activityType: formData.activityType,
         shopIds: selectAllShops ? [] : selectedShopIds,
         activityTitle: formData.activityTitle.trim(),

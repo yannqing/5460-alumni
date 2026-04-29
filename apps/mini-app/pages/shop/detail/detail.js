@@ -113,12 +113,46 @@ Page({
     defaultAvatar: DEFAULT_MERCHANT_LOGO,
     iconLocation: config.getIconUrl('position.png'),
     couponCardBgUrl: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/coupon/coupon_1.png',
+    marqueeIndex: 0,
+    marqueeTransition: 'none',
   },
+
+  _marqueeTimer: null,
 
   onLoad(options) {
     const { id } = options
     this.setData({ shopId: id })
     this.loadShopDetail()
+  },
+
+  onUnload() {
+    if (this._marqueeTimer) {
+      clearTimeout(this._marqueeTimer)
+      this._marqueeTimer = null
+    }
+  },
+
+  _startMarquee() {
+    if (this._marqueeTimer) clearTimeout(this._marqueeTimer)
+    const activities = this.data.shopInfo?.activities
+    if (!activities || activities.length <= 1) return
+
+    const tick = () => {
+      const { marqueeIndex } = this.data
+      const nextIndex = marqueeIndex + 1
+      this.setData({ marqueeTransition: 'transform 0.3s ease', marqueeIndex: nextIndex })
+
+      if (nextIndex >= activities.length) {
+        this._marqueeTimer = setTimeout(() => {
+          this.setData({ marqueeTransition: 'none', marqueeIndex: 0 })
+          this._marqueeTimer = setTimeout(tick, 3000)
+        }, 350)
+      } else {
+        this._marqueeTimer = setTimeout(tick, 3000)
+      }
+    }
+
+    this._marqueeTimer = setTimeout(tick, 3000)
   },
 
   async loadShopDetail() {
@@ -202,6 +236,11 @@ Page({
           coupons: [], // 新接口未提供优惠券信息
           recentAlumni: [], // 新接口未提供校友足迹
           dynamics: [], // 新接口未提供店铺动态
+          activities: (merchantData.activities || []).slice(0, 10).map(a => ({
+            activityId: String(a.activityId || ''),
+            activityTitle: a.activityTitle || '',
+            activityType: a.activityType || 0,
+          })),
           // 新增商家信息
           merchantInfo: {
             contactPhone: merchantData.contactPhone,
@@ -226,6 +265,7 @@ Page({
           loading: false,
         })
         this.loadRecommendedCoupons()
+        this._startMarquee()
       } else {
         console.error('[ShopDetail] 接口返回错误:', res.data?.code, res.data?.msg)
         this.setData({ loading: false })
@@ -420,13 +460,21 @@ Page({
     })
   },
 
+  // 查看活动详情（走马灯点击）
+  viewActivityDetail(e) {
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/activity/detail/detail?id=${id}`,
+    })
+  },
+
   // 查看动态详情
   viewDynamicDetail(e) {
     const { id } = e.currentTarget.dataset
     if (!id) {
       return
     }
-    // 跳转到动态详情页（可以复用活动详情页或创建新的动态详情页）
     wx.navigateTo({
       url: `/pages/activity/detail/detail?id=${id}`,
     })

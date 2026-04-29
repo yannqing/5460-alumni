@@ -120,7 +120,7 @@ Page({
 
     try {
       const params = {
-        merchantId: Number(selectedMerchantId),
+        merchantId: selectedMerchantId,
         current: page,
         pageSize,
       }

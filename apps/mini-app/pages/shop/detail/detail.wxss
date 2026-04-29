@@ -44,63 +44,56 @@
 /* 卡片右上角操作图标 */
 .card-action-icons {
   position: absolute;
-  top: 0;
+  top: 30rpx;
   right: 0;
   display: flex;
-  align-items: center;
-  gap: 20rpx;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16rpx;
   z-index: 10;
 }
 
-.favorite-action {
-  min-width: 128rpx;
-  height: 56rpx;
-  padding: 0 18rpx;
+.icon-action {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8rpx;
-  box-sizing: border-box;
-  background-color: #fff;
-  border: 1rpx solid #e8e8e8;
-  border-radius: 28rpx;
-  box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.06);
+  gap: 6rpx;
+  margin-right: 8rpx;
 }
 
-.favorite-action:active {
+.icon-action:active {
   opacity: 0.78;
 }
 
-.favorite-action.is-favorited {
-  background-color: #fff8e1;
-  border-color: #ffd666;
+.icon-action__circle {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.favorite-action__icon {
-  font-size: 30rpx;
+.icon-action__icon {
+  font-size: 22rpx;
   line-height: 1;
   color: #c8c8c8;
 }
 
-.favorite-action.is-favorited .favorite-action__icon {
+.icon-action__icon--active {
   color: #FFD54F;
 }
 
-.favorite-action__text {
-  font-size: 24rpx;
+.icon-action__label {
+  font-size: 18rpx;
+  color: #999;
   line-height: 1;
-  color: #666;
-  white-space: nowrap;
-}
-
-.favorite-action.is-favorited .favorite-action__text {
-  color: #b7791f;
-  font-weight: 500;
 }
 
 .shop-header {
   margin-bottom: 28rpx;
-  padding-right: 164rpx;
+  padding-right: 180rpx;
 }
 
 .shop-avatar-row {
@@ -225,6 +218,65 @@
 .info-section .info-value--phone {
   color: #40b2e6;
 }
+
+/* 活动走马灯 */
+.activity-marquee {
+  height: 40rpx;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 12rpx;
+}
+
+.activity-marquee-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  height: 40rpx;
+  flex-shrink: 0;
+  padding-left: 16rpx;
+}
+
+.activity-marquee-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 6rpx;
+  font-size: 20rpx;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.marquee-type-coupon {
+  background-color: #FF8C00;
+}
+
+.marquee-type-topic {
+  background-color: #4a90e2;
+}
+
+.activity-marquee-title {
+  font-size: 28rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-marquee-single {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  height: 40rpx;
+  padding-left: 16rpx;
+}
+
 
 .info-label {
   font-size: 24rpx;
