@@ -749,109 +749,117 @@
   border-radius: 0 0 20rpx 20rpx;
 }
 
-/* 商铺卡片 */
-.shop-card {
+/* 校友商户卡片（样式参考 pages/merchant/alumni-list/list） */
+.alumni-merchant-card {
   position: relative;
   display: flex;
   gap: 20rpx;
-  padding: 16rpx;
-  background: transparent;
+  padding: 20rpx;
+  background: #ffffff;
   border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
-.shop-card:active {
+.alumni-merchant-card:active {
   background: rgba(0, 0, 0, 0.03);
   transform: scale(0.99);
 }
 
-/* 商铺封面 */
-.shop-cover-wrapper {
+/* 商铺 logo */
+.alumni-merchant-cover-wrapper {
   position: relative;
-  width: 160rpx;
-  height: 160rpx;
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 12rpx;
   overflow: hidden;
   flex-shrink: 0;
 }
 
-.shop-cover {
+.alumni-merchant-cover {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-}
-
-/* 商铺类型标签 */
-.shop-type-tag {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  background-color: rgba(24, 144, 255, 0.9);
-  border-radius: 0 8rpx 0 12rpx;
-  padding: 4rpx 12rpx;
-}
-
-.shop-type-tag .type-text {
-  font-size: 18rpx;
-  color: #fff;
-  font-weight: 500;
+  background: #f5f5f5;
 }
 
 /* 商铺信息 */
-.shop-info {
+.alumni-merchant-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10rpx;
+  justify-content: space-between;
   overflow: hidden;
-  padding-top: 4rpx;
+  min-width: 0;
+  padding: 8rpx 0;
+  transform: translateY(3rpx);
 }
 
-.shop-name {
-  font-size: 30rpx;
+.alumni-merchant-title {
+  font-size: 28rpx;
   font-weight: 600;
-  color: #131315;
+  color: #333;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.shop-desc {
-  display: flex;
-  align-items: center;
-}
-
-.desc-text {
-  font-size: 24rpx;
-  color: #666;
-  display: -webkit-box;
   -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.5;
+  text-overflow: ellipsis;
+  padding-right: 56rpx;
 }
 
-.shop-address {
+.alumni-merchant-coupon-row {
   display: flex;
   align-items: center;
   gap: 8rpx;
+  margin-top: 12rpx;
 }
 
-/* 优惠标签 */
-.shop-discount-tag {
-  position: absolute;
-  right: 16rpx;
-  bottom: 16rpx;
-  background: linear-gradient(135deg, #ff6b4a 0%, #ff9068 100%);
-  border-radius: 16rpx;
-  padding: 6rpx 16rpx;
+.alumni-merchant-coupon-name {
+  font-size: 22rpx;
+  color: #666;
+  max-width: 350rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.discount-text {
-  font-size: 20rpx;
-  font-weight: 500;
+.alumni-merchant-coupon-type {
+  flex-shrink: 0;
+  font-size: 18rpx;
   color: #fff;
+  background: #6F8BE6;
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+}
+
+.alumni-merchant-association-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
+
+.alumni-merchant-association-avatar {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.alumni-merchant-association-name {
+  font-size: 22rpx;
+  color: #666;
+  max-width: 350rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alumni-merchant-time {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 12rpx;
 }
 
 .loading-dot.shop {

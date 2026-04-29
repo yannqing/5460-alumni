@@ -112,6 +112,14 @@ public interface CouponService {
     java.util.List<CouponVo> listRecommendedMerchantCoupons(Long merchantId, Long wxId);
 
     /**
+     * 查询商户最新一张已发布优惠券（包含过期/已结束）
+     *
+     * @param merchantId 商户ID
+     * @return 优惠券信息，无数据返回 null
+     */
+    CouponVo getLatestPublishedCouponForMerchant(Long merchantId);
+
+    /**
      * 更新优惠券（仅未发布的优惠券可以编辑）
      *
      * @param updateDto 更新请求

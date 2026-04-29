@@ -166,6 +166,7 @@
       "pages": [
         "apply/apply",
         "list/list",
+        "alumni-list/list",
         "detail/detail",
         "my-merchant/my-merchant",
         "join-association/join-association",

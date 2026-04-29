@@ -37,6 +37,7 @@ import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.CouponVo;
+import com.cmswe.alumni.common.vo.AlumniMerchantListVo;
 import com.cmswe.alumni.common.vo.MerchantDetailVo;
 import com.cmswe.alumni.common.vo.MerchantListVo;
 import com.cmswe.alumni.common.vo.MerchantApprovalVo;
@@ -289,6 +290,74 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         // 7.转换结果并返回
         Page<MerchantListVo> resultPage = new Page<MerchantListVo>(current, pageSize, merchantPage.getTotal())
                 .setRecords(list);
+        return PageVo.of(resultPage);
+    }
+
+    @Override
+    public PageVo<AlumniMerchantListVo> selectAlumniMerchantByPage(QueryAlumniMerchantListDto queryDto) {
+        Optional.ofNullable(queryDto)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
+
+        int current = queryDto.getCurrent() < 1 ? 1 : queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize() < 1 ? 10 : queryDto.getPageSize();
+        String merchantName = queryDto.getMerchantName();
+        Long alumniAssociationId = queryDto.getAlumniAssociationId();
+
+        LambdaQueryWrapper<Merchant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(Merchant::getStatus, 1)
+                .eq(Merchant::getReviewStatus, 1)
+                .eq(Merchant::getMerchantType, 1)
+                .like(StringUtils.isNotBlank(merchantName), Merchant::getMerchantName, merchantName)
+                .orderByDesc(Merchant::getCreateTime);
+
+        if (alumniAssociationId != null) {
+            queryWrapper.apply("(alumni_association_id = CAST({0} AS CHAR) OR JSON_CONTAINS(alumni_association_id, CAST({0} AS CHAR)))", alumniAssociationId);
+        }
+
+        Page<Merchant> merchantPage = this.page(new Page<>(current, pageSize), queryWrapper);
+
+        List<AlumniMerchantListVo> records = merchantPage.getRecords().stream().map(merchant -> {
+            AlumniMerchantListVo vo = new AlumniMerchantListVo();
+            vo.setMerchantId(String.valueOf(merchant.getMerchantId()));
+            vo.setMerchantName(merchant.getMerchantName());
+            vo.setLogo(merchant.getLogo());
+
+            // 地址：按需求固定返回商户表 city 字段
+            vo.setAddress(merchant.getCity());
+
+            // 校友会信息：按第一个关联校友会返回（包含 id + name）
+            List<Long> associationIds = parseAssociationIds(merchant.getAlumniAssociationId());
+            if (!associationIds.isEmpty()) {
+                AlumniAssociation association = alumniAssociationService.getById(associationIds.get(0));
+                if (association != null) {
+                    AlumniMerchantListVo.AlumniAssociationSimpleVo associationVo =
+                            new AlumniMerchantListVo.AlumniAssociationSimpleVo();
+                    associationVo.setAlumniAssociationId(association.getAlumniAssociationId());
+                    associationVo.setAssociationName(association.getAssociationName());
+                    vo.setAlumniAssociation(associationVo);
+                }
+            }
+
+            // 最新发布优惠券：即使已过期/已结束也会展示；若无则不返回
+            CouponVo latestCoupon = couponService.getLatestPublishedCouponForMerchant(merchant.getMerchantId());
+            if (latestCoupon != null) {
+                AlumniMerchantListVo.LatestCouponVo couponVo = new AlumniMerchantListVo.LatestCouponVo();
+                couponVo.setCouponId(latestCoupon.getCouponId());
+                couponVo.setCouponName(latestCoupon.getCouponName());
+                couponVo.setCouponType(latestCoupon.getCouponType());
+                couponVo.setCouponDesc(latestCoupon.getCouponDesc());
+                couponVo.setCouponImage(latestCoupon.getCouponImage());
+                couponVo.setValidStartTime(latestCoupon.getValidStartTime());
+                couponVo.setValidEndTime(latestCoupon.getValidEndTime());
+                couponVo.setStatus(latestCoupon.getStatus());
+                vo.setLatestCoupon(couponVo);
+            }
+            return vo;
+        }).collect(Collectors.toList());
+
+        Page<AlumniMerchantListVo> resultPage = new Page<AlumniMerchantListVo>(current, pageSize, merchantPage.getTotal())
+                .setRecords(records);
         return PageVo.of(resultPage);
     }
 

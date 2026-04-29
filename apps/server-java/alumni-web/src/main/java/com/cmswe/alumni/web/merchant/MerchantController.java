@@ -7,6 +7,7 @@ import com.cmswe.alumni.common.dto.ApplyMerchantDto;
 import com.cmswe.alumni.common.dto.QueryMerchantListDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantApplicationDto;
+import com.cmswe.alumni.common.dto.QueryAlumniMerchantListDto;
 import com.cmswe.alumni.common.dto.AddMerchantMemberDto;
 import com.cmswe.alumni.common.dto.UpdateMerchantMemberRoleDto;
 import com.cmswe.alumni.common.dto.DeleteMerchantMemberDto;
@@ -21,6 +22,7 @@ import com.cmswe.alumni.common.vo.PageVo;
 import com.cmswe.alumni.common.vo.ShopDetailVo;
 import com.cmswe.alumni.common.vo.MerchantMemberVo;
 import com.cmswe.alumni.common.vo.MerchantInfoVo;
+import com.cmswe.alumni.common.vo.AlumniMerchantListVo;
 
 import java.util.List;
 import com.cmswe.alumni.service.user.mapper.WxUserMapper;
@@ -90,6 +92,18 @@ public class MerchantController {
                 ? securityUser.getWxUser().getWxId()
                 : null;
         PageVo<MerchantListVo> pageVo = merchantService.selectByPage(queryMerchantListDto, wxId);
+        return ResultUtils.success(Code.SUCCESS, pageVo, "分页查询成功");
+    }
+
+    /**
+     * 分页查询校友商户列表（仅校友商户）
+     */
+    @PostMapping("/alumni/page")
+    @Operation(summary = "分页查询校友商户列表")
+    public BaseResponse<PageVo<AlumniMerchantListVo>> selectAlumniMerchantPage(
+            @RequestBody QueryAlumniMerchantListDto queryDto) {
+        log.info("分页查询校友商户列表，查询条件：{}", queryDto);
+        PageVo<AlumniMerchantListVo> pageVo = merchantService.selectAlumniMerchantByPage(queryDto);
         return ResultUtils.success(Code.SUCCESS, pageVo, "分页查询成功");
     }
 

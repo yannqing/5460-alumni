@@ -1,5 +1,6 @@
 // pages/audit/merchant/coupon/coupon.js
-const { merchantApi, couponApi } = require('../../../../api/api.js')
+const { couponApi } = require('../../../../api/api.js')
+const { get } = require('../../../../utils/request.js')
 
 const COUPON_TYPE_LABEL = { 1: '折扣券', 2: '满减券', 3: '礼品券' }
 const STATUS_LABEL = { 0: '未发布', 1: '已发布', 2: '已结束', 3: '已下架' }
@@ -66,7 +67,7 @@ Page({
     let merchantIdForList = ''
     try {
       this.setData({ merchantLoading: true })
-      const res = await merchantApi.getMyMerchants({
+      const res = await get('/merchant-management/my-merchants', {
         current: 1,
         size: 100,
       })

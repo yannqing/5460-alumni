@@ -756,6 +756,27 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         }).toList();
     }
 
+    @Override
+    public CouponVo getLatestPublishedCouponForMerchant(Long merchantId) {
+        Optional.ofNullable(merchantId)
+                .orElseThrow(() -> new BusinessException("商户ID不能为空"));
+
+        // 优先取“已发布体系”内最新一张，包含已结束/已下架
+        Coupon coupon = this.getOne(new LambdaQueryWrapper<Coupon>()
+                .eq(Coupon::getMerchantId, merchantId)
+                .in(Coupon::getStatus, Arrays.asList(1, 2, 3))
+                .orderByDesc(Coupon::getCreateTime)
+                .last("LIMIT 1"));
+        if (coupon == null) {
+            // 兜底：如果没有已发布体系数据，返回该商户最新一张
+            coupon = this.getOne(new LambdaQueryWrapper<Coupon>()
+                    .eq(Coupon::getMerchantId, merchantId)
+                    .orderByDesc(Coupon::getCreateTime)
+                    .last("LIMIT 1"));
+        }
+        return CouponVo.objToVo(coupon);
+    }
+
     private LambdaQueryWrapper<Coupon> buildPublicMerchantCouponQuery(Long merchantId, Long shopId) {
         LocalDateTime now = LocalDateTime.now();
         return new LambdaQueryWrapper<Coupon>()
