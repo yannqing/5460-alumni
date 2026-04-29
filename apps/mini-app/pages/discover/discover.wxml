@@ -15,7 +15,7 @@
         <text class="search-icon">🔍</text>
         <input
           class="search-input"
-          placeholder="搜索附近优惠、场所、校友、活动"
+          placeholder="搜索附近优惠、活动"
           value="{{searchValue}}"
           confirm-type="search"
           bindinput="handleSearchInput"
@@ -31,14 +31,16 @@
     <!-- 导航标签 -->
     <view class="nav-tabs">
       <view
-        class="nav-tab {{selectedTab === item.id ? 'active' : ''}}"
+        class="nav-tab {{selectedTab === item.id ? 'active' : ''}} {{item.disabled ? 'disabled' : ''}}"
         wx:for="{{navTabs}}"
         wx:key="id"
         data-id="{{item.id}}"
+        data-disabled="{{item.disabled}}"
         bindtap="handleTabChange"
       >
         <image class="tab-icon-img" src="{{item.icon}}" mode="aspectFit"></image>
         <text class="tab-text">{{item.label}}</text>
+        <view wx:if="{{item.disabled}}" class="construction-tag">开发中</view>
       </view>
     </view>
 
@@ -46,17 +48,6 @@
 
   <!-- 视图切换和排序 -->
   <view class="view-sort-container">
-    <view class="sort-options">
-      <view
-        class="sort-item {{sortType === item.id ? 'active' : ''}}"
-        wx:for="{{sortOptions}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="handleSortChange"
-      >
-        {{item.label}}
-      </view>
-    </view>
     <view class="view-toggle">
       <view
         class="toggle-item {{viewMode === 'map' ? 'active' : ''}}"
@@ -91,6 +82,23 @@
   >
     <!-- 附近优惠列表 -->
     <view class="content-list" wx:if="{{selectedTab === 'coupon'}}">
+      <!-- 骨架加载 -->
+      <view wx:if="{{loading && couponList.length === 0}}" class="skeleton-list">
+        <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+          <view class="skeleton-card-header">
+            <view class="skeleton-avatar"></view>
+            <view class="skeleton-card-info">
+              <view class="skeleton-title"></view>
+              <view class="skeleton-subtitle"></view>
+            </view>
+          </view>
+          <view class="skeleton-coupon-row">
+            <view class="skeleton-coupon-tag"></view>
+            <view class="skeleton-coupon-tag short"></view>
+          </view>
+        </view>
+      </view>
+
       <view class="empty-tip" wx:if="{{couponList.length === 0 && !loading}}">暂无附近优惠</view>
 
       <view class="merchant-list-container" wx:if="{{couponList.length > 0}}">
@@ -175,6 +183,22 @@
 
     <!-- 附近活动列表 -->
     <view class="content-list" wx:if="{{selectedTab === 'activity'}}">
+      <!-- 骨架加载 -->
+      <view wx:if="{{loading && activityList.length === 0}}" class="skeleton-list">
+        <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+          <view class="skeleton-card-header">
+            <view class="skeleton-avatar"></view>
+            <view class="skeleton-card-info">
+              <view class="skeleton-title"></view>
+              <view class="skeleton-subtitle"></view>
+            </view>
+          </view>
+          <view class="skeleton-coupon-row">
+            <view class="skeleton-coupon-tag"></view>
+          </view>
+        </view>
+      </view>
+
       <view class="empty-tip" wx:if="{{activityList.length === 0 && !loading}}">暂无附近活动</view>
 
       <view class="merchant-list-container" wx:if="{{activityList.length > 0}}">

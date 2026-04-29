@@ -182,12 +182,16 @@
             m.rating_score AS ratingScore,
             m.rating_count AS ratingCount,
             MIN(distance_info.distance) AS distance,
-            COUNT(DISTINCT distance_info.shop_id) AS shopCount
+            COUNT(DISTINCT distance_info.shop_id) AS shopCount,
+            SUBSTRING_INDEX(GROUP_CONCAT(distance_info.latitude ORDER BY distance_info.distance), ',', 1) AS latitude,
+            SUBSTRING_INDEX(GROUP_CONCAT(distance_info.longitude ORDER BY distance_info.distance), ',', 1) AS longitude
         FROM merchant m
         INNER JOIN (
             SELECT
                 s.shop_id,
                 s.merchant_id,
+                s.latitude,
+                s.longitude,
                 (6371 * ACOS(
                     COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
                     COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +

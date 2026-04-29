@@ -20,8 +20,8 @@ Page({
     mapMarkers: [],
     navTabs: [
       { id: 'coupon', label: '附近优惠', icon: config.getIconUrl('fjyh@3x.png') },
-      { id: 'venue', label: '附近场所', icon: config.getIconUrl('fjcs@3x.png') },
       { id: 'activity', label: '附近活动', icon: config.getIconUrl('fjhd@3x.png') },
+      { id: 'venue', label: '附近场所', icon: config.getIconUrl('fjcs@3x.png'), disabled: true },
     ],
     sortOptions: [
       { id: 'distance', label: '距离最近' },
@@ -197,9 +197,9 @@ Page({
         pageSize: this.data.pageSize,
       }
 
-      // 如果有搜索关键词，添加到请求参数
+      // 如果有搜索关键词，添加到请求参数（后端字段为 name）
       if (keyword && keyword.trim()) {
-        requestData.keyword = keyword.trim()
+        requestData.name = keyword.trim()
       }
 
       // 移除调试日志，提升性能
@@ -334,6 +334,9 @@ Page({
               isAlumniCertified: merchant.isAlumniCertified || 0,
               distance: distanceText,
               coupons: coupons,
+              latitude: merchant.latitude,
+              longitude: merchant.longitude,
+              name: merchant.merchantName || merchant.name || '',
             }
           })
 
@@ -681,9 +684,15 @@ Page({
 
   handleSearchConfirm() {
     const { searchValue, selectedTab } = this.data
-    // 保存搜索关键词，直接在当前页面加载搜索结果
+    // 保存搜索关键词，清除当前列表，显示骨架加载
     this.setData({
       searchKeyword: searchValue.trim(),
+      loading: true,
+      currentPage: 1,
+      hasMore: true,
+      couponList: [],
+      activityList: [],
+      venueList: [],
     })
 
     // 使用当前选中的tab进行搜索，直接加载数据
@@ -696,12 +705,13 @@ Page({
     const queryType = tabToQueryType[selectedTab]
 
     if (queryType) {
-      // 直接在当前页面加载搜索结果，传递 queryType 和 keyword
       this.loadNearbyData(queryType, true, searchValue.trim())
     }
   },
 
   handleTabChange(e) {
+    // 禁用的tab不可点击
+    if (e.currentTarget.dataset.disabled) return
     const tabId = e.currentTarget.dataset.id
     // 切换tab时清除搜索关键词，重新加载数据
     this.setData({
