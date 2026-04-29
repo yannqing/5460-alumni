@@ -816,10 +816,8 @@
 .alumni-merchant-coupon-name {
   font-size: 22rpx;
   color: #666;
-  max-width: 350rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .alumni-merchant-coupon-type {

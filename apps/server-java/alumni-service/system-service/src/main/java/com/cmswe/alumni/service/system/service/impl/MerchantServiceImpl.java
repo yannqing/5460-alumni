@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.Merchant;
 import com.cmswe.alumni.common.entity.MerchantApplication;
@@ -129,7 +130,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         String trimmed = associationIdStr.trim();
         if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
             try {
-                return JSON.parseArray(trimmed, Long.class);
+                List<Long> ids = JSON.parseArray(trimmed, Long.class);
+                ids.removeIf(id -> id == null || id <= 0);
+                return new ArrayList<>(new LinkedHashSet<>(ids));
             } catch (Exception e) {
                 log.error("解析校友会ID数组失败: {}", trimmed, e);
             }
@@ -137,6 +140,9 @@ public class MerchantServiceImpl extends ServiceImpl<SystemMerchantMapper, Merch
         // 尝试作为单个 ID 处理
         try {
             Long id = Long.parseLong(trimmed);
+            if (id <= 0) {
+                return new ArrayList<>();
+            }
             return new ArrayList<>(Collections.singletonList(id));
         } catch (NumberFormatException e) {
             log.warn("校友会ID字段格式非数字且非数组: {}", trimmed);
