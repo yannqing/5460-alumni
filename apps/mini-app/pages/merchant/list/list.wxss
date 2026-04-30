@@ -61,18 +61,24 @@ page {
   position: sticky;
   top: 180rpx;
   z-index: 15;
-  background: #F5F5F5;
+  background: #3F61CA;
   border-bottom: none;
   bottom: 0;
 }
 
+.sticky-header-container {
+  background: #3F61CA;
+  width: 100%;
+  z-index: 100;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+}
+
 /* 搜索栏 */
 .search-bar {
-  padding: 20rpx 26rpx;
+  padding: 10rpx 26rpx 20rpx;
   box-shadow: none;
   border-bottom: none !important;
-  margin-bottom: 30rpx;
-  background: #3F61CA;
+  margin-bottom: 0;
 }
 
 .search-input-wrap {
@@ -132,14 +138,14 @@ page {
 }
 
 /* 筛选栏 */
-.filter-bar {
+.filter-section {
   display: flex;
   align-items: center;
   padding: 0 30rpx 20rpx;
-  margin-bottom: 0;
   background: #F5F5F5;
-  border-bottom: none !important;
-  border-top: none !important;
+  border-top-left-radius: 30rpx;
+  border-top-right-radius: 30rpx;
+  overflow: hidden;
   position: relative;
   z-index: 1;
   min-height: 85rpx;
@@ -212,13 +218,13 @@ picker::before {
 }
 
 /* 确保整个筛选区域没有意外的边框或下划线 */
-.filter-bar::after {
+.filter-section::after {
   display: none !important;
   content: none !important;
   border-bottom: none !important;
 }
 
-.filter-bar::before {
+.filter-section::before {
   display: none !important;
   content: none !important;
   border-bottom: none !important;
@@ -244,10 +250,10 @@ view, text, picker, input, button, image, navigator {
 }
 
 /* 特别针对筛选区域的元素 */
-.filter-bar view,
-.filter-bar text,
-.filter-bar picker,
-.filter-bar input {
+.filter-section view,
+.filter-section text,
+.filter-section picker,
+.filter-section input {
   border-bottom: none !important;
   outline: none !important;
 }

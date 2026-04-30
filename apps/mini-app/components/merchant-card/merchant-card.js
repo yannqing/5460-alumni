@@ -7,6 +7,10 @@ Component({
       type: Object,
       value: {},
     },
+    isLast: {
+      type: Boolean,
+      value: false,
+    },
     iconCategory: {
       type: String,
       value: config.getIconUrl('xx.png'),

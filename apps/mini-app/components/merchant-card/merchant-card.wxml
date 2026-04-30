@@ -1,5 +1,5 @@
 <!--components/merchant-card/merchant-card.wxml-->
-<view class="merchant-card" bindtap="handleTap">
+<view class="merchant-card {{isLast ? 'is-last' : ''}}" bindtap="handleTap">
   <view class="card-header">
     <image class="card-logo" src="{{logoUrl}}" mode="aspectFill" />
     <view class="card-info">

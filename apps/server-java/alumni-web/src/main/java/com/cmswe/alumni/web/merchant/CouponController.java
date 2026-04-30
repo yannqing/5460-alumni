@@ -136,11 +136,15 @@ public class CouponController {
         @Operation(summary = "分页查询商户公开优惠券列表")
         public BaseResponse<PageVo<CouponVo>> pageMerchantCoupons(
                         @PathVariable Long merchantId,
+                        @AuthenticationPrincipal SecurityUser securityUser,
                         QueryMerchantCouponDto queryDto) {
                 queryDto.setMerchantId(merchantId);
+                Long wxId = (securityUser != null && securityUser.getWxUser() != null)
+                                ? securityUser.getWxUser().getWxId()
+                                : null;
                 log.info("分页查询商户公开优惠券列表 - 商户ID: {}, 当前页: {}, 每页大小: {}",
                                 merchantId, queryDto.getCurrent(), queryDto.getPageSize());
-                PageVo<CouponVo> pageVo = couponService.queryPublicMerchantCoupons(queryDto);
+                PageVo<CouponVo> pageVo = couponService.queryPublicMerchantCoupons(queryDto, wxId);
                 return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
         }
 

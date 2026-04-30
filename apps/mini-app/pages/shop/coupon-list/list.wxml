@@ -25,6 +25,7 @@
           couponBgUrl="{{couponCardBgUrl}}"
           showAction="{{true}}"
           bind:cardtap="viewCouponDetail"
+          bind:action="handleClaimCoupon"
         />
 
         <view class="loading-state" wx:if="{{loading && coupons.length > 0}}">加载中...</view>
