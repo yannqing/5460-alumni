@@ -982,9 +982,10 @@
 }
 
 .merchant-picker .picker-list {
-  max-height: calc(80vh - 88rpx + 40px);
-  overflow-y: auto;
+  height: 60vh;
+  max-height: 60vh;
   padding: 16rpx 0;
+  box-sizing: border-box;
 }
 
 .merchant-picker .shop-picker-row {

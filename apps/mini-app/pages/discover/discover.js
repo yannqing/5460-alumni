@@ -153,6 +153,24 @@ Page({
   // 统一的附近数据加载方法
   // queryType: 1-商铺, 2-企业/场所, 3-校友
   async loadNearbyData(queryType, reset = true, keyword = '') {
+    const formatDistance = distance => {
+      if (distance === undefined || distance === null || distance === '') {
+        return ''
+      }
+      const numericDistance = Number(distance)
+      if (!Number.isFinite(numericDistance)) {
+        return ''
+      }
+      if (numericDistance < 1) {
+        return Math.round(numericDistance * 1000) + 'm'
+      }
+      const kmValue = numericDistance.toFixed(1)
+      if (kmValue.endsWith('.0')) {
+        return Math.round(numericDistance) + 'km'
+      }
+      return kmValue + 'km'
+    }
+
     try {
       // 如果正在加载且不是重置，则不执行
       if (this.data.loading && !reset) {
@@ -292,19 +310,7 @@ Page({
             const logoUrl = merchantLogo ? config.getImageUrl(merchantLogo) : config.defaultAvatar
 
             // 处理距离
-            let distanceText = ''
-            if (merchant.distance !== undefined && merchant.distance !== null) {
-              if (merchant.distance < 1) {
-                distanceText = Math.round(merchant.distance * 1000) + 'm'
-              } else {
-                const kmValue = merchant.distance.toFixed(1)
-                if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(merchant.distance) + 'km'
-                } else {
-                  distanceText = kmValue + 'km'
-                }
-              }
-            }
+            const distanceText = formatDistance(merchant.distance)
 
             // 处理优惠券 - 使用 merchant-card 兼容的格式
             let coupons = []
@@ -324,6 +330,7 @@ Page({
             }
 
             return {
+              id: merchant.merchantId || merchant.id,
               merchantId: merchant.merchantId || merchant.id,
               merchantName: merchant.merchantName || merchant.name || '',
               merchantType: merchant.merchantType || 0,
@@ -334,8 +341,8 @@ Page({
               isAlumniCertified: merchant.isAlumniCertified || 0,
               distance: distanceText,
               coupons: coupons,
-              latitude: merchant.latitude,
-              longitude: merchant.longitude,
+              latitude: merchant.latitude || merchant.shopLatitude || merchant.lat,
+              longitude: merchant.longitude || merchant.shopLongitude || merchant.lng,
               name: merchant.merchantName || merchant.name || '',
             }
           })
@@ -387,19 +394,7 @@ Page({
             }
 
             // 处理距离
-            let distanceText = '0m'
-            if (venue.distance !== undefined && venue.distance !== null) {
-              if (venue.distance < 1) {
-                distanceText = Math.round(venue.distance * 1000) + 'm'
-              } else {
-                const kmValue = venue.distance.toFixed(1)
-                if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(venue.distance) + 'km'
-                } else {
-                  distanceText = kmValue + 'km'
-                }
-              }
-            }
+            const distanceText = formatDistance(venue.distance) || '0m'
 
             // 处理场所类型标签
             let typeLabel = ''
@@ -486,19 +481,7 @@ Page({
             }
 
             // 处理距离
-            let distanceText = '0m'
-            if (alumni.distance !== undefined && alumni.distance !== null) {
-              if (alumni.distance < 1) {
-                distanceText = Math.round(alumni.distance * 1000) + 'm'
-              } else {
-                const kmValue = alumni.distance.toFixed(1)
-                if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(alumni.distance) + 'km'
-                } else {
-                  distanceText = kmValue + 'km'
-                }
-              }
-            }
+            const distanceText = formatDistance(alumni.distance) || '0m'
 
             // 处理姓名：优先使用 name，如果没有则使用 nickname
             const displayName = alumni.name || alumni.realName || alumni.nickname || ''
@@ -547,19 +530,7 @@ Page({
             const logoUrl = merchantLogo ? config.getImageUrl(merchantLogo) : config.defaultAvatar
 
             // 处理距离
-            let distanceText = ''
-            if (merchant.distance !== undefined && merchant.distance !== null) {
-              if (merchant.distance < 1) {
-                distanceText = Math.round(merchant.distance * 1000) + 'm'
-              } else {
-                const kmValue = merchant.distance.toFixed(1)
-                if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(merchant.distance) + 'km'
-                } else {
-                  distanceText = kmValue + 'km'
-                }
-              }
-            }
+            const distanceText = formatDistance(merchant.distance)
 
             // 处理活动列表
             let activities = []
@@ -576,6 +547,7 @@ Page({
             }
 
             return {
+              id: merchant.merchantId || merchant.id,
               merchantId: merchant.merchantId || merchant.id,
               merchantName: merchant.merchantName || merchant.name || '',
               merchantType: merchant.merchantType || 0,
@@ -586,6 +558,8 @@ Page({
               isAlumniCertified: merchant.isAlumniCertified || 0,
               distance: distanceText,
               activities: activities,
+              latitude: merchant.latitude || merchant.shopLatitude || merchant.lat,
+              longitude: merchant.longitude || merchant.shopLongitude || merchant.lng,
             }
           })
 
@@ -1044,9 +1018,10 @@ Page({
       const normalizedLogo = normalizeImagePath(item.logo)
 
       if (listType === 'coupon') {
+        // 附近优惠：有商户 logo 用商户 logo；没有则用默认头像图标
         targetIconPath = normalizedLogo
           ? config.getImageUrl(normalizedLogo)
-          : config.defaultAvatar || markerFallbackIcon
+          : '/assets/avatar/avatar_round.png'
       } else if (normalizedLogo) {
         targetIconPath = config.getImageUrl(normalizedLogo)
       } else if (imagePath && imagePath !== defaultAvatarPath) {
@@ -1071,16 +1046,23 @@ Page({
       }
 
       let iconPath = targetIconPath
-      const isCouponDefaultIcon = listType === 'coupon' && !normalizedLogo
 
-      if (isCouponDefaultIcon) {
-        iconPath = defaultAvatarRoundIcon
+      // 附近优惠：直接使用后端返回 logo 或默认图标
+      if (listType === 'coupon') {
+        iconPath = targetIconPath
       } else {
         try {
           iconPath = await this.createRoundAvatar(targetIconPath, 50)
         } catch (error) {
           console.warn(`[Discover] 为 ${item.name || '标记'} 创建圆形标记失败:`, error)
-          iconPath = targetIconPath
+          // 地图 marker 优先使用本地资源兜底，避免远程路径在 map 组件中不显示
+          if (listType === 'coupon') {
+            iconPath = markerFallbackIcon
+          } else if (listType === 'venue') {
+            iconPath = markerFallbackIcon
+          } else {
+            iconPath = defaultAvatarRoundIcon
+          }
         }
       }
 
@@ -1096,7 +1078,7 @@ Page({
 
       return {
         id: markerId++,
-        sourceId: item.id,
+        sourceId: item.id || item.merchantId,
         sourceType: listType,
         latitude: latitude,
         longitude: longitude,
@@ -1119,49 +1101,41 @@ Page({
     // 附近优惠标记（只标记带有优惠券的店铺）
     if (this.data.selectedTab === 'coupon' && this.data.couponList.length > 0) {
       const validShops = this.data.couponList.filter(
-        item =>
-          item.latitude &&
-          item.longitude &&
-          item.coupons &&
-          Array.isArray(item.coupons) &&
-          item.coupons.length > 0
+        item => item.latitude && item.longitude
       )
 
-      // 使用 Promise.all 并行处理所有标记，显著提升速度
-      const markerPromises = validShops.map(item => createMarker(item, 'coupon'))
-      const results = await Promise.all(markerPromises)
-      results.forEach(marker => {
+      // 使用单 canvas 生成头像时，串行处理可避免并发导出导致 marker 丢失
+      for (const item of validShops) {
+        const marker = await createMarker(item, 'coupon')
         if (marker) {
           markers.push(marker)
           this.markerDataMap[marker.id] = marker
         }
-      })
+      }
     }
 
     // 附近场所标记
     if (this.data.selectedTab === 'venue' && this.data.venueList.length > 0) {
       const validVenues = this.data.venueList.filter(item => item.latitude && item.longitude)
-      const markerPromises = validVenues.map(item => createMarker(item, 'venue'))
-      const results = await Promise.all(markerPromises)
-      results.forEach(marker => {
+      for (const item of validVenues) {
+        const marker = await createMarker(item, 'venue')
         if (marker) {
           markers.push(marker)
           this.markerDataMap[marker.id] = marker
         }
-      })
+      }
     }
 
     // 附近校友标记
     if (this.data.selectedTab === 'alumni' && this.data.alumniList.length > 0) {
       const validAlumni = this.data.alumniList.filter(item => item.latitude && item.longitude)
-      const markerPromises = validAlumni.map(item => createMarker(item, 'alumni'))
-      const results = await Promise.all(markerPromises)
-      results.forEach(marker => {
+      for (const item of validAlumni) {
+        const marker = await createMarker(item, 'alumni')
         if (marker) {
           markers.push(marker)
           this.markerDataMap[marker.id] = marker
         }
-      })
+      }
     }
 
     // 附近活动标记（无需头像处理，直接添加）

@@ -2,7 +2,7 @@
   <view class="store-card__header">
     <text class="store-card__name">{{displayName}}</text>
     <view class="store-card__navigate" catchtap="handleNavigateTap">
-      <text class="store-card__navigate-text">></text>
+      <text class="store-card__navigate-text">›</text>
     </view>
   </view>
   <view class="store-card__content">
