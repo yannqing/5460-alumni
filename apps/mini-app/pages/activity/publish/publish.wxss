@@ -347,3 +347,88 @@
   border-radius: 8rpx;
   padding: 16rpx 24rpx;
 }
+
+/* 时间输入框 */
+.time-input-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1rpx solid #eee;
+  padding: 0 20rpx;
+  border-radius: 8rpx;
+  height: 80rpx;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.time-input-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.time-input-placeholder {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.time-input-arrow {
+  font-size: 28rpx;
+  color: #ccc;
+}
+
+/* 时间选择器弹窗 */
+.time-picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.time-picker-popup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  z-index: 1001;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.time-picker-popup.show {
+  transform: translateY(0);
+}
+
+.time-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 40rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.time-picker-cancel {
+  font-size: 30rpx;
+  color: #999;
+}
+
+.time-picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.time-picker-confirm {
+  font-size: 30rpx;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.time-picker-view {
+  width: 100%;
+  height: 400rpx;
+}
