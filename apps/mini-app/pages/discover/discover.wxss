@@ -258,7 +258,6 @@
   position: relative;
   z-index: 20;
   background-color: #f5f5f5;
-  overflow-y: auto;
 }
 
 /* 隐藏列表滚动条，与 my-merchant 页面一致 */
@@ -286,7 +285,8 @@
   flex-direction: column;
   min-height: 200rpx;
   background-color: #ffffff;
-  padding-bottom: 120rpx;
+  box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 180rpx);
 }
 
 /* 商户列表容器 - 与商户列表页样式一致 */
@@ -403,7 +403,7 @@
   font-size: 26rpx;
   background-color: #fff;
   border-radius: 12rpx;
-  margin: 0 30rpx 20rpx;
+  margin: 0 30rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
@@ -1105,6 +1105,168 @@
 .location-icon {
   font-size: 40rpx;
   line-height: 1;
+}
+
+/* 商家信息弹窗 */
+.merchant-popup-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.18);
+  z-index: 110;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 24rpx 220rpx;
+  box-sizing: border-box;
+}
+
+.merchant-popup-card {
+  position: relative;
+  width: 100%;
+  max-height: 68vh;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  overflow-y: auto;
+  box-shadow: 0 10rpx 28rpx rgba(0, 0, 0, 0.16);
+}
+
+.merchant-popup-top-detail-btn {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
+  min-width: 120rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  padding: 0 16rpx;
+  text-align: center;
+  border-radius: 26rpx;
+  background: #eef4ff;
+  color: #2f6fcb;
+  font-size: 24rpx;
+  font-weight: 500;
+  z-index: 2;
+}
+
+.merchant-popup-header {
+  display: flex;
+  align-items: center;
+  padding-right: 150rpx;
+}
+
+.merchant-popup-logo {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 50%;
+  background: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.merchant-popup-info {
+  margin-left: 18rpx;
+  min-width: 0;
+}
+
+.merchant-popup-name {
+  font-size: 30rpx;
+  color: #222;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-popup-city {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.merchant-popup-distance {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.merchant-popup-favorite {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.merchant-popup-coupons {
+  margin-top: 20rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 12rpx;
+  background: #f7f9fc;
+}
+
+.merchant-popup-coupons-title {
+  font-size: 24rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 10rpx;
+}
+
+.merchant-popup-coupon-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 10rpx;
+}
+
+.merchant-popup-coupon-tag {
+  width: 36rpx;
+  height: 36rpx;
+  background-color: #ff8c00;
+  color: #ffffff;
+  font-size: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4rpx;
+  flex-shrink: 0;
+}
+
+.merchant-popup-coupon-discount {
+  color: #ff8c00;
+  font-weight: 600;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.merchant-popup-coupon-name {
+  font-size: 24rpx;
+  color: #666666;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.merchant-popup-activity-tag {
+  width: 36rpx;
+  height: 36rpx;
+  background-color: #4a90e2;
+  color: #ffffff;
+  font-size: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4rpx;
+  flex-shrink: 0;
+}
+
+.merchant-popup-coupons-empty {
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  color: #999;
 }
 
 /* 隐藏的 Canvas */

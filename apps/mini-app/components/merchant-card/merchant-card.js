@@ -1,5 +1,9 @@
 // components/merchant-card/merchant-card.js
 const config = require('../../utils/config.js')
+const ACTIVITY_ID_PREFIX = 'aid:'
+const toActivityIdSafe = activityId => `${ACTIVITY_ID_PREFIX}${String(activityId || '')}`
+const parseActivityIdSafe = activityIdSafe =>
+  String(activityIdSafe || '').replace(new RegExp(`^${ACTIVITY_ID_PREFIX}`), '')
 
 Component({
   properties: {
@@ -23,6 +27,7 @@ Component({
     businessCategory: '',
     shopCount: 0,
     favoriteCount: 0,
+    city: '',
     isAlumniCertified: 0,
     coupons: [],
     activities: [],
@@ -50,6 +55,11 @@ Component({
         ...coupon,
         discountText: this.formatDiscount(coupon),
       }))
+      const activities = (item.activities || []).map(activity => ({
+        ...activity,
+        activityId: String(activity.activityId || ''),
+        activityIdSafe: activity.activityIdSafe || toActivityIdSafe(activity.activityId),
+      }))
 
       this.setData({
         logoUrl: item.logoUrl || config.defaultAvatar,
@@ -57,9 +67,10 @@ Component({
         businessCategory: item.businessCategory || '',
         shopCount: item.shopCount || 0,
         favoriteCount: item.favoriteCount || 0,
+        city: item.city || '',
         isAlumniCertified: item.isAlumniCertified || 0,
         coupons: coupons,
-        activities: item.activities || [],
+        activities: activities,
         distance: item.distance || '',
       })
     },
@@ -92,7 +103,8 @@ Component({
     },
 
     handleActivityTap(e) {
-      const activityId = e.currentTarget.dataset.activityId
+      const activityIdSafe = e.currentTarget.dataset.activityIdSafe
+      const activityId = parseActivityIdSafe(activityIdSafe)
       if (activityId) {
         this.triggerEvent('activitytap', { activityId })
       }

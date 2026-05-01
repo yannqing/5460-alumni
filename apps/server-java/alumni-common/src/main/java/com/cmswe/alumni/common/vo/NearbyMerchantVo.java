@@ -77,6 +77,12 @@ public class NearbyMerchantVo implements Serializable {
     private BigDecimal longitude;
 
     /**
+     * 最近门店所在城市
+     */
+    @Schema(description = "最近门店所在城市")
+    private String city;
+
+    /**
      * 收藏数量
      */
     @Schema(description = "收藏数量")
@@ -103,7 +109,7 @@ public class NearbyMerchantVo implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "活动ID")
-        private Long activityId;
+        private String activityId;
 
         @Schema(description = "活动标题")
         private String activityTitle;

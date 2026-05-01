@@ -41,6 +41,9 @@ Page({
     pageSize: 9999,
     hasMore: true,
     loading: false,
+    refreshing: false,
+    scrollTop: 0,
+    refresherHeight: 0,
   },
 
   onLoad() {
@@ -138,12 +141,54 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadMerchantList(true)
+    wx.stopPullDownRefresh()
   },
 
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
       this.loadMerchantList(false)
+    }
+  },
+
+  onScroll(e) {
+    this.setData({ scrollTop: e.detail.scrollTop })
+  },
+
+  onTouchStart(e) {
+    if (this.data.scrollTop <= 5) {
+      this.startY = e.touches[0].pageY
+      this.canPull = true
+    } else {
+      this.canPull = false
+    }
+  },
+
+  onTouchMove(e) {
+    if (!this.canPull || this.data.refreshing) return
+
+    const moveY = e.touches[0].pageY
+    const diff = (moveY - this.startY) * 0.5
+    if (diff > 0) {
+      this.setData({
+        refresherHeight: Math.min(diff, 80),
+      })
+    }
+  },
+
+  onTouchEnd() {
+    if (!this.canPull || this.data.refreshing) return
+
+    if (this.data.refresherHeight >= 40) {
+      this.setData({
+        refreshing: true,
+        refresherHeight: 60,
+        current: 1,
+      })
+      this.loadMerchantList(true)
+    } else {
+      this.setData({
+        refresherHeight: 0,
+      })
     }
   },
 
@@ -216,13 +261,19 @@ Page({
           current: reset ? 2 : current + 1,
           hasMore: data.hasNext || false,
           loading: false,
+          refreshing: false,
+          refresherHeight: 0,
         })
 
         if (reset) {
           wx.stopPullDownRefresh()
         }
       } else {
-        this.setData({ loading: false })
+        this.setData({
+          loading: false,
+          refreshing: false,
+          refresherHeight: 0,
+        })
         wx.showToast({
           title: res.data?.msg || '加载失败',
           icon: 'none',
@@ -233,7 +284,11 @@ Page({
       }
     } catch (error) {
       console.error('加载商铺列表失败:', error)
-      this.setData({ loading: false })
+      this.setData({
+        loading: false,
+        refreshing: false,
+        refresherHeight: 0,
+      })
       wx.showToast({
         title: '加载失败，请重试',
         icon: 'none',
@@ -270,6 +325,7 @@ Page({
     return {
       merchantId: item.merchantId,
       merchantName: item.merchantName || '未命名商户',
+      city: item.city || '',
       merchantType: item.merchantType || 0,
       businessCategory: item.businessCategory || '',
       // 与 pages/alumni-association/list/list 一致：无 logo 时用 config.defaultAvatar

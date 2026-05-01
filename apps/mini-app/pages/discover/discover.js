@@ -3,6 +3,10 @@ const config = require('../../utils/config.js')
 const { shopApi, nearbyApi, couponApi } = require('../../api/api.js')
 const { FollowTargetType, handleListItemFollow } = require('../../utils/followHelper.js')
 
+const ACTIVITY_ID_PREFIX = 'aid:'
+const toActivityIdSafe = activityId => `${ACTIVITY_ID_PREFIX}${String(activityId || '')}`
+const parseActivityIdSafe = activityIdSafe => String(activityIdSafe || '').replace(/^aid:/, '')
+
 Page({
   data: {
     searchValue: '',
@@ -39,6 +43,8 @@ Page({
     myLocation: null, // 自己的位置信息
     searchKeyword: '', // 搜索关键词
     imageCache: {}, // 图片URL缓存，避免重复处理
+    showCouponMerchantPopup: false,
+    selectedCouponMerchant: null,
   },
 
   // 地图 marker 与业务数据的映射（仅内存使用）
@@ -355,6 +361,7 @@ Page({
               latitude: merchant.latitude || merchant.shopLatitude || merchant.lat,
               longitude: merchant.longitude || merchant.shopLongitude || merchant.lng,
               name: merchant.merchantName || merchant.name || '',
+              city: merchant.city || merchant.cityName || merchant.area || '',
             }
           })
 
@@ -551,7 +558,8 @@ Page({
               merchant.activities.length > 0
             ) {
               activities = merchant.activities.map(a => ({
-                activityId: a.activityId,
+                activityId: String(a.activityId || ''),
+                activityIdSafe: toActivityIdSafe(a.activityId),
                 activityTitle: a.activityTitle || '',
                 activityType: a.activityType || 0,
               }))
@@ -570,6 +578,7 @@ Page({
               shopCount: merchant.shopCount || 0,
               favoriteCount: merchant.favoriteCount || 0,
               isAlumniCertified: merchant.isAlumniCertified || 0,
+              city: merchant.city || merchant.cityName || merchant.area || '',
               distance: distanceText,
               activities: activities,
               latitude: merchant.latitude ?? merchant.shopLatitude ?? merchant.lat,
@@ -748,6 +757,8 @@ Page({
         selectedTab: tabId,
         searchKeyword: '',
         searchValue: '',
+        showCouponMerchantPopup: false,
+        selectedCouponMerchant: null,
         // 地图模式下先清空旧业务 marker，仅保留“我的位置”
         mapMarkers: nextMapMarkers,
       },
@@ -767,6 +778,8 @@ Page({
     })
     // TODO: 根据排序类型重新排序列表
   },
+
+  noop() {},
 
   getLocation() {
     wx.showLoading({ title: '定位中...' })
@@ -886,6 +899,8 @@ Page({
     const { mode } = e.currentTarget.dataset
     this.setData({
       viewMode: mode,
+      showCouponMerchantPopup: false,
+      selectedCouponMerchant: null,
     })
 
     if (mode === 'map') {
@@ -1216,8 +1231,8 @@ Page({
         latitude: latitude,
         longitude: longitude,
         iconPath: iconPath,
-        width: 50,
-        height: 50,
+        width: listType === 'coupon' || listType === 'activity' ? (50 * 2) / 3 : 50,
+        height: listType === 'coupon' || listType === 'activity' ? (50 * 2) / 3 : 50,
         anchor: { x: 0.5, y: 0.5 },
       }
       // 附近活动/优惠地图不展示文案，仅展示商家 logo marker
@@ -1356,29 +1371,34 @@ Page({
       return
     }
 
-    // 附近活动：点击 marker 进入商户详情（与列表一致）
+    // 附近活动：点击 marker 弹出商家信息
     if (this.data.selectedTab === 'activity') {
       const matchedMerchant = this.data.activityList.find(
         item =>
           String(item.merchantId) === String(marker.sourceId) ||
           String(item.id) === String(marker.sourceId)
       )
-      const firstActivityId =
-        marker.activityId ||
-        (matchedMerchant &&
-        Array.isArray(matchedMerchant.activities) &&
-        matchedMerchant.activities.length > 0
-          ? matchedMerchant.activities[0].activityId
-          : null)
-
-      // 活动地图优先进入活动详情页，缺少活动ID时再退回商户详情
-      if (firstActivityId) {
-        wx.navigateTo({
-          url: `/pages/activity/detail/detail?id=${firstActivityId}`,
-        })
-      } else if (matchedMerchant && matchedMerchant.merchantId) {
-        wx.navigateTo({
-          url: `/pages/shop/detail/detail?id=${matchedMerchant.merchantId}`,
+      if (matchedMerchant && matchedMerchant.merchantId) {
+        const popupActivities = Array.isArray(matchedMerchant.activities)
+          ? matchedMerchant.activities.map(activity => ({
+              activityId: String(activity.activityId || ''),
+              activityIdSafe: toActivityIdSafe(activity.activityId),
+              activityTitle: activity.activityTitle || '活动',
+            }))
+          : []
+        this.setData({
+          showCouponMerchantPopup: true,
+          selectedCouponMerchant: {
+            id: matchedMerchant.merchantId || matchedMerchant.id,
+            logoUrl: matchedMerchant.logoUrl || config.defaultAvatar,
+            name: matchedMerchant.merchantName || matchedMerchant.name || '未知商家',
+            city: matchedMerchant.city || '未知城市',
+            distance: matchedMerchant.distance || '',
+            favoriteCount: matchedMerchant.favoriteCount || 0,
+            coupons: [],
+            activities: popupActivities,
+            popupType: 'activity',
+          },
         })
       }
       return
@@ -1391,8 +1411,29 @@ Page({
       )
 
       if (matchedMerchant && matchedMerchant.id) {
-        wx.navigateTo({
-          url: `/pages/shop/detail/detail?id=${matchedMerchant.id}`,
+        const popupCoupons = Array.isArray(matchedMerchant.coupons)
+          ? matchedMerchant.coupons.map(coupon => ({
+              couponId: coupon.couponId,
+              couponName: coupon.couponName || '优惠券',
+              discountText:
+                coupon.discountType === 2
+                  ? `${coupon.discountValue || 0}折`
+                  : `¥${coupon.discountValue || 0}`,
+            }))
+          : []
+        this.setData({
+          showCouponMerchantPopup: true,
+          selectedCouponMerchant: {
+            id: matchedMerchant.id,
+            logoUrl: matchedMerchant.logoUrl || config.defaultAvatar,
+            name: matchedMerchant.merchantName || matchedMerchant.name || '未知商家',
+            city: matchedMerchant.city || '未知城市',
+            distance: matchedMerchant.distance || '',
+            favoriteCount: matchedMerchant.favoriteCount || 0,
+            coupons: popupCoupons,
+            activities: [],
+            popupType: 'coupon',
+          },
         })
       }
     }
@@ -1400,7 +1441,44 @@ Page({
 
   // 地图点击
   onMapTap() {
-    // TODO: 处理地图点击事件
+    if (this.data.showCouponMerchantPopup) {
+      this.setData({
+        showCouponMerchantPopup: false,
+        selectedCouponMerchant: null,
+      })
+    }
+  },
+
+  closeCouponMerchantPopup() {
+    this.setData({
+      showCouponMerchantPopup: false,
+      selectedCouponMerchant: null,
+    })
+  },
+
+  handleCouponMerchantDetailTap() {
+    const merchantId = this.data.selectedCouponMerchant && this.data.selectedCouponMerchant.id
+    if (!merchantId) return
+    wx.navigateTo({
+      url: `/pages/shop/detail/detail?id=${merchantId}`,
+    })
+  },
+
+  handlePopupCouponTap(e) {
+    const couponId = e.currentTarget.dataset.couponId
+    if (!couponId) return
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(couponId))}`,
+    })
+  },
+
+  handlePopupActivityTap(e) {
+    const activityIdSafe = e.currentTarget.dataset.activityIdSafe
+    const activityId = parseActivityIdSafe(activityIdSafe)
+    if (!activityId) return
+    wx.navigateTo({
+      url: `/pages/activity/detail/detail?id=${encodeURIComponent(String(activityId))}`,
+    })
   },
 
   // 点击商户卡片，跳转到商户详情页

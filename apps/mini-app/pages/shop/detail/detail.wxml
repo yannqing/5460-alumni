@@ -108,9 +108,8 @@
               wx:key="couponId"
               coupon="{{item}}"
               couponBgUrl="{{couponCardBgUrl}}"
-              showAction="{{true}}"
+              showAction="{{false}}"
               bind:cardtap="viewPublicCouponDetail"
-              bind:action="handleClaimCoupon"
             />
           </view>
         </view>

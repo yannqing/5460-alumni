@@ -2,11 +2,21 @@
 
 /* 页面容器 */
 page {
-  background: #3F61CA;
+  background: #F5F5F5;
   padding: 0;
   margin: 0;
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
   box-sizing: border-box;
+}
+
+/* 隐藏页面滚动条，避免右侧滑动时出现竖线 */
+page::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+  background: transparent;
 }
 
 view, text, scroll-view, picker, input, button, image {
@@ -15,34 +25,45 @@ view, text, scroll-view, picker, input, button, image {
 
 .container {
   width: 100%;
-  min-height: 100vh;
-  background: #3F61CA;
+  height: 100vh;
+  background: #F5F5F5;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* 固定顶部背景 */
-.fixed-top-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 350rpx;
+.main-scroller {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-area {
   background: #3F61CA;
-  z-index: 5;
+  width: 100%;
+}
+
+.sticky-wrapper {
+  position: relative;
+  width: 100%;
+  background: #F5F5F5;
 }
 
 /* 重置默认样式 */
 page {
-  background: #3F61CA;
+  background: #F5F5F5;
   padding: 0;
   margin: 0;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* 顶部图片 */
 .top-image-container {
   width: 100%;
-  padding: 20rpx 30rpx;
+  padding: 20rpx 30rpx 10rpx;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -54,16 +75,6 @@ page {
   width: 529.49rpx;
   height: 90.3rpx;
   border-radius: 12rpx;
-}
-
-/* 头部容器（包含搜索栏和筛选条件） */
-.header-container {
-  position: sticky;
-  top: 180rpx;
-  z-index: 15;
-  background: #3F61CA;
-  border-bottom: none;
-  bottom: 0;
 }
 
 .sticky-header-container {
@@ -135,6 +146,47 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 手动下拉刷新 */
+.manual-refresher {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #F5F5F5;
+  transition: height 0.2s ease-out, opacity 0.2s;
+}
+
+.dot-container {
+  display: flex;
+  gap: 12rpx;
+  padding: 20rpx 0;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #38C7D4;
+}
+
+.dot.animating {
+  animation: dot-pulse 1s infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.5); opacity: 1; }
 }
 
 /* 筛选栏 */
@@ -300,16 +352,16 @@ view, text, picker, input, button, image, navigator {
 /* 加载状态 */
 .loading-text {
   text-align: center;
-  padding: 40rpx 30rpx;
-  color: #999999;
+  padding: 40rpx 0;
+  color: #666666;
   font-size: 24rpx;
 }
 
 /* 商户列表容器 */
 .merchant-list {
   padding: 0;
-  background-color: #ffffff;
-  min-height: 100vh;
+  background-color: #F5F5F5;
+  min-height: 100%;
   margin-top: 0;
   position: relative;
   z-index: 0;
@@ -331,6 +383,6 @@ view, text, picker, input, button, image, navigator {
 }
 
 .empty-state text {
-  color: #999999;
+  color: #666666;
   font-size: 26rpx;
 }
