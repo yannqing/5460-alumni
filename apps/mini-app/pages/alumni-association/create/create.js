@@ -806,7 +806,9 @@ Page({
 
       const schoolId = d.schoolId != null ? String(d.schoolId) : ''
       const schoolName = d.schoolInfo?.schoolName || ''
-      const schoolLogoUrl = d.schoolInfo?.logo ? config.getImageUrl(d.schoolInfo.logo) : config.defaultSchoolAvatar
+      const schoolLogoUrl = d.schoolInfo?.logo
+        ? config.getImageUrl(d.schoolInfo.logo)
+        : config.defaultSchoolAvatar
 
       const leader = {
         name: d.chargeName || '',
@@ -881,8 +883,7 @@ Page({
         }
       }
 
-      const currentWxId =
-        this.data.formData.presidentWxId || this.data.formData.zhWxId || ''
+      const currentWxId = this.data.formData.presidentWxId || this.data.formData.zhWxId || ''
       const zhWxStr = d.zhWxId != null ? String(d.zhWxId) : currentWxId
 
       // 初始化地区选择器的索引
@@ -1577,75 +1578,10 @@ Page({
       wx.showToast({ title: '请输入校友会办公地点', icon: 'none' })
       return
     }
-    if (!formData.associationProfile) {
-      wx.showToast({ title: '请输入校友会简介', icon: 'none' })
-      return
-    }
-    // platformId is optional per API specs
-    // 主要负责人信息现在从 members[0] 获取，在下面的成员验证中统一校验
     if (!formData.zhName) {
       wx.showToast({ title: '请输入联系人姓名', icon: 'none' })
       return
     }
-    if (!formData.zhRole) {
-      wx.showToast({ title: '请输入联系人职务', icon: 'none' })
-      return
-    }
-    if (!formData.zhPhone) {
-      wx.showToast({ title: '请输入联系人联系电话', icon: 'none' })
-      return
-    }
-    if (!/^\d{11}$/.test(String(formData.zhPhone).trim())) {
-      wx.showToast({ title: '联系人联系电话须为11位数字', icon: 'none' })
-      return
-    }
-    if (!formData.zhSocialAffiliation) {
-      wx.showToast({ title: '请输入联系人社会职务', icon: 'none' })
-      return
-    }
-
-    const submitterWxId = String(formData.zhWxId || formData.presidentWxId || '').trim()
-    // 编辑/创建都要求提交者wxid（写入zh_wx_id）
-    if (!submitterWxId) {
-      wx.showToast({ title: '提交者的wx_id不能为空', icon: 'none' })
-      return
-    }
-
-    const chargeLeader = members[0]
-    if (!chargeLeader) {
-      wx.showToast({ title: '请完善主要负责人信息', icon: 'none' })
-      return
-    }
-
-    // 确保所有成员都填写了完整的四项信息
-    for (let i = 0; i < members.length; i++) {
-      const member = members[i]
-      const memberLabel = i === 0 ? '主要负责人' : `第 ${i} 位成员`
-      if (!member.role) {
-        wx.showToast({ title: `请输入${memberLabel}的职务`, icon: 'none' })
-        return
-      }
-      if (!member.name) {
-        wx.showToast({ title: `请输入${memberLabel}的姓名`, icon: 'none' })
-        return
-      }
-      if (!member.affiliation) {
-        wx.showToast({ title: `请输入${memberLabel}的社会职务`, icon: 'none' })
-        return
-      }
-      if (!member.phone) {
-        wx.showToast({ title: `请输入${memberLabel}的联系方式`, icon: 'none' })
-        return
-      }
-      if (!/^\d{11}$/.test(String(member.phone).trim())) {
-        const phoneLabel = i === 0 ? '主要负责人联系电话' : `第 ${i} 位负责人联系电话`
-        wx.showToast({ title: `${phoneLabel}须为11位数字`, icon: 'none' })
-        return
-      }
-    }
-
-    console.log('准备提交的用户ID:', formData.presidentWxId)
-    console.log('用户ID类型:', typeof formData.presidentWxId)
 
     // 提取申请材料的ID，使用字符串类型
     const attachmentIds = this.data.attachments.map(a => {
@@ -1664,58 +1600,26 @@ Page({
     const bgImg = bgImgArray.length > 0 ? bgImgArray : undefined
     console.log('最终bgImg:', bgImg)
 
-    // 第一个成员是主要负责人
-    // 其余成员作为 initialMembers
-    const otherMembers = members.slice(1)
-
     const submitData = {
       associationName: formData.associationName,
       schoolId: formData.schoolId,
-      // 主要负责人和其他负责人均不传 wxid，由用户直接填写姓名等信息
-      chargeName: chargeLeader.name,
-      chargeRole: chargeLeader.role,
-      contactInfo: chargeLeader.phone || undefined,
-      msocialAffiliation: chargeLeader.affiliation || undefined,
-      zhName: formData.zhName || undefined,
-      zhRole: formData.zhRole || undefined,
-      zhPhone: formData.zhPhone || undefined,
-      zhSocialAffiliation: formData.zhSocialAffiliation || undefined,
-      zhWxId: submitterWxId || undefined,
-      logo: formData.logoType === 'default' ? undefined : formData.logo || undefined,
-      applicationReason: formData.applicationReason,
-      associationProfile: formData.associationProfile || undefined,
       attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
-      initialMembers:
-        otherMembers.length > 0
-          ? otherMembers.map(m => ({
-              name: m.name || undefined,
-              role: m.role || undefined,
-              phone: m.phone || undefined,
-              affiliation: m.affiliation || undefined,
-              wxId: null, // 负责人不从校友列表选择，传空（与之前格式一致）
-            }))
-          : undefined,
+      // 联系人信息（用于后续发布时的角色分配）
+      zhName: formData.zhName,
+      zhRole: formData.zhRole,
+      zhPhone: formData.zhPhone,
+      zhSocialAffiliation: formData.zhSocialAffiliation,
     }
 
-    // 添加常驻地点（来自地区选择器）
+    // 补充联系人微信ID（从登录用户信息获取）
+    if (formData.zhWxId) {
+      submitData.zhWxId = formData.zhWxId
+    }
+
     if (formData.location) {
       submitData.location = formData.location
     }
 
-    // 覆盖区域（选填）
-    if (formData.coverageArea) {
-      submitData.coverageArea = formData.coverageArea
-    }
-
-    // 校促会（选填，编辑时回填后需带回）
-    if (formData.platformId) {
-      const pid = String(formData.platformId).trim()
-      if (pid) {
-        submitData.platformId = Number(pid)
-      }
-    }
-
-    // 只有当bgImg存在时才添加到提交数据中
     if (bgImg !== undefined) {
       submitData.bgImg = bgImg
     }

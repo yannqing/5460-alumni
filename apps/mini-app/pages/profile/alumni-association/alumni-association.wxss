@@ -99,12 +99,17 @@
 
 .association-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   background-color: #fff;
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 20rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.association-main {
+  display: flex;
+  align-items: center;
 }
 
 .association-logo {
@@ -123,6 +128,8 @@
 .association-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .association-name {
@@ -137,6 +144,7 @@
   display: flex;
   align-items: center;
   margin-bottom: 12rpx;
+  flex-wrap: wrap;
 }
 
 .meta-item {
@@ -148,6 +156,27 @@
   font-size: 24rpx;
   color: #ccc;
   margin: 0 12rpx;
+}
+
+.status-tag {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+}
+
+.status-0 {
+  color: #faad14;
+  background-color: #fffbe6;
+}
+
+.status-1 {
+  color: #52c41a;
+  background-color: #f6ffed;
+}
+
+.status-2 {
+  color: #1890ff;
+  background-color: #e6f7ff;
 }
 
 .association-contact {
@@ -171,6 +200,12 @@
   white-space: nowrap;
 }
 
+.association-actions {
+  display: flex;
+  align-items: flex-start;
+  margin-left: 16rpx;
+}
+
 .association-arrow {
   margin-left: 16rpx;
 }
@@ -178,4 +213,40 @@
 .arrow {
   font-size: 32rpx;
   color: #ccc;
+}
+
+.action-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16rpx;
+}
+
+.perfect-info-btn {
+  font-size: 20rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(135deg, #10b981 0%, #0ea472 100%);
+  color: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(16, 185, 129, 0.3);
+  line-height: 1.4;
+}
+
+.perfect-info-btn::after {
+  border: none;
+}
+
+.admin-btn {
+  font-size: 20rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 32rpx;
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.admin-btn:active {
+  background-color: #389e0d;
+}
+
+.admin-btn::after {
+  border: none;
 }

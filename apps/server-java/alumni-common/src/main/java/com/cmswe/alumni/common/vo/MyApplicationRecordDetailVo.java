@@ -38,6 +38,9 @@ public class MyApplicationRecordDetailVo implements Serializable {
     @Schema(description = "是否允许撤销")
     private Boolean canCancel;
 
+    @Schema(description = "是否允许发布（校友会创建申请审核通过后可以完善信息并发布）")
+    private Boolean canPublish;
+
     @Schema(description = "业务详情对象（按 recordType 返回对应详情结构）")
     private Object detail;
 

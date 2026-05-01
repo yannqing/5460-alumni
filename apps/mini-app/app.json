@@ -55,7 +55,8 @@
         "create/create",
         "organization/organization",
         "organization-detail/organization-detail",
-        "member/member"
+        "member/member",
+        "alumni-info-edit/alumni-info-edit"
       ]
     },
     {
@@ -100,6 +101,7 @@
         "headquarters/detail/detail",
         "alumni-association/list/list",
         "alumni-association/detail/detail",
+        "alumni-association/alumni-info-edit/alumni-info-edit",
         "merchant-super/list/list",
         "info-maintenance/index/index",
         "info-maintenance/edit/edit",

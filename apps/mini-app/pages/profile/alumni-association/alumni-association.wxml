@@ -23,40 +23,47 @@
     <!-- 校友会列表 -->
     <scroll-view class="scroll-list" scroll-y enable-back-to-top show-scrollbar="{{false}}" wx:else>
       <view class="association-list">
-        <view 
-          wx:for="{{associations}}" 
-          wx:key="alumniAssociationId" 
-          class="association-item" 
-          bindtap="goToAssociationDetail" 
-          data-id="{{item.alumniAssociationId}}"
+        <view
+          wx:for="{{associations}}"
+          wx:key="alumniAssociationId"
+          class="association-item"
         >
-          <!-- 校友会logo -->
-          <view class="association-logo">
-            <image 
-              src="{{item.logo || '../../assets/default/default-logo.png'}}" 
-              mode="aspectFill"
-            ></image>
-          </view>
-          
-          <!-- 校友会信息 -->
-          <view class="association-info">
-            <text class="association-name">{{item.associationName}}</text>
-            
-            <view class="association-meta">
-              <text class="meta-item">会员: {{item.memberCount || 0}}人</text>
-              <text class="meta-separator">|</text>
-              <text class="meta-item">{{item.location || '未知地点'}}</text>
+          <view class="association-main" bindtap="goToAssociationDetail" data-id="{{item.alumniAssociationId}}" data-status="{{item.status}}">
+            <!-- 校友会logo -->
+            <view class="association-logo">
+              <image
+                src="{{item.logo || defaultAvatar}}"
+                mode="aspectFill"
+              ></image>
             </view>
-            
-            <view class="association-contact" wx:if="{{item.contactInfo}}">
-              <text class="contact-label">联系信息: </text>
-              <text class="contact-info">{{item.contactInfo}}</text>
+
+            <!-- 校友会信息 -->
+            <view class="association-info">
+              <text class="association-name">{{item.associationName}}</text>
+
+              <view class="association-meta">
+                <text class="meta-item">会员: {{item.memberCount || 0}}人</text>
+                <text class="meta-separator">|</text>
+                <text class="meta-item">{{item.location || '未知地点'}}</text>
+                <text class="meta-separator">|</text>
+                <text class="status-tag status-{{item.status}}">{{item.statusText || '未知'}}</text>
+              </view>
+
+              <view class="association-contact" wx:if="{{item.contactInfo}}">
+                <text class="contact-label">联系信息: </text>
+                <text class="contact-info">{{item.contactInfo}}</text>
+              </view>
+
+              <!-- 待发布状态下的完善并发布按钮 -->
+              <view class="action-row" wx:if="{{item.status === 2}}">
+                <button class="perfect-info-btn" catchtap="goToPerfectInfo" data-id="{{item.alumniAssociationId}}">完善信息并发布</button>
+              </view>
             </view>
-          </view>
-          
-          <!-- 箭头 -->
-          <view class="association-arrow">
-            <text class="arrow">›</text>
+
+            <!-- 右侧：已发布状态下的管理校友会按钮 -->
+            <view class="association-actions" wx:if="{{item.status === 1 && hasAdminPermission}}">
+              <button class="admin-btn" catchtap="goToAdmin" data-id="{{item.alumniAssociationId}}">管理校友会</button>
+            </view>
           </view>
         </view>
       </view>

@@ -81,6 +81,12 @@ public class AlumniAssociationListVo implements Serializable {
     private Integer role;
 
     /**
+     * 校友会状态：0-已禁用/待审核，1-已发布，2-待发布
+     */
+    @Schema(description = "校友会状态：0-已禁用/待审核，1-已发布，2-待发布")
+    private Integer status;
+
+    /**
      * 当前登录用户是否已加入该校友会：true-已加入 false-未加入 null-未登录
      */
     @Schema(description = "当前登录用户是否已加入该校友会：true-已加入 false-未加入 null-未登录")
