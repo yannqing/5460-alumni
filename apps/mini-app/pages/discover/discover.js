@@ -39,6 +39,8 @@ Page({
     myLocation: null, // 自己的位置信息
     searchKeyword: '', // 搜索关键词
     imageCache: {}, // 图片URL缓存，避免重复处理
+    showCouponMerchantPopup: false,
+    selectedCouponMerchant: null,
   },
 
   // 地图 marker 与业务数据的映射（仅内存使用）
@@ -355,6 +357,7 @@ Page({
               latitude: merchant.latitude || merchant.shopLatitude || merchant.lat,
               longitude: merchant.longitude || merchant.shopLongitude || merchant.lng,
               name: merchant.merchantName || merchant.name || '',
+              city: merchant.city || merchant.cityName || merchant.area || '',
             }
           })
 
@@ -748,6 +751,8 @@ Page({
         selectedTab: tabId,
         searchKeyword: '',
         searchValue: '',
+        showCouponMerchantPopup: false,
+        selectedCouponMerchant: null,
         // 地图模式下先清空旧业务 marker，仅保留“我的位置”
         mapMarkers: nextMapMarkers,
       },
@@ -767,6 +772,8 @@ Page({
     })
     // TODO: 根据排序类型重新排序列表
   },
+
+  noop() {},
 
   getLocation() {
     wx.showLoading({ title: '定位中...' })
@@ -886,6 +893,8 @@ Page({
     const { mode } = e.currentTarget.dataset
     this.setData({
       viewMode: mode,
+      showCouponMerchantPopup: false,
+      selectedCouponMerchant: null,
     })
 
     if (mode === 'map') {
@@ -1391,8 +1400,27 @@ Page({
       )
 
       if (matchedMerchant && matchedMerchant.id) {
-        wx.navigateTo({
-          url: `/pages/shop/detail/detail?id=${matchedMerchant.id}`,
+        const popupCoupons = Array.isArray(matchedMerchant.coupons)
+          ? matchedMerchant.coupons.map(coupon => ({
+              couponId: coupon.couponId,
+              couponName: coupon.couponName || '优惠券',
+              discountText:
+                coupon.discountType === 2
+                  ? `${coupon.discountValue || 0}折`
+                  : `¥${coupon.discountValue || 0}`,
+            }))
+          : []
+        this.setData({
+          showCouponMerchantPopup: true,
+          selectedCouponMerchant: {
+            id: matchedMerchant.id,
+            logoUrl: matchedMerchant.logoUrl || config.defaultAvatar,
+            name: matchedMerchant.merchantName || matchedMerchant.name || '未知商家',
+            city: matchedMerchant.city || '未知城市',
+            distance: matchedMerchant.distance || '',
+            favoriteCount: matchedMerchant.favoriteCount || 0,
+            coupons: popupCoupons,
+          },
         })
       }
     }
@@ -1400,7 +1428,27 @@ Page({
 
   // 地图点击
   onMapTap() {
-    // TODO: 处理地图点击事件
+    if (this.data.showCouponMerchantPopup) {
+      this.setData({
+        showCouponMerchantPopup: false,
+        selectedCouponMerchant: null,
+      })
+    }
+  },
+
+  closeCouponMerchantPopup() {
+    this.setData({
+      showCouponMerchantPopup: false,
+      selectedCouponMerchant: null,
+    })
+  },
+
+  handleCouponMerchantDetailTap() {
+    const merchantId = this.data.selectedCouponMerchant && this.data.selectedCouponMerchant.id
+    if (!merchantId) return
+    wx.navigateTo({
+      url: `/pages/shop/detail/detail?id=${merchantId}`,
+    })
   },
 
   // 点击商户卡片，跳转到商户详情页

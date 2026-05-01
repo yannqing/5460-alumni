@@ -77,6 +77,12 @@ public class NearbyMerchantVo implements Serializable {
     private BigDecimal longitude;
 
     /**
+     * 最近门店所在城市
+     */
+    @Schema(description = "最近门店所在城市")
+    private String city;
+
+    /**
      * 收藏数量
      */
     @Schema(description = "收藏数量")

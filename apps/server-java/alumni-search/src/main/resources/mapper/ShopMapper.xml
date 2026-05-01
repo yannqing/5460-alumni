@@ -184,7 +184,8 @@
             MIN(distance_info.distance) AS distance,
             COUNT(DISTINCT distance_info.shop_id) AS shopCount,
             SUBSTRING_INDEX(GROUP_CONCAT(distance_info.latitude ORDER BY distance_info.distance), ',', 1) AS latitude,
-            SUBSTRING_INDEX(GROUP_CONCAT(distance_info.longitude ORDER BY distance_info.distance), ',', 1) AS longitude
+            SUBSTRING_INDEX(GROUP_CONCAT(distance_info.longitude ORDER BY distance_info.distance), ',', 1) AS longitude,
+            SUBSTRING_INDEX(GROUP_CONCAT(distance_info.city ORDER BY distance_info.distance), ',', 1) AS city
         FROM merchant m
         INNER JOIN (
             SELECT
@@ -192,6 +193,7 @@
                 s.merchant_id,
                 s.latitude,
                 s.longitude,
+                s.city,
                 (6371 * ACOS(
                     COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
                     COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
@@ -365,7 +367,8 @@
             agg.min_distance AS distance,
             agg.shop_count AS shopCount,
             agg.nearest_lat AS latitude,
-            agg.nearest_lng AS longitude
+            agg.nearest_lng AS longitude,
+            agg.nearest_city AS city
         FROM merchant m
         INNER JOIN (
             SELECT
@@ -373,13 +376,15 @@
                 MIN(distance) AS min_distance,
                 COUNT(DISTINCT shop_id) AS shop_count,
                 MAX(CASE WHEN rn = 1 THEN latitude END) AS nearest_lat,
-                MAX(CASE WHEN rn = 1 THEN longitude END) AS nearest_lng
+                MAX(CASE WHEN rn = 1 THEN longitude END) AS nearest_lng,
+                MAX(CASE WHEN rn = 1 THEN city END) AS nearest_city
             FROM (
                 SELECT
                     s.merchant_id,
                     s.shop_id,
                     s.latitude,
                     s.longitude,
+                    s.city,
                     (6371 * ACOS(
                         COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
                         COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +

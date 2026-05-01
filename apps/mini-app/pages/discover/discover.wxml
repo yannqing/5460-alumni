@@ -223,6 +223,8 @@
       latitude="{{mapCenter.latitude}}"
       longitude="{{mapCenter.longitude}}"
       scale="{{mapScale}}"
+      enable-scroll="{{!showCouponMerchantPopup}}"
+      enable-zoom="{{!showCouponMerchantPopup}}"
       markers="{{mapMarkers}}"
       bindmarkertap="onMarkerTap"
       bindtap="onMapTap"
@@ -232,6 +234,49 @@
     <!-- 定位到我的位置按钮 -->
     <view class="location-btn" bindtap="locateToMyPosition">
       <text class="location-icon">📍</text>
+    </view>
+
+    <!-- 附近优惠商家弹窗 -->
+    <view
+      wx:if="{{showCouponMerchantPopup && selectedTab === 'coupon' && selectedCouponMerchant}}"
+      class="merchant-popup-mask"
+      bindtap="closeCouponMerchantPopup"
+    >
+      <view class="merchant-popup-card" catchtap="noop">
+        <view class="merchant-popup-top-detail-btn" bindtap="handleCouponMerchantDetailTap">查看详情</view>
+        <view class="merchant-popup-header">
+          <image
+            class="merchant-popup-logo"
+            src="{{selectedCouponMerchant.logoUrl}}"
+            mode="aspectFill"
+          ></image>
+          <view class="merchant-popup-info">
+            <view class="merchant-popup-name">{{selectedCouponMerchant.name}}</view>
+            <view class="merchant-popup-city">城市：{{selectedCouponMerchant.city}}</view>
+            <view class="merchant-popup-distance" wx:if="{{selectedCouponMerchant.distance}}">
+              距离：{{selectedCouponMerchant.distance}}
+            </view>
+            <view class="merchant-popup-favorite">
+              收藏：{{selectedCouponMerchant.favoriteCount}}人
+            </view>
+          </view>
+        </view>
+        <view class="merchant-popup-coupons" wx:if="{{selectedCouponMerchant.coupons.length > 0}}">
+          <view class="merchant-popup-coupons-title">优惠券</view>
+          <view
+            class="merchant-popup-coupon-item"
+            wx:for="{{selectedCouponMerchant.coupons}}"
+            wx:key="couponId"
+          >
+            <view class="merchant-popup-coupon-tag">券</view>
+            <text class="merchant-popup-coupon-discount">{{item.discountText}}</text>
+            <text class="merchant-popup-coupon-name">{{item.couponName}}</text>
+          </view>
+        </view>
+        <view class="merchant-popup-coupons-empty" wx:if="{{selectedCouponMerchant.coupons.length === 0}}">
+          暂无可展示优惠券
+        </view>
+      </view>
     </view>
   </view>
 </view>
