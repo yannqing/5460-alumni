@@ -15,10 +15,8 @@
         <text class="card-distance" wx:if="{{distance}}">{{distance}}</text>
       </view>
       <view class="card-meta-line">
-        <block wx:if="{{favoriteCount > 0}}">
-          <text class="meta-highlight">{{favoriteCount}}</text>
-          <text class="meta-label">人收藏</text>
-        </block>
+        <text class="meta-highlight">{{favoriteCount}}</text>
+        <text class="meta-label">人收藏</text>
       </view>
     </view>
   </view>

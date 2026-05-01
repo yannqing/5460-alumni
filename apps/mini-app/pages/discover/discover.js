@@ -708,14 +708,53 @@ Page({
     // 禁用的tab不可点击
     if (e.currentTarget.dataset.disabled) return
     const tabId = e.currentTarget.dataset.id
+    const hasMyLocation =
+      this.data.myLocation &&
+      this.data.myLocation.latitude &&
+      this.data.myLocation.longitude &&
+      Number(this.data.myLocation.latitude) !== 0 &&
+      Number(this.data.myLocation.longitude) !== 0
+
+    const nextMapMarkers =
+      this.data.viewMode === 'map' && hasMyLocation
+        ? [
+            {
+              id: 0,
+              latitude: Number(this.data.myLocation.latitude),
+              longitude: Number(this.data.myLocation.longitude),
+              width: 20,
+              height: 30,
+              callout: {
+                content: '我的位置',
+                color: '#fff',
+                fontSize: 14,
+                borderRadius: 8,
+                bgColor: '#FF3B30',
+                padding: 8,
+                display: 'ALWAYS',
+                textAlign: 'center',
+                borderWidth: 2,
+                borderColor: '#fff',
+              },
+            },
+          ]
+        : this.data.viewMode === 'map'
+          ? []
+          : this.data.mapMarkers
+
     // 切换 tab 时必须先等 selectedTab 写入 this.data，再拉数；否则 loadDiscoverData 可能仍用上一个 tab 的 queryType
     this.setData(
       {
         selectedTab: tabId,
         searchKeyword: '',
         searchValue: '',
+        // 地图模式下先清空旧业务 marker，仅保留“我的位置”
+        mapMarkers: nextMapMarkers,
       },
       () => {
+        if (this.data.viewMode === 'map') {
+          this.markerDataMap = {}
+        }
         this.loadDiscoverData()
       }
     )
@@ -1169,7 +1208,7 @@ Page({
           ? item.activities[0].activityId
           : null
 
-      return {
+      const marker = {
         id: markerId++,
         sourceId: item.id || item.merchantId,
         sourceType: listType,
@@ -1180,17 +1219,21 @@ Page({
         width: 50,
         height: 50,
         anchor: { x: 0.5, y: 0.5 },
-        callout: {
+      }
+      // 附近活动/优惠地图不展示文案，仅展示商家 logo marker
+      if (listType !== 'activity' && listType !== 'coupon') {
+        marker.callout = {
           content: content,
-          color: listType === 'activity' ? '#fff' : '#333',
+          color: '#333',
           fontSize: 14,
           borderRadius: 8,
-          bgColor: listType === 'activity' ? '#FF7A45' : '#fff',
+          bgColor: '#fff',
           padding: 8,
-          // 活动地图默认展示文案，和优惠地图做明确区分
-          display: listType === 'activity' ? 'ALWAYS' : 'BYCLICK',
-        },
+          display: 'BYCLICK',
+        }
       }
+
+      return marker
     }
 
     // 附近优惠标记（只标记带有优惠券的店铺）
