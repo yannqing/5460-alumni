@@ -1485,7 +1485,17 @@ Page({
         url: articleLink,
         fail: err => {
           console.error('[goToArticleDetail] 打开公众号文章失败:', err)
-          wx.showToast({ title: '打开文章失败', icon: 'none' })
+          wx.setClipboardData({
+            data: articleLink,//文章的链接地址
+            success: function() {
+              wx.showModal({
+                title: '提示信息',
+                content: '非公众号无法直接浏览，链接已复制，请在浏览器地址栏中长按黏贴，点击浏览。',
+                showCancel: false,
+              })
+            },
+
+          })
         },
       })
     }

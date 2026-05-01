@@ -2,6 +2,7 @@
   "navigationBarTitleText": "商户申请审核",
   "navigationStyle": "custom",
   "usingComponents": {
-    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar",
+    "organization-picker": "/components/organization-picker/organization-picker"
   }
 }

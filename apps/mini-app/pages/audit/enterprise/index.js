@@ -1,9 +1,9 @@
 // pages/audit/enterprise/index.js
-const app = getApp();
-const { placeApi } = require('../../../api/api.js');
+const app = getApp()
+const { placeApi } = require('../../../api/api.js')
+const config = require('../../../utils/config.js')
 
 Page({
-
   /**
    * 页面的初始数据
    */
@@ -26,64 +26,58 @@ Page({
     alumniAssociationList: [],
     selectedAlumniAssociationId: null,
     selectedAlumniAssociationName: '',
+    selectedAlumniAssociationLogo: '',
     showAlumniAssociationPicker: false,
     hasSingleAlumniAssociation: false,
     hasAlumniAdminPermission: false,
-    scrollListHeight: 400
+    scrollListHeight: 400,
+    defaultUserAvatarUrl: config.defaultAvatar,
   },
 
   onLoad(options) {
-    this.setScrollListHeight();
-    this.initPage();
+    this.setScrollListHeight()
+    this.initPage()
   },
 
   setScrollListHeight() {
     try {
-      const res = wx.getSystemInfoSync();
-      const navRpx = 190.22;
-      const navPx = (res.windowWidth * navRpx) / 750;
-      const contentH = res.windowHeight - navPx;
-      const scrollH = Math.floor(contentH * 0.5);
-      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 });
+      const res = wx.getSystemInfoSync()
+      const navRpx = 190.22
+      const navPx = (res.windowWidth * navRpx) / 750
+      const contentH = res.windowHeight - navPx
+      const scrollH = Math.floor(contentH * 0.5)
+      this.setData({ scrollListHeight: scrollH > 200 ? scrollH : 400 })
     } catch (e) {
-      this.setData({ scrollListHeight: 400 });
+      this.setData({ scrollListHeight: 400 })
     }
   },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady() {
-
-  },
+  onReady() {},
 
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow() {
-
-  },
+  onShow() {},
 
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide() {
-
-  },
+  onHide() {},
 
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload() {
-
-  },
+  onUnload() {},
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
-    this.setData({ current: 1, hasMore: true });
-    this.loadEnterpriseList();
+    this.setData({ current: 1, hasMore: true })
+    this.loadEnterpriseList()
   },
 
   /**
@@ -91,23 +85,21 @@ Page({
    */
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
-      this.setData({ current: this.data.current + 1 });
-      this.loadEnterpriseList(true);
+      this.setData({ current: this.data.current + 1 })
+      this.loadEnterpriseList(true)
     }
   },
 
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage() {
-
-  },
+  onShareAppMessage() {},
 
   /**
    * 初始化页面
    */
   async initPage() {
-    await this.loadAlumniAssociationList();
+    await this.loadAlumniAssociationList()
   },
 
   /**
@@ -116,86 +108,91 @@ Page({
   async loadAlumniAssociationList() {
     try {
       // 从 storage 中获取角色列表
-      const roles = wx.getStorageSync('roles') || [];
-      
+      const roles = wx.getStorageSync('roles') || []
+
       // 查找所有校友会管理员角色
-      const alumniAdminRoles = roles.filter(role => 
-        role.roleCode === 'ORGANIZE_ALUMNI_ADMIN'
-      );
-      
+      const alumniAdminRoles = roles.filter(role => role.roleCode === 'ORGANIZE_ALUMNI_ADMIN')
+
       // 设置是否有校友会管理员身份
       this.setData({
-        hasAlumniAdminPermission: alumniAdminRoles.length > 0
-      });
-      
+        hasAlumniAdminPermission: alumniAdminRoles.length > 0,
+      })
+
       if (alumniAdminRoles.length > 0) {
         // 存储所有校友会数据
-        const alumniAssociationList = [];
-        
+        const alumniAssociationList = []
+
         // 遍历所有校友会管理员角色，创建校友会数据
         for (const alumniAdminRole of alumniAdminRoles) {
           // 尝试从不同可能的位置获取ID
-          let alumniAssociationId = null;
-          
+          let alumniAssociationId = null
+
           // 检查直接字段
           if (alumniAdminRole.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.alumniAssociationId;
+            alumniAssociationId = alumniAdminRole.alumniAssociationId
           }
           // 检查嵌套的organization字段
-          else if (alumniAdminRole.organization && alumniAdminRole.organization.alumniAssociationId) {
-            alumniAssociationId = alumniAdminRole.organization.alumniAssociationId;
+          else if (
+            alumniAdminRole.organization &&
+            alumniAdminRole.organization.alumniAssociationId
+          ) {
+            alumniAssociationId = alumniAdminRole.organization.alumniAssociationId
           }
           // 检查organizeId字段（作为备用）
           else if (alumniAdminRole.organizeId) {
-            alumniAssociationId = alumniAdminRole.organizeId;
+            alumniAssociationId = alumniAdminRole.organizeId
           }
           // 检查嵌套的organization.organizeId字段
           else if (alumniAdminRole.organization && alumniAdminRole.organization.organizeId) {
-            alumniAssociationId = alumniAdminRole.organization.organizeId;
+            alumniAssociationId = alumniAdminRole.organization.organizeId
           }
-          
+
           if (alumniAssociationId) {
             // 获取协会名称
-            const associationName = alumniAdminRole.associationName || (alumniAdminRole.organization && alumniAdminRole.organization.associationName) || '校友会';
-            
+            const associationName =
+              alumniAdminRole.associationName ||
+              (alumniAdminRole.organization && alumniAdminRole.organization.associationName) ||
+              '校友会'
+
             // 创建基本的校友会对象
             const basicAlumniData = {
               id: alumniAssociationId,
               alumniAssociationId: alumniAssociationId,
-              alumniAssociationName: `${associationName} (ID: ${alumniAssociationId})`
-            };
-            
+              alumniAssociationName: `${associationName} (ID: ${alumniAssociationId})`,
+              logo: alumniAdminRole.organization?.logo || '',
+            }
+
             // 检查是否已经存在相同ID的校友会
-            const existingIndex = alumniAssociationList.findIndex(item => 
-              item.alumniAssociationId === alumniAssociationId
-            );
-            
+            const existingIndex = alumniAssociationList.findIndex(
+              item => item.alumniAssociationId === alumniAssociationId
+            )
+
             // 如果不存在，则添加到列表
             if (existingIndex === -1) {
-              alumniAssociationList.push(basicAlumniData);
+              alumniAssociationList.push(basicAlumniData)
             }
           }
         }
-        
+
         // 设置校友会列表
         this.setData({
-          alumniAssociationList: alumniAssociationList
-        });
-        
+          alumniAssociationList: alumniAssociationList,
+        })
+
         // 处理校友会选择逻辑
-        this.handleAlumniAssociationSelection(alumniAssociationList);
+        this.handleAlumniAssociationSelection(alumniAssociationList)
       } else {
         // 没有找到校友会管理员角色
         this.setData({
-          alumniAssociationList: []
-        });
+          alumniAssociationList: [],
+        })
       }
     } catch (error) {
-      console.error('加载校友会列表失败:', error);
+      console.error('加载校友会列表失败:', error)
       // 发生错误时，设置为空数组
       this.setData({
-        alumniAssociationList: []
-      });
+        alumniAssociationList: [],
+      })
     }
   },
 
@@ -205,26 +202,27 @@ Page({
   async handleAlumniAssociationSelection(alumniAssociationList) {
     if (alumniAssociationList.length === 1) {
       // 只有一个校友会权限，自动选择并禁用选择器
-      const singleAlumni = alumniAssociationList[0];
+      const singleAlumni = alumniAssociationList[0]
       this.setData({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
         selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
-        hasSingleAlumniAssociation: true
-      });
+        selectedAlumniAssociationLogo: singleAlumni.logo || '',
+        hasSingleAlumniAssociation: true,
+      })
       // 加载企业列表
-      await this.loadEnterpriseList();
+      await this.loadEnterpriseList()
     } else if (alumniAssociationList.length > 1) {
       // 多个校友会权限，正常显示选择器
       this.setData({
-        hasSingleAlumniAssociation: false
-      });
+        hasSingleAlumniAssociation: false,
+      })
     } else {
       // 没有校友会权限
       this.setData({
-        hasSingleAlumniAssociation: false
-      });
+        hasSingleAlumniAssociation: false,
+      })
       // 加载企业列表
-      await this.loadEnterpriseList();
+      await this.loadEnterpriseList()
     }
   },
 
@@ -232,89 +230,116 @@ Page({
    * 显示校友会选择器
    */
   showAlumniAssociationSelector() {
-    this.setData({ showAlumniAssociationPicker: true });
+    this.setData({ showAlumniAssociationPicker: true })
   },
 
   /**
-   * 选择校友会
+   * 校友会选择器选择事件
    */
-  async selectAlumniAssociation(e) {
-    const alumniAssociationId = e.currentTarget.dataset.alumniAssociationId;
-    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName;
-    
+  onAlumniAssociationSelect(e) {
+    const item = e.detail.item
+    const alumniAssociationId = item.alumniAssociationId
+    const alumniAssociationName = item.alumniAssociationName || item.name
+
     this.setData({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
+      selectedAlumniAssociationLogo: item.logo || '',
       showAlumniAssociationPicker: false,
-      current: 1, // 重置页码
-      hasMore: true // 重置是否有更多数据
-    });
-    
-    // 加载企业列表
-    await this.loadEnterpriseList();
+      current: 1,
+      hasMore: true,
+    })
+
+    this.loadEnterpriseList()
   },
 
   /**
-   * 取消选择校友会
+   * 校友会选择器取消事件
    */
   cancelAlumniAssociationSelect() {
-    this.setData({ showAlumniAssociationPicker: false });
+    this.setData({ showAlumniAssociationPicker: false })
+  },
+
+  /**
+   * 校友会选择器加载更多
+   */
+  onAlumniAssociationLoadMore() {
+    // 暂未实现分页
   },
 
   /**
    * 加载企业列表
    */
   loadEnterpriseList(loadMore = false) {
-    this.setData({ loading: true });
-    
-    const { current, pageSize, sortField, sortOrder, placeName, applicationStatus, placeType, selectedAlumniAssociationId, applicantName } = this.data;
-    
+    this.setData({ loading: true })
+
+    const {
+      current,
+      pageSize,
+      sortField,
+      sortOrder,
+      placeName,
+      applicationStatus,
+      placeType,
+      selectedAlumniAssociationId,
+      applicantName,
+    } = this.data
+
     // 构建请求参数
     const params = {
       current: current,
       pageSize: pageSize,
       sortField: sortField,
       sortOrder: sortOrder,
-      placeType: placeType
-    };
-    
+      placeType: placeType,
+    }
+
     // 添加可选参数
-    if (placeName) {params.placeName = placeName;}
-    if (applicationStatus !== null && applicationStatus !== undefined) {params.applicationStatus = applicationStatus;}
-    if (selectedAlumniAssociationId) {params.alumniAssociationId = selectedAlumniAssociationId;}
-    if (applicantName) {params.applicantName = applicantName;}
-    
+    if (placeName) {
+      params.placeName = placeName
+    }
+    if (applicationStatus !== null && applicationStatus !== undefined) {
+      params.applicationStatus = applicationStatus
+    }
+    if (selectedAlumniAssociationId) {
+      params.alumniAssociationId = selectedAlumniAssociationId
+    }
+    if (applicantName) {
+      params.applicantName = applicantName
+    }
+
     // 使用封装后的 API
-    placeApi.getPlaceApplicationPage(params)
-      .then((res) => {
+    placeApi
+      .getPlaceApplicationPage(params)
+      .then(res => {
         if (res.data && res.data.code === 200 && res.data.data) {
-          const newData = res.data.data.records || [];
-          const total = res.data.data.total || 0;
-          
+          const newData = res.data.data.records || []
+          const total = res.data.data.total || 0
+
           this.setData({
             enterpriseList: loadMore ? [...this.data.enterpriseList, ...newData] : newData,
             total: total,
             hasMore: (loadMore ? this.data.enterpriseList.length : 0) + newData.length < total,
-            loading: false
-          });
+            loading: false,
+          })
         } else {
-          console.error('获取企业列表失败:', res.data && res.data.msg || '接口调用失败');
+          console.error('获取企业列表失败:', (res.data && res.data.msg) || '接口调用失败')
           this.setData({
             enterpriseList: loadMore ? this.data.enterpriseList : [],
-            loading: false
-          });
+            loading: false,
+          })
         }
       })
-      .catch((error) => {
-        console.error('获取企业列表异常:', error);
+      .catch(error => {
+        console.error('获取企业列表异常:', error)
         this.setData({
           enterpriseList: loadMore ? this.data.enterpriseList : [],
-          loading: false
-        });
+          loading: false,
+        })
       })
       .finally(() => {
-        wx.stopPullDownRefresh();
-      });
+        wx.stopPullDownRefresh()
+      })
   },
 
   /**
@@ -333,41 +358,41 @@ Page({
    * 审核通过企业
    */
   approveEnterprise(e) {
-    const applicationId = e.currentTarget.dataset.id;
-    
+    const applicationId = e.currentTarget.dataset.id
+
     wx.showModal({
       title: '审核通过',
       content: '确定要审核通过该企业吗？',
-      success: (res) => {
+      success: res => {
         if (res.confirm) {
-          this.submitAudit(applicationId, 1, '');
+          this.submitAudit(applicationId, 1, '')
         }
-      }
-    });
+      },
+    })
   },
 
   /**
    * 审核拒绝企业
    */
   rejectEnterprise(e) {
-    const applicationId = e.currentTarget.dataset.id;
-    
+    const applicationId = e.currentTarget.dataset.id
+
     wx.showModal({
       title: '审核拒绝',
       content: '请输入拒绝原因',
       editable: true,
       placeholderText: '请输入审核备注',
-      success: (res) => {
+      success: res => {
         if (res.confirm && res.content) {
-          this.submitAudit(applicationId, 2, res.content);
+          this.submitAudit(applicationId, 2, res.content)
         } else if (res.confirm) {
           wx.showToast({
             title: '请输入拒绝原因',
-            icon: 'none'
-          });
+            icon: 'none',
+          })
         }
-      }
-    });
+      },
+    })
   },
 
   /**
@@ -377,39 +402,40 @@ Page({
     // Build request data with required parameters
     const requestData = {
       applicationId: applicationId,
-      applicationStatus: applicationStatus
-    };
-    
+      applicationStatus: applicationStatus,
+    }
+
     // Add reviewRemark if provided (required for rejection)
     if (reviewRemark) {
-      requestData.reviewRemark = reviewRemark;
+      requestData.reviewRemark = reviewRemark
     }
-    
+
     // 使用封装后的 API
-    placeApi.approvePlaceApplication(requestData)
-      .then((res) => {
+    placeApi
+      .approvePlaceApplication(requestData)
+      .then(res => {
         if (res.data && res.data.code === 200) {
           wx.showToast({
             title: applicationStatus === 1 ? '审核通过成功' : '审核拒绝成功',
-            icon: 'success'
-          });
-          
+            icon: 'success',
+          })
+
           // 重新加载企业列表
-          this.setData({ current: 1, hasMore: true });
-          this.loadEnterpriseList();
+          this.setData({ current: 1, hasMore: true })
+          this.loadEnterpriseList()
         } else {
           wx.showToast({
-            title: res.data && res.data.msg || '审核失败',
-            icon: 'none'
-          });
+            title: (res.data && res.data.msg) || '审核失败',
+            icon: 'none',
+          })
         }
       })
-      .catch((error) => {
-        console.error('审核异常:', error);
+      .catch(error => {
+        console.error('审核异常:', error)
         wx.showToast({
           title: '网络错误，请重试',
-          icon: 'none'
-        });
-      });
-  }
+          icon: 'none',
+        })
+      })
+  },
 })

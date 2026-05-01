@@ -360,6 +360,7 @@ const userApi = {
   // type: 0-校友会 1-校促会 2-商户 3-校友总会
   // roleScopedOnly: true 时仅返回 role_user 绑定的组织，系统超级管理员不展开全站（管理入口与待办范围一致）
   getManagedOrganizations: params => get('/users/managed-organizations', params),
+  getManagedOrganizationsPage: params => get('/users/managed-organizations/page', params),
 }
 
 // ==================== 搜索相关接口 ====================

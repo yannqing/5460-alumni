@@ -3,6 +3,7 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "message-notification": "/components/message-notification/message-notification",
-    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar",
+    "organization-picker": "/components/organization-picker/organization-picker"
   }
 }

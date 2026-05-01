@@ -8,40 +8,45 @@
   overflow: hidden;
 }
 
-.page .group_5 {
-  width: 714rpx;
-  min-height: auto;
-  margin: 47rpx 0 0 18rpx;
-  padding: 38rpx 43rpx 27rpx 43rpx;
+/* 选择校友会区域（现代化下拉框样式，放在左上角） */
+.alumni-selector-wrap {
   flex-shrink: 0;
+  padding: 24rpx 18rpx 0;
 }
 
-.group_5 {
-  background-color: #FFFFFF;
-  border-radius: 28.99rpx;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.group_5 .text_14 { font-size: 29rpx; font-weight: 600; color: rgba(0,0,0,1); line-height: 40rpx; }
-.group_5 .label_text { font-size: 25rpx; color: rgba(0,0,0,0.6); margin-top: 16rpx; display: block; line-height: 36rpx; }
-.group_5 .text-wrapper_8 {
-  height: 80rpx;
-  background-color: #FFFFFF;
-  border-radius: 12rpx;
-  border: 1rpx solid #E0E0E0;
-  display: flex;
+.alumni-selector {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 16rpx;
-  padding: 0 20rpx;
-  box-sizing: border-box;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  min-width: 280rpx;
+  max-width: 600rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
-.group_5 .text_15 { flex: 1; font-size: 28rpx; color: rgba(0,0,0,0.85); line-height: 36rpx; overflow: hidden; text-overflow: ellipsis; }
-.group_5 .text-wrapper_8::after { content: '▼'; color: #999; font-size: 20rpx; margin-left: 10rpx; }
+
+.selector-text {
+  font-size: 28rpx;
+  color: #333;
+  margin-right: 16rpx;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selector-arrow {
+  font-size: 18rpx;
+  color: #999;
+}
+
+.selector-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
 
 .group_7 {
   width: 714rpx;

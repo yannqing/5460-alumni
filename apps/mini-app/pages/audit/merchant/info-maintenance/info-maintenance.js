@@ -244,6 +244,20 @@ Page({
     })
   },
 
+  goToShopDetail() {
+    const merchantId = this.data.selectedMerchantId
+    if (!merchantId) {
+      wx.showToast({
+        title: '请先选择商家',
+        icon: 'none',
+      })
+      return
+    }
+    wx.navigateTo({
+      url: `/pages/shop/detail/detail?id=${merchantId}`,
+    })
+  },
+
   previewDetailImage(e) {
     const { index } = e.currentTarget.dataset
     const urls = this.data.currentMerchantDetail?.detailImageUrls || []

@@ -9,6 +9,7 @@ Page({
     loading: false,
     selectedAlumniAssociationId: 0,
     selectedAlumniAssociationName: '',
+    selectedAlumniAssociationLogo: '',
     showAlumniAssociationPicker: false,
     roleList: [], // 存储角色列表
     roleLoading: false, // 角色加载状态
@@ -24,7 +25,7 @@ Page({
       roleOrName: '',
       remark: '',
       status: 1,
-      pid: '0' // 父角色ID，0表示顶级
+      pid: '0', // 父角色ID，0表示顶级
     },
     editParentOptions: [], // 编辑时的父级选项列表
     editSelectedParentIndex: 0, // 编辑时选中的父级索引
@@ -38,7 +39,7 @@ Page({
     addForm: {
       roleOrName: '',
       remark: '',
-      pid: '0' // 默认顶级
+      pid: '0', // 默认顶级
     },
     parentOptions: [], // 父级选项列表
     selectedParentName: '', // 选中的父级名称
@@ -53,7 +54,7 @@ Page({
     showNodeDetailModal: false,
     currentDetailRole: null, // 当前查看详情的节点
     addModalTitle: '', // 新增弹窗标题
-    addParentRole: null // 新增子架构时的父节点
+    addParentRole: null, // 新增子架构时的父节点
   },
 
   onLoad(options) {
@@ -80,7 +81,7 @@ Page({
 
         // 设置是否有校友会管理员身份
         this.setData({
-          hasAlumniAdminPermission: organizationList.length > 0
+          hasAlumniAdminPermission: organizationList.length > 0,
         })
 
         if (organizationList.length > 0) {
@@ -99,13 +100,13 @@ Page({
               organizeId: org.id,
               logo: logo,
               location: org.location || '',
-              type: org.type
+              type: org.type,
             }
           })
 
           // 设置校友会列表
           this.setData({
-            alumniAssociationList: alumniAssociationList
+            alumniAssociationList: alumniAssociationList,
           })
           console.log('[Debug] 最终校友会列表:', alumniAssociationList)
 
@@ -116,14 +117,14 @@ Page({
           console.warn('[Debug] 用户没有管理的校友会')
           this.setData({
             alumniAssociationList: [],
-            hasAlumniAdminPermission: false
+            hasAlumniAdminPermission: false,
           })
         }
       } else {
         console.error('[Debug] 获取校友会列表接口调用失败:', res)
         this.setData({
           alumniAssociationList: [],
-          hasAlumniAdminPermission: false
+          hasAlumniAdminPermission: false,
         })
       }
     } catch (error) {
@@ -131,7 +132,7 @@ Page({
       // 发生错误时，设置为空数组
       this.setData({
         alumniAssociationList: [],
-        hasAlumniAdminPermission: false
+        hasAlumniAdminPermission: false,
       })
     }
   },
@@ -144,8 +145,9 @@ Page({
       this.setData({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
         selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
+        selectedAlumniAssociationLogo: singleAlumni.logo || '',
         selectedOrganizeId: singleAlumni.alumniAssociationId,
-        hasSingleAlumniAssociation: true
+        hasSingleAlumniAssociation: true,
       })
       console.log('[Debug] 只有一个校友会权限，自动选择:', singleAlumni)
       // 加载角色列表
@@ -153,13 +155,13 @@ Page({
     } else if (alumniAssociationList.length > 1) {
       // 多个校友会权限，正常显示选择器
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 有多个校友会权限，正常显示选择器')
     } else {
       // 没有校友会权限
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 没有校友会权限')
     }
@@ -167,11 +169,38 @@ Page({
 
   // 显示校友会选择器
   showAlumniAssociationSelector() {
-    this.setData({ showAlumniAssociationPicker: false })
     this.setData({ showAlumniAssociationPicker: true })
   },
 
-  // 选择校友会
+  // 校友会选择器选择事件
+  onAlumniAssociationSelect(e) {
+    const item = e.detail.item
+    const alumniAssociationId = item.alumniAssociationId
+    const alumniAssociationName = item.alumniAssociationName || item.name
+    console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
+
+    this.setData({
+      selectedAlumniAssociationId: alumniAssociationId,
+      selectedAlumniAssociationName: alumniAssociationName,
+      selectedAlumniAssociationLogo: item.logo || '',
+      showAlumniAssociationPicker: false,
+      selectedOrganizeId: alumniAssociationId,
+    })
+
+    this.loadRoleList(alumniAssociationId)
+  },
+
+  // 校友会选择器取消事件
+  cancelAlumniAssociationSelect() {
+    this.setData({ showAlumniAssociationPicker: false })
+  },
+
+  // 校友会选择器加载更多
+  onAlumniAssociationLoadMore() {
+    // 暂未实现分页
+  },
+
+  // 选择校友会（已废弃，使用 onAlumniAssociationSelect）
   async selectAlumniAssociation(e) {
     // 正确获取数据集属性
     const alumniAssociationId = e.currentTarget.dataset.alumniAssociationId
@@ -179,19 +208,24 @@ Page({
     console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
 
     // 获取对应的校友会对象
-    const selectedAlumni = this.data.alumniAssociationList.find(item => item.alumniAssociationId === alumniAssociationId)
+    const selectedAlumni = this.data.alumniAssociationList.find(
+      item => item.alumniAssociationId === alumniAssociationId
+    )
     console.log('[Debug] 找到的校友会对象:', selectedAlumni)
 
     this.setData({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
       showAlumniAssociationPicker: false,
-      selectedOrganizeId: alumniAssociationId // 确保使用校友会ID
+      selectedOrganizeId: alumniAssociationId, // 确保使用校友会ID
     })
 
     try {
       // 调用 /AlumniAssociation/{id} 接口，入参为 alumniAssociationId
-      console.log('[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:', alumniAssociationId)
+      console.log(
+        '[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:',
+        alumniAssociationId
+      )
 
       const res = await this.getAlumniAssociationDetail(alumniAssociationId)
 
@@ -219,14 +253,19 @@ Page({
   // 加载组织架构树（包含成员）
   async loadRoleList(alumniAssociationId) {
     try {
-      console.log('[Debug] 开始加载组织架构树，alumniAssociationId:', alumniAssociationId, '类型:', typeof alumniAssociationId)
+      console.log(
+        '[Debug] 开始加载组织架构树，alumniAssociationId:',
+        alumniAssociationId,
+        '类型:',
+        typeof alumniAssociationId
+      )
 
       this.setData({ roleLoading: true })
 
       // 调用 /AlumniAssociation/organizationTree/v2 接口 - 获取包含成员的组织架构树
       const { post } = require('../../../utils/request.js')
       const res = await post('/AlumniAssociation/organizationTree/v2', {
-        alumniAssociationId: alumniAssociationId
+        alumniAssociationId: alumniAssociationId,
       })
 
       console.log('[Debug] 组织架构树接口调用结果:', res)
@@ -238,7 +277,10 @@ Page({
         // 打印每个节点的成员数量，用于调试
         const logMembers = (list, level = 1) => {
           list.forEach(item => {
-            console.log(`[Debug] 第${level}级角色 "${item.roleOrName}": 成员数量 = ${(item.members || []).length}`, item.members)
+            console.log(
+              `[Debug] 第${level}级角色 "${item.roleOrName}": 成员数量 = ${(item.members || []).length}`,
+              item.members
+            )
             if (item.children && item.children.length > 0) {
               logMembers(item.children, level + 1)
             }
@@ -252,20 +294,20 @@ Page({
         this.setData({
           roleList: treeData,
           roleLoading: false,
-          expandedRoles: expandedRoles
+          expandedRoles: expandedRoles,
         })
       } else {
         console.error('[Debug] 组织架构树接口调用失败，返回数据:', res)
         this.setData({
           roleList: [],
-          roleLoading: false
+          roleLoading: false,
         })
       }
     } catch (error) {
       console.error('[Debug] 加载组织架构树失败:', error)
       this.setData({
         roleList: [],
-        roleLoading: false
+        roleLoading: false,
       })
     }
   },
@@ -278,10 +320,13 @@ Page({
   // 初始化展开状态（默认全部展开）
   initExpandedState(roleList) {
     const expandedRoles = {}
-    const traverse = (list) => {
+    const traverse = list => {
       list.forEach(item => {
         // 如果有子角色或有成员，则默认展开
-        if ((item.children && item.children.length > 0) || (item.members && item.members.length > 0)) {
+        if (
+          (item.children && item.children.length > 0) ||
+          (item.members && item.members.length > 0)
+        ) {
           expandedRoles[item.roleOrId] = true // 默认展开
         }
         if (item.children && item.children.length > 0) {
@@ -313,15 +358,18 @@ Page({
     const currentPid = role.pid === null || role.pid === undefined ? '0' : String(role.pid)
 
     // 查找当前父级在选项列表中的索引
-    const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
+    const editSelectedParentIndex = editParentOptions.findIndex(
+      item => item.roleOrId === currentPid
+    )
 
     // 获取当前父级名称
-    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构（无父级）'
+    const editSelectedParentName =
+      editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构（无父级）'
 
     // 深拷贝角色数据，包括成员列表，以便编辑时不影响原数据
     const editingRole = {
       ...role,
-      members: role.members ? [...role.members] : []
+      members: role.members ? [...role.members] : [],
     }
 
     this.setData({
@@ -331,14 +379,14 @@ Page({
         roleOrName: role.roleOrName || '',
         remark: role.remark || '',
         status: role.status !== undefined ? role.status : 1,
-        pid: currentPid
+        pid: currentPid,
       },
       editParentOptions: editParentOptions,
       editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
       editSelectedParentName: editSelectedParentName,
       // 重置成员变更记录
       addedMembers: [],
-      removedMembers: []
+      removedMembers: [],
     })
   },
 
@@ -351,14 +399,14 @@ Page({
         roleOrName: '',
         remark: '',
         status: 1,
-        pid: '0'
+        pid: '0',
       },
       editParentOptions: [],
       editSelectedParentIndex: 0,
       editSelectedParentName: '',
       // 重置成员变更记录
       addedMembers: [],
-      removedMembers: []
+      removedMembers: [],
     })
   },
 
@@ -367,7 +415,7 @@ Page({
     const { field } = e.currentTarget.dataset
     const { value } = e.detail
     this.setData({
-      [`editForm.${field}`]: value
+      [`editForm.${field}`]: value,
     })
   },
 
@@ -375,7 +423,7 @@ Page({
   onStatusChange(e) {
     const status = e.detail.value ? 1 : 0
     this.setData({
-      'editForm.status': status
+      'editForm.status': status,
     })
   },
 
@@ -387,7 +435,7 @@ Page({
     this.setData({
       'editForm.pid': selectedParent.roleOrId,
       editSelectedParentIndex: index,
-      editSelectedParentName: selectedParent.roleOrName
+      editSelectedParentName: selectedParent.roleOrName,
     })
   },
 
@@ -399,7 +447,7 @@ Page({
     if (!editForm.roleOrName.trim()) {
       wx.showToast({
         title: '请输入架构名称',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -413,7 +461,7 @@ Page({
         pid: editForm.pid === '0' ? null : editForm.pid, // 0表示顶级，传null
         roleOrName: editForm.roleOrName.trim(),
         remark: editForm.remark.trim(),
-        status: editForm.status
+        status: editForm.status,
       })
 
       wx.hideLoading()
@@ -421,7 +469,7 @@ Page({
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: '保存成功',
-          icon: 'success'
+          icon: 'success',
         })
         this.closeEditModal()
         // 如果详情弹窗也打开着，关闭它
@@ -436,7 +484,7 @@ Page({
           title: '保存失败',
           content: errorMsg,
           showCancel: false,
-          confirmText: '知道了'
+          confirmText: '知道了',
         })
       }
     } catch (error) {
@@ -446,7 +494,7 @@ Page({
         title: '保存失败',
         content: '网络请求失败，请稍后重试',
         showCancel: false,
-        confirmText: '知道了'
+        confirmText: '知道了',
       })
     }
   },
@@ -462,7 +510,7 @@ Page({
     this.setData({
       showMoveModal: true,
       movingRole: role,
-      availableParents: availableParents
+      availableParents: availableParents,
     })
 
     // 震动反馈
@@ -482,7 +530,7 @@ Page({
       roleOrId: '0',
       roleOrName: '设为顶级架构',
       level: 0,
-      isRoot: true
+      isRoot: true,
     })
 
     // 遍历树形结构，收集可选的父级
@@ -492,7 +540,7 @@ Page({
           result.push({
             roleOrId: item.roleOrId,
             roleOrName: item.roleOrName,
-            level: level
+            level: level,
           })
         }
         if (item.children && item.children.length > 0) {
@@ -518,7 +566,7 @@ Page({
       roleOrId: '0',
       roleOrName: '顶级架构（无父级）',
       level: 0,
-      isRoot: true
+      isRoot: true,
     })
 
     // 遍历树形结构，收集可选的父级
@@ -528,7 +576,7 @@ Page({
           result.push({
             roleOrId: item.roleOrId,
             roleOrName: item.roleOrName,
-            level: level
+            level: level,
           })
         }
         if (item.children && item.children.length > 0) {
@@ -544,8 +592,10 @@ Page({
   // 获取某个角色的所有子孙节点ID
   getDescendantIds(role) {
     const ids = []
-    const traverse = (children) => {
-      if (!children) {return}
+    const traverse = children => {
+      if (!children) {
+        return
+      }
       children.forEach(child => {
         ids.push(String(child.roleOrId))
         if (child.children && child.children.length > 0) {
@@ -562,7 +612,7 @@ Page({
     this.setData({
       showMoveModal: false,
       movingRole: null,
-      availableParents: []
+      availableParents: [],
     })
   },
 
@@ -578,7 +628,7 @@ Page({
     if (String(parentId) === currentPid) {
       wx.showToast({
         title: '已是当前层级',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -593,7 +643,7 @@ Page({
         pid: parentId === '0' ? null : parentId, // 0 表示顶级，传 null
         roleOrName: movingRole.roleOrName,
         remark: movingRole.remark || '',
-        status: movingRole.status !== undefined ? movingRole.status : 1
+        status: movingRole.status !== undefined ? movingRole.status : 1,
       })
 
       wx.hideLoading()
@@ -601,7 +651,7 @@ Page({
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: '移动成功',
-          icon: 'success'
+          icon: 'success',
         })
         this.closeMoveModal()
         // 重新加载角色列表
@@ -612,7 +662,7 @@ Page({
           title: '移动失败',
           content: errorMsg,
           showCancel: false,
-          confirmText: '知道了'
+          confirmText: '知道了',
         })
       }
     } catch (error) {
@@ -622,7 +672,7 @@ Page({
         title: '移动失败',
         content: '网络请求失败，请稍后重试',
         showCancel: false,
-        confirmText: '知道了'
+        confirmText: '知道了',
       })
     }
   },
@@ -632,7 +682,7 @@ Page({
     if (!this.data.selectedAlumniAssociationId) {
       wx.showToast({
         title: '请先选择校友会',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -645,10 +695,10 @@ Page({
       addForm: {
         roleOrName: '',
         remark: '',
-        pid: '0'
+        pid: '0',
       },
       selectedParentName: '顶级架构（无父级）',
-      parentOptions: parentOptions
+      parentOptions: parentOptions,
     })
   },
 
@@ -661,7 +711,7 @@ Page({
     result.push({
       roleOrId: '0',
       roleOrName: '顶级架构（无父级）',
-      level: 0
+      level: 0,
     })
 
     // 遍历树形结构
@@ -670,7 +720,7 @@ Page({
         result.push({
           roleOrId: String(item.roleOrId),
           roleOrName: item.roleOrName,
-          level: level
+          level: level,
         })
         if (item.children && item.children.length > 0) {
           traverse(item.children, level + 1)
@@ -689,11 +739,11 @@ Page({
       addForm: {
         roleOrName: '',
         remark: '',
-        pid: '0'
+        pid: '0',
       },
       parentOptions: [],
       addModalTitle: '',
-      addParentRole: null
+      addParentRole: null,
     })
   },
 
@@ -702,7 +752,7 @@ Page({
     const { field } = e.currentTarget.dataset
     const { value } = e.detail
     this.setData({
-      [`addForm.${field}`]: value
+      [`addForm.${field}`]: value,
     })
   },
 
@@ -713,7 +763,7 @@ Page({
     const selectedParent = parentOptions[index]
     this.setData({
       'addForm.pid': selectedParent.roleOrId,
-      selectedParentName: selectedParent.roleOrName
+      selectedParentName: selectedParent.roleOrName,
     })
   },
 
@@ -732,7 +782,7 @@ Page({
     if (!addForm.roleOrName.trim()) {
       wx.showToast({
         title: '请输入架构名称',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -745,7 +795,7 @@ Page({
         organizeType: 0, // 默认类型
         pid: addForm.pid === '0' ? '0' : addForm.pid,
         roleOrName: addForm.roleOrName.trim(),
-        remark: addForm.remark.trim()
+        remark: addForm.remark.trim(),
       })
 
       wx.hideLoading()
@@ -753,7 +803,7 @@ Page({
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: '添加成功',
-          icon: 'success'
+          icon: 'success',
         })
         this.closeAddModal()
         // 如果是从详情弹窗添加子架构，关闭详情弹窗
@@ -768,7 +818,7 @@ Page({
           title: '添加失败',
           content: errorMsg,
           showCancel: false,
-          confirmText: '知道了'
+          confirmText: '知道了',
         })
       }
     } catch (error) {
@@ -778,7 +828,7 @@ Page({
         title: '添加失败',
         content: '网络请求失败，请稍后重试',
         showCancel: false,
-        confirmText: '知道了'
+        confirmText: '知道了',
       })
     }
   },
@@ -791,7 +841,7 @@ Page({
       organizeType: data.organizeType,
       pid: String(data.pid),
       roleOrName: data.roleOrName,
-      remark: data.remark
+      remark: data.remark,
     }
 
     console.log('[Debug] 调用新增角色接口，请求数据:', requestData)
@@ -806,7 +856,7 @@ Page({
       roleOrId: String(data.roleOrId),
       roleOrName: data.roleOrName,
       remark: data.remark,
-      status: data.status
+      status: data.status,
     }
     // pid 可能为 null 或 0，需要特殊处理
     if (data.pid !== null && data.pid !== undefined) {
@@ -835,7 +885,7 @@ Page({
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这个角色吗？',
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           try {
             // 调用删除接口
@@ -844,7 +894,7 @@ Page({
             if (deleteRes.data && deleteRes.data.code === 200) {
               wx.showToast({
                 title: '删除成功',
-                icon: 'success'
+                icon: 'success',
               })
 
               // 重新加载角色列表
@@ -856,7 +906,7 @@ Page({
                 title: '删除失败',
                 content: errorMsg,
                 showCancel: false,
-                confirmText: '知道了'
+                confirmText: '知道了',
               })
             }
           } catch (error) {
@@ -865,11 +915,11 @@ Page({
               title: '删除失败',
               content: '网络请求失败，请稍后重试',
               showCancel: false,
-              confirmText: '知道了'
+              confirmText: '知道了',
             })
           }
         }
-      }
+      },
     })
   },
 
@@ -891,7 +941,7 @@ Page({
       showAddMemberModal: true,
       memberSearchKeyword: '',
       memberSearchResults: [],
-      memberSearchLoading: false
+      memberSearchLoading: false,
     })
   },
 
@@ -901,14 +951,14 @@ Page({
       showAddMemberModal: false,
       memberSearchKeyword: '',
       memberSearchResults: [],
-      memberSearchLoading: false
+      memberSearchLoading: false,
     })
   },
 
   // 成员搜索输入
   onMemberSearchInput(e) {
     this.setData({
-      memberSearchKeyword: e.detail.value
+      memberSearchKeyword: e.detail.value,
     })
   },
 
@@ -930,7 +980,10 @@ Page({
 
     try {
       // 调用获取校友会成员列表接口，直接传入 keyword 参数
-      const res = await alumniAssociationManagementApi.getMemberList(selectedAlumniAssociationId, keyword)
+      const res = await alumniAssociationManagementApi.getMemberList(
+        selectedAlumniAssociationId,
+        keyword
+      )
 
       if (res.data && res.data.code === 200) {
         // API 返回分页格式：data.records 是成员数组
@@ -945,12 +998,12 @@ Page({
           .filter(item => !existingMemberIds.includes(item.wxId))
           .map(item => ({
             ...item,
-            isSelected: false
+            isSelected: false,
           }))
 
         this.setData({
           memberSearchResults: filteredResults,
-          memberSearchLoading: false
+          memberSearchLoading: false,
         })
       } else {
         wx.showToast({ title: res.data?.msg || '搜索失败', icon: 'none' })
@@ -969,7 +1022,7 @@ Page({
     const results = this.data.memberSearchResults
     results[index].isSelected = !results[index].isSelected
     this.setData({
-      memberSearchResults: results
+      memberSearchResults: results,
     })
   },
 
@@ -1020,7 +1073,7 @@ Page({
         const updateData = {
           showAddMemberModal: false,
           memberSearchKeyword: '',
-          memberSearchResults: []
+          memberSearchResults: [],
         }
 
         // 根据来源更新不同的数据
@@ -1040,7 +1093,11 @@ Page({
         this.setData(updateData)
 
         if (failCount > 0) {
-          wx.showToast({ title: `成功添加 ${successCount} 人，${failCount} 人失败`, icon: 'none', duration: 2000 })
+          wx.showToast({
+            title: `成功添加 ${successCount} 人，${failCount} 人失败`,
+            icon: 'none',
+            duration: 2000,
+          })
         } else {
           wx.showToast({ title: `已添加 ${successCount} 名成员`, icon: 'success' })
         }
@@ -1065,7 +1122,7 @@ Page({
     wx.showModal({
       title: '确认移除',
       content: `确定要将「${member.username || member.name || '该成员'}」从此分支移除吗？\n（成员仍保留校友会成员身份）`,
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           wx.showLoading({ title: '移除中...', mask: true })
 
@@ -1084,7 +1141,7 @@ Page({
               editingRole.members = currentMembers.filter(m => m.wxId !== member.wxId)
 
               this.setData({
-                editingRole: editingRole
+                editingRole: editingRole,
               })
 
               wx.showToast({ title: '已移除', icon: 'success' })
@@ -1100,7 +1157,7 @@ Page({
             wx.showToast({ title: '移除失败，请重试', icon: 'none' })
           }
         }
-      }
+      },
     })
   },
 
@@ -1115,8 +1172,8 @@ Page({
       showNodeDetailModal: true,
       currentDetailRole: {
         ...role,
-        members: role.members || []
-      }
+        members: role.members || [],
+      },
     })
   },
 
@@ -1124,7 +1181,7 @@ Page({
   closeNodeDetailModal() {
     this.setData({
       showNodeDetailModal: false,
-      currentDetailRole: null
+      currentDetailRole: null,
     })
   },
 
@@ -1133,7 +1190,7 @@ Page({
     if (!this.data.selectedAlumniAssociationId) {
       wx.showToast({
         title: '请先选择校友会',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -1145,8 +1202,8 @@ Page({
       addForm: {
         roleOrName: '',
         remark: '',
-        pid: '0'
-      }
+        pid: '0',
+      },
     })
   },
 
@@ -1161,8 +1218,8 @@ Page({
       addForm: {
         roleOrName: '',
         remark: '',
-        pid: String(currentDetailRole.roleOrId)
-      }
+        pid: String(currentDetailRole.roleOrId),
+      },
     })
   },
 
@@ -1174,31 +1231,37 @@ Page({
     const editParentOptions = this.getAvailableParentsForEdit(currentDetailRole)
 
     // 设置当前父级ID（默认为0表示顶级）
-    const currentPid = currentDetailRole.pid === null || currentDetailRole.pid === undefined ? '0' : String(currentDetailRole.pid)
+    const currentPid =
+      currentDetailRole.pid === null || currentDetailRole.pid === undefined
+        ? '0'
+        : String(currentDetailRole.pid)
 
     // 查找当前父级在选项列表中的索引
-    const editSelectedParentIndex = editParentOptions.findIndex(item => item.roleOrId === currentPid)
+    const editSelectedParentIndex = editParentOptions.findIndex(
+      item => item.roleOrId === currentPid
+    )
 
     // 获取当前父级名称
-    const editSelectedParentName = editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构（无父级）'
+    const editSelectedParentName =
+      editParentOptions[editSelectedParentIndex]?.roleOrName || '顶级架构（无父级）'
 
     this.setData({
       showEditModal: true,
       editingRole: {
         ...currentDetailRole,
-        members: currentDetailRole.members ? [...currentDetailRole.members] : []
+        members: currentDetailRole.members ? [...currentDetailRole.members] : [],
       },
       editForm: {
         roleOrName: currentDetailRole.roleOrName || '',
         remark: currentDetailRole.remark || '',
         status: currentDetailRole.status !== undefined ? currentDetailRole.status : 1,
-        pid: currentPid
+        pid: currentPid,
       },
       editParentOptions: editParentOptions,
       editSelectedParentIndex: editSelectedParentIndex >= 0 ? editSelectedParentIndex : 0,
       editSelectedParentName: editSelectedParentName,
       addedMembers: [],
-      removedMembers: []
+      removedMembers: [],
     })
   },
 
@@ -1210,7 +1273,7 @@ Page({
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这个架构吗？删除后不可恢复。',
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           try {
             wx.showLoading({ title: '删除中...' })
@@ -1221,7 +1284,7 @@ Page({
             if (deleteRes.data && deleteRes.data.code === 200) {
               wx.showToast({
                 title: '删除成功',
-                icon: 'success'
+                icon: 'success',
               })
               this.closeNodeDetailModal()
               await this.loadRoleList(selectedAlumniAssociationId)
@@ -1231,7 +1294,7 @@ Page({
                 title: '删除失败',
                 content: errorMsg,
                 showCancel: false,
-                confirmText: '知道了'
+                confirmText: '知道了',
               })
             }
           } catch (error) {
@@ -1241,11 +1304,11 @@ Page({
               title: '删除失败',
               content: '网络请求失败，请稍后重试',
               showCancel: false,
-              confirmText: '知道了'
+              confirmText: '知道了',
             })
           }
         }
-      }
+      },
     })
   },
 
@@ -1255,7 +1318,7 @@ Page({
       showAddMemberModal: true,
       memberSearchKeyword: '',
       memberSearchResults: [],
-      memberSearchLoading: false
+      memberSearchLoading: false,
     })
   },
 
@@ -1267,7 +1330,7 @@ Page({
     wx.showModal({
       title: '确认移除',
       content: `确定要将「${member.username || member.name || '该成员'}」从此架构移除吗？\n（成员仍保留校友会成员身份）`,
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           wx.showLoading({ title: '移除中...', mask: true })
 
@@ -1285,7 +1348,7 @@ Page({
               updatedRole.members = (updatedRole.members || []).filter(m => m.wxId !== member.wxId)
 
               this.setData({
-                currentDetailRole: updatedRole
+                currentDetailRole: updatedRole,
               })
 
               wx.showToast({ title: '已移除', icon: 'success' })
@@ -1301,7 +1364,7 @@ Page({
             wx.showToast({ title: '移除失败，请重试', icon: 'none' })
           }
         }
-      }
+      },
     })
-  }
+  },
 })

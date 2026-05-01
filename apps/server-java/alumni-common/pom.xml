@@ -110,6 +110,13 @@
             <artifactId>cos_api</artifactId>
         </dependency>
 
+        <!-- Pinyin4j for Chinese to Pinyin conversion -->
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+
         <!-- Apache Commons Codec for MD5/SHA-256 -->
         <dependency>
             <groupId>commons-codec</groupId>

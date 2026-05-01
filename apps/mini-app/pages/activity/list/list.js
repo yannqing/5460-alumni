@@ -24,6 +24,7 @@ Page({
     loading: false,
     selectedAlumniAssociationId: 0,
     selectedAlumniAssociationName: '',
+    selectedAlumniAssociationLogo: '',
     showAlumniAssociationPicker: false,
     selectedOrganizeId: 0, // 存储选中的organizeId
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限
@@ -145,6 +146,7 @@ Page({
       this.setData({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
         selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
+        selectedAlumniAssociationLogo: singleAlumni.logo || '',
         selectedOrganizeId: singleAlumni.alumniAssociationId,
         hasSingleAlumniAssociation: true,
       })
@@ -177,62 +179,40 @@ Page({
 
   // 显示校友会选择器
   showAlumniAssociationSelector() {
-    this.setData({ showAlumniAssociationPicker: false })
     this.setData({ showAlumniAssociationPicker: true })
   },
 
-  // 选择校友会
-  async selectAlumniAssociation(e) {
-    // 正确获取数据集属性
-    const alumniAssociationId = e.currentTarget.dataset.alumniAssociationId
-    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName
+  // 校友会选择器选择事件
+  onAlumniAssociationSelect(e) {
+    const item = e.detail.item
+    const alumniAssociationId = item.alumniAssociationId
+    const alumniAssociationName = item.alumniAssociationName || item.name
     console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
-
-    // 获取对应的校友会对象
-    const selectedAlumni = this.data.alumniAssociationList.find(
-      item => item.alumniAssociationId === alumniAssociationId
-    )
-    console.log('[Debug] 找到的校友会对象:', selectedAlumni)
 
     this.setData({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
+      selectedAlumniAssociationLogo: item.logo || '',
       showAlumniAssociationPicker: false,
-      selectedOrganizeId: alumniAssociationId, // 确保使用校友会ID
+      selectedOrganizeId: alumniAssociationId,
     })
 
-    try {
-      // 调用 /AlumniAssociation/{id} 接口，入参为 alumniAssociationId
-      console.log(
-        '[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:',
-        alumniAssociationId
-      )
+    this.loadActivityList()
+  },
 
-      const res = await this.getAlumniAssociationDetail(alumniAssociationId)
+  // 校友会选择器取消事件
+  cancelAlumniAssociationSelect() {
+    this.setData({ showAlumniAssociationPicker: false })
+  },
 
-      console.log('[Debug] 接口调用结果:', res)
-
-      if (res.data && res.data.code === 200 && res.data.data) {
-        console.log('[Debug] 接口调用成功，获取到的校友会信息:', res.data.data)
-      } else {
-        console.error('[Debug] 接口调用失败，返回数据:', res)
-      }
-    } catch (apiError) {
-      console.error('[Debug] 调用 /AlumniAssociation/{id} 接口失败:', apiError)
-    }
-
-    // 加载该校友会的活动列表
-    await this.loadActivityList()
+  // 校友会选择器加载更多
+  onAlumniAssociationLoadMore() {
+    // 暂未实现分页
   },
 
   // 调用校友会详情接口
   getAlumniAssociationDetail(alumniAssociationId) {
     return associationApi.getAssociationDetail(alumniAssociationId)
-  },
-
-  // 取消选择校友会
-  cancelAlumniAssociationSelect() {
-    this.setData({ showAlumniAssociationPicker: false })
   },
 
   // 加载活动列表

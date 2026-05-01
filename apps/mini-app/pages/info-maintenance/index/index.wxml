@@ -1,12 +1,12 @@
 <!--pages/info-maintenance/index/index.wxml-->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="信息维护">
 <view class="page">
-  <!-- 选择校友会卡片（与校友会审核页 group_5 一致） -->
-  <view class="group_5" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
-    <text class="text_14">信息维护</text>
-    <text class="label_text">选择校友会</text>
-    <view class="text-wrapper_8" bindtap="showAlumniAssociationSelector">
-      <text class="text_15">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+  <!-- 选择校友会区域（现代化下拉框样式，放在左上角） -->
+  <view class="alumni-selector-wrap" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <view class="alumni-selector" bindtap="showAlumniAssociationSelector">
+      <image class="selector-avatar" src="{{selectedAlumniAssociationLogo || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+      <text class="selector-text">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+      <text class="selector-arrow">▼</text>
     </view>
   </view>
 
@@ -94,40 +94,21 @@
     <text class="empty-text">您没有校友会管理员权限</text>
   </view>
 
-  <!-- 校友会选择器弹窗（与架构管理一致） -->
-  <view class="alumni-association-picker" wx:if="{{showAlumniAssociationPicker}}">
-    <view class="picker-overlay" bindtap="cancelAlumniAssociationSelect"></view>
-    <view class="picker-content">
-      <view class="picker-header">
-        <text class="picker-title">选择校友会</text>
-        <text class="picker-cancel" bindtap="cancelAlumniAssociationSelect">取消</text>
-      </view>
-      <view class="picker-list">
-        <view
-          class="picker-item {{selectedAlumniAssociationId == item.alumniAssociationId ? 'selected' : ''}}"
-          wx:for="{{alumniAssociationList}}"
-          wx:key="alumniAssociationId"
-          data-alumni-association-id="{{item.alumniAssociationId}}"
-          data-alumni-association-name="{{item.alumniAssociationName}}"
-          bindtap="selectAlumniAssociation"
-        >
-          <view class="picker-item-left">
-            <image class="picker-item-logo" src="{{item.logo}}" mode="aspectFill" wx:if="{{item.logo}}"></image>
-            <view class="picker-item-logo-placeholder" wx:else>
-              <text>{{item.alumniAssociationName[0] || '校'}}</text>
-            </view>
-            <view class="picker-item-info">
-              <text class="item-name">{{item.alumniAssociationName}}</text>
-              <text class="item-location" wx:if="{{item.location}}">{{item.location}}</text>
-            </view>
-          </view>
-          <text class="item-check" wx:if="{{selectedAlumniAssociationId == item.alumniAssociationId}}">✓</text>
-        </view>
-        <view class="picker-empty" wx:if="{{alumniAssociationList.length === 0}}">
-          <text>暂无校友会数据</text>
-        </view>
-      </view>
-    </view>
-  </view>
+  <!-- 校友会选择器弹窗 -->
+  <organization-picker
+    visible="{{showAlumniAssociationPicker}}"
+    title="选择校友会"
+    list="{{alumniAssociationList}}"
+    selectedId="{{selectedAlumniAssociationId}}"
+    showSearch="{{true}}"
+    searchPlaceholder="搜索校友会"
+    emptyText="暂无校友会数据"
+    itemKey="alumniAssociationId"
+    nameKey="alumniAssociationName"
+    showAlphabet="{{true}}"
+    bind:select="onAlumniAssociationSelect"
+    bind:cancel="cancelAlumniAssociationSelect"
+    bind:loadmore="onAlumniAssociationLoadMore"
+  />
 </view>
 </custom-nav-bar>

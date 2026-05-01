@@ -2,6 +2,7 @@
 const app = getApp()
 const request = require('../../../../utils/request.js')
 const { userApi, merchantApi } = require('../../../../api/api.js')
+const config = require('../../../../utils/config.js')
 
 Page({
   data: {
@@ -15,13 +16,15 @@ Page({
     alumniAssociationList: [],
     selectedAlumniAssociationId: '',
     selectedAlumniAssociationName: '',
+    selectedAlumniAssociationLogo: '',
     showAlumniAssociationPicker: false,
     hasSingleAlumniAssociation: false,
     hasAlumniAdminPermission: false,
     initialized: false,
     isRejectModalVisible: false,
     currentRejectId: '',
-    rejectReason: ''
+    rejectReason: '',
+    defaultUserAvatarUrl: config.defaultAvatar,
   },
 
   onLoad(options) {
@@ -36,7 +39,9 @@ Page({
   },
 
   onShow() {
-    if (!this.data.initialized) {return}
+    if (!this.data.initialized) {
+      return
+    }
     this.reloadApplyList()
   },
 
@@ -48,7 +53,7 @@ Page({
   onReachBottom() {
     if (this.data.hasMore && !this.data.loading) {
       this.setData({
-        pageNum: this.data.pageNum + 1
+        pageNum: this.data.pageNum + 1,
       })
       this.loadApplyList()
     }
@@ -60,7 +65,7 @@ Page({
       currentTab: index,
       pageNum: 1,
       applyList: [],
-      hasMore: true
+      hasMore: true,
     })
     this.loadApplyList()
   },
@@ -77,7 +82,7 @@ Page({
         this.setData({
           alumniAssociationList: [],
           hasAlumniAdminPermission: false,
-          hasSingleAlumniAssociation: false
+          hasSingleAlumniAssociation: false,
         })
         return
       }
@@ -85,20 +90,22 @@ Page({
       const organizationList = res.data.data || []
       const alumniAssociationList = organizationList.map(org => ({
         alumniAssociationId: org.id,
-        alumniAssociationName: org.name || '校友会'
+        alumniAssociationName: org.name || '校友会',
+        logo: org.logo || '',
       }))
 
       this.setData({
         alumniAssociationList,
-        hasAlumniAdminPermission: alumniAssociationList.length > 0
+        hasAlumniAdminPermission: alumniAssociationList.length > 0,
       })
 
       if (alumniAssociationList.length === 1) {
         const singleAlumni = alumniAssociationList[0]
         this.setData({
-        selectedAlumniAssociationId: String(singleAlumni.alumniAssociationId),
+          selectedAlumniAssociationId: String(singleAlumni.alumniAssociationId),
           selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
-          hasSingleAlumniAssociation: true
+          selectedAlumniAssociationLogo: singleAlumni.logo || '',
+          hasSingleAlumniAssociation: true,
         })
         this.reloadApplyList()
         return
@@ -107,20 +114,23 @@ Page({
       this.setData({
         hasSingleAlumniAssociation: false,
         selectedAlumniAssociationId: '',
-        selectedAlumniAssociationName: ''
+        selectedAlumniAssociationName: '',
+        selectedAlumniAssociationLogo: '',
       })
     } catch (error) {
       console.error('加载校友会列表失败:', error)
       this.setData({
         alumniAssociationList: [],
         hasAlumniAdminPermission: false,
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
     }
   },
 
   showAlumniAssociationSelector() {
-    if (this.data.hasSingleAlumniAssociation || !this.data.hasAlumniAdminPermission) {return}
+    if (this.data.hasSingleAlumniAssociation || !this.data.hasAlumniAdminPermission) {
+      return
+    }
     this.setData({ showAlumniAssociationPicker: true })
   },
 
@@ -128,30 +138,38 @@ Page({
     this.setData({ showAlumniAssociationPicker: false })
   },
 
-  selectAlumniAssociation(e) {
-    const alumniAssociationId = String(e.currentTarget.dataset.alumniAssociationId || '')
-    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName || ''
+  onAlumniAssociationSelect(e) {
+    const item = e.detail.item
+    const alumniAssociationId = String(item.alumniAssociationId || '')
+    const alumniAssociationName = item.alumniAssociationName || item.name || ''
 
     this.setData({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
-      showAlumniAssociationPicker: false
+      selectedAlumniAssociationLogo: item.logo || '',
+      showAlumniAssociationPicker: false,
     })
 
     this.reloadApplyList()
+  },
+
+  onAlumniAssociationLoadMore() {
+    // 暂未实现分页
   },
 
   reloadApplyList() {
     this.setData({
       pageNum: 1,
       applyList: [],
-      hasMore: true
+      hasMore: true,
     })
     this.loadApplyList()
   },
 
   async loadApplyList() {
-    if (this.data.loading) {return}
+    if (this.data.loading) {
+      return
+    }
     if (
       this.data.hasAlumniAdminPermission &&
       !this.data.hasSingleAlumniAssociation &&
@@ -159,9 +177,9 @@ Page({
     ) {
       return
     }
-    
+
     this.setData({ loading: true })
-    
+
     try {
       // 映射标签页到审核状态
       let status = null
@@ -177,19 +195,19 @@ Page({
       const params = {
         current: this.data.pageNum,
         pageSize: this.data.pageSize,
-        alumniAssociationId: this.data.selectedAlumniAssociationId
+        alumniAssociationId: this.data.selectedAlumniAssociationId,
       }
-      
+
       if (status !== null) {
         params.status = status
       }
 
       // 调用新写的商户加入校友会申请列表接口
       const res = await merchantApi.getMerchantJoinApplyPage(params)
-      
+
       if (res.data && res.data.code === 200 && res.data.data) {
         const records = res.data.data.records || []
-        
+
         // 转换数据格式以适配页面展示
         const formattedList = records.map(item => {
           let statusText = ''
@@ -211,7 +229,7 @@ Page({
               statusText = '未知状态'
               statusTag = 'unknown'
           }
-          
+
           return {
             // 雪花ID统一按字符串处理，避免 JS Number 精度丢失
             id: item.id != null ? String(item.id) : '', // 申请记录ID
@@ -224,23 +242,24 @@ Page({
             statusText: statusText,
             submitTime: this.formatDisplayTime(item.createTime),
             reviewStatus: item.status,
-            reviewReason: item.reviewComment
+            reviewReason: item.reviewComment,
           }
         })
-        
-        const newList = this.data.pageNum === 1 ? formattedList : [...this.data.applyList, ...formattedList]
+
+        const newList =
+          this.data.pageNum === 1 ? formattedList : [...this.data.applyList, ...formattedList]
         const total = parseInt(res.data.data.total) || 0
         const hasMore = newList.length < total
-        
+
         this.setData({
           applyList: newList,
           hasMore: hasMore,
-          loading: false
+          loading: false,
         })
       } else {
         wx.showToast({
           title: res.data.msg || '加载失败',
-          icon: 'none'
+          icon: 'none',
         })
         this.setData({ loading: false })
       }
@@ -248,14 +267,16 @@ Page({
       console.error('加载商户加入申请列表失败:', error)
       wx.showToast({
         title: '加载失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
       this.setData({ loading: false })
     }
   },
 
   formatDisplayTime(timeStr) {
-    if (!timeStr) {return ''}
+    if (!timeStr) {
+      return ''
+    }
     return String(timeStr).replace('T', ' ')
   },
 
@@ -265,12 +286,12 @@ Page({
     if (!idStr) {
       wx.showToast({
         title: '参数错误',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
     wx.navigateTo({
-      url: `/pages/audit/merchant/apply-detail/apply-detail?id=${encodeURIComponent(idStr)}`
+      url: `/pages/audit/merchant/apply-detail/apply-detail?id=${encodeURIComponent(idStr)}`,
     })
   },
 
@@ -280,7 +301,7 @@ Page({
     if (!idStr) {
       wx.showToast({
         title: '参数错误',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -289,7 +310,7 @@ Page({
       this.setData({
         isRejectModalVisible: true,
         currentRejectId: idStr,
-        rejectReason: ''
+        rejectReason: '',
       })
       return
     }
@@ -297,11 +318,11 @@ Page({
     wx.showModal({
       title: '确认审核',
       content: '确定通过该商户申请吗？',
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           await this.submitAudit(idStr, status)
         }
-      }
+      },
     })
   },
 
@@ -314,44 +335,44 @@ Page({
       if (reviewStatus === 2) {
         reviewComment = String(reason || '').trim()
       }
-      
+
       const res = await merchantApi.reviewMerchantJoinApply({
         id: id,
         status: reviewStatus,
-        reviewComment: reviewComment
+        reviewComment: reviewComment,
       })
-      
+
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: status === 'approved' ? '审核通过' : '已拒绝',
-          icon: 'success'
+          icon: 'success',
         })
-        
+
         // 重置列表并重新加载
         this.setData({
           pageNum: 1,
           applyList: [],
-          hasMore: true
+          hasMore: true,
         })
         this.loadApplyList()
       } else {
         wx.showToast({
           title: res.data.msg || '审核失败',
-          icon: 'none'
+          icon: 'none',
         })
       }
     } catch (error) {
       console.error('提交审核失败:', error)
       wx.showToast({
         title: '审核失败，请重试',
-        icon: 'none'
+        icon: 'none',
       })
     }
   },
 
   onRejectReasonInput(e) {
     this.setData({
-      rejectReason: e.detail.value
+      rejectReason: e.detail.value,
     })
   },
 
@@ -359,7 +380,7 @@ Page({
     this.setData({
       isRejectModalVisible: false,
       currentRejectId: '',
-      rejectReason: ''
+      rejectReason: '',
     })
   },
 
@@ -368,12 +389,12 @@ Page({
     if (!reason) {
       wx.showToast({
         title: '请填写拒绝原因',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
 
     await this.submitAudit(this.data.currentRejectId, 'rejected', reason)
     this.hideRejectModal()
-  }
+  },
 })

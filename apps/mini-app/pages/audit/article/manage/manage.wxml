@@ -1,6 +1,15 @@
 <!-- pages/audit/article/manage/manage.wxml -->
 <custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="文章管理">
 <view class="article-management-list-page">
+  <!-- 选择校友会区域（现代化下拉框样式，放在左上角） -->
+  <view class="alumni-selector-wrap" wx:if="{{!hasSingleAlumniAssociation && hasAlumniAdminPermission}}">
+    <view class="alumni-selector" bindtap="showAlumniAssociationSelector">
+      <image class="selector-avatar" src="{{selectedAlumniAssociationLogo || defaultUserAvatarUrl}}" mode="aspectFill"></image>
+      <text class="selector-text">{{selectedAlumniAssociationName || '请选择校友会'}}</text>
+      <text class="selector-arrow">▼</text>
+    </view>
+  </view>
+
   <!-- Tab 切换 -->
   <view class="tab-container">
     <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="onTabChange" data-tab="all">
@@ -146,5 +155,22 @@
       <button class="modal-btn confirm-btn {{approvalAction === 2 ? 'reject-confirm-btn' : ''}}" bindtap="submitApproval">确定</button>
     </view>
   </view>
+
+  <!-- 校友会选择器弹窗 -->
+  <organization-picker
+    visible="{{showAlumniAssociationPicker}}"
+    title="选择校友会"
+    list="{{alumniAssociationList}}"
+    selectedId="{{selectedAlumniAssociationId}}"
+    showSearch="{{true}}"
+    searchPlaceholder="搜索校友会"
+    emptyText="暂无校友会数据"
+    itemKey="alumniAssociationId"
+    nameKey="alumniAssociationName"
+    showAlphabet="{{true}}"
+    bind:select="onAlumniAssociationSelect"
+    bind:cancel="cancelAlumniAssociationSelect"
+    bind:loadmore="onAlumniAssociationLoadMore"
+  />
 </view>
 </custom-nav-bar>

@@ -12,6 +12,7 @@ import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
 import com.cmswe.alumni.common.model.UserOnlineStatusKaf;
 import com.cmswe.alumni.common.utils.JwtUtils;
+import com.cmswe.alumni.common.utils.PinyinUtil;
 import com.cmswe.alumni.kafka.utils.KafkaUtils;
 import com.cmswe.alumni.api.association.SchoolService;
 import com.cmswe.alumni.common.entity.*;
@@ -990,6 +991,46 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     }
 
     @Override
+    public List<ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly, String name) {
+        List<ManagedOrganizationListVo> result = getManagedOrganizations(wxId, type, roleScopedOnly);
+        if (name != null && !name.trim().isEmpty()) {
+            String keyword = name.trim().toLowerCase();
+            result = result.stream()
+                    .filter(org -> org.getName() != null && org.getName().toLowerCase().contains(keyword))
+                    .collect(Collectors.toList());
+        }
+        // 按拼音首字母排序
+        result.sort((a, b) -> {
+            String initialA = a.getPinyinInitial() != null ? a.getPinyinInitial() : "";
+            String initialB = b.getPinyinInitial() != null ? b.getPinyinInitial() : "";
+            return initialA.compareTo(initialB);
+        });
+        return result;
+    }
+
+    @Override
+    public Page<ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly, String name, int current, int pageSize) {
+        List<ManagedOrganizationListVo> result = getManagedOrganizations(wxId, type, roleScopedOnly, name);
+        Page<ManagedOrganizationListVo> page = new Page<>(current, pageSize);
+
+        // 手动分页：从 all records 中切片当前页的数据
+        int fromIndex = (current - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, result.size());
+
+        if (fromIndex >= result.size()) {
+            page.setRecords(List.of());
+        } else {
+            page.setRecords(result.subList(fromIndex, toIndex));
+        }
+
+        page.setTotal(result.size());
+        long totalPages = (result.size() + pageSize - 1) / pageSize;
+        page.setPages((int) totalPages);
+
+        return page;
+    }
+
+    @Override
     public Set<Long> getManagedAlumniAssociationIdsByRole(Long wxId) {
         List<ManagedOrganizationListVo> orgs = getManagedOrganizationsByRole(wxId, 0);
         return orgs.stream()
@@ -1028,6 +1069,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                 vo.setLogo(association.getLogo());
                 vo.setName(association.getAssociationName());
                 vo.setLocation(association.getLocation());
+                vo.setPinyinInitial(PinyinUtil.getPinyinInitial(association.getAssociationName()));
+                vo.setPinyin(PinyinUtil.getPinyin(association.getAssociationName()));
                 result.add(vo);
             });
         }
@@ -1046,6 +1089,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                 vo.setLogo(platform.getAvatar());
                 vo.setName(platform.getPlatformName());
                 vo.setLocation(platform.getCity());
+                vo.setPinyinInitial(PinyinUtil.getPinyinInitial(platform.getPlatformName()));
+                vo.setPinyin(PinyinUtil.getPinyin(platform.getPlatformName()));
                 result.add(vo);
             });
         }
@@ -1069,6 +1114,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                         (shop.getDistrict() != null ? shop.getDistrict() : "") +
                         (shop.getAddress() != null ? shop.getAddress() : "");
                 vo.setLocation(location.isEmpty() ? null : location);
+                vo.setPinyinInitial(PinyinUtil.getPinyinInitial(shop.getShopName()));
+                vo.setPinyin(PinyinUtil.getPinyin(shop.getShopName()));
                 result.add(vo);
             });
         }
@@ -1169,6 +1216,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                         vo.setLogo(association.getLogo());
                         vo.setName(association.getAssociationName());
                         vo.setLocation(association.getLocation());
+                        vo.setPinyinInitial(PinyinUtil.getPinyinInitial(association.getAssociationName()));
+                        vo.setPinyin(PinyinUtil.getPinyin(association.getAssociationName()));
                         result.add(vo);
                     }
                 });
@@ -1188,6 +1237,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                         vo.setLogo(platform.getAvatar());
                         vo.setName(platform.getPlatformName());
                         vo.setLocation(platform.getCity());
+                        vo.setPinyinInitial(PinyinUtil.getPinyinInitial(platform.getPlatformName()));
+                        vo.setPinyin(PinyinUtil.getPinyin(platform.getPlatformName()));
                         result.add(vo);
                     }
                 });
@@ -1207,6 +1258,8 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
                         vo.setLogo(merchant.getLogo());
                         vo.setName(merchant.getMerchantName());
                         vo.setLocation(null);
+                        vo.setPinyinInitial(PinyinUtil.getPinyinInitial(merchant.getMerchantName()));
+                        vo.setPinyin(PinyinUtil.getPinyin(merchant.getMerchantName()));
                         result.add(vo);
                     }
                 });

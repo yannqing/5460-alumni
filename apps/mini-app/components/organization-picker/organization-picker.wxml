@@ -1,0 +1,59 @@
+<!--components/organization-picker/organization-picker.wxml-->
+<view class="organization-picker" wx:if="{{visible}}">
+  <view class="picker-overlay" bindtap="onCancel"></view>
+  <view class="picker-content">
+    <view class="picker-header">
+      <text class="picker-title">{{title}}</text>
+      <text class="picker-cancel" bindtap="onCancel">取消</text>
+    </view>
+    <view class="picker-search" wx:if="{{showSearch}}">
+      <input
+        class="search-input"
+        placeholder="{{searchPlaceholder}}"
+        placeholder-class="search-placeholder"
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+      />
+    </view>
+    <view class="picker-body">
+      <!-- 字母索引栏 -->
+      <view class="alphabet-sidebar" wx:if="{{showAlphabet}}">
+        <text
+          class="alphabet-letter {{item === activeAlphabet ? 'active' : ''}} {{!availableAlphabets.includes(item) ? 'disabled' : ''}}"
+          wx:for="{{alphabetList}}"
+          wx:key="*this"
+          data-letter="{{item}}"
+          bindtap="onAlphabetTap"
+        >{{item}}</text>
+      </view>
+      <!-- 列表 -->
+      <scroll-view
+        class="picker-list"
+        scroll-y
+        enhanced
+        bindscrolltolower="onScrollLower"
+        bindscroll="onListScroll"
+        lower-threshold="50"
+      >
+        <view
+          class="picker-item"
+          wx:for="{{displayList}}"
+          wx:key="{{itemKey}}"
+          data-item="{{item}}"
+          bindtap="onSelect"
+        >
+          <image class="item-logo" src="{{item.logo}}" mode="aspectFill" binderror="onLogoError" data-index="{{index}}"></image>
+          <text class="item-name">{{item.name || item.alumniAssociationName}}</text>
+          <text class="item-pinyin" wx:if="{{item.pinyin}}">{{item.pinyin}}</text>
+          <text class="item-check" wx:if="{{selectedId == item[itemKey]}}">✓</text>
+        </view>
+        <view class="picker-loading" wx:if="{{loadingMore}}">
+          <text>加载中...</text>
+        </view>
+        <view class="picker-empty" wx:if="{{displayList.length === 0 && !loadingMore}}">
+          <text>{{emptyText}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

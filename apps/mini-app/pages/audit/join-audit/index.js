@@ -1,5 +1,5 @@
 // pages/audit/join-audit/index.js
-const { joinApplicationApi, associationApi, userApi } = require('../../../api/api.js')
+const { joinApplicationApi, userApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
 const app = getApp()
 
@@ -9,9 +9,17 @@ Page({
     loading: false,
     selectedAlumniAssociationId: 0,
     selectedAlumniAssociationName: '',
+    selectedAlumniAssociationLogo: '',
     showAlumniAssociationPicker: false,
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限,
     hasAlumniAdminPermission: false, // 是否有校友会管理员身份,
+    defaultUserAvatarUrl: config.defaultAvatar,
+    // 校友会列表分页相关
+    organizationCurrentPage: 1,
+    organizationPageSize: 20,
+    organizationTotal: 0,
+    organizationLoading: false,
+    organizationHasMore: true,
     // 审核列表相关
     applicationList: [],
     applicationLoading: false,
@@ -25,7 +33,7 @@ Page({
       { value: 0, label: '待审核' },
       { value: 1, label: '已通过' },
       { value: 2, label: '已拒绝' },
-      { value: 3, label: '已撤销' }
+      { value: 3, label: '已撤销' },
     ],
     // 审核相关
     reviewing: false,
@@ -42,34 +50,38 @@ Page({
 
   // 加载审核列表
   async loadApplicationList(refresh = false) {
-    if (this.data.applicationLoading) {return}
-    
+    if (this.data.applicationLoading) {
+      return
+    }
+
     if (refresh) {
       this.setData({
         currentPage: 1,
         applicationList: [],
-        hasMore: true
+        hasMore: true,
       })
     }
-    
-    if (!this.data.hasMore) {return}
-    
+
+    if (!this.data.hasMore) {
+      return
+    }
+
     try {
       this.setData({ applicationLoading: true })
-      
+
       const params = {
         current: this.data.currentPage,
         pageSize: this.data.pageSize,
         alumniAssociationId: this.data.selectedAlumniAssociationId || 0,
-        applicationStatus: this.data.applicationStatus
+        applicationStatus: this.data.applicationStatus,
       }
-      
+
       console.log('[Debug] 加载审核列表参数:', params)
-      
+
       const res = await this.getApplicationList(params)
-      
+
       console.log('[Debug] 加载审核列表结果:', res)
-      
+
       if (res.data && res.data.code === 200 && res.data.data) {
         // 处理数据：格式化时间（去掉T）
         const processedRecords = (res.data.data.records || []).map(item => {
@@ -81,14 +93,16 @@ Page({
           }
           return item
         })
-        
-        const newList = refresh ? processedRecords : [...this.data.applicationList, ...processedRecords]
-        
+
+        const newList = refresh
+          ? processedRecords
+          : [...this.data.applicationList, ...processedRecords]
+
         this.setData({
           applicationList: newList,
           total: res.data.data.total || 0,
           hasMore: newList.length < (res.data.data.total || 0),
-          currentPage: refresh ? 2 : this.data.currentPage + 1
+          currentPage: refresh ? 2 : this.data.currentPage + 1,
         })
       } else {
         console.error('[Debug] 加载审核列表失败:', res)
@@ -107,25 +121,33 @@ Page({
     return joinApplicationApi.getApplicationPage(params)
   },
 
-  // 加载校友会列表（与 member 页面一致：直接调用 managed-organizations 接口）
-  async loadAlumniAssociationList() {
+  // 加载校友会列表
+  async loadAlumniAssociationList(refresh = false) {
+    if (this.data.organizationLoading) return
+    if (!refresh && !this.data.organizationHasMore) return
+
+    const currentPage = refresh ? 1 : this.data.organizationCurrentPage
+
     try {
-      console.log('[Debug] 开始加载校友会列表')
-      const res = await userApi.getManagedOrganizations({ type: 0 })
-      console.log('[Debug] 获取用户管理的校友会列表:', res)
+      this.setData({ organizationLoading: true })
+
+      const res = await userApi.getManagedOrganizationsPage({
+        type: 0,
+        current: currentPage,
+        pageSize: this.data.organizationPageSize,
+      })
 
       if (!(res.data && res.data.code === 200)) {
         console.error('[Debug] 获取校友会列表接口调用失败:', res)
-        this.setData({
-          alumniAssociationList: [],
-          hasAlumniAdminPermission: false
-        })
+        this.setData({ hasAlumniAdminPermission: false })
         return
       }
 
-      const organizationList = res.data.data || []
-      const alumniAssociationList = organizationList.map(org => {
-        let logo = org.logo || ''
+      const pageData = res.data.data
+      const records = pageData.records || []
+
+      const alumniAssociationList = records.map(org => {
+        let logo = org.logo || config.defaultAvatar
         if (logo && !logo.startsWith('http://') && !logo.startsWith('https://')) {
           logo = config.getImageUrl(logo)
         }
@@ -136,77 +158,35 @@ Page({
           organizeId: org.id,
           logo,
           location: org.location || '',
-          type: org.type
+          type: org.type,
         }
-      })
-      this.setData({
-        hasAlumniAdminPermission: alumniAssociationList.length > 0
       })
 
-      if (alumniAssociationList.length > 0) {
-        // 设置基本列表
-        this.setData({
-          alumniAssociationList: alumniAssociationList
-        })
-        console.log('[Debug] 初始校友会列表:', alumniAssociationList)
-        
-        // 尝试为所有校友会调用接口获取更详细的信息
-        try {
-          // 使用Promise.all并行获取所有校友会的详细信息
-          const detailPromises = alumniAssociationList.map(async (alumni, index) => {
-            try {
-              const res = await this.getAlumniAssociationDetail(alumni.alumniAssociationId)
-              if (res.data && res.data.code === 200 && res.data.data) {
-                console.log(`[Debug] 获取校友会 ${index + 1} 详细信息成功:`, res.data.data)
-                
-                // 更新校友会的详细信息
-                return {
-                  ...res.data.data,
-                  id: res.data.data.alumniAssociationId || res.data.data.id || alumni.alumniAssociationId,
-                  alumniAssociationId: res.data.data.alumniAssociationId || alumni.alumniAssociationId,
-                  alumniAssociationName: res.data.data.associationName || res.data.data.name || alumni.alumniAssociationName,
-                  organizeId: res.data.data.organizeId || alumni.alumniAssociationId // 确保有organizeId
-                }
-              }
-              return alumni // 如果接口调用失败，返回原始数据
-            } catch (error) {
-              console.log(`[Debug] 获取校友会 ${index + 1} 详细信息失败:`, error)
-              return alumni // 如果发生错误，返回原始数据
-            }
-          })
-          
-          // 等待所有请求完成
-          const detailedAlumniList = await Promise.all(detailPromises)
-          
-          // 更新校友会列表
-          this.setData({
-            alumniAssociationList: detailedAlumniList
-          })
-          console.log('[Debug] 已更新所有校友会详细信息:', detailedAlumniList)
-          
-          // 判断权限数量，处理自动选择逻辑
-          this.handleAlumniAssociationSelection(detailedAlumniList)
-        } catch (apiError) {
-          console.log('[Debug] 获取校友会详细信息失败:', apiError)
-          // 继续使用之前创建的基本数据
-          this.handleAlumniAssociationSelection(alumniAssociationList)
-        }
-      } else {
-        // 没有找到校友会管理员权限
-        console.warn('[Debug] 没有找到校友会管理员权限')
-        this.setData({
-          alumniAssociationList: [],
-          hasAlumniAdminPermission: false
-        })
+      const newList = refresh
+        ? alumniAssociationList
+        : [...this.data.alumniAssociationList, ...alumniAssociationList]
+
+      this.setData({
+        alumniAssociationList: newList,
+        organizationCurrentPage: currentPage + 1,
+        organizationTotal: pageData.total || 0,
+        organizationHasMore: newList.length < (pageData.total || 0),
+        hasAlumniAdminPermission: newList.length > 0,
+      })
+
+      if (refresh && alumniAssociationList.length > 0) {
+        this.handleAlumniAssociationSelection(alumniAssociationList)
       }
     } catch (error) {
       console.error('[Debug] 加载校友会列表失败:', error)
-      // 发生错误时，设置为空数组
-      this.setData({
-        alumniAssociationList: [],
-        hasAlumniAdminPermission: false
-      })
+    } finally {
+      this.setData({ organizationLoading: false })
     }
+  },
+
+  // 加载更多校友会
+  loadMoreAlumniAssociations() {
+    this.loadAlumniAssociationList(false)
   },
 
   // 处理校友会选择逻辑
@@ -217,7 +197,8 @@ Page({
       this.setData({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
         selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
-        hasSingleAlumniAssociation: true
+        selectedAlumniAssociationLogo: singleAlumni.logo || '',
+        hasSingleAlumniAssociation: true,
       })
       console.log('[Debug] 只有一个校友会权限，自动选择:', singleAlumni)
       // 加载审核列表
@@ -225,13 +206,13 @@ Page({
     } else if (alumniAssociationList.length > 1) {
       // 多个校友会权限，正常显示选择器
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 有多个校友会权限，正常显示选择器')
     } else {
       // 没有校友会权限
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 没有校友会权限')
     }
@@ -239,44 +220,47 @@ Page({
 
   // 显示校友会选择器
   showAlumniAssociationSelector() {
-    this.setData({ showAlumniAssociationPicker: false })
     this.setData({ showAlumniAssociationPicker: true })
   },
 
-  // 选择校友会
-  async selectAlumniAssociation(e) {
-    // 正确获取数据集属性
-    const alumniAssociationId = e.currentTarget.dataset.alumniAssociationId
-    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName
-    console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
-
+  // 校友会选择器选择事件
+  onAlumniAssociationSelect(e) {
+    const { item } = e.detail
     this.setData({
-      selectedAlumniAssociationId: alumniAssociationId,
-      selectedAlumniAssociationName: alumniAssociationName,
-      showAlumniAssociationPicker: false
+      selectedAlumniAssociationId: item.alumniAssociationId,
+      selectedAlumniAssociationName: item.alumniAssociationName,
+      selectedAlumniAssociationLogo: item.logo || '',
+      showAlumniAssociationPicker: false,
     })
-    
-    // 重新加载审核列表
-    await this.loadApplicationList(true)
+    this.loadApplicationList(true)
   },
 
-  // 取消选择校友会
-  cancelAlumniAssociationSelect() {
+  // 校友会选择器取消事件
+  onAlumniAssociationCancel() {
     this.setData({ showAlumniAssociationPicker: false })
+  },
+
+  // 校友会选择器加载更多
+  onOrganizationPickerLoadMore() {
+    this.loadAlumniAssociationList(false)
   },
 
   // 选择状态
   async selectStatus(e) {
     const status = parseInt(e.currentTarget.dataset.status)
-    if (status === this.data.applicationStatus) {return}
-    
+    if (status === this.data.applicationStatus) {
+      return
+    }
+
     this.setData({ applicationStatus: status })
     await this.loadApplicationList(true)
   },
 
   // 滚动触底加载更多
   loadMore() {
-    if (!this.data.hasMore || this.data.applicationLoading) {return}
+    if (!this.data.hasMore || this.data.applicationLoading) {
+      return
+    }
     this.loadApplicationList()
   },
 
@@ -286,11 +270,11 @@ Page({
     wx.showModal({
       title: '通过审核',
       content: '确定要通过该申请吗？',
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           await this.submitReview(applicationId, 1)
         }
-      }
+      },
     })
   },
 
@@ -301,53 +285,55 @@ Page({
       title: '拒绝审核',
       placeholderText: '请输入拒绝理由',
       editable: true,
-      success: async (res) => {
+      success: async res => {
         if (res.confirm) {
           const reviewComment = res.content.trim()
           if (!reviewComment) {
             wx.showToast({
               title: '拒绝理由不能为空',
-              icon: 'none'
+              icon: 'none',
             })
             return
           }
           await this.submitReview(applicationId, 2, reviewComment)
         }
-      }
+      },
     })
   },
 
   // 提交审核
   async submitReview(applicationId, reviewResult, reviewComment = '') {
-    if (this.data.reviewing) {return}
-    
+    if (this.data.reviewing) {
+      return
+    }
+
     try {
       this.setData({ reviewing: true })
-      
+
       const params = {
         applicationId: applicationId,
         reviewResult: reviewResult,
-        reviewComment: reviewComment
+        reviewComment: reviewComment,
       }
-      
+
       console.log('[Debug] 提交审核参数:', params)
-      
+
       const res = await this.reviewApplication(params)
-      
+
       console.log('[Debug] 提交审核结果:', res)
-      
+
       if (res.data && res.data.code === 200) {
         wx.showToast({
           title: reviewResult === 1 ? '通过成功' : '拒绝成功',
           icon: 'success',
-          duration: 2000
+          duration: 2000,
         })
         await this.loadApplicationList(true)
       } else {
         wx.showToast({
           title: res.data?.msg || '审核失败',
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
       }
     } catch (error) {
@@ -355,7 +341,7 @@ Page({
       wx.showToast({
         title: '网络异常，请重试',
         icon: 'none',
-        duration: 2000
+        duration: 2000,
       })
     } finally {
       this.setData({ reviewing: false })
@@ -367,16 +353,11 @@ Page({
     return joinApplicationApi.reviewApplication(params)
   },
 
-  // 调用校友会详情接口
-  getAlumniAssociationDetail(alumniAssociationId) {
-    return associationApi.getAssociationDetail(alumniAssociationId)
-  },
-
   // 跳转到申请详情页
   goToDetail(e) {
     const applicationId = e.currentTarget.dataset.applicationId
     wx.navigateTo({
-      url: `/pages/audit/join-audit/detail?applicationId=${applicationId}`
+      url: `/pages/audit/join-audit/detail?applicationId=${applicationId}`,
     })
-  }
+  },
 })
