@@ -240,7 +240,7 @@ Page({
       return
     }
     wx.navigateTo({
-      url: `/pages/audit/merchant/info-maintenance/edit/edit?merchantId=${merchantId}`,
+      url: `/pages/merchant/perfect-info/perfect-info?merchantId=${merchantId}&mode=edit`,
     })
   },
 

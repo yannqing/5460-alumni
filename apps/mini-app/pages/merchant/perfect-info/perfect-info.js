@@ -6,6 +6,7 @@ Page({
     detailLoading: true,
     submitting: false,
     merchantIdStr: '',
+    pageMode: 'perfect',
     associationDisplayName: '',
     associationLogoUrl: '',
     associationNameFirstChar: '校',
@@ -25,7 +26,6 @@ Page({
       businessLicense: '',
       unifiedSocialCreditCode: '',
       legalPerson: '',
-      legalPersonId: '',
       contactPhone: '',
       phone: '',
       contactEmail: '',
@@ -41,12 +41,8 @@ Page({
 
   onLoad(options) {
     const merchantIdStr = options.merchantId ? String(options.merchantId) : ''
-    if (!merchantIdStr) {
-      wx.showToast({ title: '缺少商户信息', icon: 'none' })
-      setTimeout(() => wx.navigateBack(), 1500)
-      return
-    }
-    this.setData({ merchantIdStr })
+    const pageMode = options.mode === 'edit' ? 'edit' : 'perfect'
+    this.setData({ merchantIdStr, pageMode })
     this.loadCategoryOptions().finally(() => {
       this.loadMerchantDetail(merchantIdStr)
     })
@@ -163,7 +159,7 @@ Page({
   async loadMerchantDetail(merchantIdStr) {
     this.setData({ detailLoading: true })
     try {
-      const res = await merchantApi.getMerchantInfo(merchantIdStr)
+      const res = await merchantApi.getMerchantDetailById(merchantIdStr)
       const body = res.data || {}
       if (body.code !== 200 || !body.data) {
         wx.showToast({ title: body.message || '加载失败', icon: 'none' })
@@ -206,7 +202,6 @@ Page({
           businessLicense: data.businessLicense || '',
           unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
           legalPerson: data.legalPerson || '',
-          legalPersonId: data.legalPersonId ? String(data.legalPersonId).trim() : '',
           contactPhone: data.contactPhone || '',
           phone: data.phone || '',
           contactEmail: data.contactEmail || '',
@@ -482,10 +477,8 @@ Page({
     const normalizedCreditCode = String(formData.unifiedSocialCreditCode || '')
       .trim()
       .toUpperCase()
-    const legalPersonId = (formData.legalPersonId || '').trim()
     const contactPhone = (formData.contactPhone || '').trim()
     const legalPhone = (formData.phone || '').trim()
-    const idCardReg = /^\d{17}[\dXx]$/
     const mobileReg = /^1[3-9]\d{9}$/
     // 基础校验
     if (!formData.merchantName.trim())
@@ -497,11 +490,6 @@ Page({
     if (!/^[0-9A-Z]{18}$/.test(normalizedCreditCode))
       return wx.showToast({ title: '统一社会信用代码格式不正确', icon: 'none' })
     if (!formData.legalPerson.trim()) return wx.showToast({ title: '请输入法人姓名', icon: 'none' })
-    if (!legalPersonId) return wx.showToast({ title: '请输入法人身份证号', icon: 'none' })
-    if (legalPersonId.length !== 18)
-      return wx.showToast({ title: '法人身份证号须为18位', icon: 'none' })
-    if (!idCardReg.test(legalPersonId))
-      return wx.showToast({ title: '法人身份证号格式不正确', icon: 'none' })
     if (!contactPhone) return wx.showToast({ title: '请输入商家联系电话', icon: 'none' })
     if (!mobileReg.test(contactPhone))
       return wx.showToast({ title: '商家联系电话格式不正确', icon: 'none' })
@@ -520,10 +508,9 @@ Page({
     const payload = {
       merchantId: merchantIdStr,
       merchantName: formData.merchantName.trim(),
-      merchantType: 2,
+      merchantType: formData.merchantType,
       unifiedSocialCreditCode: normalizedCreditCode,
       legalPerson: formData.legalPerson.trim(),
-      legalPersonId: legalPersonId.toUpperCase(),
       contactPhone,
       phone: legalPhone,
       businessLicense: formData.businessLicense.trim(),
@@ -532,20 +519,25 @@ Page({
       businessCategory: formData.businessCategory.trim(),
       city: formData.city.trim(),
       logo: formData.logo.trim(),
-      alumniAssociationId: '',
       backgroundImage: JSON.stringify(this.data.backgroundImageList),
       detailImages: JSON.stringify(this.data.detailImageList),
+    }
+    if (formData.alumniAssociationId) {
+      payload.alumniAssociationId = formData.alumniAssociationId
     }
 
     this.setData({ submitting: true })
     try {
-      const res = await merchantApi.publishMerchant(payload)
+      const isPerfectMode = this.data.pageMode === 'perfect'
+      const api = isPerfectMode ? merchantApi.publishMerchant : merchantApi.updateMerchantInfo
+      const successMsg = isPerfectMode ? '发布成功' : '保存成功'
+      const res = await api(payload)
       const body = res.data || {}
       if (body.code === 200) {
-        wx.showToast({ title: '发布成功', icon: 'success' })
+        wx.showToast({ title: successMsg, icon: 'success' })
         setTimeout(() => wx.navigateBack(), 1000)
       } else {
-        wx.showToast({ title: body.message || '发布失败', icon: 'none' })
+        wx.showToast({ title: body.message || '操作失败', icon: 'none' })
       }
     } catch (err) {
       wx.showToast({ title: '系统错误', icon: 'none' })

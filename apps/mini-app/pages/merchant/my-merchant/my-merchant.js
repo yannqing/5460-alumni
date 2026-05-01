@@ -1,10 +1,12 @@
 // pages/merchant/my-merchant/my-merchant.js
 const { merchantApi } = require('../../../api/api.js')
+const { hasManagementPermission } = require('../../../utils/auth.js')
 
 Page({
   data: {
     loading: false,
-    merchantList: []
+    merchantList: [],
+    hasAdminPermission: false,
   },
 
   onLoad() {
@@ -12,31 +14,36 @@ Page({
   },
 
   onShow() {
+    this.setData({ hasAdminPermission: hasManagementPermission() })
     this.loadMerchants()
   },
 
   loadMerchants() {
     this.setData({ loading: true })
-    
-    merchantApi.getMyMerchantApplications().then(res => {
-      if (res && res.data && res.data.code === 200) {
-        const merchantList = res.data.data || []
-        this.setData({
-          merchantList: merchantList
-        })
-      }
-    }).catch(err => {
-      console.error('获取商户列表失败:', err)
-    }).finally(() => {
-      this.setData({ loading: false })
-    })
+
+    merchantApi
+      .getMyMerchantApplications()
+      .then(res => {
+        if (res && res.data && res.data.code === 200) {
+          const merchantList = res.data.data || []
+          this.setData({
+            merchantList: merchantList,
+          })
+        }
+      })
+      .catch(err => {
+        console.error('获取商户列表失败:', err)
+      })
+      .finally(() => {
+        this.setData({ loading: false })
+      })
   },
 
   viewDetail(e) {
     const { id } = e.currentTarget.dataset
     if (!id) return
     wx.navigateTo({
-      url: `/pages/audit/merchant/apply-detail/apply-detail?merchantId=${id}`
+      url: `/pages/audit/merchant/apply-detail/apply-detail?merchantId=${id}`,
     })
   },
 
@@ -44,19 +51,25 @@ Page({
     const { id } = e.currentTarget.dataset
     if (!id) return
     wx.navigateTo({
-      url: `/pages/merchant/perfect-info/perfect-info?merchantId=${id}`
+      url: `/pages/merchant/perfect-info/perfect-info?merchantId=${id}`,
     })
   },
 
   goToApplyMerchant() {
     wx.navigateTo({
-      url: '/pages/merchant/apply/apply'
+      url: '/pages/merchant/apply/apply',
     })
   },
 
   goToJoinAssociation() {
     wx.navigateTo({
-      url: '/pages/merchant/join-association/join-association'
+      url: '/pages/merchant/join-association/join-association',
     })
-  }
+  },
+
+  goToAdmin() {
+    wx.navigateTo({
+      url: '/pages/audit/index/index',
+    })
+  },
 })
