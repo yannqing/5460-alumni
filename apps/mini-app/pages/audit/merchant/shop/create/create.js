@@ -8,14 +8,10 @@ Page({
     merchantList: [],
     selectedMerchantId: '',
     selectedMerchantName: '',
-    uploadedImages: [],
     formData: {
       merchantId: '',
       shopName: '',
       shopType: 1,
-      province: '',
-      city: '',
-      district: '',
       address: '',
       locationName: '',
       latitude: '',
@@ -23,7 +19,6 @@ Page({
       phone: '',
       businessHours: '',
       shopImages: '',
-      logo: '',
       description: '',
       status: 1,
     },
@@ -53,7 +48,9 @@ Page({
       if (res.data && res.data.code === 200) {
         const records = res.data.data.records || []
         // 双重兜底：前端仅展示审核通过且启用的商户
-        const merchantList = records.filter(item => item && item.reviewStatus === 1 && item.status === 1)
+        const merchantList = records.filter(
+          item => item && item.reviewStatus === 1 && item.status === 1
+        )
         this.setData({ merchantList })
         if (!this.data.selectedMerchantId && merchantList.length > 0) {
           const firstMerchant = merchantList[0]
@@ -238,34 +235,15 @@ Page({
     }
   },
 
-  deleteImage(e) {
-    const { index } = e.currentTarget.dataset
-    const uploadedImages = [...this.data.uploadedImages]
-    uploadedImages.splice(index, 1)
-    this.setData({ uploadedImages })
-  },
-
   async submitShopForm() {
     try {
-      const { formData, uploadedImages } = this.data
+      const { formData } = this.data
       if (!formData.merchantId) {
         wx.showToast({ title: '请选择所属商户', icon: 'none' })
         return
       }
       if (!formData.shopName) {
         wx.showToast({ title: '请输入店铺名称', icon: 'none' })
-        return
-      }
-      if (!formData.province) {
-        wx.showToast({ title: '请输入省份', icon: 'none' })
-        return
-      }
-      if (!formData.city) {
-        wx.showToast({ title: '请输入城市', icon: 'none' })
-        return
-      }
-      if (!formData.district) {
-        wx.showToast({ title: '请输入区县', icon: 'none' })
         return
       }
       if (!formData.address) {
@@ -282,22 +260,16 @@ Page({
       }
 
       this.setData({ submitting: true })
-      const shopImages = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : undefined
       const { post } = require('../../../../../utils/request.js')
       const res = await post('/shop/create', {
         merchantId: formData.merchantId,
         shopName: formData.shopName,
         shopType: formData.shopType,
-        province: formData.province,
-        city: formData.city,
-        district: formData.district,
         address: formData.address,
         latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
         longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
         phone: formData.phone || undefined,
         businessHours: formData.businessHours || undefined,
-        shopImages: shopImages,
-        logo: formData.logo || undefined,
         description: formData.description || undefined,
       })
 

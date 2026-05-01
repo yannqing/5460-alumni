@@ -144,6 +144,14 @@
   opacity: 0.8;
 }
 
+.admin-btn {
+  background-color: #52c41a;
+}
+
+.admin-btn:active {
+  background-color: #389e0d;
+}
+
 .merchant-contact {
   font-size: 28rpx;
   color: #666;

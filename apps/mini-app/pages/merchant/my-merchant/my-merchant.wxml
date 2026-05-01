@@ -44,6 +44,9 @@
                 <view class="perfect-info-btn" wx:if="{{item.reviewStatus === 4}}" catchtap="goToPerfectInfo" data-id="{{item.applicationId}}">
                   完善基本信息并发布
                 </view>
+                <view class="perfect-info-btn admin-btn" wx:if="{{item.reviewStatus === 1 && hasAdminPermission}}" catchtap="goToAdmin" data-id="{{item.applicationId}}">
+                  管理商户
+                </view>
               </view>
             </view>
           </view>

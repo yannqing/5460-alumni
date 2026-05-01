@@ -49,10 +49,10 @@
           <text class="detail-label">法人姓名</text>
           <text class="detail-value">{{currentMerchantDetail.legalPerson || '—'}}</text>
         </view>
-        <view class="detail-item">
+        <!-- <view class="detail-item">
           <text class="detail-label">法人身份证号</text>
           <text class="detail-value detail-value-idcard">{{currentMerchantDetail.legalPersonId || '—'}}</text>
-        </view>
+        </view> -->
         <view class="detail-item">
           <text class="detail-label">联系电话</text>
           <text class="detail-value">{{currentMerchantDetail.contactPhone || '—'}}</text>

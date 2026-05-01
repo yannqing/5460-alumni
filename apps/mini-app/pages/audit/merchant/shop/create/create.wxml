@@ -28,21 +28,6 @@
         </view>
 
         <view class="form-item">
-          <text class="form-label">省份 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入省份" placeholder-class="form-input-placeholder" value="{{formData.province}}" bindinput="onInputChange" data-field="province" adjust-position="{{false}}" />
-        </view>
-
-        <view class="form-item">
-          <text class="form-label">城市 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入城市" placeholder-class="form-input-placeholder" value="{{formData.city}}" bindinput="onInputChange" data-field="city" adjust-position="{{false}}" />
-        </view>
-
-        <view class="form-item">
-          <text class="form-label">区县 <text class="required">*</text></text>
-          <input class="form-input" placeholder="请输入区县" placeholder-class="form-input-placeholder" value="{{formData.district}}" bindinput="onInputChange" data-field="district" adjust-position="{{false}}" />
-        </view>
-
-        <view class="form-item">
           <text class="form-label">详细地址 <text class="required">*</text></text>
           <input class="form-input" placeholder="请输入详细地址" placeholder-class="form-input-placeholder" value="{{formData.address}}" bindinput="onInputChange" data-field="address" adjust-position="{{false}}" />
         </view>
@@ -66,32 +51,6 @@
         <view class="form-item">
           <text class="form-label">营业时间</text>
           <input class="form-input" placeholder="请输入营业时间" placeholder-class="form-input-placeholder" value="{{formData.businessHours}}" bindinput="onInputChange" data-field="businessHours" adjust-position="{{false}}" />
-        </view>
-
-        <view class="form-item">
-          <text class="form-label">店铺 Logo</text>
-          <view class="image-upload-container">
-            <view class="uploaded-images">
-              <view class="uploaded-image" wx:if="{{formData.logo}}">
-                <image src="{{formData.logo}}" mode="aspectFill" class="image-preview" />
-                <view class="image-delete" bindtap="clearLogo">×</view>
-              </view>
-            </view>
-            <button class="upload-btn" bindtap="chooseLogo" hover-class="upload-btn-hover">上传logo</button>
-          </view>
-        </view>
-
-        <view class="form-item">
-          <text class="form-label">上传店铺背景图</text>
-          <view class="image-upload-container">
-            <view class="uploaded-images">
-              <view class="uploaded-image" wx:for="{{uploadedImages}}" wx:key="index">
-                <image src="{{item}}" mode="aspectFill" class="image-preview" />
-                <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
-              </view>
-            </view>
-            <button class="upload-btn" bindtap="chooseImage" hover-class="upload-btn-hover">上传背景图</button>
-          </view>
         </view>
 
         <view class="form-item">

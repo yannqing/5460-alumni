@@ -7,6 +7,7 @@ Page({
     detailLoading: true,
     submitting: false,
     merchantIdStr: '',
+    pageMode: 'edit',
     /** 关联校友会展示 */
     associationDisplayName: '',
     associationLogoUrl: '',
@@ -35,7 +36,6 @@ Page({
       businessLicense: '',
       unifiedSocialCreditCode: '',
       legalPerson: '',
-      legalPersonId: '',
       contactPhone: '',
       phone: '',
       city: '',
@@ -223,10 +223,6 @@ Page({
           businessLicense: data.businessLicense || '',
           unifiedSocialCreditCode: data.unifiedSocialCreditCode || '',
           legalPerson: data.legalPerson || '',
-          legalPersonId:
-            data.legalPersonId != null && data.legalPersonId !== undefined
-              ? String(data.legalPersonId).trim()
-              : '',
           contactPhone: data.contactPhone || '',
           phone: data.phone || '',
           city: data.city || '',
@@ -526,21 +522,6 @@ Page({
       return
     }
 
-    const legalPersonIdRaw = (formData.legalPersonId || '').trim()
-    if (!legalPersonIdRaw) {
-      wx.showToast({ title: '请输入法人身份证号', icon: 'none' })
-      return
-    }
-    if (legalPersonIdRaw.length !== 18) {
-      wx.showToast({ title: '法人身份证号须为18位', icon: 'none' })
-      return
-    }
-    if (!/^\d{17}[\dXx]$/.test(legalPersonIdRaw)) {
-      wx.showToast({ title: '法人身份证号格式不正确', icon: 'none' })
-      return
-    }
-    const normalizedLegalPersonId = legalPersonIdRaw.toUpperCase()
-
     const contactPhone = String(formData.contactPhone || '').trim()
     if (!contactPhone) {
       wx.showToast({ title: '请输入联系电话', icon: 'none' })
@@ -563,7 +544,6 @@ Page({
       merchantType: formData.merchantType,
       unifiedSocialCreditCode: normalizedCreditCode,
       legalPerson,
-      legalPersonId: normalizedLegalPersonId,
       contactPhone,
       businessLicense,
     }
