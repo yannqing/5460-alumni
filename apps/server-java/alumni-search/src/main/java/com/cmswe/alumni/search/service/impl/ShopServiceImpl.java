@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -360,19 +361,46 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
 
         int current = queryDto.getCurrent();
         int pageSize = queryDto.getPageSize();
-        int offset = (current - 1) * pageSize;
         Integer radius = queryDto.getRadius();
         String merchantName = queryDto.getShopName();
 
-        List<NearbyMerchantVo> merchantList = this.baseMapper.selectNearbyActivitiesWithPage(
+        Long merchantTotal = Optional.ofNullable(
+                this.baseMapper.countNearbyActivities(
+                        queryDto.getLatitude(),
+                        queryDto.getLongitude(),
+                        radius,
+                        merchantName))
+                .orElse(0L);
+        Long associationTotal = Optional.ofNullable(
+                this.baseMapper.countNearbyAssociationActivities(
+                        queryDto.getLatitude(),
+                        queryDto.getLongitude(),
+                        merchantName,
+                        radius))
+                .orElse(0L);
+        long total = merchantTotal + associationTotal;
+
+        int fetchMerchantSize = (int) Math.min(merchantTotal, Integer.MAX_VALUE);
+        int fetchAssociationSize = (int) Math.min(associationTotal, Integer.MAX_VALUE);
+
+        List<NearbyMerchantVo> merchantList = fetchMerchantSize > 0
+                ? this.baseMapper.selectNearbyActivitiesWithPage(
                 queryDto.getLatitude(),
                 queryDto.getLongitude(),
                 radius,
                 merchantName,
-                offset,
-                pageSize);
-
-        log.info("selectNearbyActivitiesWithPage 返回 {} 个商户", merchantList.size());
+                0,
+                fetchMerchantSize)
+                : List.of();
+        List<NearbyMerchantVo> associationList = fetchAssociationSize > 0
+                ? this.baseMapper.selectNearbyAssociationActivitiesWithPage(
+                queryDto.getLatitude(),
+                queryDto.getLongitude(),
+                merchantName,
+                radius,
+                0,
+                fetchAssociationSize)
+                : List.of();
 
         merchantList.forEach(merchant -> {
             try {
@@ -382,6 +410,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                         this.baseMapper.selectActivitiesByMerchantId(merchantId);
                 log.info("商户 {} 找到 {} 个活动", merchant.getMerchantName(), activities.size());
                 merchant.setActivities(activities);
+                merchant.setSourceType("merchant");
 
                 Long favoriteCount = userFavoriteService.count(
                         new LambdaQueryWrapper<com.cmswe.alumni.common.entity.UserFavorite>()
@@ -396,19 +425,39 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
             }
         });
 
-        Long total = Optional.ofNullable(
-                this.baseMapper.countNearbyActivities(
-                        queryDto.getLatitude(),
-                        queryDto.getLongitude(),
-                        radius,
-                        merchantName))
-                .orElse(0L);
+        associationList.forEach(association -> {
+            try {
+                Long associationId = Long.parseLong(association.getMerchantId());
+                List<NearbyMerchantVo.ActivityItem> activities =
+                        this.baseMapper.selectActivitiesByAssociationId(associationId);
+                association.setActivities(activities);
+                association.setSourceType("association");
+                association.setFavoriteCount(0L);
+            } catch (Exception e) {
+                log.error("加载校友会 {} 的活动失败", association.getMerchantId(), e);
+                association.setActivities(List.of());
+                association.setFavoriteCount(0L);
+            }
+        });
+
+        List<NearbyMerchantVo> mergedList = new ArrayList<>(merchantList.size() + associationList.size());
+        mergedList.addAll(merchantList);
+        mergedList.addAll(associationList);
+        mergedList.sort(Comparator.comparing(
+                item -> Optional.ofNullable(item.getDistance()).orElse(java.math.BigDecimal.valueOf(Double.MAX_VALUE))
+        ));
+
+        int offset = Math.max((current - 1) * pageSize, 0);
+        int toIndex = Math.min(offset + pageSize, mergedList.size());
+        List<NearbyMerchantVo> pagedList = offset >= mergedList.size()
+                ? List.of()
+                : mergedList.subList(offset, toIndex);
 
         log.info("查询附近{}km活动，位置：[{}, {}]，找到{}个结果",
                 radius, queryDto.getLatitude(), queryDto.getLongitude(), total);
 
         Page<NearbyMerchantVo> page = new Page<>(current, pageSize, total);
-        page.setRecords(merchantList);
+        page.setRecords(pagedList);
 
         return PageVo.of(page);
     }

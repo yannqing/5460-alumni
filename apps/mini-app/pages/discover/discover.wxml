@@ -252,12 +252,14 @@
           ></image>
           <view class="merchant-popup-info">
             <view class="merchant-popup-name">{{selectedCouponMerchant.name}}</view>
-            <view class="merchant-popup-city">城市：{{selectedCouponMerchant.city}}</view>
+            <view class="merchant-popup-city"
+              >{{selectedCouponMerchant.cityLabel || '城市'}}：{{selectedCouponMerchant.city}}</view
+            >
             <view class="merchant-popup-distance" wx:if="{{selectedCouponMerchant.distance}}">
               距离：{{selectedCouponMerchant.distance}}
             </view>
             <view class="merchant-popup-favorite">
-              收藏：{{selectedCouponMerchant.favoriteCount}}人
+              {{selectedCouponMerchant.favoriteLabel || '收藏'}}：{{selectedCouponMerchant.favoriteCount}}人
             </view>
           </view>
         </view>

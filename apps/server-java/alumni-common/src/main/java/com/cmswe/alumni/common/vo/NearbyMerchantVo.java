@@ -83,6 +83,12 @@ public class NearbyMerchantVo implements Serializable {
     private String city;
 
     /**
+     * 数据来源类型：merchant-商户，association-校友会
+     */
+    @Schema(description = "数据来源类型：merchant-商户，association-校友会")
+    private String sourceType;
+
+    /**
      * 收藏数量
      */
     @Schema(description = "收藏数量")

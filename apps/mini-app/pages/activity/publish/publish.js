@@ -19,9 +19,6 @@ Page({
       registrationStartTime: '',
       registrationEndTime: '',
       maxParticipants: null,
-      province: '',
-      city: '',
-      district: '',
       address: '',
       locationName: '',
       latitude: 0,
@@ -394,6 +391,11 @@ Page({
       return
     }
 
+    if (!formData.latitude || !formData.longitude) {
+      wx.showToast({ title: '请选择活动位置', icon: 'none' })
+      return
+    }
+
     // 报名相关字段联动校验
     if (formData.isSignup === 1) {
       if (!formData.registrationStartTime || formData.registrationStartTime.trim() === '') {
@@ -425,6 +427,11 @@ Page({
         activityImages,
         alumniAssociationId,
       }
+
+      // 页面已取消省市区字段，提交时不传
+      delete submitData.province
+      delete submitData.city
+      delete submitData.district
 
       // 如果不需要报名，移除报名相关的时间入参，避免后端接收到空字符串或冗余数据
       if (formData.isSignup === 0) {
@@ -617,35 +624,37 @@ Page({
   },
 
   // 选择位置
-  // 暂时注释：等待微信公众平台权限申请通过后恢复
   onChooseLocation() {
-    // wx.chooseLocation({
-    //   success: (res) => {
-    //     this.setData({
-    //       [`formData.locationName`]: res.name,
-    //       [`formData.latitude`]: res.latitude,
-    //       [`formData.longitude`]: res.longitude
-    //     })
-    //
-    //     wx.showToast({
-    //       title: '位置选择成功',
-    //       icon: 'success'
-    //     })
-    //   },
-    //   fail: (err) => {
-    //     console.error('位置选择失败:', err)
-    //     // 如果用户取消选择，不显示错误提示
-    //     if (err.errMsg !== 'chooseLocation:fail cancel') {
-    //       wx.showToast({
-    //         title: '位置选择失败，请重试',
-    //         icon: 'none'
-    //       })
-    //     }
-    //   }
-    // })
-    wx.showToast({
-      title: '位置选择功能暂时不可用',
-      icon: 'none',
+    wx.chooseLocation({
+      success: res => {
+        const latitude = res.latitude
+        const longitude = res.longitude
+        this.setData({
+          'formData.latitude': latitude,
+          'formData.longitude': longitude,
+          'formData.locationName': res.name || res.address || '',
+          // 若用户未填写详细地址，则回填地图地址
+          'formData.address': this.data.formData.address || res.address || '',
+        })
+        wx.showToast({
+          title: '位置已选择',
+          icon: 'success',
+        })
+      },
+      fail: err => {
+        console.error('选择位置失败:', err)
+        if (err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
+          wx.showModal({
+            title: '授权提示',
+            content: '需要位置权限才能选择活动位置',
+            success: modalRes => {
+              if (modalRes.confirm) {
+                wx.openSetting()
+              }
+            },
+          })
+        }
+      },
     })
   },
 })
