@@ -223,4 +223,32 @@ public interface ShopMapper extends BaseMapper<Shop> {
      */
     List<com.cmswe.alumni.common.vo.NearbyMerchantVo.ActivityItem> selectActivitiesByMerchantId(
             @Param("merchantId") Long merchantId);
+
+    /**
+     * 按校友会维度分页查询附近有活动的校友会（距离取最近活动）
+     */
+    List<com.cmswe.alumni.common.vo.NearbyMerchantVo> selectNearbyAssociationActivitiesWithPage(
+            @Param("latitude") BigDecimal latitude,
+            @Param("longitude") BigDecimal longitude,
+            @Param("merchantName") String merchantName,
+            @Param("radius") Integer radius,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
+    );
+
+    /**
+     * 统计附近有活动的校友会总数（用于分页）
+     */
+    Long countNearbyAssociationActivities(
+            @Param("latitude") BigDecimal latitude,
+            @Param("longitude") BigDecimal longitude,
+            @Param("merchantName") String merchantName,
+            @Param("radius") Integer radius
+    );
+
+    /**
+     * 查询校友会下的活动列表
+     */
+    List<com.cmswe.alumni.common.vo.NearbyMerchantVo.ActivityItem> selectActivitiesByAssociationId(
+            @Param("associationId") Long associationId);
 }

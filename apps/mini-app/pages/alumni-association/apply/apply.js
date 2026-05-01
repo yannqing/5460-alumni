@@ -13,7 +13,6 @@ Page({
     schoolName: '', // 学校名称（从详情页获取，仅展示）
     formData: {
       name: '',
-      identifyCode: '',
       phone: '',
       applicationReason: '',
       enrollmentYear: '',
@@ -297,7 +296,6 @@ Page({
         // 填充基本信息
         const formData = {
           name: userInfo.name || '',
-          identifyCode: userInfo.identifyCode || '',
           phone: userInfo.phone || '',
           applicationReason: '',
           enrollmentYear: '',
@@ -577,24 +575,6 @@ Page({
       return false
     }
 
-    if (!formData.identifyCode || !formData.identifyCode.trim()) {
-      wx.showToast({
-        title: '请输入身份证号',
-        icon: 'none',
-      })
-      return false
-    }
-
-    // 验证身份证号格式（与 profile/edit 页面保持一致）
-    const idCardReg = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/
-    if (!idCardReg.test(formData.identifyCode.trim())) {
-      wx.showToast({
-        title: '身份证号格式不正确',
-        icon: 'none',
-      })
-      return false
-    }
-
     // 验证手机号（必填）
     if (!formData.phone || !formData.phone.trim()) {
       wx.showToast({
@@ -691,7 +671,6 @@ Page({
     // 构建请求数据
     const requestData = {
       name: formData.name.trim(),
-      identifyCode: formData.identifyCode.trim(),
       phone: formData.phone ? formData.phone.trim() : undefined,
       applicationReason: formData.applicationReason ? formData.applicationReason.trim() : undefined,
       attachmentIds: attachments.length > 0 ? attachments.map(item => item.fileId) : undefined,
@@ -820,7 +799,6 @@ Page({
         // 填充表单数据
         const formData = {
           name: detail.name || '',
-          identifyCode: detail.identifyCode || '',
           phone: detail.phone || '',
           applicationReason: detail.applicationReason || '',
           enrollmentYear: detail.enrollmentYear || '',
@@ -879,7 +857,7 @@ Page({
   // 详情字段缺失时，用当前用户信息兜底（仅补空值）
   async fillBasicFormByUserInfoIfMissing() {
     const current = this.data.formData || {}
-    const needFallback = !current.name || !current.identifyCode || !current.phone
+    const needFallback = !current.name || !current.phone
     if (!needFallback) return
     try {
       const res = await userApi.getUserInfo()
@@ -887,7 +865,6 @@ Page({
       const userInfo = res.data.data
       this.setData({
         'formData.name': current.name || userInfo.name || '',
-        'formData.identifyCode': current.identifyCode || userInfo.identifyCode || '',
         'formData.phone': current.phone || userInfo.phone || '',
       })
     } catch (error) {

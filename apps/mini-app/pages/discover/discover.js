@@ -537,27 +537,26 @@ Page({
           )
         } else if (queryType === 4) {
           // 活动类型 - 使用 merchant-card 组件兼容的数据格式
-          const activityList = records.map(merchant => {
-            const merchantLogo =
-              merchant.logo &&
-              String(merchant.logo) !== 'null' &&
-              String(merchant.logo) !== 'undefined'
-                ? merchant.logo
+          const activityList = records.map(item => {
+            const sourceType = item.sourceType || 'merchant'
+            const itemLogo =
+              item.logo && String(item.logo) !== 'null' && String(item.logo) !== 'undefined'
+                ? item.logo
                 : ''
 
-            const logoUrl = merchantLogo ? config.getImageUrl(merchantLogo) : config.defaultAvatar
+            const logoUrl = itemLogo ? config.getImageUrl(itemLogo) : config.defaultAvatar
 
             // 处理距离
-            const distanceText = formatDistance(merchant.distance)
+            const distanceText = formatDistance(item.distance)
 
             // 处理活动列表
             let activities = []
             if (
-              merchant.activities &&
-              Array.isArray(merchant.activities) &&
-              merchant.activities.length > 0
+              item.activities &&
+              Array.isArray(item.activities) &&
+              item.activities.length > 0
             ) {
-              activities = merchant.activities.map(a => ({
+              activities = item.activities.slice(0, 2).map(a => ({
                 activityId: String(a.activityId || ''),
                 activityIdSafe: toActivityIdSafe(a.activityId),
                 activityTitle: a.activityTitle || '',
@@ -566,23 +565,25 @@ Page({
             }
 
             return {
-              id: merchant.merchantId || merchant.id,
-              merchantId: merchant.merchantId || merchant.id,
-              merchantName: merchant.merchantName || merchant.name || '',
+              id: item.merchantId || item.id,
+              merchantId: item.merchantId || item.id,
+              merchantName: item.merchantName || item.name || '',
               // 与附近优惠一致，供地图 createMarker('coupon') 使用
-              name: merchant.merchantName || merchant.name || '',
-              logo: merchantLogo,
-              merchantType: merchant.merchantType || 0,
-              businessCategory: merchant.businessCategory || '',
+              name: item.merchantName || item.name || '',
+              logo: itemLogo,
+              merchantType: item.merchantType || 0,
+              businessCategory:
+                sourceType === 'association' ? '校友会' : item.businessCategory || '',
               logoUrl: logoUrl,
-              shopCount: merchant.shopCount || 0,
-              favoriteCount: merchant.favoriteCount || 0,
-              isAlumniCertified: merchant.isAlumniCertified || 0,
-              city: merchant.city || merchant.cityName || merchant.area || '',
+              shopCount: item.shopCount || 0,
+              favoriteCount: item.favoriteCount || item.followCount || 0,
+              isAlumniCertified: item.isAlumniCertified || 0,
+              city: item.city || item.cityName || item.area || '',
               distance: distanceText,
               activities: activities,
-              latitude: merchant.latitude ?? merchant.shopLatitude ?? merchant.lat,
-              longitude: merchant.longitude ?? merchant.shopLongitude ?? merchant.lng,
+              latitude: item.latitude ?? item.shopLatitude ?? item.lat,
+              longitude: item.longitude ?? item.shopLongitude ?? item.lng,
+              sourceType: sourceType,
             }
           })
 
@@ -1380,7 +1381,7 @@ Page({
       )
       if (matchedMerchant && matchedMerchant.merchantId) {
         const popupActivities = Array.isArray(matchedMerchant.activities)
-          ? matchedMerchant.activities.map(activity => ({
+          ? matchedMerchant.activities.slice(0, 2).map(activity => ({
               activityId: String(activity.activityId || ''),
               activityIdSafe: toActivityIdSafe(activity.activityId),
               activityTitle: activity.activityTitle || '活动',
@@ -1393,11 +1394,16 @@ Page({
             logoUrl: matchedMerchant.logoUrl || config.defaultAvatar,
             name: matchedMerchant.merchantName || matchedMerchant.name || '未知商家',
             city: matchedMerchant.city || '未知城市',
+            cityLabel:
+              (matchedMerchant.sourceType || 'merchant') === 'association' ? '常驻地点' : '城市',
             distance: matchedMerchant.distance || '',
             favoriteCount: matchedMerchant.favoriteCount || 0,
+            favoriteLabel:
+              (matchedMerchant.sourceType || 'merchant') === 'association' ? '关注' : '收藏',
             coupons: [],
             activities: popupActivities,
             popupType: 'activity',
+            sourceType: matchedMerchant.sourceType || 'merchant',
           },
         })
       }
@@ -1428,6 +1434,7 @@ Page({
             logoUrl: matchedMerchant.logoUrl || config.defaultAvatar,
             name: matchedMerchant.merchantName || matchedMerchant.name || '未知商家',
             city: matchedMerchant.city || '未知城市',
+            cityLabel: '城市',
             distance: matchedMerchant.distance || '',
             favoriteCount: matchedMerchant.favoriteCount || 0,
             coupons: popupCoupons,
@@ -1457,10 +1464,20 @@ Page({
   },
 
   handleCouponMerchantDetailTap() {
-    const merchantId = this.data.selectedCouponMerchant && this.data.selectedCouponMerchant.id
-    if (!merchantId) return
+    const selectedItem = this.data.selectedCouponMerchant
+    const itemId = selectedItem && selectedItem.id
+    if (!itemId) return
+
+    const sourceType = selectedItem.sourceType || 'merchant'
+    if (sourceType === 'association') {
+      wx.navigateTo({
+        url: `/pages/alumni-association/detail/detail?id=${itemId}`,
+      })
+      return
+    }
+
     wx.navigateTo({
-      url: `/pages/shop/detail/detail?id=${merchantId}`,
+      url: `/pages/shop/detail/detail?id=${itemId}`,
     })
   },
 
@@ -1483,11 +1500,19 @@ Page({
 
   // 点击商户卡片，跳转到商户详情页
   handleShopTap(e) {
-    const { merchantId } = e.detail
+    const { merchantId, sourceType } = e.detail
     if (!merchantId) {
       console.error('[Discover] 商户ID不存在')
       return
     }
+
+    if (sourceType === 'association') {
+      wx.navigateTo({
+        url: `/pages/alumni-association/detail/detail?id=${merchantId}`,
+      })
+      return
+    }
+
     wx.navigateTo({
       url: `/pages/shop/detail/detail?id=${merchantId}`,
     })

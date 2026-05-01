@@ -33,19 +33,6 @@
       </view>
 
       <view class="form-item required">
-        <view class="form-label">身份证号</view>
-        <input
-          class="form-input"
-          placeholder="请输入身份证号"
-          value="{{formData.identifyCode}}"
-          bindinput="handleInput"
-          data-field="identifyCode"
-          maxlength="18"
-          disabled="{{mode === 'view'}}"
-        />
-      </view>
-
-      <view class="form-item required">
         <view class="form-label">手机号</view>
         <view class="form-display">{{formData.phone || '未获取到手机号'}}</view>
       </view>

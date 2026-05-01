@@ -282,6 +282,44 @@
   align-self: flex-start;
 }
 
+.location-picker-container {
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  min-height: 80rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  background-color: #fff;
+}
+
+.location-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.location-text {
+  font-size: 28rpx;
+  color: #333;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.location-placeholder {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.location-btn-mini {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #1890ff;
+}
+
 .submit-placeholder {
   height: 160rpx;
 }

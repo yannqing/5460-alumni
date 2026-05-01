@@ -126,7 +126,9 @@ public class AlumniAssociationJoinApplicationServiceImpl
             userInfo.setWxId(wxId);
             userInfo.setName(applyDto.getName());
             userInfo.setIdentifyType(0); // 默认为身份证
-            userInfo.setIdentifyCode(applyDto.getIdentifyCode());
+            if (StringUtils.isNotBlank(applyDto.getIdentifyCode())) {
+                userInfo.setIdentifyCode(applyDto.getIdentifyCode());
+            }
             if (applyDto.getPhone() != null) {
                 userInfo.setPhone(applyDto.getPhone());
             }
@@ -134,7 +136,9 @@ public class AlumniAssociationJoinApplicationServiceImpl
         } else {
             // 更新用户信息
             userInfo.setName(applyDto.getName());
-            userInfo.setIdentifyCode(applyDto.getIdentifyCode());
+            if (StringUtils.isNotBlank(applyDto.getIdentifyCode())) {
+                userInfo.setIdentifyCode(applyDto.getIdentifyCode());
+            }
             if (applyDto.getPhone() != null) {
                 userInfo.setPhone(applyDto.getPhone());
             }
@@ -757,7 +761,9 @@ public class AlumniAssociationJoinApplicationServiceImpl
             userInfo.setWxId(wxId);
             userInfo.setName(updateDto.getName());
             userInfo.setIdentifyType(0); // 默认为身份证
-            userInfo.setIdentifyCode(updateDto.getIdentifyCode());
+            if (StringUtils.isNotBlank(updateDto.getIdentifyCode())) {
+                userInfo.setIdentifyCode(updateDto.getIdentifyCode());
+            }
             if (updateDto.getPhone() != null) {
                 userInfo.setPhone(updateDto.getPhone());
             }
@@ -765,7 +771,9 @@ public class AlumniAssociationJoinApplicationServiceImpl
         } else {
             // 更新用户信息
             userInfo.setName(updateDto.getName());
-            userInfo.setIdentifyCode(updateDto.getIdentifyCode());
+            if (StringUtils.isNotBlank(updateDto.getIdentifyCode())) {
+                userInfo.setIdentifyCode(updateDto.getIdentifyCode());
+            }
             if (updateDto.getPhone() != null) {
                 userInfo.setPhone(updateDto.getPhone());
             }

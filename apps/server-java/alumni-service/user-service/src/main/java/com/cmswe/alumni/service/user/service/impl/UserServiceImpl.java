@@ -702,6 +702,194 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
     }
 
     @Override
+    public Page<UserListNoPrivacyResponse> queryAlumniListNoPrivacy(QueryAlumniListNoPrivacyDto queryDto, Long wxId) {
+        if (queryDto == null) {
+            throw new BusinessException(ErrorType.ARGS_NOT_NULL);
+        }
+
+        String nickname = queryDto.getNickname();
+        String name = queryDto.getName();
+        String phone = queryDto.getPhone();
+        String email = queryDto.getEmail();
+        String curContinent = queryDto.getCurContinent();
+        String curCountry = queryDto.getCurCountry();
+        String curProvince = queryDto.getCurProvince();
+        String curCity = queryDto.getCurCity();
+        Integer constellation = queryDto.getConstellation();
+        String signature = queryDto.getSignature();
+        Integer gender = queryDto.getGender();
+        String identifyCode = queryDto.getIdentifyCode();
+        LocalDate birthDate = queryDto.getBirthDate();
+        Integer myFollow = queryDto.getMyFollow();
+        int current = queryDto.getCurrent();
+        int pageSize = queryDto.getPageSize();
+        String sortField = queryDto.getSortField();
+        String sortOrder = queryDto.getSortOrder();
+
+        List<Long> followedUserIds = null;
+        if (myFollow != null && myFollow == 1 && wxId != null) {
+            followedUserIds = userFollowService.getFollowedTargetIds(wxId, 1);
+            if (followedUserIds.isEmpty()) {
+                Page<UserListNoPrivacyResponse> emptyPage = new Page<>(current, pageSize, 0);
+                emptyPage.setRecords(new ArrayList<>());
+                return emptyPage;
+            }
+        }
+
+        if (sortField == null) {
+            sortField = "createdTime";
+        }
+
+        boolean hasOrCondition = StringUtils.isNotBlank(nickname)
+                || StringUtils.isNotBlank(name)
+                || StringUtils.isNotBlank(phone);
+
+        LambdaQueryWrapper<WxUserInfo> queryWrapper = new LambdaQueryWrapper<>();
+        if (hasOrCondition) {
+            queryWrapper.and(wrapper -> {
+                boolean hasCondition = false;
+                if (StringUtils.isNotBlank(nickname)) {
+                    wrapper.like(WxUserInfo::getNickname, nickname);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(name)) {
+                    if (hasCondition) {
+                        wrapper.or();
+                    }
+                    wrapper.like(WxUserInfo::getName, name);
+                    hasCondition = true;
+                }
+                if (StringUtils.isNotBlank(phone)) {
+                    if (hasCondition) {
+                        wrapper.or();
+                    }
+                    wrapper.like(WxUserInfo::getPhone, phone);
+                }
+            });
+        }
+
+        queryWrapper
+                .like(StringUtils.isNotBlank(email), WxUserInfo::getEmail, email)
+                .like(StringUtils.isNotBlank(curContinent), WxUserInfo::getCurContinent, curContinent)
+                .like(StringUtils.isNotBlank(curCountry), WxUserInfo::getCurCountry, curCountry)
+                .like(StringUtils.isNotBlank(curProvince), WxUserInfo::getCurProvince, curProvince)
+                .like(StringUtils.isNotBlank(curCity), WxUserInfo::getCurCity, curCity)
+                .like(StringUtils.isNotBlank(signature), WxUserInfo::getSignature, signature)
+                .eq(birthDate != null, WxUserInfo::getBirthDate, birthDate)
+                .eq(gender != null, WxUserInfo::getGender, gender)
+                .eq(constellation != null, WxUserInfo::getConstellation, constellation)
+                .like(StringUtils.isNotBlank(identifyCode), WxUserInfo::getIdentifyCode, identifyCode);
+
+        queryWrapper.and(wrapper -> wrapper.isNotNull(WxUserInfo::getName).or().isNotNull(WxUserInfo::getNickname));
+        if (followedUserIds != null && !followedUserIds.isEmpty()) {
+            queryWrapper.in(WxUserInfo::getWxId, followedUserIds);
+        }
+
+        if ("createdTime".equals(sortField)) {
+            queryWrapper.orderBy(true, CommonConstant.SORT_ORDER_ASC.equals(sortOrder), WxUserInfo::getCreatedTime);
+        }
+        queryWrapper.orderByDesc(WxUserInfo::getWxId);
+
+        Page<WxUserInfo> wxUserInfoPage = wxUserInfoMapper.selectPage(new Page<>(current, pageSize), queryWrapper);
+        if (wxUserInfoPage.getRecords().isEmpty()) {
+            return new Page<UserListNoPrivacyResponse>(current, pageSize, wxUserInfoPage.getTotal())
+                    .setRecords(new ArrayList<>());
+        }
+
+        List<Long> wxIds = wxUserInfoPage.getRecords().stream()
+                .map(WxUserInfo::getWxId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, Integer> certificationFlagMap = wxUserMapper.selectBatchIds(wxIds).stream()
+                .collect(Collectors.toMap(
+                        WxUser::getWxId,
+                        user -> user.getCertificationFlag() != null ? user.getCertificationFlag() : 0,
+                        (v1, v2) -> v1
+                ));
+
+        List<AlumniEducation> primaryEducations = alumniEducationMapper.selectList(
+                new LambdaQueryWrapper<AlumniEducation>()
+                        .in(AlumniEducation::getWxId, wxIds)
+                        .eq(AlumniEducation::getType, 1)
+        );
+
+        Map<Long, SchoolListVo> schoolMap = new HashMap<>();
+        List<Long> schoolIds = primaryEducations.stream()
+                .map(AlumniEducation::getSchoolId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!schoolIds.isEmpty()) {
+            schoolMap = schoolService.listByIds(schoolIds).stream()
+                    .map(school -> {
+                        SchoolListVo vo = SchoolListVo.objToVo(school);
+                        vo.setSchoolId(String.valueOf(school.getSchoolId()));
+                        return vo;
+                    })
+                    .collect(Collectors.toMap(
+                            vo -> Long.valueOf(vo.getSchoolId()),
+                            Function.identity(),
+                            (v1, v2) -> v1
+                    ));
+        }
+
+        Map<Long, SchoolListVo> finalSchoolMap = schoolMap;
+        Map<Long, AlumniEducationListVo> primaryEducationMap = primaryEducations.stream()
+                .collect(Collectors.toMap(
+                        AlumniEducation::getWxId,
+                        education -> {
+                            AlumniEducationListVo vo = AlumniEducationListVo.objToVo(education);
+                            if (education.getSchoolId() != null) {
+                                vo.setSchoolInfo(finalSchoolMap.get(education.getSchoolId()));
+                            }
+                            return vo;
+                        },
+                        (v1, v2) -> v1
+                ));
+
+        Map<Long, UserFollow> followMap = new HashMap<>();
+        if (wxId != null) {
+            followMap = userFollowService.list(
+                    new LambdaQueryWrapper<UserFollow>()
+                            .eq(UserFollow::getWxId, wxId)
+                            .eq(UserFollow::getTargetType, 1)
+                            .in(UserFollow::getTargetId, wxIds)
+                            .in(UserFollow::getFollowStatus, 1, 2, 3)
+            ).stream().collect(Collectors.toMap(
+                    UserFollow::getTargetId,
+                    Function.identity(),
+                    (v1, v2) -> v1
+            ));
+        }
+
+        Map<Long, UserFollow> finalFollowMap = followMap;
+        Map<Long, Integer> finalCertificationFlagMap = certificationFlagMap;
+        Map<Long, AlumniEducationListVo> finalPrimaryEducationMap = primaryEducationMap;
+
+        List<UserListNoPrivacyResponse> records = wxUserInfoPage.getRecords().stream().map(user -> {
+            UserListNoPrivacyResponse item = new UserListNoPrivacyResponse();
+            item.setWxId(String.valueOf(user.getWxId()));
+            item.setNickname(user.getNickname());
+            item.setName(user.getName());
+            item.setAvatarUrl(user.getAvatarUrl());
+            item.setCurContinent(user.getCurContinent());
+            item.setCurCountry(user.getCurCountry());
+            item.setCurProvince(user.getCurProvince());
+            item.setCurCity(user.getCurCity());
+            item.setPrimaryEducation(finalPrimaryEducationMap.get(user.getWxId()));
+            item.setCertificationFlag(finalCertificationFlagMap.getOrDefault(user.getWxId(), 0));
+
+            UserFollow follow = finalFollowMap.get(user.getWxId());
+            item.setIsFollowed(follow != null);
+            item.setFollowStatus(follow != null ? follow.getFollowStatus() : null);
+            return item;
+        }).toList();
+
+        return new Page<UserListNoPrivacyResponse>(current, pageSize, wxUserInfoPage.getTotal()).setRecords(records);
+    }
+
+    @Override
     public boolean updateUserPrivacy(Long wxId, UpdateUserPrivacySettingsRequest updateUserPrivacySettingsRequest) {
         Optional.ofNullable(updateUserPrivacySettingsRequest)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));

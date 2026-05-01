@@ -2,12 +2,14 @@ package com.cmswe.alumni.api.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cmswe.alumni.common.dto.QueryAlumniListNoPrivacyDto;
 import com.cmswe.alumni.common.dto.QueryAlumniListDto;
 import com.cmswe.alumni.common.dto.UpdateUserInfoDto;
 import com.cmswe.alumni.common.dto.UpdateUserPrivacySettingsRequest;
 import com.cmswe.alumni.common.dto.UpdateUserTagsDto;
 import com.cmswe.alumni.common.entity.WxUser;
 import com.cmswe.alumni.common.vo.UserDetailVo;
+import com.cmswe.alumni.common.vo.UserListNoPrivacyResponse;
 import com.cmswe.alumni.common.vo.UserListResponse;
 import com.cmswe.alumni.common.vo.UserPrivacySettingListVo;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -77,6 +79,14 @@ public interface UserService extends IService<WxUser> {
      * @param wxId 当前用户ID（用于筛选我的关注，可为null）
      */
     Page<UserListResponse> queryAlumniList(QueryAlumniListDto queryAlumniListDto, Long wxId);
+
+    /**
+     * 获取校友列表（不走 ES，不按隐私设置过滤）
+     *
+     * @param queryDto 查询条件（与 /users/query/alumni/es 保持一致）
+     * @param wxId 当前用户ID（用于我的关注筛选和关注状态计算，可为null）
+     */
+    Page<UserListNoPrivacyResponse> queryAlumniListNoPrivacy(QueryAlumniListNoPrivacyDto queryDto, Long wxId);
 
     /**
      * 更新用户隐私设置

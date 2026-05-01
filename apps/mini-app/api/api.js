@@ -143,6 +143,9 @@ const alumniApi = {
   // 查询校友列表（ES版本，支持降级到MySQL）
   // params: { nickname, name, phone, gender, myFollow, pageNum, pageSize, ... }
   queryAlumniList: params => post('/users/query/alumni/es', params),
+  // 查询校友列表（不走ES，不按隐私设置过滤）
+  // params 与 queryAlumniList 保持一致，返回结构保持 Page<UserListResponse> 兼容格式
+  queryAlumniListNoPrivacy: params => post('/users/query/alumni/no-privacy', params),
   // 查询校友列表（MySQL 版本）— 管理端选人等场景 wxId 常以字符串返回，避免大整数精度问题
   // params: { current, pageSize, name, nickname, phone, ... } 见 QueryAlumniListDto
   queryAlumniListMysql: params => post('/users/query/alumni', params),

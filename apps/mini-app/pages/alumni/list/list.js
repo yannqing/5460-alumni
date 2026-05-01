@@ -204,7 +204,7 @@ Page({
       // 手机号搜索
       if (/^\d{11}$/.test(searchKey)) {
         params.phone = searchKey
-        requestPromise = alumniApi.queryAlumniList(params)
+        requestPromise = alumniApi.queryAlumniListNoPrivacy(params)
       } else {
         // 混合搜索：分别请求 name 和 nickname，然后合并结果
         // 请求1：按名称搜索
@@ -213,8 +213,8 @@ Page({
         const params2 = { ...params, nickname: searchKey }
 
         requestPromise = Promise.all([
-          alumniApi.queryAlumniList(params1),
-          alumniApi.queryAlumniList(params2),
+          alumniApi.queryAlumniListNoPrivacy(params1),
+          alumniApi.queryAlumniListNoPrivacy(params2),
         ]).then(([res1, res2]) => {
           // 构造合并后的结果
           const records1 = (res1.data && res1.data.data && res1.data.data.records) || []
@@ -247,7 +247,7 @@ Page({
       }
     } else {
       // 无搜索关键词，正常请求
-      requestPromise = alumniApi.queryAlumniList(params)
+      requestPromise = alumniApi.queryAlumniListNoPrivacy(params)
     }
 
     try {

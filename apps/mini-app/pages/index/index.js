@@ -12,6 +12,8 @@ Page({
   data: {
     // 顶部 5460 标志图
     icon5460: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/home/5460-logo.png',
+    // 首页动态活动区头图
+    alumniActivitiesBanner: config.cloud.cosBaseUrl + '/cni-alumni/images/assets/home/alumni_activities.png',
     // 导航图标（使用 config.getIconUrl 拼接服务器图标路径）
     iconSchool: config.getIconUrl('school@3x.png'),
     iconAssociation: config.getIconUrl('alumni_association@3x.png'),

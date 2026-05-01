@@ -32,6 +32,9 @@ Component({
     coupons: [],
     activities: [],
     distance: '',
+    sourceType: 'merchant',
+    locationLabel: '城市：',
+    favoriteLabel: '人收藏',
   },
 
   lifetimes: {
@@ -63,7 +66,7 @@ Component({
 
       this.setData({
         logoUrl: item.logoUrl || config.defaultAvatar,
-        merchantName: item.merchantName || '未命名商户',
+        merchantName: item.merchantName || (item.sourceType === 'association' ? '未命名校友会' : '未命名商户'),
         businessCategory: item.businessCategory || '',
         shopCount: item.shopCount || 0,
         favoriteCount: item.favoriteCount || 0,
@@ -72,6 +75,9 @@ Component({
         coupons: coupons,
         activities: activities,
         distance: item.distance || '',
+        sourceType: item.sourceType || 'merchant',
+        locationLabel: item.sourceType === 'association' ? '常驻地点：' : '城市：',
+        favoriteLabel: item.sourceType === 'association' ? '人关注' : '人收藏',
       })
     },
 
@@ -91,7 +97,10 @@ Component({
     handleTap() {
       const { item } = this.data
       if (item && item.merchantId) {
-        this.triggerEvent('tap', { merchantId: item.merchantId })
+        this.triggerEvent('tap', {
+          merchantId: item.merchantId,
+          sourceType: item.sourceType || 'merchant',
+        })
       }
     },
 

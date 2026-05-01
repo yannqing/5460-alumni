@@ -368,7 +368,8 @@
             agg.shop_count AS shopCount,
             agg.nearest_lat AS latitude,
             agg.nearest_lng AS longitude,
-            agg.nearest_city AS city
+            agg.nearest_city AS city,
+            'merchant' AS sourceType
         FROM merchant m
         INNER JOIN (
             SELECT
@@ -405,7 +406,7 @@
                   AND s.review_status = 1
                   AND s.status = 1
                   AND a.is_delete = 0
-                  AND a.status IN (1, 2, 3, 4)
+                  AND a.status IN (1, 2, 3)
             ) ranked_shops
             GROUP BY merchant_id
             HAVING MIN(distance) &lt;= #{radius}
@@ -440,7 +441,7 @@
                   AND s.review_status = 1
                   AND s.status = 1
                   AND a.is_delete = 0
-                  AND a.status IN (1, 2, 3, 4)
+                  AND a.status IN (1, 2, 3)
             ) shops_with_dist
             GROUP BY merchant_id
             HAVING MIN(distance) &lt;= #{radius}
@@ -464,8 +465,113 @@
         INNER JOIN shop s ON s.shop_id = aso.shop_id
         WHERE s.merchant_id = #{merchantId}
           AND a.is_delete = 0
-          AND a.status IN (1, 2, 3, 4)
+          AND a.status IN (1, 2, 3)
         ORDER BY a.start_time ASC
+    </select>
+
+    <!-- 附近活动：查询附近有活动的校友会（基于活动坐标） -->
+    <select id="selectNearbyAssociationActivitiesWithPage" resultType="com.cmswe.alumni.common.vo.NearbyMerchantVo">
+        SELECT
+            CAST(aa.alumni_association_id AS CHAR) AS merchantId,
+            aa.association_name AS merchantName,
+            aa.logo,
+            CAST(NULL AS DECIMAL(5,2)) AS ratingScore,
+            0 AS ratingCount,
+            agg.min_distance AS distance,
+            agg.activity_count AS shopCount,
+            agg.nearest_lat AS latitude,
+            agg.nearest_lng AS longitude,
+            aa.location AS city,
+            'association' AS sourceType
+        FROM alumni_association aa
+        INNER JOIN (
+            SELECT
+                organizer_id AS association_id,
+                MIN(distance) AS min_distance,
+                COUNT(DISTINCT activity_id) AS activity_count,
+                MAX(CASE WHEN rn = 1 THEN latitude END) AS nearest_lat,
+                MAX(CASE WHEN rn = 1 THEN longitude END) AS nearest_lng
+            FROM (
+                SELECT
+                    a.activity_id,
+                    a.organizer_id,
+                    a.latitude,
+                    a.longitude,
+                    (6371 * ACOS(
+                        COS(RADIANS(#{latitude})) * COS(RADIANS(a.latitude)) *
+                        COS(RADIANS(a.longitude) - RADIANS(#{longitude})) +
+                        SIN(RADIANS(#{latitude})) * SIN(RADIANS(a.latitude))
+                    )) AS distance,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY a.organizer_id
+                        ORDER BY (6371 * ACOS(
+                            COS(RADIANS(#{latitude})) * COS(RADIANS(a.latitude)) *
+                            COS(RADIANS(a.longitude) - RADIANS(#{longitude})) +
+                            SIN(RADIANS(#{latitude})) * SIN(RADIANS(a.latitude))
+                        )) ASC, a.activity_id ASC
+                    ) AS rn
+                FROM activity a
+                WHERE a.is_delete = 0
+                  AND a.status IN (1, 2, 3)
+                  AND a.organizer_type = 1
+                  AND a.latitude IS NOT NULL
+                  AND a.longitude IS NOT NULL
+            ) ranked_activities
+            GROUP BY ranked_activities.organizer_id
+            HAVING MIN(distance) &lt;= #{radius}
+        ) agg ON aa.alumni_association_id = agg.association_id
+        WHERE aa.is_delete = 0
+          AND aa.status = 1
+        <if test="merchantName != null and merchantName != ''">
+            AND aa.association_name LIKE CONCAT('%', #{merchantName}, '%')
+        </if>
+        ORDER BY agg.min_distance ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 附近有活动的校友会总数（用于分页） -->
+    <select id="countNearbyAssociationActivities" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM alumni_association aa
+        INNER JOIN (
+            SELECT organizer_id AS association_id
+            FROM (
+                SELECT
+                    a.organizer_id,
+                    (6371 * ACOS(
+                        COS(RADIANS(#{latitude})) * COS(RADIANS(a.latitude)) *
+                        COS(RADIANS(a.longitude) - RADIANS(#{longitude})) +
+                        SIN(RADIANS(#{latitude})) * SIN(RADIANS(a.latitude))
+                    )) AS distance
+                FROM activity a
+                WHERE a.is_delete = 0
+                  AND a.status IN (1, 2, 3)
+                  AND a.organizer_type = 1
+                  AND a.latitude IS NOT NULL
+                  AND a.longitude IS NOT NULL
+            ) activities_with_dist
+            GROUP BY activities_with_dist.organizer_id
+            HAVING MIN(distance) &lt;= #{radius}
+        ) agg ON aa.alumni_association_id = agg.association_id
+        WHERE aa.is_delete = 0
+          AND aa.status = 1
+        <if test="merchantName != null and merchantName != ''">
+            AND aa.association_name LIKE CONCAT('%', #{merchantName}, '%')
+        </if>
+    </select>
+
+    <!-- 查询校友会下的活动列表 -->
+    <select id="selectActivitiesByAssociationId" resultType="com.cmswe.alumni.common.vo.NearbyMerchantVo$ActivityItem">
+        SELECT
+            CAST(a.activity_id AS CHAR) AS activityId,
+            a.activity_title AS activityTitle,
+            a.activity_type AS activityType
+        FROM activity a
+        WHERE a.organizer_type = 1
+          AND a.organizer_id = #{associationId}
+          AND a.is_delete = 0
+          AND a.status IN (1, 2, 3)
+        ORDER BY a.start_time ASC, a.create_time DESC
     </select>
 
 </mapper>

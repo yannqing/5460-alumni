@@ -122,45 +122,6 @@
           <view class="form-card">
             <view class="form-title">地点信息</view>
               <view class="form-item">
-                <text class="label">省份</text>
-                <input
-                  class="input"
-                  placeholder="请输入省份"
-                  placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
-                  data-field="province"
-                  bindinput="onInput"
-                  value="{{formData.province}}"
-                />
-              </view>
-              
-              <view class="form-item">
-                <text class="label">城市</text>
-                <input
-                  class="input"
-                  placeholder="请输入城市"
-                  placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
-                  data-field="city"
-                  bindinput="onInput"
-                  value="{{formData.city}}"
-                />
-              </view>
-              
-              <view class="form-item">
-                <text class="label">区县</text>
-                <input
-                  class="input"
-                  placeholder="请输入区县"
-                  placeholder-class="input-placeholder"
-                  adjust-position="{{false}}"
-                  data-field="district"
-                  bindinput="onInput"
-                  value="{{formData.district}}"
-                />
-              </view>
-              
-              <view class="form-item">
                 <text class="label">详细地址</text>
                 <input
                   class="input"
@@ -171,6 +132,17 @@
                   bindinput="onInput"
                   value="{{formData.address}}"
                 />
+              </view>
+
+              <view class="form-item">
+                <text class="label">活动位置 <text class="required">*</text></text>
+                <view class="location-picker-container" bindtap="onChooseLocation">
+                  <view class="location-info">
+                    <text class="location-text" wx:if="{{formData.locationName}}">{{formData.locationName}}</text>
+                    <text class="location-placeholder" wx:else>请在地图上选择位置</text>
+                  </view>
+                  <view class="location-btn-mini">选择位置</view>
+                </view>
               </view>
               
           </view>

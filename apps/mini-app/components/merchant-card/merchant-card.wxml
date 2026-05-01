@@ -16,10 +16,10 @@
       </view>
       <view class="card-meta-line">
         <text class="meta-highlight">{{favoriteCount}}</text>
-        <text class="meta-label">人收藏</text>
+        <text class="meta-label">{{favoriteLabel}}</text>
       </view>
       <view class="card-city-line" wx:if="{{city}}">
-        <text class="city-label">城市：</text>
+    <text class="city-label">{{locationLabel}}</text>
         <text class="city-text">{{city}}</text>
       </view>
     </view>
