@@ -178,7 +178,7 @@ Page({
       },
       {
         id: 1,
-        name: '店铺管理',
+        name: '门店管理',
         icon: config.getIconUrl('xyhsh@3x.png'),
         iconType: 'image',
         url: '/pages/audit/merchant/shop/shop',
@@ -492,7 +492,7 @@ Page({
       filteredMerchantFunctions = this.data._allMerchantFunctions.filter(item => {
         // 如果是商户管理员，按具体权限码过滤
         if (hasMerchantAdmin || merchantFromApi || hasDevelopmentManager) {
-          if (item.name === '店铺管理')
+          if (item.name === '门店管理')
             return this.hasPermission('MERCHANT_SHOP_MANAGEMENT') || hasMerchantAdmin
           if (item.name === '成员管理')
             return this.hasPermission('MERCHANT_MEMBER_MANAGEMENT') || hasMerchantAdmin
