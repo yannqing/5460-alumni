@@ -445,7 +445,7 @@ function getUserRoleNames() {
 
 /**
  * 检查用户是否有管理权限（文章管理和审核管理）
- * 允许的角色：SYSTEM_SUPER_ADMIN, ORGANIZE_LOCAL_ADMIN, ORGANIZE_ALUMNI_ADMIN, ORGANIZE_MERCHANT_ADMIN
+ * 允许的角色：SYSTEM_SUPER_ADMIN, ORGANIZE_LOCAL_ADMIN, ORGANIZE_ALUMNI_ADMIN, ORGANIZE_MERCHANT_ADMIN, DEVELOPMENT_MANAGER
  * @returns {boolean} 是否有管理权限
  */
 function hasManagementPermission() {
@@ -456,6 +456,7 @@ function hasManagementPermission() {
     'ORGANIZE_ALUMNI_ADMIN', // 校友会管理员
     'ORGANIZE_MERCHANT_ADMIN', // 商户管理员
     'ORGANIZE_SHOP_ADMIN', // 门店管理员
+    'DEVELOPMENT_MANAGER', // 开发者管理员
   ]
 
   // 优先从缓存读取角色列表

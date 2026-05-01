@@ -174,8 +174,9 @@ Page({
         hasAlumniAdminPermission: newList.length > 0,
       })
 
-      if (refresh && alumniAssociationList.length > 0) {
-        this.handleAlumniAssociationSelection(alumniAssociationList)
+      // 刷新时，如果只有1个校友会结果（已加载完所有数据），自动选择并隐藏选择器
+      if (refresh && newList.length === 1 && !this.data.organizationHasMore) {
+        this.handleAlumniAssociationSelection(newList)
       }
     } catch (error) {
       console.error('[Debug] 加载校友会列表失败:', error)

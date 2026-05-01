@@ -123,6 +123,13 @@ Page({
     })
   },
 
+  // 跳转到创建校友会页面
+  goToCreate() {
+    wx.navigateTo({
+      url: '/pages/alumni-association/create/create',
+    })
+  },
+
   // 跳转到校友会管理页
   goToAdmin(e) {
     const { id } = e.currentTarget.dataset

@@ -28,8 +28,9 @@ public interface HomePageArticleApplyService extends IService<HomePageArticleApp
      * 如果 applyStatus 为 null，则查询所有状态的记录
      *
      * @param queryDto 查询参数（包含状态筛选）
+     * @param wxId 当前登录用户ID，用于权限校验
      * @return 分页结果
      */
-    PageVo<HomePageArticleApplyVo> getApplyList(QueryArticleApplyListDto queryDto);
+    PageVo<HomePageArticleApplyVo> getApplyList(QueryArticleApplyListDto queryDto, Long wxId);
 
 }

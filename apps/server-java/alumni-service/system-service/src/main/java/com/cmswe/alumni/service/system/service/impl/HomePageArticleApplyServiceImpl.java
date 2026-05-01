@@ -27,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+
+import com.cmswe.alumni.api.user.UserService;
 
 /**
  * 首页公众号文章审核 Service 实现类（已合并审核表到文章表）
@@ -47,6 +50,9 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
 
     @Resource
     private WxUserInfoService wxUserInfoService;
+
+    @Resource
+    private UserService userService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -148,16 +154,21 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
     }
 
     @Override
-    public PageVo<HomePageArticleApplyVo> getApplyList(QueryArticleApplyListDto queryDto) {
+    public PageVo<HomePageArticleApplyVo> getApplyList(QueryArticleApplyListDto queryDto, Long wxId) {
         // 1. 参数校验
         if (queryDto == null) {
             throw new BusinessException("参数为空");
         }
 
-        // 2. 获取参数
+        // 2. 获取用户管理的校友会ID列表，用于权限校验
+        Set<Long> managedAlumniAssociationIds = userService.getManagedAlumniAssociationIdsByRole(wxId);
+        log.info("用户管理的校友会ID列表 - wxId: {}, ids: {}", wxId, managedAlumniAssociationIds);
+
+        // 3. 获取参数
         Long current = queryDto.getCurrent();
         Long size = queryDto.getSize();
         Integer applyStatus = queryDto.getApplyStatus();
+        Long alumniAssociationId = queryDto.getAlumniAssociationId();
 
         if (current == null || current < 1) {
             current = 1L;
@@ -166,7 +177,24 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
             size = 10L;
         }
 
-        // 3. 构造查询条件 - 从文章表查询
+        // 4. 权限校验：如果请求带了 alumniAssociationId，检查用户是否有权查看
+        if (alumniAssociationId != null) {
+            if (!managedAlumniAssociationIds.contains(alumniAssociationId)) {
+                log.warn("用户试图查看无权限的校友会文章 - wxId: {}, alumniAssociationId: {}", wxId, alumniAssociationId);
+                // 无权查看，返回空列表
+                Page<HomePageArticleApplyVo> emptyPage = new Page<>(current, size);
+                emptyPage.setTotal(0);
+                return PageVo.of(emptyPage);
+            }
+        } else {
+            // 请求没有带 alumniAssociationId，不允许查看所有，返回空列表
+            log.info("用户未指定校友会ID，返回空列表 - wxId: {}", wxId);
+            Page<HomePageArticleApplyVo> emptyPage = new Page<>(current, size);
+            emptyPage.setTotal(0);
+            return PageVo.of(emptyPage);
+        }
+
+        // 5. 构造查询条件 - 从文章表查询
         LambdaQueryWrapper<HomePageArticle> queryWrapper = new LambdaQueryWrapper<>();
 
         // 如果指定了状态，则按状态筛选；否则查询所有状态
@@ -196,7 +224,7 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
         // 添加主键排序，避免分页重复
         queryWrapper.orderByDesc(HomePageArticle::getHomeArticleId);
 
-        // 4. 执行分页查询
+        // 6. 执行分页查询
         Page<HomePageArticle> articlePage = homePageArticleService.page(new Page<>(current, size), queryWrapper);
         List<HomePageArticleApplyVo> list = articlePage.getRecords().stream()
                 .map(article -> {

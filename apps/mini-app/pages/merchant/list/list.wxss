@@ -359,7 +359,7 @@ view, text, picker, input, button, image, navigator {
 
 /* 商户列表容器 */
 .merchant-list {
-  padding: 0;
+  padding: 0 0 200rpx;
   background-color: #F5F5F5;
   min-height: 100%;
   margin-top: 0;

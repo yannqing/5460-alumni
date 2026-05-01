@@ -25,7 +25,7 @@
   position: relative;
   z-index: 10;
   padding: 24rpx 30rpx 200rpx;
-  min-height: 800rpx;
+  min-height: calc(100vh - 200rpx);
 }
 
 .section-title {

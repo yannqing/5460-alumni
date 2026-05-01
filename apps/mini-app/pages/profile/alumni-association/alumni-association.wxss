@@ -92,6 +92,21 @@
   color: #fff;
 }
 
+.create-btn {
+  font-size: 28rpx;
+  padding: 12rpx 40rpx;
+  border-radius: 40rpx;
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.empty-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+}
+
 /* 校友会列表 */
 .association-list {
   margin-top: 0;

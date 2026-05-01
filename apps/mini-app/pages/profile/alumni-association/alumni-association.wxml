@@ -17,7 +17,10 @@
     <!-- 空状态 -->
     <view class="empty-container" wx:elif="{{associations.length === 0}}">
       <text class="empty-text">暂无校友会</text>
-      <button class="join-btn" bindtap="goToAssociationList">立即加入</button>
+      <view class="empty-buttons">
+        <button class="join-btn" bindtap="goToAssociationList">立即加入</button>
+        <button class="create-btn" bindtap="goToCreate">创建校友会</button>
+      </view>
     </view>
     
     <!-- 校友会列表 -->
