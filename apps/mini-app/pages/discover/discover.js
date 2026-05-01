@@ -1216,8 +1216,8 @@ Page({
         latitude: latitude,
         longitude: longitude,
         iconPath: iconPath,
-        width: 50,
-        height: 50,
+        width: listType === 'coupon' || listType === 'activity' ? (50 * 2) / 3 : 50,
+        height: listType === 'coupon' || listType === 'activity' ? (50 * 2) / 3 : 50,
         anchor: { x: 0.5, y: 0.5 },
       }
       // 附近活动/优惠地图不展示文案，仅展示商家 logo marker

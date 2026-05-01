@@ -205,7 +205,7 @@ public interface MerchantService extends IService<Merchant> {
      boolean deleteMerchantMember(DeleteMerchantMemberDto deleteDto);
 
      /**
-      * 根据商户ID查询商户基本信息  
+      * 根据商户ID查询商户基本信息
       *
       * @param merchantId 商户ID
       * @return 商户基本信息
