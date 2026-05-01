@@ -29,8 +29,8 @@
 }
 
 .card-logo {
-  width: 96rpx;
-  height: 96rpx;
+  width: 120rpx;
+  height: 120rpx;
   border-radius: 12rpx;
   flex-shrink: 0;
   background: #f5f5f5;
@@ -109,6 +109,22 @@
   font-size: 24rpx;
   line-height: 1.4;
   margin-top: 4rpx;
+}
+
+.card-city-line {
+  display: flex;
+  align-items: center;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  line-height: 1.4;
+}
+
+.city-label {
+  color: #999999;
+}
+
+.city-text {
+  color: #666666;
 }
 
 .meta-label {

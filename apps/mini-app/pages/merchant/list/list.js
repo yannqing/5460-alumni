@@ -325,6 +325,7 @@ Page({
     return {
       merchantId: item.merchantId,
       merchantName: item.merchantName || '未命名商户',
+      city: item.city || '',
       merchantType: item.merchantType || 0,
       businessCategory: item.businessCategory || '',
       // 与 pages/alumni-association/list/list 一致：无 logo 时用 config.defaultAvatar

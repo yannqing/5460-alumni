@@ -41,6 +41,12 @@ public class MerchantListVo implements Serializable {
     private String merchantName;
 
     /**
+     * 所在城市
+     */
+    @Schema(description = "所在城市")
+    private String city;
+
+    /**
      * 商户类型：1-校友商铺 2-普通商铺
      */
     @Schema(description = "商户类型：1-校友商铺 2-普通商铺")
