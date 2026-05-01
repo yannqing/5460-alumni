@@ -3,9 +3,7 @@
 <message-notification />
 
 <view class="container">
-  <!-- 固定顶部背景 -->
-  <view class="fixed-top-bg"></view>
-  <!-- 自定义导航栏 -->
+  <!-- 自定义导航栏：真正固定不动 -->
   <custom-nav-bar showBack="{{true}}" backgroundColor="#3F61CA" showImage="{{false}}"></custom-nav-bar>
   <scroll-view
     class="main-scroller"
@@ -28,41 +26,38 @@
     </view>
 
     <view class="sticky-wrapper">
-      <!-- 搜索栏和筛选条件容器 -->
-      <view class="header-container">
-        <view class="sticky-header-container">
-          <!-- 搜索栏 -->
-          <view class="search-bar">
-            <view class="search-input-wrap">
-              <image class="search-left-icon" src="../../../assets/icons/magnifying glass.png" mode="aspectFit" />
-              <input class="search-input" type="text" placeholder="输入关键字" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
-              <view class="search-button" bindtap="onSearch">搜索</view>
-            </view>
+      <view class="sticky-header-container" style="position: sticky; top: 0; z-index: 100;">
+        <!-- 搜索栏 -->
+        <view class="search-bar">
+          <view class="search-input-wrap">
+            <image class="search-left-icon" src="../../../assets/icons/magnifying glass.png" mode="aspectFit" />
+            <input class="search-input" type="text" placeholder="输入关键字" placeholder-style="color:rgba(255,255,255,0.7);font-family:'PingFang SC',sans-serif;" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+            <view class="search-button" bindtap="onSearch">搜索</view>
           </view>
+        </view>
 
-          <!-- 筛选栏 -->
-          <view class="filter-section">
-            <!-- 条件筛选（推荐/我的关注/经营类目/全部） -->
-            <view class="filter-item">
-              <picker mode="multiSelector" bindcolumnchange="onConditionColumnChange" bindchange="onConditionChange" range="{{conditionData}}" value="{{conditionIndex}}">
-                <text>{{conditionDisplayText || '推荐'}}</text>
-              </picker>
-              <text class="filter-arrow">▾</text>
-            </view>
-            <!-- 城市筛选 -->
-            <view class="filter-item">
-              <picker mode="multiSelector" bindcolumnchange="onRegionColumnChange" bindchange="onRegionChange" range="{{regionData}}" value="{{regionIndex}}">
-                <text>{{regionDisplayText || '全部城市'}}</text>
-              </picker>
-              <text class="filter-arrow">▾</text>
-            </view>
-            <!-- 排序筛选 -->
-            <view class="filter-item">
-              <picker mode="multiSelector" bindchange="onSortFilterChange" range="{{sortFilterOptions}}" value="{{sortFilterIndex}}">
-                <text>{{sortDisplayText || '默认排序'}}</text>
-              </picker>
-              <text class="filter-arrow">▾</text>
-            </view>
+        <!-- 筛选栏 -->
+        <view class="filter-section">
+          <!-- 条件筛选（推荐/我的关注/经营类目/全部） -->
+          <view class="filter-item">
+            <picker mode="multiSelector" bindcolumnchange="onConditionColumnChange" bindchange="onConditionChange" range="{{conditionData}}" value="{{conditionIndex}}">
+              <text>{{conditionDisplayText || '推荐'}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
+          </view>
+          <!-- 城市筛选 -->
+          <view class="filter-item">
+            <picker mode="multiSelector" bindcolumnchange="onRegionColumnChange" bindchange="onRegionChange" range="{{regionData}}" value="{{regionIndex}}">
+              <text>{{regionDisplayText || '全部城市'}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
+          </view>
+          <!-- 排序筛选 -->
+          <view class="filter-item">
+            <picker mode="multiSelector" bindchange="onSortFilterChange" range="{{sortFilterOptions}}" value="{{sortFilterIndex}}">
+              <text>{{sortDisplayText || '默认排序'}}</text>
+            </picker>
+            <text class="filter-arrow">▾</text>
           </view>
         </view>
       </view>
@@ -90,6 +85,7 @@
 
         <!-- 加载状态 -->
         <view wx:if="{{loading && !refreshing}}" class="loading-text">加载中...</view>
+        <view wx:if="{{!loading && !hasMore && merchantList.length > 0}}" class="loading-text">没有更多了</view>
 
         <!-- 空状态 -->
         <view wx:if="{{!loading && merchantList.length === 0}}" class="empty-state">

@@ -267,6 +267,8 @@
             class="merchant-popup-coupon-item"
             wx:for="{{selectedCouponMerchant.coupons}}"
             wx:key="couponId"
+            bindtap="handlePopupCouponTap"
+            data-coupon-id="{{item.couponId}}"
           >
             <view class="merchant-popup-coupon-tag">券</view>
             <text class="merchant-popup-coupon-discount">{{item.discountText}}</text>
@@ -285,6 +287,8 @@
             class="merchant-popup-coupon-item"
             wx:for="{{selectedCouponMerchant.activities}}"
             wx:key="activityId"
+            bindtap="handlePopupActivityTap"
+            data-activity-id-safe="{{item.activityIdSafe}}"
           >
             <view class="merchant-popup-activity-tag">活</view>
             <text class="merchant-popup-coupon-name">{{item.activityTitle}}</text>

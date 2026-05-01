@@ -3,6 +3,10 @@ const config = require('../../utils/config.js')
 const { shopApi, nearbyApi, couponApi } = require('../../api/api.js')
 const { FollowTargetType, handleListItemFollow } = require('../../utils/followHelper.js')
 
+const ACTIVITY_ID_PREFIX = 'aid:'
+const toActivityIdSafe = activityId => `${ACTIVITY_ID_PREFIX}${String(activityId || '')}`
+const parseActivityIdSafe = activityIdSafe => String(activityIdSafe || '').replace(/^aid:/, '')
+
 Page({
   data: {
     searchValue: '',
@@ -555,6 +559,7 @@ Page({
             ) {
               activities = merchant.activities.map(a => ({
                 activityId: String(a.activityId || ''),
+                activityIdSafe: toActivityIdSafe(a.activityId),
                 activityTitle: a.activityTitle || '',
                 activityType: a.activityType || 0,
               }))
@@ -1376,7 +1381,8 @@ Page({
       if (matchedMerchant && matchedMerchant.merchantId) {
         const popupActivities = Array.isArray(matchedMerchant.activities)
           ? matchedMerchant.activities.map(activity => ({
-              activityId: activity.activityId,
+              activityId: String(activity.activityId || ''),
+              activityIdSafe: toActivityIdSafe(activity.activityId),
               activityTitle: activity.activityTitle || '活动',
             }))
           : []
@@ -1458,6 +1464,23 @@ Page({
     })
   },
 
+  handlePopupCouponTap(e) {
+    const couponId = e.currentTarget.dataset.couponId
+    if (!couponId) return
+    wx.navigateTo({
+      url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(couponId))}`,
+    })
+  },
+
+  handlePopupActivityTap(e) {
+    const activityIdSafe = e.currentTarget.dataset.activityIdSafe
+    const activityId = parseActivityIdSafe(activityIdSafe)
+    if (!activityId) return
+    wx.navigateTo({
+      url: `/pages/activity/detail/detail?id=${encodeURIComponent(String(activityId))}`,
+    })
+  },
+
   // 点击商户卡片，跳转到商户详情页
   handleShopTap(e) {
     const { merchantId } = e.detail
@@ -1486,7 +1509,7 @@ Page({
     if (!activityId) return
 
     wx.navigateTo({
-      url: `/pages/activity/detail/detail?id=${encodeURIComponent(String(activityId))}`,
+      url: `/pages/activity/detail/detail?id=${activityId}`,
     })
   },
 

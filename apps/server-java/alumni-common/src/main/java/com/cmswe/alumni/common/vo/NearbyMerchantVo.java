@@ -109,7 +109,7 @@ public class NearbyMerchantVo implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "活动ID")
-        private Long activityId;
+        private String activityId;
 
         @Schema(description = "活动标题")
         private String activityTitle;
