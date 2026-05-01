@@ -489,6 +489,11 @@ page {
   background-color: rgba(64, 178, 230, 0.1);
 }
 
+.status-hint {
+  font-size: 24rpx;
+  color: #faad14;
+}
+
 .cert-tag-wrap {
   display: flex;
   flex-wrap: wrap;

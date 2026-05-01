@@ -61,20 +61,24 @@
       <input class="input" placeholder="请输入联系人姓名" placeholder-class="input-placeholder" value="{{formData.zhName}}" data-field="zhName" bindinput="handleInput" maxlength="50" adjust-position="{{false}}" />
     </view>
 
+    <!-- 隐藏以下字段
     <view class="form-item">
       <text class="label">联系人职务</text>
       <input class="input" placeholder="请输入联系人职务（如：会长、秘书长）" placeholder-class="input-placeholder" value="{{formData.zhRole}}" data-field="zhRole" bindinput="handleInput" maxlength="50" adjust-position="{{false}}" />
     </view>
+    -->
 
     <view class="form-item">
       <text class="label">联系人电话</text>
       <input class="input" type="number" placeholder="请输入联系人电话" placeholder-class="input-placeholder" value="{{formData.zhPhone}}" data-field="zhPhone" bindinput="handleInput" maxlength="20" adjust-position="{{false}}" />
     </view>
 
+    <!-- 隐藏以下字段
     <view class="form-item">
       <text class="label">社会职务</text>
       <input class="input" placeholder="请输入社会职务（如：某高校教授）" placeholder-class="input-placeholder" value="{{formData.zhSocialAffiliation}}" data-field="zhSocialAffiliation" bindinput="handleInput" maxlength="100" adjust-position="{{false}}" />
     </view>
+    -->
 
     <view class="form-item">
       <text class="label">附件</text>

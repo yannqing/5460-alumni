@@ -88,9 +88,12 @@ Page({
       let bgImg = ''
       if (data.bgImg) {
         try {
-          const cleanedStr = (data.bgImg || '').toString().trim().replace(/^["']|['"]$/g, '')
+          const cleanedStr = (data.bgImg || '')
+            .toString()
+            .trim()
+            .replace(/^["']|['"]$/g, '')
           const parsed = JSON.parse(cleanedStr)
-          bgImg = Array.isArray(parsed) ? (parsed[0] || '') : (parsed || '')
+          bgImg = Array.isArray(parsed) ? parsed[0] || '' : parsed || ''
         } catch {
           bgImg = typeof data.bgImg === 'string' ? data.bgImg : ''
         }
@@ -169,7 +172,8 @@ Page({
         that.setData({ uploadingLogo: true })
         wx.showLoading({ title: '上传中...', mask: true })
 
-        fileApi.uploadImage(tempFilePath)
+        fileApi
+          .uploadImage(tempFilePath)
           .then(res => {
             if (res.code === 200 && res.data && res.data.fileUrl) {
               that.setData({ [`formData.logo`]: res.data.fileUrl, uploadingLogo: false })
@@ -443,5 +447,12 @@ Page({
     } finally {
       this.setData({ submitting: false })
     }
+  },
+
+  // 跳转到反馈页面
+  goToFeedback() {
+    wx.navigateTo({
+      url: '/pages/feedback/feedback?type=1&title=' + encodeURIComponent('完善校友会信息遇到问题'),
+    })
   },
 })

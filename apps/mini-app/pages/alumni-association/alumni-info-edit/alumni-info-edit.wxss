@@ -15,6 +15,20 @@
   padding-bottom: 40rpx;
 }
 
+.info-notice {
+  background-color: #fffbe6;
+  border: 1rpx solid #ffe58f;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.notice-text {
+  font-size: 24rpx;
+  color: #ad6800;
+  line-height: 1.5;
+}
+
 .white-background-content {
   background: #ffffff;
   border-radius: 32rpx 32rpx 0 0;
@@ -523,4 +537,24 @@ button::after {
   text-align: center;
   font-size: 28rpx;
   color: #999;
+}
+
+/* 反馈入口样式 */
+.feedback-hint-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30rpx;
+  padding: 0 10rpx;
+}
+
+.feedback-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.feedback-hint-link {
+  font-size: 24rpx;
+  color: #1890FF;
+  margin-left: 8rpx;
 }

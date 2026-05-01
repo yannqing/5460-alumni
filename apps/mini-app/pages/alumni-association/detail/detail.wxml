@@ -40,6 +40,7 @@
               </view>
               <view wx:if="{{associationInfo.schoolName}}" class="text-secondary mt-10 school-row">
                 <view class="school-tag">{{associationInfo.schoolName}}</view>
+                <view wx:if="{{associationInfo.status === 2}}" class="status-hint">（待发布）</view>
               </view>
               <view wx:if="{{associationInfo.location}}" class="text-placeholder mt-10 location-row">
                 <image class="location-icon" src="{{iconLocation}}" mode="aspectFit" />
@@ -274,7 +275,7 @@
 </custom-nav-bar>
 
 <!-- 悬浮添加按钮 (FAB) -->
-<view class="fab-btn" wx:if="{{showFab}}" bindtap="showActionSheet">
+<view class="fab-btn" wx:if="{{showFab && associationInfo.status !== 2}}" bindtap="showActionSheet">
   <view class="fab-icon">+</view>
 </view>
 

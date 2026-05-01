@@ -7,6 +7,11 @@
 
   <view class="edit-page-container" wx:else>
     <view class="edit-page">
+      <!-- 提示消息 -->
+      <view class="info-notice">
+        <text class="notice-text">如果要添加校友会架构、活动等信息，还请发布后，到管理页面执行相关操作</text>
+      </view>
+
       <form bindsubmit="submitForm">
         <!-- 校友会名称（只读） -->
         <view class="form-card">
@@ -189,6 +194,12 @@
             bindinput="handleInput"
             data-field="zhSocialAffiliation"
           />
+        </view>
+
+        <!-- 反馈入口 -->
+        <view class="feedback-hint-section">
+          <text class="feedback-hint-text">遇到问题或信息有误？</text>
+          <text class="feedback-hint-link" bindtap="goToFeedback">点击反馈</text>
         </view>
 
         <!-- 提交按钮 -->

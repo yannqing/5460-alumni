@@ -1606,9 +1606,10 @@ Page({
       attachmentIds: attachmentIds.length > 0 ? attachmentIds : undefined,
       // 联系人信息（用于后续发布时的角色分配）
       zhName: formData.zhName,
-      zhRole: formData.zhRole,
       zhPhone: formData.zhPhone,
-      zhSocialAffiliation: formData.zhSocialAffiliation,
+      // 隐藏以下字段不提交
+      // zhRole: formData.zhRole,
+      // zhSocialAffiliation: formData.zhSocialAffiliation,
     }
 
     // 补充联系人微信ID（从登录用户信息获取）

@@ -115,7 +115,7 @@
 .association-logo {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 8rpx;
+  border-radius: 50%;
   overflow: hidden;
   margin-right: 20rpx;
 }
