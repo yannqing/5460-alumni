@@ -36,7 +36,6 @@ public class UpdateAlumniAssociationJoinApplicationDto implements Serializable {
      * 身份证号
      */
     @Schema(description = "身份证号")
-    @NotNull(message = "身份证号不能为空")
     private String identifyCode;
 
     /**
