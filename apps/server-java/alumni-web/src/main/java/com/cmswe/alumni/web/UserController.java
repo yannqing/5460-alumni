@@ -5,6 +5,7 @@ import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.common.dto.QueryAlumniListDto;
+import com.cmswe.alumni.common.dto.QueryAlumniListNoPrivacyDto;
 import com.cmswe.alumni.common.dto.QueryManagedOrganizationDto;
 import com.cmswe.alumni.common.dto.UpdateUserInfoDto;
 import com.cmswe.alumni.common.dto.UpdateUserTagsDto;
@@ -17,6 +18,7 @@ import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.AlumniDetailVo;
 import com.cmswe.alumni.common.vo.TagVo;
 import com.cmswe.alumni.common.vo.UserDetailVo;
+import com.cmswe.alumni.common.vo.UserListNoPrivacyResponse;
 import com.cmswe.alumni.common.vo.UserListResponse;
 import com.cmswe.alumni.common.vo.UserPrivacySettingListVo;
 import com.cmswe.alumni.service.system.service.SysTagService;
@@ -125,6 +127,18 @@ public class UserController {
             Page<UserListResponse> userListResponsePage = userService.queryAlumniList(queryAlumniListDto, wxId);
             return ResultUtils.success(Code.SUCCESS, userListResponsePage);
         }
+    }
+
+    @PostMapping("/query/alumni/no-privacy")
+    @Operation(summary = "查询校友列表（MySQL，不走ES，不按隐私设置过滤）")
+    public BaseResponse<Page<UserListNoPrivacyResponse>> getAlumniListNoPrivacy(
+            @RequestBody QueryAlumniListNoPrivacyDto queryDto,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long wxId = securityUser != null && securityUser.getWxUser() != null
+                ? securityUser.getWxUser().getWxId()
+                : null;
+        Page<UserListNoPrivacyResponse> page = userService.queryAlumniListNoPrivacy(queryDto, wxId);
+        return ResultUtils.success(Code.SUCCESS, page);
     }
 
     @PutMapping("/update/tags")
