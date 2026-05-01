@@ -102,7 +102,7 @@
           <!-- 顶部图片 -->
           <view class="hot-activity-banner" bindtap="gotoActivityList">
             <image class="banner-img" src="/assets/home/home_page_activity.png" mode="widthFix"></image>
-            <image class="banner-title" src="/assets/home/home_page_activity_title.png" mode="heightFix"></image>
+            <image class="banner-title" src="{{alumniActivitiesBanner}}" mode="heightFix"></image>
             <text class="banner-more">查看更多</text>
           </view>
 
