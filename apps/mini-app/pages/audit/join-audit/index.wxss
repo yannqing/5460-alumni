@@ -10,74 +10,44 @@
   overflow: hidden;
 }
 
-/* 选择校友会卡片（与校友会审核页 group_5 一致） */
-.page .group_5 {
-  width: 714rpx;
-  min-height: auto;
-  margin: 47rpx 0 0 18rpx;
-  padding: 38rpx 43rpx 27rpx 43rpx;
+/* 选择校友会区域（现代化下拉框样式，放在左上角） */
+.alumni-selector-wrap {
   flex-shrink: 0;
+  padding: 24rpx 18rpx 0;
 }
 
-.group_5 {
-  background-color: #FFFFFF;
-  border-radius: 28.99rpx;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.group_5 .text_14 {
-  width: auto;
-  height: 40rpx;
-  color: rgba(0,0,0,1);
-  font-size: 29rpx;
-  font-family: PingFangSC-Semibold, -apple-system, sans-serif;
-  font-weight: 600;
-  line-height: 40rpx;
-}
-
-.group_5 .label_text {
-  width: auto;
-  height: 36rpx;
-  color: rgba(0,0,0,0.6);
-  font-size: 25rpx;
-  font-family: PingFangSC-Regular, -apple-system, sans-serif;
-  margin-top: 16rpx;
-  display: block;
-  line-height: 36rpx;
-}
-
-.group_5 .text-wrapper_8 {
-  height: 80rpx;
-  background-color: #FFFFFF;
-  border-radius: 12rpx;
-  border: 1rpx solid #E0E0E0;
-  display: flex;
+.alumni-selector {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 16rpx;
-  padding: 0 20rpx;
-  box-sizing: border-box;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  min-width: 280rpx;
+  max-width: 600rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
 
-.group_5 .text_15 {
-  flex: 1;
-  height: 36rpx;
-  color: rgba(0,0,0,0.85);
+.selector-text {
   font-size: 28rpx;
+  color: #333;
+  margin-right: 16rpx;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 36rpx;
+  white-space: nowrap;
 }
 
-.group_5 .text-wrapper_8::after {
-  content: '▼';
+.selector-arrow {
+  font-size: 18rpx;
   color: #999;
-  font-size: 20rpx;
-  margin-left: 10rpx;
+}
+
+.selector-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+  flex-shrink: 0;
 }
 
 /* 审核列表卡片（与校友会审核页 group_7 一致：固定高度，仅 scroll-list 内滚动） */
@@ -369,6 +339,25 @@
   color: #999;
 }
 
+.picker-search {
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.search-input {
+  height: 72rpx;
+  background-color: #f5f5f5;
+  border-radius: 36rpx;
+  padding: 0 30rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.search-placeholder {
+  color: #999;
+  font-size: 28rpx;
+}
+
 .picker-list {
   max-height: calc(50vh + 40px);
   overflow-y: auto;
@@ -383,7 +372,16 @@
   border-bottom: 1rpx solid #f0f0f0;
 }
 
+.item-logo {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
 .item-name {
+  flex: 1;
   font-size: 28rpx;
   color: #333;
 }

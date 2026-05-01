@@ -193,6 +193,11 @@
   border: none;
 }
 
+.shop-button {
+  right: 148rpx;
+  background-color: #52c41a;
+}
+
 .edit-button::after {
   border: none;
 }

@@ -113,7 +113,11 @@ public interface UserService extends IService<WxUser> {
      * 根据用户角色获取可管理的组织列表（默认：系统超级管理员会展开为全站启用组织）
      */
     default List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type) {
-        return getManagedOrganizations(wxId, type, false);
+        return getManagedOrganizations(wxId, type, false, null);
+    }
+
+    default List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly) {
+        return getManagedOrganizations(wxId, type, roleScopedOnly, null);
     }
 
     /**
@@ -122,9 +126,23 @@ public interface UserService extends IService<WxUser> {
      * @param wxId           用户ID
      * @param type           组织类型（0-校友会 1-校促会 2-商户 3-校友总会，null-查询全部）
      * @param roleScopedOnly 为 true 时仅依据 role_user 表绑定返回组织，系统超级管理员不再展开全站（与待办统计、加入审核数据范围一致）
+     * @param name           名称搜索关键字（可选）
      * @return 可管理的组织列表
      */
-    List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly);
+    List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly, String name);
+
+    /**
+     * 根据用户角色获取可管理的组织列表（分页版本）
+     *
+     * @param wxId           用户ID
+     * @param type           组织类型（0-校友会 1-校促会 2-商户 3-校友总会，null-查询全部）
+     * @param roleScopedOnly 为 true 时仅依据 role_user 表绑定返回组织，系统超级管理员不再展开全站
+     * @param name           名称搜索关键字（可选）
+     * @param current        当前页码
+     * @param pageSize       每页数量
+     * @return 分页结果
+     */
+    Page<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> getManagedOrganizations(Long wxId, Integer type, boolean roleScopedOnly, String name, int current, int pageSize);
 
     /**
      * 获取用户通过校友会管理员角色实际管理的校友会ID集合

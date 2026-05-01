@@ -5,6 +5,7 @@ import com.cmswe.alumni.auth.SecurityUser;
 import com.cmswe.alumni.common.constant.Code;
 import com.cmswe.alumni.api.association.AlumniAssociationService;
 import com.cmswe.alumni.common.dto.QueryAlumniListDto;
+import com.cmswe.alumni.common.dto.QueryManagedOrganizationDto;
 import com.cmswe.alumni.common.dto.UpdateUserInfoDto;
 import com.cmswe.alumni.common.dto.UpdateUserTagsDto;
 import com.cmswe.alumni.common.entity.SysTag;
@@ -167,11 +168,27 @@ public class UserController {
     public BaseResponse<List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo>> getManagedOrganizations(
             @AuthenticationPrincipal SecurityUser securityUser,
             @RequestParam(required = false) Integer type,
-            @RequestParam(required = false, defaultValue = "false") boolean roleScopedOnly) {
+            @RequestParam(required = false, defaultValue = "false") boolean roleScopedOnly,
+            @RequestParam(required = false) String name) {
         Long wxId = securityUser.getWxUser().getWxId();
         List<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> organizations =
-                userService.getManagedOrganizations(wxId, type, roleScopedOnly);
+                userService.getManagedOrganizations(wxId, type, roleScopedOnly, name);
         return ResultUtils.success(Code.SUCCESS, organizations, "查询成功");
+    }
+
+    @GetMapping("/managed-organizations/page")
+    @Operation(summary = "根据本人角色，分页获取可管理的组织列表")
+    public BaseResponse<Page<com.cmswe.alumni.common.vo.ManagedOrganizationListVo>> getManagedOrganizationsPage(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @RequestParam(required = false) Integer type,
+            @RequestParam(required = false, defaultValue = "false") boolean roleScopedOnly,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false, defaultValue = "1") int current,
+            @RequestParam(required = false, defaultValue = "10") int pageSize) {
+        Long wxId = securityUser.getWxUser().getWxId();
+        Page<com.cmswe.alumni.common.vo.ManagedOrganizationListVo> page =
+                userService.getManagedOrganizations(wxId, type, roleScopedOnly, name, current, pageSize);
+        return ResultUtils.success(Code.SUCCESS, page, "查询成功");
     }
 }
 

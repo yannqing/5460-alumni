@@ -177,6 +177,12 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
             queryWrapper.in(HomePageArticle::getApplyStatus, 0, 1, 2);
         }
 
+        // 如果指定了校友会ID，则筛选该校友会的文章
+        if (queryDto.getAlumniAssociationId() != null) {
+            queryWrapper.eq(HomePageArticle::getPublishType, "ASSOCIATION")
+                    .eq(HomePageArticle::getPublishWxId, queryDto.getAlumniAssociationId());
+        }
+
         // 根据状态排序：待审核按创建时间降序，已审核按审核完成时间降序
         if (applyStatus != null && applyStatus == 0) {
             queryWrapper.orderByDesc(HomePageArticle::getCreateTime);

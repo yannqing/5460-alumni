@@ -28,4 +28,7 @@ public class QueryArticleApplyListDto implements Serializable {
 
     @Schema(description = "审核状态 0-审核中，1-审核通过，2-审核拒绝", example = "0")
     private Integer applyStatus;
+
+    @Schema(description = "所属校友会ID", example = "123456")
+    private Long alumniAssociationId;
 }

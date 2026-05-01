@@ -25,12 +25,15 @@ Page({
   data: {
     alumniAssociationList: [],
     loading: false,
+    loadingMore: false,
     selectedAlumniAssociationId: 0,
     selectedAlumniAssociationName: '',
+    selectedAlumniAssociationLogo: '',
     showAlumniAssociationPicker: false,
     selectedOrganizeId: 0, // 存储选中的organizeId
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限
     hasAlumniAdminPermission: false, // 是否有校友会管理员身份
+    defaultUserAvatarUrl: config.defaultAvatar,
     // 成员列表相关
     memberList: [],
     memberLoading: false, // 成员加载状态
@@ -167,6 +170,7 @@ Page({
       this.setData({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
         selectedAlumniAssociationName: singleAlumni.alumniAssociationName,
+        selectedAlumniAssociationLogo: singleAlumni.logo || '',
         selectedOrganizeId: singleAlumni.alumniAssociationId,
         hasSingleAlumniAssociation: true,
       })
@@ -190,59 +194,69 @@ Page({
 
   // 显示校友会选择器
   showAlumniAssociationSelector() {
-    this.setData({ showAlumniAssociationPicker: false })
     this.setData({ showAlumniAssociationPicker: true })
   },
 
-  // 选择校友会
-  async selectAlumniAssociation(e) {
-    // 正确获取数据集属性
-    const alumniAssociationId = e.currentTarget.dataset.alumniAssociationId
-    const alumniAssociationName = e.currentTarget.dataset.alumniAssociationName
+  // 校友会选择器选择事件
+  onAlumniAssociationSelect(e) {
+    const item = e.detail.item
+    const alumniAssociationId = item.alumniAssociationId
+    const alumniAssociationName = item.alumniAssociationName || item.name
     console.log('[Debug] 选择的校友会:', { alumniAssociationId, alumniAssociationName })
-
-    // 获取对应的校友会对象
-    const selectedAlumni = this.data.alumniAssociationList.find(
-      item => item.alumniAssociationId === alumniAssociationId
-    )
-    console.log('[Debug] 找到的校友会对象:', selectedAlumni)
 
     this.setData({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
+      selectedAlumniAssociationLogo: item.logo || '',
       showAlumniAssociationPicker: false,
-      selectedOrganizeId: alumniAssociationId, // 确保使用校友会ID
+      selectedOrganizeId: alumniAssociationId,
     })
 
-    try {
-      // 调用 /AlumniAssociation/{id} 接口，入参为 alumniAssociationId
-      console.log(
-        '[Debug] 准备调用 /AlumniAssociation/{id} 接口，alumniAssociationId:',
-        alumniAssociationId
-      )
+    this.loadMemberList(alumniAssociationId, true)
+  },
 
-      const res = await this.getAlumniAssociationDetail(alumniAssociationId)
+  // 校友会选择器取消事件
+  cancelAlumniAssociationSelect() {
+    this.setData({ showAlumniAssociationPicker: false })
+  },
 
-      console.log('[Debug] 接口调用结果:', res)
+  // 校友会选择器加载更多
+  onAlumniAssociationLoadMore() {
+    const { loadingMore, alumniAssociationList } = this.data
+    if (loadingMore) return
 
-      if (res.data && res.data.code === 200 && res.data.data) {
-        console.log('[Debug] 接口调用成功，获取到的校友会信息:', res.data.data)
-      } else {
-        console.error('[Debug] 接口调用失败，返回数据:', res)
-      }
-
-      // 加载该校友会的成员列表
-      await this.loadMemberList(alumniAssociationId, true)
-    } catch (apiError) {
-      console.error('[Debug] 调用 /AlumniAssociation/{id} 接口失败:', apiError)
-    }
+    this.setData({ loadingMore: true })
+    userApi
+      .getManagedOrganizations({
+        type: 0,
+        current: Math.ceil(alumniAssociationList.length / 20) + 1,
+        pageSize: 20,
+      })
+      .then(res => {
+        if (res.data && res.data.code === 200) {
+          const newList = res.data.data.records || []
+          this.setData({
+            alumniAssociationList: [...alumniAssociationList, ...newList],
+            loadingMore: false,
+          })
+        } else {
+          this.setData({ loadingMore: false })
+        }
+      })
+      .catch(() => {
+        this.setData({ loadingMore: false })
+      })
   },
 
   // 加载成员列表
   async loadMemberList(alumniAssociationId, reset = false) {
     try {
-      const { memberLoading, memberLoadingMore, memberHasMore, memberPage, memberPageSize } = this.data
-      if ((reset && memberLoading) || (!reset && (memberLoading || memberLoadingMore || !memberHasMore))) {
+      const { memberLoading, memberLoadingMore, memberHasMore, memberPage, memberPageSize } =
+        this.data
+      if (
+        (reset && memberLoading) ||
+        (!reset && (memberLoading || memberLoadingMore || !memberHasMore))
+      ) {
         return
       }
 
@@ -265,7 +279,11 @@ Page({
         const hasMoreByTotal = total > 0 ? mergedList.length < total : null
         const hasMoreByFlag = typeof pageData.hasNext === 'boolean' ? pageData.hasNext : null
         const hasMore =
-          hasMoreByTotal !== null ? hasMoreByTotal : hasMoreByFlag !== null ? hasMoreByFlag : records.length > 0
+          hasMoreByTotal !== null
+            ? hasMoreByTotal
+            : hasMoreByFlag !== null
+              ? hasMoreByFlag
+              : records.length > 0
 
         this.setData({
           memberList: mergedList,
@@ -300,16 +318,12 @@ Page({
 
   // 成员列表触底加载更多
   onMemberScrollToLower() {
-    const { selectedAlumniAssociationId, memberLoading, memberLoadingMore, memberHasMore } = this.data
+    const { selectedAlumniAssociationId, memberLoading, memberLoadingMore, memberHasMore } =
+      this.data
     if (!selectedAlumniAssociationId || memberLoading || memberLoadingMore || !memberHasMore) {
       return
     }
     this.loadMemberList(selectedAlumniAssociationId, false)
-  },
-
-  // 取消选择校友会
-  cancelAlumniAssociationSelect() {
-    this.setData({ showAlumniAssociationPicker: false })
   },
 
   // 调用校友会详情接口
@@ -818,7 +832,8 @@ Page({
         editIsShowOnHome: member.isShowOnHome || 0,
         // 职务：自由输入，对应 alumni_association_member.role_name
         editRoleName:
-          (member.roleName != null && member.roleName !== '') ? member.roleName
+          member.roleName != null && member.roleName !== ''
+            ? member.roleName
             : (member.organizeArchiRole && member.organizeArchiRole.roleOrName) || '',
       },
       showEditModal: true,

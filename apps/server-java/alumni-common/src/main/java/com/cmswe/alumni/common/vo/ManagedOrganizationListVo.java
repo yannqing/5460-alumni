@@ -52,6 +52,18 @@ public class ManagedOrganizationListVo implements Serializable {
     @Schema(description = "地点")
     private String location;
 
+    /**
+     * 名称拼音首字母（用于排序）
+     */
+    @Schema(description = "名称拼音首字母")
+    private String pinyinInitial;
+
+    /**
+     * 名称完整拼音（用于显示）
+     */
+    @Schema(description = "名称完整拼音")
+    private String pinyin;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

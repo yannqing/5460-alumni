@@ -28,7 +28,7 @@
         FROM permission p
                  JOIN role_permissions rp ON p.per_id = rp.per_id
                  JOIN role_user ru ON rp.role_id = ru.role_id
-        WHERE ru.user_id = #{userId}
+        WHERE ru.wx_id = #{userId}
           AND p.is_delete = 0
           AND rp.is_delete = 0
           AND ru.is_delete = 0

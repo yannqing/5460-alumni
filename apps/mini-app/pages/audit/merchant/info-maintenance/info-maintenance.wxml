@@ -15,6 +15,12 @@
       <button
         class="edit-button"
         wx:if="{{currentMerchantDetail && !detailLoading}}"
+        bindtap="goToShopDetail"
+        hover-class="edit-button-hover"
+      >查看商户</button>
+      <button
+        class="edit-button shop-button"
+        wx:if="{{currentMerchantDetail && !detailLoading}}"
         bindtap="goToEditPage"
         hover-class="edit-button-hover"
       >编辑</button>

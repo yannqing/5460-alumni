@@ -1,5 +1,45 @@
 /* pages/audit/article/manage/manage.wxss */
 
+/* 选择校友会区域（现代化下拉框样式，放在左上角） */
+.alumni-selector-wrap {
+  flex-shrink: 0;
+  padding: 24rpx 18rpx 0;
+}
+
+.alumni-selector {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  min-width: 280rpx;
+  max-width: 600rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.selector-text {
+  font-size: 28rpx;
+  color: #333;
+  margin-right: 16rpx;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selector-arrow {
+  font-size: 18rpx;
+  color: #999;
+}
+
+.selector-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
 /* Tab 样式 */
 .tab-container {
   display: flex;

@@ -10,10 +10,12 @@ Page({
     loading: false,
     selectedAlumniAssociationId: 0,
     selectedAlumniAssociationName: '',
+    selectedAlumniAssociationLogo: '',
     showAlumniAssociationPicker: false,
     hasSingleAlumniAssociation: false, // 是否只有一个校友会权限,
     hasAlumniAdminPermission: false, // 是否有校友会管理员身份
     currentAlumniDetail: null, // 当前选中的校友会详情
+    defaultUserAvatarUrl: config.defaultAvatar,
   },
 
   onLoad(options) {
@@ -48,7 +50,7 @@ Page({
 
         // 设置是否有校友会管理员身份
         this.setData({
-          hasAlumniAdminPermission: organizationList.length > 0
+          hasAlumniAdminPermission: organizationList.length > 0,
         })
 
         if (organizationList.length > 0) {
@@ -67,13 +69,13 @@ Page({
               organizeId: org.id,
               logo: logo,
               location: org.location || '',
-              type: org.type
+              type: org.type,
             }
           })
 
           // 设置校友会列表
           this.setData({
-            alumniAssociationList: alumniAssociationList
+            alumniAssociationList: alumniAssociationList,
           })
           console.log('[Debug] 最终校友会列表:', alumniAssociationList)
 
@@ -84,14 +86,14 @@ Page({
           console.warn('[Debug] 用户没有管理的校友会')
           this.setData({
             alumniAssociationList: [],
-            hasAlumniAdminPermission: false
+            hasAlumniAdminPermission: false,
           })
         }
       } else {
         console.error('[Debug] 获取校友会列表接口调用失败:', res)
         this.setData({
           alumniAssociationList: [],
-          hasAlumniAdminPermission: false
+          hasAlumniAdminPermission: false,
         })
       }
     } catch (error) {
@@ -99,7 +101,7 @@ Page({
       // 发生错误时，设置为空数组
       this.setData({
         alumniAssociationList: [],
-        hasAlumniAdminPermission: false
+        hasAlumniAdminPermission: false,
       })
     }
   },
@@ -111,24 +113,26 @@ Page({
       const singleAlumni = alumniAssociationList[0]
       this.setData({
         selectedAlumniAssociationId: singleAlumni.alumniAssociationId,
-        selectedAlumniAssociationName: singleAlumni.associationName || singleAlumni.alumniAssociationName,
+        selectedAlumniAssociationName:
+          singleAlumni.associationName || singleAlumni.alumniAssociationName,
+        selectedAlumniAssociationLogo: singleAlumni.logo || '',
         hasSingleAlumniAssociation: true,
-        currentAlumniDetail: null // 重置详情，准备加载新数据
+        currentAlumniDetail: null, // 重置详情，准备加载新数据
       })
       console.log('[Debug] 只有一个校友会权限，自动选择:', singleAlumni)
-      
+
       // 自动选择时也加载校友会详情
       await this.loadAlumniAssociationDetail(singleAlumni.alumniAssociationId)
     } else if (alumniAssociationList.length > 1) {
       // 多个校友会权限，正常显示选择器
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 有多个校友会权限，正常显示选择器')
     } else {
       // 没有校友会权限
       this.setData({
-        hasSingleAlumniAssociation: false
+        hasSingleAlumniAssociation: false,
       })
       console.log('[Debug] 没有校友会权限')
     }
@@ -136,8 +140,32 @@ Page({
 
   // 显示校友会选择器
   showAlumniAssociationSelector() {
-    this.setData({ showAlumniAssociationPicker: false })
     this.setData({ showAlumniAssociationPicker: true })
+  },
+
+  // 校友会选择器选择事件
+  onAlumniAssociationSelect(e) {
+    const item = e.detail.item
+    const alumniAssociationId = item.alumniAssociationId
+    const alumniAssociationName = item.alumniAssociationName || item.name
+    this.setData({
+      selectedAlumniAssociationId: alumniAssociationId,
+      selectedAlumniAssociationName: alumniAssociationName,
+      selectedAlumniAssociationLogo: item.logo || '',
+      showAlumniAssociationPicker: false,
+      currentAlumniDetail: null,
+    })
+    this.loadAlumniAssociationDetail(alumniAssociationId)
+  },
+
+  // 校友会选择器取消事件
+  cancelAlumniAssociationSelect() {
+    this.setData({ showAlumniAssociationPicker: false })
+  },
+
+  // 校友会选择器加载更多
+  onAlumniAssociationLoadMore() {
+    // 暂未实现分页
   },
 
   // 选择校友会
@@ -151,7 +179,7 @@ Page({
       selectedAlumniAssociationId: alumniAssociationId,
       selectedAlumniAssociationName: alumniAssociationName,
       showAlumniAssociationPicker: false,
-      currentAlumniDetail: null // 重置详情，准备加载新数据
+      currentAlumniDetail: null, // 重置详情，准备加载新数据
     })
 
     // 获取校友会详情
@@ -162,31 +190,31 @@ Page({
   async loadAlumniAssociationDetail(alumniAssociationId) {
     try {
       console.log('[Debug] 开始加载校友会详情:', alumniAssociationId)
-      
+
       const res = await this.getAlumniAssociationDetail(alumniAssociationId)
-      
+
       if (res.data && res.data.code === 200 && res.data.data) {
         console.log('[Debug] 获取校友会详情成功:', res.data.data)
-        
+
         // 处理logo字段，去除空格和反引号
         const processedData = res.data.data
         if (processedData.logo) {
           processedData.logo = processedData.logo.trim().replace(/[`\s]/g, '')
         }
-        
+
         this.setData({
-          currentAlumniDetail: processedData
+          currentAlumniDetail: processedData,
         })
       } else {
         console.error('[Debug] 获取校友会详情失败:', res)
         this.setData({
-          currentAlumniDetail: null
+          currentAlumniDetail: null,
         })
       }
     } catch (error) {
       console.error('[Debug] 加载校友会详情异常:', error)
       this.setData({
-        currentAlumniDetail: null
+        currentAlumniDetail: null,
       })
     }
   },
@@ -206,21 +234,19 @@ Page({
     if (!this.data.selectedAlumniAssociationId) {
       wx.showToast({
         title: '请先选择校友会',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
 
     wx.navigateTo({
       url: `/pages/info-maintenance/edit/edit?alumniAssociationId=${this.data.selectedAlumniAssociationId}`,
-      success: (res) => {
+      success: res => {
         // 可以在这里传递额外的数据
         res.eventChannel.emit('acceptDataFromOpenerPage', {
-          currentAlumniDetail: this.data.currentAlumniDetail
+          currentAlumniDetail: this.data.currentAlumniDetail,
         })
-      }
+      },
     })
   },
-
-
 })
