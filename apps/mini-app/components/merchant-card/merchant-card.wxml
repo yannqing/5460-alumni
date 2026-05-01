@@ -1,5 +1,5 @@
 <!--components/merchant-card/merchant-card.wxml-->
-<view class="merchant-card" bindtap="handleTap">
+<view class="merchant-card {{isLast ? 'is-last' : ''}}" bindtap="handleTap">
   <view class="card-header">
     <image class="card-logo" src="{{logoUrl}}" mode="aspectFill" />
     <view class="card-info">
@@ -15,10 +15,8 @@
         <text class="card-distance" wx:if="{{distance}}">{{distance}}</text>
       </view>
       <view class="card-meta-line">
-        <block wx:if="{{favoriteCount > 0}}">
-          <text class="meta-highlight">{{favoriteCount}}</text>
-          <text class="meta-label">人收藏</text>
-        </block>
+        <text class="meta-highlight">{{favoriteCount}}</text>
+        <text class="meta-label">人收藏</text>
       </view>
     </view>
   </view>

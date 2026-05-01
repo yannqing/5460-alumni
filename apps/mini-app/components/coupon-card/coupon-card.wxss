@@ -117,10 +117,12 @@
 
 .coupon-stock-row {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   margin-bottom: 4rpx;
-  padding-right: 10rpx;
+  margin-left: 40rpx;
+  padding-right: 0;
 }
 
 .coupon-stock-text {
@@ -148,9 +150,9 @@
 
 .coupon-action-btn {
   position: absolute;
-  right: 24rpx;
+  right: 34rpx;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-20rpx, -50%);
   padding: 14rpx 36rpx;
   background: linear-gradient(135deg, #FF6B6B, #FF8E53);
   border-radius: 40rpx;
@@ -164,7 +166,7 @@
 
 .coupon-action-btn:active {
   opacity: 0.85;
-  transform: translateY(-50%) scale(0.96);
+  transform: translate(-20rpx, -50%) scale(0.96);
 }
 
 /* 禁用状态 */
@@ -184,6 +186,7 @@
 .coupon-claim-info {
   margin-top: 8rpx;
   margin-left: 40rpx;
+  text-align: left;
 }
 
 .claim-count-text {

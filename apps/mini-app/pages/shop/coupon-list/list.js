@@ -101,4 +101,54 @@ Page({
       url: `/pages/coupon/public-detail/detail?id=${encodeURIComponent(String(id))}`,
     })
   },
+
+  async handleClaimCoupon(e) {
+    const { id, coupon } = e.detail || {}
+    if (!id) return
+
+    if (coupon && coupon.isClaimable === false) {
+      wx.showToast({
+        title: '该优惠券已领完或已达上限',
+        icon: 'none',
+      })
+      return
+    }
+
+    wx.showModal({
+      title: '提示',
+      content: '确认领取该优惠券吗？',
+      success: async res => {
+        if (!res.confirm) return
+        wx.showLoading({ title: '领取中...' })
+        try {
+          const claimRes = await couponApi.claimCoupon({
+            couponId: String(id),
+            receiveChannel: 'merchant_coupon_list',
+            receiveSource: 'merchant_id_' + String(this.data.merchantId || ''),
+          })
+          wx.hideLoading()
+
+          if (claimRes.data && claimRes.data.code === 200) {
+            wx.showToast({
+              title: '领取成功',
+              icon: 'success',
+            })
+            this.loadCoupons(true)
+          } else {
+            wx.showToast({
+              title: claimRes.data?.msg || '领取失败',
+              icon: 'none',
+            })
+          }
+        } catch (error) {
+          wx.hideLoading()
+          console.error('[MerchantCouponList] 领取优惠券失败:', error)
+          wx.showToast({
+            title: '领取失败，请稍后重试',
+            icon: 'none',
+          })
+        }
+      },
+    })
+  },
 })

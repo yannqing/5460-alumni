@@ -354,7 +354,7 @@
           AND is_delete = 0
     </select>
 
-    <!-- 附近活动：查询有活动的商户（基于门店距离） -->
+    <!-- 附近活动：查询有活动的商户（基于门店距离）；用窗口函数取最近活动门店的经纬度，避免 GROUP_CONCAT 与类型映射问题 -->
     <select id="selectNearbyActivitiesWithPage" resultType="com.cmswe.alumni.common.vo.NearbyMerchantVo">
         SELECT
             CAST(m.merchant_id AS CHAR) AS merchantId,
@@ -362,66 +362,89 @@
             m.logo,
             m.rating_score AS ratingScore,
             m.rating_count AS ratingCount,
-            MIN(distance_info.distance) AS distance,
-            COUNT(DISTINCT distance_info.shop_id) AS shopCount
+            agg.min_distance AS distance,
+            agg.shop_count AS shopCount,
+            agg.nearest_lat AS latitude,
+            agg.nearest_lng AS longitude
         FROM merchant m
         INNER JOIN (
             SELECT
-                s.shop_id,
-                s.merchant_id,
-                (6371 * ACOS(
-                    COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
-                    COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
-                    SIN(RADIANS(#{latitude})) * SIN(RADIANS(s.latitude))
-                )) AS distance
-            FROM shop s
-            WHERE s.is_delete = 0
-              AND s.review_status = 1
-              AND s.status = 1
-        ) distance_info ON m.merchant_id = distance_info.merchant_id
-        INNER JOIN activity_shop aso ON aso.shop_id = distance_info.shop_id
-        INNER JOIN activity a ON a.activity_id = aso.activity_id
+                merchant_id,
+                MIN(distance) AS min_distance,
+                COUNT(DISTINCT shop_id) AS shop_count,
+                MAX(CASE WHEN rn = 1 THEN latitude END) AS nearest_lat,
+                MAX(CASE WHEN rn = 1 THEN longitude END) AS nearest_lng
+            FROM (
+                SELECT
+                    s.merchant_id,
+                    s.shop_id,
+                    s.latitude,
+                    s.longitude,
+                    (6371 * ACOS(
+                        COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
+                        COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
+                        SIN(RADIANS(#{latitude})) * SIN(RADIANS(s.latitude))
+                    )) AS distance,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY s.merchant_id
+                        ORDER BY (6371 * ACOS(
+                            COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
+                            COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
+                            SIN(RADIANS(#{latitude})) * SIN(RADIANS(s.latitude))
+                        )) ASC, s.shop_id ASC
+                    ) AS rn
+                FROM shop s
+                INNER JOIN activity_shop aso ON aso.shop_id = s.shop_id
+                INNER JOIN activity a ON a.activity_id = aso.activity_id
+                WHERE s.is_delete = 0
+                  AND s.review_status = 1
+                  AND s.status = 1
+                  AND a.is_delete = 0
+                  AND a.status IN (1, 2, 3, 4)
+            ) ranked_shops
+            GROUP BY merchant_id
+            HAVING MIN(distance) &lt;= #{radius}
+        ) agg ON m.merchant_id = agg.merchant_id
         WHERE m.is_delete = 0
           AND m.review_status = 1
-          AND a.is_delete = 0
-          AND a.status IN (1, 3)
         <if test="merchantName != null and merchantName != ''">
             AND m.merchant_name LIKE CONCAT('%', #{merchantName}, '%')
         </if>
-        GROUP BY m.merchant_id, m.merchant_name, m.logo, m.rating_score, m.rating_count
-        HAVING MIN(distance_info.distance) &lt;= #{radius}
-        ORDER BY MIN(distance_info.distance) ASC
+        ORDER BY agg.min_distance ASC
         LIMIT #{offset}, #{pageSize}
     </select>
 
     <!-- 附近活动总数（用于分页） -->
     <select id="countNearbyActivities" resultType="java.lang.Long">
-        SELECT COUNT(DISTINCT m.merchant_id)
+        SELECT COUNT(*)
         FROM merchant m
         INNER JOIN (
-            SELECT
-                s.shop_id,
-                s.merchant_id,
-                (6371 * ACOS(
-                    COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
-                    COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
-                    SIN(RADIANS(#{latitude})) * SIN(RADIANS(s.latitude))
-                )) AS distance
-            FROM shop s
-            WHERE s.is_delete = 0
-              AND s.review_status = 1
-              AND s.status = 1
-        ) distance_info ON m.merchant_id = distance_info.merchant_id
-        INNER JOIN activity_shop aso ON aso.shop_id = distance_info.shop_id
-        INNER JOIN activity a ON a.activity_id = aso.activity_id
+            SELECT merchant_id
+            FROM (
+                SELECT
+                    s.merchant_id,
+                    (6371 * ACOS(
+                        COS(RADIANS(#{latitude})) * COS(RADIANS(s.latitude)) *
+                        COS(RADIANS(s.longitude) - RADIANS(#{longitude})) +
+                        SIN(RADIANS(#{latitude})) * SIN(RADIANS(s.latitude))
+                    )) AS distance
+                FROM shop s
+                INNER JOIN activity_shop aso ON aso.shop_id = s.shop_id
+                INNER JOIN activity a ON a.activity_id = aso.activity_id
+                WHERE s.is_delete = 0
+                  AND s.review_status = 1
+                  AND s.status = 1
+                  AND a.is_delete = 0
+                  AND a.status IN (1, 2, 3, 4)
+            ) shops_with_dist
+            GROUP BY merchant_id
+            HAVING MIN(distance) &lt;= #{radius}
+        ) agg ON m.merchant_id = agg.merchant_id
         WHERE m.is_delete = 0
           AND m.review_status = 1
-          AND a.is_delete = 0
-          AND a.status IN (1, 3)
         <if test="merchantName != null and merchantName != ''">
             AND m.merchant_name LIKE CONCAT('%', #{merchantName}, '%')
         </if>
-        HAVING MIN(distance_info.distance) &lt;= #{radius}
     </select>
 
     <!-- 查询商户下的活动列表 -->
@@ -436,7 +459,7 @@
         INNER JOIN shop s ON s.shop_id = aso.shop_id
         WHERE s.merchant_id = #{merchantId}
           AND a.is_delete = 0
-          AND a.status IN (1, 3)
+          AND a.status IN (1, 2, 3, 4)
         ORDER BY a.start_time ASC
     </select>
 

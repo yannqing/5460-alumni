@@ -65,6 +65,24 @@ Page({
 
   // 加载搜索结果
   async loadSearchResults(reset = true) {
+    const formatDistance = distance => {
+      if (distance === undefined || distance === null || distance === '') {
+        return '0m'
+      }
+      const numericDistance = Number(distance)
+      if (!Number.isFinite(numericDistance)) {
+        return '0m'
+      }
+      if (numericDistance < 1) {
+        return Math.round(numericDistance * 1000) + 'm'
+      }
+      const kmValue = numericDistance.toFixed(1)
+      if (kmValue.endsWith('.0')) {
+        return Math.round(numericDistance) + 'km'
+      }
+      return kmValue + 'km'
+    }
+
     try {
       if (this.data.loading && !reset) {
         return
@@ -169,19 +187,7 @@ Page({
               }
             }
 
-            let distanceText = '0m'
-            if (shop.distance !== undefined && shop.distance !== null) {
-              if (shop.distance < 1) {
-                distanceText = Math.round(shop.distance * 1000) + 'm'
-              } else {
-                const kmValue = shop.distance.toFixed(1)
-                if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(shop.distance) + 'km'
-                } else {
-                  distanceText = kmValue + 'km'
-                }
-              }
-            }
+            const distanceText = formatDistance(shop.distance)
 
             let coupons = []
             if (shop.coupons && Array.isArray(shop.coupons) && shop.coupons.length > 0) {
@@ -246,19 +252,7 @@ Page({
               }
             }
 
-            let distanceText = '0m'
-            if (venue.distance !== undefined && venue.distance !== null) {
-              if (venue.distance < 1) {
-                distanceText = Math.round(venue.distance * 1000) + 'm'
-              } else {
-                const kmValue = venue.distance.toFixed(1)
-                if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(venue.distance) + 'km'
-                } else {
-                  distanceText = kmValue + 'km'
-                }
-              }
-            }
+            const distanceText = formatDistance(venue.distance)
 
             return {
               id: venue.venueId || venue.id,
@@ -280,19 +274,7 @@ Page({
               avatar = config.getImageUrl(alumni.avatarUrl)
             }
             // 处理距离
-            let distanceText = '0m'
-            if (alumni.distance !== undefined && alumni.distance !== null) {
-              if (alumni.distance < 1) {
-                distanceText = Math.round(alumni.distance * 1000) + 'm'
-              } else {
-                const kmValue = alumni.distance.toFixed(1)
-                if (kmValue.endsWith('.0')) {
-                  distanceText = Math.round(alumni.distance) + 'km'
-                } else {
-                  distanceText = kmValue + 'km'
-                }
-              }
-            }
+            const distanceText = formatDistance(alumni.distance)
 
             // 处理姓名：优先使用 name，如果没有则使用 nickname
             const displayName = alumni.name || alumni.realName || alumni.nickname || ''

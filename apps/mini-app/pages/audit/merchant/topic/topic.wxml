@@ -107,7 +107,7 @@
       <text class="picker-title">选择店铺</text>
       <text class="picker-cancel" bindtap="cancelShopSelect">取消</text>
     </view>
-    <view class="picker-list">
+    <scroll-view class="picker-list" scroll-y enable-flex="true" show-scrollbar="{{false}}">
       <view class="shop-picker-row" wx:for="{{shops}}" wx:key="shopId" data-index="{{index}}" bindtap="selectShop">
         <text class="shop-picker-name">{{item.shopName}}</text>
         <text class="shop-picker-check" wx:if="{{selectedShopIndex === index}}">✓</text>
@@ -115,7 +115,7 @@
       <view class="picker-empty" wx:if="{{shops.length === 0}}">
         <text>暂无店铺数据</text>
       </view>
-    </view>
+    </scroll-view>
   </view>
 </view>
 </custom-nav-bar>

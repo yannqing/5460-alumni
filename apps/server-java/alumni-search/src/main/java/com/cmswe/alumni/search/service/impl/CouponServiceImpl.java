@@ -687,6 +687,11 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
 
     @Override
     public PageVo<CouponVo> queryPublicMerchantCoupons(QueryMerchantCouponDto queryDto) {
+        return queryPublicMerchantCoupons(queryDto, null);
+    }
+
+    @Override
+    public PageVo<CouponVo> queryPublicMerchantCoupons(QueryMerchantCouponDto queryDto, Long wxId) {
         Optional.ofNullable(queryDto)
                 .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL));
         Optional.ofNullable(queryDto.getMerchantId())
@@ -699,7 +704,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
 
         Page<Coupon> couponPage = this.page(new Page<>(current, pageSize), queryWrapper);
         List<CouponVo> couponVos = couponPage.getRecords().stream()
-                .map(CouponVo::objToVo)
+                .map(coupon -> buildPublicCouponVo(coupon, wxId))
                 .toList();
 
         Page<CouponVo> voPage = new Page<>(current, pageSize, couponPage.getTotal());
@@ -722,38 +727,9 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
                         .last("LIMIT 5")
         );
 
-        return coupons.stream().map(coupon -> {
-            CouponVo vo = CouponVo.objToVo(coupon);
-
-            // 查询当前用户已领取该优惠券的数量
-            Long userClaimedCount = 0L;
-            if (wxId != null) {
-                userClaimedCount = userCouponMapper.selectCount(
-                        new LambdaQueryWrapper<UserCoupon>()
-                                .eq(UserCoupon::getCouponId, coupon.getCouponId())
-                                .eq(UserCoupon::getUserId, wxId)
-                );
-            }
-            vo.setUserClaimedCount(userClaimedCount.intValue());
-
-            // 判断是否可领取
-            boolean isClaimable = true;
-            // 检查库存
-            if (coupon.getTotalQuantity() != null && coupon.getTotalQuantity() != -1) {
-                if (coupon.getRemainQuantity() == null || coupon.getRemainQuantity() <= 0) {
-                    isClaimable = false;
-                }
-            }
-            // 检查每人限领数量
-            if (isClaimable && coupon.getPerUserLimit() != null && coupon.getPerUserLimit() > 0) {
-                if (userClaimedCount >= coupon.getPerUserLimit()) {
-                    isClaimable = false;
-                }
-            }
-            vo.setIsClaimable(isClaimable);
-
-            return vo;
-        }).toList();
+        return coupons.stream()
+                .map(coupon -> buildPublicCouponVo(coupon, wxId))
+                .toList();
     }
 
     @Override
@@ -793,6 +769,34 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
                         .or()
                         .ge(Coupon::getValidEndTime, now))
                 .orderByDesc(Coupon::getCreateTime);
+    }
+
+    private CouponVo buildPublicCouponVo(Coupon coupon, Long wxId) {
+        CouponVo vo = CouponVo.objToVo(coupon);
+
+        Long userClaimedCount = 0L;
+        if (wxId != null) {
+            userClaimedCount = userCouponMapper.selectCount(
+                    new LambdaQueryWrapper<UserCoupon>()
+                            .eq(UserCoupon::getCouponId, coupon.getCouponId())
+                            .eq(UserCoupon::getUserId, wxId)
+            );
+        }
+        vo.setUserClaimedCount(userClaimedCount.intValue());
+
+        boolean isClaimable = true;
+        if (coupon.getTotalQuantity() != null && coupon.getTotalQuantity() != -1) {
+            if (coupon.getRemainQuantity() == null || coupon.getRemainQuantity() <= 0) {
+                isClaimable = false;
+            }
+        }
+        if (isClaimable && coupon.getPerUserLimit() != null && coupon.getPerUserLimit() > 0) {
+            if (userClaimedCount >= coupon.getPerUserLimit()) {
+                isClaimable = false;
+            }
+        }
+        vo.setIsClaimable(isClaimable);
+        return vo;
     }
 
     @Override

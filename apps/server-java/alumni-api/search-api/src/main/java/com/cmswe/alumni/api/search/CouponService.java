@@ -95,6 +95,15 @@ public interface CouponService {
     PageVo<CouponVo> queryPublicMerchantCoupons(QueryMerchantCouponDto queryDto);
 
     /**
+     * 分页查询商户公开优惠券列表（用户侧，包含当前用户领取状态）
+     *
+     * @param queryDto 查询参数
+     * @param wxId 用户ID（可空）
+     * @return 分页结果
+     */
+    PageVo<CouponVo> queryPublicMerchantCoupons(QueryMerchantCouponDto queryDto, Long wxId);
+
+    /**
      * 查询商户推荐优惠券列表（用户侧）
      *
      * @param merchantId 商户ID

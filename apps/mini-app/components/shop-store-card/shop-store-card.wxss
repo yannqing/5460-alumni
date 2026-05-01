@@ -18,16 +18,39 @@
 }
 
 .store-card__name {
+  flex: 1;
+  min-width: 0;
   font-size: 30rpx;
   font-weight: 600;
   color: #333;
   line-height: 1.35;
+  padding-right: 16rpx;
+}
+
+.store-card__navigate {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.store-card__navigate-text {
+  font-size: 34rpx;
+  color: #b5b5b5;
+  line-height: 1;
 }
 
 .store-card__address {
   display: flex;
   align-items: flex-start;
   gap: 12rpx;
+}
+
+.store-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
 }
 
 .store-card__icon {
@@ -44,4 +67,24 @@
   color: #666;
   line-height: 1.45;
   word-break: break-all;
+}
+
+.store-card__distance {
+  margin-left: 0;
+}
+
+.store-card__distance-text {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.35;
+}
+
+.store-card__business-hours {
+  margin-left: 0;
+}
+
+.store-card__business-hours-text {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.35;
 }
