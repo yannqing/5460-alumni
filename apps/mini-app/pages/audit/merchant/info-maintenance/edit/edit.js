@@ -208,7 +208,9 @@ Page({
       }
 
       const nameTrim = (assocName || '').trim()
-      const associationLogoUrl = logoRaw ? config.getImageUrl(String(logoRaw).trim()) : ''
+      const associationLogoUrl = logoRaw
+        ? config.getImageUrl(String(logoRaw).trim())
+        : config.defaultAvatar
       const associationNameFirstChar = nameTrim ? nameTrim.slice(0, 1) : '校'
 
       const bgList = this.parseBackgroundImage(data.backgroundImage)

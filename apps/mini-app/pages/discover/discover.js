@@ -43,6 +43,7 @@ Page({
 
   // 地图 marker 与业务数据的映射（仅内存使用）
   markerDataMap: {},
+  mapMarkerUpdateToken: 0,
 
   onLoad() {
     // 获取当前位置信息
@@ -57,9 +58,17 @@ Page({
       // 更新未读消息数
       this.getTabBar().updateUnreadCount()
     }
-    // 如果当前是地图模式，确保地图定位到用户位置
+    // 如果当前是地图模式，优先使用当前列表数据刷新 marker，避免与列表数据不一致
     if (this.data.viewMode === 'map') {
-      this.getLocation()
+      if (this.data.myLocation && this.data.myLocation.latitude && this.data.myLocation.longitude) {
+        this.setData({
+          mapCenter: {
+            latitude: this.data.myLocation.latitude,
+            longitude: this.data.myLocation.longitude,
+          },
+        })
+      }
+      this.updateMapMarkers()
     }
   },
 
@@ -333,6 +342,8 @@ Page({
               id: merchant.merchantId || merchant.id,
               merchantId: merchant.merchantId || merchant.id,
               merchantName: merchant.merchantName || merchant.name || '',
+              // 供地图 marker 使用：有后端 logo 时优先展示
+              logo: merchantLogo,
               merchantType: merchant.merchantType || 0,
               businessCategory: merchant.businessCategory || '',
               logoUrl: logoUrl,
@@ -550,6 +561,9 @@ Page({
               id: merchant.merchantId || merchant.id,
               merchantId: merchant.merchantId || merchant.id,
               merchantName: merchant.merchantName || merchant.name || '',
+              // 与附近优惠一致，供地图 createMarker('coupon') 使用
+              name: merchant.merchantName || merchant.name || '',
+              logo: merchantLogo,
               merchantType: merchant.merchantType || 0,
               businessCategory: merchant.businessCategory || '',
               logoUrl: logoUrl,
@@ -558,20 +572,27 @@ Page({
               isAlumniCertified: merchant.isAlumniCertified || 0,
               distance: distanceText,
               activities: activities,
-              latitude: merchant.latitude || merchant.shopLatitude || merchant.lat,
-              longitude: merchant.longitude || merchant.shopLongitude || merchant.lng,
+              latitude: merchant.latitude ?? merchant.shopLatitude ?? merchant.lat,
+              longitude: merchant.longitude ?? merchant.shopLongitude ?? merchant.lng,
             }
           })
 
           const currentList = reset ? activityList : this.data.activityList.concat(activityList)
           const hasMore = currentList.length < total && records.length > 0
 
-          this.setData({
-            activityList: currentList,
-            currentPage: currentPage,
-            hasMore: hasMore,
-            loading: false,
-          })
+          this.setData(
+            {
+              activityList: currentList,
+              currentPage: currentPage,
+              hasMore: hasMore,
+              loading: false,
+            },
+            () => {
+              if (this.data.viewMode === 'map') {
+                this.updateMapMarkers()
+              }
+            }
+          )
         }
       } else {
         const emptyList =
@@ -687,20 +708,17 @@ Page({
     // 禁用的tab不可点击
     if (e.currentTarget.dataset.disabled) return
     const tabId = e.currentTarget.dataset.id
-    // 切换tab时清除搜索关键词，重新加载数据
-    this.setData({
-      selectedTab: tabId,
-      searchKeyword: '',
-      searchValue: '',
-    })
-    // 根据选中的标签加载对应数据
-    this.loadDiscoverData()
-    // 如果当前是地图模式，更新地图标记
-    if (this.data.viewMode === 'map') {
-      setTimeout(() => {
-        this.updateMapMarkers()
-      }, 500)
-    }
+    // 切换 tab 时必须先等 selectedTab 写入 this.data，再拉数；否则 loadDiscoverData 可能仍用上一个 tab 的 queryType
+    this.setData(
+      {
+        selectedTab: tabId,
+        searchKeyword: '',
+        searchValue: '',
+      },
+      () => {
+        this.loadDiscoverData()
+      }
+    )
   },
 
   handleSortChange(e) {
@@ -832,8 +850,18 @@ Page({
     })
 
     if (mode === 'map') {
-      // 获取当前位置后重新拉取“附近”数据，标记将在拉取完成后刷新
-      this.getLocation()
+      // 地图模式直接基于当前列表绘制，保证与列表展示一致；仅在无定位信息时再获取定位并拉数
+      if (this.data.myLocation && this.data.myLocation.latitude && this.data.myLocation.longitude) {
+        this.setData({
+          mapCenter: {
+            latitude: this.data.myLocation.latitude,
+            longitude: this.data.myLocation.longitude,
+          },
+        })
+        this.updateMapMarkers()
+      } else {
+        this.getLocation()
+      }
     }
   },
 
@@ -916,7 +944,7 @@ Page({
         })
       }
 
-      // 无论是本地还是远程资源，getImageInfo 都能返回设备最兼容的路径
+      // 优先 getImageInfo，失败后再尝试 downloadFile，尽量保留可用商家 logo
       const getImage = src => {
         return new Promise(resolve => {
           // 处理协议自适应路径
@@ -928,9 +956,34 @@ Page({
           wx.getImageInfo({
             src: processedSrc,
             success: res => resolve(res.path),
-            fail: err => {
-              console.warn(`[Discover] getImageInfo 失败: ${processedSrc}`, err)
-              resolve('')
+            fail: imageInfoErr => {
+              const isRemoteUrl =
+                typeof processedSrc === 'string' &&
+                (processedSrc.startsWith('http://') || processedSrc.startsWith('https://'))
+              // 本地资源（/assets/...）不走 downloadFile，避免无效 URL 导致流程异常
+              if (!isRemoteUrl) {
+                resolve('')
+                return
+              }
+              // 某些线上图片 getImageInfo 失败，但 downloadFile 可用
+              wx.downloadFile({
+                url: processedSrc,
+                success: downloadRes => {
+                  if (downloadRes.statusCode === 200 && downloadRes.tempFilePath) {
+                    resolve(downloadRes.tempFilePath)
+                    return
+                  }
+                  console.warn(`[Discover] downloadFile 状态异常: ${processedSrc}`, downloadRes)
+                  resolve('')
+                },
+                fail: downloadErr => {
+                  console.warn(`[Discover] 图片加载失败: ${processedSrc}`, {
+                    imageInfoErr,
+                    downloadErr,
+                  })
+                  resolve('')
+                },
+              })
             },
           })
         })
@@ -959,13 +1012,22 @@ Page({
 
   // 更新地图标记
   async updateMapMarkers() {
+    const updateToken = ++this.mapMarkerUpdateToken
+    const selectedTabAtStart = this.data.selectedTab
     const markers = []
-    let markerId = 1 // 从1开始，确保id是数字
+    const markerBaseMap = {
+      coupon: 1000,
+      activity: 2000,
+      venue: 3000,
+      alumni: 4000,
+    }
+    // 按 tab 使用不同 id 段，避免 map 组件复用同 id marker 导致切换后视觉不更新
+    let markerId = markerBaseMap[this.data.selectedTab] || 5000
     this.markerDataMap = {}
     const markerFallbackIcon = '/assets/home/home_page_shop.png'
     const defaultAvatarRoundIcon = '/assets/avatar/avatar_round.png'
 
-    console.log('[Discover] 更新地图标记，当前标签:', this.data.selectedTab)
+    console.log('[Discover] 更新地图标记，当前标签:', selectedTabAtStart)
     console.log('[Discover] 优惠列表数量:', this.data.couponList.length)
 
     // 先添加自己的位置标记（如果有位置信息）
@@ -1006,6 +1068,20 @@ Page({
       }
       return text
     }
+    const buildLogoUrl = logo => {
+      const normalizedLogo = normalizeImagePath(logo)
+      if (!normalizedLogo) {
+        return ''
+      }
+      if (
+        normalizedLogo.startsWith('http://') ||
+        normalizedLogo.startsWith('https://') ||
+        normalizedLogo.startsWith('//')
+      ) {
+        return normalizedLogo
+      }
+      return config.getImageUrl(normalizedLogo)
+    }
 
     // 通用的标记创建函数
     const createMarker = async (item, listType) => {
@@ -1017,13 +1093,11 @@ Page({
       // 1. 门店原始 Logo
       const normalizedLogo = normalizeImagePath(item.logo)
 
-      if (listType === 'coupon') {
-        // 附近优惠：有商户 logo 用商户 logo；没有则用默认头像图标
-        targetIconPath = normalizedLogo
-          ? config.getImageUrl(normalizedLogo)
-          : '/assets/avatar/avatar_round.png'
+      if (listType === 'coupon' || listType === 'activity') {
+        // 附近优惠/活动：有 logo 用 logo，没有则固定默认头像
+        targetIconPath = buildLogoUrl(normalizedLogo) || '/assets/avatar/avatar_round.png'
       } else if (normalizedLogo) {
-        targetIconPath = config.getImageUrl(normalizedLogo)
+        targetIconPath = buildLogoUrl(normalizedLogo)
       } else if (imagePath && imagePath !== defaultAvatarPath) {
         targetIconPath = imagePath
       } else if (avatarPath && avatarPath !== defaultAvatarPath) {
@@ -1045,41 +1119,61 @@ Page({
         return null
       }
 
-      let iconPath = targetIconPath
-
-      // 附近优惠：直接使用后端返回 logo 或默认图标
-      if (listType === 'coupon') {
-        iconPath = targetIconPath
-      } else {
+      let iconPath = defaultAvatarRoundIcon
+      const hasMerchantLogo = Boolean(normalizedLogo)
+      if (hasMerchantLogo) {
         try {
+          // 有商家 logo 才走圆形裁切；无 logo 直接使用默认圆形图标
           iconPath = await this.createRoundAvatar(targetIconPath, 50)
         } catch (error) {
           console.warn(`[Discover] 为 ${item.name || '标记'} 创建圆形标记失败:`, error)
-          // 地图 marker 优先使用本地资源兜底，避免远程路径在 map 组件中不显示
-          if (listType === 'coupon') {
-            iconPath = markerFallbackIcon
-          } else if (listType === 'venue') {
-            iconPath = markerFallbackIcon
-          } else {
-            iconPath = defaultAvatarRoundIcon
-          }
+          // 有 logo 时优先展示商家 logo；仅 logo 不可用时才回退默认图
+          iconPath = targetIconPath || defaultAvatarRoundIcon || markerFallbackIcon
         }
       }
 
       // 确定标记内容
       let content = '未知'
       if (listType === 'coupon') {
-        content = item.name || '商铺'
+        const couponCount = Array.isArray(item.coupons) ? item.coupons.length : 0
+        const firstCouponName = couponCount > 0 ? item.coupons[0].couponName || '' : ''
+        if (firstCouponName && couponCount > 1) {
+          content = `${firstCouponName} 等${couponCount}个优惠`
+        } else if (firstCouponName) {
+          content = firstCouponName
+        } else {
+          content = item.name || '商铺优惠'
+        }
+      } else if (listType === 'activity') {
+        const activityCount = Array.isArray(item.activities) ? item.activities.length : 0
+        const firstActivityTitle =
+          activityCount > 0 ? item.activities[0].activityTitle || '' : ''
+        if (firstActivityTitle && activityCount > 1) {
+          content = `${firstActivityTitle} 等${activityCount}个活动`
+        } else if (firstActivityTitle) {
+          content = firstActivityTitle
+        } else {
+          content = '活动'
+        }
       } else if (listType === 'venue') {
         content = item.name || '场所'
       } else if (listType === 'alumni') {
         content = item.name || '校友'
       }
 
+      const firstActivityId =
+        listType === 'activity' &&
+        Array.isArray(item.activities) &&
+        item.activities.length > 0 &&
+        item.activities[0].activityId
+          ? item.activities[0].activityId
+          : null
+
       return {
         id: markerId++,
         sourceId: item.id || item.merchantId,
         sourceType: listType,
+        activityId: firstActivityId,
         latitude: latitude,
         longitude: longitude,
         iconPath: iconPath,
@@ -1088,24 +1182,34 @@ Page({
         anchor: { x: 0.5, y: 0.5 },
         callout: {
           content: content,
-          color: '#333',
+          color: listType === 'activity' ? '#fff' : '#333',
           fontSize: 14,
           borderRadius: 8,
-          bgColor: '#fff',
+          bgColor: listType === 'activity' ? '#FF7A45' : '#fff',
           padding: 8,
-          display: 'BYCLICK',
+          // 活动地图默认展示文案，和优惠地图做明确区分
+          display: listType === 'activity' ? 'ALWAYS' : 'BYCLICK',
         },
       }
     }
 
     // 附近优惠标记（只标记带有优惠券的店铺）
-    if (this.data.selectedTab === 'coupon' && this.data.couponList.length > 0) {
-      const validShops = this.data.couponList.filter(
-        item => item.latitude && item.longitude
-      )
+    if (selectedTabAtStart === 'coupon' && this.data.couponList.length > 0) {
+      const validShops = this.data.couponList.filter(item => {
+        const hasCoords = item.latitude && item.longitude
+        const hasCoupons = Array.isArray(item.coupons) && item.coupons.length > 0
+        return hasCoords && hasCoupons
+      })
+      console.log('[Discover] 附近优惠地图数据统计:', {
+        total: this.data.couponList.length,
+        validCoords: validShops.length,
+      })
 
       // 使用单 canvas 生成头像时，串行处理可避免并发导出导致 marker 丢失
       for (const item of validShops) {
+        if (updateToken !== this.mapMarkerUpdateToken || this.data.selectedTab !== selectedTabAtStart) {
+          return
+        }
         const marker = await createMarker(item, 'coupon')
         if (marker) {
           markers.push(marker)
@@ -1115,9 +1219,12 @@ Page({
     }
 
     // 附近场所标记
-    if (this.data.selectedTab === 'venue' && this.data.venueList.length > 0) {
+    if (selectedTabAtStart === 'venue' && this.data.venueList.length > 0) {
       const validVenues = this.data.venueList.filter(item => item.latitude && item.longitude)
       for (const item of validVenues) {
+        if (updateToken !== this.mapMarkerUpdateToken || this.data.selectedTab !== selectedTabAtStart) {
+          return
+        }
         const marker = await createMarker(item, 'venue')
         if (marker) {
           markers.push(marker)
@@ -1127,9 +1234,12 @@ Page({
     }
 
     // 附近校友标记
-    if (this.data.selectedTab === 'alumni' && this.data.alumniList.length > 0) {
+    if (selectedTabAtStart === 'alumni' && this.data.alumniList.length > 0) {
       const validAlumni = this.data.alumniList.filter(item => item.latitude && item.longitude)
       for (const item of validAlumni) {
+        if (updateToken !== this.mapMarkerUpdateToken || this.data.selectedTab !== selectedTabAtStart) {
+          return
+        }
         const marker = await createMarker(item, 'alumni')
         if (marker) {
           markers.push(marker)
@@ -1138,32 +1248,46 @@ Page({
       }
     }
 
-    // 附近活动标记（无需头像处理，直接添加）
-    if (this.data.selectedTab === 'activity' && this.data.activityList.length > 0) {
-      this.data.activityList.forEach((item, index) => {
-        if (item.latitude && item.longitude) {
-          markers.push({
-            id: markerId++,
-            latitude: item.latitude,
-            longitude: item.longitude,
-            width: 30,
-            height: 30,
-            callout: {
-              content: item.title || '活动',
-              color: '#333',
-              fontSize: 14,
-              borderRadius: 8,
-              bgColor: '#fff',
-              padding: 8,
-              display: 'BYCLICK',
-            },
-          })
+    // 附近活动：与附近优惠相同方式生成 marker（含 icon），避免自定义 marker 在部分基础库不显示
+    if (selectedTabAtStart === 'activity' && this.data.activityList.length > 0) {
+      const validActivityMerchants = this.data.activityList.filter(item => {
+        if (
+          item.latitude == null ||
+          item.longitude == null ||
+          item.latitude === '' ||
+          item.longitude === ''
+        ) {
+          return false
         }
+        if (!Array.isArray(item.activities) || item.activities.length === 0) {
+          return false
+        }
+        const lat = Number(item.latitude)
+        const lng = Number(item.longitude)
+        return Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0)
       })
+      console.log('[Discover] 附近活动地图数据统计:', {
+        total: this.data.activityList.length,
+        validCoords: validActivityMerchants.length,
+      })
+      for (const item of validActivityMerchants) {
+        if (updateToken !== this.mapMarkerUpdateToken || this.data.selectedTab !== selectedTabAtStart) {
+          return
+        }
+        const marker = await createMarker(item, 'activity')
+        if (marker) {
+          markers.push(marker)
+          this.markerDataMap[marker.id] = marker
+        }
+      }
     }
 
     console.log('[Discover] 最终标记数量:', markers.length)
     console.log('[Discover] 标记数据:', markers)
+
+    if (updateToken !== this.mapMarkerUpdateToken || this.data.selectedTab !== selectedTabAtStart) {
+      return
+    }
 
     this.setData(
       {
@@ -1186,6 +1310,34 @@ Page({
 
     const marker = this.markerDataMap[markerId]
     if (!marker) {
+      return
+    }
+
+    // 附近活动：点击 marker 进入商户详情（与列表一致）
+    if (this.data.selectedTab === 'activity') {
+      const matchedMerchant = this.data.activityList.find(
+        item =>
+          String(item.merchantId) === String(marker.sourceId) ||
+          String(item.id) === String(marker.sourceId)
+      )
+      const firstActivityId =
+        marker.activityId ||
+        (matchedMerchant &&
+        Array.isArray(matchedMerchant.activities) &&
+        matchedMerchant.activities.length > 0
+          ? matchedMerchant.activities[0].activityId
+          : null)
+
+      // 活动地图优先进入活动详情页，缺少活动ID时再退回商户详情
+      if (firstActivityId) {
+        wx.navigateTo({
+          url: `/pages/activity/detail/detail?id=${firstActivityId}`,
+        })
+      } else if (matchedMerchant && matchedMerchant.merchantId) {
+        wx.navigateTo({
+          url: `/pages/shop/detail/detail?id=${matchedMerchant.merchantId}`,
+        })
+      }
       return
     }
 
