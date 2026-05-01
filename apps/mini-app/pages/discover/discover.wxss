@@ -1250,6 +1250,19 @@
   flex: 1;
 }
 
+.merchant-popup-activity-tag {
+  width: 36rpx;
+  height: 36rpx;
+  background-color: #4a90e2;
+  color: #ffffff;
+  font-size: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4rpx;
+  flex-shrink: 0;
+}
+
 .merchant-popup-coupons-empty {
   margin-top: 20rpx;
   font-size: 24rpx;

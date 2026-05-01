@@ -554,7 +554,7 @@ Page({
               merchant.activities.length > 0
             ) {
               activities = merchant.activities.map(a => ({
-                activityId: a.activityId,
+                activityId: String(a.activityId || ''),
                 activityTitle: a.activityTitle || '',
                 activityType: a.activityType || 0,
               }))
@@ -573,6 +573,7 @@ Page({
               shopCount: merchant.shopCount || 0,
               favoriteCount: merchant.favoriteCount || 0,
               isAlumniCertified: merchant.isAlumniCertified || 0,
+              city: merchant.city || merchant.cityName || merchant.area || '',
               distance: distanceText,
               activities: activities,
               latitude: merchant.latitude ?? merchant.shopLatitude ?? merchant.lat,
@@ -1365,29 +1366,33 @@ Page({
       return
     }
 
-    // 附近活动：点击 marker 进入商户详情（与列表一致）
+    // 附近活动：点击 marker 弹出商家信息
     if (this.data.selectedTab === 'activity') {
       const matchedMerchant = this.data.activityList.find(
         item =>
           String(item.merchantId) === String(marker.sourceId) ||
           String(item.id) === String(marker.sourceId)
       )
-      const firstActivityId =
-        marker.activityId ||
-        (matchedMerchant &&
-        Array.isArray(matchedMerchant.activities) &&
-        matchedMerchant.activities.length > 0
-          ? matchedMerchant.activities[0].activityId
-          : null)
-
-      // 活动地图优先进入活动详情页，缺少活动ID时再退回商户详情
-      if (firstActivityId) {
-        wx.navigateTo({
-          url: `/pages/activity/detail/detail?id=${firstActivityId}`,
-        })
-      } else if (matchedMerchant && matchedMerchant.merchantId) {
-        wx.navigateTo({
-          url: `/pages/shop/detail/detail?id=${matchedMerchant.merchantId}`,
+      if (matchedMerchant && matchedMerchant.merchantId) {
+        const popupActivities = Array.isArray(matchedMerchant.activities)
+          ? matchedMerchant.activities.map(activity => ({
+              activityId: activity.activityId,
+              activityTitle: activity.activityTitle || '活动',
+            }))
+          : []
+        this.setData({
+          showCouponMerchantPopup: true,
+          selectedCouponMerchant: {
+            id: matchedMerchant.merchantId || matchedMerchant.id,
+            logoUrl: matchedMerchant.logoUrl || config.defaultAvatar,
+            name: matchedMerchant.merchantName || matchedMerchant.name || '未知商家',
+            city: matchedMerchant.city || '未知城市',
+            distance: matchedMerchant.distance || '',
+            favoriteCount: matchedMerchant.favoriteCount || 0,
+            coupons: [],
+            activities: popupActivities,
+            popupType: 'activity',
+          },
         })
       }
       return
@@ -1420,6 +1425,8 @@ Page({
             distance: matchedMerchant.distance || '',
             favoriteCount: matchedMerchant.favoriteCount || 0,
             coupons: popupCoupons,
+            activities: [],
+            popupType: 'coupon',
           },
         })
       }
@@ -1479,7 +1486,7 @@ Page({
     if (!activityId) return
 
     wx.navigateTo({
-      url: `/pages/activity/detail/detail?id=${activityId}`,
+      url: `/pages/activity/detail/detail?id=${encodeURIComponent(String(activityId))}`,
     })
   },
 
