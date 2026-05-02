@@ -1,0 +1,84 @@
+<custom-nav-bar showBack="{{true}}" useAuditStyle="{{true}}" auditTitle="完善校友会信息">
+  <view class="loading-wrap" wx:if="{{detailLoading}}">
+    <text>加载中...</text>
+  </view>
+  <view class="page" wx:else>
+    <!-- 申请信息（只读部分） -->
+    <view class="form-card info-card">
+      <view class="card-header">
+        <text class="card-title">申请信息</text>
+      </view>
+      <view class="info-grid">
+        <view class="info-item">
+          <text class="info-label">校友会名称</text>
+          <text class="info-value">{{formData.associationName || '—'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">母校</text>
+          <text class="info-value">{{formData.schoolName || '—'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">办公地点</text>
+          <text class="info-value">{{formData.location || '—'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 校友会信息（可编辑部分） -->
+    <view class="form-card">
+      <view class="card-header">
+        <text class="card-title">校友会信息</text>
+      </view>
+      <form bindsubmit="submitForm">
+        <view class="form-item">
+          <text class="form-label">联系人姓名</text>
+          <input class="form-input" placeholder="请输入联系人姓名" value="{{formData.zhName}}" bindinput="onInputChange" data-field="zhName" maxlength="32" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">联系电话</text>
+          <input class="form-input" type="digit" placeholder="请输入11位手机号" value="{{formData.zhPhone}}" bindinput="onInputChange" data-field="zhPhone" maxlength="11" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">校友会职务</text>
+          <input class="form-input" placeholder="请输入联系人职务" value="{{formData.zhRole}}" bindinput="onInputChange" data-field="zhRole" maxlength="50" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">社会职务</text>
+          <input class="form-input" placeholder="如工作单位和职务" value="{{formData.zhSocialAffiliation}}" bindinput="onInputChange" data-field="zhSocialAffiliation" maxlength="100" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">校友会简介</text>
+          <textarea
+            class="form-textarea"
+            placeholder="请输入校友会简介"
+            value="{{formData.associationProfile}}"
+            bindinput="onInputChange"
+            data-field="associationProfile"
+            maxlength="1000"
+            cursor-spacing="100"
+          />
+          <view class="textarea-count">{{formData.associationProfile.length || 0}}/1000</view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">背景图</text>
+          <view class="image-upload-container">
+            <view class="uploaded-images bg-images">
+              <view class="uploaded-image bg-thumb" wx:for="{{bgImagePreviewUrls}}" wx:key="index">
+                <image src="{{item}}" mode="aspectFill" class="image-preview" />
+                <view class="image-delete" bindtap="removeBgImage" data-index="{{index}}">×</view>
+              </view>
+            </view>
+            <button class="upload-btn" bindtap="chooseBgImage" hover-class="upload-btn-hover">添加背景图</button>
+          </view>
+        </view>
+
+        <button class="submit-btn" form-type="submit" loading="{{submitting}}" disabled="{{submitting}}">完善信息并发布</button>
+      </form>
+    </view>
+  </view>
+</custom-nav-bar>

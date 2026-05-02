@@ -342,4 +342,12 @@ public interface AlumniAssociationService extends IService<AlumniAssociation> {
      * @return 返回统计结果信息
      */
     String checkAndUpdateAllUsersCertification();
+
+    /**
+     * 发布校友会（待发布 -> 启用），分配管理员角色和成员
+     *
+     * @param alumniAssociationId 校友会ID
+     * @return 发布是否成功
+     */
+    boolean publishAlumniAssociation(Long alumniAssociationId);
 }

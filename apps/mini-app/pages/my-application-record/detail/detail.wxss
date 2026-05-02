@@ -115,6 +115,18 @@
   font-size: 24rpx;
 }
 
+.publish-btn {
+  min-width: 160rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #10b981;
+  color: #10b981;
+  background: #fff;
+  font-size: 24rpx;
+}
+
 .status-pill {
   font-size: 24rpx;
   padding: 8rpx 18rpx;

@@ -4,7 +4,31 @@
   <message-notification />
 
   <view class="alumni-detail-page">
-    <view wx:if="{{alumniInfo}}">
+    <!-- 骨架屏加载状态 -->
+    <view wx:if="{{loading && !alumniInfo}}" class="skeleton-container">
+      <!-- 头部骨架 -->
+      <view class="skeleton-header">
+        <view class="skeleton-bg"></view>
+        <view class="skeleton-profile">
+          <view class="skeleton-avatar"></view>
+          <view class="skeleton-info">
+            <view class="skeleton-name"></view>
+            <view class="skeleton-sig"></view>
+          </view>
+        </view>
+      </view>
+      <!-- 卡片骨架 -->
+      <view class="skeleton-cards">
+        <view class="skeleton-card" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+          <view class="skeleton-card-title"></view>
+          <view class="skeleton-card-content">
+            <view class="skeleton-row" wx:for="{{[1,2,3]}}" wx:key="*this"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{alumniInfo}}">
       <!-- 背景和头像区域 -->
       <view class="profile-header">
         <image class="background-image" src="{{alumniInfo.bgImg}}" mode="aspectFill"></image>

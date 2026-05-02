@@ -148,7 +148,7 @@ public class AlumniAssociation implements Serializable {
     private String bgImg;
 
     /**
-     * 状态：0-禁用 1-启用
+     * 状态：0-禁用 1-启用 2-待发布
      */
     @TableField(value = "status")
     private Integer status;

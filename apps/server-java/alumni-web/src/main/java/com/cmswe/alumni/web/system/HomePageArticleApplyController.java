@@ -57,14 +57,17 @@ public class HomePageArticleApplyController {
      * - applyStatus = 2：查询审核拒绝记录
      * - applyStatus = null：查询所有状态的记录
      *
+     * @param securityUser 当前登录用户
      * @param queryDto 查询参数
      * @return 分页结果
      */
     @PostMapping("/page")
     @Operation(summary = "获取审核记录列表（分页）")
     public BaseResponse<PageVo<HomePageArticleApplyVo>> getApplyList(
+            @AuthenticationPrincipal SecurityUser securityUser,
             @RequestBody QueryArticleApplyListDto queryDto) {
-        PageVo<HomePageArticleApplyVo> pageVo = homePageArticleApplyService.getApplyList(queryDto);
+        Long wxId = securityUser.getWxUser().getWxId();
+        PageVo<HomePageArticleApplyVo> pageVo = homePageArticleApplyService.getApplyList(queryDto, wxId);
         return ResultUtils.success(Code.SUCCESS, pageVo, "查询成功");
     }
 }

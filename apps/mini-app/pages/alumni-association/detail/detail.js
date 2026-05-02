@@ -179,6 +179,8 @@ Page({
           certificationFlag: item.certificationFlag || 0, // 认证等级：0-未认证，1-一级认证，2-二级认证，3-三级认证
           certifications: [],
           applicationStatus: item.applicationStatus !== undefined ? item.applicationStatus : null,
+          // 校友会状态: 0=待审核, 1=已发布, 2=待发布
+          status: item.status !== undefined ? item.status : null,
           // 校友会负责人信息
           chargeWxId: item.chargeWxId || '',
           chargeName: item.chargeName || '',
@@ -1486,15 +1488,14 @@ Page({
         fail: err => {
           console.error('[goToArticleDetail] 打开公众号文章失败:', err)
           wx.setClipboardData({
-            data: articleLink,//文章的链接地址
-            success: function() {
+            data: articleLink, //文章的链接地址
+            success: function () {
               wx.showModal({
                 title: '提示信息',
                 content: '非公众号无法直接浏览，链接已复制，请在浏览器地址栏中长按黏贴，点击浏览。',
                 showCancel: false,
               })
             },
-
           })
         },
       })

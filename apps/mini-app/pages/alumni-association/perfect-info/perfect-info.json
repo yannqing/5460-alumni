@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "完善校友会信息",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav-bar": "/components/custom-nav-bar/custom-nav-bar"
+  }
+}

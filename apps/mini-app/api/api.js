@@ -77,6 +77,11 @@ const associationApi = {
   getOrganizeTemplateList: params => get('/organizeArchiTemplate/list', params),
   // 生成小程序码
   generateMiniProgramQrcode: data => post('/AlumniAssociation/qrcode/generate', data),
+  // 发布校友会（待发布 -> 启用）
+  publishAssociation: alumniAssociationId =>
+    post(`/AlumniAssociation/${alumniAssociationId}/publish`),
+  // 更新校友会信息
+  updateAssociationInfo: data => put('/AlumniAssociation/info', data),
 }
 
 // ==================== 校友总会相关接口 ====================

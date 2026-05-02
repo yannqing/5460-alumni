@@ -185,6 +185,14 @@ public class AlumniAssociationController {
         return ResultUtils.success(Code.SUCCESS, alumniAssociationDetailVo, "查询成功");
     }
 
+    @PutMapping("/info")
+    @Operation(summary = "更新校友会信息")
+    public BaseResponse<Boolean> updateAlumniAssociationInfo(
+            @Valid @RequestBody com.cmswe.alumni.common.dto.UpdateAlumniAssociationDto dto) {
+        boolean result = alumniAssociationService.updateAlumniAssociation(dto);
+        return ResultUtils.success(Code.SUCCESS, result, "更新成功");
+    }
+
     @PrivacyFilter
     @PostMapping("/member/page")
     @Operation(summary = "查看校友会下的成员列表")
@@ -532,5 +540,12 @@ public class AlumniAssociationController {
                     alumniAssociationId, e.getMessage(), e);
             return ResultUtils.failure(Code.FAILURE, false, "删除失败：" + e.getMessage());
         }
+    }
+
+    @PostMapping("/{alumniAssociationId}/publish")
+    @Operation(summary = "发布校友会（待发布 -> 启用）")
+    public BaseResponse<Boolean> publishAlumniAssociation(@PathVariable Long alumniAssociationId) {
+        boolean result = alumniAssociationService.publishAlumniAssociation(alumniAssociationId);
+        return ResultUtils.success(Code.SUCCESS, result, "发布成功");
     }
 }

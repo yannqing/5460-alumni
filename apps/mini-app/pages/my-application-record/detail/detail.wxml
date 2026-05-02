@@ -62,6 +62,7 @@
         <view class="status-row">
           <text class="status-pill {{statusClassName}}">{{statusTextValue}}</text>
           <view class="action-buttons">
+            <button wx:if="{{canPublishCurrent}}" class="publish-btn" bindtap="onPublishTap">完善信息并发布</button>
             <button wx:if="{{canEditCurrent}}" class="edit-btn" bindtap="onEditTap">编辑</button>
             <button wx:if="{{canCancelCurrent}}" class="cancel-btn" loading="{{actionSubmitting}}" disabled="{{actionSubmitting}}" bindtap="onCancelTap">撤销</button>
           </view>

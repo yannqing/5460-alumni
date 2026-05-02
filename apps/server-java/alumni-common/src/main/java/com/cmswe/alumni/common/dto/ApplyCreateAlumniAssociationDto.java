@@ -57,14 +57,12 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
      * 负责人姓名
      */
     @Schema(description = "负责人姓名")
-    @NotBlank(message = "负责人姓名不能为空")
     private String chargeName;
 
     /**
      * 负责人架构角色
      */
     @Schema(description = "负责人架构角色")
-    @NotBlank(message = "负责人角色不能为空")
     private String chargeRole;
 
     /**
@@ -77,7 +75,6 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
      * 主要负责人社会职务
      */
     @Schema(description = "主要负责人社会职务")
-    @NotBlank(message = "主要负责人社会职务不能为空")
     private String msocialAffiliation;
 
     /**
@@ -90,28 +87,24 @@ public class ApplyCreateAlumniAssociationDto implements Serializable {
      * 驻会代表姓名
      */
     @Schema(description = "驻会代表姓名")
-    @NotBlank(message = "驻会代表姓名不能为空")
     private String zhName;
 
     /**
      * 驻会代表架构角色
      */
     @Schema(description = "驻会代表架构角色")
-    @NotBlank(message = "驻会代表架构角色不能为空")
     private String zhRole;
 
     /**
      * 驻会代表联系电话
      */
     @Schema(description = "驻会代表联系电话")
-    @NotBlank(message = "驻会代表联系电话不能为空")
     private String zhPhone;
 
     /**
      * 驻会代表社会职务
      */
     @Schema(description = "驻会代表社会职务")
-    @NotBlank(message = "驻会代表社会职务不能为空")
     private String zhSocialAffiliation;
 
     /**

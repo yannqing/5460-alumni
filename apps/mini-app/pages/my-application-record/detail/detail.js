@@ -1,3 +1,4 @@
+// pages/my-application-record/detail/detail.js
 const { post } = require('../../../utils/request.js')
 const { myApplicationRecordApi, associationApi } = require('../../../api/api.js')
 const config = require('../../../utils/config.js')
@@ -70,6 +71,7 @@ Page({
     statusClassName: 'unknown',
     canEditCurrent: false,
     canCancelCurrent: false,
+    canPublishCurrent: false,
     actionSubmitting: false,
     isCreateAssociation: false,
     createUi: null,
@@ -102,7 +104,6 @@ Page({
       return
     }
     if (this.data.recordType && this.data.recordId) {
-      // 从编辑页返回时已有详情则静默刷新，避免整页变成「加载中」
       this.loadDetail({ silent: !!this.data.detailWrapper })
     }
   },
@@ -163,6 +164,7 @@ Page({
         materialImageUrls,
         canEditCurrent: this.isRecordEditable(detailWrapper),
         canCancelCurrent: this.isRecordCancelable(detailWrapper),
+        canPublishCurrent: this.isRecordPublishable(detailWrapper),
         isCreateAssociation: !!createUi && detailWrapper.recordType === RECORD_TYPE_CREATE,
         isMerchantApplication: detailWrapper.recordType === 'MERCHANT_APPLICATION',
         createUi: createUi || null,
@@ -214,6 +216,51 @@ Page({
     )
   },
 
+  isRecordPublishable(detailWrapper) {
+    if (!detailWrapper) return false
+    const t = detailWrapper.recordType || this.data.recordType
+    // 创建校友会申请审核通过后（applicationStatus === 1），可以完善信息并发布
+    return t === RECORD_TYPE_CREATE && detailWrapper.applicationStatus === 1
+  },
+
+  onPublishTap() {
+    const { detailWrapper, detail } = this.data
+    if (!this.isRecordPublishable(detailWrapper)) {
+      wx.showToast({ title: '当前状态无法发布', icon: 'none' })
+      return
+    }
+
+    // 从 detail 中获取 createdAssociationId
+    let associationId = detail?.createdAssociationId
+    if (!associationId) {
+      wx.showToast({ title: '缺少校友会信息', icon: 'none' })
+      return
+    }
+
+    const url = `/pages/alumni-association/alumni-info-edit/alumni-info-edit?associationId=${associationId}`
+    console.log('Attempting navigateTo to:', url)
+    console.log('Current page stack depth:', getCurrentPages().length)
+
+    try {
+      const pages = getCurrentPages()
+      console.log(
+        'Current pages:',
+        pages.map(p => p.route)
+      )
+    } catch (e) {
+      console.error('getCurrentPages failed:', e)
+    }
+
+    wx.navigateTo({
+      url,
+      fail: err => {
+        console.error('navigateTo fail:', err)
+        // Try redirectTo as fallback
+        wx.redirectTo({ url })
+      },
+    })
+  },
+
   onEditTap() {
     const { detailWrapper, detail, recordType, recordId } = this.data
     if (!this.isRecordEditable(detailWrapper)) {
@@ -254,7 +301,6 @@ Page({
       return
     }
     if (recordType === 'MERCHANT_APPLICATION') {
-      // 优先使用路由透传的 recordId（字符串），避免接口返回的雪花ID被 Number 精度截断
       const applicationId = firstNonEmpty(recordId, detail?.applicationId)
       if (!applicationId) {
         wx.showToast({ title: '缺少申请信息', icon: 'none' })
@@ -345,11 +391,9 @@ Page({
         }
       })
       .filter(Boolean)
-    // 商户详情顶部已展示 Logo + 背景图，下方资料区仅保留营业执照等
     if (recordType === 'MERCHANT_APPLICATION') {
       return mapped.filter(it => it.kind !== 'LOGO' && it.kind !== 'BACKGROUND')
     }
-    // 门店：顶栏展示 Logo + 首张门店图作背景，下方不再重复这两项
     if (recordType === 'SHOP_APPLICATION') {
       const firstGallery = this.extractFirstShopGalleryPath(d.shopImages)
       let skippedFirstGallery = false
@@ -369,7 +413,6 @@ Page({
     return mapped
   },
 
-  /** 取门店图 JSON 首张路径（与 buildShopApplicationHeader 一致） */
   extractFirstShopGalleryPath(shopImagesJson) {
     if (shopImagesJson == null || !String(shopImagesJson).trim()) {
       return null
@@ -450,11 +493,12 @@ Page({
 
   buildJoinAssociationHeader(detail, associationDetail) {
     const source = associationDetail || detail || {}
-    const name = firstNonEmpty(
-      source.associationName,
-      detail?.associationName,
-      detail?.alumniAssociationName
-    ) || '—'
+    const name =
+      firstNonEmpty(
+        source.associationName,
+        detail?.associationName,
+        detail?.alumniAssociationName
+      ) || '—'
 
     let bgUrl = config.defaultCover
     const rawBg = firstNonEmpty(source.bgImg, detail?.bgImg)
@@ -523,7 +567,11 @@ Page({
     const applyTime = fmtTime(firstNonEmpty(detail.applyTime, detail.createTime))
     const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
 
-    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(
+      basicRows,
+      '申请类型',
+      this.getRecordTypeText(detailWrapper.recordType || this.data.recordType)
+    )
     this.addRow(basicRows, '申请时间', applyTime)
     this.addRow(basicRows, '审核时间', reviewTime)
 
@@ -562,8 +610,12 @@ Page({
       zhRows,
       location: isPresent(detail.location) ? String(detail.location) : '',
       coverageArea: isPresent(detail.coverageArea) ? String(detail.coverageArea) : '',
-      associationProfile: isPresent(detail.associationProfile) ? String(detail.associationProfile) : '',
-      applicationReason: isPresent(detail.applicationReason) ? String(detail.applicationReason) : '',
+      associationProfile: isPresent(detail.associationProfile)
+        ? String(detail.associationProfile)
+        : '',
+      applicationReason: isPresent(detail.applicationReason)
+        ? String(detail.applicationReason)
+        : '',
       initialMembersList,
     }
 
@@ -579,11 +631,6 @@ Page({
     }
   },
 
-  /**
-   * 关联校友会（MerchantDetailVo.alumniAssociation）
-   * 默认图与 pages/alumni-association/list/list 列表项 `icon` 一致：
-   * `item.logo ? config.getImageUrl(item.logo) : config.defaultAvatar`
-   */
   buildMerchantAssocUi(detail) {
     const a = detail?.alumniAssociation
     if (!a) {
@@ -599,7 +646,6 @@ Page({
     return { associationName: name, logoUrl, schoolName }
   },
 
-  /** 商户入驻：顶栏背景图 + Logo，与创建校友会详情同一套样式 */
   buildMerchantApplicationHeader(detail) {
     const name = firstNonEmpty(detail.merchantName) || '—'
     let bgUrl = config.defaultCover
@@ -609,10 +655,7 @@ Page({
         const parsed = JSON.parse(String(rawBg))
         if (Array.isArray(parsed) && parsed.length > 0) {
           const first = parsed[0]
-          const path =
-            typeof first === 'string'
-              ? first
-              : first?.url || first?.fileUrl || ''
+          const path = typeof first === 'string' ? first : first?.url || first?.fileUrl || ''
           if (path) {
             const p = String(path).trim()
             bgUrl = /^https?:\/\//i.test(p) ? p : config.getImageUrl(p)
@@ -631,7 +674,6 @@ Page({
     return { bgUrl, logoUrl, name }
   },
 
-  /** 门店申请：首张门店图作顶栏背景 + 门店 Logo（样式与商户顶栏一致） */
   buildShopApplicationHeader(detail) {
     const name = firstNonEmpty(detail.shopName) || '—'
     let bgUrl = config.defaultCover
@@ -641,10 +683,7 @@ Page({
         const parsed = JSON.parse(String(raw))
         if (Array.isArray(parsed) && parsed.length > 0) {
           const first = parsed[0]
-          const path =
-            typeof first === 'string'
-              ? first
-              : first?.url || first?.fileUrl || ''
+          const path = typeof first === 'string' ? first : first?.url || first?.fileUrl || ''
           if (path) {
             const p = String(path).trim()
             bgUrl = /^https?:\/\//i.test(p) ? p : config.getImageUrl(p)
@@ -663,7 +702,6 @@ Page({
     return { bgUrl, logoUrl, name }
   },
 
-  /** 门店申请详情「所属商家」：与「关联校友会」同一套，仅 logo + 名称 */
   buildShopMerchantUi(detail) {
     const m = detail?.merchant
     if (!m || typeof m !== 'object') return null
@@ -697,15 +735,38 @@ Page({
     const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
     const schoolName = firstNonEmpty(detail.schoolName, detail.schoolInfo?.schoolName)
 
-    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(
+      basicRows,
+      '申请类型',
+      this.getRecordTypeText(detailWrapper.recordType || this.data.recordType)
+    )
     this.addRow(basicRows, '申请时间', applyTime)
     this.addRow(basicRows, '审核时间', reviewTime)
 
-    this.addRow(contentRows, '校友会', firstNonEmpty(detail.associationName, detail.alumniAssociationName))
+    this.addRow(
+      contentRows,
+      '校友会',
+      firstNonEmpty(detail.associationName, detail.alumniAssociationName)
+    )
     this.addRow(contentRows, '校促会', detail.platformName)
     this.addRow(contentRows, '母校', schoolName)
-    this.addRow(contentRows, '姓名', firstNonEmpty(detail.name, detail.applicantName, detail.zhName, detail.applyZhName, detail.chargeName, detail.applyChargeName))
-    this.addRow(contentRows, '手机号', firstNonEmpty(detail.phone, detail.applicantPhone, detail.zhPhone, detail.applyZhPhone))
+    this.addRow(
+      contentRows,
+      '姓名',
+      firstNonEmpty(
+        detail.name,
+        detail.applicantName,
+        detail.zhName,
+        detail.applyZhName,
+        detail.chargeName,
+        detail.applyChargeName
+      )
+    )
+    this.addRow(
+      contentRows,
+      '手机号',
+      firstNonEmpty(detail.phone, detail.applicantPhone, detail.zhPhone, detail.applyZhPhone)
+    )
     this.addRow(contentRows, '联系方式', firstNonEmpty(detail.contactInfo, detail.applyContactInfo))
     this.addRow(contentRows, '常驻地点', detail.location)
     this.addRow(contentRows, '覆盖区域', detail.coverageArea)
@@ -715,7 +776,15 @@ Page({
     this.addRow(contentRows, '入学年份', detail.enrollmentYear)
     this.addRow(contentRows, '毕业年份', detail.graduationYear)
     this.addRow(contentRows, '学历层次', detail.educationLevel)
-    this.addRow(contentRows, '社会职务', firstNonEmpty(detail.zhSocialAffiliation, detail.chargeSocialAffiliation, detail.msocialAffiliation))
+    this.addRow(
+      contentRows,
+      '社会职务',
+      firstNonEmpty(
+        detail.zhSocialAffiliation,
+        detail.chargeSocialAffiliation,
+        detail.msocialAffiliation
+      )
+    )
     this.addRow(contentRows, '申请理由', detail.applicationReason, true)
     this.addRow(contentRows, '校友会简介', detail.associationProfile, true)
 
@@ -739,7 +808,11 @@ Page({
     const contentRows = []
     const auditRows = []
     const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
-    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(
+      basicRows,
+      '申请类型',
+      this.getRecordTypeText(detailWrapper.recordType || this.data.recordType)
+    )
     this.addRow(basicRows, '申请时间', fmtTime(firstNonEmpty(detail.createTime)))
     this.addRow(basicRows, '审核时间', reviewTime)
     this.addRow(contentRows, '商户名称', detail.merchantName)
@@ -769,13 +842,23 @@ Page({
     const auditRows = []
     const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
     const merchantName = firstNonEmpty(detail.merchant?.merchantName)
-    const addr = [detail.province, detail.city, detail.district, detail.address].filter(x => isPresent(x)).join(' ')
-    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    const addr = [detail.province, detail.city, detail.district, detail.address]
+      .filter(x => isPresent(x))
+      .join(' ')
+    this.addRow(
+      basicRows,
+      '申请类型',
+      this.getRecordTypeText(detailWrapper.recordType || this.data.recordType)
+    )
     this.addRow(basicRows, '申请时间', fmtTime(firstNonEmpty(detail.createTime)))
     this.addRow(basicRows, '审核时间', reviewTime)
     this.addRow(contentRows, '门店名称', detail.shopName)
     this.addRow(contentRows, '所属商户', merchantName)
-    this.addRow(contentRows, '门店类型', detail.shopType === 1 ? '总店' : detail.shopType === 2 ? '分店' : detail.shopType)
+    this.addRow(
+      contentRows,
+      '门店类型',
+      detail.shopType === 1 ? '总店' : detail.shopType === 2 ? '分店' : detail.shopType
+    )
     this.addRow(contentRows, '地址', addr, true)
     this.addRow(contentRows, '门店电话', detail.phone)
     this.addRow(contentRows, '营业时间', detail.businessHours)
@@ -801,19 +884,23 @@ Page({
     const contentRows = []
     const auditRows = []
     const reviewTime = fmtTime(firstNonEmpty(detail.reviewTime))
-    this.addRow(basicRows, '申请类型', this.getRecordTypeText(detailWrapper.recordType || this.data.recordType))
+    this.addRow(
+      basicRows,
+      '申请类型',
+      this.getRecordTypeText(detailWrapper.recordType || this.data.recordType)
+    )
     this.addRow(basicRows, '申请时间', fmtTime(firstNonEmpty(detail.createTime)))
     this.addRow(basicRows, '审核时间', reviewTime)
-    
+
     this.addRow(contentRows, '商户名称', detail.merchantName)
     const assName = detail.alumniAssociation?.associationName
     this.addRow(contentRows, '申请加入校友会', assName)
     this.addRow(contentRows, '申请人', detail.applicantName)
     this.addRow(contentRows, '联系电话', detail.applicantPhone)
-    
+
     this.addRow(auditRows, '审核意见', detail.reviewComment, true)
     this.addRow(auditRows, '审核时间', reviewTime)
-    
+
     return {
       basicRows,
       contentRows,
@@ -864,4 +951,3 @@ Page({
     return fmtTime(d.applyTime || d.createTime)
   },
 })
-

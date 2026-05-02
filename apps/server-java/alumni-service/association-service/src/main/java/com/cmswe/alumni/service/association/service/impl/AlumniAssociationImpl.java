@@ -564,7 +564,15 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException("校友会不存在");
         }
 
-        // 3. 更新字段（只更新非空字段）
+        // 3. 如果是待发布状态(status=2)，先发布再更新
+        if (existingAssociation.getStatus() != null && existingAssociation.getStatus() == 2) {
+            log.info("校友会当前为待发布状态，先发布再更新，校友会ID: {}", alumniAssociationId);
+            this.publishAlumniAssociation(alumniAssociationId);
+            // 发布后重新查询，确保使用最新的数据
+            existingAssociation = this.getById(alumniAssociationId);
+        }
+
+        // 4. 更新字段（只更新非空字段）
         if (updateAlumniAssociationDto.getContactInfo() != null) {
             existingAssociation.setContactInfo(updateAlumniAssociationDto.getContactInfo());
         }
@@ -908,76 +916,98 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             throw new BusinessException("用户ID不能为空");
         }
 
-        // 2. 常量定义
-        final Long SUPER_ADMIN_ROLE_ID = 2002944992284250113L; // 系统管理员
-        final Long PRESIDENT_ROLE_ID = 2002944405488537602L; // 校友会会长
+        // 2. 从 role_user 表查询该用户管理（type=2）的校友会ID列表
+        // type: 1-校促会, 2-校友会, 3-商户, 4-门店
+        LambdaQueryWrapper<RoleUser> roleUserQueryWrapper = new LambdaQueryWrapper<>();
+        roleUserQueryWrapper
+                .eq(RoleUser::getWxId, wxId)
+                .eq(RoleUser::getType, 2); // type=2 表示校友会
+        List<RoleUser> roleUserList = roleUserService.list(roleUserQueryWrapper);
 
-        // 3. 检查用户是否是超级管理员
-        List<RoleUser> roleUserList = roleUserService.getSystemRoleUserListByWxIdInner(wxId);
-        boolean isSuperAdmin = roleUserList.stream()
-                .anyMatch(roleUser -> SUPER_ADMIN_ROLE_ID.equals(roleUser.getRoleId()));
-
-        // 4. 如果是超级管理员，返回所有校友会列表
-        if (isSuperAdmin) {
-            log.info("用户 {} 是超级管理员，返回所有校友会列表", wxId);
-            return selectByPage(queryDto, wxId);
-        }
-
-        // 5. 不是超级管理员，查询该用户是会长的校友会
-        List<AlumniAssociationMember> memberList = alumniAssociationMemberService.list(
-                new LambdaQueryWrapper<AlumniAssociationMember>()
-                        .eq(AlumniAssociationMember::getWxId, wxId)
-                        .eq(AlumniAssociationMember::getRoleOrId, PRESIDENT_ROLE_ID)
-                        .eq(AlumniAssociationMember::getStatus, 1) // 状态：1-正常
-        );
-
-        // 6. 如果该用户不是任何校友会的会长，返回空列表
-        if (memberList.isEmpty()) {
-            log.info("用户 {} 不是任何校友会的会长", wxId);
-            Page<AlumniAssociationListVo> emptyPage = new Page<>(queryDto.getCurrent(), queryDto.getPageSize());
-            emptyPage.setTotal(0);
-            return PageVo.of(emptyPage);
-        }
-
-        // 7. 提取校友会ID列表
-        List<Long> alumniAssociationIds = memberList.stream()
-                .map(AlumniAssociationMember::getAlumniAssociationId)
+        List<Long> managedAlumniAssociationIds = roleUserList.stream()
+                .map(RoleUser::getOrganizeId)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
 
-        // 8. 获取查询参数
+        log.info("用户 {} 在 role_user 表中管理的校友会ID列表: {}", wxId, managedAlumniAssociationIds);
+
+        // 3. 查询该用户创建的待审核申请（applicationStatus=0）且尚未创建校友会的记录
+        // 申请人可能是 chargeWxId 或 zhWxId
+        LambdaQueryWrapper<AlumniAssociationApplication> pendingAppQuery = new LambdaQueryWrapper<>();
+        pendingAppQuery
+                .eq(AlumniAssociationApplication::getApplicationStatus, 0) // 待审核
+                .and(w -> w
+                        .eq(AlumniAssociationApplication::getChargeWxId, wxId)
+                        .or()
+                        .eq(AlumniAssociationApplication::getZhWxId, wxId)
+                );
+        List<AlumniAssociationApplication> pendingApplications = alumniAssociationApplicationMapper.selectList(pendingAppQuery);
+
+        // 4. 获取查询参数
         String associationName = queryDto.getAssociationName();
-        String contactInfo = queryDto.getContactInfo();
-        String location = queryDto.getLocation();
         int current = queryDto.getCurrent();
         int pageSize = queryDto.getPageSize();
-        String sortField = queryDto.getSortField();
-        String sortOrder = queryDto.getSortOrder();
 
-        // 9. 构建查询条件 - 只查询该用户是会长的校友会
-        LambdaQueryWrapper<AlumniAssociation> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper
-                .in(AlumniAssociation::getAlumniAssociationId, alumniAssociationIds)
-                .like(StringUtils.isNotBlank(associationName), AlumniAssociation::getAssociationName, associationName)
-                .like(StringUtils.isNotBlank(contactInfo), AlumniAssociation::getContactInfo, contactInfo)
-                .like(StringUtils.isNotBlank(location), AlumniAssociation::getLocation, location)
-                .orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
-                        AlumniAssociation.getSortMethod(sortField));
+        // 5. 分别查询已创建的校友会（status=1,2）和待审核的申请
+        List<AlumniAssociationListVo> resultList = new ArrayList<>();
 
-        // 10. 执行分页查询
-        Page<AlumniAssociation> alumniAssociationPage = this.page(new Page<>(current, pageSize), queryWrapper);
+        // 5.1 查询已创建的校友会记录
+        if (!managedAlumniAssociationIds.isEmpty()) {
+            LambdaQueryWrapper<AlumniAssociation> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper
+                    .in(AlumniAssociation::getAlumniAssociationId, managedAlumniAssociationIds)
+                    .like(StringUtils.isNotBlank(associationName), AlumniAssociation::getAssociationName, associationName)
+                    .orderByDesc(AlumniAssociation::getCreateTime);
 
-        // 11. 转换结果，使用 @JsonSerialize 注解避免前端精度丢失
-        List<AlumniAssociationListVo> list = alumniAssociationPage.getRecords().stream()
-                .map(AlumniAssociationListVo::objToVo)
-                .toList();
+            List<AlumniAssociation> associationList = this.list(queryWrapper);
+            for (AlumniAssociation association : associationList) {
+                resultList.add(AlumniAssociationListVo.objToVo(association));
+            }
+        }
 
-        log.info("查询用户 {} 作为会长的校友会列表成功，总数: {}", wxId, list.size());
+        // 5.2 添加待审核的申请记录（构建为待审核状态的Vo）
+        for (AlumniAssociationApplication application : pendingApplications) {
+            // 检查是否已存在对应的校友会记录（避免重复）
+            boolean hasAssociation = managedAlumniAssociationIds.contains(application.getCreatedAssociationId());
+            // 也检查通过createdAssociationId是否已有关联
+            if (!hasAssociation && application.getCreatedAssociationId() != null) {
+                AlumniAssociation existing = this.getById(application.getCreatedAssociationId());
+                if (existing != null) {
+                    hasAssociation = true;
+                }
+            }
 
-        // 12. 返回结果
-        Page<AlumniAssociationListVo> resultPage = new Page<AlumniAssociationListVo>(current, pageSize,
-                alumniAssociationPage.getTotal())
-                .setRecords(list);
+            // 如果没有对应的校友会记录，且申请人匹配，则添加为待审核状态
+            if (!hasAssociation) {
+                AlumniAssociationListVo vo = new AlumniAssociationListVo();
+                vo.setAlumniAssociationId(-application.getApplicationId()); // 用负数表示待审核申请
+                vo.setAssociationName(application.getAssociationName());
+                vo.setLogo(application.getLogo());
+                vo.setLocation(application.getLocation());
+                vo.setStatus(0); // 待审核状态
+                // 通过 SchoolListVo 设置学校信息
+                SchoolListVo schoolVo = new SchoolListVo();
+                schoolVo.setSchoolId(String.valueOf(application.getSchoolId()));
+                vo.setSchool(schoolVo);
+                resultList.add(vo);
+            }
+        }
+
+        // 6. 处理分页
+        int total = resultList.size();
+        int start = (current - 1) * pageSize;
+        int end = Math.min(start + pageSize, total);
+
+        List<AlumniAssociationListVo> pageRecords = start < total
+                ? resultList.subList(start, end)
+                : Collections.emptyList();
+
+        Page<AlumniAssociationListVo> resultPage = new Page<>(current, pageSize, total);
+        resultPage.setRecords(pageRecords);
+
+        log.info("查询用户 {} 管理的校友会列表成功，总数: {}", wxId, total);
+
         return PageVo.of(resultPage);
     }
 
@@ -2895,4 +2925,98 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean publishAlumniAssociation(Long alumniAssociationId) {
+        Optional.ofNullable(alumniAssociationId)
+                .orElseThrow(() -> new BusinessException(ErrorType.ARGS_NOT_NULL, "校友会ID不能为空"));
+
+        AlumniAssociation association = this.getById(alumniAssociationId);
+        if (association == null) {
+            throw new BusinessException(ErrorType.NOT_FOUND_ERROR, "校友会不存在");
+        }
+        if (association.getStatus() != 2) {
+            throw new BusinessException(ErrorType.OPERATION_ERROR, "只有待发布状态的校友会才能发布");
+        }
+
+        // 查询申请记录
+        AlumniAssociationApplication application = null;
+        if (association.getApplicationId() != null) {
+            application = alumniAssociationApplicationMapper.selectById(association.getApplicationId());
+        }
+        if (application == null) {
+            LambdaQueryWrapper<AlumniAssociationApplication> q = new LambdaQueryWrapper<>();
+            q.eq(AlumniAssociationApplication::getSchoolId, association.getSchoolId())
+                    .eq(AlumniAssociationApplication::getAssociationName, association.getAssociationName())
+                    .orderByDesc(AlumniAssociationApplication::getApplicationId)
+                    .last("LIMIT 1");
+            application = alumniAssociationApplicationMapper.selectOne(q);
+        }
+
+        // 1. 查找组织管理员角色
+        Role organizeAdminRole = roleService.getRoleByCodeInner("ORGANIZE_ALUMNI_ADMIN");
+        if (organizeAdminRole == null) {
+            throw new BusinessException(ErrorType.SYSTEM_ERROR, "未找到组织管理员角色");
+        }
+
+        // 2. 分配角色 + 添加成员
+        int totalMemberCount = 0;
+        if (application != null && application.getZhWxId() != null && application.getZhWxId() > 0) {
+            RoleUser roleUser = new RoleUser();
+            roleUser.setWxId(application.getZhWxId());
+            roleUser.setRoleId(organizeAdminRole.getRoleId());
+            roleUser.setType(2);
+            roleUser.setOrganizeId(alumniAssociationId);
+            roleUserService.save(roleUser);
+
+            boolean hasChargeInfo = (application.getChargeWxId() != null && application.getChargeWxId() > 0)
+                    || StringUtils.isNotBlank(application.getChargeName())
+                    || StringUtils.isNotBlank(application.getChargeRole());
+            if (hasChargeInfo) {
+                AlumniAssociationMember chargeMember = new AlumniAssociationMember();
+                chargeMember.setWxId(application.getChargeWxId() != null && application.getChargeWxId() > 0 ? application.getChargeWxId() : null);
+                chargeMember.setAlumniAssociationId(alumniAssociationId);
+                chargeMember.setUsername(application.getChargeName());
+                chargeMember.setRoleName(application.getChargeRole());
+                chargeMember.setUserPhone(application.getContactInfo());
+                chargeMember.setUserAffiliation(application.getMsocialAffiliation());
+                chargeMember.setIsShowOnHome(1);
+                chargeMember.setJoinTime(LocalDateTime.now());
+                chargeMember.setStatus(1);
+                alumniAssociationMemberService.save(chargeMember);
+                totalMemberCount++;
+            }
+
+            if (!application.getZhWxId().equals(application.getChargeWxId())) {
+                LambdaQueryWrapper<AlumniAssociationMember> zhCheck = new LambdaQueryWrapper<>();
+                zhCheck.eq(AlumniAssociationMember::getWxId, application.getZhWxId())
+                        .eq(AlumniAssociationMember::getAlumniAssociationId, alumniAssociationId);
+                if (alumniAssociationMemberService.count(zhCheck) == 0) {
+                    AlumniAssociationMember zhMember = new AlumniAssociationMember();
+                    zhMember.setWxId(application.getZhWxId());
+                    zhMember.setAlumniAssociationId(alumniAssociationId);
+                    zhMember.setUsername(application.getZhName());
+                    zhMember.setRoleName(application.getZhRole());
+                    zhMember.setUserPhone(application.getZhPhone());
+                    zhMember.setUserAffiliation(application.getZhSocialAffiliation());
+                    zhMember.setIsShowOnHome(1);
+                    zhMember.setJoinTime(LocalDateTime.now());
+                    zhMember.setStatus(1);
+                    alumniAssociationMemberService.save(zhMember);
+                    totalMemberCount++;
+                }
+            }
+        }
+
+        // 3. 初始成员列表（简化：跳过，因为创建时这些信息已从表单移除）
+        // 4. 组织架构（简化：跳过，因为创建时已不需要选择模板）
+
+        // 5. 更新状态为启用
+        association.setStatus(1);
+        association.setMemberCount(totalMemberCount);
+        this.updateById(association);
+
+        log.info("校友会发布成功 - ID: {}, 名称: {}", alumniAssociationId, association.getAssociationName());
+        return true;
+    }
 }
