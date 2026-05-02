@@ -867,11 +867,13 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
         Map<Long, Integer> finalCertificationFlagMap = certificationFlagMap;
         Map<Long, AlumniEducationListVo> finalPrimaryEducationMap = primaryEducationMap;
 
-        List<UserListNoPrivacyResponse> records = wxUserInfoPage.getRecords().stream().map(user -> {
+        List<UserListNoPrivacyResponse> records = wxUserInfoPage.getRecords().stream()
+                .filter(user -> user.getNickname() != null) // 过滤掉 nickname 为 null 的记录
+                .map(user -> {
             UserListNoPrivacyResponse item = new UserListNoPrivacyResponse();
             item.setWxId(String.valueOf(user.getWxId()));
             item.setNickname(user.getNickname());
-            item.setName(user.getName());
+            item.setName(null); // name 字段固定为 null
             item.setAvatarUrl(user.getAvatarUrl());
             item.setCurContinent(user.getCurContinent());
             item.setCurCountry(user.getCurCountry());
@@ -1220,6 +1222,25 @@ public class UserServiceImpl extends ServiceImpl<WxUserMapper, WxUser>
 
     @Override
     public Set<Long> getManagedAlumniAssociationIdsByRole(Long wxId) {
+        // 1. 查询用户的角色，判断是否是超级管理员或开发管理员
+        List<Role> userRoles = roleService.getRolesByUserId(wxId);
+        boolean isSuperAdmin = userRoles.stream()
+                .anyMatch(role -> "SYSTEM_SUPER_ADMIN".equals(role.getRoleCode()));
+        boolean isDevManager = userRoles.stream()
+                .anyMatch(role -> "DEVELOPMENT_MANAGER".equals(role.getRoleCode()));
+
+        // 超级管理员或开发管理员：返回所有校友会的ID
+        if (isSuperAdmin || isDevManager) {
+            List<AlumniAssociation> allAssociations = alumniAssociationService.list(
+                    new LambdaQueryWrapper<AlumniAssociation>()
+                            .eq(AlumniAssociation::getStatus, 1)
+            );
+            return allAssociations.stream()
+                    .map(AlumniAssociation::getAlumniAssociationId)
+                    .collect(Collectors.toSet());
+        }
+
+        // 普通用户：通过 role_user 表查找有管理员角色的校友会
         List<ManagedOrganizationListVo> orgs = getManagedOrganizationsByRole(wxId, 0);
         return orgs.stream()
                 .map(ManagedOrganizationListVo::getId)

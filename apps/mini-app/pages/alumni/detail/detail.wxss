@@ -1,5 +1,132 @@
 /* pages/alumni/detail/detail.wxss */
 
+/* 骨架屏容器 */
+.skeleton-container {
+  min-height: 100vh;
+  background-color: #f8f9fb;
+}
+
+/* 头部骨架 */
+.skeleton-header {
+  position: relative;
+  width: 100%;
+  height: 480rpx;
+  overflow: hidden;
+}
+
+.skeleton-bg {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #A9C7F7 0%, #C8DAFA 100%);
+}
+
+.skeleton-profile {
+  position: absolute;
+  bottom: 40rpx;
+  left: 40rpx;
+  right: 40rpx;
+  display: flex;
+  align-items: flex-end;
+  gap: 24rpx;
+}
+
+.skeleton-avatar {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  flex-shrink: 0;
+  border: 4rpx solid rgba(255, 255, 255, 0.8);
+}
+
+.skeleton-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.skeleton-name {
+  width: 200rpx;
+  height: 38rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-sig {
+  width: 280rpx;
+  height: 24rpx;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  opacity: 0.7;
+}
+
+/* 卡片骨架 */
+.skeleton-cards {
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.skeleton-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 36rpx 32rpx;
+}
+
+.skeleton-card-title {
+  width: 160rpx;
+  height: 30rpx;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  margin-bottom: 24rpx;
+}
+
+.skeleton-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.skeleton-row {
+  width: 100%;
+  height: 28rpx;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-row:first-child {
+  width: 60%;
+}
+
+.skeleton-row:nth-child(2) {
+  width: 80%;
+}
+
+.skeleton-row:nth-child(3) {
+  width: 45%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* 校友认证等级图片 */
 .alumni-cert-badge-img {
   height: 32rpx;

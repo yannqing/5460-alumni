@@ -2,9 +2,10 @@
 
 .merchant-card {
   position: relative;
-  background-color: transparent;
+  background-color: #FFFFFF;
   padding: 0;
   margin-bottom: 0;
+  flex: 1;
 }
 
 .merchant-card::after {
@@ -149,7 +150,7 @@
 
 /* 优惠券列表 */
 .coupon-list {
-  padding: 0 30rpx 20rpx 146rpx;
+  padding: 0 30rpx 20rpx 170rpx;
   display: flex;
   flex-direction: column;
   gap: 10rpx;

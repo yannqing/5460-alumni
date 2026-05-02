@@ -7,6 +7,7 @@ Page({
   data: {
     alumniId: '',
     alumniInfo: null,
+    loading: true, // 添加 loading 状态，初始为 true
     defaultAvatar: config.defaultAvatar,
     // 校友认证等级图片
     alumniCertFirstImg:
@@ -68,7 +69,7 @@ Page({
           school: '母校',
           wxId: '',
         }
-        this.setData({ alumniInfo: tempAlumniInfo })
+        this.setData({ alumniInfo: tempAlumniInfo, loading: false })
       }
     } else if (id) {
       // 传统的通过id加载详情的方式，确保转换为字符串以防止数字精度丢失
@@ -79,6 +80,7 @@ Page({
 
   async loadAlumniDetail() {
     const { alumniId } = this.data
+    this.setData({ loading: true })
 
     try {
       const res = await alumniApi.getAlumniInfo(alumniId)
@@ -90,12 +92,13 @@ Page({
         // 数据映射：将后端字段映射为前端所需格式
         const alumniInfo = this.mapAlumniData(data)
 
-        this.setData({ alumniInfo })
+        this.setData({ alumniInfo, loading: false })
       } else {
         wx.showToast({
           title: res.data?.msg || '加载失败',
           icon: 'none',
         })
+        this.setData({ loading: false })
       }
     } catch (error) {
       console.error('加载校友详情失败:', error)
@@ -103,6 +106,7 @@ Page({
         title: '加载失败，请重试',
         icon: 'none',
       })
+      this.setData({ loading: false })
     }
   },
 

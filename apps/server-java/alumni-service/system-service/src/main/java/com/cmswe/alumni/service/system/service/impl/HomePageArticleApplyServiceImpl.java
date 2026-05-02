@@ -9,6 +9,7 @@ import com.cmswe.alumni.api.user.FileService;
 import com.cmswe.alumni.api.user.WxUserInfoService;
 import com.cmswe.alumni.common.dto.ApproveArticleDto;
 import com.cmswe.alumni.common.dto.QueryArticleApplyListDto;
+import com.cmswe.alumni.common.entity.AlumniAssociation;
 import com.cmswe.alumni.common.entity.Files;
 import com.cmswe.alumni.common.entity.HomePageArticle;
 import com.cmswe.alumni.common.entity.HomePageArticleApply;
@@ -53,6 +54,9 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private com.cmswe.alumni.api.association.AlumniAssociationService alumniAssociationService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -178,6 +182,12 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
         }
 
         // 4. 权限校验：如果请求带了 alumniAssociationId，检查用户是否有权查看
+        // 判断用户是否可查看所有校友会的文章（超级管理员或开发管理员）
+        long totalAlumniAssociationCount = alumniAssociationService.count(
+                new LambdaQueryWrapper<AlumniAssociation>().eq(AlumniAssociation::getStatus, 1));
+        boolean canViewAll = managedAlumniAssociationIds.size() >= totalAlumniAssociationCount
+                && !managedAlumniAssociationIds.isEmpty();
+
         if (alumniAssociationId != null) {
             if (!managedAlumniAssociationIds.contains(alumniAssociationId)) {
                 log.warn("用户试图查看无权限的校友会文章 - wxId: {}, alumniAssociationId: {}", wxId, alumniAssociationId);
@@ -187,11 +197,17 @@ public class HomePageArticleApplyServiceImpl extends ServiceImpl<HomePageArticle
                 return PageVo.of(emptyPage);
             }
         } else {
-            // 请求没有带 alumniAssociationId，不允许查看所有，返回空列表
-            log.info("用户未指定校友会ID，返回空列表 - wxId: {}", wxId);
-            Page<HomePageArticleApplyVo> emptyPage = new Page<>(current, size);
-            emptyPage.setTotal(0);
-            return PageVo.of(emptyPage);
+            // 请求没有带 alumniAssociationId
+            if (!canViewAll) {
+                // 非超级管理员/开发管理员，不允许查看所有，返回空列表
+                log.info("用户未指定校友会ID，且无查看全部权限，返回空列表 - wxId: {}", wxId);
+                Page<HomePageArticleApplyVo> emptyPage = new Page<>(current, size);
+                emptyPage.setTotal(0);
+                return PageVo.of(emptyPage);
+            }
+            // 超级管理员/开发管理员可以查看所有，不限制校友会ID
+            log.info("用户未指定校友会ID，但具有查看全部权限，将查询所有校友会文章 - wxId: {}, managedCount: {}, totalCount: {}",
+                    wxId, managedAlumniAssociationIds.size(), totalAlumniAssociationCount);
         }
 
         // 5. 构造查询条件 - 从文章表查询
