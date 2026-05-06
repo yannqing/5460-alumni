@@ -46,22 +46,19 @@ public class CreateShopDto implements Serializable {
     /**
      * 省份
      */
-    @NotBlank(message = "省份不能为空")
-    @Schema(description = "省份", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "省份")
     private String province;
 
     /**
      * 城市
      */
-    @NotBlank(message = "城市不能为空")
-    @Schema(description = "城市", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "城市")
     private String city;
 
     /**
      * 区县
      */
-    @NotBlank(message = "区县不能为空")
-    @Schema(description = "区县", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "区县")
     private String district;
 
     /**

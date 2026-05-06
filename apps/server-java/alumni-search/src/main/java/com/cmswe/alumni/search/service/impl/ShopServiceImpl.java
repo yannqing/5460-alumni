@@ -264,13 +264,15 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
             }
         });
 
-        // 5. 查询总数
-        Long total = this.baseMapper.countNearbyShops(
-                queryDto.getLatitude(),
-                queryDto.getLongitude(),
-                radius,
-                shopName,
-                isRecommended);
+        // 5. 查询总数（MyBatis 在 COUNT 无结果行时可能映射为 null，需兜底避免 Page 拆箱 NPE）
+        long total = Optional.ofNullable(
+                        this.baseMapper.countNearbyShops(
+                                queryDto.getLatitude(),
+                                queryDto.getLongitude(),
+                                radius,
+                                shopName,
+                                isRecommended))
+                .orElse(0L);
 
         log.info("查询附近{}km商铺，位置：[{}, {}]，找到{}个结果（仅营业中且有优惠券的店铺）",
                 radius, queryDto.getLatitude(), queryDto.getLongitude(), total);
@@ -332,13 +334,15 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
             }
         });
 
-        // 5. 查询总数
-        Long total = this.baseMapper.countNearbyMerchants(
-                queryDto.getLatitude(),
-                queryDto.getLongitude(),
-                radius,
-                merchantName,
-                isRecommended);
+        // 5. 查询总数（MyBatis 在 COUNT 无结果行时可能映射为 null，需兜底避免 Page 拆箱 NPE）
+        long total = Optional.ofNullable(
+                        this.baseMapper.countNearbyMerchants(
+                                queryDto.getLatitude(),
+                                queryDto.getLongitude(),
+                                radius,
+                                merchantName,
+                                isRecommended))
+                .orElse(0L);
 
         log.info("查询附近{}km商户，位置：[{}, {}]，找到{}个结果（有专属优惠券的商户）",
                 radius, queryDto.getLatitude(), queryDto.getLongitude(), total);

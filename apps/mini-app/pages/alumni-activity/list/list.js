@@ -25,8 +25,7 @@ Page({
   onLoad(options) {
     this.setData({
       timeIconUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/icon/time.png`,
-      locationIconUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/icon/location.png`,
-      statusIconBaseUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/status/`
+      locationIconUrl: `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/icon/location.png`
     });
     this.getActivityList();
   },
@@ -194,6 +193,7 @@ Page({
    */
   getStatusIcon(status) {
     const iconMap = {
+      6: 'not_started.png',
       1: 'registration_in_progress.png',
       2: 'registration_ends.png',
       3: 'in_progress.png',

@@ -22,6 +22,7 @@ import com.cmswe.alumni.common.entity.AlumniPlace;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.enums.NotificationType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.utils.ActivityPublishedStatusUtil;
 import com.cmswe.alumni.common.vo.AlumniAssociationDetailVo;
 import com.cmswe.alumni.common.vo.AlumniAssociationListVo;
 import com.cmswe.alumni.common.vo.LocalPlatformDetailVo;
@@ -1848,28 +1849,11 @@ public class AlumniAssociationImpl extends ServiceImpl<AlumniAssociationMapper, 
             }
         }
 
-        // 3. 计算初始状态
+        // 3. 计算初始状态（与定时任务规则一致）
         LocalDateTime now = LocalDateTime.now();
-        Integer status;
-        if (publishDto.getIsSignup() == 1) {
-            // 需要报名的情况
-            if (now.isBefore(publishDto.getRegistrationEndTime())) {
-                status = 1; // 报名中
-            } else if (now.isBefore(publishDto.getStartTime())) {
-                status = 2; // 报名结束
-            } else if (now.isBefore(publishDto.getEndTime())) {
-                status = 3; // 进行中
-            } else {
-                status = 4; // 已结束
-            }
-        } else {
-            // 不需要报名的情况
-            if (now.isBefore(publishDto.getEndTime())) {
-                status = 3; // 进行中
-            } else {
-                status = 4; // 已结束
-            }
-        }
+        int status = ActivityPublishedStatusUtil.compute(now, publishDto.getIsSignup(),
+                publishDto.getStartTime(), publishDto.getEndTime(),
+                publishDto.getRegistrationStartTime(), publishDto.getRegistrationEndTime());
         activity.setStatus(status);
         activity.setReviewStatus(1); // 管理员发布，默认审核通过
         activity.setIsPublic(publishDto.getIsPublic() != null ? publishDto.getIsPublic() : 1);

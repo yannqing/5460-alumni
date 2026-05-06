@@ -38,6 +38,7 @@ Page({
       3: { name: '进行中', theme: 'ing' },
       4: { name: '已结束', theme: 'end' },
       5: { name: '已取消', theme: 'cancelled' },
+      6: { name: '未开始', theme: 'not-started' },
       default: { name: '未知', theme: '' },
     },
 
@@ -1086,10 +1087,11 @@ Page({
    */
   getStatusIcon(status) {
     const iconMap = {
+      6: 'not_started.png',
       1: 'registration_in_progress.png',
       2: 'registration_ends.png',
       3: 'in_progress.png',
-      4: 'ended.png'
+      4: 'ended.png',
     };
     const fileName = iconMap[status] || 'ended.png';
     return `${config.cloud.cosBaseUrl}/cni-alumni/images/assets/status/${fileName}`;
