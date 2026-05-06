@@ -190,7 +190,7 @@ public class Activity implements Serializable {
     private String contactEmail;
 
     /**
-     * 状态：0-草稿 1-报名中 2-报名结束 3-进行中 4-已结束 5-已取消
+     * 状态：0-草稿 1-报名中 2-报名结束 3-进行中 4-已结束 5-已取消 6-未开始
      */
     @TableField(value = "status")
     private Integer status;

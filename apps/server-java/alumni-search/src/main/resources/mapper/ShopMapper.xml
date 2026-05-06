@@ -406,7 +406,7 @@
                   AND s.review_status = 1
                   AND s.status = 1
                   AND a.is_delete = 0
-                  AND a.status IN (1, 2, 3)
+                  AND a.status IN (1, 2, 3, 6)
             ) ranked_shops
             GROUP BY merchant_id
             HAVING MIN(distance) &lt;= #{radius}
@@ -441,7 +441,7 @@
                   AND s.review_status = 1
                   AND s.status = 1
                   AND a.is_delete = 0
-                  AND a.status IN (1, 2, 3)
+                  AND a.status IN (1, 2, 3, 6)
             ) shops_with_dist
             GROUP BY merchant_id
             HAVING MIN(distance) &lt;= #{radius}
@@ -465,7 +465,7 @@
         INNER JOIN shop s ON s.shop_id = aso.shop_id
         WHERE s.merchant_id = #{merchantId}
           AND a.is_delete = 0
-          AND a.status IN (1, 2, 3)
+          AND a.status IN (1, 2, 3, 6)
         ORDER BY a.start_time ASC
     </select>
 
@@ -512,7 +512,7 @@
                     ) AS rn
                 FROM activity a
                 WHERE a.is_delete = 0
-                  AND a.status IN (1, 2, 3)
+                  AND a.status IN (1, 2, 3, 6)
                   AND a.organizer_type = 1
                   AND a.latitude IS NOT NULL
                   AND a.longitude IS NOT NULL
@@ -545,7 +545,7 @@
                     )) AS distance
                 FROM activity a
                 WHERE a.is_delete = 0
-                  AND a.status IN (1, 2, 3)
+                  AND a.status IN (1, 2, 3, 6)
                   AND a.organizer_type = 1
                   AND a.latitude IS NOT NULL
                   AND a.longitude IS NOT NULL
@@ -570,7 +570,7 @@
         WHERE a.organizer_type = 1
           AND a.organizer_id = #{associationId}
           AND a.is_delete = 0
-          AND a.status IN (1, 2, 3)
+          AND a.status IN (1, 2, 3, 6)
         ORDER BY a.start_time ASC, a.create_time DESC
     </select>
 

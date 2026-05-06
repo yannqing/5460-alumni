@@ -16,6 +16,7 @@ import com.cmswe.alumni.common.entity.Activity;
 import com.cmswe.alumni.common.entity.ActivityShop;
 import com.cmswe.alumni.common.enums.ErrorType;
 import com.cmswe.alumni.common.exception.BusinessException;
+import com.cmswe.alumni.common.utils.ActivityPublishedStatusUtil;
 import com.cmswe.alumni.common.vo.ActivityDetailVo;
 import com.cmswe.alumni.common.vo.ActivityListVo;
 import com.cmswe.alumni.common.vo.PageVo;
@@ -67,6 +68,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             if (publishTopicDto.getRegistrationStartTime().isAfter(publishTopicDto.getRegistrationEndTime())) {
                 throw new BusinessException("报名开始时间不能晚于截止时间");
             }
+            if (publishTopicDto.getRegistrationEndTime().isAfter(publishTopicDto.getStartTime())) {
+                throw new BusinessException("报名截止时间不能晚于活动开始时间");
+            }
         }
 
         // 3. 校验活动时间
@@ -84,25 +88,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         activity.setOrganizerType(5); // 主办方类型固定为5（门店）
         activity.setActivityCategory("话题"); // 活动分类固定为"话题"
         
-        // 计算初始状态
-        Integer status;
-        if (publishTopicDto.getIsSignup() == 1) {
-            if (now.isBefore(publishTopicDto.getRegistrationEndTime())) {
-                status = 1; // 报名中
-            } else if (now.isBefore(publishTopicDto.getStartTime())) {
-                status = 2; // 报名结束
-            } else if (now.isBefore(publishTopicDto.getEndTime())) {
-                status = 3; // 进行中
-            } else {
-                status = 4; // 已结束
-            }
-        } else {
-            if (now.isBefore(publishTopicDto.getEndTime())) {
-                status = 3; // 进行中
-            } else {
-                status = 4; // 已结束
-            }
-        }
+        int status = ActivityPublishedStatusUtil.compute(now, publishTopicDto.getIsSignup(),
+                publishTopicDto.getStartTime(), publishTopicDto.getEndTime(),
+                publishTopicDto.getRegistrationStartTime(), publishTopicDto.getRegistrationEndTime());
         activity.setStatus(status);
         
         activity.setReviewStatus(1); // 审核状态固定为1（审核通过）
@@ -152,6 +140,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             if (dto.getRegistrationStartTime().isAfter(dto.getRegistrationEndTime())) {
                 throw new BusinessException("报名开始时间不能晚于截止时间");
             }
+            if (dto.getRegistrationEndTime().isAfter(dto.getStartTime())) {
+                throw new BusinessException("报名截止时间不能晚于活动开始时间");
+            }
         }
 
         // 优惠活动强制不需要报名
@@ -188,25 +179,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         activity.setActivityCategory(dto.getActivityType() == 1 ? "优惠活动" : "话题");
         activity.setActivityType(dto.getActivityType());
 
-        // 计算初始状态
-        Integer status;
-        if (dto.getIsSignup() == 1) {
-            if (now.isBefore(dto.getRegistrationEndTime())) {
-                status = 1; // 报名中
-            } else if (now.isBefore(dto.getStartTime())) {
-                status = 2; // 报名结束
-            } else if (now.isBefore(dto.getEndTime())) {
-                status = 3; // 进行中
-            } else {
-                status = 4; // 已结束
-            }
-        } else {
-            if (now.isBefore(dto.getEndTime())) {
-                status = 3; // 进行中
-            } else {
-                status = 4; // 已结束
-            }
-        }
+        int status = ActivityPublishedStatusUtil.compute(now, dto.getIsSignup(),
+                dto.getStartTime(), dto.getEndTime(),
+                dto.getRegistrationStartTime(), dto.getRegistrationEndTime());
         activity.setStatus(status);
         activity.setReviewStatus(1); // 审核通过
         activity.setIsRecommended(0);
@@ -412,6 +387,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             if (updateActivityDto.getRegistrationStartTime().isAfter(updateActivityDto.getRegistrationEndTime())) {
                 throw new BusinessException("报名开始时间不能晚于截止时间");
             }
+            if (updateActivityDto.getRegistrationEndTime().isAfter(updateActivityDto.getStartTime())) {
+                throw new BusinessException("报名截止时间不能晚于活动开始时间");
+            }
         }
 
         // 5. 校验活动时间
@@ -472,7 +450,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     /**
-     * 查询所有公开活动列表（is_public=1，status=1/2/3/4）
+     * 查询所有公开活动列表（is_public=1，status=1/2/3/4/6）
      *
      * @param queryDto 查询参数
      * @return 活动列表分页数据
@@ -487,7 +465,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         LambdaQueryWrapper<Activity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .eq(Activity::getIsPublic, 1) // 只查询公开的活动
-                .in(Activity::getStatus, 1, 2, 3, 4) // 状态：1-报名中 2-报名结束 3-进行中 4-已结束
+                .in(Activity::getStatus, 1, 2, 3, 4, 6) // 含 6-未开始
                 .like(StringUtils.hasText(queryDto.getActivityCategory()),
                       Activity::getActivityCategory, queryDto.getActivityCategory())
                 .eq(queryDto.getOrganizerType() != null,
@@ -513,7 +491,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     /**
-     * 查询首页展示的活动列表（is_public=1，status=1/2/3/4，show_on_homepage=1）
+     * 查询首页展示的活动列表（is_public=1，status=1/2/3/4/6，show_on_homepage=1）
      *
      * @param queryDto 查询参数
      * @return 活动列表分页数据
@@ -529,7 +507,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         queryWrapper
                 .eq(Activity::getIsPublic, 1) // 只查询公开的活动
                 .eq(Activity::getShowOnHomepage, 1) // 只查询展示在首页的活动
-                .in(Activity::getStatus, 1, 2, 3, 4) // 状态：1-报名中 2-报名结束 3-进行中 4-已结束
+                .in(Activity::getStatus, 1, 2, 3, 4, 6) // 含 6-未开始
                 .like(StringUtils.hasText(queryDto.getActivityCategory()),
                       Activity::getActivityCategory, queryDto.getActivityCategory())
                 .eq(queryDto.getOrganizerType() != null,
@@ -555,11 +533,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     /**
-     * 定时更新活动状态
-     * 状态流转逻辑：
-     * 1. [报名中(1)] -> [报名结束(2)]: 报名截止时间已过，且还未到活动开始时间
-     * 2. [报名中(1)/报名结束(2)] -> [进行中(3)]: 活动开始时间已过，且还未到活动结束时间
-     * 3. [报名中(1)/报名结束(2)/进行中(3)] -> [已结束(4)]: 活动结束时间已过
+     * 定时按当前时间校准活动状态（略过草稿、已取消）：
+     * 不需要报名：未到活动开始为 6；已开始且未结束为 3；已过结束为 4。
+     * 需要报名：未到报名开始为 6；报名期内为 1；报名结束至活动开始前为 2；活动期内为 3；已过结束为 4。
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -567,47 +543,94 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         LocalDateTime now = LocalDateTime.now();
         log.info("开始执行活动状态定时更新任务, 当前时间: {}", now);
 
-        // 1. 处理所有已结束的活动 (无论是否报名，只要过结束时间就设为 4)
-        int count1 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+        int countEnded = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
                 .set(Activity::getStatus, 4)
                 .set(Activity::getUpdateTime, now)
-                .ne(Activity::getStatus, 4) // 非已结束
-                .ne(Activity::getStatus, 0) // 非草稿
-                .ne(Activity::getStatus, 5) // 非已取消
+                .ne(Activity::getStatus, 4)
+                .ne(Activity::getStatus, 0)
+                .ne(Activity::getStatus, 5)
+                .isNotNull(Activity::getEndTime)
                 .le(Activity::getEndTime, now));
 
-        // 2. 处理不需要报名 (isSignup = 0) 的活动状态修正
-        // 如果不需要报名且未结束，统一设为 进行中(3)
-        int count2 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+        int countNoSignupNotStarted = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 6)
+                .set(Activity::getUpdateTime, now)
+                .eq(Activity::getIsSignup, 0)
+                .ne(Activity::getStatus, 0)
+                .ne(Activity::getStatus, 5)
+                .isNotNull(Activity::getStartTime)
+                .isNotNull(Activity::getEndTime)
+                .gt(Activity::getEndTime, now)
+                .gt(Activity::getStartTime, now));
+
+        int countNoSignupOngoing = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
                 .set(Activity::getStatus, 3)
                 .set(Activity::getUpdateTime, now)
                 .eq(Activity::getIsSignup, 0)
-                .in(Activity::getStatus, 1, 2) // 如果由于逻辑残留处于报名状态，修正为进行中
-                .gt(Activity::getEndTime, now));
+                .ne(Activity::getStatus, 0)
+                .ne(Activity::getStatus, 5)
+                .isNotNull(Activity::getStartTime)
+                .isNotNull(Activity::getEndTime)
+                .gt(Activity::getEndTime, now)
+                .le(Activity::getStartTime, now));
 
-        // 3. 处理需要报名 (isSignup = 1) 的活动状态流转
-        
-        // 3a. [报名中/报名结束] -> [进行中] (1/2 -> 3)
-        int count3 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
-                .set(Activity::getStatus, 3)
+        int countSignupNotStarted = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 6)
                 .set(Activity::getUpdateTime, now)
                 .eq(Activity::getIsSignup, 1)
-                .in(Activity::getStatus, 1, 2)
-                .le(Activity::getStartTime, now)
-                .gt(Activity::getEndTime, now));
+                .ne(Activity::getStatus, 0)
+                .ne(Activity::getStatus, 5)
+                .isNotNull(Activity::getRegistrationStartTime)
+                .isNotNull(Activity::getRegistrationEndTime)
+                .isNotNull(Activity::getStartTime)
+                .isNotNull(Activity::getEndTime)
+                .gt(Activity::getEndTime, now)
+                .gt(Activity::getRegistrationStartTime, now));
 
-        // 3b. [报名中] -> [报名结束] (1 -> 2)
-        int count4 = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+        int countSignupRegistering = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 1)
+                .set(Activity::getUpdateTime, now)
+                .eq(Activity::getIsSignup, 1)
+                .ne(Activity::getStatus, 0)
+                .ne(Activity::getStatus, 5)
+                .isNotNull(Activity::getRegistrationStartTime)
+                .isNotNull(Activity::getRegistrationEndTime)
+                .isNotNull(Activity::getStartTime)
+                .isNotNull(Activity::getEndTime)
+                .gt(Activity::getEndTime, now)
+                .le(Activity::getRegistrationStartTime, now)
+                .gt(Activity::getRegistrationEndTime, now));
+
+        int countSignupRegClosed = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
                 .set(Activity::getStatus, 2)
                 .set(Activity::getUpdateTime, now)
-                .eq(Activity::getStatus, 1)
                 .eq(Activity::getIsSignup, 1)
+                .ne(Activity::getStatus, 0)
+                .ne(Activity::getStatus, 5)
+                .isNotNull(Activity::getRegistrationEndTime)
+                .isNotNull(Activity::getStartTime)
+                .isNotNull(Activity::getEndTime)
+                .gt(Activity::getEndTime, now)
                 .le(Activity::getRegistrationEndTime, now)
                 .gt(Activity::getStartTime, now));
 
-        if (count1 > 0 || count2 > 0 || count3 > 0 || count4 > 0) {
-            log.info("活动状态更新完成: [已结束]{}条, [非报名修正为进行中]{}条, [进入进行中]{}条, [进入报名结束]{}条", 
-                    count1, count2, count3, count4);
+        int countSignupOngoing = this.baseMapper.update(null, new LambdaUpdateWrapper<Activity>()
+                .set(Activity::getStatus, 3)
+                .set(Activity::getUpdateTime, now)
+                .eq(Activity::getIsSignup, 1)
+                .ne(Activity::getStatus, 0)
+                .ne(Activity::getStatus, 5)
+                .isNotNull(Activity::getStartTime)
+                .isNotNull(Activity::getEndTime)
+                .gt(Activity::getEndTime, now)
+                .le(Activity::getStartTime, now));
+
+        int sum = countEnded + countNoSignupNotStarted + countNoSignupOngoing + countSignupNotStarted
+                + countSignupRegistering + countSignupRegClosed + countSignupOngoing;
+        if (sum > 0) {
+            log.info("活动状态更新完成: [已结束]{} [不需报名-未开始]{} [不需报名-进行中]{} [需报名-未开始]{} [需报名-报名中]{} [需报名-报名结束]{} [需报名-进行中]{}",
+                    countEnded, countNoSignupNotStarted, countNoSignupOngoing, countSignupNotStarted,
+                    countSignupRegistering, countSignupRegClosed, countSignupOngoing);
         }
     }
 
